@@ -1,0 +1,30 @@
+package General.Internet;
+
+public class MultithreadInternet {
+    private String[] returnStrings;
+    private String[] urlStrings;
+    private int downloaded;
+
+    public MultithreadInternet getData(String... urlStrings) throws Throwable {
+        this.urlStrings = urlStrings;
+        returnStrings = new String[urlStrings.length];
+        downloaded = 0;
+        for(int i=0; i<urlStrings.length; i++) {
+            final int j = i;
+            new Thread(() -> {
+                try {
+                    returnStrings[j] = Internet.getData(urlStrings[j]);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+                downloaded++;
+            }).start();
+        }
+        return this;
+    }
+
+    public String[] get() {
+        while(downloaded < urlStrings.length);
+        return returnStrings;
+    }
+}

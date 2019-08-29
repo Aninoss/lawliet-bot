@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Class-Path: slf4j-api-1.7.25.jar log4j-api-2.11.1.jar javacord-core-3.
+ 0.4.jar commons-io-2.6.jar koohii-1.0.15.jar logging-interceptor-3.9.
+ 1.jar jackson-core-2.9.3.jar okhttp-3.11.0.jar log4j-core-2.11.1.jar 
+ jackson-annotations-2.9.0.jar json-20180813.jar emoji-java-5.0.0.jar 
+ jsoup-1.12.1.jar gson-javatime-serialisers-1.1.1.jar okio-1.14.0.jar 
+ DBL-Java-Library-2.0.1.jar mysql-connector-java-5.1.45.jar javacord-a
+ pi-3.0.4.jar gson-2.8.5.jar jackson-databind-2.9.3.jar nv-websocket-c
+ lient-2.6.jar
+Main-Class: General.Connector
+

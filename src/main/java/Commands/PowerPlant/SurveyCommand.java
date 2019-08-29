@@ -1,0 +1,226 @@
+package Commands.PowerPlant;
+
+import CommandListeners.*;
+import CommandSupporters.Command;
+import Constants.LetterEmojis;
+import Constants.Permission;
+import General.*;
+import General.Survey.Survey;
+import General.Survey.SurveyResults;
+import General.Survey.UserMajorityVoteData;
+import General.Survey.UserVoteData;
+import General.Tracker.TrackerData;
+import MySQL.DBSurvey;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.Reaction;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.user.User;
+import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.event.message.reaction.ReactionAddEvent;
+
+import java.io.File;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+
+public class SurveyCommand extends Command implements onRecievedListener,onReactionAddStatic, onTrackerRequestListener {
+    private static long lastAccess = 0;
+
+    public SurveyCommand() {
+        super();
+        trigger = "survey";
+        privateUse = false;
+        botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL;
+        userPermissions = 0;
+        nsfw = false;
+        withLoadingBar = false;
+        thumbnail = "http://icons.iconarchive.com/icons/iconarchive/blue-election/128/Election-Polling-Box-icon.png";
+        emoji = "✅";
+        executable = true;
+    }
+
+    @Override
+    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+        Survey survey = DBSurvey.getCurrentSurvey();
+        sendMessages(event.getServerTextChannel().get(), survey);
+        return true;
+    }
+
+    @Override
+    public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
+        event.removeReaction().get();
+
+        for(Reaction reaction: message.getReactions()) {
+            boolean correctEmoji = false;
+            for (int i = 0; i < 2; i++) {
+                if (reaction.getEmoji().isUnicodeEmoji() && (reaction.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(LetterEmojis.LETTERS[i]) || reaction.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(LetterEmojis.RED_LETTERS[i]))) {
+                    correctEmoji = true;
+                    break;
+                }
+            }
+
+            if (!correctEmoji) reaction.remove().get();
+            else if (reaction.getCount() > 1) {
+                for(User user: reaction.getUsers().get()) {
+                    if (!user.isYourself()) reaction.removeUser(user).get();
+                }
+            }
+        }
+
+        if (event.getEmoji().isUnicodeEmoji()) {
+            for (int i = 0; i < 2; i++) {
+                int hit = 0;
+                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(LetterEmojis.LETTERS[i])) hit = 1;
+                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(LetterEmojis.RED_LETTERS[i])) hit = 2;
+
+                if (hit > 0) {
+                    Survey survey = DBSurvey.getCurrentSurvey();
+
+                    if (message.getCreationTimestamp().isAfter(survey.getStart())) {
+                        if (hit == 1) DBSurvey.updatePersonalVote(event.getUser(), i);
+                        else {
+                            if (!DBSurvey.updateMajorityVote(event.getServer().get(), event.getUser(), i)) {
+                                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(locale, TextManager.GENERAL, "rejected"));
+                                event.getUser().sendMessage(eb).get();
+                                return;
+                            }
+                        }
+                        List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
+                        String[] surveyData = surveyList.get(survey.getId()).split("\\|");
+                        UserVoteData votes = DBSurvey.getUserVotes(event.getUser());
+
+                        String[] voteStrings = new String[2];
+
+                        voteStrings[0] = "• " + surveyData[votes.getPersonalVote() + 1];
+
+                        ArrayList<UserMajorityVoteData> userMajorityVoteDataList = votes.getMajorityVotes();
+                        if (userMajorityVoteDataList.size() == 0) voteStrings[1] = TextManager.getString(locale, TextManager.GENERAL, "notset");
+                        else voteStrings[1] = "";
+
+                        for (UserMajorityVoteData userMajorityVoteData: userMajorityVoteDataList) {
+                            voteStrings[1] += "• " + surveyData[userMajorityVoteData.getVote() + 1] + " (" + userMajorityVoteData.getServer().getName() + ")\n";
+                        }
+
+                        EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("vote_description") + "\n" + Tools.getEmptyCharacter())
+                                .addField(surveyData[0], voteStrings[0])
+                                .addField(getString("majority"), voteStrings[1]);
+                        event.getUser().sendMessage(eb).get();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private Message sendMessages(ServerTextChannel channel, Survey survey) throws Throwable {
+        while(lastAccess != 0 && System.currentTimeMillis() <= lastAccess + 1000 * 60) {
+            Thread.sleep(100);
+        }
+
+        lastAccess = System.currentTimeMillis();
+
+        EmbedBuilder eb = getResultsEmbed();
+        if (eb != null) channel.sendMessage(eb);
+        Message message = channel.sendMessage(getSurveyEmbed(survey)).get();
+
+        for(int i=0; i<2; i++) {
+            for(int j=0; j<2; j++) {
+                if (i == 0) message.addReaction(LetterEmojis.LETTERS[j]).get();
+                else message.addReaction(LetterEmojis.RED_LETTERS[j]).get();
+            }
+        }
+
+        lastAccess = 0;
+
+        return message;
+    }
+
+    private EmbedBuilder getResultsEmbed() throws Throwable {
+        SurveyResults surveyResults = DBSurvey.getResults();
+        if (surveyResults.getSurveyId() == 0) return null;
+        String[] surveyData = surveyResults.getQuestionAndAnswers(locale);
+
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("results_title"));
+        eb.addField(getString("results_question"), surveyData[0], false);
+
+        StringBuilder answerString = new StringBuilder();
+        for(int i=0; i<2; i++) {
+            answerString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyData[i+1]).append("\n");
+        }
+        eb.addField(getString("results_answers"), answerString.toString(), false);
+
+        StringBuilder resultString = new StringBuilder();
+        for(int i=0; i<2; i++) {
+            resultString.append(
+                    getString("results_template",
+                            LetterEmojis.LETTERS[i],
+                            Tools.getBar(surveyResults.getUserVoteRelative(i), 12),
+                            String.valueOf(surveyResults.getUserVote(i)),
+                            String.valueOf((int) Math.round(surveyResults.getUserVoteRelative(i)*100))
+                    )
+            ).append("\n");
+        }
+        eb.addField(getString("results_results", surveyResults.getTotalUserVotes() != 1, String.valueOf(surveyResults.getTotalUserVotes())), resultString.toString(), false);
+        eb.addField(Tools.getEmptyCharacter(), getString("results_won", surveyResults.getWinner(), surveyData[1], surveyData[2]).toUpperCase());
+
+        return eb;
+    }
+
+    private EmbedBuilder getSurveyEmbed(Survey survey) throws Throwable {
+        String[] surveyData = getSurveyData(survey.getId(), locale);
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Tools.getEmptyCharacter());
+
+        StringBuilder personalString = new StringBuilder();
+        StringBuilder majorityString = new StringBuilder();
+        for(int i=0; i<2; i++) {
+            personalString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyData[i+1]).append("\n");
+            majorityString.append(LetterEmojis.RED_LETTERS[i]).append(" | ").append(surveyData[i+1]).append("\n");
+        }
+        eb.addField(surveyData[0], personalString.toString(), false);
+        eb.addField(getString("majority"), majorityString.toString(), false);
+
+        return eb;
+    }
+
+    public static String[] getSurveyData(int surveyId, Locale locale) throws Throwable {
+        List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
+        return surveyList.get(surveyId).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
+    }
+
+    @Override
+    public boolean requiresLocale() {
+        return true;
+    }
+
+    @Override
+    public String getTitleStartIndicator() {
+        return emoji;
+    }
+
+    @Override
+    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
+        if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
+        Survey survey = DBSurvey.getCurrentSurvey();
+        trackerData.setMessageDelete(sendMessages(trackerData.getChannel(), survey));
+        Instant nextInstant = trackerData.getInstant();
+        do {
+            nextInstant = Tools.setInstantToNextDay(nextInstant);
+        } while(!Clock.instantHasWeekday(nextInstant, Calendar.MONDAY) && !Clock.instantHasWeekday(nextInstant, Calendar.THURSDAY));
+
+        trackerData.setInstant(nextInstant.plusSeconds(5));
+        return trackerData;
+    }
+
+    @Override
+    public boolean trackerUsesKey() {
+        return false;
+    }
+
+    @Override
+    public boolean needsPrefix() {
+        return false;
+    }
+}
