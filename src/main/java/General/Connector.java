@@ -1,5 +1,6 @@
 package General;
 
+import Constants.Settings;
 import ServerStuff.CommunicationServer.CommunicationServer;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import DiscordListener.*;
@@ -15,6 +16,9 @@ import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.entity.server.Server;
 import java.awt.*;
 import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +48,7 @@ public class Connector {
             DBMain.getInstance().connect();
             if (!Bot.USE_MAIN_TOKEN && !Bot.isDebug()) initializeUpdate();
             DiscordbotsAPI.getInstance().startWebhook();
-            connect();
+            connect(communicationServer);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -57,7 +61,7 @@ public class Connector {
         }
     }
 
-    private static void connect() {
+    private static void connect(CommunicationServer communicationServer) {
         System.out.println("Bot is logging in...");
 
         DiscordApi api = null;
@@ -68,6 +72,7 @@ public class Connector {
 
             new DonationServer(api, 27440);
             api.setMessageCacheSize(10, 60 * 5);
+            communicationServer.setApi(api);
 
             if (!Bot.USE_MAIN_TOKEN) {
                 try {

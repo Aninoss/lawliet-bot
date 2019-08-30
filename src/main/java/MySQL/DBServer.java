@@ -99,47 +99,9 @@ public class DBServer {
         serverStatement.close();
     }
 
-    public static void insertMute(Server server, User user, int groupId) throws Throwable {
-        PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO Mute VALUES (?, ?, ?);");
-        baseStatement.setInt(1, groupId);
-        baseStatement.setString(2, server.getIdAsString());
-        baseStatement.setString(3, user.getIdAsString());
-        baseStatement.executeUpdate();
-        baseStatement.close();
-    }
-
-    public static int insertMuteGroup(Instant endTime, ServerTextChannel channel) throws Throwable {
-        PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO MuteGroup (endTime, channelIdNotification) VALUES (?, ?);");
-        baseStatement.setString(1, DBMain.instantToDateTimeString(endTime));
-        baseStatement.setString(2, channel.getIdAsString());
-        baseStatement.executeUpdate();
-        baseStatement.close();
-
-        int groupId = -1;
-        ResultSet resultSet = DBMain.getInstance().getLastKey();
-        if (resultSet.next()) groupId = resultSet.getInt(1);
-        resultSet.close();
-        return groupId;
-    }
-
-    public static void removeMuteGroup(int groupId) throws Throwable {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM MuteGroup WHERE muteGroupId = ?;");
-        preparedStatement.setInt(1, groupId);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
     public static void removeServer(Server server) throws Throwable {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void removeMute(Server server, User user) throws Throwable {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Mute WHERE serverId = ? AND userId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, user.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }

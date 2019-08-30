@@ -4,7 +4,7 @@ import Commands.PowerPlant.SellCommand;
 import Commands.PowerPlant.SurveyCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
-import MySQL.DBBot;
+import MySQL.*;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import ServerStuff.Donations.DonationServer;
 import GUIPackage.GUI;
@@ -12,9 +12,6 @@ import General.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
 import General.Survey.*;
 import General.Tracker.TrackerManager;
-import MySQL.DBServer;
-import MySQL.DBSurvey;
-import MySQL.DBUser;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -64,6 +61,13 @@ public class Clock {
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             onDayStart(api);
+        } else if (calendar.get(Calendar.HOUR_OF_DAY) == 1) {
+            //Backup Database
+            try {
+                DBMain.backupAll();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
         }
     }
 

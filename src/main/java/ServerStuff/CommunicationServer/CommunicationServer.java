@@ -16,10 +16,10 @@ import java.util.concurrent.ExecutionException;
 
 public class CommunicationServer {
     private int port;
-    private final byte HEARTBEAT = 1;
-    private final byte CAN_UPDATE = 2;
-    private final byte CONNECTED = 3;
-    private final byte EXIT = 2;
+    private final byte HEARTBEAT = 0x1;
+    private final byte CAN_UPDATE = 0x2;
+    private final byte CONNECTED = 0x4;
+    private final byte EXIT = 0x2;
 
     private DiscordApi api;
 

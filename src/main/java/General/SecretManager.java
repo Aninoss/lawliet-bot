@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 public class SecretManager {
     public static String getString(String key) throws Throwable {
         File file = new File("src/main/resources/secrets.properties");
-        if (!file.exists()) createPropertiesFile(file);
+        //if (!file.exists()) createPropertiesFile(file);
 
         ResourceBundle texts = PropertyResourceBundle.getBundle("secrets");
         if (!texts.containsKey(key)) {

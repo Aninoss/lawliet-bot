@@ -10,7 +10,6 @@
       <element id="library" level="project" name="Maven: org.javacord:javacord-core:3.0.4" />
       <element id="library" level="project" name="Maven: commons-io:commons-io:2.6" />
       <element id="library" level="project" name="Maven: com.squareup.okhttp3:logging-interceptor:3.9.1" />
-      <element id="library" level="project" name="Maven: de.btobastian.javacord:javacord:2.0.17" />
       <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.3" />
       <element id="library" level="project" name="Maven: com.squareup.okhttp3:okhttp:3.11.0" />
       <element id="library" level="project" name="Maven: org.apache.logging.log4j:log4j-core:2.11.1" />

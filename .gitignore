@@ -19,3 +19,4 @@ modules.xml
 .DS_Store
 .idea/libraries
 *.iml
+*.sql
