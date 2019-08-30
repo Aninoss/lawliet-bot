@@ -183,15 +183,7 @@ public class Connector {
             } else {
                 System.out.println("The bot has been successfully booten up!");
 
-                ServerTextChannel channel = api.getServerById(462405241955155979L).get().getTextChannelById(471348725059682305L).get();
-
-                try {
-                    channel.sendMessage("!bump").get();
-                    channel.sendMessage("!d bump").get();
-                    channel.sendMessage("dc!bump").get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+                //DOES NOTHING RIGHT NOW
 
                 api.disconnect();
                 System.out.println("Bot has been disconnected.");
