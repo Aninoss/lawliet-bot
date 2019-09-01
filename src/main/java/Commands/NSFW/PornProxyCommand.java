@@ -8,12 +8,13 @@ import General.Porn.PornImageDownloader;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 public class PornProxyCommand extends Command implements onRecievedListener {
-    private String search, domain, imageTemplate;
+    private String search, searchExtra, domain, imageTemplate;
     private boolean gifOnly;
 
-    public PornProxyCommand(String search, boolean gifOnly, String domain, String imageTemplate) {
+    public PornProxyCommand(String search, String searchExtra, boolean gifOnly, String domain, String imageTemplate) {
         super();
         this.search = search;
+        this.searchExtra = searchExtra;
         this.gifOnly = gifOnly;
         this.domain = domain;
         this.imageTemplate = imageTemplate;
@@ -46,7 +47,7 @@ public class PornProxyCommand extends Command implements onRecievedListener {
             int tries = 5;
             PornImage pornImage;
             do {
-                pornImage = PornImageDownloader.getPicture(domain, search, imageTemplate, gifOnly);
+                pornImage = PornImageDownloader.getPicture(domain, search, searchExtra, imageTemplate, gifOnly);
                 tries--;
             }
             while (pornImage == null && tries >= 0);

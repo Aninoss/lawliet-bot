@@ -181,10 +181,6 @@ public class CommandContainer {
         return staticReactionRemoveCommands;
     }
 
-    public ArrayList<Command> getReactionInstances() {
-        return commandsReaction;
-    }
-
     public int getActivitiesSize() {
         ArrayList<Command> commandList = new ArrayList<>();
 
@@ -198,8 +194,12 @@ public class CommandContainer {
         return commandList.size();
     }
 
+    public ArrayList<Command> getReactionInstances() {
+        return (ArrayList<Command>) commandsReaction.clone();
+    }
+
     public ArrayList<Command> getMessageForwardInstances() {
-        return commandsMessageForward;
+        return (ArrayList<Command>) commandsMessageForward.clone();
     }
 
     public void addReactionListener(Command commandParent) {

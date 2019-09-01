@@ -51,7 +51,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        event.removeReaction().get();
+        if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
 
         for(Reaction reaction: message.getReactions()) {
             boolean correctEmoji = false;

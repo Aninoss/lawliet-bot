@@ -32,6 +32,8 @@ public class DonateCommand extends Command implements onRecievedListener {
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder donators = new StringBuilder();
 
+        addLoadingReaction(null);
+
         for(long userId: DBUser.getActiveDonators()) {
             try {
                 User user = event.getApi().getUserById(userId).get();

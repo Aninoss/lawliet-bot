@@ -543,7 +543,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
                             for (User userCheck : userList) {
                                 if (!message.getServer().get().getMembers().contains(userCheck)) {
-                                    if (userCheck != user) reaction.removeUser(userCheck).get();
+                                    if (userCheck != user && event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) reaction.removeUser(userCheck).get();
                                 }
                             }
                         }

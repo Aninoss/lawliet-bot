@@ -10,6 +10,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 public class PornCommand extends Command {
     protected String domain;
     protected String imageTemplate;
+    private final boolean WITH_COMMENTS = false;
 
     public PornCommand() {
         super();
@@ -30,7 +31,7 @@ public class PornCommand extends Command {
         }
 
         followedString = Tools.cutSpaces(followedString.replace(".", ""));
-        PornImage pornImage = PornImageDownloader.getPicture(domain, followedString + stringAdd, imageTemplate, false);
+        PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false);
         if (pornImage == null) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "no_results"))
@@ -45,7 +46,7 @@ public class PornCommand extends Command {
                     .setImage(pornImage.getImageUrl())
                     .setTimestamp(pornImage.getInstant())
                     .setFooter(TextManager.getString(locale, TextManager.COMMANDS,"porn_footer", Tools.numToString(locale, pornImage.getScore()), Tools.numToString(locale, pornImage.getnComments())) + footerAdd)).get();
-            if ( pornImage.getComments().size() > 0) {
+            if ( pornImage.getComments().size() > 0 && WITH_COMMENTS) {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setTitle( TextManager.getString(locale, TextManager.COMMANDS, "porn_comments"));
                 for (int i = Math.max(0, pornImage.getComments().size() - 10); i < pornImage.getComments().size(); i++) {
                     Comment comment = pornImage.getComments().get(i);

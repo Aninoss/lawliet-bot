@@ -1,5 +1,6 @@
 package MySQL;
 
+import Constants.CodeBlockColor;
 import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
@@ -258,7 +259,7 @@ public class DBUser {
         String sqlString = sql.toString().replace("%max", String.valueOf(Settings.MAX)).replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server)).replace("%db", String.valueOf(dailyBefore)).replace("%s", server.getIdAsString()).replace("%u", user.getIdAsString()).replace("%c", String.valueOf(coins)).replace("%j", String.valueOf(fish));
 
         long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Combo
-        String[] progressString = new String[5];
+        String[] progressString = new String[6];
         EmbedBuilder eb;
 
         int i=0;
@@ -281,7 +282,7 @@ public class DBUser {
                             key = "rankingprogress_update2";
                         }
                         String sign = "";
-                        if ((progress[j][1] - progress[j][0]) > 0) sign = "+";
+                        if (progress[j][1] > progress[j][0]) sign = "+";
                         progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key , progress[j][0] != progress[j][1],
                                 prefix,
                                 Tools.numToString(locale, progress[j][0]),
@@ -300,8 +301,9 @@ public class DBUser {
 
         eb = EmbedFactory.getEmbed()
                 .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, descriptionLabel, progressString))
                 .setThumbnail("http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Money-Graph-icon.png");
+
+        progressString[5] = CodeBlockColor.WHITE;
 
         if (fish > 0 || (fish == 0 && coins > 0)) {
             eb.setColor(Color.GREEN);
@@ -309,7 +311,12 @@ public class DBUser {
             eb.setColor(Color.RED);
         }
 
-        eb.setThumbnail(user.getAvatar());
+        if (progress[3][1] > progress[3][0]) progressString[5] = CodeBlockColor.RED;
+        else if (progress[3][1] < progress[3][0]) progressString[5] = CodeBlockColor.GREEN;
+
+        eb
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, descriptionLabel, progressString))
+                .setThumbnail(user.getAvatar());
 
         return eb;
     }

@@ -1,5 +1,6 @@
 package General.RunningCommands;
 
+import CommandSupporters.Command;
 import org.javacord.api.entity.user.User;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class RunningCommandManager {
         }
     }
 
-    private RunningCommand find(User user, String commandTrigger) {
+    public RunningCommand find(User user, String commandTrigger) {
         for(RunningCommand runningCommand: runningCommands) {
             if (runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger)) return runningCommand;
         }
@@ -49,7 +50,7 @@ public class RunningCommandManager {
     }
 
     public ArrayList<RunningCommand> getRunningCommands() {
-        return runningCommands;
+        return (ArrayList<RunningCommand>) runningCommands.clone();
     }
 
     public void clear() {

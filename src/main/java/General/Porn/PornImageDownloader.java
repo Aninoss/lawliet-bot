@@ -15,23 +15,46 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class PornImageDownloader {
-    public static PornImage getPicture(String domain, String searchTerm, String imageTemplate, boolean gifOnly) throws Throwable {
-        searchTerm = URLEncoder.encode(searchTerm, "UTF-8");
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly) throws Throwable {
+        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, gifOnly, 2, false);
+    }
 
-        String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags="+searchTerm;
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, int remaining, boolean softMode) throws Throwable {
+        while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
+        searchTerm = searchTerm.replace(", ", ",");
+        searchTerm = searchTerm.replace("; ", ",");
+
+        String searchTermEncoded = URLEncoder.encode(
+                searchTerm
+                        .replace(",", " ")
+                        .replace(" ", softMode ? "~ " : " ") +
+                        (softMode ? "~" : "") +
+                        searchTermExtra, "UTF-8"
+        );
+
+        String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
         String data = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
 
         int count = Math.min(200*100, Integer.parseInt(Tools.cutString(data,"count=\"","\"")));
 
         if (count == 0) {
+            if (!softMode) {
+                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, gifOnly, remaining, true);
+            } else if (remaining > 0) {
+                if (searchTerm.contains(" "))
+                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, gifOnly, remaining - 1, false);
+                else if (searchTerm.contains("_"))
+                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, gifOnly, remaining - 1, false);
+            }
+
             return null;
         }
 
         Random r = new Random();
         int page = r.nextInt(count)/100;
-        if (searchTerm.length() == 0) page = 0;
+        if (searchTermEncoded.length() == 0) page = 0;
 
-        return getPictureOnPage(domain, searchTerm, page, imageTemplate, gifOnly);
+        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, gifOnly);
     }
 
     private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly) throws Throwable {
@@ -42,7 +65,8 @@ public class PornImageDownloader {
 
         JSONArray data = new JSONArray(dataString);
 
-        int count = Math.min(data.length(),100);
+        int count = Math.min(data.length(), 100);
+        int count2 = 0;
 
         if (count == 0) {
             return null;
@@ -52,35 +76,34 @@ public class PornImageDownloader {
         ArrayList<Long> scoreList = new ArrayList<>();
         ArrayList<Integer> posList = new ArrayList<>();
         long totalScore = 0;
-        for(int j=0; j<2; j++) {
-            for (int i = 0; i < count; i++) {
-                JSONObject postData = data.getJSONObject(i);
-                String fileUrl;
-                if (postData.has("file_url")) fileUrl = postData.getString("file_url");
-                else fileUrl = postData.getString("image");
-                String tags = postData.getString("tags");
-                String rating = postData.getString("rating");
-                //boolean noLoli = !tags.toLowerCase().contains("loli") && !tags.toLowerCase().contains("shota");
-                long score;
-                if (Tools.UrlContainsImage(fileUrl) && (rating.equalsIgnoreCase("e") || j==1) && (!gifOnly || fileUrl.endsWith("gif"))) {
-                    score = (long) Math.pow(postData.getInt("score")+1, 2);
-                } else {
-                    score = 0;
+        for (int i = 0; i < count; i++) {
+            JSONObject postData = data.getJSONObject(i);
+            String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
+
+            long score = 0;
+            if (Tools.UrlContainsImage(fileUrl) && (!gifOnly || fileUrl.endsWith("gif")) && postData.getInt("score") >= 0) {
+                count2++;
+                if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
+                    score = (long) Math.pow(postData.getInt("score") + 1, 2.5);
                 }
-                scoreList.add(score);
-                posList.add(i);
-                totalScore += score;
             }
 
-            if (totalScore > 0) break;
+            scoreList.add(score);
+            posList.add(i);
+            totalScore += score;
         }
 
         if (scoreList.size() == 0) return null;
 
         long pos = (long) (r.nextDouble()*totalScore);
-        for(int i=0; i<scoreList.size(); i++) {
+        for(int i=0; i < scoreList.size(); i++) {
             pos -= scoreList.get(i);
-            if (pos < 0) return getSpecificPictureOnPage(domain, data, posList.get(i), imageTemplate);
+            if (pos < 0) {
+                JSONObject postData = data.getJSONObject(posList.get(i));
+                String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
+                PornImageCache.getInstance().add(searchTerm, fileUrl, count2 - 1);
+                return getSpecificPictureOnPage(domain, data, posList.get(i), imageTemplate);
+            }
         }
 
         return null;

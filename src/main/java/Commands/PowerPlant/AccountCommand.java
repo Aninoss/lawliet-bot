@@ -62,7 +62,6 @@ public class AccountCommand extends Command implements onRecievedListener {
                 EmbedBuilder eb = DBUser.addFishingValues(locale, server, user, 0L, 0L);
                 if (eb != null) {
                     eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
-                    //eb.setThumbnail(thumbnail);
                     if (!userMentioned)
                         eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "mention_optional"));
                     event.getChannel().sendMessage(eb).get();

@@ -24,6 +24,8 @@ public class InviteCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+        Thread.sleep(1000 * 10);
+
         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.BOT_INVITE_URL))).get();
         return true;
     }

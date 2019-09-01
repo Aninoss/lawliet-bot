@@ -42,6 +42,8 @@ public class CommandManager {
                             if (event.getServer().isPresent()) cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
 
                             if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get(), command.getTrigger())) {
+                                manageSlowCommandLoadingReaction(command, event.getMessage());
+
                                 try {
                                     if (command instanceof onRecievedListener)
                                         command.onRecievedSuper(event, followedString);
@@ -50,6 +52,7 @@ public class CommandManager {
                                 } catch (Throwable e) {
                                     ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
                                 }
+
                                 RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
                             } else {
                                 EmbedBuilder eb = EmbedFactory.getEmbedError()
@@ -167,6 +170,20 @@ public class CommandManager {
                 }
             }
         }
+    }
+
+    private static void manageSlowCommandLoadingReaction(Command command, Message userMessage) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+
+                if (RunningCommandManager.getInstance().find(userMessage.getUserAuthor().get(), command.getTrigger()) != null) {
+                    command.addLoadingReaction(userMessage);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public static Command createCommandByTrigger(String trigger) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {

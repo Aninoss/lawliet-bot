@@ -119,20 +119,36 @@ public class MessageCreateListener {
 
                 //Add Fisch & Manage 100 Fish Message
                 try {
-                    if (!Tools.serverIsBotListServer(event.getServer().get()) && !event.getMessage().getUserAuthor().get().isBot() && DBUser.addJoule(event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get()) && event.getChannel().canYouWrite()) {
+                    if (!Tools.serverIsBotListServer(event.getServer().get()) &&
+                            !event.getMessage().getUserAuthor().get().isBot() &&
+                            DBUser.addJoule(event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get()) &&
+                            event.getChannel().canYouWrite() &&
+                            event.getChannel().canYouEmbedLinks()
+                    ) {
+
                         event.getChannel().sendMessage(new EmbedBuilder()
                                 .setColor(Color.WHITE)
                                 .setAuthor(event.getMessage().getUserAuthor().get())
                                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
                                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
                                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix)));
+
                     }
                 } catch (Throwable t) {
                     //Ignore
                 }
 
                 //Manage Treasure Chests
-                if (!Tools.serverIsBotListServer(event.getServer().get()) && new Random().nextInt(400) == 0 && DBServer.getPowerPlantStatusFromServer(event.getServer().get()) == PowerPlantStatus.ACTIVE && DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get()) && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks() && event.getChannel().canYouAddNewReactions() && !event.getMessage().getUserAuthor().get().isBot()) {
+                if (!Tools.serverIsBotListServer(event.getServer().get()) &&
+                        new Random().nextInt(400) == 0 &&
+                        DBServer.getPowerPlantStatusFromServer(event.getServer().get()) == PowerPlantStatus.ACTIVE &&
+                        DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get()) &&
+                        event.getChannel().canYouWrite() &&
+                        event.getChannel().canYouEmbedLinks() &&
+                        event.getChannel().canYouAddNewReactions() &&
+                        !event.getMessage().getUserAuthor().get().isBot()
+                ) {
+
                     boolean noSpamChannel = true;
                     ArrayList<ServerTextChannel> channels = DBServer.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
                     for(ServerTextChannel channel: channels) {
@@ -142,7 +158,7 @@ public class MessageCreateListener {
                         }
                     }
 
-                    if (noSpamChannel && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+                    if (noSpamChannel) {
                         EmbedBuilder eb = EmbedFactory.getEmbed()
                                 .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Tools.getEmptyCharacter())
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_desription", PowerPlantSetupCommand.keyEmoji))
@@ -151,6 +167,7 @@ public class MessageCreateListener {
                         Message message = event.getChannel().sendMessage(eb).get();
                         message.addReaction(PowerPlantSetupCommand.keyEmoji);
                     }
+
                 }
 
                 //Manage Message Quoting
@@ -167,6 +184,7 @@ public class MessageCreateListener {
                         ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
                     }
                 }
+
             }
         } catch (Throwable e) {
             e.printStackTrace();
