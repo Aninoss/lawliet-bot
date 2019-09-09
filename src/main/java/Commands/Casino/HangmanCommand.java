@@ -124,7 +124,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
 
     @Override
     public boolean onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        event.getMessage().delete().get();
+        event.getMessage().delete();
 
         String input = event.getMessage().getContent().toUpperCase()
                 .replace("Ä", "AE")

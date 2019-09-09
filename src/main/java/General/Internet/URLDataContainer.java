@@ -34,6 +34,7 @@ public class URLDataContainer {
 
         URLData newURLData = new URLData(url, Internet.getData(url));
         dataPackets.add(newURLData);
+        while (dataPackets.size() > 50) dataPackets.remove(0);
         manageCacheLimit();
         return newURLData.getData();
     }

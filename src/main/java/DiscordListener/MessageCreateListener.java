@@ -19,6 +19,7 @@ import General.RunningCommands.RunningCommandManager;
 import General.SPBlock.SPCheck;
 import MySQL.DBServer;
 import MySQL.DBUser;
+import MySQL.FisheryCache;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -45,8 +46,8 @@ public class MessageCreateListener {
 
         //Server protections
         if (!Tools.serverIsBotListServer(event.getServer().get())) {
-            if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return;
-            if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage())) return;
+            if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return; //SPBlock
+            if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage())) return; //Banned Words
         }
 
         //Stuff that is only active for my own Aninoss Discord server
@@ -119,20 +120,8 @@ public class MessageCreateListener {
 
                 //Add Fisch & Manage 100 Fish Message
                 try {
-                    if (!Tools.serverIsBotListServer(event.getServer().get()) &&
-                            !event.getMessage().getUserAuthor().get().isBot() &&
-                            DBUser.addJoule(event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get()) &&
-                            event.getChannel().canYouWrite() &&
-                            event.getChannel().canYouEmbedLinks()
-                    ) {
-
-                        event.getChannel().sendMessage(new EmbedBuilder()
-                                .setColor(Color.WHITE)
-                                .setAuthor(event.getMessage().getUserAuthor().get())
-                                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
-                                .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix)));
-
+                    if (!Tools.serverIsBotListServer(event.getServer().get()) && !event.getMessage().getUserAuthor().get().isBot()) {
+                        FisheryCache.getInstance().addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
                     }
                 } catch (Throwable t) {
                     //Ignore

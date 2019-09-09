@@ -107,7 +107,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
                         EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("vote_description") + "\n" + Tools.getEmptyCharacter())
                                 .addField(surveyData[0], voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
-                        event.getUser().sendMessage(eb).get();
+                        event.getUser().sendMessage(eb);
                     }
                     break;
                 }

@@ -15,10 +15,7 @@ import java.awt.*;
 import java.sql.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Locale;
+import java.util.*;
 
 public class DBUser {
     public static void synchronize(DiscordApi api) throws Throwable {
@@ -115,82 +112,95 @@ public class DBUser {
         }
     }
 
-    public static boolean addJoule(Server server, ServerTextChannel channel, User user) throws Throwable {
-        if (user.isBot()) return false;
+    public static void addJouleBulk(Map<Long, ServerTextChannel> activities) throws Throwable {
+        StringBuilder totalSql = new StringBuilder();
 
         try {
+            for(long userId: activities.keySet()) {
+                ServerTextChannel channel = activities.get(userId);
 
-            String sql = "INSERT INTO PowerPlantUserGained " +
-                    "VALUES(" +
-                    "%s, " +
-                    "%u, " +
-                    "DATE_FORMAT(NOW(), " +
-                    "'%Y-%m-%d %H:00:00'), " +
-                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                    "LEAST(%max, %a)," +
-                    "0" +
-                    ")) " +
-                    "ON DUPLICATE KEY UPDATE coinsGrowth = " +
-                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s) AND TIMESTAMPDIFF(SECOND, (SELECT lastMessage FROM PowerPlantUsers WHERE serverId = %s and userId = %u), NOW()) >= 20," +
-                    "LEAST(%max, coinsGrowth + %a)," +
-                    "coinsGrowth" +
-                    ");";
+                String sql = "INSERT INTO PowerPlantUserGained " +
+                        "VALUES(" +
+                        "%s, " +
+                        "%u, " +
+                        "DATE_FORMAT(NOW(), " +
+                        "'%Y-%m-%d %H:00:00'), " +
+                        "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
+                        "LEAST(%max, %a)," +
+                        "0" +
+                        ")) " +
+                        "ON DUPLICATE KEY UPDATE coinsGrowth = " +
+                        "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s) AND TIMESTAMPDIFF(SECOND, (SELECT lastMessage FROM PowerPlantUsers WHERE serverId = %s and userId = %u), NOW()) >= 20," +
+                        "LEAST(%max, coinsGrowth + %a)," +
+                        "coinsGrowth" +
+                        ");";
 
-            sql +=
-                    "INSERT INTO PowerPlantUsers (serverId, userId, onServer, joule) " +
-                            "VALUES (" +
-                            "%s," +
-                            "%u," +
-                            "1," +
-                            "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                            "LEAST(%max, %a)," +
-                            "0" +
-                            ")) ON DUPLICATE KEY UPDATE joule = IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s) AND TIMESTAMPDIFF(SECOND, lastMessage, NOW()) >= 20," +
-                            "LEAST(%max, joule + %a)," +
-                            "joule" +
-                            "), lastMessage = DATE_ADD(NOW(), INTERVAL -MOD(SECOND(NOW()), 20) SECOND), onServer = 1;";
+                sql +=
+                        "INSERT INTO PowerPlantUsers (serverId, userId, onServer, joule) " +
+                                "VALUES (" +
+                                "%s," +
+                                "%u," +
+                                "1," +
+                                "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
+                                "LEAST(%max, %a)," +
+                                "0" +
+                                ")) ON DUPLICATE KEY UPDATE joule = IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s) AND TIMESTAMPDIFF(SECOND, lastMessage, NOW()) >= 20," +
+                                "LEAST(%max, joule + %a)," +
+                                "joule" +
+                                "), lastMessage = DATE_ADD(NOW(), INTERVAL -MOD(SECOND(NOW()), 20) SECOND), onServer = 1;";
 
-            sql += "SELECT (joule >= 100 AND reminderSent = 0) FROM PowerPlantUsers WHERE serverId = %s AND userId = %u;";
+                sql += "SELECT (joule >= 100 AND reminderSent = 0), userId, coins FROM PowerPlantUsers WHERE serverId = %s AND userId = %u;";
 
-            // AND TIMESTAMPDIFF(MINUTE, lastMessage, NOW()) = 0
+                // AND TIMESTAMPDIFF(MINUTE, lastMessage, NOW()) = 0
 
-            String channelId;
-            if (channel != null) channelId = channel.getIdAsString();
-            else channelId = "0";
-            sql = sql
-                    .replace("%a", "IFNULL((SELECT (getValue(%s, %u) * b.categoryEffect) FROM PowerPlantUserPowerUp a LEFT JOIN PowerPlantCategories b USING (categoryId) WHERE a.serverId = %s AND a.userId = %u AND a.categoryId = 0), 1)")
-                    .replace("%s", server.getIdAsString()).replace("%c", channelId)
-                    .replace("%u", user.getIdAsString())
-                    .replace("%max", String.valueOf(Settings.MAX));
+                long channelId = channel.getId();
+                sql = sql
+                        .replace("%a", "IFNULL((SELECT (getValue(%s, %u) * b.categoryEffect) FROM PowerPlantUserPowerUp a LEFT JOIN PowerPlantCategories b USING (categoryId) WHERE a.serverId = %s AND a.userId = %u AND a.categoryId = 0), 1)")
+                        .replace("%s", channel.getServer().getIdAsString())
+                        .replace("%c", String.valueOf(channelId))
+                        .replace("%u", String.valueOf(userId))
+                        .replace("%max", String.valueOf(Settings.MAX));
 
-            boolean notify = false;
-            for (ResultSet resultSet : new DBMultipleResultSet(sql)) {
-                notify = (resultSet.next() && resultSet.getInt(1) == 1);
+                totalSql.append(sql);
             }
 
-            if (notify) {
-                sql = "UPDATE PowerPlantUsers SET reminderSent = 1 WHERE serverId = ? AND userId = ?;" +
-                        "SELECT (coins = 0) FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;";
+            for (ResultSet resultSet : new DBMultipleResultSet(totalSql.toString())) {
+                if (resultSet.next() && resultSet.getInt(1) == 1) {
+                    long userId = resultSet.getLong(2);
+                    long coins = resultSet.getLong(3);
+                    ServerTextChannel channel = activities.get(userId);
 
-                PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-                preparedStatement.setLong(1, server.getId());
-                preparedStatement.setLong(2, user.getId());
-                preparedStatement.setLong(3, server.getId());
-                preparedStatement.setLong(4, user.getId());
-                preparedStatement.execute();
+                    String sql = "UPDATE PowerPlantUsers SET reminderSent = 1 WHERE serverId = ? AND userId = ?;";
 
-                for (ResultSet resultSet : new DBMultipleResultSet(preparedStatement)) {
-                    notify = (resultSet.next() && resultSet.getInt(1) == 1);
+                    PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+                    preparedStatement.setLong(1, channel.getServer().getId());
+                    preparedStatement.setLong(2, userId);
+                    preparedStatement.execute();
+                    preparedStatement.close();
+
+                    if (coins == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                        Server server = channel.getServer();
+                        User user = server.getMemberById(userId).orElse(null);
+
+                        if (user != null) {
+                            String prefix = DBServer.getPrefix(server);
+                            Locale locale = DBServer.getServerLocale(server);
+
+                            channel.sendMessage(new EmbedBuilder()
+                                    .setColor(Color.WHITE)
+                                    .setAuthor(user)
+                                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
+                                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix)));
+                        }
+
+                    }
+
                 }
-                preparedStatement.close();
             }
-
-            return notify;
-        } catch (SQLException e) {
-            //Ignore
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
-
-        return false;
     }
 
     public static void register(Server server, User user) throws Throwable {

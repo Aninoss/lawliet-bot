@@ -151,6 +151,8 @@ public class Internet {
     }
 
     public static boolean stringIsURL(String str) {
+        if (str.contains("http://") || str.contains("https://")) return true;
+
         String [] parts = str.split("\\s+");
 
         // Attempt to convert each item into an URL.

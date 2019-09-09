@@ -60,8 +60,8 @@ public class GUI extends JFrame {
         setTitle("Lawliet");
         setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
 
-        PrintStream printStreamConsole = new PrintStream(new CustomOutputStream(txConsole, 15000));
-        PrintStream printStreamError = new PrintStream(new CustomOutputStream(txConsoleErrors, 30000));
+        PrintStream printStreamConsole = new PrintStream(new CustomOutputStream(txConsole, 10000));
+        PrintStream printStreamError = new PrintStream(new CustomOutputStream(txConsoleErrors, 50000));
         System.setOut(printStreamConsole);
         System.setErr(printStreamError);
 

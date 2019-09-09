@@ -188,7 +188,7 @@ public class Command {
 
     public void deleteNavigationMessage() throws Throwable {
         removeNavigation();
-        if (authorMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == authorMessage.getChannel()) authorMessage.getChannel().bulkDelete(navigationMessage,authorMessage).get();
+        if (authorMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == authorMessage.getChannel()) authorMessage.getChannel().bulkDelete(navigationMessage, authorMessage).get();
         else navigationMessage.delete().get();
     }
 
@@ -366,13 +366,13 @@ public class Command {
         if (loadingBarReaction != null) {
             try {
                 loadingBarReaction.get();
-                if (message.getChannel().canYouRemoveReactionsOfOthers() && message.getServer().isPresent()) message.removeAllReactions();
+                if (message.getChannel().canYouRemoveReactionsOfOthers() && message.getServer().isPresent()) message.removeAllReactions().get();
                 else {
                     if (message.getChannel().canYouUseExternalEmojis()) message.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L)).get();
                     else message.removeOwnReactionByEmoji("⏳").get();
                 }
             } catch (InterruptedException | ExecutionException e) {
-                //Ignore
+                e.printStackTrace();
             }
         }
     }

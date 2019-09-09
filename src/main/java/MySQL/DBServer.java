@@ -73,14 +73,20 @@ public class DBServer {
     }
 
     public static String getPrefix(Server server) throws Throwable {
-        String prefix = null;
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) prefix = resultSet.getString(1);
-        resultSet.close();
-        preparedStatement.close();
+        String prefix = DatabaseCache.getInstance().getPrefix(server);
+
+        if (prefix == null) {
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix FROM DServer WHERE serverId = ?;");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) prefix = resultSet.getString(1);
+            resultSet.close();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setPrefix(server, prefix);
+        }
+
         return prefix;
     }
 
@@ -90,6 +96,8 @@ public class DBServer {
         preparedStatement.setLong(2, server.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();
+
+        DatabaseCache.getInstance().setPrefix(server, prefix);
     }
 
     public static void insertServer(Server server) throws Throwable {
@@ -107,18 +115,26 @@ public class DBServer {
     }
 
     public static Locale getServerLocale(Server server) throws Throwable {
-        Locale locale = null;
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT locale FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) locale = new Locale(resultSet.getString(1));
-        resultSet.close();
-        preparedStatement.close();
+        Locale locale = DatabaseCache.getInstance().getLocale(server);
+
+        if (locale == null) {
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT locale FROM DServer WHERE serverId = ?;");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) locale = new Locale(resultSet.getString(1));
+            resultSet.close();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setLocale(server, locale);
+        }
+
         return locale;
     }
 
     public static void setServerLocale(Server server, Locale locale) throws Throwable {
+        DatabaseCache.getInstance().setLocale(server, locale);
+
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET locale = ? WHERE serverId = ?;");
         preparedStatement.setString(1, locale.getDisplayName());
         preparedStatement.setLong(2, server.getId());
@@ -212,66 +228,72 @@ public class DBServer {
     }
 
     public static BannedWords getBannedWordsFromServer(Server server) throws Throwable {
-        BannedWords bannedWords = new BannedWords(server);
+        BannedWords bannedWords = DatabaseCache.getInstance().getBannedWords(server);
 
-        String sql = "SELECT active FROM BannedWords WHERE serverId = ?;" +
-                "SELECT userId FROM BannedWordsIgnoredUsers WHERE serverId = ?;" +
-                "SELECT userId FROM BannedWordsLogRecievers WHERE serverId = ?;" +
-        "SELECT word FROM BannedWordsWords WHERE serverId = ?;";
+        if (bannedWords == null) {
+            bannedWords = new BannedWords(server);
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1,server.getId());
-        preparedStatement.setLong(2,server.getId());
-        preparedStatement.setLong(3,server.getId());
-        preparedStatement.setLong(4,server.getId());
-        preparedStatement.execute();
+            String sql = "SELECT active FROM BannedWords WHERE serverId = ?;" +
+                    "SELECT userId FROM BannedWordsIgnoredUsers WHERE serverId = ?;" +
+                    "SELECT userId FROM BannedWordsLogRecievers WHERE serverId = ?;" +
+                    "SELECT word FROM BannedWordsWords WHERE serverId = ?;";
 
-        //Basisinhalte der Banned Words runterladen
-        int i=0;
-        for(ResultSet resultSet: new DBMultipleResultSet(preparedStatement)) {
-            switch (i) {
-                case 0:
-                    if (resultSet.next()) {
-                        bannedWords.setActive(resultSet.getBoolean(1));
-                    }
-                    break;
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.setLong(2, server.getId());
+            preparedStatement.setLong(3, server.getId());
+            preparedStatement.setLong(4, server.getId());
+            preparedStatement.execute();
 
-                case 1:
-                    while (resultSet.next()) {
-                        try {
-                            User user = server.getApi().getUserById(resultSet.getLong(1)).get();
-                            bannedWords.addIgnoredUser(user);
-                        } catch (Throwable e) {
-                            //Ignore
+            //Basisinhalte der Banned Words runterladen
+            int i = 0;
+            for (ResultSet resultSet : new DBMultipleResultSet(preparedStatement)) {
+                switch (i) {
+                    case 0:
+                        if (resultSet.next()) {
+                            bannedWords.setActive(resultSet.getBoolean(1));
                         }
-                    }
-                    break;
+                        break;
 
-                case 2:
-                    while (resultSet.next()) {
-                        try {
-                            User user = server.getApi().getUserById(resultSet.getLong(1)).get();
-                            bannedWords.addLogReciever(user);
-                        } catch (Throwable e) {
-                            //Ignore
+                    case 1:
+                        while (resultSet.next()) {
+                            try {
+                                User user = server.getApi().getUserById(resultSet.getLong(1)).get();
+                                bannedWords.addIgnoredUser(user);
+                            } catch (Throwable e) {
+                                //Ignore
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case 3:
-                    while (resultSet.next()) {
-                        try {
-                            String word = resultSet.getString(1);
-                            bannedWords.addWord(word);
-                        } catch (Throwable e) {
-                            //Ignore
+                    case 2:
+                        while (resultSet.next()) {
+                            try {
+                                User user = server.getApi().getUserById(resultSet.getLong(1)).get();
+                                bannedWords.addLogReciever(user);
+                            } catch (Throwable e) {
+                                //Ignore
+                            }
                         }
-                    }
-                    break;
+                        break;
+
+                    case 3:
+                        while (resultSet.next()) {
+                            try {
+                                String word = resultSet.getString(1);
+                                bannedWords.addWord(word);
+                            } catch (Throwable e) {
+                                //Ignore
+                            }
+                        }
+                        break;
+                }
+                i++;
             }
-            i++;
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setBannedWords(server, bannedWords);
         }
-        preparedStatement.close();
 
         return bannedWords;
     }
@@ -650,6 +672,8 @@ public class DBServer {
     }
 
     public static void saveBannedWords(BannedWords bannedWords) throws Throwable {
+        DatabaseCache.getInstance().setBannedWords(bannedWords.getServer(), bannedWords);
+
         //Basis
         String sqlString = "REPLACE INTO BannedWords VALUES (?, ?);" +
                 "DELETE FROM BannedWordsIgnoredUsers WHERE serverId = ?;" +

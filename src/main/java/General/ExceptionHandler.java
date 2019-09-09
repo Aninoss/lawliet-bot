@@ -7,6 +7,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
@@ -21,7 +22,8 @@ public class ExceptionHandler {
         boolean showError = true;
 
         StringWriter sw = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(sw));
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
         String stacktrace = sw.toString();
 
         String errorMessage = stacktrace.split("\n")[0];
@@ -44,18 +46,27 @@ public class ExceptionHandler {
             } catch (Throwable throwable1) {
                 throwable1.printStackTrace();
             }
-        }  else if (errorMessage.contains("MissingPermissions")) {
+        } else if (errorMessage.contains("MissingPermissions")) {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
             } catch (Throwable throwable1) {
                 throwable1.printStackTrace();
             }
+        } else if (errorMessage.contains("CONSTRAINT `PowerPlantUserGainedUserBase`")) {
+            showError = false;
         } else {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
             } catch (Throwable e) {
                 e.printStackTrace();
             }
+        }
+
+        pw.close();
+        try {
+            sw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         if (showError) throwable.printStackTrace();

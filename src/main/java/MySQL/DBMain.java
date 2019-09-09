@@ -1,30 +1,23 @@
 package MySQL;
 
 import General.SecretManager;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import com.smattme.MysqlExportService;
 import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
-
-import javax.swing.plaf.nimbus.State;
-import javax.xml.transform.Result;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
-public class DBMain {
+public class DBMain implements DriverAction {
     private static DBMain ourInstance = new DBMain();
 
     private Connection connect = null;
@@ -38,19 +31,17 @@ public class DBMain {
     public boolean connect() {
         try {
             System.out.println("Connecting with database...");
-            Class.forName("com.mysql.jdbc.Driver");
 
             final MysqlDataSource rv = new MysqlDataSource();
             rv.setServerName(SecretManager.getString("database.ip"));
             rv.setPortNumber(3306);
             rv.setDatabaseName("Lawliet");
-            rv.setUseUnicode(true);
             rv.setAllowMultiQueries(true);
             rv.setAutoReconnect(true);
             rv.setCharacterEncoding("UTF-8");
             rv.setUser(SecretManager.getString("database.username"));
             rv.setPassword(SecretManager.getString("database.password"));
-            rv.setEncoding("UTF-8");
+            rv.setServerTimezone(TimeZone.getDefault().getID());
             connect = rv.getConnection();
 
             return true;
@@ -113,5 +104,10 @@ public class DBMain {
 
         br.close();
         fw.close();
+    }
+
+    @Override
+    public void deregister() {
+        System.out.println("Driver deregistered");
     }
 }

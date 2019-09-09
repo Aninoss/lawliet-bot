@@ -1,6 +1,5 @@
 package General;
 
-import Constants.Settings;
 import ServerStuff.CommunicationServer.CommunicationServer;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import DiscordListener.*;
@@ -8,20 +7,18 @@ import ServerStuff.Donations.DonationServer;
 import GUIPackage.GUI;
 import General.BotResources.ResourceManager;
 import MySQL.*;
+//import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.entity.server.Server;
 import java.awt.*;
 import java.io.File;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class Connector {
     public static void main(String[] args) {
@@ -33,7 +30,10 @@ public class Connector {
         //Start Communication Server
         CommunicationServer communicationServer = new CommunicationServer(35555);
 
-        if (Bot.USE_MAIN_TOKEN) System.out.println("ATTENTION: The bot is running in test mode!");
+        //Start WebCom Server
+        //new WebComServer(15744);
+
+        if (Bot.TEST_MODE) System.out.println("ATTENTION: The bot is running in test mode!");
 
         //Starts Console Listener
         new Thread(Console::manageConsole).start();
@@ -46,7 +46,7 @@ public class Connector {
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/yumindb.ttf")));
             DBMain.getInstance().connect();
-            if (!Bot.USE_MAIN_TOKEN && !Bot.isDebug()) initializeUpdate();
+            if (!Bot.TEST_MODE && !Bot.isDebug()) initializeUpdate();
             DiscordbotsAPI.getInstance().startWebhook();
             connect(communicationServer);
         } catch (Throwable e) {
@@ -54,10 +54,14 @@ public class Connector {
         }
     }
 
-    private static void initializeUpdate() throws Throwable {
-        String currentVersionDB = DBBot.getCurrentVersions();
-        if (!Tools.getCurrentVersion().equals(currentVersionDB)) {
-            DBBot.insertVersion(Tools.getCurrentVersion(), Instant.now());
+    private static void initializeUpdate() {
+        try {
+            String currentVersionDB = DBBot.getCurrentVersions();
+            if (!Tools.getCurrentVersion().equals(currentVersionDB)) {
+                DBBot.insertVersion(Tools.getCurrentVersion(), Instant.now());
+            }
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
     }
 
@@ -66,15 +70,14 @@ public class Connector {
 
         DiscordApi api = null;
         try {
-            if (Bot.isDebug() && !Bot.USE_MAIN_TOKEN)
-                api = new DiscordApiBuilder().setToken(SecretManager.getString("bot.token.debugger")).login().join();
-            else api = new DiscordApiBuilder().setToken(SecretManager.getString("bot.token")).login().join();
+
+            api = new DiscordApiBuilder().setToken(SecretManager.getString((Bot.isDebug() && !Bot.TEST_MODE) ? "bot.token.debugger" : "bot.token")).login().join();
 
             new DonationServer(api, 27440);
             api.setMessageCacheSize(10, 60 * 5);
             communicationServer.setApi(api);
 
-            if (!Bot.USE_MAIN_TOKEN) {
+            if (!Bot.TEST_MODE) {
                 try {
                     api.updateStatus(UserStatus.DO_NOT_DISTURB);
                     api.updateActivity("Please wait, bot is booting up...");
