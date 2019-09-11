@@ -54,6 +54,7 @@ public class CommandManager {
                                 }
 
                                 RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
+                                command.removeLoadingReaction(event.getMessage());
                             } else {
                                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "alreadyused_title"))

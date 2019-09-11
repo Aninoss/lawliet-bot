@@ -103,7 +103,7 @@ public class HelpCommand extends Command implements onNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 18;
+        return 12;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -154,34 +154,65 @@ public class HelpCommand extends Command implements onNavigationListener {
                 if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(locale, TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase())) && (!string.equals(Category.BOT_OWNER) || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
                     EmbedBuilder eb = new EmbedBuilder()
                             .setColor(Color.WHITE)
-                            .setFooter(TextManager.getString(locale,TextManager.GENERAL,"reaction_navigation"))
-                            .setTitle(CategoryCalculator.getEmojiOfCategory(channel.getApi(),string) +" "+TextManager.getString(locale, TextManager.COMMANDS, string));
+                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "reaction_navigation"))
+                            //.setTitle(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string) + " " + TextManager.getString(locale, TextManager.COMMANDS, string));
+                            .setTitle(TextManager.getString(locale, TextManager.COMMANDS, string));
 
-                    StringBuilder commands = new StringBuilder();
                     emojiConnections = new ArrayList<>();
                     emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
-                    int i = 0;
-                    for (Class clazz : CommandContainer.getInstance().getCommandList()) {
-                        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                        String commandTrigger = command.getTrigger();
-                        if (!commandTrigger.equals(trigger) && command.getCategory().equals(string) && (!command.isPrivate() || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
-                            commands
-                                    .append("**")
-                                    .append(LetterEmojis.LETTERS[i])
-                                    //.append(" | ")
-                                    .append(" → ")
-                                    .append(command.getEmoji())
-                                    .append(" ")
-                                    .append(TextManager.getString(locale, TextManager.COMMANDS, commandTrigger + "_title").toUpperCase())
-                                    .append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
-                                    .append(" - ")
-                                    .append(TextManager.getString(locale, TextManager.COMMANDS, commandTrigger + "_description"))
-                                    .append("\n\n");
-                            emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
-                            i++;
+
+                    StringBuilder commands = new StringBuilder();
+
+                    //Interactions and Emotes Category
+                    if (string.equals(Category.INTERACTIONS) || string.equals(Category.EMOTES)) {
+                        for (Class clazz : CommandContainer.getInstance().getCommandList()) {
+                            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                            String commandTrigger = command.getTrigger();
+                            if (!commandTrigger.equals(trigger) && command.getCategory().equals(string) && (!command.isPrivate() || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
+                                commands
+                                        .append(" `")
+                                        .append(command.getEmoji())
+                                        .append("⠀")
+                                        .append(getPrefix())
+                                        .append(commandTrigger)
+                                        .append("`⠀⠀");
+                            }
+                        }
+                        String commandsString = commands.toString();
+                        commandsString = commandsString.substring(0, commandsString.length() - 1);
+                        if (string.equals(Category.INTERACTIONS)) {
+                            eb.setDescription(getString("interactions_desc"));
+                            eb.addField(getString("interactions_title"), commandsString);
+                        } else {
+                            eb.setDescription(getString("emotes_desc"));
+                            eb.addField(getString("emotes_title"), commandsString);
                         }
                     }
-                    eb.setDescription(commands.toString());
+
+                    //All other categories
+                    else {
+                        int i = 0;
+                        for (Class clazz : CommandContainer.getInstance().getCommandList()) {
+                            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                            String commandTrigger = command.getTrigger();
+                            if (!commandTrigger.equals(trigger) && command.getCategory().equals(string) && (!command.isPrivate() || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
+                                commands
+                                        .append("**")
+                                        .append(LetterEmojis.LETTERS[i])
+                                        .append(" → ")
+                                        .append(command.getEmoji())
+                                        .append(" ")
+                                        .append(TextManager.getString(locale, TextManager.COMMANDS, commandTrigger + "_title").toUpperCase())
+                                        .append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
+                                        .append(" - ")
+                                        .append(TextManager.getString(locale, TextManager.COMMANDS, commandTrigger + "_description"))
+                                        .append("\n\n");
+                                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
+                                i++;
+                            }
+                        }
+                        eb.setDescription(commands.toString());
+                    }
                     return eb;
                 }
             }

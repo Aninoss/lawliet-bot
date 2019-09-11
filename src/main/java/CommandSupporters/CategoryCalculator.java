@@ -13,6 +13,7 @@ public class CategoryCalculator {
         if (packageName.equals("Commands.ServerManagement")) return Category.SERVER_MANAGEMENT;
         if (packageName.equals("Commands.BotManagement")) return Category.BOT_MANAGEMENT;
         if (packageName.equals("Commands.Splatoon2")) return Category.SPLATOON_2;
+        if (packageName.equals("Commands.Emotes")) return Category.EMOTES;
         if (packageName.equals("Commands.Interactions")) return Category.INTERACTIONS;
         if (packageName.equals("Commands.External")) return Category.EXTERNAL;
         if (packageName.equals("Commands.osu")) return Category.OSU;
@@ -30,6 +31,8 @@ public class CategoryCalculator {
                 return "\uD83D\uDD1E";
             case Category.BOT_MANAGEMENT:
                 return "\uD83E\uDD16";
+            case Category.EMOTES:
+                return "\uD83D\uDE00";
             case Category.INTERACTIONS:
                 return "\uD83D\uDC81";
             case Category.EXTERNAL:

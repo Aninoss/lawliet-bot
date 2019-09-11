@@ -40,7 +40,7 @@ public class PornCommand extends Command {
             return false;
         } else {
             String footerAdd = "";
-            if (emptyKey) footerAdd = " - " + TextManager.getString(locale, TextManager.COMMANDS,"porn_nokey");
+            if (emptyKey) footerAdd = " - ⚠️ " + TextManager.getString(locale, TextManager.COMMANDS,"porn_nokey").toUpperCase();
 
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(locale, TextManager.COMMANDS,"porn_link", pornImage.getPageUrl()))
                     .setImage(pornImage.getImageUrl())

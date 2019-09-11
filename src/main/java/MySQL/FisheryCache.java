@@ -28,11 +28,7 @@ public class FisheryCache {
     private void collector() {
         while(true) {
             synchronized (this) {
-                try {
-                    if (activities.size() > 0) DBUser.addJouleBulk(activities);
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
-                }
+                if (activities.size() > 0) DBUser.addJouleBulk(activities);
                 activities.clear();
             }
 

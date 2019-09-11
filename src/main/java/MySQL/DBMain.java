@@ -5,6 +5,8 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import com.smattme.MysqlExportService;
 import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.server.Server;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.sql.*;
@@ -77,6 +79,22 @@ public class DBMain implements DriverAction {
 
     public Statement statement() throws Throwable {
         return connect.createStatement();
+    }
+
+    public boolean checkConnection() {
+        boolean success = false;
+
+        try {
+            Statement statement = statement("SELECT 1;");
+            ResultSet resultSet = statement.getResultSet();
+            if (resultSet.next() && resultSet.getInt(1) == 1) success = true;
+            resultSet.close();
+            statement.close();
+        } catch (Throwable e) {
+            //Ignore
+        }
+
+        return success;
     }
 
     public static String encryptEmojis(String str) {

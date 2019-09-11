@@ -34,11 +34,11 @@ public class PornProxyCommand extends Command implements onRecievedListener {
             boolean ok = false;
             if (Tools.stringIsNumeric(followedString)) {
                 amount = Integer.parseInt(followedString);
-                if (amount >= 1 && amount <= 10) ok = true;
+                if (amount >= 1 && amount <= 20) ok = true;
             }
             if (!ok) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(locale, TextManager.GENERAL, "number", "1", "10"))).get();
+                        TextManager.getString(locale, TextManager.GENERAL, "number", "1", "20"))).get();
                 return false;
             }
         }

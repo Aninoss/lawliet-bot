@@ -3,6 +3,7 @@ package CommandSupporters;
 import CommandListeners.*;
 import Commands.BotManagement.*;
 import Commands.Casino.*;
+import Commands.Emotes.*;
 import Commands.External.*;
 import Commands.General.*;
 import Commands.BotOwner.*;
@@ -45,12 +46,10 @@ public class CommandContainer {
             commandList.add(RollCommand.class);
             commandList.add(FortuneCommand.class);
             commandList.add(KiraCommand.class);
-            commandList.add(RewardCommand.class);
             commandList.add(TriggerCommand.class);
             commandList.add(RainbowCommand.class);
             commandList.add(ShipCommand.class);
             commandList.add(QuoteCommand.class);
-            commandList.add(EveryoneCommand.class);
             commandList.add(AvatarCommand.class);
 
             //BOT MANAGEMENT
@@ -107,21 +106,41 @@ public class CommandContainer {
             commandList.add(QuizCommand.class);
             commandList.add(AnimeQuizCommand.class);
 
+            //EMOTES
+            commandList.add(DabCommand.class);
+            commandList.add(AwkwardCommand.class);
+            commandList.add(YesCommand.class);
+            commandList.add(NoCommand.class);
+
             //INTERACTIONS
             commandList.add(MerkelCommand.class);
+            commandList.add(KillCommand.class);
             commandList.add(PunchCommand.class);
             commandList.add(SlapCommand.class);
+            commandList.add(BakaCommand.class);
+            commandList.add(StealCommand.class);
+            commandList.add(ThrowCommand.class);
+            commandList.add(BullyCommand.class);
+            commandList.add(NotWorkCommand.class);
+            commandList.add(EveryoneCommand.class);
+            commandList.add(BiteCommand.class);
             commandList.add(NomCommand.class);
             commandList.add(PokeCommand.class);
+            commandList.add(FishCommand.class);
             commandList.add(TickleCommand.class);
+            commandList.add(WaveCommand.class);
+            commandList.add(HighfiveCommand.class);
             commandList.add(PatCommand.class);
+            commandList.add(RewardCommand.class);
             commandList.add(HugCommand.class);
             commandList.add(CuddleCommand.class);
+            commandList.add(MassageCommand.class);
             commandList.add(LickCommand.class);
             commandList.add(LoveCommand.class);
             commandList.add(KissCommand.class);
             commandList.add(YaoiKissCommand.class);
             commandList.add(YuriKissCommand.class);
+            commandList.add(MarryCommand.class);
             commandList.add(FuckCommand.class);
             commandList.add(YaoiFuckCommand.class);
             commandList.add(YuriFuckCommand.class);

@@ -34,7 +34,8 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        followedString = followedString.replace("\n", "");
+        followedString = Tools.cutSpaces(followedString.replace("\n", ""));
+        if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String args[] = followedString.split("\\|");
         if (args.length >= 3 && args.length <= 10) {
             String topic = Tools.cutSpaces(args[0]);
@@ -70,7 +71,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
         for(int i=0; i < voteInfo.getSize(); i++) {
             answerText.append(LetterEmojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
-            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(Tools.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" [ ").append(voteInfo.getValue(i)).append(" | ").append((int)(voteInfo.getPercantage(i)*100)).append("% ]").append("\n");
+            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(Tools.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
         }
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + Tools.getEmptyCharacter())

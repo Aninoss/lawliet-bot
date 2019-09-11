@@ -98,11 +98,12 @@ public class MessageCreateListener {
                     if (commandTrigger.equals("basicroles")) commandTrigger = "autoroles";
                     if (commandTrigger.equals("fishingsetup")) commandTrigger = "fishery";
                     if (commandTrigger.equals("modsettings")) commandTrigger = "mod";
+                    if (commandTrigger.equals("rule34")) commandTrigger = "r34";
 
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
                         if (event.getChannel().canYouWrite() || commandTrigger.equalsIgnoreCase("help")) {
-                            if (Tools.userHasAdminPermissions(event.getServer().get(), event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
+                            if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
                                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
 
                                 CommandManager.manage(event, command, followedString);

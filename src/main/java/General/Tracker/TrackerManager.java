@@ -66,7 +66,7 @@ public class TrackerManager {
                 return;
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
-                Thread.sleep(1000 * 60);
+                Thread.sleep(5 * 60 * 1000);
             }
         }
     }

@@ -225,6 +225,10 @@ public class Clock {
             System.exit(1);
         }
 
+        //Checks Database Connection
+        if (!DBMain.getInstance().checkConnection()) DBMain.getInstance().connect();
+
+        //Updates Discord Bots Server Count
         DiscordbotsAPI.getInstance().updateServerCount(api);
     }
 

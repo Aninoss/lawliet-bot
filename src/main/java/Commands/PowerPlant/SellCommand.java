@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.Random;
 
 public class SellCommand extends Command implements onRecievedListener, onReactionAddListener, onForwardedRecievedListener {
-    private static int COINS_PER_FISH = -1;
+    private static int COINS_PER_FISH[] = {-1, -1};
     private Message message;
 
     public SellCommand() {
@@ -110,7 +110,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     public void onForwardedTimeOut() {}
 
     private int getExchangeRate(int daysAdd) {
-        if (COINS_PER_FISH == -1) {
+        if (COINS_PER_FISH[daysAdd + 1] == -1) {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DATE, daysAdd);
 
@@ -124,10 +124,10 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
                 if (Math.abs(d - 0.5) < Math.abs(result - 0.5)) result = d;
             }
 
-            COINS_PER_FISH = (int) Math.round(Settings.ONE_CURRENCY_TO_COINS * (0.5 + result * 1.0));
+            COINS_PER_FISH[daysAdd + 1] = (int) Math.round(Settings.ONE_CURRENCY_TO_COINS * (0.5 + result * 1.0));
         }
 
-        return COINS_PER_FISH;
+        return COINS_PER_FISH[daysAdd + 1];
     }
 
     private String getChangeEmoji() {
@@ -146,7 +146,6 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals("❌")) {
             removeMessageForwarder();
             removeReactionListener();
-            //deleteReactionMessage();
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(locale, getExchangeRate(0)), getChangeEmoji()), getString("nointerest_title")));
         }
     }
@@ -160,6 +159,6 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     public void onReactionTimeOut(Message message) {}
 
     public static void resetCoinsPerFish() {
-        COINS_PER_FISH = -1;
+        COINS_PER_FISH = new int[]{-1, -1};
     }
 }

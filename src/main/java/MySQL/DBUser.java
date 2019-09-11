@@ -112,59 +112,59 @@ public class DBUser {
         }
     }
 
-    public static void addJouleBulk(Map<Long, ServerTextChannel> activities) throws Throwable {
+    public static void addJouleBulk(Map<Long, ServerTextChannel> activities) {
         StringBuilder totalSql = new StringBuilder();
 
-        try {
-            for(long userId: activities.keySet()) {
-                ServerTextChannel channel = activities.get(userId);
+        for (long userId : activities.keySet()) {
+            ServerTextChannel channel = activities.get(userId);
 
-                String sql = "INSERT INTO PowerPlantUserGained " +
-                        "VALUES(" +
-                        "%s, " +
-                        "%u, " +
-                        "DATE_FORMAT(NOW(), " +
-                        "'%Y-%m-%d %H:00:00'), " +
-                        "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                        "LEAST(%max, %a)," +
-                        "0" +
-                        ")) " +
-                        "ON DUPLICATE KEY UPDATE coinsGrowth = " +
-                        "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s) AND TIMESTAMPDIFF(SECOND, (SELECT lastMessage FROM PowerPlantUsers WHERE serverId = %s and userId = %u), NOW()) >= 20," +
-                        "LEAST(%max, coinsGrowth + %a)," +
-                        "coinsGrowth" +
-                        ");";
+            String sql = "INSERT INTO PowerPlantUserGained " +
+                    "VALUES(" +
+                    "%s, " +
+                    "%u, " +
+                    "DATE_FORMAT(NOW(), " +
+                    "'%Y-%m-%d %H:00:00'), " +
+                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
+                    "LEAST(%max, %a)," +
+                    "0" +
+                    ")) " +
+                    "ON DUPLICATE KEY UPDATE coinsGrowth = " +
+                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
+                    "LEAST(%max, coinsGrowth + %a)," +
+                    "coinsGrowth" +
+                    ");";
 
-                sql +=
-                        "INSERT INTO PowerPlantUsers (serverId, userId, onServer, joule) " +
-                                "VALUES (" +
-                                "%s," +
-                                "%u," +
-                                "1," +
-                                "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                                "LEAST(%max, %a)," +
-                                "0" +
-                                ")) ON DUPLICATE KEY UPDATE joule = IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s) AND TIMESTAMPDIFF(SECOND, lastMessage, NOW()) >= 20," +
-                                "LEAST(%max, joule + %a)," +
-                                "joule" +
-                                "), lastMessage = DATE_ADD(NOW(), INTERVAL -MOD(SECOND(NOW()), 20) SECOND), onServer = 1;";
+            sql +=
+                    "INSERT INTO PowerPlantUsers (serverId, userId, onServer, joule) " +
+                            "VALUES (" +
+                            "%s," +
+                            "%u," +
+                            "1," +
+                            "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
+                            "LEAST(%max, %a)," +
+                            "0" +
+                            ")) ON DUPLICATE KEY UPDATE joule = IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
+                            "LEAST(%max, joule + %a)," +
+                            "joule" +
+                            "), lastMessage = DATE_ADD(NOW(), INTERVAL -MOD(SECOND(NOW()), 20) SECOND), onServer = 1;";
 
-                sql += "SELECT (joule >= 100 AND reminderSent = 0), userId, coins FROM PowerPlantUsers WHERE serverId = %s AND userId = %u;";
+            sql += "SELECT (joule >= 100 AND reminderSent = 0), userId, coins FROM PowerPlantUsers WHERE serverId = %s AND userId = %u;";
 
-                // AND TIMESTAMPDIFF(MINUTE, lastMessage, NOW()) = 0
+            // AND TIMESTAMPDIFF(MINUTE, lastMessage, NOW()) = 0
 
-                long channelId = channel.getId();
-                sql = sql
-                        .replace("%a", "IFNULL((SELECT (getValue(%s, %u) * b.categoryEffect) FROM PowerPlantUserPowerUp a LEFT JOIN PowerPlantCategories b USING (categoryId) WHERE a.serverId = %s AND a.userId = %u AND a.categoryId = 0), 1)")
-                        .replace("%s", channel.getServer().getIdAsString())
-                        .replace("%c", String.valueOf(channelId))
-                        .replace("%u", String.valueOf(userId))
-                        .replace("%max", String.valueOf(Settings.MAX));
+            long channelId = channel.getId();
+            sql = sql
+                    .replace("%a", "IFNULL((SELECT (getValue(%s, %u) * b.categoryEffect) FROM PowerPlantUserPowerUp a LEFT JOIN PowerPlantCategories b USING (categoryId) WHERE a.serverId = %s AND a.userId = %u AND a.categoryId = 0), 1)")
+                    .replace("%s", channel.getServer().getIdAsString())
+                    .replace("%c", String.valueOf(channelId))
+                    .replace("%u", String.valueOf(userId))
+                    .replace("%max", String.valueOf(Settings.MAX));
 
-                totalSql.append(sql);
-            }
+            totalSql.append(sql);
+        }
 
-            for (ResultSet resultSet : new DBMultipleResultSet(totalSql.toString())) {
+        for (ResultSet resultSet : new DBMultipleResultSet(totalSql.toString())) {
+            try {
                 if (resultSet.next() && resultSet.getInt(1) == 1) {
                     long userId = resultSet.getLong(2);
                     long coins = resultSet.getLong(3);
@@ -197,9 +197,9 @@ public class DBUser {
                     }
 
                 }
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
         }
     }
 

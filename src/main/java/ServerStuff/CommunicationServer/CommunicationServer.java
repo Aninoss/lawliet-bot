@@ -2,6 +2,7 @@ package ServerStuff.CommunicationServer;
 
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
+import General.RunningCommands.RunningCommandManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -30,26 +31,33 @@ public class CommunicationServer {
 
     private void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());;
+            ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());
+            ;
 
             System.out.println("Communication Server is running!");
 
-            while(true) {
+            while (true) {
                 try {
                     Socket socket = serverSocket.accept();
 
                     OutputStream os = socket.getOutputStream();
 
                     int output = HEARTBEAT;
-                    if (CommandContainer.getInstance().getActivitiesSize() == 0) output |= CAN_UPDATE;
-                    if (api != null && api.getServerById(Settings.HOME_SERVER_ID).isPresent() && api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).isPresent()) {
-                        try {
-                            Message message = api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
-                            if (message.getContent().equals("test")) output |= CONNECTED;
-                            message.delete();
-                        } catch (InterruptedException | ExecutionException e) {
-                            //Ignore
+
+                    try {
+                        if (CommandContainer.getInstance().getActivitiesSize() == 0 && RunningCommandManager.getInstance().getRunningCommands().size() == 0)
+                            output |= CAN_UPDATE;
+                        if (api != null && api.getServerById(Settings.HOME_SERVER_ID).isPresent() && api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).isPresent()) {
+                            try {
+                                Message message = api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
+                                if (message.getContent().equals("test")) output |= CONNECTED;
+                                message.delete();
+                            } catch (InterruptedException | ExecutionException e) {
+                                //Ignore
+                            }
                         }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
 
                     os.write(output);
