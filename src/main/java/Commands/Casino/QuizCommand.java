@@ -45,6 +45,11 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
 
+            if (!allowBet) {
+                logStatus = LogStatus.WARNING;
+                log = TextManager.getString(locale, TextManager.GENERAL, "nobet");
+            }
+
             String dataString = Internet.getData(url);
             JSONObject data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
             String diffString = data.getString("difficulty");

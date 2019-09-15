@@ -23,5 +23,6 @@ public class AnimeQuizCommand extends QuizCommand {
         super();
         trigger = "animequiz";
         url = "https://opentdb.com/api.php?amount=1&category=31";
+        allowBet = false;
     }
 }

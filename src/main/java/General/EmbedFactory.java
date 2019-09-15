@@ -119,6 +119,10 @@ public class EmbedFactory {
                     case LOSE:
                         add = "☠️ ";
                         break;
+
+                    case WARNING:
+                        add = "⚠️️ ";
+                        break;
                 }
             }
             eb.addField(Tools.getEmptyCharacter(), "`" + add + log + "`");

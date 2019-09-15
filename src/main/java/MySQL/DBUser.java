@@ -90,36 +90,15 @@ public class DBUser {
         insertUsers(users);
     }
 
-    public static void updateOsuUsername(User user, String username) throws Throwable {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DUser SET osuUsername = ? WHERE userId = ?;");
-        preparedStatement.setString(1, username);
-        preparedStatement.setLong(2, user.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static String getOsuUsername(User user) throws Throwable {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT osuUsername FROM DUser WHERE userId = ?;");
-        preparedStatement.setLong(1, user.getId());
-        preparedStatement.execute();
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            String str = resultSet.getString(1);
-            resultSet.close();
-            return str;
-        } else {
-            resultSet.close();
-            return null;
-        }
-    }
-
     public static void addMessageFishBulk(Map<Long, ServerTextChannel> activities) {
         StringBuilder totalSql = new StringBuilder();
 
         for (long userId : activities.keySet()) {
             ServerTextChannel channel = activities.get(userId);
 
-            String sql = "INSERT INTO PowerPlantUserGained " +
+            String sql = "INSERT IGNORE INTO DUser (userId) VALUES (%u); ";
+
+            sql += "INSERT INTO PowerPlantUserGained " +
                     "VALUES(" +
                     "%s, " +
                     "%u, " +
@@ -211,7 +190,9 @@ public class DBUser {
         for (long userId : activities.keySet()) {
             long serverId = activities.get(userId);
 
-            String sql = "INSERT INTO PowerPlantUserGained " +
+            String sql = "INSERT IGNORE INTO DUser (userId) VALUES (%u); ";
+
+            sql += "INSERT INTO PowerPlantUserGained " +
                     "VALUES(" +
                     "%s, " +
                     "%u, " +

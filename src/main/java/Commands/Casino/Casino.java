@@ -3,6 +3,7 @@ package Commands.Casino;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
+import Constants.LogStatus;
 import Constants.PowerPlantStatus;
 import General.EmbedFactory;
 import General.RunningCommands.RunningCommandManager;
@@ -26,7 +27,7 @@ class Casino extends Command implements onReactionAddListener {
     Server server;
     ServerTextChannel channel;
     double winMultiplicator;
-    boolean active, won, useCalculatedMultiplicator;
+    boolean active, won, useCalculatedMultiplicator, allowBet;
     final double BONUS_MULTIPLICATOR = 1;
     String compareKey;
     Message message;
@@ -39,6 +40,7 @@ class Casino extends Command implements onReactionAddListener {
         nsfw = false;
         withLoadingBar = false;
         executable = true;
+        allowBet = true;
     }
 
     boolean onGameStart(MessageCreateEvent event, String followedString) throws Throwable {
@@ -49,6 +51,11 @@ class Casino extends Command implements onReactionAddListener {
         active = true;
         useCalculatedMultiplicator = true;
         compareKey = trigger;
+
+        if (!allowBet) {
+            coinsInput = 0;
+            return true;
+        }
 
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(server);
         if (status != PowerPlantStatus.ACTIVE) {
