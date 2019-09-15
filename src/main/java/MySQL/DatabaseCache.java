@@ -1,5 +1,6 @@
 package MySQL;
 
+import Constants.PowerPlantStatus;
 import General.BannedWords.BannedWords;
 import org.javacord.api.entity.server.Server;
 import java.util.Collections;
@@ -13,6 +14,7 @@ public class DatabaseCache {
     private Map<Long, Locale> serverLocales = Collections.synchronizedMap(new HashMap<>());
     private Map<Long, String> serverPrefixes = Collections.synchronizedMap(new HashMap<>());
     private Map<Long, BannedWords> serverBannedWords = Collections.synchronizedMap(new HashMap<>());
+    private Map<Long, PowerPlantStatus> powerPlantStatusMap = Collections.synchronizedMap(new HashMap<>());
 
     public static DatabaseCache getInstance() {
         return ourInstance;
@@ -36,12 +38,12 @@ public class DatabaseCache {
         return serverPrefixes.get(server.getId());
     }
 
-    public void setBannedWords(Server server, BannedWords bannedWords) {
-        serverBannedWords.put(server.getId(), bannedWords);
-    }
+    public void setBannedWords(Server server, BannedWords bannedWords) { serverBannedWords.put(server.getId(), bannedWords); }
 
-    public BannedWords getBannedWords(Server server) {
-        return serverBannedWords.get(server.getId());
-    }
+    public BannedWords getBannedWords(Server server) { return serverBannedWords.get(server.getId()); }
+
+    public void setPowerPlantStatus(Server server, PowerPlantStatus powerPlantStatus) { powerPlantStatusMap.put(server.getId(), powerPlantStatus); }
+
+    public PowerPlantStatus getPowerPlantStatus(Server server) { return powerPlantStatusMap.get(server.getId()); }
 
 }

@@ -32,7 +32,6 @@ public class CommunicationServer {
     private void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());
-            ;
 
             System.out.println("Communication Server is running!");
 

@@ -364,11 +364,16 @@ public class Command {
         if (loadingBarReaction != null) {
             try {
                 loadingBarReaction.get();
-                loadingBarReaction = null;
-                if (message.getChannel().canYouUseExternalEmojis()) message.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L)).get();
-                else message.removeOwnReactionByEmoji("⏳").get();
+                try {
+                    loadingBarReaction = null;
+                    if (message.getChannel().canYouUseExternalEmojis())
+                        message.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L)).get();
+                    else message.removeOwnReactionByEmoji("⏳").get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                //Ignore
             }
         }
     }

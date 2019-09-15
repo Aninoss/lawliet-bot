@@ -99,6 +99,7 @@ public class MessageCreateListener {
                     if (commandTrigger.equals("fishingsetup")) commandTrigger = "fishery";
                     if (commandTrigger.equals("modsettings")) commandTrigger = "mod";
                     if (commandTrigger.equals("rule34")) commandTrigger = "r34";
+                    if (commandTrigger.equals("sad")) commandTrigger = "cry";
 
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {

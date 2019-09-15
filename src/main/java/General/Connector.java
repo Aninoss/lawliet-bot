@@ -76,6 +76,7 @@ public class Connector {
             new DonationServer(api, 27440);
             api.setMessageCacheSize(10, 60 * 5);
             communicationServer.setApi(api);
+            FisheryCache.getInstance().startVCCollector(api);
 
             if (!Bot.TEST_MODE) {
                 try {

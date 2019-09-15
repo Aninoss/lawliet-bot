@@ -111,6 +111,8 @@ public class CommandContainer {
             commandList.add(AwkwardCommand.class);
             commandList.add(YesCommand.class);
             commandList.add(NoCommand.class);
+            commandList.add(CryCommand.class);
+            commandList.add(DanceCommand.class);
 
             //INTERACTIONS
             commandList.add(MerkelCommand.class);

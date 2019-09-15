@@ -72,6 +72,9 @@ public class Clock {
     }
 
     private static void onDayStart(DiscordApi api) {
+        //Reset Fishing Limit
+        FisheryCache.getInstance().reset();
+
         //Reset Fishery Exchange Rate
         SellCommand.resetCoinsPerFish();
 

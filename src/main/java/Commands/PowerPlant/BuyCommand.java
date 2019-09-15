@@ -66,7 +66,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                     fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
                     roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
 
-                    if (i == 3 && fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size()) i = 4;
+                    if (i >= FishingCategoryInterface.ROLE && fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size()) i++;
                     FishingSlot slot = fishingProfile.find(i);
 
                     if (fishingProfile.getCoins() >= slot.getPrice()) {
@@ -74,7 +74,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                         DBUser.updatePowerUpLevel(event.getServer().get(), event.getUser(), slot.getId(), slot.getLevel() + 1);
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
 
-                        if (slot.getId() == 3) {
+                        if (slot.getId() == FishingCategoryInterface.ROLE) {
                             if (slot.getLevel() > 0 && singleRole) {
                                 roles.get(slot.getLevel() - 1).removeUser(event.getUser()).get();
                             }
@@ -114,9 +114,9 @@ public class BuyCommand extends Command implements onNavigationListener {
                 int i = 0;
                 for(FishingSlot slot: fishingProfile.getSlots()) {
                     description = new StringBuilder();
-                    if (slot.getId() != 3 || slot.getLevel() < roles.size()) {
+                    if (slot.getId() != FishingCategoryInterface.ROLE || slot.getLevel() < roles.size()) {
                         String productDescription = "???";
-                        if (slot.getId() != 3)
+                        if (slot.getId() != FishingCategoryInterface.ROLE)
                             productDescription = getString("product_des_" + slot.getId(), Tools.numToString(locale, slot.getDeltaEffect()));
                         else if (roles.get(slot.getLevel()) != null)
                             productDescription = getString("product_des_" + slot.getId(), roles.get(slot.getLevel()).getMentionTag());
@@ -134,6 +134,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                                 Tools.numToString(locale, fishingProfile.getCoins()),
                                 Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
                                 Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
+                                Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
                                 Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
                                 Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                         )

@@ -56,7 +56,7 @@ public class StatsCommand extends Command implements onRecievedListener {
                 if (j == 0) args[k] = fishingRecords.getUser(i).getDiscriminatedName();
                 if (j == 1) args[k] = fishingRecords.getServer(i).getName();
                 if (j == 2) args[k] = Tools.numToString(locale, fishingRecords.getValue(i));
-                args[k] = args[k].replace("_", "").replace("*", "").replace("~", "-").replace("\\`", "´").replace("||", "II");
+                args[k] = args[k].replace("_", "").replace("*", "").replace("~", "-").replace("\\`", "'").replace("||", "II");
                 if (args[k].length() == 0) args[k] = " ";
             }
         }

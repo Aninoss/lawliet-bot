@@ -15,6 +15,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,20 +32,6 @@ public class DBServer {
             while (resultSet.next()) dbServerIds.add(resultSet.getString(1));
             resultSet.close();
             statement.close();
-
-            //Entfernt DB-Einträge, die nicht existieren
-            /*StringBuilder where = new StringBuilder();
-            boolean first = true;
-            for (String string : dbServerIds) {
-                if (!api.getServerById(string).isPresent()) {
-                    if (!first) {
-                        where.append(" OR ");
-                    }
-                    first = false;
-                    where.append("serverId = ").append(string);
-                }
-            }
-            if (where.toString().length() > 0) DBMain.getInstance().statement("DELETE FROM DServer WHERE " + where.toString() + ";");*/
 
             //Fügt fehlende DB-Einträge hinzu
             for (Server server : api.getServers()) {
@@ -414,21 +401,24 @@ public class DBServer {
     }
 
     public static PowerPlantStatus getPowerPlantStatusFromServer(Server server) throws Throwable {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlant FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
+        PowerPlantStatus powerPlantStatus = DatabaseCache.getInstance().getPowerPlantStatus(server);
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            PowerPlantStatus powerPlantStatus = PowerPlantStatus.valueOf(resultSet.getString(1));
+        if (powerPlantStatus == null) {
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlant FROM DServer WHERE serverId = ?;");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                powerPlantStatus = PowerPlantStatus.valueOf(resultSet.getString(1));
+                DatabaseCache.getInstance().setPowerPlantStatus(server, powerPlantStatus);
+            }
+
             resultSet.close();
             preparedStatement.close();
-            return powerPlantStatus;
         }
 
-        resultSet.close();
-        preparedStatement.close();
-        return null;
+        return powerPlantStatus;
     }
 
     public static boolean getPowerPlantTreasureChestsFromServer(Server server) throws Throwable {
@@ -835,6 +825,8 @@ public class DBServer {
         preparedStatement.setLong(2, server.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();
+
+        DatabaseCache.getInstance().setPowerPlantStatus(server, status);
     }
 
     public static void savePowerPlantTreasureChestsSetting(Server server, boolean treasureChests) throws Throwable {
