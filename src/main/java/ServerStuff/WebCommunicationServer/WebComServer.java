@@ -1,23 +1,17 @@
 package ServerStuff.WebCommunicationServer;
 
-/**
- * NOTE: This class requires the netty-socketio dependency.
- * But for some reason, it causes conflicts with the javacord dependency.
- * This feature is being postponed until the problems are solved.
- */
-
-/*
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Constants.Category;
 import Constants.Locales;
 import General.TextManager;
+import General.Tools;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
+import org.javacord.api.DiscordApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -25,8 +19,11 @@ import java.util.Locale;
 public class WebComServer {
 
     private static final String EVENT_COMMANDLIST = "command_list";
+    private DiscordApi api;
 
-    public WebComServer(int port) {
+    public WebComServer(int port, DiscordApi api) {
+        this.api = api;
+
         Configuration config = new Configuration();
         config.setHostname("127.0.0.1");
         config.setPort(port);
@@ -57,11 +54,12 @@ public class WebComServer {
                     if (!command.isPrivate() && !trigger.equals("help")) {
                         JSONObject commandJSON = new JSONObject();
                         commandJSON.put("trigger", trigger);
+                        commandJSON.put("emoji", command.getEmoji());
                         commandJSON.put("title", getLanguagePack(trigger + "_title"));
                         commandJSON.put("desc_short", getLanguagePack(trigger + "_description"));
                         commandJSON.put("desc_long", getLanguagePack(trigger + "_helptext"));
-                        commandJSON.put("usage", getLanguagePack(trigger + "_usage"));
-                        commandJSON.put("examples", getLanguagePack(trigger + "_examples"));
+                        commandJSON.put("usage", getLanguagePackSpecs(trigger + "_usage", trigger));
+                        commandJSON.put("examples", getLanguagePackSpecs(trigger + "_examples", trigger));
 
                         categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                     }
@@ -92,5 +90,26 @@ public class WebComServer {
 
         return jsonObject;
     }
+
+    private JSONObject getLanguagePackSpecs(String key, String commandTrigger) {
+        JSONObject jsonObject = new JSONObject();
+
+        for(String localeString: Locales.LIST) {
+            Locale locale = new Locale(localeString);
+            try {
+                String str = Tools.solveVariablesOfCommandText(
+                        TextManager.getString(locale, TextManager.COMMANDS, key),
+                        api
+                );
+                if (!str.isEmpty())
+                    str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
+
+                jsonObject.put(locale.getDisplayName(), str);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+
+        return jsonObject;
+    }
 }
-*/

@@ -14,9 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 
 public interface onNavigationListener {
-    Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable;
-    boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable;
-    EmbedBuilder draw(DiscordApi api) throws Throwable;
+    Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable;
+    boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable;
+    EmbedBuilder draw(DiscordApi api, int state) throws Throwable;
     void onNavigationTimeOut(Message message) throws Throwable;
     int getMaxReactionNumber();
 }

@@ -1,19 +1,20 @@
 package Commands.Emotes;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "dance",
+    emoji = "\uD83D\uDD7A",
+    executable = true
+)
 public class DanceCommand extends EmoteCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public DanceCommand() {
-        super();
-        trigger = "dance";
-        emoji = "\uD83D\uDD7A";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/9841990160f71767843af6cf08b5502d/tenor.gif?itemid=9251559",
+        super("https://media1.tenor.com/images/9841990160f71767843af6cf08b5502d/tenor.gif?itemid=9251559",
                 "https://media1.tenor.com/images/81df5e907f81dad1721f398ed7408deb/tenor.gif?itemid=7560548",
                 "https://media1.tenor.com/images/0775ee877645d4a35cf219d83854fb9c/tenor.gif?itemid=7880641",
                 "https://media1.tenor.com/images/b99e68bc2216552709e0e82d938f1348/tenor.gif?itemid=10260187",
@@ -32,11 +33,11 @@ public class DanceCommand extends EmoteCommand implements onRecievedListener {
                 "https://media1.tenor.com/images/8b47eca66b93d1b29f7df2db3d7eba6b/tenor.gif?itemid=13414394",
                 "https://media1.tenor.com/images/d250c06c34f6961087a83c6fd79d0711/tenor.gif?itemid=4718235",
                 "https://media1.tenor.com/images/8f668350ed3dca15ad95fcd2ae2d93bd/tenor.gif?itemid=5769476"
-        };
+        );
     }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onInteractionRecieved(event, followedString, picked);
+        return onEmoteRecieved(event, picked);
     }
 }

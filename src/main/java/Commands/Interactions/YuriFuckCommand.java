@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "yurifuck",
+        emoji = "\uD83D\uDC69\uD83D\uDECF\uD83D\uDC69️",
+        executable = false
+)
 public class YuriFuckCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public YuriFuckCommand() {
-        super();
-        trigger = "yurifuck";
-        emoji = "\uD83D\uDC69\uD83D\uDECF\uD83D\uDC69️";
-        nsfw = true;
-        gifs = new String[]{
-                "https://img2.gelbooru.com//images/2d/43/2d43444830e02e7e5f0c7e822516d952.gif",
+        super("https://img2.gelbooru.com//images/2d/43/2d43444830e02e7e5f0c7e822516d952.gif",
                 "https://gelbooru.com/index.php?page=post&s=view&id=4664133",
                 "https://img2.gelbooru.com//images/67/d5/67d55a9eabbc0a3cc2fd264ad8710de2.gif",
                 "https://img2.gelbooru.com//images/53/7d/537d2f90de32be66f525a16ff32d213f.gif",
@@ -36,7 +37,7 @@ public class YuriFuckCommand extends InteractionCommand implements onRecievedLis
                 "https://img2.gelbooru.com//images/fa/a2/faa22eab7a8de3ec59c7d99dc0f0ff55.gif",
                 "https://img2.gelbooru.com//images/f7/f5/f7f5ae25bec9d2606c24cf0281e9dcb0.gif",
                 "https://img2.gelbooru.com//images/21/f1/21f106a01b29d187dcfd622103296330.gif"
-        };
+        );
     }
 
     @Override

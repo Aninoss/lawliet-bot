@@ -1,5 +1,6 @@
 package Commands.Casino;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Constants.LetterEmojis;
@@ -17,12 +18,19 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-
+@CommandProperties(
+    trigger = "animequiz",
+    emoji = "❔",
+    thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
+    withLoadingBar = true,
+    executable = true
+)
 public class AnimeQuizCommand extends QuizCommand {
+
     public AnimeQuizCommand() {
         super();
-        trigger = "animequiz";
         url = "https://opentdb.com/api.php?amount=1&category=31";
         allowBet = false;
     }
+
 }

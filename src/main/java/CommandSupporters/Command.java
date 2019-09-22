@@ -1,6 +1,7 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import CommandListeners.CommandProperties;
 import Constants.*;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
@@ -13,99 +14,126 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.lang.annotation.Annotation;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class Command {
-    protected String trigger, category, thumbnail, prefix, emoji;
-    protected boolean nsfw, withLoadingBar, privateUse, executable, deleteOnTimeOut = false;
-    protected int botPermissions = 0, userPermissions = 0, state = 0;
-    protected Locale locale;
-    protected String[] options;
-    private LogStatus logStatus = null;
-    private long reactionMessageID = -1, reactionUserID, forwardChannelID = -1, forwardUserID = -1, startTime;
-    private CompletableFuture<Void> loadingBarReaction;
-    private Message navigationMessage, authorMessage;
-    private boolean successful, navigationActive, navigationPrivateMessage = false;;
-    private String log;
 
+    private String category, prefix;
+    private CommandProperties commandProperties;
+    private Message starterMessage, navigationMessage;
+    private Locale locale;
+    private LoadingStatus loadingStatus = LoadingStatus.OFF;
+    private long reactionMessageID, reactionUserID, forwardChannelID = -1, forwardUserID = -1;
+    private Countdown countdown;
+    private LogStatus logStatus = null;
+    private String log;
+    private String[] options;
+    private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
+    private int state = 0;
+
+    private enum LoadingStatus { OFF, ONGOING, FINISHED }
 
     public Command() {
-        category = CategoryCalculator.getCategoryByCommand(this);
+        commandProperties = this.getClass().getAnnotation(CommandProperties.class);
+        category = CategoryCalculator.getCategoryByCommand(this.getClass());
     }
 
     public void onRecievedSuper(MessageCreateEvent event, String followedString) {
-        successful = false;
-        if (withLoadingBar) addLoadingReaction(event.getMessage());
+        starterMessage = event.getMessage();
+        if (commandProperties.withLoadingBar()) addLoadingReaction();
 
-        Runnable r = () -> setResultReaction(event.getMessage(), successful);
-        ExceptionHandler.handleUncaughtException(locale, event.getServerTextChannel().get(), r);
-
+        boolean successful = false;
         try {
             successful = ((onRecievedListener) this).onRecieved(event, followedString);
-        } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+        } catch (Throwable e) {
+            ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
+            return;
+        } finally {
+            removeLoadingReaction();
+            setResultReaction(successful);
         }
 
         if ((this instanceof onReactionAddListener)) {
-            Message reactionMessage;
-            reactionMessage = ((onReactionAddListener) this).getReactionMessage();
-
+            Message reactionMessage = ((onReactionAddListener) this).getReactionMessage();
             if (reactionMessage != null) {
-                authorMessage = event.getMessage();
-                reactionUserID = event.getMessage().getAuthor().getId();
+                reactionUserID = starterMessage.getUserAuthor().get().getId();
                 addReactionListener(reactionMessage);
             }
         }
 
         if ((this instanceof onForwardedRecievedListener)) {
             Message forwardedMessage = ((onForwardedRecievedListener) this).getForwardedMessage();
-
             if (forwardedMessage != null) {
-                authorMessage = event.getMessage();
-                addForwarder(authorMessage.getServerTextChannel().get(), authorMessage.getUserAuthor().get());
+                reactionUserID = starterMessage.getUserAuthor().get().getId();
+                addForwarder(forwardedMessage, starterMessage.getServerTextChannel().get(), starterMessage.getUserAuthor().get());
             }
         }
 
         if (this instanceof onNavigationListener) {
-            deleteOnTimeOut = true;
-            reactionUserID = event.getMessage().getAuthor().getId();
-            addNavigation(navigationMessage, event.getChannel(),event.getMessage().getUserAuthor().get());
+            addNavigation(navigationMessage, event.getChannel(), event.getMessage().getUserAuthor().get());
         }
+    }
 
-        r.run();
+    public void onReactionAddSuper(SingleReactionEvent event) {
+        if (commandProperties.withLoadingBar()) addLoadingReaction();
+        if (countdown != null) countdown.reset();
+
+        try {
+            ((onReactionAddListener) this).onReactionAdd(event);
+        } catch (Throwable throwable) {
+            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+        }
+    }
+
+    public void onForwardedRecievedSuper(MessageCreateEvent event) {
+        boolean successful = false;
+        if (countdown != null) countdown.reset();
+        if (commandProperties.withLoadingBar()) addLoadingReaction();
+
+        try {
+            successful = ((onForwardedRecievedListener) this).onForwardedRecieved(event);
+        } catch (Throwable throwable) {
+            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+        } finally {
+            removeLoadingReaction();
+            setResultReaction(successful);
+        }
     }
 
     public boolean onNavigationMessageSuper(MessageCreateEvent event, String followedString, boolean firstTime) {
         resetNavigation();
-        successful = false;
+
         Response success = null;
-        if (withLoadingBar) addLoadingReaction(event.getMessage());
         if (firstTime) {
-            authorMessage = event.getMessage();
-            reactionUserID = event.getMessage().getAuthor().getId();
+            starterMessage = event.getMessage();
+            reactionUserID = starterMessage.getUserAuthor().get().getId();
             ServerTextChannel channel = event.getServerTextChannel().get();
             if(!channel.canYouWrite() || !channel.canYouAddNewReactions() || !channel.canYouEmbedLinks()) navigationPrivateMessage = true;
         }
-
-        Runnable r = () -> setResultReaction(event.getMessage(), successful);
-        ExceptionHandler.handleUncaughtException(locale, event.getServerTextChannel().get(), r);
+        if (commandProperties.withLoadingBar()) addLoadingReaction();
 
         try {
             navigationActive = true;
-            success = ((onNavigationListener) this).controllerMessage(event, followedString, firstTime);
-            successful = success == Response.TRUE;
+            success = ((onNavigationListener) this).controllerMessage(event, followedString, state, firstTime);
             if (success != null || navigationMessage == null) {
-                startTime = System.currentTimeMillis();
+                if (countdown != null) countdown.reset();
                 drawSuper(event.getApi(), event.getServerTextChannel().get());
             }
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+            return true;
+        } finally {
+            if (success != null) {
+                removeLoadingReaction();
+                setResultReaction(success == Response.TRUE);
+            }
         }
 
         if (firstTime) {
-            if (successful && navigationActive) {
+            if (success == Response.TRUE && navigationActive) {
                 for (int i = -1; i < ((onNavigationListener) this).getMaxReactionNumber(); i++) {
                     if (i == -1) {
                         if (navigationMessage != null) {
@@ -124,18 +152,12 @@ public class Command {
             if (success == Response.TRUE) event.getMessage().delete();
         }
 
-        if (success != null) r.run();
-
         return success != null;
     }
 
     public void onNavigationReactionSuper(SingleReactionEvent event) {
         resetNavigation();
-        startTime = System.currentTimeMillis();
-
-        Runnable r = null;
-        //if (event instanceof ReactionAddEvent) r = ((ReactionAddEvent)event)::removeReaction;
-        ExceptionHandler.handleUncaughtException(locale, event.getChannel(), r);
+        if (countdown != null) countdown.reset();
 
         int index = -2;
         if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Shortcuts.getBackEmojiUnicode())) || (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(Shortcuts.getBackEmojiCustom(event.getApi()).getMentionTag())))
@@ -150,17 +172,15 @@ public class Command {
         }
         boolean changed;
         try {
-            changed = ((onNavigationListener) this).controllerReaction(event, index);
+            changed = ((onNavigationListener) this).controllerReaction(event, index, state);
             if (changed) drawSuper(event.getApi(), event.getChannel());
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getChannel());
         }
-
-        if (r != null) r.run();
     }
 
     public void drawSuper(DiscordApi api, TextChannel channel) throws Throwable {
-        EmbedBuilder eb = ((onNavigationListener) this).draw(api)
+        EmbedBuilder eb = ((onNavigationListener) this).draw(api, state)
                 .setTimestampToNow();
 
         if (options != null && options.length > 0) {
@@ -173,8 +193,8 @@ public class Command {
 
         if (navigationMessage == null) {
             if (navigationPrivateMessage) {
-                if (channel.canYouAddNewReactions()) authorMessage.addReaction("\u2709").get();
-                navigationMessage = authorMessage.getUserAuthor().get().sendMessage(eb).get();
+                if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
+                navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
             }
             else navigationMessage = channel.sendMessage(eb).get();
         }
@@ -184,135 +204,114 @@ public class Command {
         }
     }
 
-    public void deleteNavigationMessage() throws Throwable {
-        removeNavigation();
-        if (authorMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == authorMessage.getChannel()) authorMessage.getChannel().bulkDelete(navigationMessage, authorMessage).get();
-        else navigationMessage.delete().get();
+    private void resetNavigation() {
+        log = "";
+        logStatus = null;
+        options = null;
     }
 
-    public void deleteReactionMessage() throws Throwable {
-        Message reactionMessage = null;
-        if (this instanceof onReactionAddListener) reactionMessage = ((onReactionAddListener) this).getReactionMessage();
-        removeReactionListener(reactionMessage);
-        if (authorMessage.getChannel().canYouManageMessages()) authorMessage.getChannel().bulkDelete(reactionMessage, authorMessage).get();
-        else if (reactionMessage != null) reactionMessage.delete().get();
-    }
-
-    public void deleteForwardedMessage() throws Throwable {
-        Message forwardedMessage = ((onForwardedRecievedListener) this).getForwardedMessage();
-        removeNavigation();
-        if (authorMessage.getChannel().canYouManageMessages()) authorMessage.getChannel().bulkDelete(forwardedMessage,authorMessage).get();
-        else if (forwardedMessage != null) forwardedMessage.delete().get();
-    }
-
-    public void onForwardedRecievedSuper(MessageCreateEvent event) {
-        successful = false;
-        startTime = System.currentTimeMillis();
-        if (withLoadingBar) addLoadingReaction(event.getMessage());
-
-        Runnable r = () -> setResultReaction(event.getMessage(), successful);
-        ExceptionHandler.handleUncaughtException(locale, event.getServerTextChannel().get(), r);
-
+    public void addLoadingReaction() {
         try {
-            successful = ((onForwardedRecievedListener) this).onForwardedRecieved(event);
-        } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+            if (
+                    loadingStatus == LoadingStatus.OFF &&
+                            starterMessage != null &&
+                            starterMessage.getCurrentCachedInstance().isPresent() &&
+                            starterMessage.getChannel().canYouAddNewReactions() &&
+                            !loadingBlock
+            ) {
+                loadingStatus = LoadingStatus.ONGOING;
+
+                CompletableFuture<Void> loadingBarReaction;
+                if (starterMessage.getChannel().canYouUseExternalEmojis())
+                    loadingBarReaction = starterMessage.addReaction(Shortcuts.getCustomEmojiByID(starterMessage.getApi(), 407189379749117981L));
+                else loadingBarReaction = starterMessage.addReaction("⏳");
+
+                loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
+            }
+        } catch (Throwable e) {
+            //Ignore
         }
-
-        r.run();
     }
 
-    public void onReactionAddSuper(SingleReactionEvent event) {
-        startTime = System.currentTimeMillis();
+    public void removeLoadingReaction() {
+        if (loadingStatus != LoadingStatus.OFF) {
+            while (loadingStatus == LoadingStatus.ONGOING) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
-        Runnable r = null;
-        //if (event instanceof ReactionAddEvent) r = ((ReactionAddEvent)event)::removeReaction;
-        ExceptionHandler.handleUncaughtException(locale, event.getServerTextChannel().get(), r);
-
-        try {
-            ((onReactionAddListener) this).onReactionAdd(event);
-        } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+            loadingStatus = LoadingStatus.OFF;
+            if (starterMessage.getCurrentCachedInstance().isPresent()) {
+                try {
+                    starterMessage = starterMessage.getLatestInstance().get();
+                    try {
+                        if (starterMessage.getChannel().canYouUseExternalEmojis())
+                            starterMessage.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(starterMessage.getApi(), 407189379749117981L)).get();
+                        else starterMessage.removeOwnReactionByEmoji("⏳").get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    //Ignore
+                }
+            }
         }
-
-        if (r != null) r.run();
     }
 
-    public void navigationFinish() {
-        removeNavigation();
-    }
-
-    public void setResultReaction(Message message, boolean successful) {
-        removeLoadingReaction(message);
-        if (message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
-            message.addReaction(Tools.getEmojiForBoolean(successful));
+    private void setResultReaction(boolean successful) {
+        if (starterMessage.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
+            starterMessage.addReaction(Tools.getEmojiForBoolean(successful));
         }
     }
 
     public void addReactionListener(Message message) {
         reactionMessageID = message.getId();
         CommandContainer.getInstance().addReactionListener(this);
-        new Thread(() -> manageTimeOut(message)).start();
+        if (countdown == null) countdown = new Countdown(Settings.TIME_OUT_TIME, Countdown.TimePeriod.MILISECONDS, () -> onTimeOut(message));
     }
 
-    private void addForwarder(TextChannel forwardChannel, User forwardUser) {
-        addForwarder(forwardChannel);
+    private void addForwarder(Message message, TextChannel forwardChannel, User forwardUser) {
+        forwardChannelID = forwardChannel.getId();
         forwardUserID = forwardUser.getId();
-    }
-
-    private void addForwarder(TextChannel forwardChannel) {
-        if (forwardChannel != null) forwardChannelID = forwardChannel.getId();
         CommandContainer.getInstance().addMessageForwardListener(this);
-        new Thread(() -> manageTimeOut(null)).start();
+        if (countdown == null) countdown = new Countdown(Settings.TIME_OUT_TIME, Countdown.TimePeriod.MILISECONDS, () -> onTimeOut(message));
     }
 
     private void addNavigation(Message message, TextChannel forwardChannel, User forwardUser) {
-        if (forwardChannel != null) forwardChannelID = forwardChannel.getId();
-        if (forwardUser != null) forwardUserID = forwardUser.getId();
+        forwardChannelID = forwardChannel.getId();
+        forwardUserID = forwardUser.getId();
         reactionMessageID = message.getId();
         CommandContainer.getInstance().addReactionListener(this);
         CommandContainer.getInstance().addMessageForwardListener(this);
-        new Thread(() -> manageTimeOut(message)).start();
+        if (countdown == null) countdown = new Countdown(Settings.TIME_OUT_TIME, Countdown.TimePeriod.MILISECONDS, () -> onTimeOut(message));
     }
 
-    private void manageTimeOut(Message message) {
-        startTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() < (startTime + Settings.TIME_OUT_TIME)) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    private void onTimeOut(Message message) {
         if (CommandContainer.getInstance().reactionListenerContains(this)) {
-            CommandContainer.getInstance().removeReactionListener(this);
-            if (message != null && message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
             if (this instanceof onNavigationListener) {
                 try {
                     ((onNavigationListener) this).onNavigationTimeOut(message);
-                    if (deleteOnTimeOut) deleteNavigationMessage();
+                    if (commandProperties.deleteOnTimeOut()) deleteNavigationMessage();
                     else removeNavigation();
                 } catch (Throwable throwable) {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
-            } else {
+            } else if (this instanceof onReactionAddListener) {
                 try {
-                    if (deleteOnTimeOut) deleteReactionMessage();
+                    if (commandProperties.deleteOnTimeOut()) deleteReactionMessage();
                     else removeReactionListener();
-                } catch (Throwable throwable) {
-                    ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
-                }
-            }
-            if (this instanceof onReactionAddListener) {
-                try {
                     ((onReactionAddListener) this).onReactionTimeOut(message);
                 } catch (Throwable throwable) {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
             }
         }
-        if (CommandContainer.getInstance().forwarderContains(this)) {
-            CommandContainer.getInstance().removeForwarder(this);
+
+        else if (CommandContainer.getInstance().forwarderContains(this)) {
+            removeMessageForwarder();
             if (this instanceof onForwardedRecievedListener) {
                 try {
                     ((onForwardedRecievedListener) this).onForwardedTimeOut();
@@ -323,15 +322,25 @@ public class Command {
         }
     }
 
+    public void deleteNavigationMessage() throws Throwable {
+        removeNavigation();
+        if (starterMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == starterMessage.getChannel()) starterMessage.getChannel().bulkDelete(navigationMessage, starterMessage).get();
+        else navigationMessage.delete().get();
+    }
+
+    public void deleteReactionMessage() throws Throwable {
+        Message reactionMessage = ((onReactionAddListener) this).getReactionMessage();
+        removeReactionListener(reactionMessage);
+        if (starterMessage.getChannel().canYouManageMessages()) starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).get();
+        else if (reactionMessage != null) reactionMessage.delete().get();
+    }
+
     public void removeMessageForwarder() {
         CommandContainer.getInstance().removeForwarder(this);
     }
 
     public void removeReactionListener() {
-        Message message = null;
-        if (this instanceof onReactionAddListener)
-            message = ((onReactionAddListener) this).getReactionMessage();
-
+        Message message = ((onReactionAddListener) this).getReactionMessage();
         removeReactionListener(message);
     }
 
@@ -346,162 +355,68 @@ public class Command {
         removeReactionListener(navigationMessage);
     }
 
-    public void addLoadingReaction(Message message) {
-        try {
-            if (message != null && (message.getCurrentCachedInstance().isPresent() || (message = message.getServerTextChannel().get().getMessageById(message.getId()).get()) != null)) {
-                if (message.getChannel().canYouAddNewReactions()) {
-                    if (message.getChannel().canYouUseExternalEmojis())
-                        loadingBarReaction = message.addReaction(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L));
-                    else loadingBarReaction = message.addReaction("⏳");
-                }
-            }
-        } catch (Throwable e) {
-            //Ignore
-        }
-    }
-
-    public void removeLoadingReaction(Message message) {
-        if (loadingBarReaction != null) {
-            try {
-                loadingBarReaction.get();
-                try {
-                    loadingBarReaction = null;
-                    if (message.getChannel().canYouUseExternalEmojis())
-                        message.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L)).get();
-                    else message.removeOwnReactionByEmoji("⏳").get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                //Ignore
-            }
-        }
-    }
-
-    public String getTrigger() {
-        return trigger;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public boolean isNsfw() {
-        return nsfw;
-    }
-
-    public long getReactionMessageID() {
-        return reactionMessageID;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
-    public long getForwardChannelID() {
-        return forwardChannelID;
-    }
-
-    public long getForwardUserID() {
-        return forwardUserID;
-    }
-
-    public boolean isPrivate() {
-        return privateUse;
-    }
-
-    public int getUserPermissions() {
-        return userPermissions;
-    }
-
-    public int getBotPermissions() {
-        int perm = botPermissions;
-        if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStatic) {
-            perm = perm | Permission.ADD_NEW_REACTIONS;
-        }
-        return perm;
-    }
 
     public String getString(String key, String... args) throws Throwable {
-        String text = TextManager.getString(locale,"commands",trigger+"_"+key, args);
+        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
     public String getString(String key, int option, String... args) throws Throwable {
-        String text = TextManager.getString(locale,"commands",trigger+"_"+key, option, args);
+        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, option, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
     public String getString(String key, boolean secondOption, String... args) throws Throwable {
-        String text = TextManager.getString(locale,"commands",trigger+"_"+key, secondOption, args);
+        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, secondOption, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
-    public Locale getLocale() {
-        return locale;
-    }
 
-    public String getThumbnail() {
-        return thumbnail;
-    }
+    //Just getters and setters, nothing important
+    public String getPrefix() { return prefix; }
+    public void setPrefix(String prefix) { this.prefix = prefix; }
+    public String getCategory() { return category; }
+    public void setLocale(Locale locale) { this.locale = locale; }
+    public Locale getLocale() { return locale; }
+    public long getReactionMessageID() { return reactionMessageID; }
+    public long getForwardChannelID() { return forwardChannelID; }
+    public long getForwardUserID() { return forwardUserID; }
+    public Message getStarterMessage() { return starterMessage; }
+    public boolean isNavigationPrivateMessage() { return navigationPrivateMessage; }
+    public void setReactionUserID(long reactionUserID) { this.reactionUserID = reactionUserID; }
+    public long getReactionUserID() { return reactionUserID; }
+    public void setState(int state) { this.state = state; }
+    public Message getNavigationMessage() { return navigationMessage; }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
 
-    public String getEmoji() {
-        return emoji;
+    public String getTrigger() { return commandProperties.trigger(); }
+    public String[] getAliases() { return commandProperties.aliases(); }
+    public String getThumbnail() { return commandProperties.thumbnail(); }
+    public String getEmoji() { return commandProperties.emoji(); }
+    public boolean isNsfw() { return commandProperties.nsfw(); }
+    public boolean isPrivate() { return commandProperties.privateUse(); }
+    public boolean isExecutable() { return commandProperties.executable(); }
+    public int getUserPermissions() { return commandProperties.botPermissions(); }
+    public int getBotPermissions() {
+        int perm = commandProperties.botPermissions();
+        if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStatic) {
+            perm |= Permission.ADD_NEW_REACTIONS;
+        }
+        if (this instanceof onReactionAddStatic) {
+            perm |= Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
+        }
+        return perm;
     }
+    public void blockLoading() { loadingBlock = true; }
 
-    public void resetNavigation() {
-        log = "";
-        logStatus = null;
-        options = null;
-    }
-
+    public String[] getOptions() { return options; }
+    public void setOptions(String[] options) { this.options = options; }
     public void setLog(LogStatus logStatus, String string) {
         this.log = string;
         this.logStatus = logStatus;
     }
-
-    public String getLog() {
-        return log;
-    }
-
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public Message getAuthorMessage() {
-        return authorMessage;
-    }
-
-    public boolean isExecutable() {
-        return executable;
-    }
-
-    public void setWithLoadingBar(boolean withLoadingBar) {
-        this.withLoadingBar = withLoadingBar;
-    }
-
-    public Message getNavigationMessage() {
-        return navigationMessage;
-    }
-
-    public long getReactionUserID() {
-        return reactionUserID;
-    }
-
-    public void setReactionUserID(long reactionUserID) {
-        this.reactionUserID = reactionUserID;
-    }
-
-    public boolean isNavigationPrivateMessage() {
-        return navigationPrivateMessage;
-    }
-
 
 }

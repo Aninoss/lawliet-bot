@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "yiff",
+        emoji = "\uD83E\uDD8A",
+        executable = false
+)
 public class YiffCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public YiffCommand() {
-        super();
-        trigger = "yiff";
-        emoji = "\uD83E\uDD8A";
-        nsfw = true;
-        gifs = new String[]{
-                "https://static1.e621.net/data/24/e1/24e19783d4e24ea5d426ade6fe554ef9.gif",
+        super("https://static1.e621.net/data/24/e1/24e19783d4e24ea5d426ade6fe554ef9.gif",
                 "https://static1.e621.net/data/e5/70/e570224a4a09c0d25e06666a64d9d393.gif",
                 "https://static1.e621.net/data/68/a2/68a2a4bbfaceabb8e8e3334735aa214b.gif",
                 "https://static1.e621.net/data/ff/cc/ffcc2358cb9b770bbb9f9d81a1b682e0.gif",
@@ -40,7 +41,7 @@ public class YiffCommand extends InteractionCommand implements onRecievedListene
                 "https://static1.e621.net/data/70/84/7084a1b87e31388a5cef3a59c46955b6.gif",
                 "https://static1.e621.net/data/e6/a4/e6a4ec25e8c2c57c2b2a70cd8e2b301e.gif",
                 "https://static1.e621.net/data/47/7e/477e04522f76a011a05031d81cd4fdb4.gif"
-        };
+        );
     }
 
     @Override

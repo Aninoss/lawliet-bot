@@ -1,19 +1,21 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "fuck",
+        emoji = "\uD83D\uDECF️",
+        executable = false,
+        nsfw = true
+)
 public class FuckCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public FuckCommand() {
-        super();
-        trigger = "fuck";
-        emoji = "\uD83D\uDECF️";
-        nsfw = true;
-        gifs = new String[]{
-                "https://www.rencontresanslendemain.net/wp-content/uploads/2018/02/gif-sexe-hentai.gif",
+        super("https://www.rencontresanslendemain.net/wp-content/uploads/2018/02/gif-sexe-hentai.gif",
                 "http://hentai.bestsexphotos.eu/wp-content/uploads/2017/01/tumblr_ofkrfhY8dG1u2uu04o1_500.gif",
                 "https://thumb-p0.xhcdn.com/a/ZE1ZEIk98Qy-nrbUAc6Z7g/000/127/270/110_1000.gif",
                 "https://www.rencontresanslendemain.net/wp-content/uploads/2018/02/hentai-levrette.gif",
@@ -65,7 +67,7 @@ public class FuckCommand extends InteractionCommand implements onRecievedListene
                 "https://img2.gelbooru.com//images/f1/56/f156346cec38d61ddb8269de327e545e.gif",
                 "https://img2.gelbooru.com//images/d6/9f/d69f8049cfa898a58eb078d5b0f0b540.gif",
                 "https://img2.gelbooru.com//images/c1/f3/c1f36bbd19795ba46d2d842fb5ae6728.gif"
-        };
+        );
     }
 
     @Override

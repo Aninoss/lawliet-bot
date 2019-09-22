@@ -1,5 +1,6 @@
 package Commands.PowerPlant;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import Constants.*;
@@ -18,27 +19,26 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "buy",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    emoji = "\uD83D\uDCE5",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/shopping-icon.png",
+    executable = true
+)
 public class BuyCommand extends Command implements onNavigationListener {
+
+    public BuyCommand() {
+        super();
+    }
+
     private ArrayList<Role> roles;
     private FishingProfile fishingProfile;
     private int numberReactions = 0;
     private boolean singleRole;
 
-    public BuyCommand() {
-        super();
-        trigger = "buy";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDCE5";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/shopping-icon.png";
-        executable = true;
-    }
-
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
             if (status == PowerPlantStatus.ACTIVE) {
@@ -47,7 +47,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                 singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
                 return Response.TRUE;
             } else {
-                state = 1;
+                setState(1);
                 removeNavigation();
                 return Response.FALSE;
             }
@@ -56,7 +56,7 @@ public class BuyCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             if (i == -1) {
                 deleteNavigationMessage();
@@ -70,7 +70,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                     FishingSlot slot = fishingProfile.find(i);
 
                     if (fishingProfile.getCoins() >= slot.getPrice()) {
-                        EmbedBuilder eb = DBUser.addFishingValues(locale, event.getServer().get(), event.getUser(), 0, -slot.getPrice());
+                        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0, -slot.getPrice());
                         DBUser.updatePowerUpLevel(event.getServer().get(), event.getUser(), slot.getId(), slot.getLevel() + 1);
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
 
@@ -101,7 +101,7 @@ public class BuyCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         switch (state) {
             case 0:
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
@@ -117,10 +117,10 @@ public class BuyCommand extends Command implements onNavigationListener {
                     if (slot.getId() != FishingCategoryInterface.ROLE || slot.getLevel() < roles.size()) {
                         String productDescription = "???";
                         if (slot.getId() != FishingCategoryInterface.ROLE)
-                            productDescription = getString("product_des_" + slot.getId(), Tools.numToString(locale, slot.getDeltaEffect()));
+                            productDescription = getString("product_des_" + slot.getId(), Tools.numToString(getLocale(), slot.getDeltaEffect()));
                         else if (roles.get(slot.getLevel()) != null)
                             productDescription = getString("product_des_" + slot.getId(), roles.get(slot.getLevel()).getMentionTag());
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()], getString("product_" + slot.getId() + "_0"), String.valueOf(slot.getLevel()), Tools.numToString(locale, slot.getPrice()), productDescription));
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()], getString("product_" + slot.getId() + "_0"), String.valueOf(slot.getLevel()), Tools.numToString(getLocale(), slot.getPrice()), productDescription));
 
                         numberReactions++;
                         eb.addField(Tools.getEmptyCharacter(), description.toString());
@@ -130,19 +130,19 @@ public class BuyCommand extends Command implements onNavigationListener {
 
                 eb.addField(Tools.getEmptyCharacter(),
                         getString("status",
-                                Tools.numToString(locale, fishingProfile.getFish()),
-                                Tools.numToString(locale, fishingProfile.getCoins()),
-                                Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
-                                Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
-                                Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
-                                Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
-                                Tools.numToString(locale, fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
+                                Tools.numToString(getLocale(), fishingProfile.getFish()),
+                                Tools.numToString(getLocale(), fishingProfile.getCoins()),
+                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
+                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
+                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
+                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
+                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                         )
                 );
                 return eb;
 
             case 1:
-                return EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", prefix), TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_title"));
+                return EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"));
         }
         return null;
     }

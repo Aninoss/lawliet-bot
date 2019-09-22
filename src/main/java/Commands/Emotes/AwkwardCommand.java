@@ -1,19 +1,20 @@
 package Commands.Emotes;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "awkward",
+    emoji = "\uD83D\uDE05",
+    executable = true
+)
 public class AwkwardCommand extends EmoteCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public AwkwardCommand() {
-        super();
-        trigger = "awkward";
-        emoji = "\uD83D\uDE05";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/a88493abc7f9f8e296c6fd3dd8d1fbe9/tenor.gif?itemid=10517455",
+        super("https://media1.tenor.com/images/a88493abc7f9f8e296c6fd3dd8d1fbe9/tenor.gif?itemid=10517455",
                 "https://media1.tenor.com/images/8271fe0d4da44d3f01266e32cb22dc95/tenor.gif?itemid=10880412",
                 "https://media1.tenor.com/images/d59b4de25cd8cf2833bfa55f90137c7e/tenor.gif?itemid=9474338",
                 "https://media1.tenor.com/images/11758e6b97e1e1d21420646f91efb07f/tenor.gif?itemid=11624562",
@@ -32,11 +33,11 @@ public class AwkwardCommand extends EmoteCommand implements onRecievedListener {
                 "https://media1.tenor.com/images/cb427167533b1ad95616ad7020c098af/tenor.gif?itemid=5716283",
                 "https://media1.tenor.com/images/acf3eee4dcf9b8bd0b061db070f9dfe9/tenor.gif?itemid=14207288",
                 "https://media1.tenor.com/images/8edc623e599c969359e4a5b5fb4c30f0/tenor.gif?itemid=12360867"
-        };
+        );
     }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onInteractionRecieved(event, followedString, picked);
+        return onEmoteRecieved(event, picked);
     }
 }

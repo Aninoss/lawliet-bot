@@ -12,20 +12,17 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "fortune",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/question-icon.png",
+    emoji = "❓",
+    executable = false
+)
 public class FortuneCommand extends Command implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public FortuneCommand() {
         super();
-        trigger = "fortune";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/question-icon.png";
-        emoji = "❓";
-        executable = false;
     }
 
     @Override
@@ -42,8 +39,8 @@ public class FortuneCommand extends Command implements onRecievedListener {
     }
 
     private EmbedBuilder getEmbed(Message message, String question) throws Throwable {
-        int n = Tools.pickFullRandom(picked,TextManager.getKeySize(locale,TextManager.ANSWERS)-1);
-        String answerRaw = TextManager.getString(locale,TextManager.ANSWERS, String.valueOf(n+1));
+        int n = Tools.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS)-1);
+        String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
         String answer = answerRaw;
         if (answer.equals("%RandomUpperCase")) {
             answer = Tools.randomUpperCase(question);

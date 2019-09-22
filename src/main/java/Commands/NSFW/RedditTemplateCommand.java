@@ -1,5 +1,6 @@
 package Commands.NSFW;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.*;
@@ -9,18 +10,12 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 public class RedditTemplateCommand extends Command implements onRecievedListener {
+
     private String subreddit;
 
     public RedditTemplateCommand(String subreddit) {
         super();
         this.subreddit = subreddit;
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = true;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDD1E";
-        executable = true;
     }
 
     @Override
@@ -29,7 +24,7 @@ public class RedditTemplateCommand extends Command implements onRecievedListener
 
         int tries = 5;
         do {
-            post = RedditDownloader.getImagePost(locale, subreddit);
+            post = RedditDownloader.getImagePost(getLocale(), subreddit);
             tries--;
         }
         while (post == null && tries >= 0);
@@ -40,9 +35,10 @@ public class RedditTemplateCommand extends Command implements onRecievedListener
                 .setUrl(post.getLink())
                 .setTimestamp(post.getInstant());
 
-        eb.setFooter(TextManager.getString(locale, TextManager.COMMANDS,"porn_footer", Tools.numToString(locale, post.getScore()), Tools.numToString(locale, post.getComments())));
+        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_footer", Tools.numToString(getLocale(), post.getScore()), Tools.numToString(getLocale(), post.getComments())));
 
         event.getChannel().sendMessage(eb).get();
         return true;
     }
+
 }

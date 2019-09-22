@@ -1,5 +1,6 @@
 package Commands.PowerPlant;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.FishingCategoryInterface;
@@ -15,20 +16,17 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+@CommandProperties(
+    trigger = "daily",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/calendar-icon.png",
+    emoji = "\uD83D\uDDD3",
+    executable = true
+)
 public class DailyCommand extends Command implements onRecievedListener {
-    private Message message;
 
     public DailyCommand() {
         super();
-        trigger = "daily";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/calendar-icon.png";
-        emoji = "\uD83D\uDDD3";
-        executable = true;
     }
 
     @Override
@@ -62,10 +60,10 @@ public class DailyCommand extends Command implements onRecievedListener {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(label, dailyState.getStreak() != 1, Tools.numToString(locale, fishes), Tools.numToString(locale, dailyState.getStreak()), Tools.numToString(locale, bonusCombo))));
-                if (bonusDonation > 0) event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("donate_description", Tools.numToString(locale, bonusDonation), Settings.UPVOTE_URL), getString("donate_title")).setThumbnail("http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png"));
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(label, dailyState.getStreak() != 1, Tools.numToString(getLocale(), fishes), Tools.numToString(getLocale(), dailyState.getStreak()), Tools.numToString(getLocale(), bonusCombo))));
+                if (bonusDonation > 0) event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("donate_description", Tools.numToString(getLocale(), bonusDonation), Settings.UPVOTE_URL), getString("donate_title")).setThumbnail("http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png"));
                 else event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("upvote_description", Settings.UPVOTE_URL), getString("upvote_title")));
-                event.getChannel().sendMessage(DBUser.addFishingValues(locale, event.getServer().get(), event.getMessage().getUserAuthor().get(), fishes + bonusCombo + bonusDonation, 0L, dailyBefore)).get();
+                event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), fishes + bonusCombo + bonusDonation, 0L, dailyBefore)).get();
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("claimed_desription"), getString("claimed_title"));
@@ -73,7 +71,7 @@ public class DailyCommand extends Command implements onRecievedListener {
                 return false;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", prefix), TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
         }
     }

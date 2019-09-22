@@ -26,8 +26,6 @@ public class TrackerManager {
         if (((onTrackerRequestListener) command).needsPrefix())
             command.setPrefix(DBServer.getPrefix(trackerData.getServer()));
 
-        //System.out.println("Tracker startet! Channel: " + trackerData.getVoiceChannel().getIdAsString());
-
         while (true) {
             try {
                 Duration duration = Duration.between(Instant.now(), trackerData.getInstant());

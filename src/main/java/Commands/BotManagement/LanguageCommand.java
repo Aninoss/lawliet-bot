@@ -8,12 +8,16 @@ import General.EmbedFactory;
 import MySQL.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.util.ArrayList;
 import java.util.Locale;
 
+@CommandProperties(
+        trigger = "language",
+        userPermissions = Permission.MANAGE_SERVER,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/flag-icon.png",
+        emoji = "\uD83C\uDF10",
+        executable = true
+)
 public class LanguageCommand extends Command implements onRecievedListener, onReactionAddListener {
     private Message message;
 
@@ -23,15 +27,6 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
 
     public LanguageCommand() {
         super();
-        trigger = "language";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = Permission.MANAGE_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/flag-icon.png";
-        emoji = "\uD83C\uDF10";
-        executable = true;
     }
 
     @Override
@@ -47,10 +42,10 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("invalid", followedString)));
                 return false;
             } else {
-                locale = new Locale(languageLocales[language]);
+                setLocale(new Locale(languageLocales[language]));
             }
 
-            DBServer.setServerLocale(event.getServer().get(), locale);
+            DBServer.setServerLocale(event.getServer().get(), getLocale());
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
             return true;
         } else {
@@ -67,8 +62,8 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
         for(int i=0; i<languageEmojis.length; i++) {
             String str = languageEmojis[i];
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
-                locale = new Locale(languageLocales[i]);
-                DBServer.setServerLocale(event.getServer().get(), locale);
+                setLocale(new Locale(languageLocales[i]));
+                DBServer.setServerLocale(event.getServer().get(), getLocale());
                 getReactionMessage().edit(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;

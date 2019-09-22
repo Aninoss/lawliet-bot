@@ -18,21 +18,19 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.Calendar;
 import java.util.Random;
 
+@CommandProperties(
+    trigger = "sell",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-rotation-icon.png",
+    emoji = "\uD83D\uDCE4",
+    executable = true
+)
 public class SellCommand extends Command implements onRecievedListener, onReactionAddListener, onForwardedRecievedListener {
     private static int COINS_PER_FISH[] = {-1, -1};
     private Message message;
 
     public SellCommand() {
         super();
-        trigger = "sell";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-rotation-icon.png";
-        emoji = "\uD83D\uDCE4";
-        executable = true;
     }
 
     @Override
@@ -45,16 +43,16 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
                 FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
                 message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                         getString("status",
-                                Tools.numToString(locale, fishingProfile.getFish()),
-                                Tools.numToString(locale, fishingProfile.getCoins()),
-                                Tools.numToString(locale, getExchangeRate(0)),
+                                Tools.numToString(getLocale(), fishingProfile.getFish()),
+                                Tools.numToString(getLocale(), fishingProfile.getCoins()),
+                                Tools.numToString(getLocale(), getExchangeRate(0)),
                                 getChangeEmoji()
                         ))).get();
                 message.addReaction("❌");
                 return true;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", prefix), TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
         }
     }
@@ -76,17 +74,17 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
             if (value <= fishingProfile.getFish()) {
                 long fish = value;
                 long coins = getExchangeRate(0) * value;
-                EmbedBuilder eb = DBUser.addFishingValues(locale, event.getServer().get(), event.getMessage().getUserAuthor().get(), -fish, coins);
+                EmbedBuilder eb = DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), -fish, coins);
 
                 sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedSuccess(this, getString("done")));
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", fishingProfile.getFish() != 1, Tools.numToString(locale, fishingProfile.getFish()))));
+                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", fishingProfile.getFish() != 1, Tools.numToString(getLocale(), fishingProfile.getFish()))));
         } else if (value == 0)
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "too_small", "1")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")));
         else if (value == -1)
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "no_digit")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
         return false;
     }
 
@@ -146,7 +144,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals("❌")) {
             removeMessageForwarder();
             removeReactionListener();
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(locale, getExchangeRate(0)), getChangeEmoji()), getString("nointerest_title")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(getLocale(), getExchangeRate(0)), getChangeEmoji()), getString("nointerest_title")));
         }
     }
 

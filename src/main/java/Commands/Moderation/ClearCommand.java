@@ -16,18 +16,19 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "clear",
+    botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    withLoadingBar = true,
+    emoji = "\uD83D\uDDD1\uFE0F",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
+    executable = false
+)
 public class ClearCommand extends Command implements onRecievedListener {
+
     public ClearCommand() {
         super();
-        trigger = "clear";
-        privateUse = false;
-        botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
-        userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDDD1\uFE0F";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png";
-        executable = false;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class ClearCommand extends Command implements onRecievedListener {
             }
 
             Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("finished_description", deleted != 1, String.valueOf(deleted)))
-                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", "10"))).get();
+                    .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "10"))).get();
             new Thread(() -> {
                 try {
                     Thread.sleep(10000);

@@ -14,7 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-
+@CommandProperties(
+        trigger = "hangman",
+        emoji = "\uD83D\uDD21",
+        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Pencil-icon.png",
+        executable = true
+)
 public class HangmanCommand extends Casino implements onRecievedListener, onForwardedRecievedListener, onReactionAddListener {
     private String answer, log;
     private int health;
@@ -26,12 +31,6 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
 
     public HangmanCommand() {
         super();
-        botPermissions = 0;
-        userPermissions = 0;
-        trigger = "hangman";
-        emoji = "\uD83D\uDD21";
-        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Pencil-icon.png";
-
         winMultiplicator = 1;
     }
 
@@ -39,7 +38,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
             Random r = new Random();
-            List<String> wordList = FileManager.readInList(new File("recourses/hangman_" + locale.getDisplayName() + ".txt"));
+            List<String> wordList = FileManager.readInList(new File("recourses/hangman_" + getLocale().getDisplayName() + ".txt"));
 
             int n;
             do {
@@ -72,14 +71,14 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
-                Tools.numToString(locale, coinsInput),
+                Tools.numToString(getLocale(), coinsInput),
                 getProgress(),
                 String.valueOf(health),
                 String.valueOf(MAX_HEALTH),
                 answer,
                 getUsedString()));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(locale, TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
@@ -174,7 +173,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
             log = getString("wrong", input);
         } else {
             logStatus = LogStatus.LOSE;
-            log = TextManager.getString(locale, TextManager.GENERAL, "lost");
+            log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
             onLose();
         }
 
@@ -195,7 +194,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
             log = getString("right", input);
         } else {
             logStatus = LogStatus.WIN;
-            log = TextManager.getString(locale, TextManager.GENERAL, "won");
+            log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
             winMultiplicator = (double) health / (double) MAX_HEALTH;
             onWin();
         }

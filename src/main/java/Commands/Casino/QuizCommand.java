@@ -1,5 +1,6 @@
 package Commands.Casino;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Constants.LetterEmojis;
@@ -17,8 +18,15 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-
+@CommandProperties(
+        trigger = "quiz",
+        emoji = "❔",
+        thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
+        withLoadingBar = true,
+        executable = true
+)
 public class QuizCommand extends Casino implements onRecievedListener, onReactionAddListener {
+
     private String log;
     private LogStatus logStatus;
     private int difficulty;
@@ -31,14 +39,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
 
     public QuizCommand() {
         super();
-        botPermissions = 0;
-        userPermissions = 0;
-        trigger = "quiz";
-        emoji = "❔";
-        thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png";
-        withLoadingBar = true;
         url = "https://opentdb.com/api.php?amount=1";
-        deleteOnTimeOut = true;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
 
             if (!allowBet) {
                 logStatus = LogStatus.WARNING;
-                log = TextManager.getString(locale, TextManager.GENERAL, "nobet");
+                log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
             }
 
             String dataString = Internet.getData(url);
@@ -108,7 +109,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
                 onAnswerSelected(-1);
             }
         } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, channel);
+            ExceptionHandler.handleException(throwable, getLocale(), channel);
         }
     }
 
@@ -146,12 +147,12 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(locale, TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
 
         String label = "tutorial";
         if (active) label = "tutorial_start";
 
-        eb.addField(Tools.getEmptyCharacter(), getString(label, server.getDisplayName(player), Tools.numToString(locale, coinsInput), String.valueOf(COUNTER)), false);
+        eb.addField(Tools.getEmptyCharacter(), getString(label, server.getDisplayName(player), Tools.numToString(getLocale(), coinsInput), String.valueOf(COUNTER)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
@@ -198,4 +199,5 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
 
     @Override
     public void onReactionTimeOut(Message message) throws Throwable {}
+
 }

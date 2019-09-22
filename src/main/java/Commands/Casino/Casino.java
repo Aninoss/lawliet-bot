@@ -36,10 +36,6 @@ class Casino extends Command implements onReactionAddListener {
 
     Casino() {
         super();
-        privateUse = false;
-        nsfw = false;
-        withLoadingBar = false;
-        executable = true;
         allowBet = true;
     }
 
@@ -50,7 +46,7 @@ class Casino extends Command implements onReactionAddListener {
         channel = event.getServerTextChannel().get();
         active = true;
         useCalculatedMultiplicator = true;
-        compareKey = trigger;
+        compareKey = getTrigger();
 
         if (!allowBet) {
             coinsInput = 0;
@@ -66,7 +62,7 @@ class Casino extends Command implements onReactionAddListener {
         long coins = DBUser.getFishingProfile(server, player).getCoins();
         if (followedString.length() == 0) {
             coinsInput = (long) Math.ceil(coins * 0.1);
-            DBUser.addFishingValues(locale, server, player, 0, -coinsInput);
+            DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
             return true;
         }
 
@@ -80,16 +76,16 @@ class Casino extends Command implements onReactionAddListener {
             if (value >= 0) {
                 if (value <= coins) {
                     coinsInput = value;
-                    DBUser.addFishingValues(locale, server, player, 0, -coinsInput);
+                    DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
                     return true;
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.COMMANDS, "casino_too_large", Tools.numToString(locale, coins)))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", Tools.numToString(getLocale(), coins)))).get();
                 }
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "too_small", "0"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "no_digit"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
         }
 
         return false;
@@ -98,7 +94,7 @@ class Casino extends Command implements onReactionAddListener {
     public void onGameEnd() throws Throwable {
         won = false;
         active = false;
-        DBUser.addFishingValues(locale, server, player, 0, coinsInput);
+        DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput);
         removeNavigation();
         removeMessageForwarder();
         removeReactionListener(((onReactionAddListener)this).getReactionMessage());
@@ -107,7 +103,7 @@ class Casino extends Command implements onReactionAddListener {
     void onLose() throws Throwable {
         onGameEnd();
         DBBot.getGameWonMultiplicator(compareKey, false, 1);
-        EmbedBuilder eb = DBUser.addFishingValues(locale, server, player, 0, -coinsInput);
+        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
@@ -119,15 +115,14 @@ class Casino extends Command implements onReactionAddListener {
         double multiplicator = DBBot.getGameWonMultiplicator(compareKey, true, winMultiplicator);
         if (!useCalculatedMultiplicator) multiplicator = 1;
 
-        EmbedBuilder eb = DBUser.addFishingValues(locale, server, player, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
     EmbedBuilder addRetryOption(EmbedBuilder eb) throws Throwable {
         addReactionListener(getReactionMessage());
         message.addReaction(RETRY_EMOJI);
-        eb.addField(Tools.getEmptyCharacter(), TextManager.getString(locale, TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));
-        deleteOnTimeOut = false;
+        eb.addField(Tools.getEmptyCharacter(), TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));
         return eb;
     }
 
@@ -135,9 +130,9 @@ class Casino extends Command implements onReactionAddListener {
         if (!active && event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(RETRY_EMOJI)) {
             removeReactionListener(getReactionMessage());
 
-            Command command = CommandManager.createCommandByClass(this.getClass(), locale, prefix);
+            Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
             command.setReactionUserID(event.getUser().getId());
-            command.setWithLoadingBar(false);
+            command.blockLoading();
 
             RunningCommandManager.getInstance().remove(event.getUser(), command.getTrigger());
 

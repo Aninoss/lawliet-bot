@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "wave",
+        emoji = "\uD83D\uDC4B",
+        executable = false
+)
 public class WaveCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public WaveCommand() {
-        super();
-        trigger = "wave";
-        emoji = "\uD83D\uDC4B";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/72c9b849aa10b222371ebb99a6b1896a/tenor.gif?itemid=8807701",
+        super("https://media1.tenor.com/images/72c9b849aa10b222371ebb99a6b1896a/tenor.gif?itemid=8807701",
                 "https://media1.tenor.com/images/056c584d9335fcabf080ca43e583e3c4/tenor.gif?itemid=8994845",
                 "https://media1.tenor.com/images/c2e21a9d8e17c1d335166dbcbe0bd1bf/tenor.gif?itemid=5459102",
                 "https://media1.tenor.com/images/97dd3b98910af5ac12559df23454f9ac/tenor.gif?itemid=12046347",
@@ -45,7 +46,7 @@ public class WaveCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/37aa92ebab4f4657a8f1b913b4ea7da4/tenor.gif?itemid=5970516",
                 "https://media1.tenor.com/images/261ef8fda67d96057a3f5b912e3a7280/tenor.gif?itemid=12912666",
                 "https://media1.tenor.com/images/0a70c873c428032bcbf1354da765e278/tenor.gif?itemid=10965696"
-        };
+        );
     }
 
     @Override

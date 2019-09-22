@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "yaoikiss",
+        emoji = "\uD83D\uDC68\u200D❤️\u200D\uD83D\uDC68",
+        executable = false
+)
 public class YaoiKissCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public YaoiKissCommand() {
-        super();
-        trigger = "yaoikiss";
-        emoji = "\uD83D\uDC68\u200D❤️\u200D\uD83D\uDC68";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media.giphy.com/media/dbY5Cq2rnbLNK/giphy.gif",
+        super("https://media.giphy.com/media/dbY5Cq2rnbLNK/giphy.gif",
                 "https://media.giphy.com/media/uJLxLIhd8pnX2/giphy.gif",
                 "https://media.giphy.com/media/zTUTG5hsRwl0s/giphy.gif",
                 "https://media.giphy.com/media/75toITBY1d24o/giphy.gif",
@@ -51,7 +52,7 @@ public class YaoiKissCommand extends InteractionCommand implements onRecievedLis
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188915503956006/e1208176-91ef-46e6-b8ef-3c9b4d21ba4b.gif",
                 "https://media1.tenor.com/images/77c21f541916b0f8f673cdd70a6b78cf/tenor.gif?itemid=12992435",
                 "https://media1.tenor.com/images/3e659c681c779d15d597f84ab5bfc1e3/tenor.gif?itemid=5539915"
-        };
+        );
     }
 
     @Override

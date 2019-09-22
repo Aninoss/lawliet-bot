@@ -31,7 +31,7 @@ public class Clock {
     private static boolean trafficWarned = false;
 
     public static void tick(DiscordApi api) {
-        //Start Every 10 Minutes Event Loop
+        //Start 10 Minutes Event Loop
         new Thread(() -> {
             while(true) {
                 every10Minutes(api);
@@ -72,19 +72,12 @@ public class Clock {
     }
 
     private static void onDayStart(DiscordApi api) {
-        //Reset Fishing Limit
-        FisheryCache.getInstance().reset();
+        FisheryCache.getInstance().reset(); //Reset Fishing Limit
+        SellCommand.resetCoinsPerFish(); //Reset Fishery Exchange Rate
+        trafficWarned = false; //Reset Traffic Warning
+        SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
 
-        //Reset Fishery Exchange Rate
-        SellCommand.resetCoinsPerFish();
-
-        //Reset Traffic Warning
-        trafficWarned = false;
-
-        //Resets Subreddit Cache
-        SubredditContainer.getInstance().reset();
-
-        //Surveys
+        //Survey Results
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         if (day == Calendar.MONDAY || day == Calendar.THURSDAY) {
@@ -180,8 +173,7 @@ public class Clock {
             }
         }
 
-        //Check Expired Donations
-        DonationServer.checkExpiredDonations(api);
+        DonationServer.checkExpiredDonations(api); //Check Expired Donations
 
         //Send Bot Stats
         try {

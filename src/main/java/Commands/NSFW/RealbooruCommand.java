@@ -1,12 +1,19 @@
 package Commands.NSFW;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+@CommandProperties(
+        trigger = "realb",
+        executable = true,
+        emoji = "\uD83D\uDD1E",
+        nsfw = true,
+        withLoadingBar = true
+)
 public class RealbooruCommand extends PornCommand implements onRecievedListener {
     public RealbooruCommand() {
         super();
-        trigger = "realb";
         domain = "realbooru.com";
         imageTemplate = "https://realbooru.com/images/%d/%f";
     }

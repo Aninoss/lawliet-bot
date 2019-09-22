@@ -1,10 +1,15 @@
 Manifest-Version: 1.0
-Class-Path: logging-interceptor-3.9.1.jar log4j-api-2.11.0.jar javacor
- d-api-3.0.4.jar gson-javatime-serialisers-1.1.1.jar jackson-core-2.9.
- 3.jar json-20180813.jar slf4j-api-1.7.25.jar emoji-java-5.0.0.jar jac
- kson-annotations-2.9.0.jar commons-io-2.6.jar jackson-databind-2.9.3.
- jar gson-2.8.5.jar DBL-Java-Library-2.0.1.jar mysql-connector-java-8.
- 0.17.jar nv-websocket-client-2.6.jar javacord-core-3.0.4.jar okio-1.1
- 4.0.jar jsoup-1.12.1.jar protobuf-java-3.6.1.jar okhttp-3.11.0.jar
+Class-Path: okio-1.14.0.jar netty-codec-4.1.32.Final.jar jackson-core-
+ 2.9.7.jar jackson-annotations-2.9.0.jar DBL-Java-Library-2.0.1.jar js
+ oup-1.12.1.jar netty-buffer-4.1.32.Final.jar jackson-databind-2.9.7.j
+ ar commons-io-2.6.jar javacord-core-3.0.4.jar slf4j-api-1.7.25.jar lo
+ gging-interceptor-3.9.1.jar javacord-api-3.0.4.jar gson-javatime-seri
+ alisers-1.1.1.jar netty-transport-4.1.32.Final.jar json-20180813.jar 
+ netty-transport-native-unix-common-4.1.32.Final.jar netty-transport-n
+ ative-epoll-4.1.32.Final.jar netty-codec-http-4.1.32.Final.jar mysql-
+ connector-java-8.0.17.jar netty-resolver-4.1.32.Final.jar protobuf-ja
+ va-3.6.1.jar gson-2.8.5.jar netty-handler-4.1.32.Final.jar emoji-java
+ -5.0.0.jar okhttp-3.11.0.jar nv-websocket-client-2.6.jar netty-socket
+ io-1.7.17.jar log4j-api-2.11.0.jar netty-common-4.1.32.Final.jar
 Main-Class: General.Connector
 

@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -16,20 +17,17 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.awt.*;
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "report",
+    thumbnail = "http://icons.iconarchive.com/icons/designbolts/free-multimedia/128/Studio-Mic-icon.png",
+    emoji = "\uD83C\uDFA4",
+    executable = false
+)
 public class ReportCommand extends Command implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public ReportCommand() {
         super();
-        trigger = "report";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/designbolts/free-multimedia/128/Studio-Mic-icon.png";
-        emoji = "\uD83C\uDFA4";
-        executable = false;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class ReportCommand extends Command implements onRecievedListener {
                 return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(locale, TextManager.GENERAL, "args_too_long", "500"))).get();
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "500"))).get();
                 return false;
             }
         } else {

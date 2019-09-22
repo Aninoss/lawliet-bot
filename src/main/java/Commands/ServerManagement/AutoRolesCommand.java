@@ -1,5 +1,6 @@
 package Commands.ServerManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
@@ -19,25 +20,26 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "autoroles",
+        botPermissions = Permission.MANAGE_ROLES_ON_SERVER,
+        userPermissions = Permission.MANAGE_ROLES_ON_SERVER,
+        emoji = "\uD83D\uDC6A",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/User-group-icon.png",
+        executable = true,
+        aliases = {"basicroles", "autorole"}
+)
 public class AutoRolesCommand extends Command implements onNavigationListener {
+    
     private ArrayList<Role> roles;
     private static ArrayList<Server> busyServers = new ArrayList<>();
 
     public AutoRolesCommand() {
         super();
-        trigger = "autoroles";
-        privateUse = false;
-        botPermissions = Permission.MANAGE_ROLES_ON_SERVER;
-        userPermissions = Permission.MANAGE_ROLES_ON_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDC6A";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/User-group-icon.png";
-        executable = true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             roles = DBServer.getBasicRolesFromServer(event.getServer().get());
             return Response.TRUE;
@@ -46,12 +48,12 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
         if (state == 1) {
             ArrayList<Role> roleList = MentionFinder.getRoles(event.getMessage(), inputString).getList();
             if (roleList.size() == 0) {
-                setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
             } else {
                 for(Role role: roleList) {
                     if (!Tools.canManageRole(role)) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "missing_permission", roleList.size() != 1));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission", roleList.size() != 1));
                         return Response.FALSE;
                     }
                 }
@@ -74,7 +76,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 }
 
                 setLog(LogStatus.SUCCESS, getString("roleadd", (roleList.size() - existingRoles) != 1));
-                state = 0;
+                setState(0);
                 return Response.TRUE;
             }
         }
@@ -83,7 +85,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {
@@ -93,7 +95,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
                     case 0:
                         if (roles.size() < getMaxReactionNumber()) {
-                            state = 1;
+                            setState(1);
                             return true;
                         } else {
                             setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(getMaxReactionNumber())));
@@ -102,7 +104,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
                     case 1:
                         if (roles.size() > 0) {
-                            state = 2;
+                            setState(2);
                             return true;
                         } else {
                             setLog(LogStatus.FAILURE, getString("norolesset"));
@@ -120,7 +122,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                                 return true;
                             }
                         } else {
-                            setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "role_busy"));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
                             return true;
                         }
 
@@ -135,7 +137,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                                 return true;
                             }
                         } else {
-                            setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "role_busy"));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
                             return true;
                         }
                 }
@@ -143,18 +145,18 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
             case 1:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 }
 
             case 2:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 } else if (i < roles.size()) {
                     DBServer.removeBasicRoles(event.getServer().get(), roles.remove(i));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    state = 0;
+                    setState(0);
                     return true;
                 }
         }
@@ -162,12 +164,12 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         switch (state) {
             case 0:
-                options = getString("state0_options").split("\n");
+                setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_mroles"),ListGen.getRoleList(locale, roles), true);
+                       .addField(getString("state0_mroles"),ListGen.getRoleList(getLocale(), roles), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -177,7 +179,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 for(int i=0; i<roleStrings.length; i++) {
                     roleStrings[i] = roles.get(i).getMentionTag();
                 }
-                options = roleStrings;
+                setOptions(roleStrings);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
         }
         return null;

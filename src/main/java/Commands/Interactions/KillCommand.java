@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "kill",
+        emoji = "☠️",
+        executable = false
+)
 public class KillCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public KillCommand() {
-        super();
-        trigger = "kill";
-        emoji = "☠️";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/28c19622e8d7362ccc140bb24e4089ec/tenor.gif?itemid=9363668",
+        super( "https://media1.tenor.com/images/28c19622e8d7362ccc140bb24e4089ec/tenor.gif?itemid=9363668",
                 "https://media1.tenor.com/images/2c945adbbc31699861f411f86ce8058f/tenor.gif?itemid=5459053",
                 "https://media1.tenor.com/images/eb7fc71c616347e556ab2b4c813700d1/tenor.gif?itemid=5840101",
                 "https://media1.tenor.com/images/db1136b19969ca0809daffc3d93fc848/tenor.gif?itemid=9983954",
@@ -24,7 +25,7 @@ public class KillCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/e1a8a560a7d532442f6d4e00d6f131a4/tenor.gif?itemid=14424096",
                 "https://media1.tenor.com/images/1b189d99ba29bc7b4aa8f24f4827c12e/tenor.gif?itemid=13726342",
                 "https://media1.tenor.com/images/4776a4baa6eb9813ecfde2a16071d96e/tenor.gif?itemid=4775517"
-        };
+        );
     }
 
     @Override

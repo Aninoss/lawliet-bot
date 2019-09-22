@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "bite",
+    emoji = "\uD83E\uDE78",
+    executable = false
+)
 public class BiteCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public BiteCommand() {
-        super();
-        trigger = "bite";
-        emoji = "\uD83E\uDE78";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/06f88667b86a701b1613bbf5fb9205e9/tenor.gif?itemid=13417199",
+        super("https://media1.tenor.com/images/06f88667b86a701b1613bbf5fb9205e9/tenor.gif?itemid=13417199",
                 "https://media1.tenor.com/images/3632813a0264ec1fc44525ff86cb1224/tenor.gif?itemid=9060303",
                 "https://media1.tenor.com/images/3baeaa0c5ae3a1a4ae9ac2780b2d965d/tenor.gif?itemid=13342683",
                 "https://media1.tenor.com/images/6ab39603ef0dd6dbfc78ba20885b991f/tenor.gif?itemid=8220087",
@@ -39,7 +40,7 @@ public class BiteCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/c688d2cf5c50569c74ce8e8d87c40935/tenor.gif?itemid=13341413",
                 "https://media1.tenor.com/images/49c23b25f05b791cf7149ba3cc0f2dde/tenor.gif?itemid=14987144",
                 "https://media1.tenor.com/images/9f684a0ae87a1a62053038971c0ac001/tenor.gif?itemid=14499663"
-        };
+        );
     }
 
     @Override

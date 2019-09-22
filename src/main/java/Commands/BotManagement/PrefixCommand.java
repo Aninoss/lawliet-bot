@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -12,20 +13,17 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "prefix",
+    userPermissions = Permission.MANAGE_SERVER,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/name-card-icon.png",
+    emoji = "\uD83D\uDCDB",
+    executable = false
+)
 public class PrefixCommand extends Command implements onRecievedListener {
-    private static ArrayList<Integer> picked = new ArrayList<>();
 
     public PrefixCommand() {
         super();
-        trigger = "prefix";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = Permission.MANAGE_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/name-card-icon.png";
-        emoji = "\uD83D\uDCDB";
-        executable = false;
     }
 
     @Override
@@ -50,7 +48,7 @@ public class PrefixCommand extends Command implements onRecievedListener {
                 return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(locale, TextManager.GENERAL, "args_too_long", "5"))).get();
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5"))).get();
                 return false;
             }
         } else {

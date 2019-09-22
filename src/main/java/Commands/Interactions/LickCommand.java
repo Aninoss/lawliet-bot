@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "lick",
+        emoji = "\uD83D\uDE0B",
+        executable = false
+)
 public class LickCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public LickCommand() {
-        super();
-        trigger = "lick";
-        emoji = "\uD83D\uDE0B";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/fc0ef2ba03d82af0cbd6c5815c3c83d5/tenor.gif?itemid=12141725",
+        super("https://media1.tenor.com/images/fc0ef2ba03d82af0cbd6c5815c3c83d5/tenor.gif?itemid=12141725",
                 "https://media1.tenor.com/images/ec2ca0bf12d7b1a30fea702b59e5a7fa/tenor.gif?itemid=13417195",
                 "https://media1.tenor.com/images/1a2d051f28155db0e4cf175d987cdac2/tenor.gif?itemid=12141721",
                 "https://media1.tenor.com/images/42a2aa3a3bee0c5dfe53e51cd8e4fe0d/tenor.gif?itemid=10575259",
@@ -42,8 +43,7 @@ public class LickCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/a90264f34cc1d91775fb96cbca280062/tenor.gif?itemid=5070299",
                 "https://media1.tenor.com/images/c1884b41e31a210324eedc89a3490898/tenor.gif?itemid=12054787",
                 "https://cdn.discordapp.com/attachments/499629904380297226/613075980243697808/lick_yarichin.gif"
-
-        };
+        );
     }
 
     @Override

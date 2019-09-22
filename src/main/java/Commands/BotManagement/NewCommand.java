@@ -12,19 +12,16 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "new",
+    emoji = "\uD83C\uDD95",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/new-icon.png",
+    executable = true
+)
 public class NewCommand extends Command implements onRecievedListener, onTrackerRequestListener {
 
     public NewCommand() {
         super();
-        trigger = "new";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83C\uDD95";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/new-icon.png";
-        executable = true;
     }
 
     @Override
@@ -45,12 +42,12 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
                         return true;
                     } else {
                         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                                TextManager.getString(locale, TextManager.GENERAL,"too_large", "10"))).get();
+                                TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "10"))).get();
                         return false;
                     }
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                            TextManager.getString(locale, TextManager.GENERAL,"too_small", "1"))).get();
+                            TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "1"))).get();
                     return false;
                 }
             } else {
@@ -61,7 +58,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                            TextManager.getString(locale, TextManager.GENERAL, "no_results_description", followedString))).get();
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString))).get();
                     return false;
                 }
             }
@@ -71,7 +68,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
     private EmbedBuilder getVersionsEmbed(ArrayList<String> versions) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setFooter(getString("footer"));
         for(String str: versions) {
-            eb.addField(str, ("• "+TextManager.getString(locale, TextManager.VERSIONS, str)).replace("\n", "\n• ").replace("%PREFIX", prefix));
+            eb.addField(str, ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, str)).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
         }
         return eb;
     }

@@ -1,5 +1,6 @@
 package Commands.PowerPlant;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -17,20 +18,17 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "give",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/gift-icon.png",
+    emoji = "\uD83C\uDF81",
+    executable = false
+)
 public class GiveCommand extends Command implements onRecievedListener {
-    private Message message;
 
     public GiveCommand() {
         super();
-        trigger = "give";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/gift-icon.png";
-        emoji = "\uD83C\uDF81";
-        executable = false;
     }
 
     @Override
@@ -67,27 +65,27 @@ public class GiveCommand extends Command implements onRecievedListener {
             if (value != -1) {
                 if (value >= 1) {
                     if (value <= coins) {
-                        EmbedBuilder eb = DBUser.addFishingValues(locale, server, user0, 0L, -value);
+                        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, user0, 0L, -value);
                         if (eb != null) event.getChannel().sendMessage(eb);
 
-                        eb = DBUser.addFishingValues(locale, server, user1, 0L, value);
+                        eb = DBUser.addFishingValues(getLocale(), server, user1, 0L, value);
                         if (eb != null) event.getChannel().sendMessage(eb).get();
 
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", Tools.numToString(locale, value), user1.getMentionTag()))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", Tools.numToString(getLocale(), value), user1.getMentionTag()))).get();
                         return true;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", Tools.numToString(locale, coins)))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", Tools.numToString(getLocale(), coins)))).get();
                     }
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "too_small", "1"))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
                 }
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "no_digit"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
             }
 
             return false;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", prefix), TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
         }
     }

@@ -19,7 +19,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
+@CommandProperties(
+    trigger = "autokick",
+    botPermissions = Permission.KICK_USER | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    userPermissions = Permission.KICK_USER,
+    emoji = "\uD83D\uDEAA",
+    thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png",
+    executable = false
+)
 public class AutoKickCommand extends Command implements onRecievedListener, onReactionAddListener {
+    
     private int stage = 0;
     private Message message;
     private ArrayList<User> banList;
@@ -27,15 +36,6 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
 
     public AutoKickCommand() {
         super();
-        trigger = "autokick";
-        privateUse = false;
-        botPermissions = Permission.KICK_USER | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
-        userPermissions = Permission.KICK_USER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDEAA";
-        thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png";
-        executable = false;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
 
                         if (banList.size() > 0) {
                             stage = 1;
-                            message.edit(EmbedFactory.getCommandEmbedSuccess(thisInstance, getString("finished", banList.size() != 1, Tools.numToString(locale, banList.size())))).get();
+                            message.edit(EmbedFactory.getCommandEmbedSuccess(thisInstance, getString("finished", banList.size() != 1, Tools.numToString(getLocale(), banList.size())))).get();
                             message.addReaction(Tools.getEmojiForBoolean(true)).get();
                             addReactionListener(message);
                         } else {
@@ -104,7 +104,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                             removeReactionListener();
                         }
                     } catch (Throwable e) {
-                        ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
+                        ExceptionHandler.handleException(e, getLocale(), event.getServerTextChannel().get());
                     }
                 }).start();
                 return true;
@@ -173,7 +173,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                         }
                     }
 
-                    message.edit(EmbedFactory.getCommandEmbedSuccess(this, getString("finished2", kicked != 1, Tools.numToString(locale, kicked), Tools.numToString(locale, banList.size())))).get();
+                    message.edit(EmbedFactory.getCommandEmbedSuccess(this, getString("finished2", kicked != 1, Tools.numToString(getLocale(), kicked), Tools.numToString(getLocale(), banList.size())))).get();
                     serverBlockList.remove(event.getServer().get());
                 }
             }

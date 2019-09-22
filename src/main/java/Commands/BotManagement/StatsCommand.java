@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -13,19 +14,17 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+@CommandProperties(
+    trigger = "stats",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    emoji = "\uD83D\uDCCA",
+    thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Graph-Magnifier-icon.png",
+    executable = true
+)
 public class StatsCommand extends Command implements onRecievedListener {
 
     public StatsCommand() {
         super();
-        trigger = "stats";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDCCA";
-        thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Graph-Magnifier-icon.png";
-        executable = true;
     }
 
     @Override
@@ -37,11 +36,11 @@ public class StatsCommand extends Command implements onRecievedListener {
                 event.getApi().getOwner().get().getMentionTag(),
                 Settings.BOT_INVITE_URL,
                 Tools.getCurrentVersion(),
-                Tools.getInstantString(locale, DBBot.getCurrentVersionDate(), true),
-                Tools.numToString(locale, event.getApi().getServers().size()),
-                Tools.numToString(locale, TrackerManager.getSize()),
+                Tools.getInstantString(getLocale(), DBBot.getCurrentVersionDate(), true),
+                Tools.numToString(getLocale(), event.getApi().getServers().size()),
+                Tools.numToString(getLocale(), TrackerManager.getSize()),
                 event.getApi().getOwner().get().getDiscriminatedName(),
-                Tools.numToString(locale, DBSurvey.getCurrentVotesNumber())
+                Tools.numToString(getLocale(), DBSurvey.getCurrentVotesNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));
@@ -55,7 +54,7 @@ public class StatsCommand extends Command implements onRecievedListener {
                 int k = i * 3 + j;
                 if (j == 0) args[k] = fishingRecords.getUser(i).getDiscriminatedName();
                 if (j == 1) args[k] = fishingRecords.getServer(i).getName();
-                if (j == 2) args[k] = Tools.numToString(locale, fishingRecords.getValue(i));
+                if (j == 2) args[k] = Tools.numToString(getLocale(), fishingRecords.getValue(i));
                 args[k] = args[k].replace("_", "").replace("*", "").replace("~", "-").replace("\\`", "'").replace("||", "II");
                 if (args[k].length() == 0) args[k] = " ";
             }

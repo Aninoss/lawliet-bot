@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Settings;
@@ -12,27 +13,19 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "donate",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png",
+        emoji = "\uD83D\uDCB8",
+        executable = true
+)
 public class DonateCommand extends Command implements onRecievedListener {
-    private static ArrayList<Integer> picked = new ArrayList<>();
 
-    public DonateCommand() {
-        super();
-        trigger = "donate";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png";
-        emoji = "\uD83D\uDCB8";
-        executable = true;
-    }
+    public DonateCommand() { super(); }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder donators = new StringBuilder();
-
-        addLoadingReaction(null);
 
         for(long userId: DBUser.getActiveDonators()) {
             try {
@@ -45,11 +38,12 @@ public class DonateCommand extends Command implements onRecievedListener {
             }
         }
 
-        if (donators.length() == 0) donators.append(TextManager.getString(locale, TextManager.GENERAL, "empty"));
+        if (donators.length() == 0) donators.append(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"));
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.SERVER_INVITE_URL, Settings.DONATION_URL, donators.toString()));
         eb.setImage("https://cdn.discordapp.com/attachments/499629904380297226/589143402851991552/donate.png");
 
         event.getChannel().sendMessage(eb).get();
         return true;
     }
+
 }

@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "nom",
+        emoji = "\uD83E\uDD62",
+        executable = false
+)
 public class NomCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public NomCommand() {
-        super();
-        trigger = "nom";
-        emoji = "\uD83E\uDD62";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/98b21965b83feb66b6f25b8be45d6214/tenor.gif?itemid=13516862",
+        super("https://media1.tenor.com/images/98b21965b83feb66b6f25b8be45d6214/tenor.gif?itemid=13516862",
                 "https://media1.tenor.com/images/128c1cfb7f4e6ea4a4dce9b487648143/tenor.gif?itemid=12051598",
                 "https://media1.tenor.com/images/748698c14fe0b7b07bad7d8404e4455a/tenor.gif?itemid=13424193",
                 "https://media1.tenor.com/images/c688d2cf5c50569c74ce8e8d87c40935/tenor.gif?itemid=13341413",
@@ -44,7 +45,7 @@ public class NomCommand extends InteractionCommand implements onRecievedListener
                 "https://media1.tenor.com/images/f615ab049c0edc4b3579132ea276e3af/tenor.gif?itemid=8870471",
                 "https://media1.tenor.com/images/d6e1ffa70eb553dacdf19d26a6be0500/tenor.gif?itemid=5571354",
                 "https://media1.tenor.com/images/3799ae77c7fcd79eed7881e3e29ede4a/tenor.gif?itemid=6229812"
-        };
+        );
     }
 
     @Override

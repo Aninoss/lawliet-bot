@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "slap",
+        emoji = "\uD83D\uDC4F",
+        executable = false
+)
 public class SlapCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public SlapCommand() {
-        super();
-        trigger = "slap";
-        emoji = "\uD83D\uDC4F";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/9ea4fb41d066737c0e3f2d626c13f230/tenor.gif?itemid=7355956",
+        super("https://media1.tenor.com/images/9ea4fb41d066737c0e3f2d626c13f230/tenor.gif?itemid=7355956",
                 "https://media1.tenor.com/images/35c1ecae2168c49be997871adc2a5d75/tenor.gif?itemid=3412059",
                 "https://media1.tenor.com/images/0860d681fbe7ad04a2f39735ab939176/tenor.gif?itemid=13642334",
                 "https://media1.tenor.com/images/fd14f63a93796ed26bd385c015df57b8/tenor.gif?itemid=4665506",
@@ -42,7 +43,7 @@ public class SlapCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/9baf03f104dd052931a5f06500cef014/tenor.gif?itemid=13932434",
                 "https://media1.tenor.com/images/c1246556aa5726ad6c0ee50f2c3998ce/tenor.gif?itemid=7864657",
                 "https://media1.tenor.com/images/4a5025fef68e651ba91e86bd09bdd911/tenor.gif?itemid=13652760"
-        };
+        );
     }
 
     @Override

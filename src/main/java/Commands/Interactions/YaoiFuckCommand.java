@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "yaoifuck",
+        emoji = "\uD83D\uDC68\uD83D\uDECF\uD83D\uDC68️",
+        executable = false
+)
 public class YaoiFuckCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public YaoiFuckCommand() {
-        super();
-        trigger = "yaoifuck";
-        emoji = "\uD83D\uDC68\uD83D\uDECF\uD83D\uDC68️";
-        nsfw = true;
-        gifs = new String[]{
-                "http://pa1.narvii.com/6296/ec86ad235dfee26a84771c49ad8531887dd5cd71_00.gif",
+        super("http://pa1.narvii.com/6296/ec86ad235dfee26a84771c49ad8531887dd5cd71_00.gif",
                 "http://pa1.narvii.com/6389/5a5784c7b51571e8c736ed417363c7b42884ad13_00.gif",
                 "https://i.pinimg.com/originals/22/58/5d/22585d5a1c9a2d9f094ac9a52471e0aa.gif",
                 "https://img2.gelbooru.com//images/9c/f3/9cf335a510bd78b60eee9ddf588007be.gif",
@@ -41,7 +42,7 @@ public class YaoiFuckCommand extends InteractionCommand implements onRecievedLis
                 "https://img2.gelbooru.com//images/4e/39/4e394caed7171bb7a0f521ed18c6b11b.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188907174199296/d620dad9-5c6e-4375-ad06-14b54c749989.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188913041899558/tumblr_mv5i7ktyev1sf82gro1_1280.gif"
-        };
+        );
     }
 
     @Override

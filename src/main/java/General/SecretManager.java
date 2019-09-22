@@ -12,7 +12,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 public class SecretManager {
-    public static String getString(String key) throws Throwable {
+    public static String getString(String key) throws IOException {
         File file = new File("src/main/resources/secrets.properties");
         if (Bot.isDebug() && !file.exists()) createPropertiesFile(file);
 

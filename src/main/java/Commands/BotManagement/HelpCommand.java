@@ -1,7 +1,6 @@
 package Commands.BotManagement;
 
 import CommandListeners.*;
-import CommandSupporters.CategoryCalculator;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
@@ -19,29 +18,25 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.awt.*;
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "help",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
+    emoji = "❕",
+    executable = true,
+    deleteOnTimeOut = false
+)
 public class HelpCommand extends Command implements onNavigationListener {
-    private Message messageCache;
+
     private ArrayList<EmojiConnection> emojiConnections;
-    private Message authorMessage;
     private String searchTerm;
     private MessageCreateEvent authorEvent;
 
     public HelpCommand() {
         super();
-        trigger = "help";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png";
-        emoji = "❕";
-        executable = true;
-        deleteOnTimeOut = false;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             searchTerm = inputString;
             authorEvent = event;
@@ -52,7 +47,7 @@ public class HelpCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         for (EmojiConnection emojiConnection: emojiConnections) {
             if (emojiConnection.isEmoji(event.getEmoji())) {
                 searchTerm = emojiConnection.getConnection();
@@ -64,9 +59,9 @@ public class HelpCommand extends Command implements onNavigationListener {
 
                 if (searchTerm.startsWith("exec:")) {
                     String className = searchTerm.split(":")[1];
-                    Command command = CommandManager.createCommandByClassName(className, locale, prefix);
+                    Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
                     command.setReactionUserID(event.getUser().getId());
-                    command.setWithLoadingBar(false);
+                    command.blockLoading();
 
                     CommandManager.manage(authorEvent, command, "");
 
@@ -81,17 +76,17 @@ public class HelpCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         String arg = Tools.cutSpaces(searchTerm);
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1,arg.length()-1);
 
-        ServerTextChannel channel = getAuthorMessage().getServerTextChannel().get();
+        ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
 
         EmbedBuilder eb;
         if ((eb = checkCommand(channel, arg)) == null) {
             if ((eb = checkCategory(channel ,arg)) == null) {
                 eb = checkMainPage(channel ,arg);
-                if (arg.length() > 0) setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", arg));
+                if (arg.length() > 0) setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
             }
         }
 
@@ -108,21 +103,21 @@ public class HelpCommand extends Command implements onNavigationListener {
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
         for (Class clazz : CommandContainer.getInstance().getCommands().values()) {
-            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(trigger) && (!command.isPrivate() || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
+            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger()) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 
                 StringBuilder usage = new StringBuilder();
-                for(String line: TextManager.getString(locale,TextManager.COMMANDS,commandTrigger+"_usage").split("\n")) {
+                for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_usage").split("\n")) {
                     usage.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                 }
 
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
-                for(String line: TextManager.getString(locale,TextManager.COMMANDS,commandTrigger+"_examples").split("\n")) {
-                    line = Tools.solveVariablesOfCommandText(line, getAuthorMessage(), getPrefix(), trigger);
+                for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_examples").split("\n")) {
+                    line = Tools.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
                     examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
                 }
@@ -131,16 +126,16 @@ public class HelpCommand extends Command implements onNavigationListener {
                 if (!command.isExecutable()) {
                     addNotExecutable = "\n" + getString("command_notexecutable");
                 } else if (!isNavigationPrivateMessage()) {
-                    options = getString("command_execute").split("\n");
+                    setOptions(getString("command_execute").split("\n"));
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0],"exec:"+command.getClass().getName()));
                 }
 
                 return new EmbedBuilder()
                         .setColor(Color.WHITE)
-                        .setTitle(command.getEmoji()+" "+TextManager.getString(locale,TextManager.COMMANDS,commandTrigger+"_title"))
+                        .setTitle(command.getEmoji()+" "+TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_title"))
                         .setThumbnail(command.getThumbnail())
                         .setFooter(getString("command_args"))
-                        .setDescription(TextManager.getString(locale,TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
+                        .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
                         .addField(getString("command_usage"),usage.toString(),true)
                         .addField(getString( "command_example", exampleNumber > 1),examples.toString(),true);
             }
@@ -151,12 +146,12 @@ public class HelpCommand extends Command implements onNavigationListener {
     private EmbedBuilder checkCategory(ServerTextChannel channel, String arg) throws Throwable {
         if (arg.length() > 0) {
             for (String string : Category.LIST) {
-                if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(locale, TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase())) && (!string.equals(Category.BOT_OWNER) || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
+                if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase())) && (!string.equals(Category.BOT_OWNER) || getStarterMessage().getUserAuthor().get().isBotOwner())) {
                     EmbedBuilder eb = new EmbedBuilder()
                             .setColor(Color.WHITE)
-                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "reaction_navigation"))
-                            //.setTitle(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string) + " " + TextManager.getString(locale, TextManager.COMMANDS, string));
-                            .setTitle(TextManager.getString(locale, TextManager.COMMANDS, string));
+                            .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
+                            //.setTitle(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string) + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, string));
+                            .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, string));
 
                     emojiConnections = new ArrayList<>();
                     emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
@@ -166,9 +161,9 @@ public class HelpCommand extends Command implements onNavigationListener {
                     //Interactions and Emotes Category
                     if (string.equals(Category.INTERACTIONS) || string.equals(Category.EMOTES)) {
                         for (Class clazz : CommandContainer.getInstance().getCommandList()) {
-                            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
-                            if (!commandTrigger.equals(trigger) && command.getCategory().equals(string) && (!command.isPrivate() || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
+                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
                                 commands
                                         .append(" `")
                                         .append(command.getEmoji())
@@ -193,19 +188,19 @@ public class HelpCommand extends Command implements onNavigationListener {
                     else {
                         int i = 0;
                         for (Class clazz : CommandContainer.getInstance().getCommandList()) {
-                            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
-                            if (!commandTrigger.equals(trigger) && command.getCategory().equals(string) && (!command.isPrivate() || getAuthorMessage().getUserAuthor().get().isBotOwner())) {
+                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
                                 commands
                                         .append("**")
                                         .append(LetterEmojis.LETTERS[i])
                                         .append(" → ")
                                         .append(command.getEmoji())
                                         .append(" ")
-                                        .append(TextManager.getString(locale, TextManager.COMMANDS, commandTrigger + "_title").toUpperCase())
+                                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase())
                                         .append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
                                         .append(" - ")
-                                        .append(TextManager.getString(locale, TextManager.COMMANDS, commandTrigger + "_description"))
+                                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
                                         .append("\n\n");
                                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                                 i++;
@@ -225,7 +220,7 @@ public class HelpCommand extends Command implements onNavigationListener {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.WHITE)
                 .setFooter(getString("donate"))
-                .setTitle(TextManager.getString(locale, TextManager.COMMANDS, "categories"));
+                .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
 
         StringBuilder categoriesSB = new StringBuilder();
         emojiConnections = new ArrayList<>();
@@ -234,8 +229,8 @@ public class HelpCommand extends Command implements onNavigationListener {
 
         int i = 0;
         for (String string : Category.LIST) {
-            //categoriesSB.append(LetterEmojis.LETTERS[i]).append(" | ").append(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string)).append(" ").append(TextManager.getString(locale, TextManager.COMMANDS, string)).append("\n");
-            categoriesSB.append(LetterEmojis.LETTERS[i]).append(" → ").append(TextManager.getString(locale, TextManager.COMMANDS, string)).append("\n");
+            //categoriesSB.append(LetterEmojis.LETTERS[i]).append(" | ").append(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string)).append(" ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
+            categoriesSB.append(LetterEmojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
             emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], string));
             i++;
         }

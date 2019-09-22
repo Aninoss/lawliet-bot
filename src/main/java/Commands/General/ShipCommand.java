@@ -1,5 +1,6 @@
 package Commands.General;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -16,19 +17,18 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
+@CommandProperties(
+    trigger = "ship",
+    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+    withLoadingBar = true,
+    emoji = "\uD83D\uDC6B",
+    executable = false
+)
 public class ShipCommand extends Command implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public ShipCommand() {
         super();
-        trigger = "ship";
-        privateUse = false;
-        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDC6B";
-        executable = false;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ShipCommand extends Command implements onRecievedListener {
         int n = Tools.pickFullRandom(picked,7);
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
-                .setImage(ImageCreator.createImageShip(locale,list.get(0),list.get(1),n,percentage));
+                .setImage(ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1),n,percentage));
         event.getChannel().sendMessage(eb).get();
 
         return true;

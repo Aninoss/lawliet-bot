@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
@@ -17,6 +18,12 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
+@CommandProperties(
+    trigger = "tips",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/bulb-icon.png",
+    emoji = "\uD83D\uDCA1️",
+    executable = true
+)
 public class TipsCommand extends Command implements onRecievedListener, onReactionAddListener {
     private Message message;
     private int page;
@@ -26,15 +33,6 @@ public class TipsCommand extends Command implements onRecievedListener, onReacti
 
     public TipsCommand() {
         super();
-        trigger = "tips";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/bulb-icon.png";
-        emoji = "\uD83D\uDCA1️";
-        executable = true;
     }
 
     @Override
@@ -48,15 +46,15 @@ public class TipsCommand extends Command implements onRecievedListener, onReacti
                     if (value <= getPageSize()) {
                         page = value - 1;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "too_large", String.valueOf(getPageSize())))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_large", String.valueOf(getPageSize())))).get();
                         return false;
                     }
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "too_small", "1"))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
                     return false;
                 }
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "no_digit"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
                 return false;
             }
         }

@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "punch",
+        emoji = "\uD83D\uDC4A",
+        executable = false
+)
 public class PunchCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public PunchCommand() {
-        super();
-        trigger = "punch";
-        emoji = "\uD83D\uDC4A";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/31686440e805309d34e94219e4bedac1/tenor.gif?itemid=4790446",
+        super("https://media1.tenor.com/images/31686440e805309d34e94219e4bedac1/tenor.gif?itemid=4790446",
                 "https://media1.tenor.com/images/2487a7679b3d7d23cadcd51381635467/tenor.gif?itemid=11451829",
                 "https://media1.tenor.com/images/c621075def6ca41785ef4aaea20cc3a2/tenor.gif?itemid=7679409",
                 "https://media1.tenor.com/images/79cc6480652032a20f1cb5c446b113ae/tenor.gif?itemid=12911685",
@@ -34,7 +35,7 @@ public class PunchCommand extends InteractionCommand implements onRecievedListen
                 "https://media1.tenor.com/images/b2308e16fa5b71c541efdd13dea4f9ba/tenor.gif?itemid=10462739",
                 "https://media1.tenor.com/images/04020c8fb0d5fe77d1d366c3155ebd8d/tenor.gif?itemid=10692694",
                 "https://media1.tenor.com/images/2c96a0f0c2e7f5e446b6771fe1b6fca8/tenor.gif?itemid=14949242"
-        };
+        );
     }
 
     @Override

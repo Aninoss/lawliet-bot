@@ -1,5 +1,6 @@
 package Commands.ServerManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
@@ -31,27 +32,27 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@CommandProperties(
+    trigger = "welcome",
+    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+    userPermissions = Permission.MANAGE_SERVER,
+    emoji = "\uD83D\uDE4B",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
+    executable = true
+)
 public class WelcomeCommand extends Command implements onNavigationListener {
+    
     private WelcomeMessageSetting welcomeMessageSetting;
     private User author;
 
     public WelcomeCommand() {
         super();
-        trigger = "welcome";
-        privateUse = false;
-        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL;
-        userPermissions = Permission.MANAGE_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDE4B";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png";
-        executable = true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, event.getServer().get());
+            welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(getLocale(), event.getServer().get());
             author = event.getMessage().getUserAuthor().get();
             return Response.TRUE;
         }
@@ -63,7 +64,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         welcomeMessageSetting.setTitle(inputString);
                         DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
-                        state = 0;
+                        setState(0);
                         return Response.TRUE;
                     } else {
                         setLog(LogStatus.FAILURE, getString("titletoolarge", "20"));
@@ -80,7 +81,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         welcomeMessageSetting.setDescription(inputString);
                         DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
-                        state = 0;
+                        setState(0);
                         return Response.TRUE;
                     } else {
                         setLog(LogStatus.FAILURE, getString("descriptiontoolarge", "500"));
@@ -92,13 +93,13 @@ public class WelcomeCommand extends Command implements onNavigationListener {
             case 3:
                 ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
                     welcomeMessageSetting.setWelcomeChannel(channelList.get(0));
                     DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                     setLog(LogStatus.SUCCESS, getString("channelset"));
-                    state = 0;
+                    setState(0);
                     return Response.TRUE;
                 }
 
@@ -109,7 +110,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
 
                     long size = messageAttachment.getSize();
                     if (size >= 8000000) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "file_too_large"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "file_too_large"));
                         return Response.FALSE;
                     }
 
@@ -117,7 +118,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     ImageIO.write(bi, "png", new File("data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png"));
 
                     setLog(LogStatus.SUCCESS, getString("backgroundset"));
-                    state = 0;
+                    setState(0);
                     return Response.TRUE;
                 }
 
@@ -128,13 +129,13 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     try {
                         long size = Tools.getURLFileSize(event.getApi(), url);
                         if (size >= 8000000) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "file_too_large"));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "file_too_large"));
                             return Response.FALSE;
                         }
                         FileUtils.copyURLToFile(url, new File("data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png"));
 
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
-                        state = 0;
+                        setState(0);
                         return Response.TRUE;
                     } catch (Throwable e) {
                         if (e.toString().contains("403") && url.toString().startsWith("https://cdn.discordapp.com/attachments/")) {
@@ -155,7 +156,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         welcomeMessageSetting.setGoodbyeText(inputString);
                         DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
-                        state = 0;
+                        setState(0);
                         return Response.TRUE;
                     } else {
                         setLog(LogStatus.FAILURE, getString("goodbyetoolarge", "500"));
@@ -167,13 +168,13 @@ public class WelcomeCommand extends Command implements onNavigationListener {
             case 7:
                 channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
                     welcomeMessageSetting.setFarewellChannel(channelList.get(0));
                     DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                     setLog(LogStatus.SUCCESS, getString("farechannelset"));
-                    state = 0;
+                    setState(0);
                     return Response.TRUE;
                 }
         }
@@ -182,7 +183,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
 
         switch (state) {
             case 0:
@@ -198,19 +199,19 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         return true;
 
                     case 1:
-                        state = 1;
+                        setState(1);
                         return true;
 
                     case 2:
-                        state = 2;
+                        setState(2);
                         return true;
 
                     case 3:
-                        state = 3;
+                        setState(3);
                         return true;
 
                     case 4:
-                        state = 4;
+                        setState(4);
                         return true;
 
                     case 5:
@@ -220,36 +221,36 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         return true;
 
                     case 6:
-                        state = 6;
+                        setState(6);
                         return true;
 
                     case 7:
-                        state = 7;
+                        setState(7);
                         return true;
 
                     case 8:
-                        state = 5;
+                        setState(5);
                         return true;
                 }
                 return false;
 
             default:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 } return false;
         }
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
-        //String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        //String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:
-                options = getString("state0_options").split("\n");
+                setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(Tools.getEmptyCharacter(), Tools.getEmptyCharacter(), false)
-                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(locale, welcomeMessageSetting.isActivated()), true)
+                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isActivated()), true)
                        .addField(getString("state0_mtitle"), welcomeMessageSetting.getTitle(), true)
                        .addField(getString("state0_mdescription"),
                                replaceVariables(welcomeMessageSetting.getDescription(),
@@ -259,7 +260,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                                true)
                        .addField(getString("state0_mchannel"),welcomeMessageSetting.getWelcomeChannel().getMentionTag(), true)
                         .addField(Tools.getEmptyCharacter(), Tools.getEmptyCharacter(), false)
-                        .addField(getString("state0_mgoodbye"), Tools.getOnOffForBoolean(locale, welcomeMessageSetting.isGoodbye()), true)
+                        .addField(getString("state0_mgoodbye"), Tools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isGoodbye()), true)
                        .addField(getString("state0_mgoodbyeText"),
                                replaceVariables(welcomeMessageSetting.getGoodbyeText(),
                                        "`%SERVER`",
@@ -292,9 +293,9 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 .setDescription(replaceVariables(welcomeMessageSetting.getDescription(),
                         server.getName(),
                         user.getMentionTag(),
-                        Tools.numToString(locale, server.getMembers().size())));
+                        Tools.numToString(getLocale(), server.getMembers().size())));
 
-        eb.setImage(Tools.getURLFromInputStream(user.getApi(), ImageCreator.createImageWelcome(locale, user, server, welcomeMessageSetting.getTitle())).toString());
+        eb.setImage(Tools.getURLFromInputStream(user.getApi(), ImageCreator.createImageWelcome(getLocale(), user, server, welcomeMessageSetting.getTitle())).toString());
         return eb;
     }
 

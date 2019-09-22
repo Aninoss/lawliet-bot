@@ -1,5 +1,6 @@
 package Commands.External;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
@@ -16,19 +17,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@CommandProperties(
+        trigger = "waifu2x",
+        withLoadingBar = true,
+        emoji = "\uD83D\uDCC8",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-arrow-upload-icon.png",
+        executable = false
+)
 public class IncreaseResolutionCommand extends Command implements onRecievedListener {
 
     public IncreaseResolutionCommand() {
         super();
-        trigger = "waifu2x";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDCC8";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-arrow-upload-icon.png";
-        executable = false;
     }
 
     @Override
@@ -56,7 +55,7 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
             return true;
         }
 
-        EmbedBuilder notFound = EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.COMMANDS, "welcome_imagenotfound"));
+        EmbedBuilder notFound = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "welcome_imagenotfound"));
         event.getChannel().sendMessage(notFound).get();
         return false;
     }

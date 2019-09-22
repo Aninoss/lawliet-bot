@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "kiss",
+        emoji = "\uD83D\uDC8B",
+        executable = false
+)
 public class KissCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public KissCommand() {
-        super();
-        trigger = "kiss";
-        emoji = "\uD83D\uDC8B";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media.giphy.com/media/KH1CTZtw1iP3W/giphy.gif",
+        super("https://media.giphy.com/media/KH1CTZtw1iP3W/giphy.gif",
                 "https://media1.tenor.com/images/78095c007974aceb72b91aeb7ee54a71/tenor.gif?itemid=5095865",
                 "https://media1.tenor.com/images/f102a57842e7325873dd980327d39b39/tenor.gif?itemid=12392648",
                 "https://media1.tenor.com/images/f5167c56b1cca2814f9eca99c4f4fab8/tenor.gif?itemid=6155657",
@@ -49,7 +50,7 @@ public class KissCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/af1216d35f8ec076b593401b19ddd0bf/tenor.gif?itemid=13188942",
                 "https://media1.tenor.com/images/ea51c3a083c73bf81a3c5ee6d4165115/tenor.gif?itemid=11794176",
                 "https://media1.tenor.com/images/1306732d3351afe642c9a7f6d46f548e/tenor.gif?itemid=6155670"
-        };
+        );
     }
 
     @Override

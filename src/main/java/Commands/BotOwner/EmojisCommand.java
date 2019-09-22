@@ -1,5 +1,6 @@
 package Commands.BotOwner;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
@@ -7,16 +8,16 @@ import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+@CommandProperties(
+    trigger = "emojis",
+    privateUse = true,
+    emoji = "\uD83D\uDE03",
+    executable = true
+)
 public class EmojisCommand extends Command implements onRecievedListener {
 
     public EmojisCommand() {
         super();
-        trigger = "emojis";
-        privateUse = true;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDE03";
-        executable = true;
     }
 
     @Override
@@ -40,4 +41,5 @@ public class EmojisCommand extends Command implements onRecievedListener {
         event.getChannel().sendMessage(eb).get();
         return true;
     }
+
 }

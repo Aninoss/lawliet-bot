@@ -17,19 +17,17 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import java.util.List;
 
+@CommandProperties(
+    trigger = "vote",
+    botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Hand-thumbs-up-like-2-icon.png",
+    emoji = "\uD83D\uDDF3️️",
+    executable = false
+)
 public class VoteCommand extends Command implements onRecievedListener, onReactionAddStatic, onReactionRemoveStatic {
 
     public VoteCommand() {
         super();
-        trigger = "vote";
-        privateUse = false;
-        botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Hand-thumbs-up-like-2-icon.png";
-        emoji = "\uD83D\uDDF3️️";
-        executable = false;
     }
 
     @Override
@@ -174,6 +172,6 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public String getTitleStartIndicator() {
-        return emoji;
+        return getEmoji();
     }
 }

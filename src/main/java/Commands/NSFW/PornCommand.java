@@ -8,20 +8,10 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 public class PornCommand extends Command {
+
     protected String domain;
     protected String imageTemplate;
     private final boolean WITH_COMMENTS = false;
-
-    public PornCommand() {
-        super();
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = true;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDD1E";
-        executable = true;
-    }
 
     public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd) throws Throwable {
         boolean emptyKey = false;
@@ -34,20 +24,20 @@ public class PornCommand extends Command {
         PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false);
         if (pornImage == null) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "no_results_description", followedString));
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
             event.getChannel().sendMessage(eb).get();
             return false;
         } else {
             String footerAdd = "";
-            if (emptyKey) footerAdd = " - ⚠️ " + TextManager.getString(locale, TextManager.COMMANDS,"porn_nokey").toUpperCase();
+            if (emptyKey) footerAdd = " - ⚠️ " + TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_nokey").toUpperCase();
 
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(locale, TextManager.COMMANDS,"porn_link", pornImage.getPageUrl()))
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_link", pornImage.getPageUrl()))
                     .setImage(pornImage.getImageUrl())
                     .setTimestamp(pornImage.getInstant())
-                    .setFooter(TextManager.getString(locale, TextManager.COMMANDS,"porn_footer", Tools.numToString(locale, pornImage.getScore()), Tools.numToString(locale, pornImage.getnComments())) + footerAdd)).get();
+                    .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())) + footerAdd)).get();
             if ( pornImage.getComments().size() > 0 && WITH_COMMENTS) {
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setTitle( TextManager.getString(locale, TextManager.COMMANDS, "porn_comments"));
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setTitle( TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_comments"));
                 for (int i = Math.max(0, pornImage.getComments().size() - 10); i < pornImage.getComments().size(); i++) {
                     Comment comment = pornImage.getComments().get(i);
                     if (comment.getAuthor().length() > 0 && comment.getContent().length() > 0) eb.addField(Tools.shortenString(comment.getAuthor(), 256), Tools.shortenString(comment.getContent(), 400));
@@ -57,4 +47,5 @@ public class PornCommand extends Command {
             return true;
         }
     }
+
 }

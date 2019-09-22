@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "highfive",
+        emoji = "✋",
+        executable = false
+)
 public class HighfiveCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public HighfiveCommand() {
-        super();
-        trigger = "highfive";
-        emoji = "✋";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/16267f3a34efb42598bd822effaccd11/tenor.gif?itemid=14137081",
+        super( "https://media1.tenor.com/images/16267f3a34efb42598bd822effaccd11/tenor.gif?itemid=14137081",
                 "https://media1.tenor.com/images/0c23b320822afd5b1ce3faf01c2b9b69/tenor.gif?itemid=14137078",
                 "https://media1.tenor.com/images/ce85a2843f52309b85515f56a0a49d06/tenor.gif?itemid=14137077",
                 "https://media1.tenor.com/images/b714d7680f8b49d69b07bc2f1e052e72/tenor.gif?itemid=13400356",
@@ -33,7 +34,7 @@ public class HighfiveCommand extends InteractionCommand implements onRecievedLis
                 "https://media1.tenor.com/images/e2f299d05a7b1832314ec7a331440d4e/tenor.gif?itemid=5374033",
                 "https://media1.tenor.com/images/8cd77aed760dd7a0d5209f183e1fdf4e/tenor.gif?itemid=4318510"
 
-        };
+        );
     }
 
     @Override

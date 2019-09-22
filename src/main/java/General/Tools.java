@@ -32,6 +32,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class Tools {
     public static boolean stringIsNumeric(String string) {
@@ -258,10 +259,13 @@ public class Tools {
     }
 
     public static CustomEmoji getCustomEmojiByTag(Server server, String tag) {
-        tag = tag.split(":")[2];
-        String id = tag.substring(0,tag.length()-1);
-        if (server.getApi().getCustomEmojiById(id).isPresent()) {
-            return server.getApi().getCustomEmojiById(id).get();
+        String[] tags = tag.split(":");
+        if (tags.length == 3) {
+            tag = tags[2];
+            String id = tag.substring(0, tag.length() - 1);
+            if (server.getApi().getCustomEmojiById(id).isPresent()) {
+                return server.getApi().getCustomEmojiById(id).get();
+            }
         }
 
         return null;
@@ -310,7 +314,7 @@ public class Tools {
         return size;
     }
 
-    public static String solveVariablesOfCommandText(String string, Message message, String prefix, String trigger) {
+    public static String solveVariablesOfCommandText(String string, Message message, String prefix) {
         return string
                 .replaceAll("(?i)%MessageContent",message.getContent())
                 .replaceAll("(?i)%#Channel",message.getServerTextChannel().get().getMentionTag())
@@ -319,8 +323,25 @@ public class Tools {
                 .replaceAll("(?i)%ServerID",message.getServer().get().getIdAsString())
                 .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
                 .replaceAll("(?i)%@Bot",message.getServer().get().getApi().getYourself().getMentionTag())
-                .replaceAll("(?i)%Prefix",prefix)
-                .replaceAll("(?i)%Command",trigger);
+                .replaceAll("(?i)%Prefix",prefix);
+    }
+
+    public static String solveVariablesOfCommandText(String string, DiscordApi api) {
+        try {
+            return string
+                    .replaceAll("(?i)%MessageContent", "hello")
+                    .replaceAll("(?i)%#Channel", "#welcome")
+                    .replaceAll("(?i)%MessageID", "557961653975515168")
+                    .replaceAll("(?i)%ChannelID", "557953262305804310")
+                    .replaceAll("(?i)%ServerID", "557953262305804308")
+                    .replaceAll("(?i)%@User", "@" + api.getOwner().get().getDiscriminatedName())
+                    .replaceAll("(?i)%@Bot", "@" + api.getYourself().getDiscriminatedName())
+                    .replaceAll("(?i)%Prefix", "L.");
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return string;
     }
 
     public static EmbedBuilder getEmbedBuilderFromMessage(Message message) {

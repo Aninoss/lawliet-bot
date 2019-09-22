@@ -14,11 +14,14 @@ import MySQL.DBSurvey;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
+import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 
+import java.awt.*;
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,20 +29,19 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+@CommandProperties(
+    trigger = "survey",
+    botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/iconarchive/blue-election/128/Election-Polling-Box-icon.png",
+    emoji = "✅",
+    executable = true
+)
 public class SurveyCommand extends Command implements onRecievedListener,onReactionAddStatic, onTrackerRequestListener {
+
     private static long lastAccess = 0;
 
     public SurveyCommand() {
         super();
-        trigger = "survey";
-        privateUse = false;
-        botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/iconarchive/blue-election/128/Election-Polling-Box-icon.png";
-        emoji = "✅";
-        executable = true;
     }
 
     @Override
@@ -52,6 +54,18 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
         if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
+        else {
+            User owner = message.getServer().get().getOwner();
+            if (owner != null) {
+                EmbedBuilder errEmbed = PermissionCheck.bothasPermissions(getLocale(), message.getServer().get(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL);
+                owner.sendMessage(new EmbedBuilder()
+                        .setColor(Color.RED)
+                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL,"error"))
+                        .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL,"survey_missing_permissions"))).get();
+                owner.sendMessage(errEmbed).get();
+            }
+            return;
+        }
 
         for(Reaction reaction: message.getReactions()) {
             boolean correctEmoji = false;
@@ -83,12 +97,12 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
                         if (hit == 1) DBSurvey.updatePersonalVote(event.getUser(), i);
                         else {
                             if (!DBSurvey.updateMajorityVote(event.getServer().get(), event.getUser(), i)) {
-                                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(locale, TextManager.GENERAL, "rejected"));
+                                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
                                 event.getUser().sendMessage(eb).get();
                                 return;
                             }
                         }
-                        List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
+                        List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + getLocale().getDisplayName() + ".txt"));
                         String[] surveyData = surveyList.get(survey.getId()).split("\\|");
                         UserVoteData votes = DBSurvey.getUserVotes(event.getUser());
 
@@ -97,7 +111,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
                         voteStrings[0] = "• " + surveyData[votes.getPersonalVote() + 1];
 
                         ArrayList<UserMajorityVoteData> userMajorityVoteDataList = votes.getMajorityVotes();
-                        if (userMajorityVoteDataList.size() == 0) voteStrings[1] = TextManager.getString(locale, TextManager.GENERAL, "notset");
+                        if (userMajorityVoteDataList.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                         else voteStrings[1] = "";
 
                         for (UserMajorityVoteData userMajorityVoteData: userMajorityVoteDataList) {
@@ -141,7 +155,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
     private EmbedBuilder getResultsEmbed() throws Throwable {
         SurveyResults surveyResults = DBSurvey.getResults();
         if (surveyResults.getSurveyId() == 0) return null;
-        String[] surveyData = surveyResults.getQuestionAndAnswers(locale);
+        String[] surveyData = surveyResults.getQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("results_title"));
         eb.addField(getString("results_question"), surveyData[0], false);
@@ -170,7 +184,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
     }
 
     private EmbedBuilder getSurveyEmbed(Survey survey) throws Throwable {
-        String[] surveyData = getSurveyData(survey.getId(), locale);
+        String[] surveyData = getSurveyData(survey.getId(), getLocale());
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Tools.getEmptyCharacter());
 
         StringBuilder personalString = new StringBuilder();
@@ -197,7 +211,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
 
     @Override
     public String getTitleStartIndicator() {
-        return emoji;
+        return getEmoji();
     }
 
     @Override

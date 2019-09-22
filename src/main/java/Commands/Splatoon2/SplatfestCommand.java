@@ -1,5 +1,6 @@
 package Commands.Splatoon2;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
@@ -16,21 +17,21 @@ import org.json.JSONObject;
 import java.time.Instant;
 import java.util.Date;
 
+@CommandProperties(
+    trigger = "splatfest",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    withLoadingBar = true,
+    emoji = "\uD83C\uDF89",
+    thumbnail = "https://splatoon.nintendo.com/splatoon/assets/img/overview/splatfest-badge@2x.png",
+    executable = true
+)
 public class SplatfestCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+    
     private Instant trackingTime;
     private boolean post = true;
 
     public SplatfestCommand() {
         super();
-        trigger = "splatfest";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83C\uDF89";
-        thumbnail = "https://splatoon.nintendo.com/splatoon/assets/img/overview/splatfest-badge@2x.png";
-        executable = true;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
     }
 
     private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
-        String language = locale.getLanguage().split("_")[0].toLowerCase();
+        String language = getLocale().getLanguage().split("_")[0].toLowerCase();
         String region;
         if ("en".equals(language)) {
             region = "na";
@@ -86,24 +87,24 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
         switch(state) {
             //Splatfest wurde angekündigt
             case 0:
-                eb.setDescription(getString("state0", Tools.getInstantString(locale, startTime, true), Tools.getInstantString(locale, endTime, true)));
-                eb.setFooter(getString("state0_footer", Tools.getRemainingTimeString(locale, startTime, Instant.now(), false), region.toUpperCase()));
+                eb.setDescription(getString("state0", Tools.getInstantString(getLocale(), startTime, true), Tools.getInstantString(getLocale(), endTime, true)));
+                eb.setFooter(getString("state0_footer", Tools.getRemainingTimeString(getLocale(), startTime, Instant.now(), false), region.toUpperCase()));
                 addTeamsToEmbedBuilder(eb, api, languageData, festId, teamNames);
                 trackingTime = startTime;
                 break;
 
             //Splatfest findet gerade statt
             case 1:
-                eb.setDescription(getString("state1", Tools.getInstantString(locale, endTime, true)));
-                eb.setFooter(getString("state1_footer", Tools.getRemainingTimeString(locale, endTime, Instant.now(), false), region.toUpperCase()));
+                eb.setDescription(getString("state1", Tools.getInstantString(getLocale(), endTime, true)));
+                eb.setFooter(getString("state1_footer", Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), false), region.toUpperCase()));
                 addTeamsToEmbedBuilder(eb, api, languageData, festId, teamNames);
                 trackingTime = endTime;
                 break;
 
             //Splatfest ist vorbei
             case 2:
-                eb.setDescription(getString("state2", Tools.getInstantString(locale, resultsTime, true)));
-                eb.setFooter(getString("state2_footer", Tools.getRemainingTimeString(locale, resultsTime, Instant.now(), false), region.toUpperCase()));
+                eb.setDescription(getString("state2", Tools.getInstantString(getLocale(), resultsTime, true)));
+                eb.setFooter(getString("state2_footer", Tools.getRemainingTimeString(getLocale(), resultsTime, Instant.now(), false), region.toUpperCase()));
                 addTeamsToEmbedBuilder(eb, api, languageData, festId, teamNames);
                 trackingTime = resultsTime;
                 break;
@@ -156,7 +157,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
                         true);
 
                 eb.setDescription(getString("state3"));
-                eb.setFooter(getString("state3_footer", Tools.getInstantString(locale, resultsTime, true), region.toUpperCase()));
+                eb.setFooter(getString("state3_footer", Tools.getInstantString(getLocale(), resultsTime, true), region.toUpperCase()));
                 trackingTime = Tools.setInstantToNextHour(Instant.now());
                 break;
         }

@@ -1,5 +1,6 @@
 package Commands.PowerPlant;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -16,20 +17,17 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "account",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
+    emoji = "\uD83D\uDE4B",
+    executable = true
+)
 public class AccountCommand extends Command implements onRecievedListener {
-    private Message message;
 
     public AccountCommand() {
         super();
-        trigger = "account";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png";
-        emoji = "\uD83D\uDE4B";
-        executable = true;
     }
 
     @Override
@@ -41,7 +39,7 @@ public class AccountCommand extends Command implements onRecievedListener {
             ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
             if (list.size() > 5) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(locale,TextManager.GENERAL,"too_many_users"))).get();
+                        TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
                 return false;
             }
             boolean userMentioned = true;
@@ -59,17 +57,17 @@ public class AccountCommand extends Command implements onRecievedListener {
                 }
             }
             for(User user: list) {
-                EmbedBuilder eb = DBUser.addFishingValues(locale, server, user, 0L, 0L);
+                EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, user, 0L, 0L);
                 if (eb != null) {
                     eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
                     if (!userMentioned)
-                        eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "mention_optional"));
+                        eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                     event.getChannel().sendMessage(eb).get();
                 }
             }
             return true;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", prefix), TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
         }
     }

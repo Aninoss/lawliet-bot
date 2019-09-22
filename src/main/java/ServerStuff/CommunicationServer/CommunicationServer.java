@@ -13,6 +13,8 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 
 public class CommunicationServer {
@@ -21,6 +23,7 @@ public class CommunicationServer {
     private final byte CAN_UPDATE = 0x2;
     private final byte CONNECTED = 0x4;
     private final byte EXIT = 0x2;
+    private boolean canRestart = false;
 
     private DiscordApi api;
 
@@ -38,14 +41,15 @@ public class CommunicationServer {
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
-
                     OutputStream os = socket.getOutputStream();
 
                     int output = HEARTBEAT;
 
                     try {
-                        if (CommandContainer.getInstance().getActivitiesSize() == 0 && RunningCommandManager.getInstance().getRunningCommands().size() == 0)
-                            output |= CAN_UPDATE;
+                        if (CommandContainer.getInstance().getActivitiesSize() == 0 &&
+                                RunningCommandManager.getInstance().getRunningCommands().size() == 0 &&
+                                CommandContainer.getInstance().getLastCommandUsage().plusSeconds(2 * 60).isBefore(Instant.now())
+                        ) output |= CAN_UPDATE;
                         if (api != null && api.getServerById(Settings.HOME_SERVER_ID).isPresent() && api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).isPresent()) {
                             try {
                                 Message message = api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
@@ -57,6 +61,12 @@ public class CommunicationServer {
                         }
                     } catch (Throwable e) {
                         e.printStackTrace();
+                    }
+
+                    Calendar calendar = Calendar.getInstance();
+                    if (calendar.get(Calendar.HOUR_OF_DAY) == 4) canRestart = true;
+                    if (calendar.get(Calendar.HOUR_OF_DAY) >= 5 && calendar.get(Calendar.MINUTE) >= 10 && canRestart && (output & CAN_UPDATE) > 0) {
+                        System.exit(2);
                     }
 
                     os.write(output);

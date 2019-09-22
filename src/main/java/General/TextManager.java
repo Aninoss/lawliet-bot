@@ -9,11 +9,11 @@ import java.util.ResourceBundle;
 public class TextManager {
     public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions";
 
-    public static String getString(Locale locale, String category, String key, String... args) throws Throwable {
+    public static String getString(Locale locale, String category, String key, String... args) throws IOException {
         return getString(locale, category, key, -1, args);
     }
 
-    public static String getString(Locale locale, String category, String key, int option, String... args) throws Throwable {
+    public static String getString(Locale locale, String category, String key, int option, String... args) throws IOException {
         ResourceBundle texts = ResourceBundle.getBundle(category, locale, new UTF8Control());
         if (!texts.containsKey(key)) {
             throw new IOException("Key " + key + " not found in " + category);
@@ -56,7 +56,7 @@ public class TextManager {
         }
     }
 
-    public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) throws Throwable {
+    public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) throws IOException {
         if (!secondOption) return getString(locale, category, key, 0, args);
         else return getString(locale, category, key, 1, args);
     }

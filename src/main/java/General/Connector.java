@@ -8,6 +8,7 @@ import GUIPackage.GUI;
 import General.BotResources.ResourceManager;
 import MySQL.*;
 //import ServerStuff.WebCommunicationServer.WebComServer;
+import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.user.User;
@@ -15,43 +16,35 @@ import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.entity.server.Server;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.*;
 
 public class Connector {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, FontFormatException {
         //Start GUI
         boolean withGUI = !Bot.isDebug();
         if (args.length > 0 && args[0].equals("nogui")) withGUI = false;
         if (withGUI) GUI.getInstance().start();
 
-        //Start Communication Server
-        CommunicationServer communicationServer = new CommunicationServer(35555);
-
-        //Start WebCom Server
-        //new WebComServer(15744);
+        CommunicationServer communicationServer = new CommunicationServer(35555); //Start Communication Server
 
         if (Bot.TEST_MODE) System.out.println("ATTENTION: The bot is running in test mode!");
 
-        //Starts Console Listener
-        new Thread(Console::manageConsole).start();
-        addUncaughtException(Thread.currentThread());
+        new Thread(Console::manageConsole).start(); //Starts Console Listener
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        try {
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/yumindb.ttf")));
-            DBMain.getInstance().connect();
-            if (!Bot.TEST_MODE && !Bot.isDebug()) initializeUpdate();
-            DiscordbotsAPI.getInstance().startWebhook();
-            connect(communicationServer);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/l_10646.ttf")));
+        DBMain.getInstance().connect();
+        if (!Bot.TEST_MODE && !Bot.isDebug()) initializeUpdate();
+        DiscordbotsAPI.getInstance().startWebhook();
+
+        connect(communicationServer);
     }
 
     private static void initializeUpdate() {
@@ -65,146 +58,91 @@ public class Connector {
         }
     }
 
-    private static void connect(CommunicationServer communicationServer) {
+    private static void connect(CommunicationServer communicationServer) throws IOException {
         System.out.println("Bot is logging in...");
 
-        DiscordApi api = null;
-        try {
+        DiscordApi api = new DiscordApiBuilder().setToken(SecretManager.getString((Bot.isDebug() && !Bot.TEST_MODE) ? "bot.token.debugger" : "bot.token")).login().join();
+        api.setMessageCacheSize(10, 60 * 10);
 
-            api = new DiscordApiBuilder().setToken(SecretManager.getString((Bot.isDebug() && !Bot.TEST_MODE) ? "bot.token.debugger" : "bot.token")).login().join();
+        if (!Bot.TEST_MODE) {
+            try {
+                api.updateStatus(UserStatus.DO_NOT_DISTURB);
+                api.updateActivity("Please wait, bot is booting up...");
 
-            new DonationServer(api, 27440);
-            api.setMessageCacheSize(10, 60 * 5);
-            communicationServer.setApi(api);
-            FisheryCache.getInstance().startVCCollector(api);
+                System.out.println("Synchronizes Data...");
 
-            if (!Bot.TEST_MODE) {
-                try {
-                    api.updateStatus(UserStatus.DO_NOT_DISTURB);
-                    api.updateActivity("Please wait, bot is booting up...");
+                GUI.getInstance().setApi(api);
+                new DonationServer(api, 27440);
+                communicationServer.setApi(api);
+                FisheryCache.getInstance().startVCCollector(api);
+                new WebComServer(15744, api);
+                ResourceManager.setUp(Shortcuts.getHomeServer(api));
+                DBMain.synchronizeAll(api);
 
-                    System.out.println("Synchronizes Data...");
-                    ResourceManager.setUp(Shortcuts.getHomeServer(api));
-                    DBMain.synchronizeAll(api);
-                    System.out.println("The bot has been successfully booten up!");
-                    GUI.getInstance().setApi(api);
-
-                    api.addMessageCreateListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new MessageCreateListener().onMessageCreate(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addMessageEditListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new MessageEditListener().onMessageEdit(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addMessageDeleteListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new MessageDeleteListener().onMessageDelete(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addReactionAddListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ReactionAddListener().onReactionAdd(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addReactionRemoveListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ReactionRemoveListener().onReactionRemove(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerVoiceChannelMemberJoinListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new VoiceChannelMemberJoinListener().onJoin(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerVoiceChannelMemberLeaveListener(event -> {
-                        Thread t = new Thread(() -> new VoiceChannelMemberLeaveListener().onLeave(event));
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerMemberJoinListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ServerMemberJoinListener().onJoin(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerMemberLeaveListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ServerMemberLeaveListener().onLeave(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerChannelDeleteListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ServerChannelDeleteListener().onDelete(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerJoinListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ServerJoinListener().onServerJoin(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addServerLeaveListener(event -> {
-                        Thread t = new Thread(() -> {
-                            new ServerLeaveListener().onServerLeave(event);
-                        });
-                        addUncaughtException(t);
-                        t.start();
-                    });
-                    api.addReconnectListener(event -> {
-                        Thread t = new Thread(() -> onSessionResume(event.getApi()));
-                        addUncaughtException(t);
-                        t.run();
-                    });
-
-                    if (!Bot.isDebug()) {
-                        final DiscordApi api2 = api;
-                        Thread t = new Thread(() -> Clock.tick(api2));
-                        addUncaughtException(t);
-                        t.start();
-                    }
-
-                    updateActivity(api);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    api.disconnect();
-                }
-            } else {
                 System.out.println("The bot has been successfully booten up!");
 
-                //DOES NOTHING RIGHT NOW
+                api.addMessageCreateListener(event ->
+                    new Thread(() -> new MessageCreateListener().onMessageCreate(event)).start()
+                );
+                api.addMessageEditListener(event ->
+                        new Thread(() -> new MessageEditListener().onMessageEdit(event)).start()
+                );
+                api.addMessageDeleteListener(event ->
+                        new Thread(() -> new MessageDeleteListener().onMessageDelete(event)).start()
+                );
+                api.addReactionAddListener(event ->
+                        new Thread(() -> new ReactionAddListener().onReactionAdd(event)).start()
+                );
+                api.addReactionRemoveListener(event ->
+                        new Thread(() -> new ReactionRemoveListener().onReactionRemove(event)).start()
+                );
+                api.addServerVoiceChannelMemberJoinListener(event ->
+                        new Thread(() -> new VoiceChannelMemberJoinListener().onJoin(event)).start()
+                );
+                api.addServerVoiceChannelMemberLeaveListener(event ->
+                        new Thread(() -> new VoiceChannelMemberLeaveListener().onLeave(event)).start()
+                );
+                api.addServerMemberJoinListener(event ->
+                        new Thread(() -> new ServerMemberJoinListener().onJoin(event)).start()
+                );
+                api.addServerMemberLeaveListener(event ->
+                        new Thread(() -> new ServerMemberLeaveListener().onLeave(event)).start()
+                );
+                api.addServerChannelDeleteListener(event ->
+                        new Thread(() -> new ServerChannelDeleteListener().onDelete(event)).start()
+                );
+                api.addServerJoinListener(event ->
+                        new Thread(() -> new ServerJoinListener().onServerJoin(event)).start()
+                );
+                api.addServerLeaveListener(event ->
+                        new Thread(() -> new ServerLeaveListener().onServerLeave(event)).start()
+                );
+                api.addReconnectListener(event ->
+                        new Thread(() -> onSessionResume(event.getApi())).run()
+                );
 
+                if (!Bot.isDebug()) {
+                    new Thread(() -> Clock.tick(api)).start();
+                }
+
+                updateActivity(api);
+            } catch (Throwable e) {
+                e.printStackTrace();
                 api.disconnect();
-                System.out.println("Bot has been disconnected.");
-
-                System.exit(0);
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
-            if (api != null) api.disconnect();
+        } else {
+            System.out.println("The bot has been successfully booten up!");
+
+            //DOES NOTHING RIGHT NOW
+
+            api.disconnect();
+            System.out.println("Bot has been disconnected.");
+
+            System.exit(0);
         }
     }
 
+    //Not used in the final version
     private static void updateInactiveServerMembers(DiscordApi api) {
         for(Server server: api.getServers()) {
             ArrayList<Long> userIds = new ArrayList<>();
@@ -231,11 +169,7 @@ public class Connector {
     }
 
     private static void onSessionResume(DiscordApi api) {
-        System.out.println("Verbindung wurde wiederhergestellt!");
+        System.out.println("Connection has been reestablished!");
         updateActivity(api);
-    }
-
-    private static void addUncaughtException(Thread t) {
-        t.setUncaughtExceptionHandler((t1, e) -> System.err.println(t1.toString() + " has thrown an exception: " + e.getMessage()));
     }
 }

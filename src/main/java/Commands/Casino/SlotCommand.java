@@ -1,5 +1,6 @@
 package Commands.Casino;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Constants.LogStatus;
@@ -15,7 +16,15 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.Random;
 
 
+@CommandProperties(
+        trigger = "slot",
+        emoji = "\uD83C\uDFB0",
+        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
+        executable = true,
+        aliases = {"slots"}
+)
 public class SlotCommand extends Casino implements onRecievedListener, onReactionAddListener {
+
     private String log;
     private int winLevel;
     private boolean[] progress;
@@ -30,11 +39,6 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
 
     public SlotCommand() {
         super();
-        trigger = "slot";
-        botPermissions = 0;
-        userPermissions = 0;
-        emoji = "\uD83C\uDFB0";
-        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png";
     }
 
     @Override
@@ -115,7 +119,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
-                Tools.numToString(locale, coinsInput),
+                Tools.numToString(getLocale(), coinsInput),
                 getSpinningWheel(api, 0),
                 getSpinningWheel(api, 1),
                 getSpinningWheel(api, 2),
@@ -133,7 +137,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
                 ALL_EMOJI
                 ));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(locale, TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

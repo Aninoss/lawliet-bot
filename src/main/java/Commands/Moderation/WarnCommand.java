@@ -16,7 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.javacord.api.entity.server.Server;
 
+@CommandProperties(
+    trigger = "warn",
+    userPermissions = Permission.KICK_USER,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Problem-warning-icon.png",
+    emoji = "\uD83D\uDEA8",
+    executable = false
+)
 public class WarnCommand extends Command implements onRecievedListener, onReactionAddListener  {
+    
     private Message message;
     private List<User> userList;
     private ModerationStatus moderationStatus;
@@ -24,15 +32,6 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
 
     public WarnCommand() {
         super();
-        trigger = "warn";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = Permission.KICK_USER;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Problem-warning-icon.png";
-        emoji = "\uD83D\uDEA8";
-        executable = false;
     }
 
     @Override
@@ -41,7 +40,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
         userList = message.getMentionedUsers();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(locale, TextManager.GENERAL,"no_mentions"))).get();
+                    TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
             return false;
         }
 
@@ -54,7 +53,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
         moderationStatus = DBServer.getModerationFromServer(event.getServer().get());
 
         if (moderationStatus.isQuestion()) {
-            Mention mention = Tools.getMentionedStringOfUsers(locale, event.getServer().get(), userList);
+            Mention mention = Tools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);
@@ -74,12 +73,12 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             if (!canProcess(channel.getServer(), executer, user)) usersErrorList.add(user);
         }
         if (usersErrorList.size() > 0) {
-            Mention mentionError = Tools.getMentionedStringOfUsers(locale, channel.getServer(), usersErrorList);
-            postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getString()), TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title")));
+            Mention mentionError = Tools.getMentionedStringOfUsers(getLocale(), channel.getServer(), usersErrorList);
+            postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getString()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
             return false;
         }
 
-        Mention mention = Tools.getMentionedStringOfUsers(locale, channel.getServer(), userList);
+        Mention mention = Tools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getString(), executer.getMentionTag()));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {

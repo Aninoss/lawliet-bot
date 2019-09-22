@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "everyone",
+        emoji = "\uD83D\uDE21",
+        executable = false
+)
 public class EveryoneCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public EveryoneCommand() {
-        super();
-        trigger = "everyone";
-        emoji = "\uD83D\uDE21";
-        nsfw = false;
-        gifs = new String[]{
-                "https://cdn.discordapp.com/attachments/499640076150636555/499654979452272670/5.jpg",
+        super("https://cdn.discordapp.com/attachments/499640076150636555/499654979452272670/5.jpg",
                 "https://cdn.discordapp.com/attachments/499640076150636555/499654979871703051/6.jpg",
                 "https://cdn.discordapp.com/attachments/499640076150636555/499654983696777216/7.jpg",
                 "https://cdn.discordapp.com/attachments/499640076150636555/499654984292630530/8.jpg",
@@ -24,7 +25,7 @@ public class EveryoneCommand extends InteractionCommand implements onRecievedLis
                 "https://cdn.discordapp.com/attachments/499640076150636555/499654993691803651/9.gif",
                 "https://cdn.discordapp.com/attachments/499640076150636555/499655000402690049/3.jpg",
                 "https://cdn.discordapp.com/attachments/499640076150636555/499655248395239475/4.jpg"
-        };
+        );
     }
 
     @Override

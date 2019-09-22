@@ -1,5 +1,6 @@
 package Commands.ServerManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
@@ -20,24 +21,24 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@CommandProperties(
+    trigger = "autochannel",
+    botPermissions = Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER,
+    userPermissions = Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER,
+    emoji = "\uD83D\uDD0A",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Sound-icon.png",
+    executable = true
+)
 public class AutoChannelCommand extends Command implements onNavigationListener {
+    
     private AutoChannelData autoChannelData;
 
     public AutoChannelCommand() {
         super();
-        trigger = "autochannel";
-        privateUse = false;
-        botPermissions = Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER;
-        userPermissions = Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDD0A";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Sound-icon.png";
-        executable = true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             autoChannelData = DBServer.getAutoChannelFromServer(event.getServer().get());
             return Response.TRUE;
@@ -47,12 +48,12 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
             case 1:
                 ArrayList<ServerVoiceChannel> channelList = MentionFinder.getVoiceChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
                     autoChannelData.setVoiceChannel(channelList.get(0));
                     setLog(LogStatus.SUCCESS, getString("channelset"));
-                    state = 0;
+                    setState(0);
                     DBServer.saveAutoChannel(autoChannelData);
                     return Response.TRUE;
                 }
@@ -61,11 +62,11 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                 if (inputString.length() > 0 && inputString.length() < 50) {
                     autoChannelData.setChannelName(inputString);
                     setLog(LogStatus.SUCCESS, getString("channelnameset"));
-                    state = 0;
+                    setState(0);
                     DBServer.saveAutoChannel(autoChannelData);
                     return Response.TRUE;
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "args_too_long", "50"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "50"));
                     return Response.FALSE;
                 }
         }
@@ -74,7 +75,7 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {
@@ -89,24 +90,24 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 1:
-                        state = 1;
+                        setState(1);
                         return true;
 
                     case 2:
-                        state = 2;
+                        setState(2);
                         return true;
                 }
                 return false;
 
             case 1:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 }
 
             case 2:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 }
         }
@@ -114,13 +115,13 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
-        String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:
-                options = getString("state0_options").split("\n");
+                setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), Tools.getOnOffForBoolean(locale, autoChannelData.isActive()), true)
+                        .addField(getString("state0_mactive"), Tools.getOnOffForBoolean(getLocale(), autoChannelData.isActive()), true)
                         .addField(getString("state0_mchannel"), Tools.getStringIfNotNull(autoChannelData.getVoiceChannel(), notSet), true)
                         .addField(getString("state0_mchannelname"), replaceVariables(autoChannelData.getChannelName(),
                                 "`%VCNAME`",

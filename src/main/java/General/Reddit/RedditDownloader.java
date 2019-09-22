@@ -28,6 +28,7 @@ public class RedditDownloader {
     }
 
     public static RedditPost getPost(Locale locale, String sub) throws Throwable {
+        if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
         Subreddit subreddit = SubredditContainer.getInstance().get(sub);
@@ -55,6 +56,7 @@ public class RedditDownloader {
     }
 
     public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws Throwable {
+        if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";

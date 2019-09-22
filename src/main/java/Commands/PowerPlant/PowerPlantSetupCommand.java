@@ -23,7 +23,21 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+@CommandProperties(
+        trigger = "fishery",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        userPermissions = Permission.MANAGE_SERVER,
+        emoji = "\u2699\uFE0F️",
+        thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
+        executable = true,
+        aliases = {"fishingsetup"}
+)
 public class PowerPlantSetupCommand extends Command implements onNavigationListener,onReactionAddStatic  {
+
+    public PowerPlantSetupCommand() {
+        super();
+    }
+
     private ArrayList<Role> roles;
     private ArrayList<ServerTextChannel> ignoredChannels;
     private PowerPlantStatus status;
@@ -33,22 +47,9 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
     public static final String keyEmoji = "\uD83D\uDD11";
     private static ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
     private static ArrayList<Server> busyServers = new ArrayList<>();
-
-    public PowerPlantSetupCommand() {
-        super();
-        trigger = "fishery";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = Permission.MANAGE_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\u2699\uFE0F️";
-        thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png";
-        executable = true;
-    }
-
+    
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
             status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
@@ -63,12 +64,12 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
             case 1:
                 ArrayList<Role> roleList = MentionFinder.getRoles(event.getMessage(), inputString).getList();
                 if (roleList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
                     for (Role role : roleList) {
                         if (!Tools.canManageRole(role)) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "missing_permission", roleList.size() != 1));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission", roleList.size() != 1));
                             return Response.FALSE;
                         }
                     }
@@ -91,37 +92,37 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                     }
 
                     setLog(LogStatus.SUCCESS, getString("roleadd", (roleList.size() - existingRoles) != 1));
-                    state = 0;
+                    setState(0);
                     return Response.TRUE;
                 }
 
             case 3:
                 ArrayList<ServerTextChannel> channelIgnoredList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
                     ignoredChannels = channelIgnoredList;
                     DBServer.savePowerPlantIgnoredChannels(event.getServer().get(), ignoredChannels);
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
-                    state = 0;
+                    setState(0);
                     return Response.TRUE;
                 }
 
             case 4:
                 ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
                     if (channelList.get(0).canYouWrite()) {
                         announcementChannel = channelList.get(0);
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                        state = 0;
+                        setState(0);
                         DBServer.savePowerPlantAnnouncementChannel(event.getServer().get(), announcementChannel);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "missing_permission_channel"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission_channel"));
                         return Response.FALSE;
                     }
                 }
@@ -131,7 +132,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {
@@ -147,7 +148,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
 
                     case 1:
                         if (roles.size() < getMaxReactionNumber()) {
-                            state = 1;
+                            setState(1);
                             return true;
                         } else {
                             setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(getMaxReactionNumber())));
@@ -157,7 +158,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                     case 2:
                         if (status == PowerPlantStatus.STOPPED) {
                             if (roles.size() > 0) {
-                                state = 2;
+                                setState(2);
                                 return true;
                             } else {
                                 setLog(LogStatus.FAILURE, getString("norolesset"));
@@ -169,7 +170,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                         }
 
                     case 3:
-                        state = 3;
+                        setState(3);
                         return true;
 
                     case 4:
@@ -220,12 +221,12 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                             setLog(LogStatus.SUCCESS, getString("singleroleset", singleRole));
                             return true;
                         } else {
-                            setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "role_busy"));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
                             return true;
                         }
 
                     case 5:
-                        state = 4;
+                        setState(4);
                         return true;
 
                     case 6:
@@ -266,7 +267,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                                 return true;
                             } else {
-                                setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "role_busy"));
+                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
                                 return true;
                             }
                         }
@@ -275,31 +276,31 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
 
             case 1:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 }
 
             case 2:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 } else if (i < roles.size()) {
                     DBServer.removePowerPlantRoles(event.getServer().get(), roles.remove(i));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    state = 0;
+                    setState(0);
                     return true;
                 }
 
             case 3:
                 switch (i) {
                     case -1:
-                        state = 0;
+                        setState(0);
                         return true;
 
                     case 0:
                         ignoredChannels = new ArrayList<>();
                         DBServer.savePowerPlantIgnoredChannels(event.getServer().get(), ignoredChannels);
-                        state = 0;
+                        setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;
                 }
@@ -308,13 +309,13 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
             case 4:
                 switch (i) {
                     case -1:
-                        state = 0;
+                        setState(0);
                         return true;
 
                     case 0:
                         announcementChannel = null;
                         DBServer.savePowerPlantAnnouncementChannel(event.getServer().get(), announcementChannel);
-                        state = 0;
+                        setState(0);
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         return true;
                 }
@@ -324,19 +325,19 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
-        String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         switch (state) {
             case 0:
-                options = getString("state0_options_"+ status.ordinal()).split("\n");
+                setOptions(getString("state0_options_"+ status.ordinal()).split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[status.ordinal()].toUpperCase() + "**", true)
-                        .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(locale, treasureChests), true)
-                        .addField(getString("state0_mroles"), ListGen.getRoleListNumbered(locale, roles), true)
-                        .addField(getString("state0_mchannels"), ListGen.getChannelList(locale, ignoredChannels), true)
+                        .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), treasureChests), true)
+                        .addField(getString("state0_mroles"), ListGen.getRoleListNumbered(getLocale(), roles), true)
+                        .addField(getString("state0_mchannels"), ListGen.getChannelList(getLocale(), ignoredChannels), true)
                         .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), true)
-                        .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(locale, singleRole)), getString("state0_msinglerole_desc"), true);
+                        .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), singleRole)), getString("state0_msinglerole_desc"), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -346,15 +347,15 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                 for(int i=0; i<roleStrings.length; i++) {
                     roleStrings[i] = roles.get(i).getMentionTag();
                 }
-                options = roleStrings;
+                setOptions(roleStrings);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                options = new String[]{getString("state3_options")};
+                setOptions(new String[]{getString("state3_options")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
-                options = new String[]{getString("state4_options")};
+                setOptions(new String[]{getString("state4_options")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
         }
         return null;
@@ -384,8 +385,8 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions().get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_opening", event.getUser().getMentionTag()));
+                        .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
+                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opening", event.getUser().getMentionTag()));
                 message.edit(eb).get();
 
                 Thread.sleep(1000 * 3);
@@ -398,13 +399,13 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                 long won = Math.round(DBUser.getFishingProfile(event.getServer().get(), event.getUser()).getEffect(FishingCategoryInterface.PER_TREASURE) * (0.7 + r.nextDouble() * 0.6));
 
                 eb = EmbedFactory.getEmbed()
-                        .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), Tools.numToString(locale, won)))
+                        .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
+                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), Tools.numToString(getLocale(), won)))
                         .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"));
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 
-                if (resultInt == 0 && message.getChannel().canYouWrite()) event.getChannel().sendMessage(DBUser.addFishingValues(locale, event.getServer().get(), event.getUser(), 0L, won)).get();
+                if (resultInt == 0 && message.getChannel().canYouWrite()) event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0L, won)).get();
 
                 new Thread(() -> {
                     try {

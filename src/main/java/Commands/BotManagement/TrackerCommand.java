@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
@@ -22,6 +23,14 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.time.Instant;
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "tracker",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    userPermissions = Permission.MANAGE_SERVER,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Favourite-2-icon.png",
+    emoji = "\uD83D\uDD16",
+    executable = true
+)
 public class TrackerCommand extends Command implements onNavigationListener {
     private ArrayList<EmojiConnection> emojiConnections;
     private Server server;
@@ -33,33 +42,24 @@ public class TrackerCommand extends Command implements onNavigationListener {
 
     public TrackerCommand() {
         super();
-        trigger = "tracker";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = Permission.MANAGE_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Favourite-2-icon.png";
-        emoji = "\uD83D\uDD16";
-        executable = true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             server = event.getServer().get();
             channel = event.getServerTextChannel().get();
         }
 
         if (firstTime || state == 3) {
-            controll(event.getApi(), inputString, firstTime);
+            controll(event.getApi(), inputString, state, firstTime);
             return Response.TRUE;
         }
         return null;
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         for (EmojiConnection emojiConnection: emojiConnections) {
             if (emojiConnection.isEmoji(event.getEmoji())) {
                 if (emojiConnection.getConnection().equalsIgnoreCase("back")) {
@@ -69,19 +69,19 @@ public class TrackerCommand extends Command implements onNavigationListener {
                             return true;
 
                         case 1:
-                            state = 0;
+                            setState(0);
                             return true;
 
                         case 2:
-                            state = 0;
+                            setState(0);
                             return true;
 
                         case 3:
-                            state = 1;
+                            setState(1);
                             return true;
                     }
                 }
-                controll(event.getApi(), emojiConnection.getConnection(), false);
+                controll(event.getApi(), emojiConnection.getConnection(), state,false);
                 return true;
             }
         }
@@ -89,7 +89,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
         return false;
     }
 
-    private void controll(DiscordApi api, String searchTerm, boolean first) throws Throwable {
+    private void controll(DiscordApi api, String searchTerm, int state, boolean first) throws Throwable {
         while(true) {
             if (searchTerm.length() == 0) return;
 
@@ -100,7 +100,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     if (arg.equalsIgnoreCase("add")) {
                         updateTrackerList(api);
                         if (trackers.size() < 6) {
-                            state = 1;
+                            setState(1);
                         } else {
                             setLog(LogStatus.FAILURE, getString("state0_toomanytracker", "6"));
                             return;
@@ -109,13 +109,13 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     else if (arg.equalsIgnoreCase("remove")) {
                         updateTrackerList(api);
                         if (trackers.size() > 0) {
-                            state = 2;
+                            setState(2);
                         } else {
                             setLog(LogStatus.FAILURE, getString("state0_notracker"));
                             return;
                         }
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "invalid", arg));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
                         return;
                     }
                     break;
@@ -142,14 +142,14 @@ public class TrackerCommand extends Command implements onNavigationListener {
                                 if (first) endNavigation();
                             } else {
                                 updateTrackerList(api);
-                                state = 3;
+                                setState(3);
                             }
                             found = true;
                             break;
                         }
                     }
                     if (!found) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "invalid", arg));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
                         return;
                     }
                     break;
@@ -161,11 +161,11 @@ public class TrackerCommand extends Command implements onNavigationListener {
                         TrackerManager.stopTracker(trackerRemove);
                         updateTrackerList(api);
                         setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
-                        if (trackers.size() == 0) state = 0;
+                        if (trackers.size() == 0) setState(0);
                         if (first) endNavigation();
                         return;
                     }
-                    setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "invalid", arg));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
                     return;
 
                 case 3:
@@ -179,13 +179,13 @@ public class TrackerCommand extends Command implements onNavigationListener {
     private void addTracker(String key) throws Throwable {
         TrackerData trackerData = new TrackerData(server, channel, 0, commandTrigger, key, Instant.now(), null);
         TrackerManager.startTracker(trackerData);
-        state = 1;
+        setState(1);
         setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
     }
 
     private void endNavigation() {
         removeNavigation();
-        state = 4;
+        setState(4);
     }
 
     private void updateTrackerList(DiscordApi api) throws Throwable {
@@ -208,11 +208,11 @@ public class TrackerCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
-        ServerTextChannel channel = getAuthorMessage().getServerTextChannel().get();
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
         switch (state) {
             case 0:
-                options = getString("state0_options").split("\n");
+                setOptions(getString("state0_options").split("\n"));
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0], "add"));
@@ -220,23 +220,23 @@ public class TrackerCommand extends Command implements onNavigationListener {
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
 
             case 1:
-                options = new String[CommandContainer.getInstance().getTrackerCommands().size()];
+                setOptions(new String[CommandContainer.getInstance().getTrackerCommands().size()]);
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                for (int i=0; i < options.length; i++) {
+                for (int i=0; i < getOptions().length; i++) {
                     String trigger = ((Command) CommandContainer.getInstance().getTrackerCommands().get(i)).getTrigger();
-                    options[i] = trigger + " - " + TextManager.getString(locale, TextManager.COMMANDS, trigger + "_description");
+                    getOptions()[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                options = new String[trackers.size()];
+                setOptions(new String[trackers.size()]);
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                for (int i=0; i<options.length; i++) {
+                for (int i=0; i < getOptions().length; i++) {
                     String trigger = trackers.get(i).getCommand();
-                    options[i] = trigger + " - " + TextManager.getString(locale, TextManager.COMMANDS, trigger + "_description");;
+                    getOptions()[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");;
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));

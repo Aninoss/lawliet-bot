@@ -1,5 +1,6 @@
 package Commands.General;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -17,18 +18,18 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.awt.*;
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "quote",
+    botPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    userPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png",
+    emoji = "\uD83D\uDCDD",
+    executable = false
+)
 public class QuoteCommand extends Command implements onRecievedListener {
+
     public QuoteCommand() {
         super();
-        trigger = "quote";
-        privateUse = false;
-        botPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
-        userPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png";
-        emoji = "\uD83D\uDCDD";
-        executable = false;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
         MentionList<ServerTextChannel> list = MentionFinder.getTextChannels(message, followString);
         User author = message.getUserAuthor().get();
         if (list.getResultMessageString().replace(" ","").length() > 0) {
-            addLoadingReaction(message);
+            addLoadingReaction();
             followString = list.getResultMessageString();
             ArrayList<ServerTextChannel> channelArrayList = list.getList();
             if (channelArrayList.size() == 0) channelArrayList = new ArrayList<>(server.getTextChannels());
@@ -111,7 +112,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
 
             //Wenn keines der Suchmethoden funktioniert hat (keine Ergebnisse)
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                    .setTitle(TextManager.getString(locale,TextManager.GENERAL,"no_results"));
+                    .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"));
 
             if (add == null) eb.setDescription(getString("noresult",list.getResultMessageString()));
             else eb.setDescription(getString("noresult_channel",list.getResultMessageString(),add));
@@ -128,7 +129,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
 
     public void postEmbed(ServerTextChannel channel, Message searchedMessage) throws Throwable {
         if (searchedMessage.getServerTextChannel().get().isNsfw() && !channel.isNsfw()) {
-            channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(locale)).get();
+            channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
             return;
         }
 

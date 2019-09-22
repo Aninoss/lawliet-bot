@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "hug",
+        emoji = "\uD83D\uDC50",
+        executable = false
+)
 public class HugCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public HugCommand() {
-        super();
-        trigger = "hug";
-        emoji = "\uD83D\uDC50";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/72627a21fc298313f647306e6594553f/tenor.gif?itemid=9096291",
+        super("https://media1.tenor.com/images/72627a21fc298313f647306e6594553f/tenor.gif?itemid=9096291",
                 "https://media1.tenor.com/images/6db54c4d6dad5f1f2863d878cfb2d8df/tenor.gif?itemid=7324587",
                 "https://media1.tenor.com/images/45b1dd9eaace572a65a305807cfaec9f/tenor.gif?itemid=6238016",
                 "https://media1.tenor.com/images/d6510db0a868cfbff697d7279aa89b61/tenor.gif?itemid=10989534",
@@ -59,7 +60,7 @@ public class HugCommand extends InteractionCommand implements onRecievedListener
                 "https://media1.tenor.com/images/eccacd077d0ac499e1a5cc76c6172ad4/tenor.gif?itemid=4854611",
                 "https://tenor.com/view/virtual-hug-gif-5026057",
                 "https://cdn.discordapp.com/attachments/499629904380297226/582632584748466186/hug-S1qhfy2cz-1.gif"
-        };
+        );
     }
 
     @Override

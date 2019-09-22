@@ -1,5 +1,6 @@
 package Commands.Interactions;
 
+import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import General.*;
 import General.Mention.Mention;
@@ -10,29 +11,24 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 
 public class InteractionCommand extends Command {
-    String[] gifs;
 
-    InteractionCommand() {
-        super();
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        executable = false;
+    private String[] gifs;
+
+    public InteractionCommand(String... gifs) {
+        this.gifs = gifs;
     }
 
     public boolean onInteractionRecieved(MessageCreateEvent event, String followedString, ArrayList<Integer> picked) throws Throwable {
         Message message = event.getMessage();
-        Mention mention = Tools.getMentionedString(locale,message,followedString);
+        Mention mention = Tools.getMentionedString(getLocale(),message,followedString);
         if (mention == null) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(locale,TextManager.GENERAL,"no_mentions"))).get();
+                    TextManager.getString(getLocale(),TextManager.GENERAL,"no_mentions"))).get();
             return false;
         } else if (mention.getString().equals( "**"+event.getMessage().getAuthor().getDisplayName()+"**")) {
             message.getChannel().sendMessage(
                     EmbedFactory.getCommandEmbedStandard(this,
-                        TextManager.getString(locale,TextManager.GENERAL,"alone"))
+                        TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
                     .setImage("https://media1.giphy.com/media/od5H3PmEG5EVq/giphy.gif?cid=790b76115ce968cf4a364a6845982172&rid=giphy.gif")).get();
             return false;
         }
@@ -46,4 +42,5 @@ public class InteractionCommand extends Command {
 
         return true;
     }
+
 }

@@ -1,5 +1,6 @@
 package Commands.Splatoon2;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
@@ -17,20 +18,20 @@ import org.json.JSONObject;
 import java.time.Instant;
 import java.util.Date;
 
+@CommandProperties(
+    trigger = "splatnet",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    withLoadingBar = true,
+    emoji = "\uD83D\uDED2",
+    thumbnail = "https://vignette.wikia.nocookie.net/splatoon/images/1/12/InklingUsingSplatNet.jpg/revision/latest?cb=20160116221000&path-prefix=de",
+    executable = true
+)
 public class SplatnetCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+    
     private Instant trackingTime;
 
     public SplatnetCommand() {
         super();
-        trigger = "splatnet";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDED2";
-        thumbnail = "https://vignette.wikia.nocookie.net/splatoon/images/1/12/InklingUsingSplatNet.jpg/revision/latest?cb=20160116221000&path-prefix=de";
-        executable = true;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
 
     private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
         int datesShown = 2;
-        String language = locale.getLanguage().split("_")[0].toLowerCase();
+        String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
         String[] urls = new String[]{
                 "https://splatoon2.ink/data/merchandises.json",
@@ -85,7 +86,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
             String effect = getString("nothing");
             if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
 
-            String fieldContent = getString("template", Shortcuts.getCustomEmojiByID(api, 437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(locale, endTime, true), Tools.getRemainingTimeString(locale, endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", Shortcuts.getCustomEmojiByID(api, 437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(getLocale(), endTime, true), Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

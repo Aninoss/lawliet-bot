@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "yurikiss",
+        emoji = "\uD83D\uDC69\u200D❤️\u200D\uD83D\uDC69",
+        executable = false
+)
 public class YuriKissCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public YuriKissCommand() {
-        super();
-        trigger = "yurikiss";
-        emoji = "\uD83D\uDC69\u200D❤️\u200D\uD83D\uDC69";
-        nsfw = false;
-        gifs = new String[]{
-                "https://i.gifer.com/Djbt.gif",
+        super("https://i.gifer.com/Djbt.gif",
                 "https://i.gifer.com/Djbt.gif",
                 "https://i.gifer.com/KTGr.gif",
                 "https://i.gifer.com/J1b0.gif",
@@ -24,7 +25,7 @@ public class YuriKissCommand extends InteractionCommand implements onRecievedLis
                 "https://cdn.weeb.sh/images/rJrCj6_w-.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/579494706870747147/0.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/579494710247292929/1.gif"
-        };
+        );
     }
 
     @Override

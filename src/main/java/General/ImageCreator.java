@@ -143,7 +143,12 @@ public class ImageCreator {
             BufferedImage base = ImageIO.read(getBackgroundFile(server));
             if (base == null) base = ImageIO.read(getDefaultBackgroundFile());
 
-            BufferedImage profilePicture = user.getAvatar().asBufferedImage().get();
+            BufferedImage profilePicture = null;
+            try {
+                profilePicture = user.getAvatar().asBufferedImage().get();
+            } catch (Throwable e) {
+                //Ignore
+            }
             BufferedImage result = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
             Graphics2D g2d = result.createGraphics();
@@ -165,9 +170,9 @@ public class ImageCreator {
             g2d.fillRect(15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30);
 
             drawRectShadow(g2d, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30);
-            g2d.drawImage(profilePicture, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30, null);
+            if (profilePicture != null) g2d.drawImage(profilePicture, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30, null);
 
-            Font font = new Font("Yu Mincho Demibald", Font.PLAIN, 18);
+            Font font = new Font("LucidaSans", Font.PLAIN, 20);
             Font fontWelcome = new Font("Oswald", Font.PLAIN, 28);
 
             int drawX = BASE_HEIGHT - 15 + (BASE_WIDTH - BASE_HEIGHT + 15) / 2;
@@ -192,7 +197,7 @@ public class ImageCreator {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(result, "png", os);
             return new ByteArrayInputStream(os.toByteArray());
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;

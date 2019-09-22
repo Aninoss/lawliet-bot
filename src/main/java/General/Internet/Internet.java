@@ -3,10 +3,7 @@ package General.Internet;
 import org.json.JSONObject;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 public class Internet {
@@ -16,7 +13,7 @@ public class Internet {
         return getDataCookie(urlString, null);
     }
 
-    public static String getDataRerquestPropertyGet(String urlString, String propertyName, String propertyValue) throws Throwable {
+    public static String getDataRerquestPropertyGet(String urlString, String propertyName, String propertyValue) throws IOException {
         BufferedReader br;
         String line;
         StringBuilder text = new StringBuilder();
@@ -62,7 +59,7 @@ public class Internet {
         return text.toString();
     }
 
-    public static String getDataCookie(String urlString, String cookie) throws Throwable {
+    public static String getDataCookie(String urlString, String cookie) throws IOException {
         return getDataRerquestPropertyGet(urlString, "Cookie", cookie);
     }
 
@@ -86,7 +83,7 @@ public class Internet {
         return text.toString();
     }
 
-    public static InternetResponse getDataPostWithCookie(String urlString, String body) throws Throwable {
+    public static InternetResponse getDataPostWithCookie(String urlString, String body) throws IOException {
         BufferedReader br;
         String line;
         StringBuilder text = new StringBuilder();

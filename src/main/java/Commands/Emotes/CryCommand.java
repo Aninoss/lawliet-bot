@@ -1,19 +1,21 @@
 package Commands.Emotes;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "cry",
+        emoji = "\uD83D\uDE2D",
+        executable = true,
+        aliases = {"sad"}
+)
 public class CryCommand extends EmoteCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public CryCommand() {
-        super();
-        trigger = "cry";
-        emoji = "\uD83D\uDE2D";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/ce52606293142a2bd11cda1d3f0dc12c/tenor.gif?itemid=5184314",
+        super("https://media1.tenor.com/images/ce52606293142a2bd11cda1d3f0dc12c/tenor.gif?itemid=5184314",
                 "https://media1.tenor.com/images/4b5e9867209d7b1712607958e01a80f1/tenor.gif?itemid=5298257",
                 "https://media1.tenor.com/images/de730b51400ed4dfb66d04141ea79a2d/tenor.gif?itemid=7353410",
                 "https://media1.tenor.com/images/4f22255d60f3f19edf9296992b4e3483/tenor.gif?itemid=4772697",
@@ -56,11 +58,11 @@ public class CryCommand extends EmoteCommand implements onRecievedListener {
                 "https://media1.tenor.com/images/9663e89dcde6a147536aa6ab0bd59083/tenor.gif?itemid=5001399",
                 "https://media1.tenor.com/images/04b0feb0e2e6861d5e57c1cb2cdb4dd9/tenor.gif?itemid=10810456",
                 "https://media1.tenor.com/images/9d216f884c5c44e8e3c4ddb7227caf1b/tenor.gif?itemid=11384663"
-        };
+        );
     }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onInteractionRecieved(event, followedString, picked);
+        return onEmoteRecieved(event, picked);
     }
 }

@@ -5,8 +5,8 @@ import General.Shortcuts;
 import org.javacord.api.DiscordApi;
 
 public class CategoryCalculator {
-    public static String getCategoryByCommand(Command commandParent) {
-        String packageName = commandParent.getClass().getPackage().getName();
+    public static String getCategoryByCommand(Class c) {
+        String packageName = c.getPackage().getName();
         if (packageName.equals("Commands.General")) return Category.GENERAL;
         if (packageName.equals("Commands.BotOwner")) return Category.BOT_OWNER;
         if (packageName.equals("Commands.NSFW")) return Category.NSFW;

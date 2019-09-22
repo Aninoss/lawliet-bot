@@ -1,19 +1,21 @@
 package Commands.Emotes;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "yes",
+    emoji = "\uD83D\uDC4D",
+    executable = true
+)
 public class YesCommand extends EmoteCommand implements onRecievedListener {
+
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public YesCommand() {
-        super();
-        trigger = "yes";
-        emoji = "\uD83D\uDC4D";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/ecad438e52beccce29765710049c375a/tenor.gif?itemid=4505671",
+        super("https://media1.tenor.com/images/ecad438e52beccce29765710049c375a/tenor.gif?itemid=4505671",
                 "https://media1.tenor.com/images/a3d3d51c8ca4598f2fb39da51ec9584f/tenor.gif?itemid=4361784",
                 "https://media1.tenor.com/images/96d6ca2e172c28b10edccdb38bdacaa5/tenor.gif?itemid=5881788",
                 "https://media1.tenor.com/images/217f30b2f7d415fe4a011b5b5b952e9f/tenor.gif?itemid=12763295",
@@ -33,12 +35,12 @@ public class YesCommand extends EmoteCommand implements onRecievedListener {
                 "https://media1.tenor.com/images/46f92f5d96b952af2f7fd8dfa98e94a4/tenor.gif?itemid=6181819",
                 "https://media1.tenor.com/images/e0f3c081f41859553539e401046f3626/tenor.gif?itemid=4493276",
                 "https://media1.tenor.com/images/f6831eeb7c2ba1984b3e5a41b047f737/tenor.gif?itemid=13451534",
-                "https://media1.tenor.com/images/081ee762032da039e6c74984f55bdb36/tenor.gif?itemid=13649649",
-        };
+                "https://media1.tenor.com/images/081ee762032da039e6c74984f55bdb36/tenor.gif?itemid=13649649"
+                );
     }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onInteractionRecieved(event, followedString, picked);
+        return onEmoteRecieved(event, picked);
     }
 }

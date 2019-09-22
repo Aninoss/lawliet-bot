@@ -1,5 +1,6 @@
 package Commands.Splatoon2;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
@@ -17,20 +18,20 @@ import org.json.JSONObject;
 import java.time.Instant;
 import java.util.Date;
 
+@CommandProperties(
+    trigger = "salmon",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    withLoadingBar = true,
+    emoji = "\uD83D\uDC1F",
+    thumbnail = "https://pre00.deviantart.net/1e9a/th/pre/i/2017/195/1/b/salmon_run_by_sqwdink-dbgdl3u.png",
+    executable = true
+)
 public class SalmonCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+    
     private Instant trackingTime;
 
     public SalmonCommand() {
         super();
-        trigger = "salmon";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDC1F";
-        thumbnail = "https://pre00.deviantart.net/1e9a/th/pre/i/2017/195/1/b/salmon_run_by_sqwdink-dbgdl3u.png";
-        executable = true;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
     private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
         int datesShown = 2;
-        String language = locale.getLanguage().split("_")[0].toLowerCase();
+        String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
         String[] urls = new String[]{
                 "https://splatoon2.ink/data/coop-schedules.json",
@@ -71,10 +72,10 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setTimestampToNow()
-                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), Tools.getRemainingTimeString(locale, Instant.now(), trackingTime, false)));
+                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), Tools.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
-            String title = Shortcuts.getCustomEmojiByID(api, 400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(locale, startTime[i], true) + " - " + Tools.getInstantString(locale, endTime[i], true) + "**__";
+            String title = Shortcuts.getCustomEmojiByID(api, 400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(getLocale(), startTime[i], true) + " - " + Tools.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.valueOf(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {

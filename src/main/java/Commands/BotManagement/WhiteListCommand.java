@@ -1,5 +1,6 @@
 package Commands.BotManagement;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
@@ -17,24 +18,23 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "whitelist",
+    userPermissions = Permission.MANAGE_SERVER,
+    emoji = "✅",
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/check-1-icon.png",
+    executable = true
+)
 public class WhiteListCommand extends Command implements onNavigationListener {
+
     private ArrayList<ServerTextChannel> channels;
 
     public WhiteListCommand() {
         super();
-        trigger = "whitelist";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = Permission.MANAGE_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "✅";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/check-1-icon.png";
-        executable = true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             channels = DBServer.getWhiteListedChannels(event.getServer().get());
             return Response.TRUE;
@@ -43,12 +43,12 @@ public class WhiteListCommand extends Command implements onNavigationListener {
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
             if (channelList.size() == 0) {
-                setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
             } else {
                 channels = channelList;
                 setLog(LogStatus.SUCCESS, getString("channelset"));
-                state = 0;
+                setState(0);
                 DBServer.saveWhiteListedChannels(event.getServer().get(), channels);
                 return Response.TRUE;
             }
@@ -58,7 +58,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {
@@ -67,7 +67,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
                         return false;
 
                     case 0:
-                        state = 1;
+                        setState(1);
                         return true;
 
                     case 1:
@@ -85,7 +85,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
 
             case 1:
                 if (i == -1) {
-                    state = 0;
+                    setState(0);
                     return true;
                 }
         }
@@ -93,11 +93,11 @@ public class WhiteListCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         String everyChannel = getString("all");
         switch (state) {
             case 0:
-                options = getString("state0_options").split("\n");
+                setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_mchannel"), ListGen.getChannelList(everyChannel, channels), true);
 

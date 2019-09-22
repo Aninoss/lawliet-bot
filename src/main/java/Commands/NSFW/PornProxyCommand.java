@@ -18,13 +18,6 @@ public class PornProxyCommand extends Command implements onRecievedListener {
         this.gifOnly = gifOnly;
         this.domain = domain;
         this.imageTemplate = imageTemplate;
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = true;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDD1E";
-        executable = true;
     }
 
     @Override
@@ -38,7 +31,7 @@ public class PornProxyCommand extends Command implements onRecievedListener {
             }
             if (!ok) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(locale, TextManager.GENERAL, "number", "1", "20"))).get();
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "20"))).get();
                 return false;
             }
         }
@@ -53,7 +46,7 @@ public class PornProxyCommand extends Command implements onRecievedListener {
             while (pornImage == null && tries >= 0);
             if (pornImage != null) event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this)
                     .setImage(pornImage.getImageUrl())
-                    .setFooter(TextManager.getString(locale, TextManager.COMMANDS, "porn_footer", Tools.numToString(locale, pornImage.getScore()), Tools.numToString(locale, pornImage.getnComments())))
+                    .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())))
                     .setTimestamp(pornImage.getInstant())).get();
         }
 

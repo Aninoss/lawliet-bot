@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "throw",
+        emoji = "\uD83D\uDCA8",
+        executable = false
+)
 public class ThrowCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public ThrowCommand() {
-        super();
-        trigger = "throw";
-        emoji = "\uD83D\uDCA8";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/a5b0c596a130bff78b062749bd75ac77/tenor.gif?itemid=10002831",
+        super("https://media1.tenor.com/images/a5b0c596a130bff78b062749bd75ac77/tenor.gif?itemid=10002831",
                 "https://media1.tenor.com/images/a00971f1d12be1540029266530a8c1b7/tenor.gif?itemid=7480906",
                 "https://media1.tenor.com/images/a9866434a3ddd2a860048239a70b0e06/tenor.gif?itemid=14775808",
                 "https://media1.tenor.com/images/9b0c6e525b2e90b0ed50e2758db684d5/tenor.gif?itemid=9434542",
@@ -26,7 +27,7 @@ public class ThrowCommand extends InteractionCommand implements onRecievedListen
                 "https://media1.tenor.com/images/6ed656e93d34f089d1c54366d9ca4f81/tenor.gif?itemid=7380119",
                 "https://media1.tenor.com/images/2cdc20be64a750201b23a72cd3e19e6b/tenor.gif?itemid=9214216",
                 "https://media1.tenor.com/images/e194c072efada4a3dd96ed44cbda7d10/tenor.gif?itemid=10810504"
-        };
+        );
     }
 
     @Override

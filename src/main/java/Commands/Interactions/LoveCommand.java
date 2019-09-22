@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "love",
+        emoji = "\u2764\uFE0F",
+        executable = false
+)
 public class LoveCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public LoveCommand() {
-        super();
-        trigger = "love";
-        emoji = "\u2764\uFE0F";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/0a3203ced13826a92230cc61214318da/tenor.gif?itemid=5243518",
+        super( "https://media1.tenor.com/images/0a3203ced13826a92230cc61214318da/tenor.gif?itemid=5243518",
                 "https://media1.tenor.com/images/052a6cf478262740bee6ea7a4a2087bb/tenor.gif?itemid=7482475",
                 "https://media1.tenor.com/images/c251343262ab40b922b1b05d007f2b94/tenor.gif?itemid=5180037",
                 "https://media1.tenor.com/images/dd10eb337856d14a8640828f99dd7a2f/tenor.gif?itemid=12479111",
@@ -43,7 +44,7 @@ public class LoveCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/e9f3db84734ab5e60cd122f857fa2ec3/tenor.gif?itemid=6052595",
                 "https://media1.tenor.com/images/e858678426357728038c277598871d6d/tenor.gif?itemid=9903014"
 
-        };
+        );
     }
 
     @Override

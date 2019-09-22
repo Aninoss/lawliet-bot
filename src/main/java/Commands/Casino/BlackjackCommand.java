@@ -1,5 +1,6 @@
 package Commands.Casino;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Constants.LogStatus;
@@ -13,8 +14,14 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 
-
+@CommandProperties(
+    trigger = "blackjack",
+    emoji = "\uD83C\uDCCF",
+    thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
+    executable = true
+)
 public class BlackjackCommand extends Casino implements onRecievedListener, onReactionAddListener {
+
     private String log;
     private LogStatus logStatus;
     private String[] EMOJIS = {"\uD83D\uDCE5", "✋"};
@@ -26,11 +33,6 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
 
     public BlackjackCommand() {
         super();
-        botPermissions = 0;
-        userPermissions = 0;
-        trigger = "blackjack";
-        emoji = "\uD83C\uDCCF";
-        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png";
     }
 
     @Override
@@ -60,12 +62,12 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
                 .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0),true)
                 .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1),true);
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(locale, TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
 
         String key = "tutorial";
         if (finished) key = "data";
 
-        eb.addField(Tools.getEmptyCharacter(), getString(key, server.getDisplayName(player), Tools.numToString(locale, coinsInput)), false);
+        eb.addField(Tools.getEmptyCharacter(), getString(key, server.getDisplayName(player), Tools.numToString(getLocale(), coinsInput)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
@@ -210,7 +212,7 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
                 }
             }
         } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, channel);
+            ExceptionHandler.handleException(throwable, getLocale(), channel);
         }
     }
 

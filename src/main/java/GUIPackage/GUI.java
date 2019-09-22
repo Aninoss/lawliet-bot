@@ -3,6 +3,7 @@ package GUIPackage;
 import CommandSupporters.CommandContainer;
 import General.EmbedFactory;
 import General.RunningCommands.RunningCommandManager;
+import com.sun.management.OperatingSystemMXBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
@@ -11,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.time.Instant;
 
 import org.javacord.api.entity.server.Server;
@@ -38,6 +40,10 @@ public class GUI extends JFrame {
     private JButton btConsoleClear;
     private JButton btErrorClear;
     private JLabel lbRunning;
+    private JProgressBar prCPUJVM;
+    private JProgressBar prCPU;
+    private JLabel lbCPUJVM;
+    private JLabel lbCPU;
     private static GUI ourInstance = new GUI();
 
     private DiscordApi api;
@@ -87,6 +93,9 @@ public class GUI extends JFrame {
         btConsoleClear.addActionListener(e -> onTextAreaClear(txConsole));
         btErrorClear.addActionListener(e -> onTextAreaClear(txConsoleErrors));
         btLogClear.addActionListener(e -> onLogClear());
+
+        prCPUJVM.setMaximum(1000);
+        prCPU.setMaximum(1000);
 
         startStatsTracker();
     }
@@ -149,6 +158,18 @@ public class GUI extends JFrame {
 
         //Running Commands
         lbRunning.setText(String.valueOf(RunningCommandManager.getInstance().getRunningCommands().size()));
+
+
+        //CPU Usage
+        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+        double cpuJvm = osBean.getProcessCpuLoad();
+        double cpuTotal = osBean.getSystemCpuLoad();
+
+        lbCPUJVM.setText(Math.floor(cpuJvm * 1000) / 10 + "%");
+        lbCPU.setText(Math.floor(cpuTotal * 1000) / 10 + "%");
+
+        prCPUJVM.setValue((int) Math.floor(cpuJvm * 1000));
+        prCPU.setValue((int) Math.floor(cpuTotal * 1000));
     }
 
     public void setBotStats(int servers, int trackers, int surveyVotes) {

@@ -90,11 +90,12 @@ public class DBUser {
         insertUsers(users);
     }
 
-    public static void addMessageFishBulk(Map<Long, ServerTextChannel> activities) {
+    public static void addMessageFishBulk(Map<Long, ActivityUserData> activities) {
         StringBuilder totalSql = new StringBuilder();
 
         for (long userId : activities.keySet()) {
-            ServerTextChannel channel = activities.get(userId);
+            ActivityUserData activityUserData = activities.get(userId);
+            ServerTextChannel channel = activityUserData.getChannel();
 
             String sql = "INSERT IGNORE INTO DUser (userId) VALUES (%u); ";
 
@@ -130,11 +131,10 @@ public class DBUser {
 
             sql += "SELECT (joule >= 100 AND reminderSent = 0), userId, coins FROM PowerPlantUsers WHERE serverId = %s AND userId = %u;";
 
-            // AND TIMESTAMPDIFF(MINUTE, lastMessage, NOW()) = 0
-
             long channelId = channel.getId();
             sql = sql
-                    .replace("%a", "(SELECT (getValueForCategory(%cat, %s, %u) * categoryEffect) FROM PowerPlantCategories WHERE categoryId = %cat)")
+                    .replace("%a", "(SELECT (getValueForCategory(%cat, %s, %u) * categoryEffect * %multi) FROM PowerPlantCategories WHERE categoryId = %cat)")
+                    .replace("%multi", String.valueOf(activityUserData.getAmount()))
                     .replace("%cat", String.valueOf(FishingCategoryInterface.PER_MESSAGE))
                     .replace("%s", channel.getServer().getIdAsString())
                     .replace("%c", String.valueOf(channelId))
@@ -149,7 +149,7 @@ public class DBUser {
                 if (resultSet.next() && resultSet.getInt(1) == 1) {
                     long userId = resultSet.getLong(2);
                     long coins = resultSet.getLong(3);
-                    ServerTextChannel channel = activities.get(userId);
+                    ServerTextChannel channel = activities.get(userId).getChannel();
 
                     String sql = "UPDATE PowerPlantUsers SET reminderSent = 1 WHERE serverId = ? AND userId = ?;";
 

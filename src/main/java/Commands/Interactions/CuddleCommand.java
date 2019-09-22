@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "cuddle",
+        emoji = "\uD83D\uDC50",
+        executable = false
+)
 public class CuddleCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public CuddleCommand() {
-        super();
-        trigger = "cuddle";
-        emoji = "\uD83D\uDC50";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/d16a9affe8915e6413b0c1f1d380b2ee/tenor.gif?itemid=12669052",
+        super("https://media1.tenor.com/images/d16a9affe8915e6413b0c1f1d380b2ee/tenor.gif?itemid=12669052",
                 "https://media1.tenor.com/images/012cc6d6cb65c3c98bd5505ab2e1c42a/tenor.gif?itemid=13317505",
                 "https://media1.tenor.com/images/aa04a0093e2ef93922d3d88e12b70561/tenor.gif?itemid=12887276",
                 "https://media1.tenor.com/images/4a211d5c5d076ad8795d8a82f9f01c29/tenor.gif?itemid=13221038",
@@ -42,7 +43,7 @@ public class CuddleCommand extends InteractionCommand implements onRecievedListe
                 "https://media1.tenor.com/images/2ef3e594cc380567b53ae2f670c54ef9/tenor.gif?itemid=7287693",
                 "https://media1.tenor.com/images/58cd629d688d826cf3fb39e949637169/tenor.gif?itemid=7250489",
                 "https://media1.tenor.com/images/cc805107341e281102a2280f08b582e0/tenor.gif?itemid=13925386"
-        };
+        );
     }
 
     @Override

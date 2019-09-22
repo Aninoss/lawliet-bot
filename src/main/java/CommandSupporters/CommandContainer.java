@@ -15,6 +15,7 @@ import Commands.ServerManagement.*;
 import Commands.Splatoon2.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
 import java.util.*;
 
 public class CommandContainer {
@@ -29,9 +30,11 @@ public class CommandContainer {
     private ArrayList<onTrackerRequestListener> trackerCommands;
     private ArrayList<Command> commandsReaction;
     private ArrayList<Command> commandsMessageForward;
-    ArrayList<Class> commandList;
+    private ArrayList<Class> commandList;
+    private Instant lastCommandUsage;
 
     private CommandContainer() {
+        updateLastCommandUsage();
         commands = new HashMap<>();
         staticReactionAddCommands = new ArrayList<>();
         staticReactionRemoveCommands = new ArrayList<>();
@@ -178,6 +181,7 @@ public class CommandContainer {
                 try {
                     Command command = CommandManager.createCommandByClass(clazz);
                     commands.put(command.getTrigger(), clazz);
+                    for(String str: command.getAliases()) commands.put(str, clazz);
                     if (command instanceof onReactionAddStatic) staticReactionAddCommands.add((onReactionAddStatic)command);
                     if (command instanceof onReactionRemoveStatic) staticReactionRemoveCommands.add((onReactionRemoveStatic)command);
                     if (command instanceof onTrackerRequestListener) trackerCommands.add((onTrackerRequestListener)command);
@@ -255,5 +259,13 @@ public class CommandContainer {
 
     public ArrayList<Class> getCommandList() {
         return commandList;
+    }
+
+    public Instant getLastCommandUsage() {
+        return lastCommandUsage;
+    }
+
+    public void updateLastCommandUsage() {
+        lastCommandUsage = Instant.now();
     }
 }

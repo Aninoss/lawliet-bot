@@ -1,5 +1,6 @@
 package Commands.General;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
@@ -13,18 +14,17 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "trigger",
+    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+    withLoadingBar = true,
+    emoji = "\uD83D\uDCA2",
+    executable = true
+)
 public class TriggerCommand extends Command implements onRecievedListener {
 
     public TriggerCommand() {
         super();
-        trigger = "trigger";
-        privateUse = false;
-        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDCA2";
-        executable = true;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TriggerCommand extends Command implements onRecievedListener {
         ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(locale,TextManager.GENERAL,"too_many_users"))).get();
+                    TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
         boolean userMentioned = true;
@@ -45,7 +45,7 @@ public class TriggerCommand extends Command implements onRecievedListener {
         for (User user: list) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template",user.getDisplayName(server)))
                     .setImage(ImageCreator.createImageTriggered(user), "gif");
-            if (!userMentioned) eb.setFooter(TextManager.getString(locale,TextManager.GENERAL,"mention_optional"));
+            if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
             event.getChannel().sendMessage(eb).get();
         }
         return true;

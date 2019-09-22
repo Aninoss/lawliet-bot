@@ -16,7 +16,15 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "top",
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Cup-champion-icon.png",
+    emoji = "\uD83C\uDFC6",
+    executable = true
+)
 public class TopCommand extends Command implements onRecievedListener, onReactionAddListener {
+
     private ArrayList<RankingSlot> rankingSlots;
     private Message message;
     private int page;
@@ -24,15 +32,6 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
 
     public TopCommand() {
         super();
-        trigger = "top";
-        privateUse = false;
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Cup-champion-icon.png";
-        emoji = "\uD83C\uDFC6";
-        executable = true;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
             else for(String reactionString: SCROLL_EMOJIS) message.addReaction(reactionString).get();
             return true;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", prefix), TextManager.getString(locale, TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
         }
     }
@@ -86,9 +85,9 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
                     userString),
                     getString("template_descritpion",
                             Shortcuts.getCustomEmojiByID(server.getApi(), 417016019622559755L).getMentionTag(),
-                            Tools.numToString(locale, rankingSlot.getGrowth()),
-                            Tools.numToString(locale, rankingSlot.getCoins()),
-                            Tools.numToString(locale, rankingSlot.getJoule())));
+                            Tools.numToString(getLocale(), rankingSlot.getGrowth()),
+                            Tools.numToString(getLocale(), rankingSlot.getCoins()),
+                            Tools.numToString(getLocale(), rankingSlot.getJoule())));
 
             eb.setFooter(getString("footer", String.valueOf(page+1), String.valueOf(getPageSize())));
         }

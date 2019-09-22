@@ -11,10 +11,10 @@ import java.util.Map;
 public class DatabaseCache {
 
     private static DatabaseCache ourInstance = new DatabaseCache();
-    private Map<Long, Locale> serverLocales = Collections.synchronizedMap(new HashMap<>());
-    private Map<Long, String> serverPrefixes = Collections.synchronizedMap(new HashMap<>());
-    private Map<Long, BannedWords> serverBannedWords = Collections.synchronizedMap(new HashMap<>());
-    private Map<Long, PowerPlantStatus> powerPlantStatusMap = Collections.synchronizedMap(new HashMap<>());
+    private Map<Long, Locale> serverLocales = new HashMap<>();
+    private Map<Long, String> serverPrefixes = new HashMap<>();
+    private Map<Long, BannedWords> serverBannedWords = new HashMap<>();
+    private Map<Long, PowerPlantStatus> powerPlantStatusMap = new HashMap<>();
 
     public static DatabaseCache getInstance() {
         return ourInstance;

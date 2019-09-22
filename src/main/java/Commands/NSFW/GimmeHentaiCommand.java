@@ -1,5 +1,6 @@
 package Commands.NSFW;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
@@ -10,20 +11,16 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "gimmehentai",
+    nsfw = true,
+    withLoadingBar = true,
+    emoji = "\uD83D\uDD1E",
+    executable = true
+)
 public class GimmeHentaiCommand extends Command implements onRecievedListener {
+    
     private static ArrayList<Integer> picked = new ArrayList<>();
-
-    public GimmeHentaiCommand() {
-        super();
-        trigger = "gimmehentai";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = true;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDD1E";
-        executable = true;
-    }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {

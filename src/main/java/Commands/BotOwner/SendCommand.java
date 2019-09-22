@@ -1,5 +1,6 @@
 package Commands.BotOwner;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
@@ -12,16 +13,16 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.awt.*;
 import java.util.ArrayList;
 
+@CommandProperties(
+    trigger = "send",
+    privateUse = true,
+    emoji = "\uD83D\uDDE8️",
+    executable = false
+)
 public class SendCommand extends Command implements onRecievedListener {
 
     public SendCommand() {
         super();
-        trigger = "send";
-        privateUse = true;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\uD83D\uDDE8️";
-        executable = false;
     }
 
     @Override
@@ -46,4 +47,5 @@ public class SendCommand extends Command implements onRecievedListener {
         }
         return false;
     }
+
 }

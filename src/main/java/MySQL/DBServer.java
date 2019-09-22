@@ -839,9 +839,11 @@ public class DBServer {
 
     public static void removePowerPlant(Server server) throws Throwable {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;" +
-                "DELETE FROM PowerPlantUsers WHERE serverId = ?;");
+                "DELETE FROM PowerPlantUsers WHERE serverId = ?;" +
+                "DELETE FROM PowerPlantUserGained WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.setLong(2, server.getId());
+        preparedStatement.setLong(3, server.getId());
         preparedStatement.executeUpdate();
         savePowerPlantStatusSetting(server, PowerPlantStatus.STOPPED);
     }

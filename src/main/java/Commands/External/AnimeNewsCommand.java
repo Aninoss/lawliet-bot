@@ -1,5 +1,6 @@
 package Commands.External;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
@@ -13,22 +14,21 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
 
+@CommandProperties(
+    trigger = "animenews",
+    withLoadingBar = true,
+    emoji = "\uD83D\uDCF0",
+    executable = true
+)
 public class AnimeNewsCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+
     public AnimeNewsCommand() {
         super();
-        trigger = "animenews";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = true;
-        emoji = "\uD83D\uDCF0";
-        executable = true;
     }
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        AnimeNewsPost post = AnimeNewsDownloader.getPost(locale);
+        AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
         event.getChannel().sendMessage(getEmbed(post)).get();
         return true;
     }
@@ -39,7 +39,7 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())
                 .setUrl(post.getLink())
-                .setFooter(getString("footer", Tools.numToString(locale, post.getComments()), post.getDate(), post.getCategory()));
+                .setFooter(getString("footer", Tools.numToString(getLocale(), post.getComments()), post.getDate(), post.getCategory()));
 
         return eb;
     }
@@ -47,7 +47,7 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         trackerData.setInstant(Instant.now().plusSeconds(60 * 15));
-        PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(locale, trackerData.getArg());
+        PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), trackerData.getArg());
 
         for(AnimeNewsPost post: postBundle.getPosts()) {
             trackerData.getChannel().sendMessage(getEmbed(post));

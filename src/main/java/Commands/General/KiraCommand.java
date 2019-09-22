@@ -1,5 +1,6 @@
 package Commands.General;
 
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
@@ -14,19 +15,16 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
+@CommandProperties(
+    trigger = "kira",
+    thumbnail = "http://images4.fanpop.com/image/photos/18000000/Kira-death-note-18041689-200-200.jpg",
+    emoji = "\u270D\uFE0F️️",
+    executable = true
+)
 public class KiraCommand extends Command implements onRecievedListener {
 
     public KiraCommand() {
         super();
-        trigger = "kira";
-        privateUse = false;
-        botPermissions = 0;
-        userPermissions = 0;
-        nsfw = false;
-        withLoadingBar = false;
-        thumbnail = "http://images4.fanpop.com/image/photos/18000000/Kira-death-note-18041689-200-200.jpg";
-        emoji = "\u270D\uFE0F️️";
-        executable = true;
     }
 
     @Override
@@ -36,7 +34,7 @@ public class KiraCommand extends Command implements onRecievedListener {
         ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(locale,TextManager.GENERAL,"too_many_users"))).get();
+                    TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
         boolean userMentioned = true;
@@ -50,7 +48,7 @@ public class KiraCommand extends Command implements onRecievedListener {
             int percent = r.nextInt(101);
             eb.addField(user.getDisplayName(server), getString("template",user.getDisplayName(server), String.valueOf(percent)));
         }
-        if (!userMentioned) eb.setFooter(TextManager.getString(locale,TextManager.GENERAL,"mention_optional"));
+        if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
         event.getChannel().sendMessage(eb).get();
         return true;
     }

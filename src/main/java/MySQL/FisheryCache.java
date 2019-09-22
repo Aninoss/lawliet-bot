@@ -17,10 +17,11 @@ public class FisheryCache {
 
     private static FisheryCache ourInstance = new FisheryCache();
 
-    private Map<Long, ServerTextChannel> activities = Collections.synchronizedMap(new HashMap<>()); //userId, channel
+    private Map<Long, ActivityUserData> activities = new HashMap<>(); //userId, channel
+    private int messagePhase = 0;
 
-    private Map<Long, Integer> userMessageCount = Collections.synchronizedMap(new HashMap<>());
-    private Map<Long, Integer> userVCCount = Collections.synchronizedMap(new HashMap<>());
+    private Map<Long, Integer> userMessageCount = new HashMap<>();
+    private Map<Long, Integer> userVCCount = new HashMap<>();
 
     private Instant nextMessageCheck = Instant.now(), nextVCCheck = Instant.now();
 
@@ -34,7 +35,16 @@ public class FisheryCache {
 
     public void addActivity(User user, ServerTextChannel channel) {
         synchronized (this) {
-            if (!userMessageCount.containsKey(user.getId()) || userMessageCount.get(user.getId()) < 300) activities.put(user.getId(), channel);
+            int count = 0;
+            if (userMessageCount.containsKey(user.getId())) count = userMessageCount.get(user.getId());
+
+            if (count < 300) {
+                ActivityUserData activityUserData = activities.get(user.getId());
+                if (activityUserData == null) activityUserData = new ActivityUserData(channel);
+                if (activityUserData.register(messagePhase))
+                    userMessageCount.put(user.getId(), count + 1);
+                activities.put(user.getId(), activityUserData);
+            }
         }
     }
 
@@ -48,17 +58,16 @@ public class FisheryCache {
             }
             nextMessageCheck = Instant.now().plusSeconds(20);
 
-            synchronized (this) {
-                for(long userId: activities.keySet()) {
-                    int count = 0;
-                    if (userMessageCount.containsKey(userId)) count = userMessageCount.get(userId);
-                    count++;
+            messagePhase++;
+            if (messagePhase >= 3 * 10) {
+                messagePhase = 0;
 
-                    userMessageCount.put(userId, count);
+                Map<Long, ActivityUserData> activitesClone;
+                synchronized (this) {
+                    activitesClone = new HashMap<>(activities);
+                    activities.clear();
                 }
-
-                if (activities.size() > 0) DBUser.addMessageFishBulk(activities);
-                activities.clear();
+                if (activitesClone.size() > 0) DBUser.addMessageFishBulk(activitesClone);
             }
         }
     }
@@ -73,6 +82,8 @@ public class FisheryCache {
             }
             nextVCCheck = Instant.now().plusSeconds(5 * 60);
 
+            System.out.println("VC Start");
+
             Map<Long, Long> userVCActivities = Collections.synchronizedMap(new HashMap<>()); //userId, serverId
 
             for(Server server: api.getServers()) {
@@ -81,9 +92,7 @@ public class FisheryCache {
                             (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
                     ) {
                         for(User user: channel.getConnectedUsers()) {
-                            if (user.getStatus() != UserStatus.IDLE &&
-                                    (!userVCCount.containsKey(user.getId()) || userVCCount.get(user.getId()) < 60)
-                            ) {
+                            if (!userVCCount.containsKey(user.getId()) || userVCCount.get(user.getId()) < 60) {
                                 int count = 0;
                                 if (userVCCount.containsKey(user.getId())) count = userVCCount.get(user.getId());
                                 count++;
@@ -97,6 +106,8 @@ public class FisheryCache {
             }
 
             if (userVCActivities.size() > 0) DBUser.addVCFishBulk(userVCActivities, 5);
+
+            System.out.println("VC End");
         }
     }
 
@@ -104,7 +115,7 @@ public class FisheryCache {
         new Thread(() -> VCCollector(api)).start();
     }
 
-    public void reset() {
+    public synchronized void reset() {
         userMessageCount = Collections.synchronizedMap(new HashMap<>());
         userVCCount = Collections.synchronizedMap(new HashMap<>());
     }

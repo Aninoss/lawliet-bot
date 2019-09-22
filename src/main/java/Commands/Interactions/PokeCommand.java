@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "poke",
+        emoji = "\uD83D\uDC49",
+        executable = false
+)
 public class PokeCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public PokeCommand() {
-        super();
-        trigger = "poke";
-        emoji = "\uD83D\uDC49";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/48086974f33a3e0114b2e0387f812ae4/tenor.gif?itemid=12360399",
+        super("https://media1.tenor.com/images/48086974f33a3e0114b2e0387f812ae4/tenor.gif?itemid=12360399",
                 "https://media1.tenor.com/images/2b55eb1befce3e843dec7e8feebf274b/tenor.gif?itemid=10168199",
                 "https://media1.tenor.com/images/ab936c887562756472f83850426bf6ef/tenor.gif?itemid=11956062",
                 "https://media1.tenor.com/images/e8b25e7d069c203ea7f01989f2a0af59/tenor.gif?itemid=12011027",
@@ -38,7 +39,7 @@ public class PokeCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/decc2c2f705b74556142d4b746c2dc97/tenor.gif?itemid=12016340",
                 "https://media1.tenor.com/images/effab12abbd4bcddc04ee6a72007b1d1/tenor.gif?itemid=12286562",
                 "https://media1.tenor.com/images/3b5eda57ba5cd315234af9367f4a4248/tenor.gif?itemid=12411431"
-        };
+        );
     }
 
     @Override

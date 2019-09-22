@@ -26,6 +26,8 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.awt.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -69,7 +71,6 @@ public class MessageCreateListener {
         }
 
         try {
-            Locale locale = DBServer.getServerLocale(event.getServer().get());
             if (manageForwardedMessages(event)) return;
 
             String prefix = DBServer.getPrefix(event.getServer().get());
@@ -86,7 +87,7 @@ public class MessageCreateListener {
             }
 
             if (prefixFound > -1) {
-                GUI.getInstance().addLog(event.getServer().get(), event.getMessageAuthor().asUser().get(), event.getMessageContent());
+                //GUI.getInstance().addLog(event.getServer().get(), event.getMessageAuthor().asUser().get(), event.getMessageContent());
 
                 String newContent = Tools.cutSpaces(content.substring(prefixes[prefixFound].length()));
                 while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
@@ -94,15 +95,9 @@ public class MessageCreateListener {
                 String followedString = Tools.cutSpaces(newContent.substring(commandTrigger.length()));
 
                 if (commandTrigger.length() > 0) {
-                    if (commandTrigger.equals("rmess")) commandTrigger = "reactionroles";
-                    if (commandTrigger.equals("basicroles")) commandTrigger = "autoroles";
-                    if (commandTrigger.equals("fishingsetup")) commandTrigger = "fishery";
-                    if (commandTrigger.equals("modsettings")) commandTrigger = "mod";
-                    if (commandTrigger.equals("rule34")) commandTrigger = "r34";
-                    if (commandTrigger.equals("sad")) commandTrigger = "cry";
-
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
+                        Locale locale = DBServer.getServerLocale(event.getServer().get());
                         if (event.getChannel().canYouWrite() || commandTrigger.equalsIgnoreCase("help")) {
                             if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
                                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
@@ -150,6 +145,7 @@ public class MessageCreateListener {
                     }
 
                     if (noSpamChannel) {
+                        Locale locale = DBServer.getServerLocale(event.getServer().get());
                         EmbedBuilder eb = EmbedFactory.getEmbed()
                                 .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Tools.getEmptyCharacter())
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_desription", PowerPlantSetupCommand.keyEmoji))
@@ -163,6 +159,7 @@ public class MessageCreateListener {
 
                 //Manage Message Quoting
                 if (!Tools.serverIsBotListServer(event.getServer().get()) && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+                    Locale locale = DBServer.getServerLocale(event.getServer().get());
                     try {
                         ArrayList<Message> messages = MentionFinder.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {

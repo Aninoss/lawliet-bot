@@ -28,7 +28,17 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@CommandProperties(
+        trigger = "reactionroles",
+        botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL |Permission.MANAGE_ROLES_ON_SERVER,
+        userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL |Permission.MANAGE_ROLES_ON_SERVER,
+        emoji = "\u2611\uFE0F️",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png",
+        executable = true,
+        aliases = {"rmess", "reactionrole"}
+)
 public class ReactionRolesCommand extends Command implements onNavigationListener, onReactionAddStatic, onReactionRemoveStatic {
+    
     private String title, description;
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private Emoji emojiTemp;
@@ -41,19 +51,10 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
     public ReactionRolesCommand() {
         super();
-        trigger = "reactionroles";
-        privateUse = false;
-        botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL |Permission.MANAGE_ROLES_ON_SERVER;
-        userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL |Permission.MANAGE_ROLES_ON_SERVER;
-        nsfw = false;
-        withLoadingBar = false;
-        emoji = "\u2611\uFE0F️";
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png";
-        executable = true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) return Response.TRUE;
 
         switch (state) {
@@ -66,16 +67,16 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE,TextManager.getString(locale, TextManager.GENERAL, "missing_permission_channel"));
+                        setLog(LogStatus.FAILURE,TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission_channel"));
                         return Response.FALSE;
                     }
                 }
-                setLog(LogStatus.FAILURE,TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE,TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
 
             //Reaction Message bearbeiten
             case 2:
-                addLoadingReaction(event.getMessage());
+                addLoadingReaction();
                 ArrayList<Message> messageArrayList = MentionFinder.getMessagesAll(event.getMessage(), inputString).getList();
                 if (messageArrayList.size() > 0) {
                     for(Message message: messageArrayList) {
@@ -86,13 +87,13 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                                 setLog(LogStatus.SUCCESS, getString("messageset"));
                                 return Response.TRUE;
                             } else {
-                                setLog(LogStatus.FAILURE,TextManager.getString(locale, TextManager.GENERAL, "missing_permission_channel"));
+                                setLog(LogStatus.FAILURE,TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission_channel"));
                                 return Response.FALSE;
                             }
                         }
                     }
                 }
-                setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
 
             //Titel anpassen
@@ -100,7 +101,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 if (inputString.length() > 0) {
                     title = inputString;
                     setLog(LogStatus.SUCCESS, getString("titleset", inputString));
-                    state = 3;
+                    setState(3);
                     return Response.TRUE;
                 } return Response.FALSE;
 
@@ -109,7 +110,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 if (inputString.length() > 0) {
                     description = inputString;
                     setLog(LogStatus.SUCCESS, getString("descriptionset", inputString));
-                    state = 3;
+                    setState(3);
                     return Response.TRUE;
                 } return Response.FALSE;
 
@@ -121,7 +122,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         Role roleTest = list.get(0);
 
                         if (!Tools.canManageRole(roleTest)) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "missing_permission", false, inputString));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission", false, inputString));
                             return Response.FALSE;
                         }
 
@@ -163,7 +164,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     }
                 }
                 
-                setLog(LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
         }
 
@@ -171,7 +172,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i) throws Throwable {
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         switch (state) {
             //Hauptmenü
             case 0:
@@ -181,12 +182,12 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         return false;
 
                     case 0:
-                        state = 1;
+                        setState(1);
                         editMode = false;
                         return true;
 
                     case 1:
-                        state = 2;
+                        setState(2);
                         editMode = true;
                         return true;
                 }
@@ -196,12 +197,12 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 1:
                 switch (i) {
                     case -1:
-                        state = 0;
+                        setState(0);
                         return true;
 
                     case 0:
                         if (channel != null) {
-                            state = 3;
+                            setState(3);
                             return true;
                         }
                 }
@@ -211,13 +212,13 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 2:
                 switch (i) {
                     case -1:
-                        state = 0;
+                        setState(0);
                         return true;
 
                     case 0:
                         if (editMessage != null) {
                             updateValuesFromMessage(editMessage);
-                            state = 3;
+                            setState(3);
                             return true;
                         }
                 }
@@ -227,20 +228,20 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 3:
                 switch (i) {
                     case -1:
-                        if (!editMode) state = 1;
-                        else state = 2;
+                        if (!editMode) setState(1);
+                        else setState(2);
                         return true;
 
                     case 0:
-                        state = 4;
+                        setState(4);
                         return true;
 
                     case 1:
-                        state = 5;
+                        setState(5);
                         return true;
 
                     case 2:
-                        if (emojiConnections.size() < getMaxReactionNumber()) state = 6;
+                        if (emojiConnections.size() < getMaxReactionNumber()) setState(6);
                         else {
                             setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(getMaxReactionNumber())));
                         }
@@ -249,7 +250,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         return true;
 
                     case 3:
-                        if (emojiConnections.size() > 0) state = 7;
+                        if (emojiConnections.size() > 0) setState(7);
                         else {
                             setLog(LogStatus.FAILURE, getString("noshortcuts"));
                         }
@@ -267,7 +268,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
                     case 6:
                         if (title != null && description != null && emojiConnections.size() > 0) {
-                            state = 8;
+                            setState(8);
                             return true;
                         } break;
 
@@ -304,8 +305,8 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                                     if (!exist) reaction.remove();
                                 }
                             }
-                            state = 9;
-                            navigationFinish();
+                            setState(9);
+                            removeNavigation();
                             return true;
                         } break;
                 }
@@ -315,14 +316,14 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 6:
                 if (i == 0 && roleTemp != null && emojiTemp != null) {
                     emojiConnections.add(new EmojiConnection(emojiTemp, roleTemp.getMentionTag()));
-                    state = 3;
+                    setState(3);
                     setLog(LogStatus.SUCCESS, getString("linkadded"));
                     return true;
                 }
 
                 switch (i) {
                     case -1:
-                        state = 3;
+                        setState(3);
                         return true;
 
                     default:
@@ -333,13 +334,13 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             //Verknüpfung entfernen
             case 7:
                 if (i == -1) {
-                    state = 3;
+                    setState(3);
                     return true;
                 }
                 if (i < emojiConnections.size() && i != -2) {
                     setLog(LogStatus.SUCCESS, getString("linkremoved"));
                     emojiConnections.remove(i);
-                    state = 3;
+                    setState(3);
                     return true;
                 }
                 return false;
@@ -351,7 +352,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             //Der Rest
             default:
                 if (i == -1) {
-                    state = 3;
+                    setState(3);
                     return true;
                 }
                 return false;
@@ -377,30 +378,30 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api) throws Throwable {
-        String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:
-                options = getString("state0_options").split("\n");
+                setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
 
             case 1:
-                if (channel != null) options = new String[]{TextManager.getString(locale,TextManager.GENERAL,"continue")};
+                if (channel != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Tools.getStringIfNotNull(channel, notSet)),getString("state1_title"));
 
             case 2:
-                if (editMessage != null) options = new String[]{TextManager.getString(locale,TextManager.GENERAL,"continue")};
+                if (editMessage != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", Tools.getStringIfNotNull(editMessage, notSet)),getString("state2_title"));
 
             case 3:
-                options = getString("state3_options").split("\n");
+                setOptions(getString("state3_options").split("\n"));
 
                 if (title == null || description == null || emojiConnections.size() == 0) {
-                    String[] optionsNew = new String[options.length-2];
+                    String[] optionsNew = new String[getOptions().length-2];
                     for(int i=0; i < optionsNew.length; i++) {
-                        optionsNew[i] = options[i];
+                        optionsNew[i] = getOptions()[i];
                     }
-                    options = optionsNew;
+                    setOptions(optionsNew);
                 }
 
                 String add;
@@ -411,7 +412,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         .addField(getString("state3_mtitle"), Tools.getStringIfNotNull(title, notSet), false)
                         .addField(getString("state3_mdescription"), Tools.getStringIfNotNull(description, notSet), false)
                         .addField(getString("state3_mshortcuts"), Tools.getStringIfNotNull(getLinkString(), notSet), false)
-                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", Tools.getOnOffForBoolean(locale, removeRole), Tools.getOnOffForBoolean(locale, multipleRoles)), false);
+                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", Tools.getOnOffForBoolean(getLocale(), removeRole), Tools.getOnOffForBoolean(getLocale(), multipleRoles)), false);
 
 
             case 4:
@@ -421,7 +422,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state5_description"), getString("state5_title"));
 
             case 6:
-                if (roleTemp != null && emojiTemp != null) options = new String[]{getString("state6_options")};
+                if (roleTemp != null && emojiTemp != null) setOptions(new String[]{getString("state6_options")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state6_description", Tools.getStringIfNotNull(emojiTemp, notSet), Tools.getStringIfNotNull(roleTemp, notSet)), getString("state6_title"));
 
             case 7:
@@ -430,7 +431,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
                 }
                 String[] strings = new String[0];
-                options = optionsDelete.toArray(strings);
+                setOptions(optionsDelete.toArray(strings));
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state7_description"), getString("state7_title"));
 
@@ -460,10 +461,10 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         if (!removeRole && !test) titleAdd = Tools.getEmptyCharacter();
         if (!multipleRoles && !test) titleAdd += Tools.getEmptyCharacter() + Tools.getEmptyCharacter();
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(emoji + " " + title + identity + titleAdd)
+                .setTitle(getEmoji() + " " + title + identity + titleAdd)
                 .setDescription(description)
                 .setColor(Color.WHITE)
-                .addField(TextManager.getString(locale, TextManager.GENERAL, "options"), getLinkString());
+                .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString());
         if (test) eb.setFooter(getString("previewfooter"));
 
         return eb;
@@ -512,7 +513,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 String title = embed.getTitle().get();
-                return title.startsWith(emoji) && title.endsWith(Tools.getEmptyCharacter());
+                return title.startsWith(getEmoji()) && title.endsWith(Tools.getEmptyCharacter());
             }
         }
         return false;
@@ -595,6 +596,6 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
     @Override
     public String getTitleStartIndicator() {
-        return emoji;
+        return getEmoji();
     }
 }

@@ -1,19 +1,20 @@
 package Commands.Interactions;
+import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
+@CommandProperties(
+        trigger = "tickle",
+        emoji = "\uD83E\uDD23",
+        executable = false
+)
 public class TickleCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public TickleCommand() {
-        super();
-        trigger = "tickle";
-        emoji = "\uD83E\uDD23";
-        nsfw = false;
-        gifs = new String[]{
-                "https://media1.tenor.com/images/fea79fed0168efcaf1ddfb14d8af1a6d/tenor.gif?itemid=7283507",
+        super("https://media1.tenor.com/images/fea79fed0168efcaf1ddfb14d8af1a6d/tenor.gif?itemid=7283507",
                 "https://media1.tenor.com/images/5cbe2cb77056ef2faf395b26fdece8eb/tenor.gif?itemid=14132818",
                 "https://media1.tenor.com/images/fcbded4ce66ab01317ee009a1aa44404/tenor.gif?itemid=11920137",
                 "https://media1.tenor.com/images/f43da23b4ed0938ce362b0374b88e42c/tenor.gif?itemid=8054679",
@@ -23,8 +24,8 @@ public class TickleCommand extends InteractionCommand implements onRecievedListe
                 "https://media1.tenor.com/images/02f62186ccb7fa8a2667f3216cfd7e13/tenor.gif?itemid=13269751",
                 "https://media1.tenor.com/images/e74babbf6fdcbd8189d18bb5b9379bc7/tenor.gif?itemid=12693902",
                 "https://media1.tenor.com/images/b444381e7e6d7db202b223c9e584d684/tenor.gif?itemid=12338731",
-                "https://media1.tenor.com/images/05a64a05e5501be2b1a5a734998ad2b2/tenor.gif?itemid=11379130",
-        };
+                "https://media1.tenor.com/images/05a64a05e5501be2b1a5a734998ad2b2/tenor.gif?itemid=11379130"
+        );
     }
 
     @Override

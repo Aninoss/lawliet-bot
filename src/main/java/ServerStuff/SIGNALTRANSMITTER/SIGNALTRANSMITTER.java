@@ -5,6 +5,7 @@ import General.Internet.InternetResponse;
 import General.SecretManager;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 public class SIGNALTRANSMITTER {
@@ -25,14 +26,14 @@ public class SIGNALTRANSMITTER {
         }
     }
 
-    private void login() throws Throwable {
+    private void login() throws IOException {
         String body = "username="+ SecretManager.getString("SIGNALTRANSMITTER.username") +"&password=" + SecretManager.getString("SIGNALTRANSMITTER.password") + "&login=1";
         InternetResponse internetResponse = Internet.getDataPostWithCookie("https://vps.srv-control.it:4083/index.php?api=json&act=login", body);
         cookie = internetResponse.getCookie();
         key = new JSONObject(internetResponse.getContent()).getString("redirect").split("/")[1];
     }
 
-    private void logout() throws Throwable {
+    private void logout() throws IOException {
         String result = Internet.getDataCookie("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=logout&api=json", cookie);
         ourInstance = null;
     }

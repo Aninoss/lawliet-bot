@@ -1,9 +1,6 @@
 package CommandSupporters;
 
-import CommandListeners.onForwardedRecievedListener;
-import CommandListeners.onNavigationListener;
-import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
+import CommandListeners.*;
 import General.*;
 import General.Cooldown.Cooldown;
 import General.RunningCommands.RunningCommandManager;
@@ -25,7 +22,7 @@ public class CommandManager {
         if (!command.isPrivate() || event.getMessage().getAuthor().isBotOwner()) {
             if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
                 if (event.getChannel().canYouEmbedLinks() || command.getTrigger().equalsIgnoreCase("help")) {
-                    EmbedBuilder errEmbed = PermissionCheck.userAndBothavePermissions(command.getLocale(), event.getServer().get(), event.getChannel(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
+                    EmbedBuilder errEmbed = PermissionCheck.userAndBothavePermissions(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
                     if (errEmbed == null || command.getTrigger().equalsIgnoreCase("help")) {
                         if (Cooldown.getInstance().canPost(event.getMessageAuthor().asUser().get())) {
                             //Add command usage to database
@@ -43,6 +40,7 @@ public class CommandManager {
 
                             if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get(), command.getTrigger())) {
                                 manageSlowCommandLoadingReaction(command, event.getMessage());
+                                CommandContainer.getInstance().updateLastCommandUsage();
 
                                 try {
                                     if (command instanceof onRecievedListener)
@@ -54,7 +52,7 @@ public class CommandManager {
                                 }
 
                                 RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
-                                command.removeLoadingReaction(event.getMessage());
+                                command.removeLoadingReaction();
                             } else {
                                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "alreadyused_title"))
@@ -179,7 +177,7 @@ public class CommandManager {
                 Thread.sleep(1000);
 
                 if (RunningCommandManager.getInstance().find(userMessage.getUserAuthor().get(), command.getTrigger()) != null) {
-                    command.addLoadingReaction(userMessage);
+                    command.addLoadingReaction();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -207,7 +205,7 @@ public class CommandManager {
 
 
     public static Command createCommandByClassName(String className) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        return (Command) Class.forName(className).getDeclaredConstructor().newInstance();
+        return (Command) Class.forName(className).newInstance();
     }
 
     public static Command createCommandByClassName(String className, Locale locale) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -226,7 +224,7 @@ public class CommandManager {
 
 
     public static Command createCommandByClass(Class clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        return (Command) clazz.getDeclaredConstructor().newInstance();
+        return (Command) clazz.newInstance();
     }
 
     public static Command createCommandByClass(Class clazz, Locale locale) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -242,4 +240,9 @@ public class CommandManager {
 
         return command;
     }
+
+    public static CommandProperties getCommandProperties(Class command) {
+        return (CommandProperties) command.getAnnotation(CommandProperties.class);
+    }
+
 }
