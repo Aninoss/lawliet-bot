@@ -16,7 +16,9 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "quote",
@@ -37,7 +39,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
         return calculateResults(event.getMessage(),followedString);
     }
 
-    private boolean calculateResults(Message message, String followString) throws Throwable {
+    private boolean calculateResults(Message message, String followString) throws IOException, ExecutionException, InterruptedException {
         Server server = message.getServer().get();
         MentionList<ServerTextChannel> list = MentionFinder.getTextChannels(message, followString);
         User author = message.getUserAuthor().get();
@@ -127,7 +129,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
         }
     }
 
-    public void postEmbed(ServerTextChannel channel, Message searchedMessage) throws Throwable {
+    public void postEmbed(ServerTextChannel channel, Message searchedMessage) throws IOException, ExecutionException, InterruptedException {
         if (searchedMessage.getServerTextChannel().get().isNsfw() && !channel.isNsfw()) {
             channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
             return;

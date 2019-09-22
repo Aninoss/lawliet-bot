@@ -19,8 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class Connector {
     public static void main(String[] args) throws IOException, FontFormatException {
@@ -53,8 +55,8 @@ public class Connector {
             if (!Tools.getCurrentVersion().equals(currentVersionDB)) {
                 DBBot.insertVersion(Tools.getCurrentVersion(), Instant.now());
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -71,7 +73,6 @@ public class Connector {
 
                 System.out.println("Synchronizes Data...");
 
-                GUI.getInstance().setApi(api);
                 new DonationServer(api, 27440);
                 communicationServer.setApi(api);
                 FisheryCache.getInstance().startVCCollector(api);
@@ -126,7 +127,7 @@ public class Connector {
                 }
 
                 updateActivity(api);
-            } catch (Throwable e) {
+            } catch (InterruptedException | ExecutionException | SQLException e) {
                 e.printStackTrace();
                 api.disconnect();
             }
@@ -157,8 +158,8 @@ public class Connector {
                         DBUser.updateOnServerStatus(server, rankingSlot.getUserId(), false);
                     }
                 }
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }

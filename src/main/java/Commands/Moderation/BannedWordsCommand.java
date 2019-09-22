@@ -17,6 +17,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -199,7 +200,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
         return 4;
     }
 
-    private String getWords() throws Throwable {
+    private String getWords() throws IOException {
         ArrayList<String> words = bannedWords.getWords();
         if (words.size() == 0) {
             return TextManager.getString(getLocale(), TextManager.GENERAL, "notset");

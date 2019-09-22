@@ -1,11 +1,13 @@
 package General.Internet;
 
+import java.io.IOException;
+
 public class MultithreadInternet {
     private String[] returnStrings;
     private String[] urlStrings;
     private int downloaded;
 
-    public MultithreadInternet getData(String... urlStrings) throws Throwable {
+    public MultithreadInternet getData(String... urlStrings) {
         this.urlStrings = urlStrings;
         returnStrings = new String[urlStrings.length];
         downloaded = 0;
@@ -14,8 +16,8 @@ public class MultithreadInternet {
             new Thread(() -> {
                 try {
                     returnStrings[j] = Internet.getData(urlStrings[j]);
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 downloaded++;
             }).start();

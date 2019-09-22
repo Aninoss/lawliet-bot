@@ -18,6 +18,8 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -39,7 +41,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
         if (firstTime) {
             roles = DBServer.getBasicRolesFromServer(event.getServer().get());
             return Response.TRUE;

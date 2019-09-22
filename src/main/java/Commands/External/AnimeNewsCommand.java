@@ -12,6 +12,7 @@ import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.io.IOException;
 import java.time.Instant;
 
 @CommandProperties(
@@ -33,7 +34,7 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
         return true;
     }
 
-    private EmbedBuilder getEmbed(AnimeNewsPost post) throws Throwable {
+    private EmbedBuilder getEmbed(AnimeNewsPost post) throws IOException {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
                 .setAuthor(post.getAuthor())
                 .setTitle(post.getTitle())

@@ -10,7 +10,9 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "fortune",
@@ -38,7 +40,7 @@ public class FortuneCommand extends Command implements onRecievedListener {
         }
     }
 
-    private EmbedBuilder getEmbed(Message message, String question) throws Throwable {
+    private EmbedBuilder getEmbed(Message message, String question) throws IOException, ExecutionException, InterruptedException {
         int n = Tools.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS)-1);
         String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
         String answer = answerRaw;

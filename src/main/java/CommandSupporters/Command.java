@@ -14,6 +14,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -90,16 +91,16 @@ public class Command {
 
     public void onForwardedRecievedSuper(MessageCreateEvent event) {
         boolean successful = false;
+        if (commandProperties.withLoadingBar()) addLoadingReaction(event.getMessage());
         if (countdown != null) countdown.reset();
-        if (commandProperties.withLoadingBar()) addLoadingReaction();
 
         try {
             successful = ((onForwardedRecievedListener) this).onForwardedRecieved(event);
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
         } finally {
-            removeLoadingReaction();
-            setResultReaction(successful);
+            removeLoadingReaction(event.getMessage());
+            setResultReaction(event.getMessage(), successful);
         }
     }
 
@@ -211,20 +212,24 @@ public class Command {
     }
 
     public void addLoadingReaction() {
+        addLoadingReaction(starterMessage);
+    }
+
+    private void addLoadingReaction(Message message) {
         try {
             if (
-                    loadingStatus == LoadingStatus.OFF &&
-                            starterMessage != null &&
-                            starterMessage.getCurrentCachedInstance().isPresent() &&
-                            starterMessage.getChannel().canYouAddNewReactions() &&
+                    loadingStatus != LoadingStatus.FINISHED &&
+                            message != null &&
+                            message.getCurrentCachedInstance().isPresent() &&
+                            message.getChannel().canYouAddNewReactions() &&
                             !loadingBlock
             ) {
                 loadingStatus = LoadingStatus.ONGOING;
 
                 CompletableFuture<Void> loadingBarReaction;
-                if (starterMessage.getChannel().canYouUseExternalEmojis())
-                    loadingBarReaction = starterMessage.addReaction(Shortcuts.getCustomEmojiByID(starterMessage.getApi(), 407189379749117981L));
-                else loadingBarReaction = starterMessage.addReaction("⏳");
+                if (message.getChannel().canYouUseExternalEmojis())
+                    loadingBarReaction = message.addReaction(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L));
+                else loadingBarReaction = message.addReaction("⏳");
 
                 loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
             }
@@ -234,6 +239,10 @@ public class Command {
     }
 
     public void removeLoadingReaction() {
+        removeLoadingReaction(starterMessage);
+    }
+
+    private void removeLoadingReaction(Message message) {
         if (loadingStatus != LoadingStatus.OFF) {
             while (loadingStatus == LoadingStatus.ONGOING) {
                 try {
@@ -244,13 +253,13 @@ public class Command {
             }
 
             loadingStatus = LoadingStatus.OFF;
-            if (starterMessage.getCurrentCachedInstance().isPresent()) {
+            if (message.getCurrentCachedInstance().isPresent()) {
                 try {
-                    starterMessage = starterMessage.getLatestInstance().get();
+                    message = message.getLatestInstance().get();
                     try {
-                        if (starterMessage.getChannel().canYouUseExternalEmojis())
-                            starterMessage.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(starterMessage.getApi(), 407189379749117981L)).get();
-                        else starterMessage.removeOwnReactionByEmoji("⏳").get();
+                        if (message.getChannel().canYouUseExternalEmojis())
+                            message.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L)).get();
+                        else message.removeOwnReactionByEmoji("⏳").get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
@@ -262,8 +271,12 @@ public class Command {
     }
 
     private void setResultReaction(boolean successful) {
-        if (starterMessage.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
-            starterMessage.addReaction(Tools.getEmojiForBoolean(successful));
+        setResultReaction(starterMessage, successful);
+    }
+
+    private void setResultReaction(Message message, boolean successful) {
+        if (message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
+            message.addReaction(Tools.getEmojiForBoolean(successful));
         }
     }
 
@@ -322,13 +335,13 @@ public class Command {
         }
     }
 
-    public void deleteNavigationMessage() throws Throwable {
+    public void deleteNavigationMessage() throws ExecutionException, InterruptedException {
         removeNavigation();
         if (starterMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == starterMessage.getChannel()) starterMessage.getChannel().bulkDelete(navigationMessage, starterMessage).get();
         else navigationMessage.delete().get();
     }
 
-    public void deleteReactionMessage() throws Throwable {
+    public void deleteReactionMessage() throws ExecutionException, InterruptedException {
         Message reactionMessage = ((onReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
         if (starterMessage.getChannel().canYouManageMessages()) starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).get();
@@ -356,19 +369,19 @@ public class Command {
     }
 
 
-    public String getString(String key, String... args) throws Throwable {
+    public String getString(String key, String... args) throws IOException {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
-    public String getString(String key, int option, String... args) throws Throwable {
+    public String getString(String key, int option, String... args) throws IOException {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, option, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
-    public String getString(String key, boolean secondOption, String... args) throws Throwable {
+    public String getString(String key, boolean secondOption, String... args) throws IOException {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, secondOption, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;

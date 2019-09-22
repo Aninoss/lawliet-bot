@@ -12,12 +12,15 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.awt.*;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
-    public static void manage(MessageCreateEvent event, Command command, String followedString) throws Throwable {
+    public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException {
         Locale locale = command.getLocale();
         if (!command.isPrivate() || event.getMessage().getAuthor().isBotOwner()) {
             if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
@@ -30,8 +33,8 @@ public class CommandManager {
                                 new Thread(() -> {
                                     try {
                                         DBBot.addCommandUsage(command.getTrigger());
-                                    } catch (Throwable throwable) {
-                                        throwable.printStackTrace();
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
                                     }
                                 }).start();
                             }
@@ -70,7 +73,7 @@ public class CommandManager {
                                             .setTitle(TextManager.getString(locale, TextManager.GENERAL, "cooldown_title"))
                                             .setDescription(TextManager.getString(locale, TextManager.GENERAL, "cooldown_description", user.getMentionTag(), String.valueOf(Cooldown.COOLDOWN_TIME_IN_SECONDS)));
                                     event.getChannel().sendMessage(eb).get();
-                                } catch (Throwable e) {
+                                } catch (IOException e) {
                                     e.printStackTrace();
                                 }
 
@@ -185,37 +188,37 @@ public class CommandManager {
         }).start();
     }
 
-    public static Command createCommandByTrigger(String trigger) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByTrigger(String trigger) throws IllegalAccessException, InstantiationException {
         Class clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz);
     }
 
-    public static Command createCommandByTrigger(String trigger, Locale locale) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByTrigger(String trigger, Locale locale) throws IllegalAccessException, InstantiationException {
         Class clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz, locale);
     }
 
-    public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
         Class clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz, locale, prefix);
     }
 
 
-    public static Command createCommandByClassName(String className) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByClassName(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         return (Command) Class.forName(className).newInstance();
     }
 
-    public static Command createCommandByClassName(String className, Locale locale) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByClassName(String className, Locale locale) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Command command = createCommandByClassName(className);
         command.setLocale(locale);
 
         return command;
     }
 
-    public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Command command = createCommandByClassName(className, locale);
         command.setPrefix(prefix);
 
@@ -223,18 +226,18 @@ public class CommandManager {
     }
 
 
-    public static Command createCommandByClass(Class clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByClass(Class clazz) throws IllegalAccessException, InstantiationException {
         return (Command) clazz.newInstance();
     }
 
-    public static Command createCommandByClass(Class clazz, Locale locale) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByClass(Class clazz, Locale locale) throws IllegalAccessException, InstantiationException {
         Command command = createCommandByClass(clazz);
         command.setLocale(locale);
 
         return command;
     }
 
-    public static Command createCommandByClass(Class clazz, Locale locale, String prefix) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Command createCommandByClass(Class clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
         Command command = createCommandByClass(clazz, locale);
         command.setPrefix(prefix);
 

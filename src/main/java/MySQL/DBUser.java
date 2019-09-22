@@ -13,13 +13,14 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.awt.*;
+import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class DBUser {
-    public static void synchronize(DiscordApi api) throws Throwable {
+    public static void synchronize(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
             System.out.println("User werden synchronisiert...");
 
@@ -49,18 +50,18 @@ public class DBUser {
                     insertUserIds(userList);
 
                     System.out.println("User-Synchronisation abgeschlossen!");
-                } catch (Throwable e) {
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }).start();
         }
     }
 
-    public static void insertUsers(Collection<User> users) throws Throwable {
+    public static void insertUsers(Collection<User> users) throws SQLException {
         insertUsers(new ArrayList<>(users));
     }
 
-    public static void insertUsers(ArrayList<User> users) throws Throwable {
+    public static void insertUsers(ArrayList<User> users) throws SQLException {
         if (users.size() > 0) {
             StringBuilder sb = new StringBuilder();
             for (User user : users) {
@@ -72,7 +73,7 @@ public class DBUser {
         }
     }
 
-    public static void insertUserIds(ArrayList<Long> userIds) throws Throwable {
+    public static void insertUserIds(ArrayList<Long> userIds) throws SQLException {
         if (userIds.size() > 0) {
             StringBuilder sb = new StringBuilder();
             for (long id: userIds) {
@@ -84,7 +85,7 @@ public class DBUser {
         }
     }
 
-    public static void insertUser(User user) throws Throwable {
+    public static void insertUser(User user) throws SQLException {
         ArrayList<User> users = new ArrayList<>();
         users.add(user);
         insertUsers(users);
@@ -178,7 +179,7 @@ public class DBUser {
                     }
 
                 }
-            } catch (Throwable e) {
+            } catch (SQLException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -237,12 +238,12 @@ public class DBUser {
 
         try {
             DBMain.getInstance().statement(totalSql.toString());
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void register(Server server, User user) throws Throwable {
+    public static void register(Server server, User user) throws SQLException {
         if (!user.isBot()) {
             PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO PowerPlantUsers (serverId, userId) VALUES (?, ?);");
             preparedStatement.setLong(1, server.getId());
@@ -252,7 +253,7 @@ public class DBUser {
         }
     }
 
-    public static FishingProfile getFishingProfile(Server server, User user) throws Throwable {
+    public static FishingProfile getFishingProfile(Server server, User user) throws SQLException {
         String sql =
                 "SELECT IFNULL(joule, 0) joule, IFNULL(coins, 0) coins, categoryId, IFNULL(level, 0) lvl, categoryStartPrice, categoryPower, categoryEffect " +
                         "FROM (SELECT * FROM PowerPlantUserPowerUp WHERE serverId = %s AND userId = %u) userPowerUp " +
@@ -286,11 +287,11 @@ public class DBUser {
         return fishingProfile;
     }
 
-    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins) throws Throwable {
+    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins) throws SQLException, IOException {
         return addFishingValues(locale, server, user, fish, coins, -1);
     }
 
-    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, int dailyBefore) throws Throwable {
+    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, int dailyBefore) throws SQLException, IOException {
         register(server, user);
 
         StringBuilder sql = new StringBuilder();
@@ -370,11 +371,11 @@ public class DBUser {
         return eb;
     }
 
-    public static void updateOnServerStatus(Server server, User user, boolean onServer) throws Throwable {
+    public static void updateOnServerStatus(Server server, User user, boolean onServer) throws SQLException {
         updateOnServerStatus(server, user.getId(), onServer);
     }
 
-    public static void updateOnServerStatus(Server server, long userId, boolean onServer) throws Throwable {
+    public static void updateOnServerStatus(Server server, long userId, boolean onServer) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE PowerPlantUsers SET onServer = ? WHERE serverId = ? AND userId = ?;");
 
         preparedStatement.setBoolean(1, onServer);
@@ -385,7 +386,7 @@ public class DBUser {
         preparedStatement.close();
     }
 
-    public static void updatePowerUpLevel(Server server, User user, int categoryId, int level) throws Throwable {
+    public static void updatePowerUpLevel(Server server, User user, int categoryId, int level) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES  (?, ?, ?, ?);");
 
         preparedStatement.setLong(1, server.getId());
@@ -397,7 +398,7 @@ public class DBUser {
         preparedStatement.close();
     }
 
-    public static DailyState daily(Server server, User user) throws Throwable {
+    public static DailyState daily(Server server, User user) throws SQLException {
         register(server, user);
 
         String sql = "SELECT dailyRecieved, dailyStreak FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;" +
@@ -451,7 +452,7 @@ public class DBUser {
         }
     }
 
-    public static void increaseUpvotesUnclaimed(long userId, int amount) throws Throwable {
+    public static void increaseUpvotesUnclaimed(long userId, int amount) throws SQLException {
         String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
@@ -461,7 +462,7 @@ public class DBUser {
         preparedStatement.close();
     }
 
-    public static int getUpvotesUnclaimed(Server server, User user) throws Throwable {
+    public static int getUpvotesUnclaimed(Server server, User user) throws SQLException {
         int amount = 0;
 
         String sql = "SELECT upvotesUnclaimed FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;" +
@@ -484,7 +485,7 @@ public class DBUser {
         return amount;
     }
 
-    public static void addDonatorStatus(User user, int weeks) throws Throwable {
+    public static void addDonatorStatus(User user, int weeks) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO Donators VALUES(?, NOW() + INTERVAL ? WEEK) ON DUPLICATE KEY UPDATE end = end + INTERVAL ? WEEK;");
 
         preparedStatement.setLong(1, user.getId());
@@ -495,7 +496,7 @@ public class DBUser {
         preparedStatement.close();
     }
 
-    public static ArrayList<Long> getDonationEnds() throws Throwable {
+    public static ArrayList<Long> getDonationEnds() throws SQLException {
         ArrayList<Long> users = new ArrayList<>();
         String sql = "SELECT userId FROM Donators WHERE end <= NOW();";
 
@@ -513,7 +514,7 @@ public class DBUser {
         return users;
     }
 
-    public static void removeDonation(long userId) throws Throwable {
+    public static void removeDonation(long userId) throws SQLException {
         String sql = "DELETE FROM Donators WHERE userId = ?;";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
@@ -522,7 +523,7 @@ public class DBUser {
         preparedStatement.close();
     }
 
-    public static boolean hasDonated(User user) throws Throwable {
+    public static boolean hasDonated(User user) throws SQLException {
         String sql = "SELECT * FROM Donators WHERE userId = ? AND end > NOW();";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
@@ -538,7 +539,7 @@ public class DBUser {
         return hasDonated;
     }
 
-    public static ArrayList<Long> getActiveDonators() throws Throwable {
+    public static ArrayList<Long> getActiveDonators() throws SQLException {
         ArrayList<Long> users = new ArrayList<>();
         String sql = "SELECT userId FROM Donators WHERE end > NOW();";
 

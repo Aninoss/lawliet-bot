@@ -12,8 +12,12 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import org.javacord.api.entity.server.Server;
 
 @CommandProperties(
@@ -84,7 +88,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
         for(User user: userList) {
             try {
                 if (!user.isYourself() && !user.isBot()) user.sendMessage(actionEmbed).get();
-            } catch (Throwable throwable) {
+            } catch (InterruptedException | ExecutionException e) {
                 //Ignore
             }
             process(channel.getServer(), user);
@@ -104,7 +108,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
         return true;
     }
 
-    private void postMessage(ServerTextChannel channel, EmbedBuilder eb) throws Throwable {
+    private void postMessage(ServerTextChannel channel, EmbedBuilder eb) throws ExecutionException, InterruptedException {
         if (message == null) message = channel.sendMessage(eb).get();
         else message.edit(eb).get();
     }

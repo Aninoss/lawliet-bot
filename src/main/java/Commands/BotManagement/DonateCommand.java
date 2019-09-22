@@ -12,6 +12,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "donate",
@@ -33,7 +34,7 @@ public class DonateCommand extends Command implements onRecievedListener {
                 if (user != null) {
                     donators.append(user.getDiscriminatedName()).append("\n");
                 }
-            } catch (Throwable e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }

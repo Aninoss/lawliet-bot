@@ -13,6 +13,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
     }
 
 
-    private String processImage(URL url) throws Throwable {
+    private String processImage(URL url) throws IOException {
         if (url.toString().equals("https://i.pinimg.com/236x/a4/a6/43/a4a6430b557982c69b50bcf174c6077f.jpg")) return "https://cdn.discordapp.com/attachments/499629904380297226/611959216038477825/waifu2x.jpg";
         if (url.toString().equals("https://avatarfiles.alphacoders.com/699/thumb-69905.png")) return "https://cdn.discordapp.com/attachments/499629904380297226/611960284239626241/waifu2x2.jpg";
 

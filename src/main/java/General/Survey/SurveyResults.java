@@ -3,6 +3,7 @@ package General.Survey;
 import General.FileManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,7 +42,7 @@ public class SurveyResults {
         return majorityVotes[0] + majorityVotes[1];
     }
 
-    public String[] getQuestionAndAnswers(Locale locale) throws Throwable {
+    public String[] getQuestionAndAnswers(Locale locale) throws IOException {
         List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
         return surveyList.get(surveyId).split("\\|");
     }

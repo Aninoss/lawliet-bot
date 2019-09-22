@@ -9,6 +9,7 @@ import org.javacord.api.entity.server.Server;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 public class DBMain implements DriverAction {
     private static DBMain ourInstance = new DBMain();
@@ -47,13 +49,13 @@ public class DBMain implements DriverAction {
             connect = rv.getConnection();
 
             return true;
-        } catch (Throwable e){
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public static void synchronizeAll(DiscordApi api) throws Throwable {
+    public static void synchronizeAll(DiscordApi api) throws InterruptedException, ExecutionException, SQLException {
         DBServer.synchronize(api);
         DBUser.synchronize(api);
         DBBot.synchronize(api);
@@ -67,17 +69,17 @@ public class DBMain implements DriverAction {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.ofInstant(instant,ZoneOffset.systemDefault()));
     }
 
-    public PreparedStatement preparedStatement(String sql) throws Throwable {
+    public PreparedStatement preparedStatement(String sql) throws SQLException {
         return connect.prepareStatement(sql);
     }
 
-    public Statement statement(String sql) throws Throwable {
+    public Statement statement(String sql) throws SQLException {
         Statement statement = connect.createStatement();
         statement.execute(sql);
         return statement;
     }
 
-    public Statement statement() throws Throwable {
+    public Statement statement() throws SQLException {
         return connect.createStatement();
     }
 
@@ -90,8 +92,8 @@ public class DBMain implements DriverAction {
             if (resultSet.next() && resultSet.getInt(1) == 1) success = true;
             resultSet.close();
             statement.close();
-        } catch (Throwable e) {
-            //Ignore
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return success;
@@ -101,7 +103,7 @@ public class DBMain implements DriverAction {
         return EmojiParser.parseToAliases(str);
     }
 
-    public static void backupAll() throws Throwable {
+    public static void backupAll() throws IOException, SQLException, ClassNotFoundException {
         Properties properties = new Properties();
         properties.setProperty(MysqlExportService.DB_USERNAME, SecretManager.getString("database.username"));
         properties.setProperty(MysqlExportService.DB_PASSWORD, SecretManager.getString("database.password"));

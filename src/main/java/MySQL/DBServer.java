@@ -16,6 +16,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import javax.xml.crypto.Data;
+import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class DBServer {
-    public static void synchronize(DiscordApi api) throws Throwable {
+    public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
             System.out.println("Server wird synchronisiert...");
             ArrayList<String> dbServerIds = new ArrayList<>();
@@ -45,7 +46,7 @@ public class DBServer {
         }
     }
 
-    public static boolean serverIsInDatabase(Server server) throws Throwable {
+    public static boolean serverIsInDatabase(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT serverId FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -59,7 +60,7 @@ public class DBServer {
         return exists;
     }
 
-    public static String getPrefix(Server server) throws Throwable {
+    public static String getPrefix(Server server) throws SQLException {
         String prefix = DatabaseCache.getInstance().getPrefix(server);
 
         if (prefix == null) {
@@ -77,7 +78,7 @@ public class DBServer {
         return prefix;
     }
 
-    public static void setPrefix(Server server, String prefix) throws Throwable {
+    public static void setPrefix(Server server, String prefix) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET prefix = ? WHERE serverId = ?;");
         preparedStatement.setString(1, prefix);
         preparedStatement.setLong(2, server.getId());
@@ -87,21 +88,21 @@ public class DBServer {
         DatabaseCache.getInstance().setPrefix(server, prefix);
     }
 
-    public static void insertServer(Server server) throws Throwable {
+    public static void insertServer(Server server) throws SQLException {
         PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO DServer (serverId) VALUES (?);");
         serverStatement.setString(1, server.getIdAsString());
         serverStatement.executeUpdate();
         serverStatement.close();
     }
 
-    public static void removeServer(Server server) throws Throwable {
+    public static void removeServer(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }
 
-    public static Locale getServerLocale(Server server) throws Throwable {
+    public static Locale getServerLocale(Server server) throws SQLException {
         Locale locale = DatabaseCache.getInstance().getLocale(server);
 
         if (locale == null) {
@@ -119,7 +120,7 @@ public class DBServer {
         return locale;
     }
 
-    public static void setServerLocale(Server server, Locale locale) throws Throwable {
+    public static void setServerLocale(Server server, Locale locale) throws SQLException {
         DatabaseCache.getInstance().setLocale(server, locale);
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET locale = ? WHERE serverId = ?;");
@@ -129,7 +130,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static ArrayList<User> getMutedUsers(DiscordApi api, int groupId) throws Throwable {
+    public static ArrayList<User> getMutedUsers(DiscordApi api, int groupId) throws SQLException {
         ArrayList<User> users = new ArrayList<>();
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId FROM Mute WHERE muteGroupId = ?;");
         preparedStatement.setInt(1, groupId);
@@ -148,7 +149,7 @@ public class DBServer {
         return users;
     }
 
-    public static SPBlock getSPBlockFromServer(Server server) throws Throwable {
+    public static SPBlock getSPBlockFromServer(Server server) throws SQLException {
         SPBlock spBlock = new SPBlock(server);
 
         String sql = "SELECT active, action, blockURLName FROM SPBlock WHERE serverId = ?;" +
@@ -181,7 +182,7 @@ public class DBServer {
                             try {
                                 User user = server.getApi().getUserById(resultSet.getLong(1)).get();
                                 spBlock.addIgnoredUser(user);
-                            } catch (Throwable e) {
+                            } catch (SQLException | InterruptedException | ExecutionException e) {
                                 //Ignore
                             }
                         }
@@ -192,7 +193,7 @@ public class DBServer {
                             try {
                                 User user = server.getApi().getUserById(resultSet.getLong(1)).get();
                                 spBlock.addLogReciever(user);
-                            } catch (Throwable e) {
+                            } catch (SQLException | InterruptedException | ExecutionException e) {
                                 //Ignore
                             }
                         }
@@ -214,7 +215,7 @@ public class DBServer {
         return spBlock;
     }
 
-    public static BannedWords getBannedWordsFromServer(Server server) throws Throwable {
+    public static BannedWords getBannedWordsFromServer(Server server) throws SQLException {
         BannedWords bannedWords = DatabaseCache.getInstance().getBannedWords(server);
 
         if (bannedWords == null) {
@@ -247,7 +248,7 @@ public class DBServer {
                             try {
                                 User user = server.getApi().getUserById(resultSet.getLong(1)).get();
                                 bannedWords.addIgnoredUser(user);
-                            } catch (Throwable e) {
+                            } catch (SQLException | InterruptedException | ExecutionException e) {
                                 //Ignore
                             }
                         }
@@ -258,7 +259,7 @@ public class DBServer {
                             try {
                                 User user = server.getApi().getUserById(resultSet.getLong(1)).get();
                                 bannedWords.addLogReciever(user);
-                            } catch (Throwable e) {
+                            } catch (SQLException | InterruptedException | ExecutionException e) {
                                 //Ignore
                             }
                         }
@@ -269,7 +270,7 @@ public class DBServer {
                             try {
                                 String word = resultSet.getString(1);
                                 bannedWords.addWord(word);
-                            } catch (Throwable e) {
+                            } catch (SQLException e) {
                                 //Ignore
                             }
                         }
@@ -285,7 +286,7 @@ public class DBServer {
         return bannedWords;
     }
 
-    public static WelcomeMessageSetting getWelcomeMessageSettingFromServer(Locale locale, Server server) throws Throwable {
+    public static WelcomeMessageSetting getWelcomeMessageSettingFromServer(Locale locale, Server server) throws SQLException, IOException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel FROM ServerWelcomeMessage WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -339,7 +340,7 @@ public class DBServer {
                 postChannel);
     }
 
-    public static ArrayList<Role> getBasicRolesFromServer(Server server) throws Throwable {
+    public static ArrayList<Role> getBasicRolesFromServer(Server server) throws SQLException {
         ArrayList<Role> roleList = new ArrayList<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT roleId FROM BasicRole WHERE serverId = ?;");
@@ -360,7 +361,7 @@ public class DBServer {
         return roleList;
     }
 
-    public static ArrayList<Role> getPowerPlantRolesFromServer(Server server) throws Throwable {
+    public static ArrayList<Role> getPowerPlantRolesFromServer(Server server) throws SQLException {
         ArrayList<Role> roleList = new ArrayList<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT roleId FROM PowerPlantRoles WHERE serverId = ?;");
@@ -380,7 +381,7 @@ public class DBServer {
         return roleList;
     }
 
-    public static ArrayList<ServerTextChannel> getPowerPlantIgnoredChannelsFromServer(Server server) throws Throwable {
+    public static ArrayList<ServerTextChannel> getPowerPlantIgnoredChannelsFromServer(Server server) throws SQLException {
         ArrayList<ServerTextChannel> channelList = new ArrayList<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = ?;");
@@ -400,7 +401,7 @@ public class DBServer {
         return channelList;
     }
 
-    public static PowerPlantStatus getPowerPlantStatusFromServer(Server server) throws Throwable {
+    public static PowerPlantStatus getPowerPlantStatusFromServer(Server server) throws SQLException {
         PowerPlantStatus powerPlantStatus = DatabaseCache.getInstance().getPowerPlantStatus(server);
 
         if (powerPlantStatus == null) {
@@ -421,7 +422,7 @@ public class DBServer {
         return powerPlantStatus;
     }
 
-    public static boolean getPowerPlantTreasureChestsFromServer(Server server) throws Throwable {
+    public static boolean getPowerPlantTreasureChestsFromServer(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantTreasureChests FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -439,7 +440,7 @@ public class DBServer {
         return false;
     }
 
-    public static boolean getPowerPlantSingleRoleFromServer(Server server) throws Throwable {
+    public static boolean getPowerPlantSingleRoleFromServer(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantSingleRole FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -457,7 +458,7 @@ public class DBServer {
         return false;
     }
 
-    public static ServerTextChannel getPowerPlantAnnouncementChannelFromServer(Server server) throws Throwable {
+    public static ServerTextChannel getPowerPlantAnnouncementChannelFromServer(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantAnnouncementChannelId FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -478,7 +479,7 @@ public class DBServer {
         return null;
     }
 
-    public static ModerationStatus getModerationFromServer(Server server) throws Throwable {
+    public static ModerationStatus getModerationFromServer(Server server) throws SQLException {
         ModerationStatus moderationStatus = new ModerationStatus(server, null, true);
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question FROM Moderation WHERE serverId = ?;");
@@ -504,7 +505,7 @@ public class DBServer {
         return moderationStatus;
     }
 
-    public static AutoChannelData getAutoChannelFromServer(Server server) throws Throwable {
+    public static AutoChannelData getAutoChannelFromServer(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName FROM AutoChannel WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -544,7 +545,7 @@ public class DBServer {
         );
     }
 
-    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws Throwable {
+    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
         ResultSet resultSet = statement.getResultSet();
 
@@ -587,7 +588,7 @@ public class DBServer {
         statement.close();
     }
 
-    public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws Throwable {
+    public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
         ArrayList<ServerTextChannel> channels = new ArrayList<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM WhiteListedChannels WHERE serverId = ?;");
@@ -609,13 +610,13 @@ public class DBServer {
         return channels;
     }
 
-    public static boolean isChannelWhitelisted(Server server, ServerTextChannel channel) throws Throwable {
+    public static boolean isChannelWhitelisted(Server server, ServerTextChannel channel) throws SQLException {
         ArrayList<ServerTextChannel> channels = getWhiteListedChannels(server);
         if (channels.size() == 0) return true;
         else return channels.contains(channel);
     }
 
-    public static void saveSPBlock(SPBlock spBlock) throws Throwable {
+    public static void saveSPBlock(SPBlock spBlock) throws SQLException {
         //Basis
         String sqlString = "REPLACE INTO SPBlock VALUES (?, ?, ?, ?);" +
                 "DELETE FROM SPBlockIgnoredChannels WHERE serverId = ?;" +
@@ -661,7 +662,7 @@ public class DBServer {
         }
     }
 
-    public static void saveBannedWords(BannedWords bannedWords) throws Throwable {
+    public static void saveBannedWords(BannedWords bannedWords) throws SQLException {
         DatabaseCache.getInstance().setBannedWords(bannedWords.getServer(), bannedWords);
 
         //Basis
@@ -715,7 +716,7 @@ public class DBServer {
         }
     }
 
-    public static void saveWelcomeMessageSetting(WelcomeMessageSetting welcomeMessageSetting) throws Throwable {
+    public static void saveWelcomeMessageSetting(WelcomeMessageSetting welcomeMessageSetting) throws SQLException {
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("REPLACE INTO ServerWelcomeMessage VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
         baseStatement.setLong(1, welcomeMessageSetting.getServer().getId());
         baseStatement.setBoolean(2, welcomeMessageSetting.isActivated());
@@ -729,7 +730,7 @@ public class DBServer {
         baseStatement.close();
     }
 
-    public static void addBasicRoles(Server server, Role role) throws Throwable {
+    public static void addBasicRoles(Server server, Role role) throws SQLException {
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO BasicRole VALUES (?, ?);");
         baseStatement.setLong(1, server.getId());
         baseStatement.setLong(2, role.getId());
@@ -737,7 +738,7 @@ public class DBServer {
         baseStatement.close();
     }
 
-    public static void addPowerPlantRoles(Server server, Role role) throws Throwable {
+    public static void addPowerPlantRoles(Server server, Role role) throws SQLException {
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO PowerPlantRoles VALUES (?, ?);");
         baseStatement.setLong(1, server.getId());
         baseStatement.setLong(2, role.getId());
@@ -745,7 +746,7 @@ public class DBServer {
         baseStatement.close();
     }
 
-    public static void saveAutoChannel(AutoChannelData autoChannelData) throws Throwable {
+    public static void saveAutoChannel(AutoChannelData autoChannelData) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoChannel (serverId, channelId, active, channelName) VALUES (?, ?, ?, ?)");
         preparedStatement.setLong(1, autoChannelData.getServer().getId());
 
@@ -759,7 +760,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void addAutoChannelChildChannel(ServerVoiceChannel channel) throws Throwable {
+    public static void addAutoChannelChildChannel(ServerVoiceChannel channel) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO AutoChannelChildChannels VALUES (?, ?)");
         preparedStatement.setLong(1, channel.getServer().getId());
         preparedStatement.setLong(2, channel.getId());
@@ -767,11 +768,11 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void removeAutoChannelChildChannel(ServerVoiceChannel channel) throws Throwable {
+    public static void removeAutoChannelChildChannel(ServerVoiceChannel channel) throws SQLException {
         removeAutoChannelChildChannel(channel.getServer().getId(), channel.getId());
     }
 
-    public static void removeAutoChannelChildChannel(long serverId, long channelId) throws Throwable {
+    public static void removeAutoChannelChildChannel(long serverId, long channelId) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM AutoChannelChildChannels WHERE serverId = ? AND channelId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.setLong(2, channelId);
@@ -779,7 +780,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void saveWhiteListedChannels(Server server, ArrayList<ServerTextChannel> channels) throws Throwable {
+    public static void saveWhiteListedChannels(Server server, ArrayList<ServerTextChannel> channels) throws SQLException {
         StringBuilder sql = new StringBuilder("DELETE FROM WhiteListedChannels WHERE serverId = " + server.getIdAsString() + ";\n");
         for(ServerTextChannel channel: channels) {
             sql
@@ -793,7 +794,7 @@ public class DBServer {
         DBMain.getInstance().statement(sql.toString().toString());
     }
 
-    public static void saveModeration(ModerationStatus moderationStatus) throws Throwable {
+    public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Moderation VALUES (?, ?, ?);");
         preparedStatement.setLong(1, moderationStatus.getServer().getId());
         if (moderationStatus.getChannel() != null) preparedStatement.setLong(2, moderationStatus.getChannel().getId());
@@ -803,7 +804,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void removeBasicRoles(Server server, Role role) throws Throwable {
+    public static void removeBasicRoles(Server server, Role role) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM BasicRole WHERE serverId = ? AND roleId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.setLong(2, role.getId());
@@ -811,7 +812,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void removePowerPlantRoles(Server server, Role role) throws Throwable {
+    public static void removePowerPlantRoles(Server server, Role role) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantRoles WHERE serverId = ? AND roleId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.setLong(2, role.getId());
@@ -819,7 +820,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void savePowerPlantStatusSetting(Server server, PowerPlantStatus status) throws Throwable {
+    public static void savePowerPlantStatusSetting(Server server, PowerPlantStatus status) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlant = ? WHERE serverId = ?;");
         preparedStatement.setString(1, status.name());
         preparedStatement.setLong(2, server.getId());
@@ -829,7 +830,7 @@ public class DBServer {
         DatabaseCache.getInstance().setPowerPlantStatus(server, status);
     }
 
-    public static void savePowerPlantTreasureChestsSetting(Server server, boolean treasureChests) throws Throwable {
+    public static void savePowerPlantTreasureChestsSetting(Server server, boolean treasureChests) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantTreasureChests = ? WHERE serverId = ?;");
         preparedStatement.setBoolean(1, treasureChests);
         preparedStatement.setLong(2, server.getId());
@@ -837,7 +838,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void removePowerPlant(Server server) throws Throwable {
+    public static void removePowerPlant(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;" +
                 "DELETE FROM PowerPlantUsers WHERE serverId = ?;" +
                 "DELETE FROM PowerPlantUserGained WHERE serverId = ?;");
@@ -848,7 +849,7 @@ public class DBServer {
         savePowerPlantStatusSetting(server, PowerPlantStatus.STOPPED);
     }
 
-    public static void savePowerPlantIgnoredChannels(Server server, ArrayList<ServerTextChannel> channels) throws Throwable {
+    public static void savePowerPlantIgnoredChannels(Server server, ArrayList<ServerTextChannel> channels) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM PowerPlantIgnoredChannels WHERE serverId = ").append(server.getIdAsString()).append(";");
 
@@ -859,7 +860,7 @@ public class DBServer {
         DBMain.getInstance().statement(sql.toString());
     }
 
-    public static void savePowerPlantSingleRole(Server server, boolean singleRole) throws Throwable {
+    public static void savePowerPlantSingleRole(Server server, boolean singleRole) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantSingleRole = ? WHERE serverId = ?;");
         preparedStatement.setBoolean(1, singleRole);
         preparedStatement.setLong(2, server.getId());
@@ -867,7 +868,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void savePowerPlantAnnouncementChannel(Server server, ServerTextChannel channel) throws Throwable {
+    public static void savePowerPlantAnnouncementChannel(Server server, ServerTextChannel channel) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantAnnouncementChannelId = ? WHERE serverId = ?;");
         if (channel != null) preparedStatement.setLong(1, channel.getId());
         else preparedStatement.setNull(1, Types.BIGINT);
@@ -876,7 +877,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static ArrayList<RankingSlot> getPowerPlantRankings(Server server) throws Throwable {
+    public static ArrayList<RankingSlot> getPowerPlantRankings(Server server) throws SQLException {
         String sql = "SELECT userId, rank, growth, coins, joule FROM (%ppranks) accountData WHERE serverId = ? ORDER BY rank;";
         sql = sql.replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server));
 

@@ -6,6 +6,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -59,8 +60,8 @@ public class DonationServer extends WebhookServer {
         int weeks = (int) Math.round(usDollars * 2);
         try {
             DBUser.addDonatorStatus(user, weeks);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         String additionalString = "";
@@ -68,8 +69,8 @@ public class DonationServer extends WebhookServer {
             if (DBUser.hasDonated(user)) {
                 additionalString = "*additional* ";
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         try {
@@ -111,8 +112,8 @@ public class DonationServer extends WebhookServer {
 
         try {
             DBUser.removeDonation(userId);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -122,8 +123,8 @@ public class DonationServer extends WebhookServer {
             for(long userId: userDonationExpired) {
                 DonationServer.removeBonus(api, userId);
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -305,7 +305,7 @@ public class MentionFinder {
         return new MentionList<>(string,list);
     }
 
-    public static Message getMessageSearch(String searchTerm, TextChannel channel, Message messageStarter) throws Throwable {
+    public static Message getMessageSearch(String searchTerm, TextChannel channel, Message messageStarter) throws ExecutionException, InterruptedException {
         if (!channel.canYouReadMessageHistory()) return null;
 
         searchTerm = Tools.cutSpaces(searchTerm);
@@ -315,7 +315,7 @@ public class MentionFinder {
         return null;
     }
 
-    public static Message getMessageSearch(String searchTerm, Message messageStarter) throws Throwable {
+    public static Message getMessageSearch(String searchTerm, Message messageStarter) throws ExecutionException, InterruptedException {
         for(ServerTextChannel channel: messageStarter.getServer().get().getTextChannels()) {
             Message message = getMessageSearch(searchTerm, channel, messageStarter);
             if (message != null) return message;

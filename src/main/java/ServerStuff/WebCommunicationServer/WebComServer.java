@@ -12,6 +12,8 @@ import com.corundumstudio.socketio.SocketIOServer;
 import org.javacord.api.DiscordApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -63,7 +65,7 @@ public class WebComServer {
 
                         categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                     }
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                } catch (IllegalAccessException | InstantiationException e) {
                     e.printStackTrace();
                 }
             }
@@ -83,8 +85,8 @@ public class WebComServer {
             Locale locale = new Locale(localeString);
             try {
                 jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, TextManager.COMMANDS, key));
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -105,8 +107,8 @@ public class WebComServer {
                     str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 
                 jsonObject.put(locale.getDisplayName(), str);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 

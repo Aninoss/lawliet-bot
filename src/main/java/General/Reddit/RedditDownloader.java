@@ -6,6 +6,8 @@ import General.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,7 +15,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class RedditDownloader {
-    public static RedditPost getImagePost(Locale locale, String sub) throws Throwable {
+    public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException {
         sub = URLEncoder.encode(sub, "UTF-8");
 
         RedditPost redditPost;
@@ -27,7 +29,7 @@ public class RedditDownloader {
         return redditPost;
     }
 
-    public static RedditPost getPost(Locale locale, String sub) throws Throwable {
+    public static RedditPost getPost(Locale locale, String sub) throws IOException, InterruptedException {
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
@@ -55,7 +57,7 @@ public class RedditDownloader {
         return getPost(locale, data);
     }
 
-    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws Throwable {
+    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws IOException, InterruptedException {
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
@@ -101,7 +103,7 @@ public class RedditDownloader {
         return new PostBundle<>(redditPosts, newArg.toString());
     }
 
-    private static RedditPost getPost(Locale locale, JSONObject data) throws Throwable {
+    private static RedditPost getPost(Locale locale, JSONObject data) throws IOException {
         RedditPost post = new RedditPost();
 
         String description = "", url = "", source = "", thumbnail = "", domain = "";

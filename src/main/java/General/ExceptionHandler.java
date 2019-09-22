@@ -30,8 +30,8 @@ public class ExceptionHandler {
         if (errorMessage.contains("500: Internal Server Error")) {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
-            } catch (Throwable throwable1) {
-                throwable1.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         } else if (errorMessage.contains("Server returned HTTP response code: 5")) {
             try {

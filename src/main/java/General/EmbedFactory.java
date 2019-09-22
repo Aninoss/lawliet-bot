@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class EmbedFactory {
-    public static EmbedBuilder getCommandEmbedStandard(Command command) throws Throwable {
+    public static EmbedBuilder getCommandEmbedStandard(Command command) throws IOException {
         return getCommandEmbedStandard(command,null);
     }
 
-    public static EmbedBuilder getCommandEmbedStandard(Command command, String description) throws Throwable {
+    public static EmbedBuilder getCommandEmbedStandard(Command command, String description) throws IOException {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.WHITE)
                 .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), TextManager.COMMANDS, command.getTrigger()+"_title"))
@@ -24,15 +24,15 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getCommandEmbedStandard(Command command, String description, String title) throws Throwable {
+    public static EmbedBuilder getCommandEmbedStandard(Command command, String description, String title) throws IOException {
         return getCommandEmbedStandard(command, description).setTitle(command.getEmoji()+" "+title);
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command) throws Throwable {
+    public static EmbedBuilder getCommandEmbedSuccess(Command command) throws IOException {
         return getCommandEmbedSuccess(command,null);
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description) throws Throwable {
+    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description) throws IOException {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.GREEN)
                 .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "success"))
@@ -43,15 +43,15 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description, String title) throws Throwable {
+    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description, String title) throws IOException {
         return getCommandEmbedSuccess(command, description).setTitle(command.getEmoji()+" "+title);
     }
 
-    public static EmbedBuilder getCommandEmbedError(Command command) throws Throwable {
+    public static EmbedBuilder getCommandEmbedError(Command command) throws IOException {
         return getCommandEmbedError(command,null);
     }
 
-    public static EmbedBuilder getCommandEmbedError(Command command, String description) throws Throwable {
+    public static EmbedBuilder getCommandEmbedError(Command command, String description) throws IOException {
         EmbedBuilder eb =  new EmbedBuilder()
                 .setColor(Color.RED)
                 .setTitle(TextManager.getString(command.getLocale(),TextManager.GENERAL,"wrong_args"))
@@ -61,11 +61,11 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getCommandEmbedError(Command command, String description, String title) throws Throwable {
+    public static EmbedBuilder getCommandEmbedError(Command command, String description, String title) throws IOException {
         return getCommandEmbedError(command, description).setTitle(title);
     }
 
-    public static EmbedBuilder getNSFWBlockEmbed(Locale locale) throws Throwable {
+    public static EmbedBuilder getNSFWBlockEmbed(Locale locale) throws IOException {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.RED)
                 .setTitle(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_title"))
@@ -75,7 +75,7 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getEmbed() throws Throwable {
+    public static EmbedBuilder getEmbed() {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.WHITE)
                 .setTimestampToNow();
@@ -83,7 +83,7 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getEmbedSuccessful() throws Throwable {
+    public static EmbedBuilder getEmbedSuccessful() {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.GREEN)
                 .setTimestampToNow();
@@ -91,7 +91,7 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getEmbedError() throws Throwable {
+    public static EmbedBuilder getEmbedError() {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.RED)
                 .setTimestampToNow();

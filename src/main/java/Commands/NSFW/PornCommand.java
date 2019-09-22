@@ -7,13 +7,16 @@ import General.Porn.PornImageDownloader;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 public class PornCommand extends Command {
 
     protected String domain;
     protected String imageTemplate;
     private final boolean WITH_COMMENTS = false;
 
-    public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd) throws Throwable {
+    public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd) throws IOException, InterruptedException, ExecutionException {
         boolean emptyKey = false;
         if (followedString.length() == 0) {
             emptyKey = true;

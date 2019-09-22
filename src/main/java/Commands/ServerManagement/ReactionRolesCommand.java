@@ -25,8 +25,10 @@ import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "reactionroles",
@@ -157,8 +159,8 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                                         break;
                                     }
                                 }
-                            } catch (Throwable e) {
-                                //Ignore
+                            } catch (InterruptedException | ExecutionException e) {
+                                e.printStackTrace();
                             }
                         }
                     }
@@ -359,7 +361,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         }
     }
 
-    private boolean calculateEmoji(Emoji emoji) throws Throwable {
+    private boolean calculateEmoji(Emoji emoji) throws IOException {
         if (emoji == null || (emoji.isCustomEmoji() && !emoji.isKnownCustomEmoji())) {
             setLog(LogStatus.FAILURE, getString("emojiunknown"));
             return true;
@@ -454,7 +456,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         return 12;
     }
 
-    private EmbedBuilder getMessageEmbed(boolean test) throws Throwable {
+    private EmbedBuilder getMessageEmbed(boolean test) throws IOException {
         String titleAdd = "";
         String identity = "";
         if (!test) identity = Tools.getEmptyCharacter();
@@ -549,11 +551,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                             }
                         }
 
-                        try {
-                            if (Tools.canManageRole(r)) event.getUser().addRole(r).get();
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
+                        if (Tools.canManageRole(r)) event.getUser().addRole(r).get();
 
                         queue.remove(user);
                         return;
@@ -571,7 +569,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     }
 
     @Override
-    public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) throws Throwable {
+    public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) {
         updateValuesFromMessage(message);
         if (removeRole) {
             for (EmojiConnection emojiConnection : emojiConnections) {
@@ -580,7 +578,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     try {
                         User user = event.getUser();
                         if (event.getServer().get().getMembers().contains(user) && Tools.canManageRole(r)) user.removeRole(r).get();
-                    } catch (Throwable e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
                     break;

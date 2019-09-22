@@ -11,12 +11,12 @@ public class ResultSetIterator implements Iterator<ResultSet> {
     private boolean hasMoreResultSets;
     private int i=0;
 
-    public ResultSetIterator(String sql) throws Throwable {
+    public ResultSetIterator(String sql) throws SQLException {
         statement = DBMain.getInstance().statement();
         hasMoreResultSets = statement.execute( sql );
     }
 
-    public ResultSetIterator(PreparedStatement preparedStatement) throws Throwable {
+    public ResultSetIterator(PreparedStatement preparedStatement) throws SQLException {
         statement = preparedStatement;
         hasMoreResultSets = ((PreparedStatement) statement).execute();
     }

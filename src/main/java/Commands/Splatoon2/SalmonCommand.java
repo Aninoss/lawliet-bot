@@ -15,6 +15,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 
@@ -40,7 +41,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
         return true;
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
+    private EmbedBuilder getEmbed(DiscordApi api) throws IOException, InterruptedException {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 

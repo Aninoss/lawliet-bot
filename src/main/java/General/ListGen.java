@@ -4,12 +4,13 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class ListGen {
-    public static String getUserList(Locale locale, ArrayList<User> users) throws Throwable {
+    public static String getUserList(Locale locale, ArrayList<User> users) throws IOException {
         StringBuilder sb = new StringBuilder();
         for(User user: users) {
             //sb.append("• ");
@@ -20,7 +21,7 @@ public class ListGen {
         return sb.toString();
     }
 
-    public static String getRoleList(Locale locale, ArrayList<Role> roles) throws Throwable {
+    public static String getRoleList(Locale locale, ArrayList<Role> roles) throws IOException {
         StringBuilder sb = new StringBuilder();
         for(Role role: roles) {
             //sb.append("• ");
@@ -31,7 +32,7 @@ public class ListGen {
         return sb.toString();
     }
 
-    public static String getRoleListNumbered(Locale locale, ArrayList<Role> roles) throws Throwable {
+    public static String getRoleListNumbered(Locale locale, ArrayList<Role> roles) throws IOException {
         StringBuilder sb = new StringBuilder();
         int i = 1;
         for(Role role: roles) {
@@ -44,11 +45,11 @@ public class ListGen {
         return sb.toString();
     }
 
-    public static String getChannelList(Locale locale, ArrayList<ServerTextChannel> channels) throws Throwable {
+    public static String getChannelList(Locale locale, ArrayList<ServerTextChannel> channels) throws IOException {
         return getChannelList(TextManager.getString(locale, TextManager.GENERAL, "notset"), channels);
     }
 
-    public static String getChannelList(String notSet, ArrayList<ServerTextChannel> channels) throws Throwable {
+    public static String getChannelList(String notSet, ArrayList<ServerTextChannel> channels) {
         StringBuilder sb = new StringBuilder();
         for(ServerTextChannel channel: channels) {
             sb.append(channel.getMentionTag());

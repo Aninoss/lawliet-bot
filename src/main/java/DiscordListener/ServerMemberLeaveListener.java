@@ -8,7 +8,10 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class ServerMemberLeaveListener {
     public ServerMemberLeaveListener(){}
@@ -19,8 +22,8 @@ public class ServerMemberLeaveListener {
         Locale locale = null;
         try {
             locale = DBServer.getServerLocale(server);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         //Verabschiedungen
@@ -37,8 +40,8 @@ public class ServerMemberLeaveListener {
                 }
             }
             if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), false);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

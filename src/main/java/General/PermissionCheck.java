@@ -10,24 +10,25 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class PermissionCheck {
-    public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, Channel channel, User user, int userPermissions, int botPermissions) throws Throwable {
+    public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, Channel channel, User user, int userPermissions, int botPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server,channel,server.getApi().getYourself(),botPermissions);
 
         return getEmbedBuilderForPermissions(locale, userPermission,botPermission);
     }
 
-    public static EmbedBuilder userhasPermissions(Locale locale, Server server, Channel channel, User user, int userPermissions) throws Throwable {
+    public static EmbedBuilder userhasPermissions(Locale locale, Server server, Channel channel, User user, int userPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
 
         return getEmbedBuilderForPermissions(locale, userPermission,new ArrayList<>());
     }
 
-    public static EmbedBuilder bothasPermissions(Locale locale, Server server, Channel channel, int botPermissions) throws Throwable {
+    public static EmbedBuilder bothasPermissions(Locale locale, Server server, Channel channel, int botPermissions) throws IOException {
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server,channel,server.getApi().getYourself(),botPermissions);
         return getEmbedBuilderForPermissions(locale, new ArrayList<>(),botPermission);
     }
@@ -90,7 +91,7 @@ public class PermissionCheck {
         return userPermission;
     }
 
-    public static EmbedBuilder getEmbedBuilderForPermissions(Locale locale, ArrayList<Integer> userPermission, ArrayList<Integer> botPermission) throws Throwable {
+    public static EmbedBuilder getEmbedBuilderForPermissions(Locale locale, ArrayList<Integer> userPermission, ArrayList<Integer> botPermission) throws IOException {
         EmbedBuilder eb = null;
         boolean alright = userPermission.size() == 0 && botPermission.size() == 0;
         if (!alright) {

@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class Internet {
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36";
 
-    public static String getData(String urlString) throws Throwable {
+    public static String getData(String urlString) throws IOException {
         return getDataCookie(urlString, null);
     }
 
@@ -30,7 +30,7 @@ public class Internet {
         return text.toString();
     }
 
-    public static String getDataRequestPropertyPost(String urlString, String propertyName, String propertyValue, String query) throws Throwable {
+    public static String getDataRequestPropertyPost(String urlString, String propertyName, String propertyValue, String query) throws IOException {
         BufferedReader br;
         String line;
         StringBuilder text = new StringBuilder();
@@ -63,7 +63,7 @@ public class Internet {
         return getDataRerquestPropertyGet(urlString, "Cookie", cookie);
     }
 
-    public static String getData(String urlString, int waitingTime) throws Throwable {
+    public static String getData(String urlString, int waitingTime) throws InterruptedException, IOException {
         BufferedReader br;
         String line;
         StringBuilder text = new StringBuilder();
@@ -115,7 +115,7 @@ public class Internet {
         return new InternetResponse(text.toString(), cookie);
     }
 
-    public static InternetResponse getDataRaw(String domain, int port, String urlString, String method, String requestHead, String requestBody) throws Throwable {
+    public static InternetResponse getDataRaw(String domain, int port, String urlString, String method, String requestHead, String requestBody) throws IOException {
         String tempUrl = urlString.replaceFirst("//", "");
         tempUrl = tempUrl.substring(tempUrl.split("/")[0].length());
 
@@ -141,10 +141,6 @@ public class Internet {
         String[] parts = text.toString().split("\r\n\r\n");
 
         return new InternetResponse(parts[0], parts[1]);
-    }
-
-    public static JSONObject getJSONObject(String url) throws Throwable {
-        return new JSONObject(Internet.getData(url));
     }
 
     public static boolean stringIsURL(String str) {

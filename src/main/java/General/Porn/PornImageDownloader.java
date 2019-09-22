@@ -7,6 +7,8 @@ import General.Internet.URLDataContainer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,11 +17,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class PornImageDownloader {
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly) throws Throwable {
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly) throws IOException, InterruptedException {
         return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, gifOnly, 2, false);
     }
 
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, int remaining, boolean softMode) throws Throwable {
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, int remaining, boolean softMode) throws IOException, InterruptedException {
         while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
@@ -57,7 +59,7 @@ public class PornImageDownloader {
         return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, gifOnly);
     }
 
-    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly) throws Throwable {
+    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly) throws IOException, InterruptedException {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&json=1&tags="+searchTerm+"&pid="+page;
         String dataString = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
 
@@ -109,7 +111,7 @@ public class PornImageDownloader {
         return null;
     }
 
-    private static PornImage getSpecificPictureOnPage(String domain, JSONArray data, int pos, String imageTemplate) throws Throwable {
+    private static PornImage getSpecificPictureOnPage(String domain, JSONArray data, int pos, String imageTemplate) throws IOException, InterruptedException {
         JSONObject postData = data.getJSONObject(pos);
 
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");

@@ -11,8 +11,11 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class BannedWordsCheck {
     public static boolean checkForBannedWordUsaqe(Server server, Message message) {
@@ -27,8 +30,8 @@ public class BannedWordsCheck {
                 //Nachricht löschen
                 try {
                     message.delete().get();
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                     successful = false;
                     //Ignore
                 }
@@ -44,7 +47,7 @@ public class BannedWordsCheck {
                         .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful_user"));
                 try {
                     author.sendMessage(ebUser).get();
-                } catch (Throwable throwable) {
+                } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                 }
 
@@ -71,8 +74,8 @@ public class BannedWordsCheck {
 
                 return true;
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+            e.printStackTrace();
         }
 
         return false;

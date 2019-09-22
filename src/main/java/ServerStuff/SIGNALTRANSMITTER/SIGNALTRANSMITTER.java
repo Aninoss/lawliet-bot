@@ -21,8 +21,8 @@ public class SIGNALTRANSMITTER {
     private SIGNALTRANSMITTER() {
         try {
             login();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -41,14 +41,14 @@ public class SIGNALTRANSMITTER {
     public double getTrafficGB() {
         try {
             return getTrafficGB(5);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return -1;
     }
 
-    private double getTrafficGB(int tries) throws Throwable {
+    private double getTrafficGB(int tries) throws IOException {
         if (tries <= 0) {
             System.out.println("Giving up");
             return -1;

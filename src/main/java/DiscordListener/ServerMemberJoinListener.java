@@ -10,9 +10,12 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class ServerMemberJoinListener {
     public ServerMemberJoinListener(){}
@@ -23,14 +26,14 @@ public class ServerMemberJoinListener {
         Locale locale = null;
         try {
             locale = DBServer.getServerLocale(server);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         try {
             DBUser.insertUser(event.getUser());
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         //Automatische Rollenvergabe bei Fisching
@@ -51,8 +54,8 @@ public class ServerMemberJoinListener {
                     }
                 }
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         //Automatisiere Rollenvergabe
@@ -61,8 +64,8 @@ public class ServerMemberJoinListener {
             for (Role role : basicRoles) {
                 event.getUser().addRole(role);
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         //Willkommensnachricht
@@ -71,7 +74,7 @@ public class ServerMemberJoinListener {
             if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
                 ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
                 if (channel.canYouWrite()) {
-                    InputStream image = ImageCreator.createImageWelcome(locale, event.getUser(), server, welcomeMessageSetting.getTitle());
+                    InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
 
                     if (image != null) {
                         channel.sendMessage(
@@ -91,8 +94,8 @@ public class ServerMemberJoinListener {
                 }
             }
             if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (IOException | ExecutionException | InterruptedException | SQLException e) {
+            e.printStackTrace();
         }
     }
 }

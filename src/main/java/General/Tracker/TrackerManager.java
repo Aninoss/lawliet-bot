@@ -12,6 +12,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 
 import java.awt.*;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.Locale;
 public class TrackerManager {
     private static ArrayList<TrackerConnection> trackerConnections = new ArrayList<>();
 
-    public static void manageTracker(TrackerData trackerData) throws Throwable {
+    public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {
         Locale locale = DBServer.getServerLocale(trackerData.getServer());
         Command command = CommandManager.createCommandByTrigger(trackerData.getCommand(), locale);
         if (((onTrackerRequestListener) command).needsPrefix())
@@ -38,8 +39,7 @@ public class TrackerManager {
                     errEmbed = PermissionCheck.bothasPermissions(command.getLocale(), trackerData.getServer(), trackerData.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS);
 
                     if (errEmbed != null) {
-                        //System.out.println("Keine Rechte für den Tracker! Channel: " + trackerData.getVoiceChannel().getIdAsString());
-                        User owner = trackerData.getServer().getOwner();
+                       User owner = trackerData.getServer().getOwner();
                         int RETRY_MINUTES = 30;
                         if (owner != null) {
                             owner.sendMessage(new EmbedBuilder()
@@ -62,26 +62,26 @@ public class TrackerManager {
             } catch (InterruptedException e) {
                 //Ignore
                 return;
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (Throwable e) {
+                e.printStackTrace();
                 Thread.sleep(5 * 60 * 1000);
             }
         }
     }
 
-    public static void startTracker(TrackerData trackerData) throws Throwable {
+    public static void startTracker(TrackerData trackerData) {
         Thread thread = new Thread(() -> {
             try {
                 TrackerManager.manageTracker(trackerData);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (InstantiationException | SQLException | InterruptedException | IllegalAccessException e) {
+                e.printStackTrace();
             }
         });
         thread.start();
         trackerConnections.add(new TrackerConnection(trackerData, thread));
     }
 
-    public static void stopTracker(TrackerData trackerData) throws Throwable {
+    public static void stopTracker(TrackerData trackerData) throws SQLException {
         TrackerConnection trackerConnectionRemove = getTrackerConnection(trackerData);
         if (trackerConnectionRemove != null) {
             trackerConnectionRemove.getThread().interrupt();
@@ -90,7 +90,7 @@ public class TrackerManager {
         }
     }
 
-    public static void interruptTracker(TrackerData trackerData) throws Throwable {
+    public static void interruptTracker(TrackerData trackerData) {
         TrackerConnection trackerConnectionRemove = getTrackerConnection(trackerData);
         if (trackerConnectionRemove != null) {
             trackerConnectionRemove.getThread().interrupt();

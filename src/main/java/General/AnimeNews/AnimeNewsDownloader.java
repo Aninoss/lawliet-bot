@@ -6,12 +6,13 @@ import General.Shortcuts;
 import General.Tools;
 import General.Internet.URLDataContainer;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class AnimeNewsDownloader {
-    public static AnimeNewsPost getPost(Locale locale) throws Throwable {
+    public static AnimeNewsPost getPost(Locale locale) throws IOException, InterruptedException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
@@ -23,7 +24,7 @@ public class AnimeNewsDownloader {
         else return getPostEN(getCurrentPostStringEN(dataString));
     }
 
-    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws Throwable {
+    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
@@ -58,7 +59,7 @@ public class AnimeNewsDownloader {
         return new PostBundle<>(postSendList, newestPostId);
     }
 
-    private static AnimeNewsPost getPostDE(String data) throws Throwable {
+    private static AnimeNewsPost getPostDE(String data) {
         AnimeNewsPost post = new AnimeNewsPost();
 
         post.setTitle(Shortcuts.decryptString(Tools.cutString(data, "title=\"", "\"")));
@@ -77,7 +78,7 @@ public class AnimeNewsDownloader {
         return post;
     }
 
-    private static AnimeNewsPost getPostEN(String data) throws Throwable {
+    private static AnimeNewsPost getPostEN(String data) {
         AnimeNewsPost post = new AnimeNewsPost();
 
         data = data.replace("<cite>", "").replace("</cite>", "").replaceFirst("&amp;from=I.MF\">", "").replaceFirst("<a href=\"", "");

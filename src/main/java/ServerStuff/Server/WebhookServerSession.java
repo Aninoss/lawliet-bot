@@ -17,7 +17,7 @@ public class WebhookServerSession {
             this.socket = socket;
             this.inputStream = socket.getInputStream();
             new Thread(this::run).start();
-        } catch (Throwable e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

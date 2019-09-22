@@ -13,6 +13,8 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Random;
 
 
@@ -110,7 +112,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
         }
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
+    private EmbedBuilder getEmbed(DiscordApi api) throws IOException {
         String key = "template";
         if (first) {
             key = "template_start";
@@ -150,7 +152,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
         else return FRUITS_CONTAINER[fruits[i]];
     }
 
-    private void manageEnd() throws Throwable {
+    private void manageEnd() throws IOException, SQLException {
         for(boolean b: progress) if (!b) return;
 
         removeReactionListener(getReactionMessage());

@@ -14,6 +14,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.entity.user.User;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -40,7 +42,7 @@ public class SPCheck {
                         //Nachricht löschen
                         try {
                             message.delete().get();
-                        } catch (Throwable throwable) {
+                        } catch (InterruptedException | ExecutionException e) {
                             successful = false;
                             //Ignore
                         }
@@ -57,7 +59,7 @@ public class SPCheck {
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));
                         try {
                             author.sendMessage(ebUser).get();
-                        } catch (Throwable throwable) {
+                        } catch (InterruptedException | ExecutionException e) {
                             //Ignore
                         }
 
@@ -65,7 +67,7 @@ public class SPCheck {
                         if (spBlock.getAction() == SPAction.KICK_USER) {
                             try {
                                 server.kickUser(author, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (Throwable throwable) {
+                            } catch (InterruptedException | ExecutionException | IOException e) {
                                 successful = false;
                                 //Ignore
                             }
@@ -75,7 +77,7 @@ public class SPCheck {
                         if (spBlock.getAction() == SPAction.BAN_USER) {
                             try {
                                 server.banUser(author, 1, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (Throwable throwable) {
+                            } catch (InterruptedException | ExecutionException | IOException e) {
                                 successful = false;
                                 //Ignore
                             }
@@ -105,8 +107,8 @@ public class SPCheck {
 
                         return true;
                     }
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
+                } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+                    e.printStackTrace();
                 }
 
             }

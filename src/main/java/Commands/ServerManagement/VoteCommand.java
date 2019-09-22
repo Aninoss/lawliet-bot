@@ -15,7 +15,10 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "vote",
@@ -63,7 +66,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
         }
     }
 
-    public EmbedBuilder getEmbed(VoteInfo voteInfo) throws Throwable {
+    public EmbedBuilder getEmbed(VoteInfo voteInfo) throws IOException {
         StringBuilder answerText = new StringBuilder();
         StringBuilder resultsText = new StringBuilder();
 
@@ -137,14 +140,10 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
                 try {
                     List<User> userList = reaction.getUsers().get();
                     if (userList.contains(user)) {
-                        try {
-                            reaction.removeUser(user);
-                            block = true;
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
+                        reaction.removeUser(user);
+                        block = true;
                     }
-                } catch (Throwable e) {
+                } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
             } else {

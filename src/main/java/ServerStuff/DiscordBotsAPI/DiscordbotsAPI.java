@@ -6,6 +6,7 @@ import General.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.javacord.api.DiscordApi;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class DiscordbotsAPI {
@@ -22,8 +23,8 @@ public class DiscordbotsAPI {
                     .token(SecretManager.getString("discordbots.token"))
                     .botId(String.valueOf(Settings.LAWLIET_ID))
                     .build();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

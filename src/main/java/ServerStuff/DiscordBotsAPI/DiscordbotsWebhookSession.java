@@ -6,6 +6,7 @@ import ServerStuff.Server.WebhookServerSession;
 import org.json.JSONObject;
 
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class DiscordbotsWebhookSession extends WebhookServerSession {
     public DiscordbotsWebhookSession(Socket socket) {
@@ -26,8 +27,8 @@ public class DiscordbotsWebhookSession extends WebhookServerSession {
         if (type.equals("upvote")) {
             try {
                 DBUser.increaseUpvotesUnclaimed(userId, amount);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
             System.out.println("Upvote - " + userId);
         } else {

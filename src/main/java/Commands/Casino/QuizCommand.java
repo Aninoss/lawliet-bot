@@ -15,8 +15,11 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "quiz",
@@ -108,12 +111,12 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
             if (active) {
                 onAnswerSelected(-1);
             }
-        } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, getLocale(), channel);
+        } catch (InterruptedException | IOException | SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    private void onAnswerSelected(int selected) throws Throwable {
+    private void onAnswerSelected(int selected) throws IOException, SQLException {
         if (selected == correctAnswer) {
             onWin();
             logStatus = LogStatus.WIN;
@@ -136,13 +139,13 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
             }
             try {
                 deleteReactionMessage();
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }).start();
     }
 
-    private EmbedBuilder getEmbed() throws Throwable {
+    private EmbedBuilder getEmbed() throws IOException {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
@@ -198,6 +201,6 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
     }
 
     @Override
-    public void onReactionTimeOut(Message message) throws Throwable {}
+    public void onReactionTimeOut(Message message) {}
 
 }

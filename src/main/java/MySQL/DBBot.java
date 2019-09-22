@@ -9,23 +9,25 @@ import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import org.javacord.api.DiscordApi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 public class DBBot {
-    public static void synchronize(DiscordApi api) throws Throwable {
+    public static void synchronize(DiscordApi api) throws SQLException {
         System.out.println("Fishing data has been cleaned...");
         cleanUp();
         startTrackers(api);
     }
 
-    public static String getCurrentVersions() throws Throwable {
+    public static String getCurrentVersions() throws SQLException {
         String result = null;
         Statement statement = DBMain.getInstance().statement("SELECT version FROM Version ORDER BY date DESC LIMIT 1;");
         ResultSet resultSet = statement.getResultSet();
@@ -35,7 +37,7 @@ public class DBBot {
         return result;
     }
 
-    public static ArrayList<String> getCurrentVersions(int i) throws Throwable {
+    public static ArrayList<String> getCurrentVersions(int i) throws SQLException {
         ArrayList<String> versions = new ArrayList<>();
         Statement statement = DBMain.getInstance().statement("SELECT version FROM Version ORDER BY date DESC LIMIT " + i + ";");
         ResultSet resultSet = statement.getResultSet();
@@ -45,7 +47,7 @@ public class DBBot {
         return versions;
     }
 
-    public static ArrayList<String> getCurrentVersions(String... versions) throws Throwable {
+    public static ArrayList<String> getCurrentVersions(String... versions) throws SQLException {
         ArrayList<String> acceptedVersions = new ArrayList<>();
 
         StringBuilder sb = new StringBuilder();
@@ -64,7 +66,7 @@ public class DBBot {
         return acceptedVersions;
     }
 
-    public static Instant getCurrentVersionDate() throws Throwable {
+    public static Instant getCurrentVersionDate() throws SQLException {
         Instant result = null;
         Statement statement = DBMain.getInstance().statement("SELECT date FROM Version ORDER BY date DESC LIMIT 1;");
         ResultSet resultSet = statement.getResultSet();
@@ -74,7 +76,7 @@ public class DBBot {
         return result;
     }
 
-    public static void insertVersion(String idVersion, Instant date) throws Throwable {
+    public static void insertVersion(String idVersion, Instant date) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO Version VALUES (?, ?);");
         preparedStatement.setString(1, idVersion);
         preparedStatement.setString(2, DBMain.instantToDateTimeString(date));
@@ -82,7 +84,7 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static double getGameWonMultiplicator(String game, boolean won, double valueAdd) throws Throwable {
+    public static double getGameWonMultiplicator(String game, boolean won, double valueAdd) throws SQLException {
         String str = "INSERT IGNORE INTO GameStatistics (game, won) VALUES(?, 0);" +
                 "INSERT IGNORE INTO GameStatistics (game, won) VALUES(?, 1);" +
                 "UPDATE GameStatistics set value = value + ? WHERE game = ? AND won = ?;" +
@@ -104,12 +106,12 @@ public class DBBot {
         return 1;
     }
 
-    public static void cleanUp() throws Throwable {
+    public static void cleanUp() throws SQLException {
         String sql = "DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;";
         DBMain.getInstance().statement(sql);
     }
 
-    public static void startTrackers(DiscordApi api) throws Throwable {
+    public static void startTrackers(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
             List<TrackerData> trackerDataList = getTracker(api);
             for (TrackerData trackerData : trackerDataList) {
@@ -118,7 +120,7 @@ public class DBBot {
         }
     }
 
-    public static ArrayList<TrackerData> getTracker(DiscordApi api) throws Throwable {
+    public static ArrayList<TrackerData> getTracker(DiscordApi api) throws SQLException {
         ArrayList<TrackerData> dataArrayList = new ArrayList<>();
 
         Statement statement = DBMain.getInstance().statement("SELECT * FROM Tracking;");
@@ -149,7 +151,7 @@ public class DBBot {
         return dataArrayList;
     }
 
-    public static void saveTracker(TrackerData trackerData) throws Throwable {
+    public static void saveTracker(TrackerData trackerData) throws SQLException {
         long messageId = 0;
         if (trackerData.getMessageDelete() != null) messageId = trackerData.getMessageDelete().getId();
 
@@ -164,11 +166,11 @@ public class DBBot {
         preparedStatement.executeUpdate();
     }
 
-    public static void removeTracker(TrackerData trackerData) throws Throwable {
+    public static void removeTracker(TrackerData trackerData) throws SQLException {
         removeTracker(trackerData.getServer().getId(), trackerData.getChannel().getId(), trackerData.getCommand());
     }
 
-    public static void removeTracker(long serverId, long channelId, String command) throws Throwable {
+    public static void removeTracker(long serverId, long channelId, String command) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Tracking WHERE serverId = ? AND channelId = ? AND command = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.setLong(2, channelId);
@@ -176,7 +178,7 @@ public class DBBot {
         preparedStatement.executeUpdate();
     }
 
-    public static FishingRecords getFishingRecords(DiscordApi api) throws Throwable {
+    public static FishingRecords getFishingRecords(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         String sql = "SELECT serverId, userId, growth FROM PowerPlantUsersExtended ORDER BY growth DESC LIMIT 25;\n" +
                 "SELECT serverId, userId, joule FROM PowerPlantUsersExtended ORDER BY joule DESC LIMIT 25;\n" +
                 "SELECT serverId, userId, coins FROM PowerPlantUsersExtended ORDER BY coins DESC LIMIT 25;\n" +
@@ -202,7 +204,7 @@ public class DBBot {
         return new FishingRecords(servers, users, values);
     }
 
-    public static void addCommandUsage(String trigger) throws Throwable {
+    public static void addCommandUsage(String trigger) throws SQLException {
         String sql = "INSERT INTO CommandUsages VALUES(?, 1) ON DUPLICATE KEY UPDATE usages = usages + 1;";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setString(1, trigger);
@@ -210,7 +212,7 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static int getTotalCommandUsages() throws Throwable {
+    public static int getTotalCommandUsages() throws SQLException {
         int count = 0;
 
         Statement statement = DBMain.getInstance().statement("SELECT SUM(usages) FROM CommandUsages;");
@@ -224,7 +226,7 @@ public class DBBot {
         return count;
     }
 
-    public static void addStatServers(int serverCount) throws Throwable {
+    public static void addStatServers(int serverCount) throws SQLException {
         String sql = "INSERT INTO StatsServerCount VALUES(NOW(), ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setInt(1, serverCount);
@@ -232,14 +234,14 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static void addStatCommandUsages() throws Throwable {
+    public static void addStatCommandUsages() throws SQLException {
         String sql = "INSERT INTO StatsCommandUsages VALUES(NOW(), (SELECT SUM(usages) FROM CommandUsages));";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.execute();
         preparedStatement.close();
     }
 
-    public static void addStatUpvotes() throws Throwable {
+    public static void addStatUpvotes() throws SQLException {
         String sql = "INSERT INTO StatsUpvotes VALUES(NOW(), ?, ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setInt(1, DiscordbotsAPI.getInstance().getTotalUpvotes());
@@ -248,7 +250,7 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static void addFisheryTest(Server server, boolean activeGroup) throws Throwable {
+    public static void addFisheryTest(Server server, boolean activeGroup) throws SQLException {
         String sql = "INSERT INTO FisheryTestGroups VALUES(?, ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setLong(1, server.getId());
@@ -257,7 +259,7 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static void addFisheryTest2(Server server, boolean activeGroup) throws Throwable {
+    public static void addFisheryTest2(Server server, boolean activeGroup) throws SQLException {
         String sql = "INSERT INTO FisheryTestGroups2 VALUES(?, ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setLong(1, server.getId());

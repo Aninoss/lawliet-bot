@@ -12,8 +12,10 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.ServerJoinEvent;
 import org.javacord.api.event.server.ServerLeaveEvent;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class ServerJoinListener {
     public ServerJoinListener() {}
@@ -26,8 +28,8 @@ public class ServerJoinListener {
             event.getApi().getOwner().get().sendMessage("**+++** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
 
             Connector.updateActivity(event.getApi());
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (InterruptedException | ExecutionException | SQLException e) {
+            e.printStackTrace();
         }
     }
 

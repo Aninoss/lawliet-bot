@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.awt.AlphaComposite;
 
 public class ImageCreator {
-    public static InputStream createImageTriggered(User user) throws Throwable {
+    public static InputStream createImageTriggered(User user) throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;
         image = getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
@@ -67,7 +67,7 @@ public class ImageCreator {
         return new ByteArrayInputStream(os.toByteArray());
     }
 
-    public static InputStream createImageRainbow(User user) throws Throwable {
+    public static InputStream createImageRainbow(User user) throws ExecutionException, InterruptedException, IOException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;
         image = getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
@@ -86,7 +86,7 @@ public class ImageCreator {
         return new ByteArrayInputStream(os.toByteArray());
     }
 
-    public static InputStream createImageShip(Locale locale, User user1, User user2, int n, int perc) throws Throwable {
+    public static InputStream createImageShip(Locale locale, User user1, User user2, int n, int perc) throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = ImageIO.read(new File("recourses/ship/" + n + ".png"));
         BufferedImage image1 = user1.getAvatar().asBufferedImage().get();
         BufferedImage image2 = user2.getAvatar().asBufferedImage().get();
@@ -136,7 +136,7 @@ public class ImageCreator {
         return new ByteArrayInputStream(os.toByteArray());
     }
 
-    public static InputStream createImageWelcome(Locale locale, User user, Server server, String welcome) throws Throwable {
+    public static InputStream createImageWelcome(User user, Server server, String welcome) {
         try {
             final int BASE_WIDTH = 400, BASE_HEIGHT = 135;
 
@@ -146,8 +146,8 @@ public class ImageCreator {
             BufferedImage profilePicture = null;
             try {
                 profilePicture = user.getAvatar().asBufferedImage().get();
-            } catch (Throwable e) {
-                //Ignore
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
             BufferedImage result = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 

@@ -13,7 +13,9 @@ import org.javacord.api.entity.permission.*;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
 
+import java.sql.SQLException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelMemberJoinListener {
     public  VoiceChannelMemberJoinListener(){}
@@ -65,8 +67,8 @@ public class VoiceChannelMemberJoinListener {
                     event.getUser().move(vc).get();
                 }
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (InterruptedException | ExecutionException | SQLException e) {
+            e.printStackTrace();
         }
     }
 }

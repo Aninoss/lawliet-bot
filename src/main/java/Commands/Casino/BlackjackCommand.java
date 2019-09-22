@@ -12,7 +12,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "blackjack",
@@ -57,7 +60,7 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
         return false;
     }
 
-    private EmbedBuilder getEmbed() throws Throwable {
+    private EmbedBuilder getEmbed() throws IOException {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0),true)
                 .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1),true);
@@ -211,8 +214,8 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
                     }
                 }
             }
-        } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, getLocale(), channel);
+        } catch (IOException | InterruptedException | SQLException | ExecutionException e) {
+            e.printStackTrace();
         }
     }
 

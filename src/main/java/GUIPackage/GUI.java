@@ -5,7 +5,6 @@ import General.EmbedFactory;
 import General.RunningCommands.RunningCommandManager;
 import com.sun.management.OperatingSystemMXBean;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -14,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.time.Instant;
-
 import org.javacord.api.entity.server.Server;
 
 public class GUI extends JFrame {
@@ -46,7 +44,6 @@ public class GUI extends JFrame {
     private JLabel lbCPU;
     private static GUI ourInstance = new GUI();
 
-    private DiscordApi api;
     private PipedOutputStream consoleOut;
     private double maxMemory;
 
@@ -199,9 +196,5 @@ public class GUI extends JFrame {
 
     public void onTextAreaClear(JTextArea jTextArea) {
         jTextArea.setText("");
-    }
-
-    public void setApi(DiscordApi api) {
-        this.api = api;
     }
 }

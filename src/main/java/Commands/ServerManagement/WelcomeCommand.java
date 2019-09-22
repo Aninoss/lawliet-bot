@@ -26,9 +26,12 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,7 +140,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return Response.TRUE;
-                    } catch (Throwable e) {
+                    } catch (IOException e) {
                         if (e.toString().contains("403") && url.toString().startsWith("https://cdn.discordapp.com/attachments/")) {
                             setLog(LogStatus.FAILURE, getString("image_no_permission"));
                             return Response.FALSE;
@@ -286,7 +289,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
         return 9;
     }
 
-    public EmbedBuilder getWelcomeMessageTest(User user) throws Throwable {
+    public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
         Server server = welcomeMessageSetting.getServer();
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.WHITE)
@@ -295,7 +298,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         user.getMentionTag(),
                         Tools.numToString(getLocale(), server.getMembers().size())));
 
-        eb.setImage(Tools.getURLFromInputStream(user.getApi(), ImageCreator.createImageWelcome(getLocale(), user, server, welcomeMessageSetting.getTitle())).toString());
+        eb.setImage(Tools.getURLFromInputStream(user.getApi(), ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
         return eb;
     }
 

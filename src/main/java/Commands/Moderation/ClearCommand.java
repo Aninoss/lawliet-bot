@@ -12,9 +12,11 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.awt.*;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "clear",
@@ -48,7 +50,7 @@ public class ClearCommand extends Command implements onRecievedListener {
                         try {
                             message.delete().get();
                             deleted++;
-                        } catch (Throwable e) {
+                        } catch (InterruptedException | ExecutionException e) {
                             //Ignore
                         }
                     } else {
@@ -60,7 +62,7 @@ public class ClearCommand extends Command implements onRecievedListener {
                     try {
                         event.getChannel().bulkDelete(messagesDelete).get();
                         deleted += messagesDelete.size();
-                    } catch (Throwable e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         //Ignore
                     }
                 }

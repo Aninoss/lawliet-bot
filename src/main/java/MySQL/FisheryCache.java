@@ -62,12 +62,16 @@ public class FisheryCache {
             if (messagePhase >= 3 * 10) {
                 messagePhase = 0;
 
+                System.out.println("Message Start");
+
                 Map<Long, ActivityUserData> activitesClone;
                 synchronized (this) {
                     activitesClone = new HashMap<>(activities);
                     activities.clear();
                 }
                 if (activitesClone.size() > 0) DBUser.addMessageFishBulk(activitesClone);
+
+                System.out.println("Message End");
             }
         }
     }

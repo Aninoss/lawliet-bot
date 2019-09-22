@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class DBSurvey {
-    public static Survey getCurrentSurvey() throws Throwable {
+    public static Survey getCurrentSurvey() throws SQLException {
         Statement statement = DBMain.getInstance().statement("SELECT * FROM SurveyDates ORDER BY surveyId DESC LIMIT 1;");
         ResultSet resultSet = statement.getResultSet();
         Survey survey = null;
@@ -28,7 +28,7 @@ public class DBSurvey {
         return survey;
     }
 
-    public static UserVoteData getUserVotes(User user) throws Throwable {
+    public static UserVoteData getUserVotes(User user) throws SQLException {
         String sql = "SELECT IFNULL(personalVote, -1) FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1) AND userId = ?;" +
                 "SELECT serverId, majorityVote FROM SurveyMajorityVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1) AND userId = ?;";
 
@@ -61,7 +61,7 @@ public class DBSurvey {
         return userVoteData;
     }
 
-    public static ArrayList<SurveyServer> getUsersWithRightChoiceForCurrentSurvey(DiscordApi api) throws Throwable {
+    public static ArrayList<SurveyServer> getUsersWithRightChoiceForCurrentSurvey(DiscordApi api) throws SQLException {
         String sql = "SELECT serverId, userId, (majorityVote = (SELECT personalVote FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1) GROUP BY personalVote ORDER BY COUNT(personalVote) DESC LIMIT 1))\n" +
                 "FROM SurveyMajorityVotes \n" +
                 "WHERE (SELECT powerPlant FROM DServer WHERE DServer.serverId = SurveyMajorityVotes.serverId) = 'ACTIVE'\n" +
@@ -95,7 +95,7 @@ public class DBSurvey {
         return serverList;
     }
 
-    public static void updatePersonalVote(User user, int personalVote) throws Throwable {
+    public static void updatePersonalVote(User user, int personalVote) throws SQLException {
         String sql = "INSERT INTO SurveyVotes (surveyId, userId, personalVote) VALUES ((SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1), ?, ?) "
                 + "ON DUPLICATE KEY UPDATE personalVote = ?;";
 
@@ -107,7 +107,7 @@ public class DBSurvey {
         baseStatement.close();
     }
 
-    public static boolean updateMajorityVote(Server server, User user, int majorityVote) throws Throwable {
+    public static boolean updateMajorityVote(Server server, User user, int majorityVote) throws SQLException {
         String sql = "SELECT COUNT(*) FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1) AND userId = ?";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
@@ -137,13 +137,13 @@ public class DBSurvey {
         return true;
     }
 
-    public static void nextSurvey() throws Throwable {
+    public static void nextSurvey() throws SQLException {
         String sql = "INSERT INTO SurveyDates VALUES ((SELECT surveyId FROM SurveyDates a ORDER BY a.surveyId DESC LIMIT 1) + 1, NOW());";
         Statement statement = DBMain.getInstance().statement(sql);
         statement.close();
     }
 
-    public static SurveyResults getResults() throws Throwable {
+    public static SurveyResults getResults() throws SQLException {
         String sql = "SELECT surveyId-1 FROM SurveyDates ORDER BY surveyId DESC LIMIT 1;" +
                 "SELECT personalVote, COUNT(personalVote) FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1)-1 GROUP BY personalVote;" +
                 "SELECT majorityVote, COUNT(majorityVote) FROM SurveyMajorityVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1)-1 GROUP BY majorityVote;";
@@ -174,7 +174,7 @@ public class DBSurvey {
         return new SurveyResults(userVote, majorityVote, surveyId);
     }
 
-    public static int getCurrentVotesNumber() throws Throwable {
+    public static int getCurrentVotesNumber() throws SQLException {
         String sql = "SELECT COUNT(*) FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1);";
 
         Statement statement = DBMain.getInstance().statement(sql);

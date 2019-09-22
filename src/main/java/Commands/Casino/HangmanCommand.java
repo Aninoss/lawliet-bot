@@ -10,6 +10,8 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -60,7 +62,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
         return false;
     }
 
-    private EmbedBuilder getEmbed() throws Throwable {
+    private EmbedBuilder getEmbed() throws IOException {
         String key = "template_ongoing";
         if (first) {
             key = "template_start";
@@ -97,7 +99,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
         return sb.toString();
     }
 
-    private void onAbort() throws Throwable {
+    private void onAbort() throws IOException, SQLException {
         logStatus = LogStatus.LOSE;
         onLose();
         log = getString("abort");
@@ -165,7 +167,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
         return false;
     }
 
-    private void onWrong(String input) throws Throwable {
+    private void onWrong(String input) throws IOException, SQLException {
         health --;
 
         if (health > 0) {
@@ -180,7 +182,7 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
         message.edit(getEmbed());
     }
 
-    private void onRight(String input) throws Throwable {
+    private void onRight(String input) throws IOException, SQLException {
         boolean finished = true;
         for (boolean set : progress) {
             if (!set) {

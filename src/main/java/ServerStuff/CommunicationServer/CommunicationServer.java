@@ -45,22 +45,18 @@ public class CommunicationServer {
 
                     int output = HEARTBEAT;
 
-                    try {
-                        if (CommandContainer.getInstance().getActivitiesSize() == 0 &&
-                                RunningCommandManager.getInstance().getRunningCommands().size() == 0 &&
-                                CommandContainer.getInstance().getLastCommandUsage().plusSeconds(2 * 60).isBefore(Instant.now())
-                        ) output |= CAN_UPDATE;
-                        if (api != null && api.getServerById(Settings.HOME_SERVER_ID).isPresent() && api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).isPresent()) {
-                            try {
-                                Message message = api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
-                                if (message.getContent().equals("test")) output |= CONNECTED;
-                                message.delete();
-                            } catch (InterruptedException | ExecutionException e) {
-                                //Ignore
-                            }
+                    if (CommandContainer.getInstance().getActivitiesSize() == 0 &&
+                            RunningCommandManager.getInstance().getRunningCommands().size() == 0 &&
+                            CommandContainer.getInstance().getLastCommandUsage().plusSeconds(2 * 60).isBefore(Instant.now())
+                    ) output |= CAN_UPDATE;
+                    if (api != null && api.getServerById(Settings.HOME_SERVER_ID).isPresent() && api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).isPresent()) {
+                        try {
+                            Message message = api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
+                            if (message.getContent().equals("test")) output |= CONNECTED;
+                            message.delete();
+                        } catch (InterruptedException | ExecutionException e) {
+                            //Ignore
                         }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
                     }
 
                     Calendar calendar = Calendar.getInstance();

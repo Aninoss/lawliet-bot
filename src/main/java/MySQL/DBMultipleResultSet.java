@@ -2,6 +2,7 @@ package MySQL;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
@@ -21,8 +22,8 @@ public class DBMultipleResultSet implements Iterable<ResultSet> {
         try {
             if (preparedStatement != null) return new ResultSetIterator(preparedStatement);
             else return new ResultSetIterator(sql);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
     }

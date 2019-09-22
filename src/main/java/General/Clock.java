@@ -17,6 +17,9 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
+
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -65,8 +68,8 @@ public class Clock {
             //Backup Database
             try {
                 DBMain.backupAll();
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (IOException | SQLException | ClassNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -100,8 +103,8 @@ public class Clock {
                             }
 
                             collector.add(user, surveyServer.getServer(), gains, locale);
-                        } catch (Throwable throwable) {
-                            throwable.printStackTrace();
+                        } catch (IOException | SQLException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -164,12 +167,12 @@ public class Clock {
                                 e.printStackTrace();
                             }
                         }).start();
-                    } catch (Throwable throwable) {
-                        throwable.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
 
@@ -178,18 +181,18 @@ public class Clock {
         //Send Bot Stats
         try {
             DBBot.addStatCommandUsages();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         try {
             DBBot.addStatServers(api.getServers().size());
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         try {
             DBBot.addStatUpvotes();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -203,8 +206,8 @@ public class Clock {
         try {
             GUI.getInstance().setTraffic(trafficGB);
             GUI.getInstance().setBotStats(api.getServers().size(), TrackerManager.getSize(), DBSurvey.getCurrentVotesNumber());
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         if (trafficGB >= 20 && (!trafficWarned || trafficGB >= 40)) {

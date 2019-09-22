@@ -26,11 +26,14 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.awt.*;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class MessageCreateListener {
     public MessageCreateListener() {}
@@ -65,8 +68,8 @@ public class MessageCreateListener {
 
                     return;
                 }
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            } catch (InterruptedException | ExecutionException | SQLException e) {
+                e.printStackTrace();
             }
         }
 
@@ -116,12 +119,8 @@ public class MessageCreateListener {
             } else {
 
                 //Add Fisch & Manage 100 Fish Message
-                try {
-                    if (!Tools.serverIsBotListServer(event.getServer().get()) && !event.getMessage().getUserAuthor().get().isBot()) {
-                        FisheryCache.getInstance().addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
-                    }
-                } catch (Throwable t) {
-                    //Ignore
+                if (!Tools.serverIsBotListServer(event.getServer().get()) && !event.getMessage().getUserAuthor().get().isBot()) {
+                    FisheryCache.getInstance().addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
                 }
 
                 //Manage Treasure Chests
@@ -174,7 +173,7 @@ public class MessageCreateListener {
                 }
 
             }
-        } catch (Throwable e) {
+        } catch (IOException | InstantiationException | ExecutionException | SQLException | InterruptedException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -193,7 +192,7 @@ public class MessageCreateListener {
                 boolean canPost = false;
                 try {
                     canPost = message != null && message.getLatestInstance().get() != null;
-                } catch (Throwable e) {
+                } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                 }
 

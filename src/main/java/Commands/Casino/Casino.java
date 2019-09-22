@@ -21,6 +21,10 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
+
 class Casino extends Command implements onReactionAddListener {
     long coinsInput;
     User player;
@@ -39,7 +43,7 @@ class Casino extends Command implements onReactionAddListener {
         allowBet = true;
     }
 
-    boolean onGameStart(MessageCreateEvent event, String followedString) throws Throwable {
+    boolean onGameStart(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
         createEvent = event;
         server = event.getServer().get();
         player = event.getMessage().getUserAuthor().get();
@@ -91,7 +95,7 @@ class Casino extends Command implements onReactionAddListener {
         return false;
     }
 
-    public void onGameEnd() throws Throwable {
+    public void onGameEnd() throws IOException, SQLException {
         won = false;
         active = false;
         DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput);
@@ -100,14 +104,14 @@ class Casino extends Command implements onReactionAddListener {
         removeReactionListener(((onReactionAddListener)this).getReactionMessage());
     }
 
-    void onLose() throws Throwable {
+    void onLose() throws SQLException, IOException {
         onGameEnd();
         DBBot.getGameWonMultiplicator(compareKey, false, 1);
         EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
-    void onWin() throws Throwable {
+    void onWin() throws IOException, SQLException {
         onGameEnd();
         won = true;
 
@@ -119,14 +123,14 @@ class Casino extends Command implements onReactionAddListener {
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
-    EmbedBuilder addRetryOption(EmbedBuilder eb) throws Throwable {
+    EmbedBuilder addRetryOption(EmbedBuilder eb) throws IOException {
         addReactionListener(getReactionMessage());
         message.addReaction(RETRY_EMOJI);
         eb.addField(Tools.getEmptyCharacter(), TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));
         return eb;
     }
 
-    public void onReactionAddRetry(SingleReactionEvent event) throws Throwable {
+    public void onReactionAddRetry(SingleReactionEvent event) throws InstantiationException, IllegalAccessException, InterruptedException, ExecutionException, IOException {
         if (!active && event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(RETRY_EMOJI)) {
             removeReactionListener(getReactionMessage());
 

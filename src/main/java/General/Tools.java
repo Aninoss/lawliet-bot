@@ -114,7 +114,7 @@ public class Tools {
         return sb.toString();
     }
 
-    public static Mention getMentionedString(Locale locale, Message message, String followedString) throws Throwable {
+    public static Mention getMentionedString(Locale locale, Message message, String followedString) throws IOException {
         int counted = 0;
         boolean multi = false;
         Server server = message.getServer().get();
@@ -151,7 +151,7 @@ public class Tools {
         return new Mention(string,multi);
     }
 
-    public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) throws Throwable {
+    public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) throws IOException {
         int counted = 0;
         boolean multi = false;
         StringBuilder sb = new StringBuilder();
@@ -237,7 +237,7 @@ public class Tools {
         return "❌";
     }
 
-    public static String getOnOffForBoolean(Locale locale, boolean bool) throws Throwable {
+    public static String getOnOffForBoolean(Locale locale, boolean bool) throws IOException {
         StringBuilder sb = new StringBuilder("**");
 
         if (bool) sb.append("✅ ");
@@ -280,7 +280,7 @@ public class Tools {
         return false;
     }
 
-    public static URL getURLFromInputStream(DiscordApi api, InputStream inputStream) throws Throwable {
+    public static URL getURLFromInputStream(DiscordApi api, InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = Shortcuts.getHomeServer(api).getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
         new Thread(() -> {
@@ -366,7 +366,7 @@ public class Tools {
         return null;
     }
 
-    public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) throws Throwable {
+    public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) throws IOException {
         String str = DateTimeFormatter.ofPattern(TextManager.getString(locale, TextManager.GENERAL, "time_code", withClockTime)).format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
         if (withClockTime) {
             str += " " + TextManager.getString(locale, TextManager.GENERAL, "clock");
@@ -375,7 +375,7 @@ public class Tools {
         return str;
     }
 
-    public static String getRemainingTimeString(Locale locale, Instant time0, Instant time1, boolean shorter) throws Throwable {
+    public static String getRemainingTimeString(Locale locale, Instant time0, Instant time1, boolean shorter) throws IOException {
         String remaining = "";
 
         long diff = Math.abs(Date.from(time0).getTime() - Date.from(time1).getTime()) + 1000 * 60;

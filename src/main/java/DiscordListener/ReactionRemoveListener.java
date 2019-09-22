@@ -11,7 +11,9 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 
+import java.sql.SQLException;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class ReactionRemoveListener {
     public ReactionRemoveListener(){}
@@ -29,7 +31,7 @@ public class ReactionRemoveListener {
         try {
             if (event.getMessage().isPresent()) message = event.getMessage().get();
             else message = event.getChannel().getMessageById(event.getMessageId()).get();
-        } catch (Throwable e) {
+        } catch (InterruptedException | ExecutionException e) {
             //Ignore
             return;
         }
@@ -51,8 +53,8 @@ public class ReactionRemoveListener {
                     }
                 }
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 }

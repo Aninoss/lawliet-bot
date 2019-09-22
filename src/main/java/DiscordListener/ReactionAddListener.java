@@ -14,6 +14,7 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class ReactionAddListener {
     public ReactionAddListener() {
@@ -57,7 +58,7 @@ public class ReactionAddListener {
         try {
             if (event.getMessage().isPresent()) message = event.getMessage().get();
             else message = event.getChannel().getMessageById(event.getMessageId()).get();
-        } catch (Throwable e) {
+        } catch (InterruptedException | ExecutionException e) {
             //Ignore
             return;
         }

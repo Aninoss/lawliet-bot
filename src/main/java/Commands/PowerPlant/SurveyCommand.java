@@ -23,11 +23,14 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "survey",
@@ -129,7 +132,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
         }
     }
 
-    private Message sendMessages(ServerTextChannel channel, Survey survey) throws Throwable {
+    private Message sendMessages(ServerTextChannel channel, Survey survey) throws InterruptedException, IOException, SQLException, ExecutionException {
         while(lastAccess != 0 && System.currentTimeMillis() <= lastAccess + 1000 * 60) {
             Thread.sleep(100);
         }
@@ -152,7 +155,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
         return message;
     }
 
-    private EmbedBuilder getResultsEmbed() throws Throwable {
+    private EmbedBuilder getResultsEmbed() throws SQLException, IOException {
         SurveyResults surveyResults = DBSurvey.getResults();
         if (surveyResults.getSurveyId() == 0) return null;
         String[] surveyData = surveyResults.getQuestionAndAnswers(getLocale());
@@ -183,7 +186,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
         return eb;
     }
 
-    private EmbedBuilder getSurveyEmbed(Survey survey) throws Throwable {
+    private EmbedBuilder getSurveyEmbed(Survey survey) throws IOException {
         String[] surveyData = getSurveyData(survey.getId(), getLocale());
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Tools.getEmptyCharacter());
 
@@ -199,7 +202,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
         return eb;
     }
 
-    public static String[] getSurveyData(int surveyId, Locale locale) throws Throwable {
+    public static String[] getSurveyData(int surveyId, Locale locale) throws IOException {
         List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
         return surveyList.get(surveyId).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
     }
