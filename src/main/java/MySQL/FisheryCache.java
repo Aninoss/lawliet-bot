@@ -92,11 +92,17 @@ public class FisheryCache {
 
             for(Server server: api.getServers()) {
                 for(ServerVoiceChannel channel: server.getVoiceChannels()) {
-                    if (channel.getConnectedUsers().size() > 1 &&
+                    int connectedUsers = 0;
+                    for(User user: channel.getConnectedUsers())
+                        if (!user.isBot()) connectedUsers++;
+
+                    if (connectedUsers > 1 &&
                             (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
                     ) {
                         for(User user: channel.getConnectedUsers()) {
-                            if (!userVCCount.containsKey(user.getId()) || userVCCount.get(user.getId()) < 60) {
+                            if (!user.isBot() &&
+                                    (!userVCCount.containsKey(user.getId()) || userVCCount.get(user.getId()) < 60)
+                            ) {
                                 int count = 0;
                                 if (userVCCount.containsKey(user.getId())) count = userVCCount.get(user.getId());
                                 count++;
