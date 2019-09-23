@@ -21,11 +21,12 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-    trigger = "account",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
-    emoji = "\uD83D\uDE4B",
-    executable = true
+        trigger = "account",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
+        emoji = "\uD83D\uDE4B",
+        executable = true,
+        aliases = {"profile", "profil"}
 )
 public class AccountCommand extends Command implements onRecievedListener {
 

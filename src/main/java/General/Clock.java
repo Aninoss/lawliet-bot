@@ -164,7 +164,7 @@ public class Clock {
                             try {
                                 slot.getUser().sendMessage(eb).get();
                             } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
+                                //Ignore
                             }
                         }).start();
                     } catch (IOException e) {

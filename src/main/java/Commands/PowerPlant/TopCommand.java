@@ -17,11 +17,12 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "top",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Cup-champion-icon.png",
-    emoji = "\uD83C\uDFC6",
-    executable = true
+        trigger = "top",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Cup-champion-icon.png",
+        emoji = "\uD83C\uDFC6",
+        executable = true,
+        aliases = {"rankings", "ranking"}
 )
 public class TopCommand extends Command implements onRecievedListener, onReactionAddListener {
 
