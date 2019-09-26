@@ -250,21 +250,4 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static void addFisheryTest(Server server, boolean activeGroup) throws SQLException {
-        String sql = "INSERT INTO FisheryTestGroups VALUES(?, ?);";
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setBoolean(2, activeGroup);
-        preparedStatement.execute();
-        preparedStatement.close();
-    }
-
-    public static void addFisheryTest2(Server server, boolean activeGroup) throws SQLException {
-        String sql = "INSERT INTO FisheryTestGroups2 VALUES(?, ?);";
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setBoolean(2, activeGroup);
-        preparedStatement.execute();
-        preparedStatement.close();
-    }
 }

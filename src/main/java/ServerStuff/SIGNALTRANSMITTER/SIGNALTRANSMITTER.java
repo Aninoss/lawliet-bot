@@ -13,6 +13,7 @@ public class SIGNALTRANSMITTER {
 
     private String key;
     private String cookie;
+    private static final String VPS_ID = "11810";
 
     public static SIGNALTRANSMITTER getInstance() {
         return ourInstance;
@@ -54,7 +55,7 @@ public class SIGNALTRANSMITTER {
             return -1;
         }
 
-        JSONObject data = new JSONObject(Internet.getDataCookie("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=11582&show=undefined", cookie));
+        JSONObject data = new JSONObject(Internet.getDataCookie("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", cookie));
         String act = data.getString("act");
         if (act.equals("bandwidth")) {
             Calendar calendar = Calendar.getInstance();

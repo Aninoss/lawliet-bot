@@ -132,7 +132,11 @@ public class HelpCommand extends Command implements onNavigationListener {
 
                 return new EmbedBuilder()
                         .setColor(Color.WHITE)
-                        .setTitle(command.getEmoji()+" "+TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_title"))
+                        .setTitle(
+                                TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
+                                        TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
+                                        command.getEmoji()+" "+TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_title")
+                        )
                         .setThumbnail(command.getThumbnail())
                         .setFooter(getString("command_args"))
                         .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
@@ -151,7 +155,10 @@ public class HelpCommand extends Command implements onNavigationListener {
                             .setColor(Color.WHITE)
                             .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
                             //.setTitle(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string) + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, string));
-                            .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, string));
+                            .setTitle(
+                                    TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
+                                            TextManager.getString(getLocale(), TextManager.COMMANDS, string)
+                            );
 
                     emojiConnections = new ArrayList<>();
                     emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
@@ -238,7 +245,9 @@ public class HelpCommand extends Command implements onNavigationListener {
         categoriesSB.append("\n").append(getString("sp")).append("\n").append(Tools.getEmptyCharacter());
         eb.setDescription(categoriesSB.toString());
 
-        eb.addField(getString("links_title"), getString("links_content", Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true);
+        eb
+                .addField(getString("links_title"), getString("links_content", Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true)
+                .addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), true);
         return eb;
     }
 

@@ -54,6 +54,7 @@ public class CommandContainer {
         commandList.add(AvatarCommand.class);
 
         //BOT MANAGEMENT
+        commandList.add(SignUpCommand.class);
         commandList.add(HelpCommand.class);
         commandList.add(LanguageCommand.class);
         commandList.add(WhiteListCommand.class);

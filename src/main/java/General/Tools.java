@@ -459,6 +459,14 @@ public class Tools {
         return numToString(locale, (long) n);
     }
 
+    public static String numToString(long n) {
+        return numToString(Locale.US, n);
+    }
+
+    public static String numToString(int n) {
+        return numToString((long) n);
+    }
+
     public static Language getLanguage(Locale locale) {
         String language = locale.getLanguage().split("_")[0].toLowerCase();
         if (language.equalsIgnoreCase("de")) {

@@ -556,4 +556,29 @@ public class DBUser {
 
         return users;
     }
+
+    public static boolean registerGiveaway(Server server, User user) throws SQLException {
+        boolean quit = false;
+
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT * FROM Giveaway WHERE serverId = ? AND userId = ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, user.getId());
+        preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getResultSet();
+        if (resultSet.next()) quit = true;
+
+        resultSet.close();
+        preparedStatement.close();
+
+        if (quit) return false;
+
+        preparedStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO Giveaway (serverId, userId) VALUES (?, ?);");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, user.getId());
+        preparedStatement.execute();
+
+        return true;
+    }
+
 }

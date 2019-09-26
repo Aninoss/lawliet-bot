@@ -35,11 +35,13 @@ public class Connector {
 
     public static void main(String[] args) throws IOException, FontFormatException {
         //Redirect error outputs to a file
-        String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
-        File file = new File("data/error_log/" + fileName + "_err.log");
-        FileOutputStream fos = new FileOutputStream(file);
-        PrintStream ps = new PrintStream(fos);
-        System.setErr(ps);
+        if (!Bot.isDebug() && !Bot.TEST_MODE) {
+            String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
+            File file = new File("data/error_log/" + fileName + "_err.log");
+            FileOutputStream fos = new FileOutputStream(file);
+            PrintStream ps = new PrintStream(fos);
+            System.setErr(ps);
+        }
 
         CommunicationServer communicationServer = new CommunicationServer(35555); //Start Communication Server
 
@@ -226,7 +228,7 @@ public class Connector {
 
     public static void updateActivity(DiscordApi api) {
         api.updateStatus(UserStatus.ONLINE);
-        api.updateActivity("L.help | " + api.getServers().size() + " Servers | v"+ Tools.getCurrentVersion());
+        api.updateActivity("L.help | " + Tools.numToString(api.getServers().size()) + " Servers | v"+ Tools.getCurrentVersion());
     }
 
     private static void onSessionResume(DiscordApi api) {
