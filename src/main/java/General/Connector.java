@@ -227,8 +227,12 @@ public class Connector {
     }
 
     public static void updateActivity(DiscordApi api) {
+        updateActivity(api, api.getServers().size());
+    }
+
+    public static void updateActivity(DiscordApi api, int serverNumber) {
         api.updateStatus(UserStatus.ONLINE);
-        api.updateActivity("L.help | " + Tools.numToString(api.getServers().size()) + " Servers | v"+ Tools.getCurrentVersion());
+        api.updateActivity("L.help | " + Tools.numToString(serverNumber) + " Servers | v"+ Tools.getCurrentVersion());
     }
 
     private static void onSessionResume(DiscordApi api) {

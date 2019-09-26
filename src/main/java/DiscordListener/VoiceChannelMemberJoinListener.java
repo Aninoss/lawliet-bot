@@ -26,7 +26,7 @@ public class VoiceChannelMemberJoinListener {
     }
 
     public void onJoin(ServerVoiceChannelMemberJoinEvent event) {
-        if (event.getUser().isYourself() || !event.getChannel().getConnectedUsers().contains(event.getUser())) return;
+        if (event.getUser().isYourself() || !userIsConnected(event.getChannel(), event.getUser())) return;
         try {
             AutoChannelData autoChannelData = DBServer.getAutoChannelFromServer(event.getServer());
             if (autoChannelData.isActive() && event.getChannel().equals(autoChannelData.getVoiceChannel())) {
@@ -39,6 +39,8 @@ public class VoiceChannelMemberJoinListener {
                         if (!event.getServer().getChannelsByName(getNewVCName(autoChannelData, event, n)).isEmpty()) n++;
                         else break;
                     }
+
+                    if (!userIsConnected(event.getChannel(), event.getUser())) return;
 
                     //Erstellt Channel
                     ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
@@ -59,16 +61,23 @@ public class VoiceChannelMemberJoinListener {
                     vcb.addPermissionOverwrite(event.getUser(), new PermissionsBuilder().setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED).build());
 
                     ServerVoiceChannel vc = vcb.create().get();
-                    AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(event.getChannel(), vc));
 
-                    DBServer.addAutoChannelChildChannel(vc);
-
-                    //Verschiebt den User in den neuen VC
-                    event.getUser().move(vc).get();
+                    if (userIsConnected(event.getChannel(), event.getUser())) {
+                        AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(event.getChannel(), vc));
+                        DBServer.addAutoChannelChildChannel(vc);
+                        event.getUser().move(vc).get();
+                    } else {
+                        vc.delete();
+                    }
                 }
             }
         } catch (InterruptedException | ExecutionException | SQLException e) {
             e.printStackTrace();
         }
     }
+
+    private boolean userIsConnected(ServerVoiceChannel channel, User user) {
+        return user.getConnectedVoiceChannel(channel.getServer()).isPresent() && user.getConnectedVoiceChannel(channel.getServer()).get().getId() == channel.getId();
+    }
+
 }

@@ -12,7 +12,7 @@ public class ServerLeaveListener {
     public void onServerLeave(ServerLeaveEvent event) {
         try {
             event.getApi().getOwner().get().sendMessage("**---** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
-            Connector.updateActivity(event.getApi());
+            Connector.updateActivity(event.getApi(), event.getApi().getServers().size() - 1);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
