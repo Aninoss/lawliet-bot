@@ -481,4 +481,14 @@ public class Tools {
     public static String getCurrentVersion() {
         return Settings.VERSIONS[Settings.VERSIONS.length - 1];
     }
+
+    public static String getStats(Locale locale, User user) {
+        try {
+            return TextManager.getString(locale, TextManager.GENERAL, "status_" + user.getStatus().getStatusString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error!";
+        }
+    }
+
 }

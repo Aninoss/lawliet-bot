@@ -26,7 +26,7 @@ public class VoiceChannelMemberJoinListener {
     }
 
     public void onJoin(ServerVoiceChannelMemberJoinEvent event) {
-        if (event.getUser().isYourself()) return;
+        if (event.getUser().isYourself() || !event.getChannel().getConnectedUsers().contains(event.getUser())) return;
         try {
             AutoChannelData autoChannelData = DBServer.getAutoChannelFromServer(event.getServer());
             if (autoChannelData.isActive() && event.getChannel().equals(autoChannelData.getVoiceChannel())) {

@@ -59,10 +59,8 @@ public class FisheryCache {
             nextMessageCheck = Instant.now().plusSeconds(20);
 
             messagePhase++;
-            if (messagePhase >= 3 * 10) {
+            if (messagePhase >= 3 * 30) {
                 messagePhase = 0;
-
-                System.out.println("Message Start");
 
                 Map<Long, ActivityUserData> activitesClone;
                 synchronized (this) {
@@ -70,8 +68,6 @@ public class FisheryCache {
                     activities.clear();
                 }
                 if (activitesClone.size() > 0) DBUser.addMessageFishBulk(activitesClone);
-
-                System.out.println("Message End");
             }
         }
     }
@@ -85,8 +81,6 @@ public class FisheryCache {
                 e.printStackTrace();
             }
             nextVCCheck = Instant.now().plusSeconds(5 * 60);
-
-            System.out.println("VC Start");
 
             Map<Long, Long> userVCActivities = Collections.synchronizedMap(new HashMap<>()); //userId, serverId
 
@@ -116,8 +110,6 @@ public class FisheryCache {
             }
 
             if (userVCActivities.size() > 0) DBUser.addVCFishBulk(userVCActivities, 5);
-
-            System.out.println("VC End");
         }
     }
 

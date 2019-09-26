@@ -44,7 +44,7 @@ public class RunningCommandManager {
 
     public RunningCommand find(User user, String commandTrigger) {
         for(RunningCommand runningCommand: runningCommands) {
-            if (runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger)) return runningCommand;
+            if (runningCommand != null && runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger)) return runningCommand;
         }
         return null;
     }

@@ -9,6 +9,9 @@ import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
 import MySQL.DBServer;
 import MySQL.DBUser;
+import com.sun.istack.internal.NotNull;
+import jdk.nashorn.internal.objects.annotations.Getter;
+import jdk.nashorn.internal.objects.annotations.Setter;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -17,6 +20,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -45,6 +49,17 @@ public class BuyCommand extends Command implements onNavigationListener {
                 fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
                 roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
                 singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
+
+                for(Role role: roles) {
+                    if (!Tools.canManageRole(role)) {
+                        event.getServer().get().getOwner().sendMessage(new EmbedBuilder()
+                                .setColor(Color.RED)
+                                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL,"error"))
+                                .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_norolepermissions"))).get();
+                        break;
+                    }
+                }
+
                 return Response.TRUE;
             } else {
                 setState(1);
@@ -66,7 +81,9 @@ public class BuyCommand extends Command implements onNavigationListener {
                     fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
                     roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
 
-                    if (i >= FishingCategoryInterface.ROLE && fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size()) i++;
+                    if (i >= FishingCategoryInterface.ROLE &&
+                            (fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size() || !Tools.canManageRole(roles.get(fishingProfile.find(FishingCategoryInterface.ROLE).getLevel())))
+                    ) i++;
                     FishingSlot slot = fishingProfile.find(i);
 
                     if (fishingProfile.getCoins() >= slot.getPrice()) {
@@ -102,6 +119,7 @@ public class BuyCommand extends Command implements onNavigationListener {
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+
         switch (state) {
             case 0:
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
@@ -114,7 +132,10 @@ public class BuyCommand extends Command implements onNavigationListener {
                 int i = 0;
                 for(FishingSlot slot: fishingProfile.getSlots()) {
                     description = new StringBuilder();
-                    if (slot.getId() != FishingCategoryInterface.ROLE || slot.getLevel() < roles.size()) {
+                    if (slot.getId() != FishingCategoryInterface.ROLE ||
+                            (slot.getLevel() < roles.size() &&
+                                    Tools.canManageRole(roles.get(slot.getLevel()))))
+                    {
                         String productDescription = "???";
                         if (slot.getId() != FishingCategoryInterface.ROLE)
                             productDescription = getString("product_des_" + slot.getId(), Tools.numToString(getLocale(), slot.getDeltaEffect()));

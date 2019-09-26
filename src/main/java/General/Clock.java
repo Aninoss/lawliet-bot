@@ -202,13 +202,7 @@ public class Clock {
 
         //Analyzes Traffic
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
-
-        try {
-            GUI.getInstance().setTraffic(trafficGB);
-            GUI.getInstance().setBotStats(api.getServers().size(), TrackerManager.getSize(), DBSurvey.getCurrentVotesNumber());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Console.getInstance().setTraffic(trafficGB);
 
         if (trafficGB >= 20 && (!trafficWarned || trafficGB >= 40)) {
             try {

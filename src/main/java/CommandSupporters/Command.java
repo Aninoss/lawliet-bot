@@ -9,6 +9,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -17,6 +18,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -222,7 +224,10 @@ public class Command {
                             message != null &&
                             message.getCurrentCachedInstance().isPresent() &&
                             message.getChannel().canYouAddNewReactions() &&
-                            !loadingBlock
+                            !loadingBlock &&
+                            message.getReactions().stream().map(Reaction::getEmoji)
+                                    .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L))) ||
+                                            emoji.equalsEmoji("⏳"))
             ) {
                 loadingStatus = LoadingStatus.ONGOING;
 
@@ -412,7 +417,7 @@ public class Command {
     public boolean isNsfw() { return commandProperties.nsfw(); }
     public boolean isPrivate() { return commandProperties.privateUse(); }
     public boolean isExecutable() { return commandProperties.executable(); }
-    public int getUserPermissions() { return commandProperties.botPermissions(); }
+    public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStatic) {

@@ -20,3 +20,4 @@ modules.xml
 .idea/libraries
 *.iml
 *.sql
+*.log

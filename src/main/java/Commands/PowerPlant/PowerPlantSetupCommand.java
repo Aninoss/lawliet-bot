@@ -20,6 +20,7 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -57,6 +58,14 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
             singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
             announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
             treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
+
+            for(Role role: roles) {
+                if (!Tools.canManageRole(role)) {
+                    setLog(LogStatus.FAILURE, getString("norolepermissions"));
+                    break;
+                }
+            }
+
             return Response.TRUE;
         }
 
@@ -87,6 +96,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                     for (Role role : roleList) {
                         if (!roles.contains(role)) {
                             roles.add(role);
+                            roles.sort(Comparator.comparingInt(Role::getPosition));
                             DBServer.addPowerPlantRoles(event.getServer().get(), role);
                         }
                     }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -378,6 +379,7 @@ public class DBServer {
         resultSet.close();
         preparedStatement.close();
 
+        roleList.sort(Comparator.comparingInt(Role::getPosition));
         return roleList;
     }
 

@@ -14,7 +14,6 @@ import Commands.PowerPlant.*;
 import Commands.ServerManagement.*;
 import Commands.Splatoon2.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.*;
 
@@ -70,6 +69,9 @@ public class CommandContainer {
         commandList.add(DonateCommand.class);
 
         //SERVER MANAGEMENT
+        commandList.add(ServerInfoCommand.class);
+        commandList.add(ChannelInfoCommand.class);
+        commandList.add(UserInfoCommand.class);
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);

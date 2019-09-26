@@ -11,31 +11,41 @@ import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.auditlog.AuditLogEntry;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.entity.server.Server;
 import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class Connector {
+
     public static void main(String[] args) throws IOException, FontFormatException {
-        //Start GUI
-        boolean withGUI = !Bot.isDebug();
-        if (args.length > 0 && args[0].equals("nogui")) withGUI = false;
-        if (withGUI) GUI.getInstance().start();
+        //Redirect error outputs to a file
+        String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
+        File file = new File("data/error_log/" + fileName + "_err.log");
+        FileOutputStream fos = new FileOutputStream(file);
+        PrintStream ps = new PrintStream(fos);
+        System.setErr(ps);
 
         CommunicationServer communicationServer = new CommunicationServer(35555); //Start Communication Server
 
         if (Bot.TEST_MODE) System.out.println("ATTENTION: The bot is running in test mode!");
 
-        new Thread(Console::manageConsole).start(); //Starts Console Listener
+        Console.getInstance().start(); //Starts Console Listener
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
@@ -82,48 +92,98 @@ public class Connector {
 
                 System.out.println("The bot has been successfully booten up!");
 
-                api.addMessageCreateListener(event ->
-                    new Thread(() -> new MessageCreateListener().onMessageCreate(event)).start()
-                );
-                api.addMessageEditListener(event ->
-                        new Thread(() -> new MessageEditListener().onMessageEdit(event)).start()
-                );
-                api.addMessageDeleteListener(event ->
-                        new Thread(() -> new MessageDeleteListener().onMessageDelete(event)).start()
-                );
-                api.addReactionAddListener(event ->
-                        new Thread(() -> new ReactionAddListener().onReactionAdd(event)).start()
-                );
-                api.addReactionRemoveListener(event ->
-                        new Thread(() -> new ReactionRemoveListener().onReactionRemove(event)).start()
-                );
-                api.addServerVoiceChannelMemberJoinListener(event ->
-                        new Thread(() -> new VoiceChannelMemberJoinListener().onJoin(event)).start()
-                );
-                api.addServerVoiceChannelMemberLeaveListener(event ->
-                        new Thread(() -> new VoiceChannelMemberLeaveListener().onLeave(event)).start()
-                );
-                api.addServerMemberJoinListener(event ->
-                        new Thread(() -> new ServerMemberJoinListener().onJoin(event)).start()
-                );
-                api.addServerMemberLeaveListener(event ->
-                        new Thread(() -> new ServerMemberLeaveListener().onLeave(event)).start()
-                );
-                api.addServerChannelDeleteListener(event ->
-                        new Thread(() -> new ServerChannelDeleteListener().onDelete(event)).start()
-                );
-                api.addServerJoinListener(event ->
-                        new Thread(() -> new ServerJoinListener().onServerJoin(event)).start()
-                );
-                api.addServerLeaveListener(event ->
-                        new Thread(() -> new ServerLeaveListener().onServerLeave(event)).start()
-                );
-                api.addReconnectListener(event ->
-                        new Thread(() -> onSessionResume(event.getApi())).run()
-                );
+                api.addMessageCreateListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new MessageCreateListener().onMessageCreate(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addMessageEditListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new MessageEditListener().onMessageEdit(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addMessageDeleteListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new MessageDeleteListener().onMessageDelete(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addReactionAddListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ReactionAddListener().onReactionAdd(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addReactionRemoveListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ReactionRemoveListener().onReactionRemove(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerVoiceChannelMemberJoinListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new VoiceChannelMemberJoinListener().onJoin(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerVoiceChannelMemberLeaveListener(event -> {
+                    Thread t = new Thread(() -> new VoiceChannelMemberLeaveListener().onLeave(event));
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerMemberJoinListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ServerMemberJoinListener().onJoin(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerMemberLeaveListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ServerMemberLeaveListener().onLeave(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerChannelDeleteListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ServerChannelDeleteListener().onDelete(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerJoinListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ServerJoinListener().onServerJoin(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addServerLeaveListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new ServerLeaveListener().onServerLeave(event);
+                    });
+                    addUncaughtException(t);
+                    t.start();
+                });
+                api.addReconnectListener(event -> {
+                    Thread t = new Thread(() -> onSessionResume(event.getApi()));
+                    addUncaughtException(t);
+                    t.run();
+                });
 
                 if (!Bot.isDebug()) {
-                    new Thread(() -> Clock.tick(api)).start();
+                    Thread t = new Thread(() -> Clock.tick(api));
+                    addUncaughtException(t);
+                    t.start();
                 }
 
                 updateActivity(api);
@@ -172,5 +232,9 @@ public class Connector {
     private static void onSessionResume(DiscordApi api) {
         System.out.println("Connection has been reestablished!");
         updateActivity(api);
+    }
+
+    private static void addUncaughtException(Thread t) {
+        t.setUncaughtExceptionHandler((t1, e) -> System.err.println(t1.toString() + " has thrown an exception: " + e.getMessage()));
     }
 }

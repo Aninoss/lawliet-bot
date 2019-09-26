@@ -172,7 +172,7 @@ public class ImageCreator {
             drawRectShadow(g2d, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30);
             if (profilePicture != null) g2d.drawImage(profilePicture, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30, null);
 
-            Font font = new Font("LucidaSans", Font.PLAIN, 20);
+            Font font = new Font("LucidaSans", Font.PLAIN, 19);
             Font fontWelcome = new Font("Oswald", Font.PLAIN, 28);
 
             int drawX = BASE_HEIGHT - 15 + (BASE_WIDTH - BASE_HEIGHT + 15) / 2;

@@ -26,6 +26,6 @@ public class KickCommand extends WarnCommand  {
 
     @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
-        return server.canYouKickUser(userAim) && server.canBanUser(userStarter, userAim);
+        return server.canYouKickUser(userAim) && server.canBanUser(userStarter, userAim) && !server.isOwner(userAim);
     }
 }

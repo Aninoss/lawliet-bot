@@ -8,7 +8,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "yurifuck",
         emoji = "\uD83D\uDC69\uD83D\uDECF\uD83D\uDC69️",
-        executable = false
+        executable = false,
+        nsfw = true
 )
 public class YuriFuckCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
