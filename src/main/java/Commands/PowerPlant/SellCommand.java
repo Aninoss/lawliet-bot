@@ -15,8 +15,10 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "sell",
@@ -63,6 +65,11 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
         long value = Tools.filterNumberFromString(argString);
 
+        if (argString.equalsIgnoreCase("no")) {
+            markNoInterest(event.getServerTextChannel().get());
+            return true;
+        }
+
         if (argString.toLowerCase().contains("all")) {
             value = fishingProfile.getFish();
             if (value == 0) {
@@ -88,7 +95,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         return false;
     }
 
-    private void sendMessage(ServerTextChannel channel, EmbedBuilder embedBuilder) throws Throwable {
+    private void sendMessage(ServerTextChannel channel, EmbedBuilder embedBuilder) throws ExecutionException, InterruptedException {
         if (message != null) message.edit(embedBuilder).get();
         else channel.sendMessage(embedBuilder).get();
         message = null;
@@ -142,10 +149,14 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals("❌")) {
-            removeMessageForwarder();
-            removeReactionListener();
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(getLocale(), getExchangeRate(0)), getChangeEmoji()), getString("nointerest_title")));
+            markNoInterest(event.getServerTextChannel().get());
         }
+    }
+
+    private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
+        removeMessageForwarder();
+        removeReactionListener();
+        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(getLocale(), getExchangeRate(0)), getChangeEmoji()), getString("nointerest_title")));
     }
 
     @Override
