@@ -39,6 +39,7 @@ public class BuyCommand extends Command implements onNavigationListener {
     private ArrayList<Role> roles;
     private FishingProfile fishingProfile;
     private int numberReactions = 0;
+    private boolean treasureChests;
     private boolean singleRole;
 
     @Override
@@ -49,6 +50,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                 fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
                 roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
                 singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
+                treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
 
                 for(Role role: roles) {
                     if (!Tools.canManageRole(role)) {
@@ -81,6 +83,10 @@ public class BuyCommand extends Command implements onNavigationListener {
                     fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
                     roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
 
+                    //Skip treasure chests if they aren't active
+                    if (i >= FishingCategoryInterface.PER_TREASURE && !treasureChests) i++;
+
+                    //Skip role if it shouldn't be bought
                     if (i >= FishingCategoryInterface.ROLE &&
                             (fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size() || !Tools.canManageRole(roles.get(fishingProfile.find(FishingCategoryInterface.ROLE).getLevel())))
                     ) i++;
@@ -132,10 +138,12 @@ public class BuyCommand extends Command implements onNavigationListener {
                 int i = 0;
                 for(FishingSlot slot: fishingProfile.getSlots()) {
                     description = new StringBuilder();
-                    if (slot.getId() != FishingCategoryInterface.ROLE ||
+                    if (
+                            (slot.getId() != FishingCategoryInterface.ROLE ||
                             (slot.getLevel() < roles.size() &&
-                                    Tools.canManageRole(roles.get(slot.getLevel()))))
-                    {
+                                    Tools.canManageRole(roles.get(slot.getLevel())))) &&
+                            (slot.getId() != FishingCategoryInterface.PER_TREASURE || treasureChests)
+                    ) {
                         String productDescription = "???";
                         if (slot.getId() != FishingCategoryInterface.ROLE)
                             productDescription = getString("product_des_" + slot.getId(), Tools.numToString(getLocale(), slot.getDeltaEffect()));

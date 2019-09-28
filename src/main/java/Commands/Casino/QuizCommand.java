@@ -96,7 +96,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
             winMultiplicator = answers.length * (difficulty+1) / 8.0;
 
             message = event.getChannel().sendMessage(getEmbed()).get();
-            new Thread(this::countdown).start();
+            Thread t = new Thread(this::countdown);
 
             for(int i=0; i<answers.length; i++) message.addReaction(LetterEmojis.LETTERS[i]);
 
@@ -106,6 +106,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
     }
 
     private void countdown() {
+        Thread.currentThread().setName("activity_countdown");
         try {
             Thread.sleep(COUNTER * 1000);
             if (active) {
@@ -131,7 +132,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
         answerSelected = selected;
         message.edit(getEmbed());
 
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             try {
                 Thread.sleep(Settings.TIME_OUT_TIME);
             } catch (InterruptedException e) {
@@ -142,7 +143,9 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        t.setName("quiz_countdown");
+        t.start();
     }
 
     private EmbedBuilder getEmbed() throws IOException {

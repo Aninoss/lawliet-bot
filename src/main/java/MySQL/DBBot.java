@@ -2,6 +2,7 @@ package MySQL;
 
 import General.Bot;
 import General.Fishing.FishingRecords;
+import General.RankingSlot;
 import General.Tools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
@@ -22,9 +23,12 @@ import org.javacord.api.entity.user.User;
 
 public class DBBot {
     public static void synchronize(DiscordApi api) throws SQLException {
-        System.out.println("Fishing data has been cleaned...");
         cleanUp();
         startTrackers(api);
+        Thread t = new Thread(() -> DBBot.updateInactiveServerMembers(api));
+        t.setPriority(1);
+        t.setName("update_inactive_server_members");
+        t.start();
     }
 
     public static String getCurrentVersions() throws SQLException {
@@ -248,6 +252,26 @@ public class DBBot {
         preparedStatement.setInt(2, DiscordbotsAPI.getInstance().getMonthlyUpvotes());
         preparedStatement.execute();
         preparedStatement.close();
+    }
+
+    public static void updateInactiveServerMembers(DiscordApi api) {
+        for(Server server: api.getServers()) {
+            ArrayList<Long> userIds = new ArrayList<>();
+            for(User user: server.getMembers()) {
+                userIds.add(user.getId());
+            }
+
+            try {
+                for(RankingSlot rankingSlot: DBServer.getPowerPlantRankings(server)) {
+                    if (!userIds.contains(rankingSlot.getUserId())) {
+                        System.out.println(server.getName() + " | " + rankingSlot.getUserId());
+                        DBUser.updateOnServerStatus(server, rankingSlot.getUserId(), false);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

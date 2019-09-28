@@ -50,7 +50,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                 stage = 0;
 
                 final AutoKickCommand thisInstance = this;
-                new Thread(() -> {
+                Thread t= new Thread(() -> {
                     try {
                         Server server = event.getServer().get();
                         HashMap<User, Instant> map = new HashMap<>();
@@ -106,7 +106,9 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                     } catch (Throwable e) {
                         ExceptionHandler.handleException(e, getLocale(), event.getServerTextChannel().get());
                     }
-                }).start();
+                });
+                t.setName("autokick_processor");
+                t.start();
                 return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,

@@ -26,9 +26,18 @@ public class Console {
     }
 
     public void start() {
-        new Thread(this::manageConsole).start();
-        new Thread(this::startAutoPrint).start();
-        new Thread(this::trackMemory).start();
+        Thread t1 = new Thread(this::manageConsole);
+        t1.setName("console");
+        t1.setPriority(1);
+        t1.start();
+        Thread t2 = new Thread(this::startAutoPrint);
+        t2.setName("console_autostats");
+        t2.setPriority(1);
+        t2.start();
+        Thread t3 = new Thread(this::trackMemory);
+        t3.setName("console_memorytracker");
+        t3.setPriority(1);
+        t3.start();
     }
 
     private void manageConsole() {
@@ -45,6 +54,19 @@ public class Console {
 
                             case "stats":
                                 System.out.println(getStats());
+                                break;
+
+                            case "threads":
+                                StringBuilder sb = new StringBuilder();
+                                for(Thread t: Thread.getAllStackTraces().keySet())
+                                    sb.append(t.getName()).append(", ");
+
+                                String str = sb.toString();
+                                str = str.substring(0, str.length() - 2);
+
+                                System.out.println("\n--- THREADS (" + Thread.getAllStackTraces().size() + ") ---");
+                                System.out.println(str + "\n");
+
                                 break;
                         }
                     }

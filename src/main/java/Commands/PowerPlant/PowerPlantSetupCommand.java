@@ -190,7 +190,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                             singleRole = !singleRole;
                             DBServer.savePowerPlantSingleRole(server, singleRole);
 
-                            new Thread(() -> {
+                            Thread t = new Thread(() -> {
                                 busyServers.add(server);
 
                                 if (singleRole) {
@@ -226,7 +226,9 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                                 }
 
                                 busyServers.remove(server);
-                            }).start();
+                            });
+                            t.setName("fishery_role_updater");
+                            t.start();
 
                             setLog(LogStatus.SUCCESS, getString("singleroleset", singleRole));
                             return true;
@@ -257,7 +259,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                             if (!busyServers.contains(server)) {
                                 status = PowerPlantStatus.STOPPED;
                                 DBServer.removePowerPlant(server);
-                                new Thread(() -> {
+                                Thread t = new Thread(() -> {
                                     busyServers.add(server);
 
                                     for (User user : event.getServer().get().getMembers()) {
@@ -273,7 +275,9 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                                     }
 
                                     busyServers.remove(server);
-                                }).start();
+                                });
+                                t.setName("fishery_role_updater");
+                                t.start();
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                                 return true;
                             } else {
@@ -417,14 +421,16 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
 
                 if (resultInt == 0 && message.getChannel().canYouWrite()) event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0L, won)).get();
 
-                new Thread(() -> {
+                Thread t = new Thread(() -> {
                     try {
                         Thread.sleep(1000 * 60);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     blockedTreasureMessages.remove(message);
-                }).start();
+                });
+                t.setName("treasure_block_countdown");
+                t.start();
             }
         } else {
             event.removeReaction();

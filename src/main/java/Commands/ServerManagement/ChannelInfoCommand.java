@@ -58,8 +58,8 @@ public class ChannelInfoCommand extends Command implements onRecievedListener {
                     Tools.numToString(getLocale(), members.stream().filter(User::isBot).count())
             };
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args)).
-                    setThumbnail(server.getIcon().get());
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));
+            if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
             if (noMention) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
 
             event.getServerTextChannel().get().sendMessage(eb).get();

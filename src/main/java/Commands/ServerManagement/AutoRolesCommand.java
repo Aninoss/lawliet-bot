@@ -196,7 +196,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     }
 
     private void transferRoles(Server server, ArrayList<Role> roles) {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             busyServers.add(server);
 
             for (User user : server.getMembers()) {
@@ -206,11 +206,13 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
             }
 
             busyServers.remove(server);
-        }).start();
+        });
+        t.setName("autoroles_transfering");
+        t.start();
     }
 
     private void removeRoles(Server server, ArrayList<Role> roles) {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             busyServers.add(server);
 
             for (User user : server.getMembers()) {
@@ -220,6 +222,8 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
             }
 
             busyServers.remove(server);
-        }).start();
+        });
+        t.setName("autoroles_transfering");
+        t.start();
     }
 }

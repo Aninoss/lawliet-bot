@@ -39,7 +39,6 @@ public class MessageCreateListener {
     public MessageCreateListener() {}
 
     public void onMessageCreate(MessageCreateEvent event) {
-        System.out.print("message.");
         if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;
 
         if (!event.getServer().isPresent()) {
@@ -74,8 +73,6 @@ public class MessageCreateListener {
             }
         }
 
-        System.out.println(".done");
-
         try {
             if (manageForwardedMessages(event)) return;
 
@@ -104,7 +101,7 @@ public class MessageCreateListener {
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
                         Locale locale = DBServer.getServerLocale(event.getServer().get());
-                        if (event.getChannel().canYouWrite() || commandTrigger.equalsIgnoreCase("help")) {
+                        if (event.getChannel().canYouWrite() || (commandTrigger.equalsIgnoreCase("help") && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
                             if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
                                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
 

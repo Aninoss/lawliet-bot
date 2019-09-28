@@ -4,6 +4,7 @@ import Commands.PowerPlant.SellCommand;
 import Commands.PowerPlant.SurveyCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
+import General.RunningCommands.RunningCommandManager;
 import MySQL.*;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import ServerStuff.Donations.DonationServer;
@@ -35,7 +36,7 @@ public class Clock {
 
     public static void tick(DiscordApi api) {
         //Start 10 Minutes Event Loop
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             while(true) {
                 every10Minutes(api);
                 try {
@@ -45,7 +46,9 @@ public class Clock {
                     break;
                 }
             }
-        }).start();
+        });
+        t.setName("clock_10min");
+        t.start();
 
         try {
             while (true) {
@@ -59,18 +62,21 @@ public class Clock {
     }
 
     private static void onHourStart(DiscordApi api) {
-        Connector.updateActivity(api);
-
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             onDayStart(api);
         } else if (calendar.get(Calendar.HOUR_OF_DAY) == 1) {
-            //Backup Database
-            try {
-                DBMain.backupAll();
-            } catch (IOException | SQLException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            Thread t = new Thread(() -> {
+                //Backup Database
+                try {
+                    DBMain.backupAll();
+                } catch (IOException | SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
+            t.setPriority(1);
+            t.setName("database_backup");
+            t.start();
         }
     }
 
@@ -79,6 +85,7 @@ public class Clock {
         SellCommand.resetCoinsPerFish(); //Reset Fishery Exchange Rate
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
+        RunningCommandManager.getInstance().clear(); //Resets Running Commands
 
         //Survey Results
         Calendar calendar = Calendar.getInstance();
@@ -160,13 +167,16 @@ public class Clock {
                             }
                         }
 
-                        new Thread(() -> {
+                        Thread t = new Thread(() -> {
                             try {
                                 slot.getUser().sendMessage(eb).get();
                             } catch (InterruptedException | ExecutionException e) {
                                 //Ignore
                             }
-                        }).start();
+                        });
+                        t.setName("survey_notif_sender");
+                        t.setPriority(5);
+                        t.start();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -219,6 +229,9 @@ public class Clock {
 
         //Checks Database Connection
         if (!DBMain.getInstance().checkConnection()) DBMain.getInstance().connect();
+
+        //Updates Activity
+        Connector.updateActivity(api);
 
         //Updates Discord Bots Server Count
         DiscordbotsAPI.getInstance().updateServerCount(api);

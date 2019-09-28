@@ -13,14 +13,16 @@ public class MultithreadInternet {
         downloaded = 0;
         for(int i=0; i<urlStrings.length; i++) {
             final int j = i;
-            new Thread(() -> {
+            Thread t = new Thread(() -> {
                 try {
                     returnStrings[j] = Internet.getData(urlStrings[j]);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 downloaded++;
-            }).start();
+            });
+            t.setName("multithread_download");
+            t.start();
         }
         return this;
     }

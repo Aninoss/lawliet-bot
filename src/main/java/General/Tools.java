@@ -283,14 +283,16 @@ public class Tools {
     public static URL getURLFromInputStream(DiscordApi api, InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = Shortcuts.getHomeServer(api).getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
-        new Thread(() -> {
+        Thread t =new Thread(() -> {
             try {
                 Thread.sleep(10000);
                 message.delete();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        t.setName("message_delete_counter");
+        t.start();
         return url;
     }
 
@@ -499,4 +501,7 @@ public class Tools {
         }
     }
 
+    public static boolean canSendPrivateMessage(User user) {
+        return user.getPrivateChannel().isPresent() && user.getPrivateChannel().get().canYouWrite();
+    }
 }

@@ -9,6 +9,7 @@ import org.javacord.api.entity.user.UserStatus;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,11 +33,12 @@ public class FisheryCache {
     private FisheryCache() {
         Thread t = new Thread(this::messageCollector);
         t.setPriority(1);
+        t.setName("message_collector");
         t.start();
     }
 
     public void addActivity(User user, ServerTextChannel channel) {
-        synchronized (this) {
+        //synchronized (this) {
             int count = 0;
             if (userMessageCount.containsKey(user.getId())) count = userMessageCount.get(user.getId());
 
@@ -47,7 +49,7 @@ public class FisheryCache {
                     userMessageCount.put(user.getId(), count + 1);
                 activities.put(user.getId(), activityUserData);
             }
-        }
+        //}
     }
 
     private void messageCollector() {
@@ -61,15 +63,29 @@ public class FisheryCache {
             nextMessageCheck = Instant.now().plusSeconds(20);
 
             messagePhase++;
-            if (messagePhase >= 3 * 30) {
+            if (messagePhase >= 3 * 15) {
                 messagePhase = 0;
 
-                Map<Long, ActivityUserData> activitesClone;
+                Map<Long, ActivityUserData> activitesClone = null;
                 System.out.print("0");
-                synchronized (this) {
-                    activitesClone = new HashMap<>(activities);
-                    activities.clear();
+                //synchronized (this) {
+                boolean finished = false;
+                while (!finished) {
+                    try {
+                        activitesClone = new HashMap<>(activities);
+                        activities.clear();
+                        finished = true;
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                 }
+                
+                //}
                 System.out.print("1");
                 if (activitesClone.size() > 0) DBUser.addMessageFishBulk(activitesClone);
                 System.out.print("2");
@@ -90,25 +106,28 @@ public class FisheryCache {
             Map<Long, Long> userVCActivities = Collections.synchronizedMap(new HashMap<>()); //userId, serverId
 
             for(Server server: api.getServers()) {
-                for(ServerVoiceChannel channel: server.getVoiceChannels()) {
-                    int connectedUsers = 0;
-                    for(User user: channel.getConnectedUsers())
-                        if (!user.isBot()) connectedUsers++;
+                for (ServerVoiceChannel channel : server.getVoiceChannels()) {
+                    ArrayList<User> validUsers = new ArrayList<>();
+                    for (User user : channel.getConnectedUsers()) {
+                        if (!user.isBot() &&
+                                !user.isMuted(server) &&
+                                !user.isDeafened(server) &&
+                                !user.isSelfDeafened(server)
+                        ) {
+                            validUsers.add(user);
+                        }
+                    }
 
-                    if (connectedUsers > 1 &&
+                    if (validUsers.size() > 1 &&
                             (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
                     ) {
-                        for(User user: channel.getConnectedUsers()) {
-                            if (!user.isBot() &&
-                                    (!userVCCount.containsKey(user.getId()) || userVCCount.get(user.getId()) < 60)
-                            ) {
-                                int count = 0;
-                                if (userVCCount.containsKey(user.getId())) count = userVCCount.get(user.getId());
-                                count++;
+                        for (User user : validUsers) {
+                            int count = 0;
+                            if (userVCCount.containsKey(user.getId())) count = userVCCount.get(user.getId());
+                            count++;
 
-                                userVCCount.put(user.getId(), count);
-                                userVCActivities.put(user.getId(), server.getId());
-                            }
+                            userVCCount.put(user.getId(), count);
+                            userVCActivities.put(user.getId(), server.getId());
                         }
                     }
                 }
@@ -121,10 +140,11 @@ public class FisheryCache {
     public void startVCCollector(DiscordApi api) {
         Thread t = new Thread(() -> VCCollector(api));
         t.setPriority(1);
+        t.setName("vc_collector");
         t.start();
     }
 
-    public synchronized void reset() {
+    public void reset() {
         userMessageCount = Collections.synchronizedMap(new HashMap<>());
         userVCCount = Collections.synchronizedMap(new HashMap<>());
     }

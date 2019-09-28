@@ -24,7 +24,7 @@ public class DBUser {
         if (!Bot.isDebug()) {
             System.out.println("User werden synchronisiert...");
 
-            new Thread(() -> {
+            Thread t = new Thread(() -> {
                 ArrayList<Long> userList = new ArrayList<>();
 
                 for (Server server : api.getServers()) {
@@ -53,7 +53,10 @@ public class DBUser {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }).start();
+            });
+
+            t.setName("synchr_user");
+            t.start();
         }
     }
 

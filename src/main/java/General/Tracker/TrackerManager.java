@@ -70,15 +70,16 @@ public class TrackerManager {
     }
 
     public static void startTracker(TrackerData trackerData) {
-        Thread thread = new Thread(() -> {
+        Thread t = new Thread(() -> {
             try {
                 TrackerManager.manageTracker(trackerData);
             } catch (InstantiationException | SQLException | InterruptedException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         });
-        thread.start();
-        trackerConnections.add(new TrackerConnection(trackerData, thread));
+        t.setName("tracker");
+        t.start();
+        trackerConnections.add(new TrackerConnection(trackerData, t));
     }
 
     public static void stopTracker(TrackerData trackerData) throws SQLException {

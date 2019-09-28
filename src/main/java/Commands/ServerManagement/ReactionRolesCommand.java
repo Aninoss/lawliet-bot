@@ -8,6 +8,7 @@ import Constants.Response;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
 import General.Mention.MentionFinder;
+import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
@@ -27,6 +28,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -150,13 +152,17 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                                     }
                                 }
 
-                                getNavigationMessage().addReaction(inputString).get();
-                                if (remove) Thread.sleep(1000);
-                                for(Reaction reaction: getNavigationMessage().getLatestInstance().get().getReactions()) {
-                                    if (reaction.getEmoji().getMentionTag().equals(inputString)) {
-                                        if (remove) reaction.remove();
-                                        if (calculateEmoji(reaction.getEmoji())) return Response.TRUE;
-                                        break;
+                                List<String> emojis = EmojiParser.extractEmojis(inputString);
+
+                                if (emojis.size() > 0) {
+                                    getNavigationMessage().addReaction(emojis.get(0)).get();
+                                    if (remove) Thread.sleep(1000);
+                                    for (Reaction reaction : getNavigationMessage().getLatestInstance().get().getReactions()) {
+                                        if (reaction.getEmoji().getMentionTag().equals(inputString)) {
+                                            if (remove) reaction.remove();
+                                            if (calculateEmoji(reaction.getEmoji())) return Response.TRUE;
+                                            break;
+                                        }
                                     }
                                 }
                             } catch (InterruptedException | ExecutionException e) {

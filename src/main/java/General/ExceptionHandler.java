@@ -36,6 +36,7 @@ public class ExceptionHandler {
         } else if (errorMessage.contains("Server returned HTTP response code: 5")) {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
+                showError = false;
             } catch (Throwable throwable1) {
                 throwable1.printStackTrace();
             }
@@ -86,10 +87,4 @@ public class ExceptionHandler {
         }
     }
 
-    public static void handleUncaughtException(Locale locale, TextChannel channel, Runnable runnable) {
-        Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
-            handleException(e, locale, channel);
-            if (runnable != null) runnable.run();
-        });
-    }
 }

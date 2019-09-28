@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-        trigger = "account",
+        trigger = "acc",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
         emoji = "\uD83D\uDE4B",
         executable = true,
-        aliases = {"profile", "profil"}
+        aliases = {"profile", "profil", "account"}
 )
 public class AccountCommand extends Command implements onRecievedListener {
 
@@ -48,7 +48,7 @@ public class AccountCommand extends Command implements onRecievedListener {
             }
             boolean userMentioned = true;
             boolean userBefore = list.size() > 0;
-            for(User user: (ArrayList<User>)list.clone()) {
+            for(User user: (ArrayList<User>) list.clone()) {
                 if (user.isBot()) list.remove(user);
             }
             if (list.size() == 0) {

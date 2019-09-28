@@ -99,6 +99,7 @@ public class Connector {
                         new MessageCreateListener().onMessageCreate(event);
                     });
                     addUncaughtException(t);
+                    t.setName("message_create");
                     t.start();
                 });
                 api.addMessageEditListener(event -> {
@@ -106,6 +107,7 @@ public class Connector {
                         new MessageEditListener().onMessageEdit(event);
                     });
                     addUncaughtException(t);
+                    t.setName("message_edit");
                     t.start();
                 });
                 api.addMessageDeleteListener(event -> {
@@ -113,6 +115,7 @@ public class Connector {
                         new MessageDeleteListener().onMessageDelete(event);
                     });
                     addUncaughtException(t);
+                    t.setName("message_delete");
                     t.start();
                 });
                 api.addReactionAddListener(event -> {
@@ -120,6 +123,7 @@ public class Connector {
                         new ReactionAddListener().onReactionAdd(event);
                     });
                     addUncaughtException(t);
+                    t.setName("reaction_add");
                     t.start();
                 });
                 api.addReactionRemoveListener(event -> {
@@ -127,6 +131,7 @@ public class Connector {
                         new ReactionRemoveListener().onReactionRemove(event);
                     });
                     addUncaughtException(t);
+                    t.setName("reaction_remove");
                     t.start();
                 });
                 api.addServerVoiceChannelMemberJoinListener(event -> {
@@ -134,11 +139,13 @@ public class Connector {
                         new VoiceChannelMemberJoinListener().onJoin(event);
                     });
                     addUncaughtException(t);
+                    t.setName("vc_member_join");
                     t.start();
                 });
                 api.addServerVoiceChannelMemberLeaveListener(event -> {
                     Thread t = new Thread(() -> new VoiceChannelMemberLeaveListener().onLeave(event));
                     addUncaughtException(t);
+                    t.setName("vc_member_leave");
                     t.start();
                 });
                 api.addServerMemberJoinListener(event -> {
@@ -146,6 +153,7 @@ public class Connector {
                         new ServerMemberJoinListener().onJoin(event);
                     });
                     addUncaughtException(t);
+                    t.setName("member_join");
                     t.start();
                 });
                 api.addServerMemberLeaveListener(event -> {
@@ -153,6 +161,7 @@ public class Connector {
                         new ServerMemberLeaveListener().onLeave(event);
                     });
                     addUncaughtException(t);
+                    t.setName("member_leave");
                     t.start();
                 });
                 api.addServerChannelDeleteListener(event -> {
@@ -160,6 +169,7 @@ public class Connector {
                         new ServerChannelDeleteListener().onDelete(event);
                     });
                     addUncaughtException(t);
+                    t.setName("channel_delete");
                     t.start();
                 });
                 api.addServerJoinListener(event -> {
@@ -167,6 +177,7 @@ public class Connector {
                         new ServerJoinListener().onServerJoin(event);
                     });
                     addUncaughtException(t);
+                    t.setName("server_join");
                     t.start();
                 });
                 api.addServerLeaveListener(event -> {
@@ -174,6 +185,7 @@ public class Connector {
                         new ServerLeaveListener().onServerLeave(event);
                     });
                     addUncaughtException(t);
+                    t.setName("server_leave");
                     t.start();
                 });
                 api.addReconnectListener(event -> {
@@ -184,7 +196,9 @@ public class Connector {
 
                 if (!Bot.isDebug()) {
                     Thread t = new Thread(() -> Clock.tick(api));
+                    t.setPriority(2);
                     addUncaughtException(t);
+                    t.setName("clock");
                     t.start();
                 }
 
@@ -196,7 +210,7 @@ public class Connector {
         } else {
             System.out.println("The bot has been successfully booten up!");
 
-            //DOES NOTHING RIGHT NOW
+            //DO NOTHING
 
             api.disconnect();
             System.out.println("Bot has been disconnected.");
@@ -205,34 +219,23 @@ public class Connector {
         }
     }
 
-    //Not used in the final version
-    private static void updateInactiveServerMembers(DiscordApi api) {
-        for(Server server: api.getServers()) {
-            ArrayList<Long> userIds = new ArrayList<>();
-            for(User user: server.getMembers()) {
-                userIds.add(user.getId());
-            }
-
-            try {
-                for(RankingSlot rankingSlot: DBServer.getPowerPlantRankings(server)) {
-                    if (!userIds.contains(rankingSlot.getUserId())) {
-                        System.out.println(server.getName() + " | " + rankingSlot.getUserId());
-                        DBUser.updateOnServerStatus(server, rankingSlot.getUserId(), false);
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static void updateActivity(DiscordApi api) {
         updateActivity(api, api.getServers().size());
     }
 
     public static void updateActivity(DiscordApi api, int serverNumber) {
-        api.updateStatus(UserStatus.ONLINE);
-        api.updateActivity("L.help | " + Tools.numToString(serverNumber) + " Servers | v"+ Tools.getCurrentVersion());
+        if (!Bot.isRestartPending()) {
+            if (DBMain.getInstance().checkConnection()) {
+                api.updateStatus(UserStatus.ONLINE);
+                api.updateActivity("L.help | " + Tools.numToString(serverNumber) + " Servers | v" + Tools.getCurrentVersion());
+            } else {
+                api.updateStatus(UserStatus.DO_NOT_DISTURB);
+                api.updateActivity("ERROR - DATABASE DOWN");
+            }
+        } else {
+            api.updateStatus(UserStatus.DO_NOT_DISTURB);
+            api.updateActivity("BOT RESTARTS SOON");
+        }
     }
 
     private static void onSessionResume(DiscordApi api) {

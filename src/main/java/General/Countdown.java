@@ -20,7 +20,7 @@ public class Countdown {
             case MINUTES: waitTime = value * 1000 * 5; break;
         }
 
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             while(System.currentTimeMillis() < (startTime + waitTime) && active) {
                 try {
                     Thread.sleep(1000);
@@ -29,7 +29,9 @@ public class Countdown {
                 }
             }
             if (active) r.run();
-        }).start();
+        });
+        t.setName("countdown_processor");
+        t.start();
     }
 
     public void reset() {

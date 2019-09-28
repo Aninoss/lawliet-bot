@@ -11,7 +11,9 @@ public class WebhookServer {
 
     public WebhookServer(int port) {
         this.port = port;
-        new Thread(this::run).start();
+        Thread t = new Thread(this::run);
+        t.setName("webhook_server");
+        t.start();
     }
 
     public void onServerStart() {

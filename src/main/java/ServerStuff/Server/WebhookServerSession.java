@@ -16,7 +16,9 @@ public class WebhookServerSession {
             this.auth = SecretManager.getString(authKey);
             this.socket = socket;
             this.inputStream = socket.getInputStream();
-            new Thread(this::run).start();
+            Thread t = new Thread(this::run);
+            t.setName("webhook_session");
+            t.start();
         } catch (IOException e) {
             e.printStackTrace();
         }

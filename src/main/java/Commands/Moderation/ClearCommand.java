@@ -71,7 +71,7 @@ public class ClearCommand extends Command implements onRecievedListener {
 
             Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("finished_description", deleted != 1, String.valueOf(deleted)))
                     .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "10"))).get();
-            new Thread(() -> {
+            Thread t = new Thread(() -> {
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
@@ -79,7 +79,9 @@ public class ClearCommand extends Command implements onRecievedListener {
                 }
                 Message[] messagesArray = new Message[]{m,event.getMessage()};
                 event.getChannel().bulkDelete(messagesArray);
-            }).start();
+            });
+            t.setName("clear_countdown");
+            t.start();
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,

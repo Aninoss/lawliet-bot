@@ -30,13 +30,15 @@ public class CommandManager {
                         if (Cooldown.getInstance().canPost(event.getMessageAuthor().asUser().get())) {
                             //Add command usage to database
                             if (!Bot.isDebug()) {
-                                new Thread(() -> {
+                                Thread t = new Thread(() -> {
                                     try {
                                         DBBot.addCommandUsage(command.getTrigger());
                                     } catch (SQLException e) {
                                         e.printStackTrace();
                                     }
-                                }).start();
+                                });
+                                t.setName("command_usage_add");
+                                t.start();
                             }
 
                             if (event.getServer().isPresent()) cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
@@ -175,7 +177,7 @@ public class CommandManager {
     }
 
     private static void manageSlowCommandLoadingReaction(Command command, Message userMessage) {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             try {
                 Thread.sleep(1000);
 
@@ -185,7 +187,9 @@ public class CommandManager {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        t.setName("command_slow_loading_reaction_countdown");
+        t.start();
     }
 
     public static Command createCommandByTrigger(String trigger) throws IllegalAccessException, InstantiationException {

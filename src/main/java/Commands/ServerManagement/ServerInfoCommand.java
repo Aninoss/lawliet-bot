@@ -7,6 +7,7 @@ import General.EmbedFactory;
 import General.Tools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -47,10 +48,10 @@ public class ServerInfoCommand extends Command implements onRecievedListener {
                 Tools.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerVoiceChannel().isPresent()).count())
         };
 
-        event.getServerTextChannel().get().sendMessage(
-                EmbedFactory.getCommandEmbedStandard(this, getString("template", args)).
-                        setThumbnail(server.getIcon().get())
-        ).get();
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));
+        if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
+
+        event.getServerTextChannel().get().sendMessage(eb).get();
         return true;
     }
 

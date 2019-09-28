@@ -45,6 +45,8 @@ public class Command {
     }
 
     public void onRecievedSuper(MessageCreateEvent event, String followedString) {
+        updateThreadName();
+
         starterMessage = event.getMessage();
         if (commandProperties.withLoadingBar()) addLoadingReaction();
 
@@ -81,6 +83,8 @@ public class Command {
     }
 
     public void onReactionAddSuper(SingleReactionEvent event) {
+        updateThreadName();
+
         if (commandProperties.withLoadingBar()) addLoadingReaction();
         if (countdown != null) countdown.reset();
 
@@ -92,6 +96,8 @@ public class Command {
     }
 
     public void onForwardedRecievedSuper(MessageCreateEvent event) {
+        updateThreadName();
+
         boolean successful = false;
         if (commandProperties.withLoadingBar()) addLoadingReaction(event.getMessage());
         if (countdown != null) countdown.reset();
@@ -107,6 +113,7 @@ public class Command {
     }
 
     public boolean onNavigationMessageSuper(MessageCreateEvent event, String followedString, boolean firstTime) {
+        updateThreadName();
         resetNavigation();
 
         Response success = null;
@@ -159,6 +166,8 @@ public class Command {
     }
 
     public void onNavigationReactionSuper(SingleReactionEvent event) {
+        updateThreadName();
+
         resetNavigation();
         if (countdown != null) countdown.reset();
 
@@ -340,10 +349,15 @@ public class Command {
         }
     }
 
-    public void deleteNavigationMessage() throws ExecutionException, InterruptedException {
+    public void deleteNavigationMessage() {
         removeNavigation();
-        if (starterMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == starterMessage.getChannel()) starterMessage.getChannel().bulkDelete(navigationMessage, starterMessage).get();
-        else navigationMessage.delete().get();
+        try {
+            if (starterMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == starterMessage.getChannel())
+                starterMessage.getChannel().bulkDelete(navigationMessage, starterMessage).get();
+            else navigationMessage.delete().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteReactionMessage() throws ExecutionException, InterruptedException {
@@ -371,6 +385,13 @@ public class Command {
         navigationActive = false;
         removeMessageForwarder();
         removeReactionListener(navigationMessage);
+    }
+
+    private void updateThreadName() {
+        String name = Thread.currentThread().getName();
+        if (name.contains(":")) name = name.split(":")[0];
+
+        Thread.currentThread().setName(name + ":" + getTrigger());
     }
 
 
