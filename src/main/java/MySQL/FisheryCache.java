@@ -30,7 +30,9 @@ public class FisheryCache {
     }
 
     private FisheryCache() {
-        new Thread(this::messageCollector).start();
+        Thread t = new Thread(this::messageCollector);
+        t.setPriority(1);
+        t.start();
     }
 
     public void addActivity(User user, ServerTextChannel channel) {
@@ -63,11 +65,14 @@ public class FisheryCache {
                 messagePhase = 0;
 
                 Map<Long, ActivityUserData> activitesClone;
+                System.out.print("0");
                 synchronized (this) {
                     activitesClone = new HashMap<>(activities);
                     activities.clear();
                 }
+                System.out.print("1");
                 if (activitesClone.size() > 0) DBUser.addMessageFishBulk(activitesClone);
+                System.out.print("2");
             }
         }
     }
@@ -114,7 +119,9 @@ public class FisheryCache {
     }
 
     public void startVCCollector(DiscordApi api) {
-        new Thread(() -> VCCollector(api)).start();
+        Thread t = new Thread(() -> VCCollector(api));
+        t.setPriority(1);
+        t.start();
     }
 
     public synchronized void reset() {

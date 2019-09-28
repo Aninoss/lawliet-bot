@@ -39,7 +39,7 @@ public class DBMain implements DriverAction {
             final MysqlDataSource rv = new MysqlDataSource();
             rv.setServerName(SecretManager.getString("database.ip"));
             rv.setPortNumber(3306);
-            rv.setDatabaseName("Lawliet");
+            rv.setDatabaseName(SecretManager.getString("database.database"));
             rv.setAllowMultiQueries(true);
             rv.setAutoReconnect(true);
             rv.setCharacterEncoding("UTF-8");

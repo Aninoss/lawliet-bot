@@ -295,7 +295,7 @@ public class DBUser {
         register(server, user);
 
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT joule, coins, growth, (rank+1), IF(%db != -1, %db, dailyStreak) FROM (%ppranks) accountData WHERE serverId = %s AND userId = %u;");
+        sql.append("SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), IF(%db != -1, %db, dailyStreak) FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
 
         if (fish > 0) {
             sql.append("INSERT INTO PowerPlantUserGained " +
@@ -304,9 +304,17 @@ public class DBUser {
         }
 
         sql.append("INSERT INTO PowerPlantUsers (serverId, userId, joule, coins) VALUES (%s, %u, LEAST(%max, GREATEST(0, %j)), LEAST(%max, GREATEST(0, %c))) ON DUPLICATE KEY UPDATE joule = LEAST(%max, GREATEST(0,joule+%j)), coins = LEAST(%max, GREATEST(0,coins+%c));" +
-                "SELECT joule, coins, growth, (rank+1), dailyStreak FROM (%ppranks) accountData WHERE serverId = %s AND userId = %u;");
+                "SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), dailyStreak FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
 
-        String sqlString = sql.toString().replace("%max", String.valueOf(Settings.MAX)).replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server)).replace("%db", String.valueOf(dailyBefore)).replace("%s", server.getIdAsString()).replace("%u", user.getIdAsString()).replace("%c", String.valueOf(coins)).replace("%j", String.valueOf(fish));
+
+        String sqlString = sql.toString().
+                replace("%max", String.valueOf(Settings.MAX)).
+                replace("%db", String.valueOf(dailyBefore)).
+                replace("%s", server.getIdAsString()).
+                replace("%u", user.getIdAsString()).
+                replace("%c", String.valueOf(coins)).
+                replace("%j", String.valueOf(fish));
+
 
         long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Combo
         String[] progressString = new String[6];

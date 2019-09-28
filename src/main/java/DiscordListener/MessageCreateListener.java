@@ -39,6 +39,7 @@ public class MessageCreateListener {
     public MessageCreateListener() {}
 
     public void onMessageCreate(MessageCreateEvent event) {
+        System.out.print("message.");
         if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;
 
         if (!event.getServer().isPresent()) {
@@ -72,6 +73,8 @@ public class MessageCreateListener {
                 e.printStackTrace();
             }
         }
+
+        System.out.println(".done");
 
         try {
             if (manageForwardedMessages(event)) return;

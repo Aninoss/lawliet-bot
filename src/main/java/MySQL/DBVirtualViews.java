@@ -12,12 +12,11 @@ public class DBVirtualViews {
                 "ppRanksA.coins,\n" +
                 "ppRanksA.joule,\n" +
                 "ppRanksA.dailyStreak\n" +
-                "FROM PowerPlantUsersExtended ppRanksA, PowerPlantUsersExtended ppRanksB\n" +
-                "WHERE ppRanksB.serverId = ppRanksA.serverId AND ppRanksA.serverId = %s AND ppRanksB.onServer = 1 AND ppRanksA.onServer = 1\n" +
+                "FROM (SELECT * FROM PowerPlantUsersExtended WHERE serverId = %s) ppRanksA, (SELECT * FROM PowerPlantUsersExtended WHERE serverId = %s) ppRanksB\n" +
+                "WHERE ppRanksB.serverId = ppRanksA.serverId AND ppRanksB.onServer = 1 AND ppRanksA.onServer = 1\n" +
                 "GROUP BY ppRanksA.serverId, ppRanksA.userId  \n" +
                 "ORDER BY rank ASC";
 
-        str = str.replace("%s", server.getIdAsString());
-        return str;
+        return str.replace("%s", server.getIdAsString());
     }
 }

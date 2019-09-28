@@ -880,17 +880,17 @@ public class DBServer {
     }
 
     public static ArrayList<RankingSlot> getPowerPlantRankings(Server server) throws SQLException {
-        String sql = "SELECT userId, rank, growth, coins, joule FROM (%ppranks) accountData WHERE serverId = ? ORDER BY rank;";
+        String sql = "SELECT userId, rank, growth, coins, joule FROM (%ppranks) accountData ORDER BY rank;";
         sql = sql.replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server));
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
 
         ResultSet resultSet = preparedStatement.getResultSet();
 
         ArrayList<RankingSlot> rankingSlots = new ArrayList<>();
         while(resultSet != null && resultSet.next()) {
+
             User user = null;
             long userId = resultSet.getLong(1);
             if (server.getMemberById(userId).isPresent())
