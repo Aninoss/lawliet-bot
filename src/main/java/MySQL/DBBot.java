@@ -264,7 +264,6 @@ public class DBBot {
             try {
                 for(RankingSlot rankingSlot: DBServer.getPowerPlantRankings(server)) {
                     if (!userIds.contains(rankingSlot.getUserId())) {
-                        System.out.println(server.getName() + " | " + rankingSlot.getUserId());
                         DBUser.updateOnServerStatus(server, rankingSlot.getUserId(), false);
                     }
                 }

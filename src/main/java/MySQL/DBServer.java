@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -386,22 +387,38 @@ public class DBServer {
     public static ArrayList<ServerTextChannel> getPowerPlantIgnoredChannelsFromServer(Server server) throws SQLException {
         ArrayList<ServerTextChannel> channelList = new ArrayList<>();
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while (resultSet.next()) {
-            long id = resultSet.getLong(1);
-            if (server.getTextChannelById(id).isPresent()) {
+        for(Long id: getPowerPlantIgnoredChannelIdsFromServer(server)) {
+            if (server.getTextChannelById(id).isPresent())
                 channelList.add(server.getTextChannelById(id).get());
-            }
         }
-        resultSet.close();
-        preparedStatement.close();
 
         return channelList;
     }
+
+    public static ArrayList<Long> getPowerPlantIgnoredChannelIdsFromServer(Server server) throws SQLException {
+        ArrayList<Long> channelIds = DatabaseCache.getInstance().getPowerPlantIgnoredChannels(server);
+
+        if (channelIds == null) {
+            channelIds = new ArrayList<>();
+
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = ?;");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+
+            ResultSet resultSet = preparedStatement.getResultSet();
+            while (resultSet.next()) {
+                channelIds.add(resultSet.getLong(1));
+            }
+            resultSet.close();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setPowerPlantIgnoredChannels(server, channelIds);
+        }
+
+        return channelIds;
+    }
+
+
 
     public static PowerPlantStatus getPowerPlantStatusFromServer(Server server) throws SQLException {
         PowerPlantStatus powerPlantStatus = DatabaseCache.getInstance().getPowerPlantStatus(server);
@@ -860,6 +877,12 @@ public class DBServer {
         }
 
         DBMain.getInstance().statement(sql.toString());
+
+
+        ArrayList<Long> channelIds = new ArrayList<>();
+        channels.forEach(channel -> channelIds.add(channel.getId()));
+
+        DatabaseCache.getInstance().setPowerPlantIgnoredChannels(server, channelIds);
     }
 
     public static void savePowerPlantSingleRole(Server server, boolean singleRole) throws SQLException {

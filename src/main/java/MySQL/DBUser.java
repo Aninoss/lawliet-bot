@@ -6,6 +6,7 @@ import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
+import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -94,71 +95,49 @@ public class DBUser {
         insertUsers(users);
     }
 
-    public static void addMessageFishBulk(Map<Long, ActivityUserData> activities) {
-        StringBuilder totalSql = new StringBuilder();
+    public static void addMessageFishBulk(Map<Long, Map<Long, ActivityUserData>> activities) throws SQLException {
+        StringBuilder sql = new StringBuilder("DROP TABLE IF EXISTS Activities;\n" +
+                "CREATE TEMPORARY TABLE `Activities` (\n" +
+                " `serverId` bigint(20) unsigned NOT NULL,\n" +
+                " `userId` bigint(20) unsigned NOT NULL,\n" +
+                " `add` bigint(20) NOT NULL,\n" +
+                " PRIMARY KEY (`serverId`,`userId`)\n" +
+                ") ENGINE=InnoDB;\n\n");
 
-        for (long userId : activities.keySet()) {
-            ActivityUserData activityUserData = activities.get(userId);
-            ServerTextChannel channel = activityUserData.getChannel();
+        for (long serverId : activities.keySet()) {
+            for (long userId : activities.get(serverId).keySet()) {
+                ActivityUserData activityUserData = activities.get(serverId).get(userId);
 
-            String sql = "INSERT IGNORE INTO DUser (userId) VALUES (%u); ";
-
-            sql += "INSERT INTO PowerPlantUserGained " +
-                    "VALUES(" +
-                    "%s, " +
-                    "%u, " +
-                    "DATE_FORMAT(NOW(), " +
-                    "'%Y-%m-%d %H:00:00'), " +
-                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                    "LEAST(%max, %a)," +
-                    "0" +
-                    ")) " +
-                    "ON DUPLICATE KEY UPDATE coinsGrowth = " +
-                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                    "LEAST(%max, coinsGrowth + %a)," +
-                    "coinsGrowth" +
-                    ");";
-
-            sql +=
-                    "INSERT INTO PowerPlantUsers (serverId, userId, onServer, joule) " +
-                            "VALUES (" +
-                            "%s," +
-                            "%u," +
-                            "1," +
-                            "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                            "LEAST(%max, %a)," +
-                            "0" +
-                            ")) ON DUPLICATE KEY UPDATE joule = IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE' AND %c NOT IN (SELECT channelId FROM PowerPlantIgnoredChannels WHERE serverId = %s)," +
-                            "LEAST(%max, joule + %a)," +
-                            "joule" +
-                            "), lastMessage = DATE_ADD(NOW(), INTERVAL -MOD(SECOND(NOW()), 20) SECOND), onServer = 1;";
-
-            sql += "SELECT (joule >= 100 AND reminderSent = 0), userId, coins FROM PowerPlantUsers WHERE serverId = %s AND userId = %u;";
-
-            long channelId = channel.getId();
-            sql = sql
-                    .replace("%a", "(SELECT (getValueForCategory(%cat, %s, %u) * categoryEffect * %multi) FROM PowerPlantCategories WHERE categoryId = %cat)")
-                    .replace("%multi", String.valueOf(activityUserData.getAmount()))
-                    .replace("%cat", String.valueOf(FishingCategoryInterface.PER_MESSAGE))
-                    .replace("%s", channel.getServer().getIdAsString())
-                    .replace("%c", String.valueOf(channelId))
-                    .replace("%u", String.valueOf(userId))
-                    .replace("%max", String.valueOf(Settings.MAX));
-
-            totalSql.append(sql);
+                sql.append(("INSERT IGNORE INTO DUser (userId) VALUES (%user);\n" +
+                                "INSERT IGNORE INTO PowerPlantUserGained (serverId, userId, time) VALUES (%server, %user, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'));\n" +
+                                "INSERT IGNORE INTO PowerPlantUsers (serverId, userId) VALUES (%server, %user);\n" +
+                                "INSERT INTO Activities VALUES (%server, %user, %add);\n"
+                        ).replace("%add", "(SELECT (getValueForCategory(%category, %server, %user) * categoryEffect * %multi) FROM PowerPlantCategories WHERE categoryId = %category)")
+                                .replace("%server", String.valueOf(serverId))
+                                .replace("%user", String.valueOf(userId))
+                                .replace("%multi", String.valueOf(activityUserData.getAmount()))
+                );
+            }
         }
 
-        for (ResultSet resultSet : new DBMultipleResultSet(totalSql.toString())) {
-            try {
-                if (resultSet.next() && resultSet.getInt(1) == 1) {
+        sql.append("UPDATE PowerPlantUserGained INNER JOIN Activities USING(serverId, userId) SET coinsGrowth = LEAST(%max, coinsGrowth + Activities.add) WHERE time = DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00');\n");
+        sql.append("UPDATE PowerPlantUsers INNER JOIN Activities USING(serverId, userId) SET joule = LEAST(%max, joule + Activities.add), onServer = 1;\n");
+        sql.append("SELECT PowerPlantUsers.serverId, PowerPlantUsers.userId, coins FROM PowerPlantUsers INNER JOIN Activities USING(serverId, userId) WHERE joule >= 100 AND reminderSent = 0;");
+
+        String sqlString = sql.toString()
+                .replace("%category", String.valueOf(FishingCategoryInterface.PER_MESSAGE))
+                .replace("%max", String.valueOf(Settings.MAX));
+
+        for(ResultSet resultSet : new DBMultipleResultSet(sqlString)) {
+            while (resultSet.next()) {
+                try {
+                    long serverId = resultSet.getLong(1);
                     long userId = resultSet.getLong(2);
                     long coins = resultSet.getLong(3);
-                    ServerTextChannel channel = activities.get(userId).getChannel();
+                    ServerTextChannel channel = activities.get(serverId).get(userId).getChannel();
 
-                    String sql = "UPDATE PowerPlantUsers SET reminderSent = 1 WHERE serverId = ? AND userId = ?;";
-
-                    PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-                    preparedStatement.setLong(1, channel.getServer().getId());
+                    PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE PowerPlantUsers SET reminderSent = 1 WHERE serverId = ? AND userId = ?;");
+                    preparedStatement.setLong(1, serverId);
                     preparedStatement.setLong(2, userId);
                     preparedStatement.execute();
                     preparedStatement.close();
@@ -180,70 +159,45 @@ public class DBUser {
                         }
 
                     }
-
+                } catch (SQLException | IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException | IOException e) {
-                e.printStackTrace();
             }
         }
     }
 
-    public static void addVCFishBulk(Map<Long, Long> activities, int multi) {
-        StringBuilder totalSql = new StringBuilder();
+    public static void addVCFishBulk(ArrayList<Pair<Long, Long>> activities, int multi) throws SQLException {
+        StringBuilder sql = new StringBuilder("DROP TABLE IF EXISTS Activities;\n" +
+                "CREATE TEMPORARY TABLE `Activities` (\n" +
+                " `serverId` bigint(20) unsigned NOT NULL,\n" +
+                " `userId` bigint(20) unsigned NOT NULL,\n" +
+                " `add` bigint(20) NOT NULL,\n" +
+                " PRIMARY KEY (`serverId`,`userId`)\n" +
+                ") ENGINE=InnoDB;\n\n");
 
-        for (long userId : activities.keySet()) {
-            long serverId = activities.get(userId);
+        for (Pair<Long, Long> pair: activities) {
+            long serverId = pair.getKey();
+            long userId = pair.getValue();
 
-            String sql = "INSERT IGNORE INTO DUser (userId) VALUES (%u); ";
-
-            sql += "INSERT INTO PowerPlantUserGained " +
-                    "VALUES(" +
-                    "%s, " +
-                    "%u, " +
-                    "DATE_FORMAT(NOW(), " +
-                    "'%Y-%m-%d %H:00:00'), " +
-                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE'," +
-                    "LEAST(%max, %a)," +
-                    "0" +
-                    ")) " +
-                    "ON DUPLICATE KEY UPDATE coinsGrowth = " +
-                    "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE'," +
-                    "LEAST(%max, coinsGrowth + %a)," +
-                    "coinsGrowth" +
-                    ");";
-
-            sql +=
-                    "INSERT INTO PowerPlantUsers (serverId, userId, onServer, joule) " +
-                            "VALUES (" +
-                            "%s," +
-                            "%u," +
-                            "1," +
-                            "IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE'," +
-                            "LEAST(%max, %a)," +
-                            "0" +
-                            ")) ON DUPLICATE KEY UPDATE joule = IF((SELECT powerPlant FROM DServer WHERE serverId = %s) = 'ACTIVE'," +
-                            "LEAST(%max, joule + %a)," +
-                            "joule" +
-                            "), lastMessage = DATE_ADD(NOW(), INTERVAL -MOD(SECOND(NOW()), 20) SECOND), onServer = 1;";
-
-            // AND TIMESTAMPDIFF(MINUTE, lastMessage, NOW()) = 0
-
-            sql = sql
-                    .replace("%a", "(SELECT (getValueForCategory(%cat, %s, %u) * categoryEffect * %multi) FROM PowerPlantCategories WHERE categoryId = %cat)")
-                    .replace("%multi", String.valueOf(multi))
-                    .replace("%cat", String.valueOf(FishingCategoryInterface.PER_VC))
-                    .replace("%s", String.valueOf(serverId))
-                    .replace("%u", String.valueOf(userId))
-                    .replace("%max", String.valueOf(Settings.MAX));
-
-            totalSql.append(sql);
+            sql.append(("INSERT IGNORE INTO DUser (userId) VALUES (%user);\n" +
+                            "INSERT IGNORE INTO PowerPlantUserGained (serverId, userId, time) VALUES (%server, %user, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'));\n" +
+                            "INSERT IGNORE INTO PowerPlantUsers (serverId, userId) VALUES (%server, %user);\n" +
+                            "INSERT INTO Activities VALUES (%server, %user, %add);\n"
+                    ).replace("%add", "(SELECT (getValueForCategory(%category, %server, %user) * categoryEffect * %multi) FROM PowerPlantCategories WHERE categoryId = %category)")
+                            .replace("%server", String.valueOf(serverId))
+                            .replace("%user", String.valueOf(userId))
+                            .replace("%multi", String.valueOf(multi))
+            );
         }
 
-        try {
-            DBMain.getInstance().statement(totalSql.toString());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        sql.append("UPDATE PowerPlantUserGained INNER JOIN Activities USING(serverId, userId) SET coinsGrowth = LEAST(%max, coinsGrowth + Activities.add) WHERE time = DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00');\n");
+        sql.append("UPDATE PowerPlantUsers INNER JOIN Activities USING(serverId, userId) SET joule = LEAST(%max, joule + Activities.add), onServer = 1;\n");
+
+        String sqlString = sql.toString()
+                .replace("%category", String.valueOf(FishingCategoryInterface.PER_VC))
+                .replace("%max", String.valueOf(Settings.MAX));
+
+        DBMain.getInstance().statement(sqlString);
     }
 
     public static void register(Server server, User user) throws SQLException {
