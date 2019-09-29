@@ -52,6 +52,7 @@ public class CommandContainer {
         commandList.add(ShipCommand.class);
         commandList.add(QuoteCommand.class);
         commandList.add(AvatarCommand.class);
+        commandList.add(SayCommand.class);
 
         //BOT MANAGEMENT
         commandList.add(SignUpCommand.class);
