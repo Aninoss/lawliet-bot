@@ -19,11 +19,12 @@ import java.awt.*;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "help",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
-    emoji = "❕",
-    executable = true,
-    deleteOnTimeOut = false
+        trigger = "help",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
+        emoji = "❕",
+        executable = true,
+        deleteOnTimeOut = false,
+        aliases = {"commands"}
 )
 public class HelpCommand extends Command implements onNavigationListener {
 
@@ -130,8 +131,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0],"exec:"+command.getClass().getName()));
                 }
 
-                return new EmbedBuilder()
-                        .setColor(Color.WHITE)
+                return EmbedFactory.getEmbed()
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
@@ -151,10 +151,8 @@ public class HelpCommand extends Command implements onNavigationListener {
         if (arg.length() > 0) {
             for (String string : Category.LIST) {
                 if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase())) && (!string.equals(Category.BOT_OWNER) || getStarterMessage().getUserAuthor().get().isBotOwner())) {
-                    EmbedBuilder eb = new EmbedBuilder()
-                            .setColor(Color.WHITE)
+                    EmbedBuilder eb = EmbedFactory.getEmbed()
                             .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
-                            //.setTitle(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string) + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, string));
                             .setTitle(
                                     TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                             TextManager.getString(getLocale(), TextManager.COMMANDS, string)
@@ -224,8 +222,7 @@ public class HelpCommand extends Command implements onNavigationListener {
     }
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel, String arg) throws Throwable {
-        EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.WHITE)
+        EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setFooter(getString("donate"))
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
 

@@ -19,12 +19,7 @@ public class DBMultipleResultSet implements Iterable<ResultSet> {
     }
 
     public Iterator<ResultSet> iterator() {
-        try {
-            if (preparedStatement != null) return new ResultSetIterator(preparedStatement);
-            else return new ResultSetIterator(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        if (preparedStatement != null) return new ResultSetIterator(preparedStatement);
+        else return new ResultSetIterator(sql);
     }
 }

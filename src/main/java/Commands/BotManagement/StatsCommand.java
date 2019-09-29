@@ -15,11 +15,12 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
-    trigger = "stats",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
-    emoji = "\uD83D\uDCCA",
-    thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Graph-Magnifier-icon.png",
-    executable = true
+        trigger = "stats",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        emoji = "\uD83D\uDCCA",
+        thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Graph-Magnifier-icon.png",
+        executable = true,
+        aliases = {"botstats"}
 )
 public class StatsCommand extends Command implements onRecievedListener {
 

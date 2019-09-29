@@ -8,17 +8,25 @@ import java.util.Iterator;
 
 public class ResultSetIterator implements Iterator<ResultSet> {
     private Statement statement;
-    private boolean hasMoreResultSets;
+    private boolean hasMoreResultSets = false;
     private int i=0;
 
-    public ResultSetIterator(String sql) throws SQLException {
-        statement = DBMain.getInstance().statement();
-        hasMoreResultSets = statement.execute( sql );
+    public ResultSetIterator(String sql) {
+        try {
+            statement = DBMain.getInstance().statement();
+            hasMoreResultSets = statement.execute( sql );
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public ResultSetIterator(PreparedStatement preparedStatement) throws SQLException {
+    public ResultSetIterator(PreparedStatement preparedStatement) {
         statement = preparedStatement;
-        hasMoreResultSets = ((PreparedStatement) statement).execute();
+        try {
+            hasMoreResultSets = ((PreparedStatement) statement).execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -73,13 +73,11 @@ public class ExceptionHandler {
         if (showError) throwable.printStackTrace();
 
         try {
-            if (channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(new EmbedBuilder()
-                    .setColor(Color.RED)
+            if (channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
                     .setDescription(errorMessage+"\n\n"+TextManager.getString(locale,TextManager.GENERAL,"error_submit"))).get();
 
-            if (showError) channel.getApi().getOwner().get().sendMessage(new EmbedBuilder()
-                    .setColor(Color.RED)
+            if (showError) channel.getApi().getOwner().get().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
                     .setDescription(Tools.shortenString(stacktrace, 1000))).get();
         } catch (Throwable e1) {

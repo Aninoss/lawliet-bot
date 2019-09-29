@@ -6,9 +6,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "no",
-    emoji = "\uD83D\uDC4E",
-    executable = true
+        trigger = "no",
+        emoji = "\uD83D\uDC4E",
+        executable = true,
+        aliases = {"nope"}
 )
 public class NoCommand extends EmoteCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

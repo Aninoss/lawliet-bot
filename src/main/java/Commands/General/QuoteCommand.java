@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-    trigger = "quote",
-    botPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-    userPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png",
-    emoji = "\uD83D\uDCDD",
-    executable = false
+        trigger = "quote",
+        botPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        userPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png",
+        emoji = "\uD83D\uDCDD",
+        executable = false,
+        aliases = {"qoute"}
 )
 public class QuoteCommand extends Command implements onRecievedListener {
 
@@ -138,8 +139,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
         EmbedBuilder eb;
 
         if (searchedMessage.getEmbeds().size() == 0) {
-            eb = new EmbedBuilder()
-                    .setColor(Color.WHITE)
+            eb = EmbedFactory.getEmbed()
                     .setFooter(getString("title"));
             if (searchedMessage.getContent().length() > 0) eb.setDescription("\""+searchedMessage.getContent()+"\"");
             if (searchedMessage.getAttachments().size() > 0) eb.setImage(searchedMessage.getAttachments().get(0).getUrl().toString());

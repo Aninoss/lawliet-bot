@@ -8,7 +8,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
-        executable = false
+        executable = false,
+        aliases = {"hit"}
 )
 public class PunchCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

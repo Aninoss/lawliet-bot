@@ -94,13 +94,14 @@ public class CommandContainer {
         commandList.add(EmojisCommand.class);
         commandList.add(SendCommand.class);
 
-        //POWER PLANT
+        //FISHERY
         commandList.add(PowerPlantSetupCommand.class);
         commandList.add(SellCommand.class);
         commandList.add(BuyCommand.class);
         commandList.add(DailyCommand.class);
         commandList.add(ClaimCommand.class);
         commandList.add(AccountCommand.class);
+        commandList.add(GearCommand.class);
         commandList.add(TopCommand.class);
         commandList.add(GiveCommand.class);
         commandList.add(SurveyCommand.class);
@@ -183,8 +184,8 @@ public class CommandContainer {
         for(Class clazz: commandList) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz);
-                commands.put(command.getTrigger(), clazz);
-                for(String str: command.getAliases()) commands.put(str, clazz);
+                addCommand(command.getTrigger(), command);
+                for(String str: command.getAliases()) addCommand(str, command);
                 if (command instanceof onReactionAddStatic) staticReactionAddCommands.add((onReactionAddStatic)command);
                 if (command instanceof onReactionRemoveStatic) staticReactionRemoveCommands.add((onReactionRemoveStatic)command);
                 if (command instanceof onTrackerRequestListener) trackerCommands.add((onTrackerRequestListener)command);
@@ -193,6 +194,12 @@ public class CommandContainer {
             }
         }
     }
+
+    private void addCommand(String trigger, Command command) {
+        if (commands.containsKey(trigger)) System.err.println("Error: dupicate key for \"" + command.getTrigger() + "\"");
+        else commands.put(trigger, command.getClass());
+    }
+
 
     public HashMap<String,Class> getCommands() {
         return commands;

@@ -61,8 +61,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
             User owner = message.getServer().get().getOwner();
             if (owner != null) {
                 EmbedBuilder errEmbed = PermissionCheck.bothasPermissions(getLocale(), message.getServer().get(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL);
-                owner.sendMessage(new EmbedBuilder()
-                        .setColor(Color.RED)
+                owner.sendMessage(EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL,"error"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL,"survey_missing_permissions"))).get();
                 owner.sendMessage(errEmbed).get();

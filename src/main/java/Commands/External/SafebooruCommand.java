@@ -6,10 +6,11 @@ import Commands.NSFW.PornCommand;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
-    trigger = "safeb",
-    emoji = "\uD83D\uDE07",
-    withLoadingBar = true,
-    executable = true
+        trigger = "safeb",
+        emoji = "\uD83D\uDE07",
+        withLoadingBar = true,
+        executable = true,
+        aliases = {"softb"}
 )
 public class SafebooruCommand extends PornCommand implements onRecievedListener {
 

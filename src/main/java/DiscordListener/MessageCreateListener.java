@@ -42,8 +42,7 @@ public class MessageCreateListener {
         if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;
 
         if (!event.getServer().isPresent()) {
-            event.getChannel().sendMessage(new EmbedBuilder()
-                    .setColor(Color.RED)
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle("❌ Not Supported!".toUpperCase())
                     .setDescription("Commands via pm aren't supported!"));
             return;
@@ -101,7 +100,7 @@ public class MessageCreateListener {
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
                         Locale locale = DBServer.getServerLocale(event.getServer().get());
-                        if (event.getChannel().canYouWrite() || (commandTrigger.equalsIgnoreCase("help") && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
+                        if (event.getChannel().canYouWrite() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands") ) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
                             if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
                                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
 

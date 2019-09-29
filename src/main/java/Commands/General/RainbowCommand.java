@@ -15,11 +15,12 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "rainbow",
-    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
-    withLoadingBar = true,
-    emoji = "\uD83C\uDF08",
-    executable = true
+        trigger = "rainbow",
+        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+        withLoadingBar = true,
+        emoji = "\uD83C\uDF08",
+        executable = true,
+        aliases = {"lgbt"}
 )
 public class RainbowCommand extends Command implements onRecievedListener {
 

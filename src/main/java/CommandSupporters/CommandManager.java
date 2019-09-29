@@ -94,8 +94,7 @@ public class CommandManager {
                 event.getMessage().addReaction("❌");
             }
         } else {
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setColor(Color.RED)
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "botowner_only_title"))
                     .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "botowner_only_description"));
             event.getChannel().sendMessage(eb);

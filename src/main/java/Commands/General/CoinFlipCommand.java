@@ -15,7 +15,8 @@ import java.util.concurrent.ExecutionException;
         trigger = "coinflip",
         thumbnail = "https://s3-us-west-2.amazonaws.com/slack-files2/avatars/2016-02-29/23582839171_4e2343645d65907a8f97_512.png",
         emoji = "\uD83D\uDCB0",
-        executable = true
+        executable = true,
+        aliases = {"coin"}
 )
 public class CoinFlipCommand extends Command implements onRecievedListener {
 

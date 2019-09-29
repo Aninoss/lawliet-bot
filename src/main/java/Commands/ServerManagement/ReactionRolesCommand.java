@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\u2611\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png",
         executable = true,
-        aliases = {"rmess", "reactionrole"}
+        aliases = {"rmess", "reactionrole", "rroles"}
 )
 public class ReactionRolesCommand extends Command implements onNavigationListener, onReactionAddStatic, onReactionRemoveStatic {
     
@@ -468,10 +468,9 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         if (!test) identity = Tools.getEmptyCharacter();
         if (!removeRole && !test) titleAdd = Tools.getEmptyCharacter();
         if (!multipleRoles && !test) titleAdd += Tools.getEmptyCharacter() + Tools.getEmptyCharacter();
-        EmbedBuilder eb = new EmbedBuilder()
+        EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setTitle(getEmoji() + " " + title + identity + titleAdd)
                 .setDescription(description)
-                .setColor(Color.WHITE)
                 .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString());
         if (test) eb.setFooter(getString("previewfooter"));
 

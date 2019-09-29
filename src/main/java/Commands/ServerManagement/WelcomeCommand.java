@@ -291,8 +291,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
 
     public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
         Server server = welcomeMessageSetting.getServer();
-        EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.WHITE)
+        EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setDescription(replaceVariables(welcomeMessageSetting.getDescription(),
                         server.getName(),
                         user.getMentionTag(),

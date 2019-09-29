@@ -4,6 +4,7 @@ import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.Permission;
+import General.EmbedFactory;
 import General.PermissionCheck;
 import General.TextManager;
 import MySQL.DBBot;
@@ -42,8 +43,7 @@ public class TrackerManager {
                        User owner = trackerData.getServer().getOwner();
                         int RETRY_MINUTES = 30;
                         if (owner != null) {
-                            owner.sendMessage(new EmbedBuilder()
-                                    .setColor(Color.RED)
+                            owner.sendMessage(EmbedFactory.getEmbedError()
                                     .setTitle(TextManager.getString(locale, TextManager.GENERAL,"error"))
                                     .setDescription(TextManager.getString(locale, TextManager.GENERAL,"tracker_missing_permissions", command.getTrigger(), trackerData.getChannel().getIdAsString(), String.valueOf(RETRY_MINUTES)))).get();
                             owner.sendMessage(errEmbed).get();

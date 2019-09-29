@@ -36,8 +36,7 @@ public class SendCommand extends Command implements onRecievedListener {
             String content = userMarked.getResultMessageString();
 
             for(User user: list) {
-                user.sendMessage(new EmbedBuilder()
-                        .setColor(Color.WHITE)
+                user.sendMessage(EmbedFactory.getEmbed()
                         .setAuthor(event.getMessage().getUserAuthor().get())
                         .setDescription(content)).get();
             }

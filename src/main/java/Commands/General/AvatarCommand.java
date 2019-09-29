@@ -15,9 +15,9 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "avatar",
-    emoji = "\uD83D\uDDBC️️",
-    executable = true
+        trigger = "avatar",
+        emoji = "\uD83D\uDDBC️️",
+        executable = true
 )
 public class AvatarCommand extends Command implements onRecievedListener {
 

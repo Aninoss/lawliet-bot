@@ -51,8 +51,7 @@ public class ReportCommand extends Command implements onRecievedListener {
     }
 
     public void sendReport(User user, TextChannel reactionChannel, String content) throws Throwable {
-        user.getApi().getOwner().get().sendMessage(new EmbedBuilder()
-                .setColor(Color.WHITE)
+        user.getApi().getOwner().get().sendMessage(EmbedFactory.getEmbed()
                 .setAuthor(user.getName() + " (" + user.getIdAsString() + ")", "", user.getAvatar())
                 .setDescription(content)).get();
         reactionChannel.sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template"))).get();

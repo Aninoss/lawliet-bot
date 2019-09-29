@@ -346,28 +346,6 @@ public class Tools {
         return string;
     }
 
-    public static EmbedBuilder getEmbedBuilderFromMessage(Message message) {
-        if (message.getEmbeds().size() > 0) {
-            Embed embed = message.getEmbeds().get(0);
-            EmbedBuilder eb = new EmbedBuilder();
-            if (embed.getTitle().isPresent()) eb.setTitle(embed.getTitle().get());
-            if (embed.getDescription().isPresent()) eb.setDescription(embed.getDescription().get());
-            if (embed.getColor().isPresent()) eb.setColor(embed.getColor().get());
-            if (embed.getThumbnail().isPresent()) eb.setThumbnail(embed.getThumbnail().get().getUrl().toString());
-            if (embed.getImage().isPresent()) eb.setImage(embed.getImage().get().getUrl().toString());
-            if (embed.getUrl().isPresent()) eb.setUrl(embed.getUrl().get().toString());
-            if (embed.getFooter().isPresent()) eb.setFooter(embed.getFooter().get().getText().get());
-            if (embed.getFields().size() > 0) {
-                for (EmbedField ef : embed.getFields()) {
-                    eb.addField(ef.getName(), ef.getValue(), ef.isInline());
-                }
-            }
-
-            return eb;
-        }
-        return null;
-    }
-
     public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) throws IOException {
         String str = DateTimeFormatter.ofPattern(TextManager.getString(locale, TextManager.GENERAL, "time_code", withClockTime)).format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
         if (withClockTime) {

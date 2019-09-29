@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\u2699\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         executable = true,
-        aliases = {"fishingsetup"}
+        aliases = {"fishingsetup", "fisherysetup"}
 )
 public class PowerPlantSetupCommand extends Command implements onNavigationListener,onReactionAddStatic  {
 

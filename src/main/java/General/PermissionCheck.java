@@ -95,8 +95,7 @@ public class PermissionCheck {
         EmbedBuilder eb = null;
         boolean alright = userPermission.size() == 0 && botPermission.size() == 0;
         if (!alright) {
-            eb = new EmbedBuilder()
-                    .setColor(Color.RED)
+            eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
 
             if (userPermission.size()>0) {

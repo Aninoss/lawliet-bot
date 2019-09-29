@@ -15,11 +15,12 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "trigger",
-    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
-    withLoadingBar = true,
-    emoji = "\uD83D\uDCA2",
-    executable = true
+        trigger = "trigger",
+        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+        withLoadingBar = true,
+        emoji = "\uD83D\uDCA2",
+        executable = true,
+        aliases = {"triggered"}
 )
 public class TriggerCommand extends Command implements onRecievedListener {
 

@@ -13,7 +13,8 @@ import java.util.ArrayList;
         trigger = "invite",
         thumbnail = "http://icons.iconarchive.com/icons/thehoth/seo/128/seo-chain-link-icon.png",
         emoji = "\uD83D\uDD17",
-        executable = true
+        executable = true,
+        aliases = {"link"}
 )
 public class InviteCommand extends Command implements onRecievedListener {
 

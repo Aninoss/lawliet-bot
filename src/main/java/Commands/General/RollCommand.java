@@ -12,10 +12,11 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.Random;
 
 @CommandProperties(
-    trigger = "roll",
-    thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat-one-color/64/die-icon.png",
-    emoji = "\uD83C\uDFB2",
-    executable = true
+        trigger = "roll",
+        thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat-one-color/64/die-icon.png",
+        emoji = "\uD83C\uDFB2",
+        executable = true,
+        aliases = {"dice", "diceroll"}
 )
 public class RollCommand extends Command implements onRecievedListener {
 

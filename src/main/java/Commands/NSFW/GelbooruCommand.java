@@ -8,11 +8,12 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
-        trigger = "gel",
+        trigger = "gelb",
         executable = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
-        withLoadingBar = true
+        withLoadingBar = true,
+        aliases = {"gel"}
 )
 public class GelbooruCommand extends PornCommand implements onRecievedListener {
 

@@ -150,8 +150,7 @@ public class DBUser {
                             String prefix = DBServer.getPrefix(server);
                             Locale locale = DBServer.getServerLocale(server);
 
-                            channel.sendMessage(new EmbedBuilder()
-                                    .setColor(Color.WHITE)
+                            channel.sendMessage(EmbedFactory.getEmbed()
                                     .setAuthor(user)
                                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
                                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
@@ -250,18 +249,21 @@ public class DBUser {
 
     public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, int dailyBefore) throws SQLException, IOException {
         register(server, user);
+        boolean change = fish != 0 || coins != 0;
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), IF(%db != -1, %db, dailyStreak) FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
 
-        if (fish > 0) {
-            sql.append("INSERT INTO PowerPlantUserGained " +
-                    "VALUES(%s, %u, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), %j) " +
-                    "ON DUPLICATE KEY UPDATE coinsGrowth = coinsGrowth + %j;");
-        }
+        if (change) {
+            if (fish > 0) {
+                sql.append("INSERT INTO PowerPlantUserGained " +
+                        "VALUES(%s, %u, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), %j) " +
+                        "ON DUPLICATE KEY UPDATE coinsGrowth = coinsGrowth + %j;");
+            }
 
-        sql.append("INSERT INTO PowerPlantUsers (serverId, userId, joule, coins) VALUES (%s, %u, LEAST(%max, GREATEST(0, %j)), LEAST(%max, GREATEST(0, %c))) ON DUPLICATE KEY UPDATE joule = LEAST(%max, GREATEST(0,joule+%j)), coins = LEAST(%max, GREATEST(0,coins+%c));" +
-                "SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), dailyStreak FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
+            sql.append("INSERT INTO PowerPlantUsers (serverId, userId, joule, coins) VALUES (%s, %u, LEAST(%max, GREATEST(0, %j)), LEAST(%max, GREATEST(0, %c))) ON DUPLICATE KEY UPDATE joule = LEAST(%max, GREATEST(0,joule+%j)), coins = LEAST(%max, GREATEST(0,coins+%c));" +
+                    "SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), dailyStreak FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
+        }
 
 
         String sqlString = sql.toString().
@@ -283,6 +285,16 @@ public class DBUser {
                 if (resultSet.next()) {
                     for (int j = 0; j < 5; j++) {
                         progress[j][0] = resultSet.getLong(j + 1);
+                        if (!change) {
+                            progress[j][1] = progress[j][0];
+
+                            String key = "rankingprogress_update";
+                            if (j == 3) key = "rankingprogress_update2";
+
+                            progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key , progress[j][0] != progress[j][1],
+                                    Tools.numToString(locale, progress[j][0])
+                            );
+                        }
                     }
                 } else return null;
             } else {
@@ -290,16 +302,12 @@ public class DBUser {
                     for (int j = 0; j < 5; j++) {
                         progress[j][1] = resultSet.getLong(j + 1);
 
-                        String prefix = "";
                         String key = "rankingprogress_update";
-                        if (j == 3) {
-                            prefix = "#";
-                            key = "rankingprogress_update2";
-                        }
+                        if (j == 3) key = "rankingprogress_update2";
+
                         String sign = "";
                         if (progress[j][1] > progress[j][0]) sign = "+";
                         progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key , progress[j][0] != progress[j][1],
-                                prefix,
                                 Tools.numToString(locale, progress[j][0]),
                                 Tools.numToString(locale, progress[j][1]),
                                 sign + Tools.numToString(locale, progress[j][1] - progress[j][0])

@@ -15,10 +15,11 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-    trigger = "fortune",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/question-icon.png",
-    emoji = "❓",
-    executable = false
+        trigger = "fortune",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/question-icon.png",
+        emoji = "❓",
+        executable = false,
+        aliases = {"question"}
 )
 public class FortuneCommand extends Command implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

@@ -19,11 +19,12 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "give",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/gift-icon.png",
-    emoji = "\uD83C\uDF81",
-    executable = false
+        trigger = "give",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/gift-icon.png",
+        emoji = "\uD83C\uDF81",
+        executable = false,
+        aliases = {"gift"}
 )
 public class GiveCommand extends Command implements onRecievedListener {
 

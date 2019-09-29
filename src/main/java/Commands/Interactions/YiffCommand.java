@@ -9,7 +9,8 @@ import java.util.ArrayList;
         trigger = "yiff",
         emoji = "\uD83E\uDD8A",
         executable = false,
-        nsfw = true
+        nsfw = true,
+        aliases = {"knot", "furryfuck"}
 )
 public class YiffCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

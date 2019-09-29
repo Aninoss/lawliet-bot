@@ -54,8 +54,7 @@ public class BuyCommand extends Command implements onNavigationListener {
 
                 for(Role role: roles) {
                     if (!Tools.canManageRole(role)) {
-                        event.getServer().get().getOwner().sendMessage(new EmbedBuilder()
-                                .setColor(Color.RED)
+                        event.getServer().get().getOwner().sendMessage(EmbedFactory.getEmbedError()
                                 .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL,"error"))
                                 .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_norolepermissions"))).get();
                         break;
@@ -157,6 +156,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                     }
                 }
 
+                int roleLvl = fishingProfile.getSlots().get(FishingCategoryInterface.ROLE).getLevel();
                 eb.addField(Tools.getEmptyCharacter(),
                         getString("status",
                                 Tools.numToString(getLocale(), fishingProfile.getFish()),
@@ -165,6 +165,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
+                                roles.size() > 0 && roleLvl > 0 ? roles.get(roleLvl- 1).getMentionTag() : "**-**",
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                         )
                 );

@@ -16,7 +16,8 @@ import java.time.Instant;
         trigger = "say",
         emoji = "\uD83D\uDCAC",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/arrow-refresh-4-icon.png",
-        executable = false
+        executable = false,
+        aliases = {"repeat"}
 )
 public class SayCommand extends Command implements onRecievedListener {
 
