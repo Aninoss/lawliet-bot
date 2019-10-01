@@ -2,8 +2,8 @@ package ServerStuff.SIGNALTRANSMITTER;
 
 import General.Internet.Internet;
 import General.Internet.InternetResponse;
+import General.Pair;
 import General.SecretManager;
-import javafx.util.Pair;
 import org.json.JSONObject;
 
 import java.io.IOException;

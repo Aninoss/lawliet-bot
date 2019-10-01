@@ -1,5 +1,6 @@
 package MySQL;
 
+import General.Bot;
 import General.SecretManager;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.smattme.MysqlExportService;
@@ -37,7 +38,7 @@ public class DBMain implements DriverAction {
             System.out.println("Connecting with database...");
 
             final MysqlDataSource rv = new MysqlDataSource();
-            rv.setServerName(SecretManager.getString("database.ip"));
+            rv.setServerName(Bot.isDebug() ? SecretManager.getString("database.ip") : "127.0.0.1");
             rv.setPortNumber(3306);
             rv.setDatabaseName(SecretManager.getString("database.database"));
             rv.setAllowMultiQueries(true);

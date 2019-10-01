@@ -811,7 +811,7 @@ public class DBServer {
                     .append(");\n");
         }
 
-        DBMain.getInstance().statement(sql.toString().toString());
+        DBMain.getInstance().statement(sql.toString());
     }
 
     public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {
@@ -904,27 +904,41 @@ public class DBServer {
     }
 
     public static ArrayList<RankingSlot> getPowerPlantRankings(Server server) throws SQLException {
-        String sql = "SELECT userId, rank, growth, coins, joule FROM (%ppranks) accountData ORDER BY rank;";
-        sql = sql.replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server));
+        //String sql = "SELECT userId, rank, growth, coins, joule FROM (%ppranks) accountData ORDER BY rank;";
+        //sql = sql.replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server));
+
+        String sql = "SELECT userId, getGrowth(serverId, userId) growth, coins, joule FROM (SELECT * FROM PowerPlantUsers WHERE serverId = ?) serverMmbers ORDER BY growth DESC, joule DESC, coins DESC;";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+        preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
-
         ResultSet resultSet = preparedStatement.getResultSet();
 
         ArrayList<RankingSlot> rankingSlots = new ArrayList<>();
-        while(resultSet != null && resultSet.next()) {
+        int i = 1;
+        int rank = i;
 
+        long growthPrevious = -1, joulePrevious = -1, coinsPrevious = -1;
+
+        while(resultSet != null && resultSet.next()) {
             User user = null;
             long userId = resultSet.getLong(1);
             if (server.getMemberById(userId).isPresent())
                 user = server.getMemberById(userId).get();
-            int rank = resultSet.getInt(2);
-            long growth = resultSet.getLong(3);
-            long coins = resultSet.getLong(4);
-            long joule = resultSet.getLong(5);
+            //int rank = resultSet.getInt(2);
+            long growth = resultSet.getLong(2);
+            long coins = resultSet.getLong(3);
+            long joule = resultSet.getLong(4);
+
+            if (growth != growthPrevious || joule != joulePrevious || coins != coinsPrevious) {
+                growthPrevious = growth;
+                joulePrevious = joule;
+                coinsPrevious = coins;
+                rank = i;
+            }
 
             rankingSlots.add(new RankingSlot(rank, joule, coins, growth, user, userId));
+            i++;
         }
 
         resultSet.close();

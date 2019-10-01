@@ -1,7 +1,7 @@
 package General.Internet;
 
-import javafx.util.Pair;
-import org.json.JSONObject;
+import General.Pair;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.*;

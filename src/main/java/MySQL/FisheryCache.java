@@ -1,13 +1,12 @@
 package MySQL;
 
 import Constants.PowerPlantStatus;
-import javafx.util.Pair;
+import General.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.entity.user.UserStatus;
 
 import java.sql.SQLException;
 import java.time.Duration;
@@ -123,6 +122,7 @@ public class FisheryCache {
 
             ArrayList<Pair<Long, Long>> userVCActivities = new ArrayList<>(); //serverId, userId
 
+            Instant testStart = Instant.now();
             System.out.println("VC Collector START");
 
             for(Server server: api.getServers()) {
@@ -138,7 +138,7 @@ public class FisheryCache {
                         }
                     }
 
-                    if (validUsers.size() > 1 &&
+                    if (validUsers.size() > 0 && //TODO
                             (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
                     ) {
                         for (User user : validUsers) {
@@ -161,6 +161,8 @@ public class FisheryCache {
             }
 
             System.out.println("VC Collector END");
+            Duration duration = Duration.between(testStart, Instant.now());
+            System.out.println("####################### " + (duration.getNano() / 1000000000.0) + " s");
         }
     }
 

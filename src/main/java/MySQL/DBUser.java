@@ -6,7 +6,6 @@ import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
-import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
