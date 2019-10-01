@@ -1,6 +1,7 @@
 package General.Reddit;
 
 import General.*;
+import General.Internet.InternetResponse;
 import General.Internet.URLDataContainer;
 import General.PostBundle;
 import org.json.JSONArray;
@@ -40,15 +41,10 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1"+postReference;
 
-        String dataString;
-        try {
-            dataString = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 60));
-        } catch(Throwable e) {
-            //Ignore
-            return null;
-        }
+        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 60));
+        if (!internetResponse.getContent().isPresent()) return null;
 
-        if (dataString == null) return null;
+        String dataString = internetResponse.getContent().get();
         if (!dataString.startsWith("{")) return null;
 
         JSONObject tempData = new JSONObject(dataString).getJSONObject("data");
@@ -69,9 +65,10 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
-        String dataString = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 9));
+        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 9));
+        if (!internetResponse.getContent().isPresent()) return null;
 
-        if (dataString == null) return null;
+        String dataString = internetResponse.getContent().get();
         if (!dataString.startsWith("{")) return null;
 
         JSONArray postData = new JSONObject(dataString).getJSONObject("data").getJSONArray("children");

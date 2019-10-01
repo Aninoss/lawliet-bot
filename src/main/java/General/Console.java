@@ -56,6 +56,10 @@ public class Console {
                                 System.out.println(getStats());
                                 break;
 
+                            case "traffic":
+                                System.out.println(SIGNALTRANSMITTER.getInstance().getTrafficGB() + " GB");
+                                break;
+
                             case "threads":
                                 StringBuilder sb = new StringBuilder();
                                 for(Thread t: Thread.getAllStackTraces().keySet())

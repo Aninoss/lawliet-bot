@@ -49,8 +49,8 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray netData = new JSONObject(URLDataContainer.getInstance().getData(urls[0])).getJSONArray("merchandises");
-        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]));;
+        JSONArray netData = new JSONObject(URLDataContainer.getInstance().getData(urls[0]).getContent().get()).getJSONArray("merchandises");
+        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]).getContent().get());;
 
         //Sorgt dafür, dass die aktuellen Daten genommen werden.
         if (netData.length() == 6) {

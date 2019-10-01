@@ -3,10 +3,11 @@ package General.Internet;
 import java.time.Instant;
 
 public class URLData {
-    private String url, data;
+    private String url;
     private Instant blockInstant, createInstant;
+    private InternetResponse data;
 
-    public URLData(String url, String data) {
+    public URLData(String url, InternetResponse data) {
         this.url = url;
         this.data = data;
         this.createInstant = Instant.now();
@@ -16,11 +17,11 @@ public class URLData {
         return url;
     }
 
-    public String getData() {
+    public InternetResponse getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(InternetResponse data) {
         this.data = data;
     }
 

@@ -3,6 +3,7 @@ package ServerStuff.SIGNALTRANSMITTER;
 import General.Internet.Internet;
 import General.Internet.InternetResponse;
 import General.SecretManager;
+import javafx.util.Pair;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -29,13 +30,13 @@ public class SIGNALTRANSMITTER {
 
     private void login() throws IOException {
         String body = "username="+ SecretManager.getString("SIGNALTRANSMITTER.username") +"&password=" + SecretManager.getString("SIGNALTRANSMITTER.password") + "&login=1";
-        InternetResponse internetResponse = Internet.getDataPostWithCookie("https://vps.srv-control.it:4083/index.php?api=json&act=login", body);
-        cookie = internetResponse.getCookie();
-        key = new JSONObject(internetResponse.getContent()).getString("redirect").split("/")[1];
+        InternetResponse internetResponse = Internet.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new Pair<>("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+        cookie = internetResponse.getCookies().get().get(0);
+        key = new JSONObject(internetResponse.getContent().get()).getString("redirect").split("/")[1];
     }
 
     private void logout() throws IOException {
-        String result = Internet.getDataCookie("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=logout&api=json", cookie);
+        Internet.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=logout&api=json", getProperties());
         ourInstance = null;
     }
 
@@ -55,7 +56,7 @@ public class SIGNALTRANSMITTER {
             return -1;
         }
 
-        JSONObject data = new JSONObject(Internet.getDataCookie("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", cookie));
+        JSONObject data = new JSONObject(Internet.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", getProperties()).getContent().get());
         String act = data.getString("act");
         if (act.equals("bandwidth")) {
             Calendar calendar = Calendar.getInstance();
@@ -74,4 +75,12 @@ public class SIGNALTRANSMITTER {
             return getTrafficGB(tries - 1);
         }
     }
+
+    private Pair[] getProperties() {
+        return new Pair[]{
+                new Pair<>("Cookie", cookie),
+                new Pair<>("Content-Type", "application/x-www-form-urlencoded")
+        };
+    }
+
 }

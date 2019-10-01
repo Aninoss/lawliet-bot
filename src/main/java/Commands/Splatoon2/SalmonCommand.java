@@ -50,8 +50,8 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray salmonData = new JSONObject(URLDataContainer.getInstance().getData(urls[0])).getJSONArray("details");
-        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]));;
+        JSONArray salmonData = new JSONObject(URLDataContainer.getInstance().getData(urls[0]).getContent().get()).getJSONArray("details");
+        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]).getContent().get());;
 
         Instant[] startTime = new Instant[datesShown];
         Instant[] endTime = new Instant[datesShown];

@@ -3,13 +3,13 @@ package General.Internet;
 import java.io.IOException;
 
 public class MultithreadInternet {
-    private String[] returnStrings;
+    private InternetResponse[] returnStrings;
     private String[] urlStrings;
     private int downloaded;
 
     public MultithreadInternet getData(String... urlStrings) {
         this.urlStrings = urlStrings;
-        returnStrings = new String[urlStrings.length];
+        returnStrings = new InternetResponse[urlStrings.length];
         downloaded = 0;
         for(int i=0; i<urlStrings.length; i++) {
             final int j = i;
@@ -27,7 +27,7 @@ public class MultithreadInternet {
         return this;
     }
 
-    public String[] get() {
+    public InternetResponse[] get() {
         while(downloaded < urlStrings.length);
         return returnStrings;
     }

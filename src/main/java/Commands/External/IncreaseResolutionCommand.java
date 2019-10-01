@@ -8,6 +8,7 @@ import General.Internet.Internet;
 import General.Mention.MentionFinder;
 import General.SecretManager;
 import General.TextManager;
+import javafx.util.Pair;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -69,7 +70,14 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
 
         String query = "image=" + url.toString();
 
-        String data = Internet.getDataRequestPropertyPost("https://api.deepai.org/api/waifu2x", "Api-Key", SecretManager.getString("deepai.token"), query);
+        //String data = Internet.getDataRequestPropertyPost("https://api.deepai.org/api/waifu2x", "Api-Key", SecretManager.getString("deepai.token"), query);
+
+        Pair[] properties = new Pair[]{
+                new Pair<>("Api-Key", SecretManager.getString("deepai.token")),
+                new Pair<>("Content-Type", "application/x-www-form-urlencoded")
+        };
+
+        String data = Internet.getData("https://api.deepai.org/api/waifu2x", query, properties).getContent().get();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");
     }

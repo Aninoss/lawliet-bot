@@ -1,18 +1,38 @@
 package General.Internet;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 public class InternetResponse {
-    private String content, cookie;
+    private String content;
+    private int code;
+    private Map<String, List<String>> headerFields;
 
-    public InternetResponse(String content, String cookie) {
+    public InternetResponse(String content, Map<String, List<String>> headerFields, int code) {
         this.content = content;
-        this.cookie = cookie;
+        this.headerFields = headerFields;
+        this.code = code;
     }
 
-    public String getContent() {
-        return content;
+    public InternetResponse(int code) {
+        this.code = code;
     }
 
-    public String getCookie() {
-        return cookie;
+    public Optional<String> getContent() {
+        return Optional.of(content);
+    }
+
+    public Optional<Map<String, List<String>>> getHeaderFields() {
+        return Optional.of(headerFields);
+    }
+
+    public Optional<List<String>> getCookies() {
+        if (headerFields == null) return Optional.empty();
+        return Optional.of(headerFields.get("Set-Cookie"));
+    }
+
+    public int getCode() {
+        return code;
     }
 }

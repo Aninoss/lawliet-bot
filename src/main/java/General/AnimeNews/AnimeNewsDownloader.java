@@ -1,6 +1,7 @@
 package General.AnimeNews;
 
 import Constants.Language;
+import General.Internet.InternetResponse;
 import General.PostBundle;
 import General.Shortcuts;
 import General.Tools;
@@ -16,9 +17,10 @@ public class AnimeNewsDownloader {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
-        String dataString = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 14));
 
-        if (dataString == null) return null;
+        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 14));
+        if (!internetResponse.getContent().isPresent()) return null;
+        String dataString = internetResponse.getContent().get();
 
         if (Tools.getLanguage(locale) == Language.DE) return getPostDE(getCurrentPostStringDE(dataString));
         else return getPostEN(getCurrentPostStringEN(dataString));
@@ -28,9 +30,10 @@ public class AnimeNewsDownloader {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
-        String dataString = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 14));
 
-        if (dataString == null) return null;
+        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 14));
+        if (!internetResponse.getContent().isPresent()) return null;
+        String dataString = internetResponse.getContent().get();
 
         ArrayList<AnimeNewsPost> postList = new ArrayList<>();
         for(int i=0; i < 5; i++) {

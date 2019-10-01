@@ -60,7 +60,7 @@ public class GimmeHentaiCommand extends Command implements onRecievedListener {
                 break;
         }
 
-        String data = Internet.getData(hentaiText.split("\n")[1]);
+        String data = Internet.getData(hentaiText.split("\n")[1]).getContent().get();
         String cover = Tools.cutString(data,"<meta property=\"og:image\" content=\"","\">");
         String desc = Tools.shortenString(Shortcuts.decryptString(Tools.cutString(data,"<meta property=\"og:description\" content=\"","\">")),1024);
 

@@ -16,11 +16,11 @@ public class URLDataContainer {
         dataPackets = new ArrayList<>();
     }
 
-    public String getData(String url) throws IOException, InterruptedException {
+    public InternetResponse getData(String url) throws IOException, InterruptedException {
         return getData(url, 0);
     }
 
-    public String getData(String url, int waitingTime) throws InterruptedException, IOException {
+    public InternetResponse getData(String url, int waitingTime) throws InterruptedException, IOException {
         for (URLData urlData: (ArrayList<URLData>) dataPackets.clone()) {
             if (urlData.getUrl().equalsIgnoreCase(url)) {
                 while (urlData.getBlockInstant() == null && Instant.now().isBefore(urlData.getCreateInstant().plusSeconds(30))) {
@@ -39,14 +39,14 @@ public class URLDataContainer {
         return newURLData.getData();
     }
 
-    public String getData(String url, int waitingTime, Instant instant) throws IOException, InterruptedException {
-        String str = getData(url, waitingTime);
+    public InternetResponse getData(String url, int waitingTime, Instant instant) throws IOException, InterruptedException {
+        InternetResponse str = getData(url, waitingTime);
         setInstantForURL(instant, url);
         return str;
     }
 
-    public String getData(String url, Instant instant) throws IOException, InterruptedException {
-        String str = getData(url,0);
+    public InternetResponse getData(String url, Instant instant) throws IOException, InterruptedException {
+        InternetResponse str = getData(url,0);
         setInstantForURL(instant, url);
         return str;
     }

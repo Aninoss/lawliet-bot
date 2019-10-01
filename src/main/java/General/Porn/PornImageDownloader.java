@@ -1,6 +1,7 @@
 package General.Porn;
 
 import General.Comment;
+import General.Internet.InternetResponse;
 import General.Shortcuts;
 import General.Tools;
 import General.Internet.URLDataContainer;
@@ -35,7 +36,7 @@ public class PornImageDownloader {
         );
 
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
-        String data = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
+        String data = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60)).getContent().get();
 
         int count = Math.min(200*100, Integer.parseInt(Tools.cutString(data,"count=\"","\"")));
 
@@ -61,11 +62,11 @@ public class PornImageDownloader {
 
     private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly) throws IOException, InterruptedException {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&json=1&tags="+searchTerm+"&pid="+page;
-        String dataString = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
+        InternetResponse internetResponse = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
 
-        if (dataString == null || dataString.length() == 0) return null;
+        if (!internetResponse.getContent().isPresent()) return null;
 
-        JSONArray data = new JSONArray(dataString);
+        JSONArray data = new JSONArray(internetResponse.getContent().get());
 
         int count = Math.min(data.length(), 100);
         int count2 = 0;
@@ -117,7 +118,7 @@ public class PornImageDownloader {
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
         String commentURL = "https://"+domain+"/index.php?page=dapi&s=comment&q=index&post_id=" + postData.getInt("id");
 
-        String commentsDataString = URLDataContainer.getInstance().getData(commentURL , Instant.now().plusSeconds(60 * 60));
+        String commentsDataString = URLDataContainer.getInstance().getData(commentURL , Instant.now().plusSeconds(60 * 60)).getContent().get();
 
         ArrayList<Comment> comments = new ArrayList<>();
         while(commentsDataString.contains("creator=\"")) {

@@ -54,7 +54,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
                 log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
             }
 
-            String dataString = Internet.getData(url);
+            String dataString = Internet.getData(url).getContent().get();
             JSONObject data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
             String diffString = data.getString("difficulty");
 
