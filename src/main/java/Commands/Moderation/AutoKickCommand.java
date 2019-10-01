@@ -87,7 +87,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                         banList = new ArrayList<>();
                         for (User user : server.getMembers()) {
                             Instant instant = map.get(user);
-                            if (Instant.now().minusSeconds(60 * 60 * 24 * n).isAfter(instant) && !user.isBot()) {
+                            if (Instant.now().minusSeconds(60 * 60 * 24 * n).isAfter(instant) && !user.isBot() && Tools.canYouKickUser(server, user)) {
                                 banList.add(user);
                             }
                         }

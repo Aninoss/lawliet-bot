@@ -1,11 +1,11 @@
 package General;
 
 import Constants.Permission;
-import org.javacord.api.entity.channel.Channel;
-import org.javacord.api.entity.channel.ChannelType;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.channel.VoiceChannel;
+import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionState;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
@@ -15,30 +15,31 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class PermissionCheck {
-    public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, Channel channel, User user, int userPermissions, int botPermissions) throws IOException {
+    public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server,channel,server.getApi().getYourself(),botPermissions);
 
         return getEmbedBuilderForPermissions(locale, userPermission,botPermission);
     }
 
-    public static EmbedBuilder userhasPermissions(Locale locale, Server server, Channel channel, User user, int userPermissions) throws IOException {
+    public static EmbedBuilder userhasPermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
 
         return getEmbedBuilderForPermissions(locale, userPermission,new ArrayList<>());
     }
 
-    public static EmbedBuilder bothasPermissions(Locale locale, Server server, Channel channel, int botPermissions) throws IOException {
+    public static EmbedBuilder bothasPermissions(Locale locale, Server server, ServerChannel channel, int botPermissions) throws IOException {
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server,channel,server.getApi().getYourself(),botPermissions);
         return getEmbedBuilderForPermissions(locale, new ArrayList<>(),botPermission);
     }
 
-    public static ArrayList<Integer> getMissingPermissionListForUser(Server server, Channel channel, User user, int userPermissions) {
+    public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {
         ArrayList<Integer> userPermission = new ArrayList<>();
 
         if (channel != null) {
             //Bei Channels allgemein
             if ((userPermissions & Permission.SEE_CHANNEL) > 0 && !channel.canSee(user)) userPermission.add(4);
+            if ((userPermissions & Permission.MANAGE_CHANNEL) > 0 && !Tools.canManageChannel(channel, user)) userPermission.add(24);
 
             //Bei Text-Channels
             if (channel.getType() == ChannelType.SERVER_TEXT_CHANNEL) {
@@ -120,4 +121,5 @@ public class PermissionCheck {
         }
         return eb;
     }
+
 }

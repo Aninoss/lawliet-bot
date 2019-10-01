@@ -1,12 +1,10 @@
 package General.SPBlock;
 
 import Commands.Moderation.SelfPromotionBlockCommand;
+import Constants.Permission;
 import Constants.SPAction;
 import Constants.Settings;
-import General.EmbedFactory;
-import General.ModerationStatus;
-import General.TextManager;
-import General.Tools;
+import General.*;
 import MySQL.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -26,7 +24,7 @@ public class SPCheck {
         if (contentContainsDiscordLink(content) && !message.getUserAuthor().get().isBot()) {
             try {
                 for(RichInvite richInvite: server.getInvites().get()) {
-                    content = content.replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
+                    content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
                 }
             } catch (InterruptedException | ExecutionException e) {
                 //Ignore
@@ -95,7 +93,7 @@ public class SPCheck {
                         }
 
                         ModerationStatus moderationStatus = DBServer.getModerationFromServer(server);
-                        if (moderationStatus.getChannel() != null) {
+                        if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(locale, "spblock", moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                             eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
                                     .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true)
                                     .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);

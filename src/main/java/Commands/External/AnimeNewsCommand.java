@@ -51,7 +51,7 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
         PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), trackerData.getArg());
 
         for(AnimeNewsPost post: postBundle.getPosts()) {
-            trackerData.getChannel().sendMessage(getEmbed(post));
+            trackerData.getChannel().sendMessage(getEmbed(post)).get();
         }
 
         trackerData.setArg(postBundle.getNewestPost());

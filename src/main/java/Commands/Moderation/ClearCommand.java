@@ -8,11 +8,7 @@ import General.TextManager;
 import General.Tools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.awt.*;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -36,8 +32,7 @@ public class ClearCommand extends Command implements onRecievedListener {
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.length() > 0 && Tools.stringIsNumeric(followedString) && Long.parseLong(followedString) >= 1 && Long.parseLong(followedString) <= 500) {
-            int n = Integer.parseInt(followedString);
-            int count = n;
+            int count = Integer.parseInt(followedString);
             int deleted = 0;
 
             while(count > 0) {

@@ -23,5 +23,6 @@ public interface Permission {
             USE_TTS_IN_TEXT_CHANNEL = 0x100000,
             USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL = 0x200000,
             SEE_CHANNEL = 0x400000,
-            CONNECT = 0x800000;
+            CONNECT = 0x800000,
+            MANAGE_CHANNEL = 0x1000000;
 }

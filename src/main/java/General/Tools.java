@@ -172,6 +172,27 @@ public class Tools {
         return new Mention(string,multi);
     }
 
+    public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) throws IOException {
+        int counted = 0;
+        boolean multi = false;
+        StringBuilder sb = new StringBuilder();
+
+        for(Role role: roleList) {
+            sb.append("**").append(role.getName()).append("**, ");
+            counted++;
+        }
+
+        if (counted == 0) return null;
+        if (counted > 1) multi = true;
+
+        String string = sb.toString();
+        string = string.substring(0,string.length()-2);
+
+        if (string.contains(", ")) string = Tools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+
+        return new Mention(string, multi);
+    }
+
     public static String getBar(double value, int number) {
         //String[] blocks = {"⠀", "▏","▎","▍","▌","▋","▊","▉"};
         String[] blocks = {"░","█"};
@@ -480,6 +501,26 @@ public class Tools {
     }
 
     public static boolean canSendPrivateMessage(User user) {
-        return user.getPrivateChannel().isPresent() && user.getPrivateChannel().get().canYouWrite();
+        try {
+            user.openPrivateChannel().get();
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            //Ignore
+        }
+
+        return false;
     }
+
+    public static boolean canYouKickUser(Server server, User user) {
+        return server.canYouKickUser(user) && server.getOwner() != user;
+    }
+
+    public static boolean canYouBanUser(Server server, User user) {
+        return server.canYouBanUser(user) && server.getOwner() != user;
+    }
+
+    public static boolean canManageChannel(ServerChannel channel, User user) {
+        return channel.getServer().getPermissions(user).getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED || channel.getEffectivePermissions(user).getState(PermissionType.MANAGE_CHANNELS) == PermissionState.ALLOWED;
+    }
+
 }

@@ -4,13 +4,9 @@ import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.PermissionCheck;
-import General.TextManager;
+import General.PermissionCheckRuntime;
 import MySQL.DBBot;
 import MySQL.DBServer;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
 
 import java.awt.*;
 import java.sql.SQLException;
@@ -18,6 +14,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class TrackerManager {
     private static ArrayList<TrackerConnection> trackerConnections = new ArrayList<>();
@@ -33,24 +30,17 @@ public class TrackerManager {
                 Duration duration = Duration.between(Instant.now(), trackerData.getInstant());
                 Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
 
-                if (!trackerData.getChannel().getCurrentCachedInstance().isPresent()) return;
+                try {
+                    trackerData.getChannel().getLatestInstance().get();
+                } catch (InterruptedException | ExecutionException e) {
+                    return;
+                }
 
-                EmbedBuilder errEmbed;
-                do {
-                    errEmbed = PermissionCheck.bothasPermissions(command.getLocale(), trackerData.getServer(), trackerData.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS);
-
-                    if (errEmbed != null) {
-                       User owner = trackerData.getServer().getOwner();
-                        int RETRY_MINUTES = 30;
-                        if (owner != null) {
-                            owner.sendMessage(EmbedFactory.getEmbedError()
-                                    .setTitle(TextManager.getString(locale, TextManager.GENERAL,"error"))
-                                    .setDescription(TextManager.getString(locale, TextManager.GENERAL,"tracker_missing_permissions", command.getTrigger(), trackerData.getChannel().getIdAsString(), String.valueOf(RETRY_MINUTES)))).get();
-                            owner.sendMessage(errEmbed).get();
-                        }
-                        Thread.sleep(1000 * 60 * RETRY_MINUTES);
-                    }
-                } while (errEmbed != null);
+                while(true) {
+                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), trackerData.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                        Thread.sleep(30 * 60 * 1000);
+                    } else break;
+                }
 
                 TrackerData oldTrackerData = trackerData;
                 trackerData = ((onTrackerRequestListener) command).onTrackerRequest(trackerData);

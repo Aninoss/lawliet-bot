@@ -12,6 +12,7 @@ import General.Mention.MentionFinder;
 import General.SPBlock.SPBlock;
 import MySQL.DBServer;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -189,9 +190,9 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), spBlock.isActive()), true)
-                       .addField(getString("state0_mignoredusers"),ListGen.getUserList(getLocale(), spBlock.getIgnoredUser()), true)
-                       .addField(getString("state0_mignoredchannels"),ListGen.getChannelList(getLocale(), spBlock.getIgnoredChannels()), true)
-                       .addField(getString("state0_mlogreciever"),ListGen.getUserList(getLocale(), spBlock.getLogRecievers()), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(spBlock.getIgnoredUser(), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(spBlock.getIgnoredChannels(), getLocale(), Mentionable::getMentionTag), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(spBlock.getLogRecievers(), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_maction"),getString("state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true);
 
             case 1:

@@ -57,6 +57,8 @@ public class WelcomeCommand extends Command implements onNavigationListener {
         if (firstTime) {
             welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(getLocale(), event.getServer().get());
             author = event.getMessage().getUserAuthor().get();
+            checkChannelWithLog(welcomeMessageSetting.getWelcomeChannel());
+            checkChannelWithLog(welcomeMessageSetting.getFarewellChannel());
             return Response.TRUE;
         }
 
@@ -99,11 +101,13 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    welcomeMessageSetting.setWelcomeChannel(channelList.get(0));
-                    DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
-                    setLog(LogStatus.SUCCESS, getString("channelset"));
-                    setState(0);
-                    return Response.TRUE;
+                    if (checkChannelWithLog(channelList.get(0))) {
+                        welcomeMessageSetting.setWelcomeChannel(channelList.get(0));
+                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        setLog(LogStatus.SUCCESS, getString("channelset"));
+                        setState(0);
+                        return Response.TRUE;
+                    } else return Response.FALSE;
                 }
 
             case 4:
@@ -143,8 +147,10 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     } catch (IOException e) {
                         if (e.toString().contains("403") && url.toString().startsWith("https://cdn.discordapp.com/attachments/")) {
                             setLog(LogStatus.FAILURE, getString("image_no_permission"));
-                            return Response.FALSE;
-                        } else throw e;
+                        } else {
+                            setLog(LogStatus.FAILURE, getString("404"));
+                        }
+                        return Response.FALSE;
                     }
                 }
 
@@ -174,11 +180,13 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    welcomeMessageSetting.setFarewellChannel(channelList.get(0));
-                    DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
-                    setLog(LogStatus.SUCCESS, getString("farechannelset"));
-                    setState(0);
-                    return Response.TRUE;
+                    if (checkChannelWithLog(channelList.get(0))) {
+                        welcomeMessageSetting.setFarewellChannel(channelList.get(0));
+                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        setLog(LogStatus.SUCCESS, getString("farechannelset"));
+                        setState(0);
+                        return Response.TRUE;
+                    } else return Response.FALSE;
                 }
         }
 
@@ -247,7 +255,6 @@ public class WelcomeCommand extends Command implements onNavigationListener {
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
-        //String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));

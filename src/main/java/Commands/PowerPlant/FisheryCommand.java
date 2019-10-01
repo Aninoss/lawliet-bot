@@ -9,6 +9,7 @@ import General.Mention.MentionFinder;
 import MySQL.DBServer;
 import MySQL.DBUser;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -33,9 +34,9 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"fishingsetup", "fisherysetup"}
 )
-public class PowerPlantSetupCommand extends Command implements onNavigationListener,onReactionAddStatic  {
+public class FisheryCommand extends Command implements onNavigationListener,onReactionAddStatic  {
 
-    public PowerPlantSetupCommand() {
+    public FisheryCommand() {
         super();
     }
 
@@ -59,12 +60,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
             announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
             treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
 
-            for(Role role: roles) {
-                if (!Tools.canManageRole(role)) {
-                    setLog(LogStatus.FAILURE, getString("norolepermissions"));
-                    break;
-                }
-            }
+            checkRolesWithLog(roles);
 
             return Response.TRUE;
         }
@@ -76,12 +72,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    for (Role role : roleList) {
-                        if (!Tools.canManageRole(role)) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission", roleList.size() != 1));
-                            return Response.FALSE;
-                        }
-                    }
+                    if (!checkRolesWithLog(roleList)) return Response.FALSE;
 
                     int existingRoles = 0;
                     for (Role role : roleList) {
@@ -125,14 +116,14 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    if (channelList.get(0).canYouWrite()) {
-                        announcementChannel = channelList.get(0);
+                    ServerTextChannel channel = channelList.get(0);
+                    if (checkChannelWithLog(channel)) {
+                        announcementChannel = channel;
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         setState(0);
                         DBServer.savePowerPlantAnnouncementChannel(event.getServer().get(), announcementChannel);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission_channel"));
                         return Response.FALSE;
                     }
                 }
@@ -348,8 +339,8 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[status.ordinal()].toUpperCase() + "**", true)
                         .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), treasureChests), true)
-                        .addField(getString("state0_mroles"), ListGen.getRoleListNumbered(getLocale(), roles), true)
-                        .addField(getString("state0_mchannels"), ListGen.getChannelList(getLocale(), ignoredChannels), true)
+                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), true)
+                        .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Nameable::getName), true)
                         .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), true)
                         .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), singleRole)), getString("state0_msinglerole_desc"), true);
 
@@ -399,7 +390,7 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions().get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
+                        .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opening", event.getUser().getMentionTag()));
                 message.edit(eb).get();
 
@@ -413,13 +404,14 @@ public class PowerPlantSetupCommand extends Command implements onNavigationListe
                 long won = Math.round(DBUser.getFishingProfile(event.getServer().get(), event.getUser()).getEffect(FishingCategoryInterface.PER_TREASURE) * (0.7 + r.nextDouble() * 0.6));
 
                 eb = EmbedFactory.getEmbed()
-                        .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
+                        .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), Tools.numToString(getLocale(), won)))
                         .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"));
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 
-                if (resultInt == 0 && message.getChannel().canYouWrite()) event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0L, won)).get();
+                ServerTextChannel channel = event.getServerTextChannel().get();
+                if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0L, won)).get();
 
                 Thread t = new Thread(() -> {
                     try {

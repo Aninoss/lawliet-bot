@@ -10,6 +10,7 @@ import General.*;
 import General.Mention.MentionFinder;
 import MySQL.DBServer;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -99,7 +100,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_mchannel"), ListGen.getChannelList(everyChannel, channels), true);
+                       .addField(getString("state0_mchannel"), new ListGen<ServerTextChannel>().getList(channels, everyChannel, Mentionable::getMentionTag), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

@@ -95,7 +95,7 @@ public class CommandContainer {
         commandList.add(SendCommand.class);
 
         //FISHERY
-        commandList.add(PowerPlantSetupCommand.class);
+        commandList.add(FisheryCommand.class);
         commandList.add(SellCommand.class);
         commandList.add(BuyCommand.class);
         commandList.add(DailyCommand.class);

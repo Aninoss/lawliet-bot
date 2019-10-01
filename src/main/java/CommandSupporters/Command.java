@@ -5,18 +5,22 @@ import CommandListeners.CommandProperties;
 import Constants.*;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
+import General.Mention.MentionFinder;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -138,7 +142,7 @@ public class Command {
         } finally {
             if (success != null) {
                 removeLoadingReaction();
-                setResultReaction(success == Response.TRUE);
+                setResultReaction(event.getMessage(), success == Response.TRUE);
             }
         }
 
@@ -411,6 +415,42 @@ public class Command {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, secondOption, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
+    }
+
+    public boolean checkChannelWithLog(ServerTextChannel channel) {
+        if (channel.canYouWrite() && channel.canYouEmbedLinks()) return true;
+        try {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#"+channel.getName()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean checkRoleWithLog(Role role) {
+        if (Tools.canManageRole(role)) return true;
+        try {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@"+role.getName()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean checkRolesWithLog(ArrayList<Role> roles) {
+        ArrayList<Role> unmanagableRoles = new ArrayList<>();
+
+        for(Role role: roles) {
+            if (!Tools.canManageRole(role)) unmanagableRoles.add(role);
+        }
+
+        if (unmanagableRoles.size() == 0) return true;
+        try {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", true, Tools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 

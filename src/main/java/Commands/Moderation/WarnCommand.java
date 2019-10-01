@@ -99,7 +99,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             mentions.append(user.getMentionTag()).append(" ");
         }
 
-        if (moderationStatus.getChannel() != null) moderationStatus.getChannel().sendMessage(actionEmbed).get();
+        if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) moderationStatus.getChannel().sendMessage(actionEmbed).get();
 
         EmbedBuilder successEb = EmbedFactory.getCommandEmbedSuccess(this, getString("success_description", mention.isMultiple(), mention.getString()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);

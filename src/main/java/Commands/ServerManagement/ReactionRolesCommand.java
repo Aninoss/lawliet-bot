@@ -24,18 +24,15 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "reactionroles",
-        botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL |Permission.MANAGE_ROLES_ON_SERVER,
-        userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL |Permission.MANAGE_ROLES_ON_SERVER,
+        botPermissions = Permission.MANAGE_ROLES_ON_SERVER | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        userPermissions = Permission.MANAGE_ROLES_ON_SERVER,
         emoji = "\u2611\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png",
         executable = true,
@@ -66,12 +63,11 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 1:
                 ArrayList<ServerTextChannel> serverTextChannel = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
                 if (serverTextChannel.size() > 0) {
-                    if (serverTextChannel.get(0).canYouWrite() && serverTextChannel.get(0).canYouEmbedLinks() && serverTextChannel.get(0).canYouManageMessages()) {
+                    if (checkChannelWithLog(serverTextChannel.get(0))) {
                         channel = serverTextChannel.get(0);
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE,TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission_channel"));
                         return Response.FALSE;
                     }
                 }
@@ -86,12 +82,11 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     for(Message message: messageArrayList) {
                         if (messageIsReactionMessage(message)) {
                             ServerTextChannel messageChannel = message.getServerTextChannel().get();
-                            if (messageChannel.canYouEmbedLinks() && messageChannel.canYouManageMessages()) {
+                            if (checkChannelWithLog(messageChannel)) {
                                 editMessage = message;
                                 setLog(LogStatus.SUCCESS, getString("messageset"));
                                 return Response.TRUE;
                             } else {
-                                setLog(LogStatus.FAILURE,TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission_channel"));
                                 return Response.FALSE;
                             }
                         }
@@ -125,10 +120,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     if (list.size() > 0) {
                         Role roleTest = list.get(0);
 
-                        if (!Tools.canManageRole(roleTest)) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission", false, inputString));
-                            return Response.FALSE;
-                        }
+                        if (!checkRoleWithLog(roleTest)) return Response.FALSE;
 
                         roleTemp = roleTest;
                         setLog(LogStatus.SUCCESS, getString("roleset"));
@@ -503,6 +495,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         this.description = Tools.cutSpaces(embed.getDescription().get());
 
         emojiConnections = new ArrayList<>();
+        checkRolesWithLog(MentionFinder.getRoles(editMessage, embed.getFields().get(0).getValue()).getList());
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
@@ -539,7 +532,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
                     for (EmojiConnection emojiConnection : emojiConnections) {
                         Role r = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
-                        if (r.getUsers().contains(event.getUser()) && event.getServer().get().canYouManageRoles()) r.removeUser(event.getUser());
+                        if (r.getUsers().contains(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r)) r.removeUser(event.getUser());
                     }
                 }
 
@@ -551,23 +544,23 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
                             for (User userCheck : userList) {
                                 if (!message.getServer().get().getMembers().contains(userCheck)) {
-                                    if (userCheck != user && event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) reaction.removeUser(userCheck).get();
+                                    if (userCheck != user && message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) reaction.removeUser(userCheck).get();
                                 }
                             }
                         }
 
-                        if (Tools.canManageRole(r)) event.getUser().addRole(r).get();
+                        if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r)) event.getUser().addRole(r).get();
 
                         queue.remove(user);
                         return;
                     }
                 }
 
+                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
                 queue.remove(user);
-                event.removeReaction();
             } catch (Throwable e) {
+                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
                 queue.remove(user);
-                event.removeReaction();
                 throw e;
             }
         }
@@ -582,7 +575,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     Role r = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                     try {
                         User user = event.getUser();
-                        if (event.getServer().get().getMembers().contains(user) && Tools.canManageRole(r)) user.removeRole(r).get();
+                        if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r)) user.removeRole(r).get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }

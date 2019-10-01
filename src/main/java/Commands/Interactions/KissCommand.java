@@ -36,7 +36,6 @@ public class KissCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/b8d0152fbe9ecc061f9ad7ff74533396/tenor.gif?itemid=5372258",
                 "https://media1.tenor.com/images/558f63303a303abfdddaa71dc7b3d6ae/tenor.gif?itemid=12879850",
                 "https://media1.tenor.com/images/2182d81bc459732fdf9bf94d1dd068c4/tenor.gif?itemid=6155634",
-                "https://media1.tenor.com/images/e2dd4e5322906bee8c595c83f36358ba/tenor.gif?itemid=7324668",
                 "https://media1.tenor.com/images/8cab4f4c73547d077c56066461c40a5e/tenor.gif?itemid=12873196",
                 "https://media1.tenor.com/images/a390476cc2773898ae75090429fb1d3b/tenor.gif?itemid=12837192",
                 "https://media1.tenor.com/images/d9115cb8f24162cf70428d8cb8d96558/tenor.gif?itemid=9382690",

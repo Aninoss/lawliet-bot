@@ -131,6 +131,8 @@ public class QuoteCommand extends Command implements onRecievedListener {
     }
 
     public void postEmbed(ServerTextChannel channel, Message searchedMessage) throws IOException, ExecutionException, InterruptedException {
+        if (!channel.canYouWrite() || !channel.canYouEmbedLinks()) return;
+
         if (searchedMessage.getServerTextChannel().get().isNsfw() && !channel.isNsfw()) {
             channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
             return;

@@ -4,6 +4,7 @@ import Constants.Permission;
 import General.AutoChannel.AutoChannelContainer;
 import General.PermissionCheck;
 import General.AutoChannel.TempAutoChannel;
+import General.PermissionCheckRuntime;
 import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
@@ -20,9 +21,7 @@ public class VoiceChannelMemberLeaveListener {
             ServerVoiceChannel vc = tempAutoChannel.getTempChannel();
             if (event.getChannel().getId() == vc.getId()) {
                 try {
-                    //Überprüft Berechtigungen des Bots
-                    if (PermissionCheck.getMissingPermissionListForUser(event.getServer(), event.getChannel(), event.getApi().getYourself(), Permission.CREATE_CHANNELS_ON_SERVER).size() == 0) {
-                        //Löscht Channel
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(DBServer.getServerLocale(event.getServer()), "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
                         if (event.getChannel().getConnectedUsers().size() == 0) {
                             vc.delete().get();
                             AutoChannelContainer.getInstance().removeVoiceChannel(vc);

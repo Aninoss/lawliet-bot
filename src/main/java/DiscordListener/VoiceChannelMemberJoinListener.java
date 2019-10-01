@@ -6,6 +6,7 @@ import General.AutoChannel.AutoChannelContainer;
 import General.AutoChannel.AutoChannelData;
 import General.PermissionCheck;
 import General.AutoChannel.TempAutoChannel;
+import General.PermissionCheckRuntime;
 import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
@@ -29,10 +30,8 @@ public class VoiceChannelMemberJoinListener {
         if (event.getUser().isYourself() || !userIsConnected(event.getChannel(), event.getUser())) return;
         try {
             AutoChannelData autoChannelData = DBServer.getAutoChannelFromServer(event.getServer());
-            if (autoChannelData.isActive() && event.getChannel().equals(autoChannelData.getVoiceChannel())) {
-                //Überprüft Berechtigungen des Bots
-                if (PermissionCheck.getMissingPermissionListForUser(event.getServer(), event.getChannel(),event.getApi().getYourself(), Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER).size() == 0) {
-                    //Bestimmt Channel Nr.
+            if (autoChannelData.isActive() && event.getChannel().getId() == autoChannelData.getVoiceChannel().getId()) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(DBServer.getServerLocale(event.getServer()), "autochannel", event.getServer(), Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER)) {
                     int n = 1;
 
                     for(int i = 0; i < 50; i++) {
@@ -42,7 +41,7 @@ public class VoiceChannelMemberJoinListener {
 
                     if (!userIsConnected(event.getChannel(), event.getUser())) return;
 
-                    //Erstellt Channel
+                    //Create channel
                     ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
                             .setName(getNewVCName(autoChannelData, event, n))
                             .setBitrate(event.getChannel().getBitrate());
@@ -51,7 +50,7 @@ public class VoiceChannelMemberJoinListener {
                     if (event.getChannel().getUserLimit().isPresent())
                         vcb.setUserlimit(event.getChannel().getUserLimit().get());
 
-                    //Überträgt Berechtigungen
+                    //Transfer permissions
                     for(Map.Entry<User, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
                         vcb.addPermissionOverwrite(entry.getKey(),entry.getValue());
                     }

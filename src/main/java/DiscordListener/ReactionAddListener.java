@@ -17,8 +17,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ReactionAddListener {
-    public ReactionAddListener() {
-    }
+
+    public ReactionAddListener() {}
 
     public static boolean manageReactionCommands(SingleReactionEvent event) {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
@@ -85,4 +85,5 @@ public class ReactionAddListener {
             throwable.printStackTrace();
         }
     }
+
 }

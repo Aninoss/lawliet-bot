@@ -44,12 +44,12 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
             winMultiplicator = 1;
             block = false;
             finished = false;
-            gameCards = new  ArrayList[2];
+            gameCards = new ArrayList[2];
 
-            gameCards[0] = new ArrayList<GameCard>();
+            gameCards[0] = new ArrayList<>();
             for(int i=0; i<2; i++) gameCards[0].add(new GameCard());
 
-            gameCards[1] = new ArrayList<GameCard>();
+            gameCards[1] = new ArrayList<>();
             for(int i=0; i<1; i++) gameCards[1].add(new GameCard());
 
             message = event.getChannel().sendMessage(getEmbed()).get();

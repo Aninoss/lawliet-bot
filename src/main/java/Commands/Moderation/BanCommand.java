@@ -2,6 +2,7 @@ package Commands.Moderation;
 
 import CommandListeners.CommandProperties;
 import Constants.Permission;
+import General.Tools;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
@@ -26,7 +27,7 @@ public class BanCommand extends WarnCommand  {
 
     @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
-        return server.canYouBanUser(userAim) && server.canBanUser(userStarter, userAim) && !server.isOwner(userAim);
+        return Tools.canYouBanUser(server, userAim) && server.canBanUser(userStarter, userAim);
     }
     
 }

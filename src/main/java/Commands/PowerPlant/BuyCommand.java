@@ -52,14 +52,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                 singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
                 treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
 
-                for(Role role: roles) {
-                    if (!Tools.canManageRole(role)) {
-                        event.getServer().get().getOwner().sendMessage(EmbedFactory.getEmbedError()
-                                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL,"error"))
-                                .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_norolepermissions"))).get();
-                        break;
-                    }
-                }
+                checkRolesWithLog(roles);
 
                 return Response.TRUE;
             } else {

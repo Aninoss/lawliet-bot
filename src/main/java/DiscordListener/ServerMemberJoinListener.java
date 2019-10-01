@@ -1,6 +1,7 @@
 package DiscordListener;
 import Commands.ServerManagement.WelcomeCommand;
 import Constants.FishingCategoryInterface;
+import Constants.Permission;
 import General.*;
 import General.Fishing.FishingProfile;
 import MySQL.DBServer;
@@ -22,6 +23,7 @@ public class ServerMemberJoinListener {
 
     public void onJoin(ServerMemberJoinEvent event) {
         if (event.getUser().isYourself()) return;
+
         Server server = event.getServer();
         Locale locale = null;
         try {
@@ -46,15 +48,15 @@ public class ServerMemberJoinListener {
 
                 if (singleRole) {
                     Role role = roles.get(level - 1);
-                    if (role != null) role.addUser(event.getUser());
+                    if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "fishery", role)) role.addUser(event.getUser()).get();
                 } else {
                     for (int i = 0; i <= level - 1; i++) {
                         Role role = roles.get(i);
-                        if (role != null) role.addUser(event.getUser());
+                        if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "fishery", role)) role.addUser(event.getUser()).get();
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
@@ -62,9 +64,9 @@ public class ServerMemberJoinListener {
         try {
             ArrayList<Role> basicRoles = DBServer.getBasicRolesFromServer(event.getServer());
             for (Role role : basicRoles) {
-                event.getUser().addRole(role);
+                if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "autoroles", role)) event.getUser().addRole(role).get();
             }
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
@@ -73,7 +75,7 @@ public class ServerMemberJoinListener {
             WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
             if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
                 ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
-                if (channel.canYouWrite()) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
                     InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
 
                     if (image != null) {

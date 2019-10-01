@@ -8,7 +8,6 @@ import General.RunningCommands.RunningCommandManager;
 import MySQL.*;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import ServerStuff.Donations.DonationServer;
-import GUIPackage.GUI;
 import General.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
 import General.Survey.*;
@@ -169,7 +168,7 @@ public class Clock {
 
                         Thread t = new Thread(() -> {
                             try {
-                                slot.getUser().sendMessage(eb).get();
+                                if (Tools.canSendPrivateMessage(slot.getUser())) slot.getUser().sendMessage(eb).get();
                             } catch (InterruptedException | ExecutionException e) {
                                 //Ignore
                             }

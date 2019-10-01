@@ -20,7 +20,7 @@ public class InteractionCommand extends Command {
 
     public boolean onInteractionRecieved(MessageCreateEvent event, String followedString, ArrayList<Integer> picked) throws Throwable {
         Message message = event.getMessage();
-        Mention mention = Tools.getMentionedString(getLocale(),message,followedString);
+        Mention mention = Tools.getMentionedString(getLocale(), message, followedString);
         if (mention == null) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"no_mentions"))).get();

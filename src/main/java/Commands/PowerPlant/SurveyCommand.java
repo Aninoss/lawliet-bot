@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executable = true
 )
-public class SurveyCommand extends Command implements onRecievedListener,onReactionAddStatic, onTrackerRequestListener {
+public class SurveyCommand extends Command implements onRecievedListener, onReactionAddStatic, onTrackerRequestListener {
 
     private static long lastAccess = 0;
 
@@ -56,18 +56,8 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
-        else {
-            User owner = message.getServer().get().getOwner();
-            if (owner != null) {
-                EmbedBuilder errEmbed = PermissionCheck.bothasPermissions(getLocale(), message.getServer().get(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL);
-                owner.sendMessage(EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL,"error"))
-                        .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL,"survey_missing_permissions"))).get();
-                owner.sendMessage(errEmbed).get();
-            }
-            return;
-        }
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL)) return;
+        event.removeReaction().get();
 
         for(Reaction reaction: message.getReactions()) {
             boolean correctEmoji = false;
@@ -100,7 +90,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
                         else {
                             if (!DBSurvey.updateMajorityVote(event.getServer().get(), event.getUser(), i)) {
                                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                                event.getUser().sendMessage(eb).get();
+                                if (Tools.canSendPrivateMessage(event.getUser())) event.getUser().sendMessage(eb).get();
                                 return;
                             }
                         }
@@ -123,7 +113,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
                         EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("vote_description") + "\n" + Tools.getEmptyCharacter())
                                 .addField(surveyData[0], voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
-                        event.getUser().sendMessage(eb);
+                        if (Tools.canSendPrivateMessage(event.getUser())) event.getUser().sendMessage(eb);
                     }
                     break;
                 }
@@ -218,6 +208,7 @@ public class SurveyCommand extends Command implements onRecievedListener,onReact
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
+        if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), trackerData.getChannel(), Permission.ADD_NEW_REACTIONS)) return null;
         if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
         Survey survey = DBSurvey.getCurrentSurvey();
         trackerData.setMessageDelete(sendMessages(trackerData.getChannel(), survey));

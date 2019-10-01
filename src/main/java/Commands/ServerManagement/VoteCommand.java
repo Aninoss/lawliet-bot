@@ -128,6 +128,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL)) return;
         removeEmoteIfNotSupported(message, event);
 
         //Doppelte Reaktionen entfernen

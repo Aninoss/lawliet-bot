@@ -172,8 +172,8 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), bannedWords.isActive()), true)
-                       .addField(getString("state0_mignoredusers"),ListGen.getUserList(getLocale(), bannedWords.getIgnoredUser()), true)
-                       .addField(getString("state0_mlogreciever"),ListGen.getUserList(getLocale(), bannedWords.getLogRecievers()), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(bannedWords.getIgnoredUser(), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(bannedWords.getLogRecievers(), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mwords"), getWords(), true);
 
             case 1:

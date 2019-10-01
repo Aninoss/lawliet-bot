@@ -7,55 +7,71 @@ import org.javacord.api.entity.user.User;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class ListGen {
-    public static String getUserList(Locale locale, ArrayList<User> users) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        for(User user: users) {
-            //sb.append("• ");
-            sb.append(user.getMentionTag());
-            sb.append("\n");
-        }
-        if (sb.toString().length() == 0) return TextManager.getString(locale, TextManager.GENERAL, "notset");
-        return sb.toString();
+public class ListGen<T> {
+
+    public static final int SLOT_TYPE_NONE = 0;
+    public static final int SLOT_TYPE_BULLET = 1;
+    public static final int SLOT_TYPE_NUMBERED = 2;
+
+    public ListGen() { }
+
+    public String getList(ArrayList<T> objs, Locale locale, Function<T, String> getNames) {
+        return getList(objs, locale, SLOT_TYPE_NONE, getNames);
     }
 
-    public static String getRoleList(Locale locale, ArrayList<Role> roles) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        for(Role role: roles) {
-            //sb.append("• ");
-            sb.append(role.getMentionTag());
-            sb.append("\n");
-        }
-        if (sb.toString().length() == 0) return TextManager.getString(locale, TextManager.GENERAL, "notset");
-        return sb.toString();
+    public String getList(ArrayList<T> objs, String valueIfEmpty, Function<T, String> getNames) {
+        return getList(objs, valueIfEmpty, SLOT_TYPE_NONE, getNames);
     }
 
-    public static String getRoleListNumbered(Locale locale, ArrayList<Role> roles) throws IOException {
+    public String getList(ArrayList<T> objs, Function<T, String> getNames) {
+        return getList(objs, SLOT_TYPE_NONE, getNames);
+    }
+
+    public String getList(ArrayList<T> objs, Locale locale, int slotType, Function<T, String> getNames) {
+        String valueIfEmpty = "";
+        try {
+            valueIfEmpty = TextManager.getString(locale, TextManager.GENERAL, "notset");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return getList(objs, valueIfEmpty, slotType, getNames);
+    }
+
+    public String getList(ArrayList<T> objs, int slotType, Function<T, String> getNames) {
+        return getList(objs, "", slotType, getNames);
+    }
+
+    public String getList(ArrayList<T> objs, String valueIfEmpty, int slotType, Function<T, String> getNames) {
         StringBuilder sb = new StringBuilder();
         int i = 1;
-        for(Role role: roles) {
-            sb.append(i).append(") ");
-            sb.append(role.getMentionTag());
-            sb.append("\n");
+        for(T obj: objs) {
+            try {
+                String value = getNames.apply(obj);
+                switch (slotType) {
+                    case SLOT_TYPE_BULLET:
+                        sb.append("• ");
+                        break;
+
+                    case SLOT_TYPE_NUMBERED:
+                        sb.append(i).append(") ");
+                        break;
+                }
+                sb.append(value);
+                sb.append("\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             i++;
         }
-        if (sb.toString().length() == 0) return TextManager.getString(locale, TextManager.GENERAL, "notset");
+        if (sb.toString().isEmpty()) return valueIfEmpty;
         return sb.toString();
     }
 
-    public static String getChannelList(Locale locale, ArrayList<ServerTextChannel> channels) throws IOException {
-        return getChannelList(TextManager.getString(locale, TextManager.GENERAL, "notset"), channels);
-    }
-
-    public static String getChannelList(String notSet, ArrayList<ServerTextChannel> channels) {
-        StringBuilder sb = new StringBuilder();
-        for(ServerTextChannel channel: channels) {
-            sb.append(channel.getMentionTag());
-            sb.append("\n");
-        }
-        if (sb.toString().length() == 0) return notSet;
-        return sb.toString();
-    }
 }

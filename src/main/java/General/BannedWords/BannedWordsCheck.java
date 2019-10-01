@@ -1,10 +1,8 @@
 package General.BannedWords;
 
 import Commands.Moderation.BannedWordsCommand;
-import General.EmbedFactory;
-import General.ModerationStatus;
-import General.TextManager;
-import General.Tools;
+import Constants.Permission;
+import General.*;
 import MySQL.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -58,11 +56,15 @@ public class BannedWordsCheck {
                 else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
                 for(User user: bannedWords.getLogRecievers()) {
-                    user.sendMessage(eb).get();
+                    try {
+                        user.sendMessage(eb).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        //Ignore
+                    }
                 }
 
                 ModerationStatus moderationStatus = DBServer.getModerationFromServer(server);
-                if (moderationStatus.getChannel() != null) {
+                if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(locale, "bannedwords", moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                     eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
                             .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                             .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true);

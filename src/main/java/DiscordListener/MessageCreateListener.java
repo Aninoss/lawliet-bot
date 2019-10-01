@@ -5,10 +5,9 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Commands.General.QuoteCommand;
-import Commands.PowerPlant.PowerPlantSetupCommand;
+import Commands.PowerPlant.FisheryCommand;
 import Constants.FishingCategoryInterface;
 import Constants.PowerPlantStatus;
-import GUIPackage.GUI;
 import General.*;
 import General.BannedWords.BannedWordsCheck;
 import General.BotResources.ResourceManager;
@@ -25,11 +24,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -89,8 +85,6 @@ public class MessageCreateListener {
             }
 
             if (prefixFound > -1) {
-                //GUI.getInstance().addLog(event.getServer().get(), event.getMessageAuthor().asUser().get(), event.getMessageContent());
-
                 String newContent = Tools.cutSpaces(content.substring(prefixes[prefixFound].length()));
                 while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
                 String commandTrigger = newContent.split(" ")[0].toLowerCase();
@@ -110,7 +104,7 @@ public class MessageCreateListener {
                             if (event.getChannel().canYouAddNewReactions()) {
                                 event.addReactionsToMessage("✏");
                                 event.addReactionsToMessage("❌");
-                                event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getMentionTag())).get();
+                                event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName())).get();
                             }
                         }
                     }
@@ -118,7 +112,7 @@ public class MessageCreateListener {
             } else {
 
                 //Add Fisch & Manage 100 Fish Message
-                if (!Tools.serverIsBotListServer(event.getServer().get()) && !event.getMessage().getUserAuthor().get().isBot()) {
+                if (!Tools.serverIsBotListServer(event.getServer().get())) {
                     FisheryCache.getInstance().addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
                 }
 
@@ -129,8 +123,7 @@ public class MessageCreateListener {
                         DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get()) &&
                         event.getChannel().canYouWrite() &&
                         event.getChannel().canYouEmbedLinks() &&
-                        event.getChannel().canYouAddNewReactions() &&
-                        !event.getMessage().getUserAuthor().get().isBot()
+                        event.getChannel().canYouAddNewReactions()
                 ) {
 
                     boolean noSpamChannel = true;
@@ -145,12 +138,12 @@ public class MessageCreateListener {
                     if (noSpamChannel) {
                         Locale locale = DBServer.getServerLocale(event.getServer().get());
                         EmbedBuilder eb = EmbedFactory.getEmbed()
-                                .setTitle(PowerPlantSetupCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Tools.getEmptyCharacter())
-                                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_desription", PowerPlantSetupCommand.keyEmoji))
+                                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Tools.getEmptyCharacter())
+                                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
                                 .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_closed.png"));
 
                         Message message = event.getChannel().sendMessage(eb).get();
-                        message.addReaction(PowerPlantSetupCommand.keyEmoji);
+                        message.addReaction(FisheryCommand.keyEmoji);
                     }
 
                 }

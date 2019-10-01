@@ -1,5 +1,6 @@
 package MySQL;
 
+import Constants.Permission;
 import Constants.PowerPlantStatus;
 import Constants.SPAction;
 import General.*;
@@ -599,7 +600,7 @@ public class DBServer {
 
             if (!found) {
                 removeAutoChannelChildChannel(serverId, childChannelId);
-                if (childChannel != null) childChannel.delete().get();
+                if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL)) childChannel.delete().get();
             }
         }
 

@@ -1,5 +1,7 @@
 package DiscordListener;
 import Commands.ServerManagement.WelcomeCommand;
+import Constants.Permission;
+import General.PermissionCheckRuntime;
 import General.Tools;
 import General.WelcomeMessageSetting;
 import MySQL.DBServer;
@@ -31,7 +33,7 @@ public class ServerMemberLeaveListener {
             WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
             if (welcomeMessageSetting != null && welcomeMessageSetting.isGoodbye()) {
                 ServerTextChannel channel = welcomeMessageSetting.getFarewellChannel();
-                if (channel.canYouWrite()) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
                     channel.sendMessage(
                             WelcomeCommand.replaceVariables(welcomeMessageSetting.getGoodbyeText(),
                                     server.getName(),

@@ -44,6 +44,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
         if (firstTime) {
             roles = DBServer.getBasicRolesFromServer(event.getServer().get());
+            checkRolesWithLog(roles);
             return Response.TRUE;
         }
 
@@ -53,12 +54,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
             } else {
-                for(Role role: roleList) {
-                    if (!Tools.canManageRole(role)) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permission", roleList.size() != 1));
-                        return Response.FALSE;
-                    }
-                }
+                if (!checkRolesWithLog(roleList)) return Response.FALSE;
 
                 int existingRoles = 0;
                 for(Role role: roleList) {
@@ -171,7 +167,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_mroles"),ListGen.getRoleList(getLocale(), roles), true);
+                       .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
