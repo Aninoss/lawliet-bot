@@ -60,7 +60,7 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
             if (user != null) userString = rankingSlot.getUser().getDisplayName(server);
             else userString = getString("nouser", String.valueOf(rankingSlot.getUserId()));
 
-            int rank = rankingSlot.getRank()+1;
+            int rank = rankingSlot.getRank();
             String rankString = String.valueOf(rank);
             switch (rank) {
                 case 1:

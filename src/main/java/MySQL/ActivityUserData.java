@@ -2,32 +2,44 @@ package MySQL;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
 
+import java.util.Optional;
+
 public class ActivityUserData {
 
-    private int lastPhase = -1, amount;
+    private int lastPhase = -1, message, vc;
     private ServerTextChannel channel;
 
-    public ActivityUserData(ServerTextChannel channel) {
-        amount = 0;
-        this.channel = channel;
+    public ActivityUserData() {
+        message = 0;
+        vc = 0;
     }
 
-    public boolean register(int phase) {
+    public boolean registerMessage(int phase, ServerTextChannel channel) {
         if (phase > lastPhase) {
             lastPhase = phase;
-            amount++;
+            message++;
+            this.channel = channel;
             return true;
         }
 
         return false;
     }
 
-    public int getAmount() {
-        return amount;
+    public void registerVC() {
+        System.out.println("VC");
+        vc++;
     }
 
-    public ServerTextChannel getChannel() {
-        return channel;
+    public int getAmountMessage() {
+        return message;
+    }
+
+    public int getAmountVC() {
+        return vc;
+    }
+
+    public Optional<ServerTextChannel> getChannel() {
+        return Optional.of(channel);
     }
 
 }

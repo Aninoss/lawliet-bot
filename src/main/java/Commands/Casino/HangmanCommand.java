@@ -2,6 +2,7 @@ package Commands.Casino;
 
 import CommandListeners.*;
 import Constants.LogStatus;
+import Constants.Response;
 import General.*;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -124,15 +125,13 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
     }
 
     @Override
-    public boolean onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        event.getMessage().delete();
-
+    public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
         String input = event.getMessage().getContent().toUpperCase()
                 .replace("Ä", "AE")
                 .replace("Ö", "OE")
                 .replace("Ü", "UE")
                 .replace("ß", "SS");
-        if (input.length() == 0) return false;
+        if (input.length() == 0) return null;
 
         if (!used.contains(input)) {
             used.add(input);
@@ -147,24 +146,17 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
 
                 if (!successful) onWrong(input);
                 else onRight(input);
-                return successful;
-            } else {
-                boolean successful = input.equalsIgnoreCase(answer);
-                if (successful)
-                    for (int i = 0; i < answer.length(); i++)
-                        progress[i] = true;
-
-                if (!successful) onWrong(input);
-                else onRight(input);
-                return successful;
-            }
+                event.getMessage().delete();
+                return successful ? Response.TRUE : Response.FALSE;
+            } else return null;
         } else {
             logStatus = LogStatus.FAILURE;
             log = getString("used", input);
             message.edit(getEmbed());
         }
 
-        return false;
+        event.getMessage().delete();
+        return Response.FALSE;
     }
 
     private void onWrong(String input) throws IOException, SQLException {

@@ -4,6 +4,7 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.PowerPlantStatus;
+import Constants.Response;
 import Constants.Settings;
 import General.*;
 import General.Fishing.FishingProfile;
@@ -102,8 +103,8 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     }
 
     @Override
-    public boolean onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        return mainExecution(event, event.getMessage().getContent());
+    public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
+        return mainExecution(event, event.getMessage().getContent()) ? Response.TRUE : Response.FALSE;
     }
 
     @Override

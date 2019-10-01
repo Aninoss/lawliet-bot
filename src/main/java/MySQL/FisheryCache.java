@@ -7,12 +7,10 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +18,7 @@ public class FisheryCache {
 
     private static FisheryCache ourInstance = new FisheryCache();
 
-    private Map<Long, Map<Long, ActivityUserData>> activities = new HashMap<>(); //serverId, userId, channel
+    private Map<Long, Map<Long, ActivityUserData>> activities = new HashMap<>(); //serverId, userId, activity
     private int messagePhase = 0;
 
     private Map<Long, Map<Long, Integer>> userMessageCount = new HashMap<>(); //serverId, userId, counter
@@ -50,8 +48,7 @@ public class FisheryCache {
 
                 if (powerPlantStatus == PowerPlantStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
                     ActivityUserData activityUserData = getActivities(server, user);
-                    if (activityUserData == null) activityUserData = new ActivityUserData(channel);
-                    if (activityUserData.register(messagePhase))
+                    if (activityUserData.registerMessage(messagePhase, channel))
                         setUserMessageCount(server, user, count + 1);
                     setActivities(server, user, activityUserData);
                 }
@@ -78,14 +75,13 @@ public class FisheryCache {
                 Map<Long, Map<Long, ActivityUserData>> activitesClone = null;
 
                 System.out.println("Message Collector START");
+                Instant testStart = Instant.now();
 
                 boolean finished = false;
                 while (!finished) {
                     try {
-                        synchronized (activities) {
-                            activitesClone = new HashMap<>(activities);
-                            activities.clear();
-                        }
+                        activitesClone = new HashMap<>(activities);
+                        activities = new HashMap<>();
                         finished = true;
                     } catch (Throwable e) {
                         e.printStackTrace();
@@ -106,6 +102,8 @@ public class FisheryCache {
                 }
 
                 System.out.println("Message Collector END");
+                Duration duration = Duration.between(testStart, Instant.now());
+                System.out.println("####################### " + (duration.getNano() / 1000000000.0) + " s");
             }
         }
     }
@@ -118,51 +116,43 @@ public class FisheryCache {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            nextVCCheck = Instant.now().plusSeconds(5 * 60);
+            nextVCCheck = Instant.now().plusSeconds(60);
 
-            ArrayList<Pair<Long, Long>> userVCActivities = new ArrayList<>(); //serverId, userId
-
-            Instant testStart = Instant.now();
-            System.out.println("VC Collector START");
-
-            for(Server server: api.getServers()) {
-                for (ServerVoiceChannel channel : server.getVoiceChannels()) {
-                    ArrayList<User> validUsers = new ArrayList<>();
-                    for (User user : channel.getConnectedUsers()) {
-                        if (!user.isBot() &&
-                                !user.isMuted(server) &&
-                                !user.isDeafened(server) &&
-                                !user.isSelfDeafened(server)
-                        ) {
-                            validUsers.add(user);
-                        }
-                    }
-
-                    if (validUsers.size() > 0 && //TODO
-                            (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
-                    ) {
-                        for (User user : validUsers) {
-                            int count = getUserVCCount(server, user);
-                            count++;
-
-                            setUserMessageCount(server, user, count);
-                            userVCActivities.add(new Pair<>(server.getId(), user.getId()));
-                        }
-                    }
-                }
-            }
-
-            if (userVCActivities.size() > 0) {
+            for (Server server : api.getServers()) {
                 try {
-                    DBUser.addVCFishBulk(userVCActivities, 5);
+                    if (DBServer.getPowerPlantStatusFromServer(server) == PowerPlantStatus.ACTIVE) {
+                        for (ServerVoiceChannel channel : server.getVoiceChannels()) {
+                            ArrayList<User> validUsers = new ArrayList<>();
+                            for (User user : channel.getConnectedUsers()) {
+                                if (!user.isBot() &&
+                                        !user.isMuted(server) &&
+                                        !user.isDeafened(server) &&
+                                        !user.isSelfDeafened(server)
+                                ) {
+                                    validUsers.add(user);
+                                }
+                            }
+
+                            if (validUsers.size() > 1 &&
+                                    (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
+                            ) {
+                                for (User user : validUsers) {
+                                    int count = getUserVCCount(server, user);
+                                    if (count < 300) {
+                                        setUserVCCount(server, user, count + 1);
+                                        //userVCActivities.add(new Pair<>(server.getId(), user.getId()));
+                                        ActivityUserData activityUserData = getActivities(server, user);
+                                        activityUserData.registerVC();
+                                        setActivities(server, user, activityUserData);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
-
-            System.out.println("VC Collector END");
-            Duration duration = Duration.between(testStart, Instant.now());
-            System.out.println("####################### " + (duration.getNano() / 1000000000.0) + " s");
         }
     }
 
@@ -179,45 +169,33 @@ public class FisheryCache {
     }
 
     private ActivityUserData getActivities(Server server, User user) {
-        synchronized (activities) {
-            Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(server.getId(), k -> new HashMap<>());
-            return serverMap.get(user.getId());
-        }
+        Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(server.getId(), k -> new HashMap<>());
+        return serverMap.computeIfAbsent(user.getId(), k -> new ActivityUserData());
     }
 
     private int getUserMessageCount(Server server, User user) {
-        synchronized (userMessageCount) {
-            Map<Long, Integer> serverMap = userMessageCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-            return serverMap.computeIfAbsent(user.getId(), k -> 0);
-        }
+        Map<Long, Integer> serverMap = userMessageCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
+        return serverMap.computeIfAbsent(user.getId(), k -> 0);
     }
 
     private int getUserVCCount(Server server, User user) {
-        synchronized (userVCCount) {
-            Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-            return serverMap.computeIfAbsent(user.getId(), k -> 0);
-        }
+        Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
+        return serverMap.computeIfAbsent(user.getId(), k -> 0);
     }
 
     private void setActivities(Server server, User user, ActivityUserData activityUserData) {
-        synchronized (activities) {
-            Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(server.getId(), k -> new HashMap<>());
-            serverMap.put(user.getId(), activityUserData);
-        }
+        Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(server.getId(), k -> new HashMap<>());
+        serverMap.putIfAbsent(user.getId(), activityUserData);
     }
 
     private void setUserMessageCount(Server server, User user, int amount) {
-        synchronized (userMessageCount) {
-            Map<Long, Integer> serverMap = userMessageCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-            serverMap.put(user.getId(), amount);
-        }
+        Map<Long, Integer> serverMap = userMessageCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
+        serverMap.put(user.getId(), amount);
     }
 
     private void setUserVCCount(Server server, User user, int amount) {
-        synchronized (userVCCount) {
-            Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-            serverMap.put(user.getId(), amount);
-        }
+        Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
+        serverMap.put(user.getId(), amount);
     }
 
 }

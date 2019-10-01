@@ -10,6 +10,7 @@ import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.user.UserStatus;
+
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;

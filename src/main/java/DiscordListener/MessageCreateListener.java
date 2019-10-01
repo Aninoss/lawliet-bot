@@ -69,8 +69,6 @@ public class MessageCreateListener {
         }
 
         try {
-            if (manageForwardedMessages(event)) return;
-
             String prefix = DBServer.getPrefix(event.getServer().get());
             String content = event.getMessage().getContent();
 
@@ -110,6 +108,8 @@ public class MessageCreateListener {
                     }
                 }
             } else {
+                //Forwarded Messages
+                if (manageForwardedMessages(event)) return;
 
                 //Add Fisch & Manage 100 Fish Message
                 if (!Tools.serverIsBotListServer(event.getServer().get())) {
@@ -179,8 +179,6 @@ public class MessageCreateListener {
                 if (command instanceof onForwardedRecievedListener) message = ((onForwardedRecievedListener) command).getForwardedMessage();
                 else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
 
-                RunningCommandManager.getInstance().add(event.getMessage().getUserAuthor().get(), command.getTrigger());
-
                 boolean canPost = false;
                 try {
                     canPost = message != null && message.getLatestInstance().get() != null;
@@ -190,18 +188,17 @@ public class MessageCreateListener {
 
                 try {
                     if (canPost) {
-                        if (command instanceof onForwardedRecievedListener) {
-                            command.onForwardedRecievedSuper(event);
+                        RunningCommandManager.getInstance().add(event.getMessage().getUserAuthor().get(), command.getTrigger());
 
+                        if (command instanceof onForwardedRecievedListener) {
+                            boolean end = command.onForwardedRecievedSuper(event);
                             RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
-                            return true;
+                            if (end) return true;
                         }
                         if (command instanceof onNavigationListener) {
                             boolean end = command.onNavigationMessageSuper(event, event.getMessage().getContent(), false);
-                            if (end) {
-                                RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
-                                return true;
-                            }
+                            RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
+                            if (end) return true;
                         }
                     }
                 } catch (Throwable e) {
@@ -211,6 +208,7 @@ public class MessageCreateListener {
                 RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
             }
         }
+
         return false;
     }
 }

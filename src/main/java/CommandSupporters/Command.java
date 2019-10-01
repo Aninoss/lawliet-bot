@@ -99,21 +99,23 @@ public class Command {
         }
     }
 
-    public void onForwardedRecievedSuper(MessageCreateEvent event) {
+    public boolean onForwardedRecievedSuper(MessageCreateEvent event) {
         updateThreadName();
 
-        boolean successful = false;
+        Response success = null;
         if (commandProperties.withLoadingBar()) addLoadingReaction(event.getMessage());
         if (countdown != null) countdown.reset();
 
         try {
-            successful = ((onForwardedRecievedListener) this).onForwardedRecieved(event);
+            success = ((onForwardedRecievedListener) this).onForwardedRecieved(event);
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
         } finally {
             removeLoadingReaction(event.getMessage());
-            setResultReaction(event.getMessage(), successful);
+            if (success != null) setResultReaction(event.getMessage(), success == Response.TRUE);
         }
+
+        return success != null;
     }
 
     public boolean onNavigationMessageSuper(MessageCreateEvent event, String followedString, boolean firstTime) {
@@ -140,8 +142,8 @@ public class Command {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
             return true;
         } finally {
+            removeLoadingReaction();
             if (success != null) {
-                removeLoadingReaction();
                 setResultReaction(event.getMessage(), success == Response.TRUE);
             }
         }
