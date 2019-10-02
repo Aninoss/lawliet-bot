@@ -42,8 +42,13 @@ public class AnimeNewsDownloader {
             else postString = getCurrentPostStringEN(dataString);
 
             AnimeNewsPost post;
-            if (Tools.getLanguage(locale) == Language.DE) post = getPostDE(postString);
-            else post = getPostEN(postString);
+            try {
+                if (Tools.getLanguage(locale) == Language.DE) post = getPostDE(postString);
+                else post = getPostEN(postString);
+            } catch (NullPointerException e) {
+                //Ignore
+                return null;
+            }
             if (post.getId().equals(newestPostId)) break;
 
             postList.add(post);

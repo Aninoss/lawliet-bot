@@ -7,7 +7,7 @@ import java.util.Optional;
 public class ActivityUserData {
 
     private int lastPhase = -1, message, vc;
-    private ServerTextChannel channel;
+    private ServerTextChannel channel = null;
 
     public ActivityUserData() {
         message = 0;
@@ -26,7 +26,6 @@ public class ActivityUserData {
     }
 
     public void registerVC() {
-        System.out.println("VC");
         vc++;
     }
 
@@ -39,7 +38,7 @@ public class ActivityUserData {
     }
 
     public Optional<ServerTextChannel> getChannel() {
-        return Optional.of(channel);
+        return Optional.ofNullable(channel);
     }
 
 }

@@ -30,6 +30,7 @@ public class ServerMemberJoinListener {
             locale = DBServer.getServerLocale(server);
         } catch (SQLException e) {
             e.printStackTrace();
+            return;
         }
 
         try {

@@ -235,6 +235,10 @@ public class Connector {
     }
 
     private static void addUncaughtException(Thread t) {
-        t.setUncaughtExceptionHandler((t1, e) -> System.err.println(t1.toString() + " has thrown an exception: " + e.getMessage()));
+        t.setUncaughtExceptionHandler((t1, e) -> {
+            System.err.println(t1.toString() + " has thrown an exception: " + e.getMessage());
+            e.printStackTrace();
+        });
     }
+
 }
