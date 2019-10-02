@@ -140,7 +140,6 @@ public class FisheryCache {
                                     int count = getUserVCCount(server, user);
                                     if (count < 300) {
                                         setUserVCCount(server, user, count + 1);
-                                        //userVCActivities.add(new Pair<>(server.getId(), user.getId()));
                                         ActivityUserData activityUserData = getActivities(server, user);
                                         activityUserData.registerVC();
                                         setActivities(server, user, activityUserData);

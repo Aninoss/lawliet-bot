@@ -3,22 +3,14 @@ package MySQL;
 import General.Bot;
 import General.SecretManager;
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.smattme.MysqlExportService;
 import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.server.Server;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
@@ -102,29 +94,6 @@ public class DBMain implements DriverAction {
 
     public static String encryptEmojis(String str) {
         return EmojiParser.parseToAliases(str);
-    }
-
-    public static void backupAll() throws IOException, SQLException, ClassNotFoundException {
-        Properties properties = new Properties();
-        properties.setProperty(MysqlExportService.DB_USERNAME, SecretManager.getString("database.username"));
-        properties.setProperty(MysqlExportService.DB_PASSWORD, SecretManager.getString("database.password"));
-        properties.setProperty(MysqlExportService.DB_NAME, "Lawliet");
-
-        properties.setProperty(MysqlExportService.JDBC_CONNECTION_STRING, "jdbc:mysql://" + SecretManager.getString("database.ip") + ":3306/Lawliet?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
-
-        MysqlExportService mysqlExportService = new MysqlExportService(properties);
-        String sqlString = mysqlExportService.export();
-
-        String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
-
-        FileWriter fw = new FileWriter("data/database_backups/" + fileName + ".sql", false);
-        BufferedWriter br = new BufferedWriter(fw);
-
-        br.write(sqlString);
-        br.flush();
-
-        br.close();
-        fw.close();
     }
 
     @Override

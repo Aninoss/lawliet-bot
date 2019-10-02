@@ -64,18 +64,6 @@ public class Clock {
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             onDayStart(api);
-        } else if (calendar.get(Calendar.HOUR_OF_DAY) == 1) {
-            Thread t = new Thread(() -> {
-                //Backup Database
-                try {
-                    DBMain.backupAll();
-                } catch (IOException | SQLException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            });
-            t.setPriority(1);
-            t.setName("database_backup");
-            t.start();
         }
     }
 
