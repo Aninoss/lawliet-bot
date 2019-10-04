@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
 public class DBServer {
     public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
-            System.out.println("Server wird synchronisiert...");
+            System.out.println("Server is getting synchronized...");
             ArrayList<String> dbServerIds = new ArrayList<>();
             Statement statement = DBMain.getInstance().statement("SELECT serverId FROM DServer;");
             ResultSet resultSet = statement.getResultSet();
@@ -64,18 +64,22 @@ public class DBServer {
     }
 
     public static String getPrefix(Server server) throws SQLException {
-        String prefix = DatabaseCache.getInstance().getPrefix(server);
+        return getPrefix(server.getId());
+    }
+
+    public static String getPrefix(long serverId) throws SQLException {
+        String prefix = DatabaseCache.getInstance().getPrefix(serverId);
 
         if (prefix == null) {
             PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix FROM DServer WHERE serverId = ?;");
-            preparedStatement.setLong(1, server.getId());
+            preparedStatement.setLong(1, serverId);
             preparedStatement.execute();
             ResultSet resultSet = preparedStatement.getResultSet();
             if (resultSet.next()) prefix = resultSet.getString(1);
             resultSet.close();
             preparedStatement.close();
 
-            DatabaseCache.getInstance().setPrefix(server, prefix);
+            DatabaseCache.getInstance().setPrefix(serverId, prefix);
         }
 
         return prefix;
@@ -88,7 +92,7 @@ public class DBServer {
         preparedStatement.executeUpdate();
         preparedStatement.close();
 
-        DatabaseCache.getInstance().setPrefix(server, prefix);
+        DatabaseCache.getInstance().setPrefix(server.getId(), prefix);
     }
 
     public static void insertServer(Server server) throws SQLException {
@@ -106,25 +110,29 @@ public class DBServer {
     }
 
     public static Locale getServerLocale(Server server) throws SQLException {
-        Locale locale = DatabaseCache.getInstance().getLocale(server);
+        return getServerLocale(server.getId());
+    }
+
+    public static Locale getServerLocale(long serverId) throws SQLException {
+        Locale locale = DatabaseCache.getInstance().getLocale(serverId);
 
         if (locale == null) {
             PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT locale FROM DServer WHERE serverId = ?;");
-            preparedStatement.setLong(1, server.getId());
+            preparedStatement.setLong(1, serverId);
             preparedStatement.execute();
             ResultSet resultSet = preparedStatement.getResultSet();
             if (resultSet.next()) locale = new Locale(resultSet.getString(1));
             resultSet.close();
             preparedStatement.close();
 
-            DatabaseCache.getInstance().setLocale(server, locale);
+            DatabaseCache.getInstance().setLocale(serverId, locale);
         }
 
         return locale;
     }
 
     public static void setServerLocale(Server server, Locale locale) throws SQLException {
-        DatabaseCache.getInstance().setLocale(server, locale);
+        DatabaseCache.getInstance().setLocale(server.getId(), locale);
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET locale = ? WHERE serverId = ?;");
         preparedStatement.setString(1, locale.getDisplayName());

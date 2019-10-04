@@ -217,7 +217,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
             nextInstant = Tools.setInstantToNextDay(nextInstant);
         } while(!Clock.instantHasWeekday(nextInstant, Calendar.MONDAY) && !Clock.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
-        trackerData.setInstant(nextInstant.plusSeconds(5));
+        trackerData.setInstant(nextInstant.plusSeconds(10));
         return trackerData;
     }
 

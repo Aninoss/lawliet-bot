@@ -148,9 +148,8 @@ public class DBBot {
                 }
             }
 
-            if (!success) {
-                //System.out.println("Tracker missing channel or server! Channel: " + channelId);
-            }
+            if (!success)
+                removeTracker(serverId, channelId, command);
         }
         return dataArrayList;
     }

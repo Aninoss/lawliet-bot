@@ -92,7 +92,7 @@ public class MessageCreateListener {
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
                         Locale locale = DBServer.getServerLocale(event.getServer().get());
-                        if (event.getChannel().canYouWrite() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands") ) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
+                        if (event.getChannel().canYouEmbedLinks() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands") ) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
                             if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
                                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
 

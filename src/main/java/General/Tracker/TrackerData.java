@@ -16,6 +16,7 @@ public class TrackerData {
     private String command, key, arg;
     private Instant instant;
     private long messageId;
+    private boolean saveChanges;
 
     public TrackerData(Server server, ServerTextChannel channel, long messageId, String command, String key, Instant instant, String arg) {
         this.server = server;
@@ -26,6 +27,7 @@ public class TrackerData {
         this.key = key;
         this.instant = instant;
         this.arg = arg;
+        this.saveChanges = true;
     }
 
     public Server getServer() {
@@ -79,4 +81,13 @@ public class TrackerData {
     public void setArg(String arg) {
         this.arg = arg;
     }
+
+    public void setSaveChanges(boolean saveChanges) {
+        this.saveChanges = saveChanges;
+    }
+
+    public boolean isSaveChanges() {
+        return saveChanges;
+    }
+
 }

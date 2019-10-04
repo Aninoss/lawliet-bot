@@ -32,7 +32,6 @@ public class FisheryCache {
 
     private FisheryCache() {
         Thread t = new Thread(this::messageCollector);
-        t.setPriority(1);
         t.setName("message_collector");
         t.start();
     }
@@ -48,8 +47,9 @@ public class FisheryCache {
 
                 if (powerPlantStatus == PowerPlantStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
                     ActivityUserData activityUserData = getActivities(server, user);
-                    if (activityUserData.registerMessage(messagePhase, channel))
+                    if (activityUserData.registerMessage(messagePhase, channel)) {
                         setUserMessageCount(server, user, count + 1);
+                    }
                     setActivities(server, user, activityUserData);
                 }
             } catch (SQLException e) {
@@ -59,6 +59,8 @@ public class FisheryCache {
     }
 
     private void messageCollector() {
+        final int MINUTES_INTERVAL = 5;
+
         while(true) {
             try {
                 Duration duration = Duration.between(Instant.now(), nextMessageCheck);
@@ -69,41 +71,35 @@ public class FisheryCache {
             nextMessageCheck = Instant.now().plusSeconds(20);
 
             messagePhase++;
-            if (messagePhase >= 3 * 15) {
+            if (messagePhase >= 3 * MINUTES_INTERVAL) {
                 messagePhase = 0;
 
-                Map<Long, Map<Long, ActivityUserData>> activitesClone = null;
+                Map<Long, Map<Long, ActivityUserData>> finalActivites = activities;
+                activities = new HashMap<>();
 
-                System.out.println("Message Collector START");
-                Instant testStart = Instant.now();
+                synchronized (this) {
+                    if (finalActivites.size() > 0) {
+                        Thread t = new Thread(() -> {
+                            System.out.println("Collector START");
 
-                boolean finished = false;
-                while (!finished) {
-                    try {
-                        activitesClone = new HashMap<>(activities);
-                        activities = new HashMap<>();
-                        finished = true;
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
+                            for(long serverId: finalActivites.keySet()) {
+                                for(long userId: finalActivites.get(serverId).keySet()) {
+                                    try {
+                                        DBUser.addMessageSingle(serverId, userId, finalActivites.get(serverId).get(userId));
+                                        Thread.sleep(200);
+                                    } catch (SQLException | InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            System.out.println("Collector END");
+                        });
+
+                        t.setName("message_collector_db");
+                        t.start();
                     }
                 }
-
-                if (activitesClone.size() > 0) {
-                    try {
-                        DBUser.addMessageFishBulk(activitesClone);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                System.out.println("Message Collector END");
-                Duration duration = Duration.between(testStart, Instant.now());
-                System.out.println("####################### " + (duration.getNano() / 1000000000.0) + " s");
             }
         }
     }

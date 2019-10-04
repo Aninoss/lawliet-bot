@@ -111,6 +111,7 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
                     trackerData.getChannel().sendMessage(eb).get();
                     return null;
                 } else {
+                    trackerData.setSaveChanges(false);
                     return trackerData;
                 }
             }

@@ -28,6 +28,13 @@ public class ServerMemberLeaveListener {
             e.printStackTrace();
         }
 
+        //Update on server status
+        try {
+            if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         //Verabschiedungen
         try {
             WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
@@ -41,7 +48,6 @@ public class ServerMemberLeaveListener {
                                     Tools.numToString(locale, server.getMembers().size()))).get();
                 }
             }
-            if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), false);
         } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
             e.printStackTrace();
         }

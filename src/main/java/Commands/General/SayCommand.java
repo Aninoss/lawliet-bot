@@ -3,14 +3,21 @@ package Commands.General;
 import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
+import Constants.Permission;
 import General.EmbedFactory;
+import General.Mention.MentionFinder;
+import General.Mention.MentionList;
+import General.PermissionCheck;
 import General.TextManager;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import javax.xml.soap.Text;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "say",
@@ -27,12 +34,25 @@ public class SayCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+        MentionList<ServerTextChannel> mentionedChannels = MentionFinder.getTextChannels(event.getMessage(), followedString);
+        followedString = mentionedChannels.getResultMessageString();
+
+        ServerTextChannel postChannel = event.getServerTextChannel().get();
+        if (mentionedChannels.getList().size() > 0) postChannel = mentionedChannels.getList().get(0);
+
+        int permissions = Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS;
+        EmbedBuilder errorEmbed = PermissionCheck.userAndBothavePermissions(getLocale(), event.getServer().get(), postChannel, event.getMessage().getUserAuthor().get(), permissions, permissions);
+        if (errorEmbed != null) {
+            event.getChannel().sendMessage(errorEmbed).get();
+            return false;
+        }
+
         if (followedString.isEmpty()) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_args"))).get();
             return false;
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getEmbed().setDescription(followedString)).get();
+        postChannel.sendMessage(EmbedFactory.getEmbed().setDescription(followedString).setFooter(event.getMessage().getUserAuthor().get().getDiscriminatedName())).get();
         return true;
     }
 

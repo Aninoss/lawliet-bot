@@ -50,7 +50,10 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
         trackerData.setInstant(Instant.now().plusSeconds(60 * 15));
         PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), trackerData.getArg());
 
-        if (postBundle == null) return null;
+        if (postBundle == null) {
+            trackerData.setSaveChanges(false);
+            return trackerData;
+        }
 
         for(AnimeNewsPost post: postBundle.getPosts()) {
             trackerData.getChannel().sendMessage(getEmbed(post)).get();

@@ -21,20 +21,20 @@ public class DatabaseCache {
 
     private DatabaseCache() {}
 
-    public void setLocale(Server server, Locale locale) {
-        serverLocales.put(server.getId(), locale);
+    public void setLocale(long serverId, Locale locale) {
+        serverLocales.put(serverId, locale);
     }
 
-    public Locale getLocale(Server server) {
-        return serverLocales.get(server.getId());
+    public Locale getLocale(long serverId) {
+        return serverLocales.get(serverId);
     }
 
-    public void setPrefix(Server server, String prefix) {
-        serverPrefixes.put(server.getId(), prefix);
+    public void setPrefix(long serverId, String prefix) {
+        serverPrefixes.put(serverId, prefix);
     }
 
-    public String getPrefix(Server server) {
-        return serverPrefixes.get(server.getId());
+    public String getPrefix(long serverId) {
+        return serverPrefixes.get(serverId);
     }
 
     public void setBannedWords(Server server, BannedWords bannedWords) { serverBannedWords.put(server.getId(), bannedWords); }

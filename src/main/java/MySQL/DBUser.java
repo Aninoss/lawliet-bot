@@ -94,7 +94,7 @@ public class DBUser {
         insertUsers(users);
     }
 
-    public static void addMessageFishBulk(Map<Long, Map<Long, ActivityUserData>> activities) throws SQLException {
+    /*public static void addMessageFishBulk(Map<Long, Map<Long, ActivityUserData>> activities) throws SQLException {
         StringBuilder sql = new StringBuilder("DROP TABLE IF EXISTS Activities;\n" +
                 "CREATE TEMPORARY TABLE `Activities` (\n" +
                 " `serverId` bigint(20) unsigned NOT NULL,\n" +
@@ -134,11 +134,19 @@ public class DBUser {
                             .replace("%category", String.valueOf(FishingCategoryInterface.PER_VC))
                     );
                 }
+
+                *//*sql.append(("DO SLEEP(0.5);" +
+                        "SET @add = (SELECT `add` FROM Activities WHERE (serverId, userId) = (%server, %user));\n" +
+                        "INSERT INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (%server, %user, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), @add) ON DUPLICATE KEY UPDATE coinsGrowth = coinsGrowth + @add;\n" +
+                        "INSERT INTO PowerPlantUsers (serverId, userId, joule) VALUES (%server, %user, @add) ON DUPLICATE KEY UPDATE joule = joule + @add, onServer = 1;\n")
+                                .replace("%server", String.valueOf(serverId))
+                                .replace("%user", String.valueOf(userId))
+                );*//*
             }
         }
 
-        sql.append("UPDATE PowerPlantUserGained INNER JOIN Activities USING(serverId, userId) SET coinsGrowth = LEAST(%max, coinsGrowth + Activities.add) WHERE time = DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00');\n");
-        sql.append("UPDATE PowerPlantUsers INNER JOIN Activities USING(serverId, userId) SET joule = LEAST(%max, joule + Activities.add), onServer = 1;\n");
+        sql.append("UPDATE LOW_PRIORITY PowerPlantUserGained INNER JOIN Activities USING(serverId, userId) SET coinsGrowth = LEAST(%max, coinsGrowth + Activities.add) WHERE time = DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00');\n");
+        sql.append("UPDATE LOW_PRIORITY PowerPlantUsers INNER JOIN Activities USING(serverId, userId) SET joule = LEAST(%max, joule + Activities.add), onServer = 1;\n");
         sql.append("SELECT PowerPlantUsers.serverId, PowerPlantUsers.userId, coins FROM PowerPlantUsers INNER JOIN Activities USING(serverId, userId) WHERE joule >= 100 AND reminderSent = 0;");
 
         String sqlString = sql.toString()
@@ -182,6 +190,64 @@ public class DBUser {
                     e.printStackTrace();
                 }
             }
+        }
+    }*/
+
+    public static void addMessageSingle(long serverId, long userId, ActivityUserData activityUserData) throws SQLException {
+        StringBuilder sql = new StringBuilder("INSERT IGNORE INTO DUser (userId) VALUES (%user);\n");
+
+        if (activityUserData.getAmountMessage() > 0) sql.append("SET @add = (SELECT (getValueForCategory(%category0, %server, %user) * categoryEffect * %multi0) FROM PowerPlantCategories WHERE categoryId = %category0);\n");
+        if (activityUserData.getAmountVC() > 0) sql.append("SET @add = (SELECT (getValueForCategory(%category1, %server, %user) * categoryEffect * %multi1) FROM PowerPlantCategories WHERE categoryId = %category1);\n");
+
+        sql.append(
+                "INSERT INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (%server, %user, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), @add) ON DUPLICATE KEY UPDATE coinsGrowth = coinsGrowth + @add;\n" +
+                "INSERT INTO PowerPlantUsers (serverId, userId, joule) VALUES (%server, %user, @add) ON DUPLICATE KEY UPDATE joule = joule + @add, onServer = 1;\n"
+        );
+
+        if (activityUserData.getChannel().isPresent()) sql.append("SELECT COUNT(*) FROM PowerPlantUsers WHERE joule >= 100 AND reminderSent = 0 AND (serverId, userId) = (%server, %user);\n");
+
+        String sqlString = sql.toString().replace("%server", String.valueOf(serverId))
+                        .replace("%user", String.valueOf(userId))
+                        .replace("%max", String.valueOf(Settings.MAX))
+                        .replace("%category0", String.valueOf(FishingCategoryInterface.PER_MESSAGE))
+                        .replace("%multi0", String.valueOf(activityUserData.getAmountMessage()))
+                        .replace("%category1", String.valueOf(FishingCategoryInterface.PER_VC))
+                        .replace("%multi1", String.valueOf(activityUserData.getAmountVC()));
+
+        if (activityUserData.getChannel().isPresent()) {
+            for (ResultSet resultSet : new DBMultipleResultSet(sqlString)) {
+                try {
+                    if (resultSet.next() && resultSet.getInt(1) > 0) {
+                        ServerTextChannel channel = activityUserData.getChannel().get();
+
+                        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE PowerPlantUsers SET reminderSent = 1 WHERE serverId = ? AND userId = ?;");
+                        preparedStatement.setLong(1, serverId);
+                        preparedStatement.setLong(2, userId);
+                        preparedStatement.execute();
+                        preparedStatement.close();
+
+                        if (channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                            Server server = channel.getServer();
+                            User user = server.getMemberById(userId).orElse(null);
+
+                            String prefix = DBServer.getPrefix(serverId);
+                            Locale locale = DBServer.getServerLocale(serverId);
+
+                            channel.sendMessage(EmbedFactory.getEmbed()
+                                    .setAuthor(user)
+                                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
+                                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix)));
+
+                        }
+                    }
+                } catch (SQLException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Statement statement = DBMain.getInstance().statement(sqlString);
+            statement.close();
         }
     }
 
@@ -238,7 +304,7 @@ public class DBUser {
         boolean change = fish != 0 || coins != 0;
 
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), IF(%db != -1, %db, dailyStreak) FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
+        sql.append("SELECT HIGH_PRIORITY joule, coins, getGrowth(%s, %u), getRank(%s, %u), IF(%db != -1, %db, dailyStreak) FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
 
         if (change) {
             if (fish > 0) {

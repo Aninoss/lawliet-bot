@@ -28,24 +28,31 @@ public class TrackerManager {
         while (true) {
             try {
                 Duration duration = Duration.between(Instant.now(), trackerData.getInstant());
+                if (trackerData.getCommand().equals("survey")) System.out.println("0: " + Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
                 Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
 
                 try {
                     trackerData.getChannel().getLatestInstance().get();
                 } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                     return;
                 }
 
                 while(true) {
-                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), trackerData.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), trackerData.getChannel(),  Permission.SEE_CHANNEL | Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                         Thread.sleep(30 * 60 * 1000);
                     } else break;
                 }
 
                 TrackerData oldTrackerData = trackerData;
                 trackerData = ((onTrackerRequestListener) command).onTrackerRequest(trackerData);
-                if (trackerData != null) DBBot.saveTracker(trackerData);
-                else {
+                if (trackerData != null) {
+                    if (trackerData.isSaveChanges()) DBBot.saveTracker(trackerData);
+                    else {
+                        trackerData.setInstant(Instant.now().plusSeconds(5 * 60));
+                        trackerData.setSaveChanges(true);
+                    }
+                } else {
                     trackerConnections.remove(getTrackerConnection(oldTrackerData));
                     return;
                 }
@@ -67,7 +74,7 @@ public class TrackerManager {
                 e.printStackTrace();
             }
         });
-        t.setName("tracker");
+        t.setName("tracker_" + trackerData.getCommand());
         t.start();
         trackerConnections.add(new TrackerConnection(trackerData, t));
     }
