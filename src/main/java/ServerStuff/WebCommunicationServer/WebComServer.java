@@ -62,6 +62,8 @@ public class WebComServer {
                         commandJSON.put("desc_long", getLanguagePack(trigger + "_helptext"));
                         commandJSON.put("usage", getLanguagePackSpecs(trigger + "_usage", trigger));
                         commandJSON.put("examples", getLanguagePackSpecs(trigger + "_examples", trigger));
+                        commandJSON.put("nsfw", command.isNsfw());
+                        commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);
 
                         categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                     }

@@ -52,7 +52,7 @@ public class MentionFinder {
         }
 
         Collection<User> members = message.getServer().get().getMembers();
-        for(User user: (ArrayList<User>) list.clone()) {
+        for(User user: new ArrayList<>(list)) {
             if (!members.contains(user)) list.remove(user);
         }
 
@@ -121,7 +121,7 @@ public class MentionFinder {
         }
 
         Collection<Role> roles = message.getServer().get().getRoles();
-        for(Role role: (ArrayList<Role>)list.clone()) {
+        for(Role role: new ArrayList<>(list)) {
             if (!roles.contains(role)) list.remove(role);
         }
 
@@ -149,7 +149,7 @@ public class MentionFinder {
         }
 
         Collection<ServerTextChannel> channels = message.getServer().get().getTextChannels();
-        for(ServerTextChannel channel: (ArrayList<ServerTextChannel>)list.clone()) {
+        for(ServerTextChannel channel: new ArrayList<>(list)) {
             if (!channels.contains(channel)) list.remove(channel);
         }
 
@@ -174,7 +174,7 @@ public class MentionFinder {
         }
 
         Collection<ServerVoiceChannel> channels = message.getServer().get().getVoiceChannels();
-        for(ServerVoiceChannel channel: (ArrayList<ServerVoiceChannel>)list.clone()) {
+        for(ServerVoiceChannel channel: new ArrayList<>(list)) {
             if (!channels.contains(channel)) list.remove(channel);
         }
 

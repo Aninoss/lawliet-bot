@@ -1,7 +1,7 @@
 package General;
 
-import Commands.PowerPlant.SellCommand;
-import Commands.PowerPlant.SurveyCommand;
+import Commands.FisheryCategory.SellCommand;
+import Commands.FisheryCategory.SurveyCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
 import General.RunningCommands.RunningCommandManager;
@@ -11,7 +11,6 @@ import ServerStuff.Donations.DonationServer;
 import General.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
 import General.Survey.*;
-import General.Tracker.TrackerManager;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -215,7 +214,13 @@ public class Clock {
         }
 
         //Checks Database Connection
-        if (!DBMain.getInstance().checkConnection()) DBMain.getInstance().connect();
+        if (!DBMain.getInstance().checkConnection()) {
+            try {
+                DBMain.getInstance().connect();
+            } catch (IOException | SQLException e) {
+                e.printStackTrace();
+            }
+        }
 
         //Updates Activity
         Connector.updateActivity(api);

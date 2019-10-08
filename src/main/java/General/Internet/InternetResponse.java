@@ -20,16 +20,16 @@ public class InternetResponse {
     }
 
     public Optional<String> getContent() {
-        return Optional.of(content);
+        return Optional.ofNullable(content);
     }
 
     public Optional<Map<String, List<String>>> getHeaderFields() {
-        return Optional.of(headerFields);
+        return Optional.ofNullable(headerFields);
     }
 
     public Optional<List<String>> getCookies() {
         if (headerFields == null) return Optional.empty();
-        return Optional.of(headerFields.get("Set-Cookie"));
+        return Optional.ofNullable(headerFields.get("Set-Cookie"));
     }
 
     public int getCode() {

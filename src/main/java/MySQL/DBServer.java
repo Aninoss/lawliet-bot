@@ -617,29 +617,35 @@ public class DBServer {
     }
 
     public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
-        ArrayList<ServerTextChannel> channels = new ArrayList<>();
+        ArrayList<ServerTextChannel> channels = DatabaseCache.getInstance().getWhiteListedChannels(server);
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM WhiteListedChannels WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
+        if (channels == null) {
+            channels = new ArrayList<>();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while (resultSet.next()) {
-            long id = resultSet.getLong(1);
-            if (id != 0 && server.getChannelById(id).isPresent()) {
-                ServerTextChannel serverTextChannel = server.getTextChannelById(id).get();
-                channels.add(serverTextChannel);
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM WhiteListedChannels WHERE serverId = ?;");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+
+            ResultSet resultSet = preparedStatement.getResultSet();
+            while (resultSet.next()) {
+                long id = resultSet.getLong(1);
+                if (id != 0 && server.getChannelById(id).isPresent()) {
+                    ServerTextChannel serverTextChannel = server.getTextChannelById(id).get();
+                    channels.add(serverTextChannel);
+                }
             }
-        }
 
-        resultSet.close();
-        preparedStatement.close();
+            resultSet.close();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setWhiteListedChannels(server, channels);
+        }
 
         return channels;
     }
 
-    public static boolean isChannelWhitelisted(Server server, ServerTextChannel channel) throws SQLException {
-        ArrayList<ServerTextChannel> channels = getWhiteListedChannels(server);
+    public static boolean isChannelWhitelisted(ServerTextChannel channel) throws SQLException {
+        ArrayList<ServerTextChannel> channels = getWhiteListedChannels(channel.getServer());
         if (channels.size() == 0) return true;
         else return channels.contains(channel);
     }
@@ -820,6 +826,7 @@ public class DBServer {
         }
 
         DBMain.getInstance().statement(sql.toString());
+        DatabaseCache.getInstance().setWhiteListedChannels(server, channels);
     }
 
     public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {

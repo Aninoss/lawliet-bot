@@ -5,7 +5,7 @@ import org.javacord.api.entity.user.User;
 import java.util.ArrayList;
 
 public class Cooldown {
-    public static final int COOLDOWN_TIME_IN_SECONDS = 10;
+    public static final int COOLDOWN_TIME_IN_SECONDS = 6;
     public static final int MAX_ALLOWED = 3;
 
     private static Cooldown ourInstance = new Cooldown();
@@ -54,7 +54,7 @@ public class Cooldown {
     }
 
     public void clean() {
-        for(CooldownData data: (ArrayList<CooldownData>) dataList.clone()) {
+        for(CooldownData data: new ArrayList<>(dataList)) {
             if (data.canPost()) dataList.remove(data);
         }
     }

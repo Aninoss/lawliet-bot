@@ -25,27 +25,20 @@ public class DBMain implements DriverAction {
 
     private DBMain() {}
 
-    public boolean connect() {
-        try {
-            System.out.println("Connecting with database...");
+    public void connect() throws IOException, SQLException {
+        System.out.println("Connecting with database...");
 
-            final MysqlDataSource rv = new MysqlDataSource();
-            rv.setServerName(Bot.isDebug() ? SecretManager.getString("database.ip") : "127.0.0.1");
-            rv.setPortNumber(3306);
-            rv.setDatabaseName(SecretManager.getString("database.database"));
-            rv.setAllowMultiQueries(true);
-            rv.setAutoReconnect(true);
-            rv.setCharacterEncoding("UTF-8");
-            rv.setUser(SecretManager.getString("database.username"));
-            rv.setPassword(SecretManager.getString("database.password"));
-            rv.setServerTimezone(TimeZone.getDefault().getID());
-            connect = rv.getConnection();
-
-            return true;
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        final MysqlDataSource rv = new MysqlDataSource();
+        rv.setServerName(Bot.isDebug() ? SecretManager.getString("database.ip") : "127.0.0.1");
+        rv.setPortNumber(3306);
+        rv.setDatabaseName(SecretManager.getString("database.database"));
+        rv.setAllowMultiQueries(true);
+        rv.setAutoReconnect(true);
+        rv.setCharacterEncoding("UTF-8");
+        rv.setUser(SecretManager.getString("database.username"));
+        rv.setPassword(SecretManager.getString("database.password"));
+        rv.setServerTimezone(TimeZone.getDefault().getID());
+        connect = rv.getConnection();
     }
 
     public static void synchronizeAll(DiscordApi api) throws InterruptedException, ExecutionException, SQLException {

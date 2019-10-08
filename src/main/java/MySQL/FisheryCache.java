@@ -45,9 +45,10 @@ public class FisheryCache {
                 PowerPlantStatus powerPlantStatus = DBServer.getPowerPlantStatusFromServer(server);
                 ArrayList<Long> powerPlantIgnoredChannelIds = DBServer.getPowerPlantIgnoredChannelIdsFromServer(server);
 
+                boolean whiteListed = DBServer.isChannelWhitelisted(channel);
                 if (powerPlantStatus == PowerPlantStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
                     ActivityUserData activityUserData = getActivities(server, user);
-                    if (activityUserData.registerMessage(messagePhase, channel)) {
+                    if (activityUserData.registerMessage(messagePhase, whiteListed ? channel : null)) {
                         setUserMessageCount(server, user, count + 1);
                     }
                     setActivities(server, user, activityUserData);

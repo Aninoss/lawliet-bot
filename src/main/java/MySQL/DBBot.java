@@ -22,6 +22,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 public class DBBot {
+
     public static void synchronize(DiscordApi api) throws SQLException {
         cleanUp();
         startTrackers(api);

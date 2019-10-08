@@ -64,6 +64,8 @@ public class PermissionCheck {
                     userPermission.add(22);
                 if ((userPermissions & Permission.ADD_NEW_REACTIONS) > 0 && !textChannel.canAddNewReactions(user))
                     userPermission.add(23);
+                if ((userPermissions & Permission.MANAGE_PERMISSIONS_IN_CHANNEL) > 0 && !Tools.canManagePermissions(channel, user))
+                    userPermission.add(25);
             }
 
             //Bei Voice-Channels

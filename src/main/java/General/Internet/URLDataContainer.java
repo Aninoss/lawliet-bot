@@ -21,7 +21,7 @@ public class URLDataContainer {
     }
 
     public InternetResponse getData(String url, int waitingTime) throws InterruptedException, IOException {
-        for (URLData urlData: (ArrayList<URLData>) dataPackets.clone()) {
+        for (URLData urlData: new ArrayList<>(dataPackets)) {
             if (urlData.getUrl().equalsIgnoreCase(url)) {
                 while (urlData.getBlockInstant() == null && Instant.now().isBefore(urlData.getCreateInstant().plusSeconds(30))) {
                     Thread.sleep(1000);
@@ -61,7 +61,7 @@ public class URLDataContainer {
     }
 
     private URLData findURLData(String url) {
-        for(URLData urlData: dataPackets) {
+        for(URLData urlData: new ArrayList<>(dataPackets)) {
             if (urlData.getUrl().equalsIgnoreCase(url)) {
                 return urlData;
             }

@@ -34,7 +34,7 @@ public class ServerJoinListener {
     }
 
     private void sendNewMessage(Server server) {
-        String text = "Hi! Thanks for inviting me to your lovely server! <3\n\nJust write `L.help` to get an overview of all my commands.\nWith `L.fishery` you can configure the tactical \"level system\" of the bot and read how it works.\nFurthermore, use the command `L.language` to change the bot language.\n\nAnd if you need any help, just join the Lawliet Support Server:\n"+ Settings.SERVER_INVITE_URL;
+        String text = "Hi! Thanks for inviting me to your lovely server! <3\n\nJust write `L.help` to get an overview of all my commands.\nIf these commands should only work in certain channels, run `L.whitelist`\nWith `L.fishery` you can configure the tactical \"level system\" game and read how it works.\nFurthermore, if you wanna switch the language to German, write `L.language de`\n\nAnd finally, if you need any help, just join the Lawliet Support Server:\n"+ Settings.SERVER_INVITE_URL;
 
         if (server.getSystemChannel().isPresent() && server.getSystemChannel().get().canYouWrite()) {
             server.getSystemChannel().get().sendMessage(text);

@@ -2,14 +2,17 @@ package General;
 
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
 import javax.imageio.ImageIO;
 import javax.imageio.stream.*;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
+import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -163,7 +166,7 @@ public class ImageCreator {
             int yShift = (int) -Math.round(scaledHeight - BASE_HEIGHT) / 2;
             g2d.drawImage(base, 0, yShift, BASE_WIDTH, (int) scaledHeight, null);
 
-            g2d.setColor(new Color(0, 0, 0, 110));
+            g2d.setColor(new Color(0, 0, 0, 135));
             g2d.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
             g2d.setColor(Color.BLACK);
@@ -172,7 +175,7 @@ public class ImageCreator {
             drawRectShadow(g2d, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30);
             if (profilePicture != null) g2d.drawImage(profilePicture, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30, null);
 
-            Font font = new Font("LucidaSans", Font.PLAIN, 19);
+            AttributedStringGenerator attributedStringGenerator = new AttributedStringGenerator(22);
             Font fontWelcome = new Font("Oswald", Font.PLAIN, 28);
 
             int drawX = BASE_HEIGHT - 15 + (BASE_WIDTH - BASE_HEIGHT + 15) / 2;
@@ -181,18 +184,21 @@ public class ImageCreator {
             FontRenderContext frc =
                     new FontRenderContext(null, true, false);
 
-            double textHeight0 = font.getStringBounds(user.getDisplayName(server), frc).getHeight();
-            double textHeight1 = font.getStringBounds(welcome, frc).getHeight();
+            Rectangle2D bounds = attributedStringGenerator.getStringBounds(user.getDisplayName(server), frc);
+            AttributedCharacterIterator aci = attributedStringGenerator.getIterator(user.getDisplayName(server));
+
+            double textHeight0 = bounds.getHeight();
+            double textHeight1 = fontWelcome.getStringBounds(welcome, frc).getHeight();
             double textHeightTotal = textHeight0 + textHeight1 + 8;
-            int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2) + 3;
-            int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2) + 3;
+            int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2) + 1;
+            int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2) + 1;
 
             drawStringShadow(g2d, fontWelcome, welcome, drawX, y0,  maxWidth, 1);
-            drawStringShadow(g2d, font, user.getDisplayName(server), drawX, y1, maxWidth, 1);
+            drawStringShadow(g2d, aci, bounds, drawX, y1, maxWidth, 1);
 
             g2d.setColor(Color.WHITE);
             drawStringCenter(g2d, fontWelcome, welcome, drawX, y0, maxWidth, 1);
-            drawStringCenter(g2d, font, user.getDisplayName(server), drawX, y1, maxWidth, 1);
+            drawStringCenter(g2d, aci, bounds, drawX, y1, maxWidth, 1);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(result, "png", os);
@@ -224,38 +230,48 @@ public class ImageCreator {
         }
     }
 
+    private static AttributedCharacterIterator convertStringToAttributedCharacterIterator(Font font, String str) {
+        AttributedString astr = new AttributedString(str);
+        astr.addAttribute(TextAttribute.FONT, font, 0, str.length());
+        return astr.getIterator();
+    }
+
     private static void drawStringShadow(Graphics2D g2d, Font font, String string, int x, int y, double maxWidth, double width) {
+        FontRenderContext frc =
+                new FontRenderContext(null, true, false);
+        drawStringShadow(g2d, convertStringToAttributedCharacterIterator(font, string), font.getStringBounds(string, frc), x, y, maxWidth, width);
+    }
+
+    private static void drawStringShadow(Graphics2D g2d, AttributedCharacterIterator attributedCharacterIterator, Rectangle2D bounds, int x, int y, double maxWidth, double width) {
         final double SHADOW_NUM = 5;
         for(double i=0; i < SHADOW_NUM; i++) {
             g2d.setColor(new Color(0, 0, 0, (int) (30.0 * ((i+1) / SHADOW_NUM))));
-            drawStringCenter(g2d, font, string, (int) (x + (SHADOW_NUM - i)), (int) (y + (SHADOW_NUM - i)), maxWidth, width);
+            drawStringCenter(g2d, attributedCharacterIterator, bounds, (int) (x + (SHADOW_NUM - i)), (int) (y + (SHADOW_NUM - i)), maxWidth, width);
         }
     }
 
     private static void drawStringCenter(Graphics2D g2d, Font font, String string, int x, int y, double maxWidth, double width) {
+        FontRenderContext frc =
+                new FontRenderContext(null, true, false);
+        drawStringCenter(g2d, convertStringToAttributedCharacterIterator(font, string), font.getStringBounds(string, frc), x, y, maxWidth, width);
+    }
+
+    private static void drawStringCenter(Graphics2D g2d, AttributedCharacterIterator aci, Rectangle2D bounds, int x, int y, double maxWidth, double width) {
         g2d = (Graphics2D) g2d.create();
 
-        FontMetrics metrics = g2d.getFontMetrics(font);
-        double stringHeight = font.createGlyphVector(g2d.getFontRenderContext(), string).getVisualBounds().getHeight();
-        double stringWidth;
+        double stringHeight = bounds.getHeight();
+        double stringWidth = bounds.getWidth() * width;
         double scale;
 
-        while(true) {
-            stringWidth = metrics.stringWidth(string) * width;
-            scale = Math.min(1,maxWidth / stringWidth);
-            if (maxWidth < 0) scale = 1;
-            if (scale < 0.5) {
-                string = Tools.shortenString(string, string.length() - 1);
-            } else break;
-        }
+        scale = Math.min(1, maxWidth / stringWidth);
+        if (maxWidth < 0) scale = 1;
 
-        g2d.setFont(font);
         AffineTransform trans = new AffineTransform();
         trans.scale(scale * width, 1);
         trans.translate(x * ((1.0 / scale) - 1),0);
         g2d.setTransform(trans);
 
-        g2d.drawString(string, (int)((x - stringWidth / 2.0) / width), (int)(y + stringHeight / 2.0));
+        g2d.drawString(aci, (int)((x - stringWidth / 2.0) / width), (int)(y + stringHeight / 2.0));
         g2d.dispose();
     }
 

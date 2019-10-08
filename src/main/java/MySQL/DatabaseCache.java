@@ -2,6 +2,7 @@ package MySQL;
 
 import Constants.PowerPlantStatus;
 import General.BannedWords.BannedWords;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
 import java.util.*;
@@ -14,6 +15,7 @@ public class DatabaseCache {
     private Map<Long, BannedWords> serverBannedWords = new HashMap<>();
     private Map<Long, PowerPlantStatus> powerPlantStatusMap = new HashMap<>();
     private Map<Long, ArrayList<Long>> powerPlantIgnoredChannels = new HashMap<>();
+    private Map<Long, ArrayList<ServerTextChannel>> whiteListedChannels = new HashMap<>();
 
     public static DatabaseCache getInstance() {
         return ourInstance;
@@ -52,4 +54,13 @@ public class DatabaseCache {
     public void setPowerPlantIgnoredChannels(Server server, ArrayList<Long> powerPlantIgnoredChannels) {
         this.powerPlantIgnoredChannels.put(server.getId(), powerPlantIgnoredChannels);
     }
+
+    public void setWhiteListedChannels(Server server, ArrayList<ServerTextChannel> channels) {
+        this.whiteListedChannels.put(server.getId(), channels);
+    }
+
+    public ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) {
+        return whiteListedChannels.get(server.getId());
+    }
+
 }

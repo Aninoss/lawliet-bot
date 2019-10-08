@@ -50,7 +50,7 @@ public class RunningCommandManager {
     }
 
     public ArrayList<RunningCommand> getRunningCommands() {
-        return (ArrayList<RunningCommand>) runningCommands.clone();
+        return (ArrayList<RunningCommand>) new ArrayList<>(runningCommands);
     }
 
     public void clear() {

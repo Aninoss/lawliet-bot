@@ -1,5 +1,6 @@
 package General.Tracker;
 
+import com.sun.istack.internal.NotNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
@@ -19,6 +20,7 @@ public class TrackerData {
     private boolean saveChanges;
 
     public TrackerData(Server server, ServerTextChannel channel, long messageId, String command, String key, Instant instant, String arg) {
+        if (instant == null) throw new NullPointerException();
         this.server = server;
         this.channel = channel;
         this.messageId = messageId;
@@ -59,6 +61,7 @@ public class TrackerData {
     }
 
     public Instant getInstant() {
+        if (instant == null) instant = Instant.now();
         return instant;
     }
 
@@ -70,7 +73,8 @@ public class TrackerData {
         this.key = key;
     }
 
-    public void setInstant(Instant instant) {
+    public void setInstant(@NotNull Instant instant) {
+        if (instant == null) throw new NullPointerException();
         this.instant = instant;
     }
 

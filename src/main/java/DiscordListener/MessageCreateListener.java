@@ -4,8 +4,8 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
-import Commands.General.QuoteCommand;
-import Commands.PowerPlant.FisheryCommand;
+import Commands.Gimmicks.QuoteCommand;
+import Commands.FisheryCategory.FisheryCommand;
 import Constants.FishingCategoryInterface;
 import Constants.PowerPlantStatus;
 import General.*;
@@ -22,6 +22,7 @@ import MySQL.FisheryCache;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
@@ -86,6 +87,9 @@ public class MessageCreateListener {
                 String newContent = Tools.cutSpaces(content.substring(prefixes[prefixFound].length()));
                 while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
                 String commandTrigger = newContent.split(" ")[0].toLowerCase();
+                if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
+                    commandTrigger = newContent.split("<")[0].toLowerCase();
+
                 String followedString = Tools.cutSpaces(newContent.substring(commandTrigger.length()));
 
                 if (commandTrigger.length() > 0) {
@@ -93,7 +97,7 @@ public class MessageCreateListener {
                     if (clazz != null) {
                         Locale locale = DBServer.getServerLocale(event.getServer().get());
                         if (event.getChannel().canYouEmbedLinks() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands") ) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
-                            if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServer().get(), event.getServerTextChannel().get())) {
+                            if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServerTextChannel().get())) {
                                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
 
                                 CommandManager.manage(event, command, followedString);
@@ -102,7 +106,8 @@ public class MessageCreateListener {
                             if (event.getChannel().canYouAddNewReactions()) {
                                 event.addReactionsToMessage("✏");
                                 event.addReactionsToMessage("❌");
-                                event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName())).get();
+                                User user = event.getMessage().getUserAuthor().get();
+                                if (Tools.canSendPrivateMessage(user)) user.sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName())).get();
                             }
                         }
                     }

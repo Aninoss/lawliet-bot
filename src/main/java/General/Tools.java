@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class Tools {
+
     public static boolean stringIsNumeric(String string) {
         if (string.length()==0) return false;
         for(int i=0; i<string.length(); i++) {
@@ -46,8 +47,13 @@ public class Tools {
 
     public static long filterNumberFromString(String string) {
         StringBuilder numberString = new StringBuilder();
+        boolean record = true;
+        int i = 0;
         for(char c: string.toCharArray()) {
-            if (Character.isDigit(c)) numberString.append(c);
+            if (Character.isDigit(c) && record) numberString.append(c);
+            if (c == '<' && string.substring(i).contains(">")) record = false;
+            if (c == '>') record = true;
+            i++;
         }
 
         if (numberString.toString().length() == 0) return -1;
@@ -274,9 +280,9 @@ public class Tools {
         return "⠀";
     }
 
-    public static Role getRoleByTag(Server server, String tag) {
+    public static Optional<Role> getRoleByTag(Server server, String tag) {
         String id = tag.substring(3, tag.length() -1);
-        return server.getRoleById(id).get();
+        return server.getRoleById(id);
     }
 
     public static CustomEmoji getCustomEmojiByTag(Server server, String tag) {
@@ -523,4 +529,7 @@ public class Tools {
         return channel.getServer().getPermissions(user).getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED || channel.getEffectivePermissions(user).getState(PermissionType.MANAGE_CHANNELS) == PermissionState.ALLOWED;
     }
 
+    public static boolean canManagePermissions(ServerChannel channel, User user) {
+        return channel.getServer().getPermissions(user).getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED || channel.getEffectivePermissions(user).getState(PermissionType.MANAGE_ROLES) == PermissionState.ALLOWED;
+    }
 }

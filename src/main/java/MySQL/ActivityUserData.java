@@ -18,7 +18,7 @@ public class ActivityUserData {
         if (phase > lastPhase) {
             lastPhase = phase;
             message++;
-            this.channel = channel;
+            if (channel != null) this.channel = channel;
             return true;
         }
 

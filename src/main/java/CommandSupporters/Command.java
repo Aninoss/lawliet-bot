@@ -30,7 +30,7 @@ public class Command {
 
     private String category, prefix;
     private CommandProperties commandProperties;
-    private Message starterMessage, navigationMessage;
+    private Message starterMessage, navigationMessage, lastUserMessage;
     private Locale locale;
     private LoadingStatus loadingStatus = LoadingStatus.OFF;
     private long reactionMessageID, reactionUserID, forwardChannelID = -1, forwardUserID = -1;
@@ -52,6 +52,7 @@ public class Command {
         updateThreadName();
 
         starterMessage = event.getMessage();
+        lastUserMessage = event.getMessage();
         if (commandProperties.withLoadingBar()) addLoadingReaction();
 
         boolean successful = false;
@@ -129,6 +130,7 @@ public class Command {
             ServerTextChannel channel = event.getServerTextChannel().get();
             if(!channel.canYouWrite() || !channel.canYouAddNewReactions() || !channel.canYouEmbedLinks()) navigationPrivateMessage = true;
         }
+        lastUserMessage = event.getMessage();
         if (commandProperties.withLoadingBar()) addLoadingReaction();
 
         try {
@@ -229,7 +231,7 @@ public class Command {
     }
 
     public void addLoadingReaction() {
-        addLoadingReaction(starterMessage);
+        addLoadingReaction(lastUserMessage);
     }
 
     private void addLoadingReaction(Message message) {
@@ -259,7 +261,7 @@ public class Command {
     }
 
     public void removeLoadingReaction() {
-        removeLoadingReaction(starterMessage);
+        removeLoadingReaction(lastUserMessage);
     }
 
     private void removeLoadingReaction(Message message) {
@@ -291,7 +293,7 @@ public class Command {
     }
 
     private void setResultReaction(boolean successful) {
-        setResultReaction(starterMessage, successful);
+        setResultReaction(lastUserMessage, successful);
     }
 
     private void setResultReaction(Message message, boolean successful) {
@@ -362,7 +364,7 @@ public class Command {
                 starterMessage.getChannel().bulkDelete(navigationMessage, starterMessage).get();
             else navigationMessage.delete().get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            //Ignore
         }
     }
 

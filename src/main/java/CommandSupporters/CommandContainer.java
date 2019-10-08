@@ -1,17 +1,17 @@
 package CommandSupporters;
 
 import CommandListeners.*;
-import Commands.BotManagement.*;
+import Commands.Information.*;
 import Commands.Casino.*;
 import Commands.Emotes.*;
 import Commands.External.*;
-import Commands.General.*;
+import Commands.Gimmicks.*;
 import Commands.BotOwner.*;
 import Commands.Interactions.*;
 import Commands.Moderation.*;
 import Commands.NSFW.*;
-import Commands.PowerPlant.*;
-import Commands.ServerManagement.*;
+import Commands.FisheryCategory.*;
+import Commands.Management.*;
 import Commands.Splatoon2.*;
 
 import java.time.Instant;
@@ -42,7 +42,7 @@ public class CommandContainer {
         commandsMessageForward = new ArrayList<>();
         commandList = new ArrayList<>();
 
-        //GENERAL
+        //GIMMICKS
         commandList.add(CoinFlipCommand.class);
         commandList.add(RollCommand.class);
         commandList.add(FortuneCommand.class);
@@ -53,42 +53,44 @@ public class CommandContainer {
         commandList.add(QuoteCommand.class);
         commandList.add(AvatarCommand.class);
         commandList.add(SayCommand.class);
+        commandList.add(VoteCommand.class);
 
-        //BOT MANAGEMENT
-        commandList.add(SignUpCommand.class);
-        commandList.add(HelpCommand.class);
-        commandList.add(LanguageCommand.class);
+        //MANAGEMENT
         commandList.add(WhiteListCommand.class);
+        commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
-        commandList.add(StatsCommand.class);
-        commandList.add(TipsCommand.class);
-        commandList.add(NewCommand.class);
         commandList.add(TrackerCommand.class);
-        commandList.add(PingCommand.class);
-        commandList.add(ReportCommand.class);
-        commandList.add(InviteCommand.class);
-        commandList.add(UpvoteCommand.class);
-        commandList.add(DonateCommand.class);
-
-        //SERVER MANAGEMENT
-        commandList.add(ServerInfoCommand.class);
-        commandList.add(ChannelInfoCommand.class);
-        commandList.add(UserInfoCommand.class);
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
-        commandList.add(VoteCommand.class);
+        commandList.add(ReportCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
         commandList.add(WarnCommand.class);
         commandList.add(KickCommand.class);
         commandList.add(BanCommand.class);
+        commandList.add(ChannelMuteCommand.class);
+        commandList.add(ChannelUnmuteCommand.class);
         commandList.add(SelfPromotionBlockCommand.class);
         commandList.add(BannedWordsCommand.class);
         commandList.add(AutoKickCommand.class);
         commandList.add(ClearCommand.class);
+
+        //INFORMATION
+        commandList.add(HelpCommand.class);
+        commandList.add(ServerInfoCommand.class);
+        commandList.add(ChannelInfoCommand.class);
+        commandList.add(UserInfoCommand.class);
+        commandList.add(SignUpCommand.class);
+        commandList.add(PingCommand.class);
+        commandList.add(NewCommand.class);
+        commandList.add(StatsCommand.class);
+        commandList.add(InviteCommand.class);
+        commandList.add(UpvoteCommand.class);
+        commandList.add(DonateCommand.class);
+        commandList.add(TipsCommand.class);
 
         //BOT OWNER
         commandList.add(EmojisCommand.class);
@@ -227,11 +229,11 @@ public class CommandContainer {
     }
 
     public ArrayList<Command> getReactionInstances() {
-        return (ArrayList<Command>) commandsReaction.clone();
+        return new ArrayList<>(commandsReaction);
     }
 
     public ArrayList<Command> getMessageForwardInstances() {
-        return (ArrayList<Command>) commandsMessageForward.clone();
+        return new ArrayList<>(commandsMessageForward);
     }
 
     public void addReactionListener(Command commandParent) {

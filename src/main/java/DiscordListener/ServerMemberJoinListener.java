@@ -1,5 +1,5 @@
 package DiscordListener;
-import Commands.ServerManagement.WelcomeCommand;
+import Commands.Management.WelcomeCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Permission;
 import General.*;

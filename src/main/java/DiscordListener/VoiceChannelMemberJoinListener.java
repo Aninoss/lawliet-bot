@@ -1,10 +1,9 @@
 package DiscordListener;
 
-import Commands.ServerManagement.AutoChannelCommand;
+import Commands.Management.AutoChannelCommand;
 import Constants.Permission;
 import General.AutoChannel.AutoChannelContainer;
 import General.AutoChannel.AutoChannelData;
-import General.PermissionCheck;
 import General.AutoChannel.TempAutoChannel;
 import General.PermissionCheckRuntime;
 import MySQL.DBServer;
@@ -23,14 +22,16 @@ public class VoiceChannelMemberJoinListener {
 
     private String getNewVCName(AutoChannelData autoChannelData, ServerVoiceChannelMemberJoinEvent event, int n) {
         String name = autoChannelData.getChannelName();
-        return AutoChannelCommand.replaceVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
+        name = AutoChannelCommand.replaceVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
+        name = name.substring(0, Math.min(100, name.length()));
+        return name;
     }
 
     public void onJoin(ServerVoiceChannelMemberJoinEvent event) {
         if (event.getUser().isYourself() || !userIsConnected(event.getChannel(), event.getUser())) return;
         try {
             AutoChannelData autoChannelData = DBServer.getAutoChannelFromServer(event.getServer());
-            if (autoChannelData.isActive() && event.getChannel().getId() == autoChannelData.getVoiceChannel().getId()) {
+            if (autoChannelData.isActive() && autoChannelData.getVoiceChannel() != null && event.getChannel().getId() == autoChannelData.getVoiceChannel().getId()) {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(DBServer.getServerLocale(event.getServer()), "autochannel", event.getServer(), Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER)) {
                     int n = 1;
 

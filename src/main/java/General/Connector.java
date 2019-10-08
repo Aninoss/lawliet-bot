@@ -12,6 +12,7 @@ import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.user.UserStatus;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Connector {
 
-    public static void main(String[] args) throws IOException, FontFormatException {
+    public static void main(String[] args) throws IOException, FontFormatException, SQLException {
         //Redirect error outputs to a file
         if (!Bot.isDebug() && !Bot.TEST_MODE) {
             String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
@@ -45,11 +46,22 @@ public class Connector {
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/l_10646.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/seguisym.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/MS-UIGothic.ttf")));
         DBMain.getInstance().connect();
         if (!Bot.TEST_MODE && !Bot.isDebug()) initializeUpdate();
         DiscordbotsAPI.getInstance().startWebhook();
 
         connect(communicationServer);
+    }
+
+    private static Font getFont()
+    {
+        Graphics g = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB).getGraphics();
+        Font font = new Font(g.getFont().toString(), 0, 12);
+        g.dispose();
+
+        return font;
     }
 
     private static void initializeUpdate() {
@@ -179,6 +191,14 @@ public class Connector {
                     t.setName("server_leave");
                     t.start();
                 });
+                api.addServerVoiceChannelChangeUserLimitListener(event -> {
+                    Thread t = new Thread(() -> {
+                        new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);
+                    });
+                    addUncaughtException(t);
+                    t.setName("server_change_userlimit");
+                    t.start();
+                });
                 api.addReconnectListener(event -> {
                     Thread t = new Thread(() -> onSessionResume(event.getApi()));
                     addUncaughtException(t);
@@ -202,9 +222,6 @@ public class Connector {
             System.out.println("The bot has been successfully booten up!");
 
             //DO NOTHING
-
-            api.disconnect();
-            System.out.println("Bot has been disconnected.");
 
             System.exit(0);
         }

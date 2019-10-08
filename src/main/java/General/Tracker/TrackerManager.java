@@ -7,6 +7,7 @@ import Constants.Permission;
 import General.PermissionCheckRuntime;
 import MySQL.DBBot;
 import MySQL.DBServer;
+import com.sun.istack.internal.NotNull;
 
 import java.awt.*;
 import java.sql.SQLException;
@@ -20,6 +21,11 @@ public class TrackerManager {
     private static ArrayList<TrackerConnection> trackerConnections = new ArrayList<>();
 
     public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {
+        if (trackerData == null) {
+            System.err.println("Error: got a null reference for a trackerData object!");
+            return;
+        }
+
         Locale locale = DBServer.getServerLocale(trackerData.getServer());
         Command command = CommandManager.createCommandByTrigger(trackerData.getCommand(), locale);
         if (((onTrackerRequestListener) command).needsPrefix())
@@ -28,13 +34,12 @@ public class TrackerManager {
         while (true) {
             try {
                 Duration duration = Duration.between(Instant.now(), trackerData.getInstant());
-                if (trackerData.getCommand().equals("survey")) System.out.println("0: " + Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
                 Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
 
                 try {
                     trackerData.getChannel().getLatestInstance().get();
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                    //Ignore
                     return;
                 }
 
@@ -98,7 +103,7 @@ public class TrackerManager {
     private static TrackerConnection getTrackerConnection(TrackerData trackerData) {
         if (trackerData == null) return null;
 
-        for(TrackerConnection trackerConnection: trackerConnections) {
+        for(TrackerConnection trackerConnection: new ArrayList<>(trackerConnections)) {
             TrackerData trackerData2 = trackerConnection.getTrackerData();
             if (trackerData.getServer().getId() == trackerData2.getServer().getId() && trackerData.getChannel().getId() == trackerData2.getChannel().getId() && trackerData.getCommand().equals(trackerData2.getCommand())) {
                 return trackerConnection;

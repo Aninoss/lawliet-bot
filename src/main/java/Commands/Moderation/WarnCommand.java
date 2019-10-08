@@ -5,6 +5,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
 import General.Mention.Mention;
+import General.Mention.MentionFinder;
 import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -41,7 +42,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        userList = message.getMentionedUsers();
+        userList = MentionFinder.getUsers(message, followedString).getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
@@ -99,7 +100,8 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             mentions.append(user.getMentionTag()).append(" ");
         }
 
-        if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) moderationStatus.getChannel().sendMessage(actionEmbed).get();
+        if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS))
+            moderationStatus.getChannel().sendMessage(actionEmbed).get();
 
         EmbedBuilder successEb = EmbedFactory.getCommandEmbedSuccess(this, getString("success_description", mention.isMultiple(), mention.getString()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
