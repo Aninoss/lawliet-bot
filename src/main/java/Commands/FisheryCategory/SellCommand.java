@@ -125,7 +125,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
             Random r = new Random(root);
 
             double result = r.nextDouble();
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 3; i++) {
                 double d = r.nextDouble();
                 if (Math.abs(d - 0.5) < Math.abs(result - 0.5)) result = d;
             }

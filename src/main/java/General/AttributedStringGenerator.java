@@ -13,13 +13,14 @@ import java.util.Optional;
 public class AttributedStringGenerator {
 
     private Font[] fonts;
-    private final static int MAIN_FONT_POS = 1;
+    private final static int MAIN_FONT_POS = 2;
 
     public AttributedStringGenerator(int size) {
         Font fontMain = new Font("Segoe UI Symbol", Font.PLAIN, size);
         Font fontJapanese = new Font("MS UI Gothic", Font.PLAIN, size);
         Font fontLucida = new Font("Lucida Sans Unicode", Font.PLAIN, size);
-        fonts = new Font[]{fontJapanese, fontMain, fontLucida};
+        Font fontEmoji = new Font("Noto Emoji", Font.PLAIN, size);
+        fonts = new Font[]{fontJapanese, fontEmoji, fontMain, fontLucida};
     }
 
     public AttributedCharacterIterator getIterator(String str) {
@@ -57,24 +58,13 @@ public class AttributedStringGenerator {
     }
 
     public Rectangle2D getStringBounds(String str, FontRenderContext frc) {
-        float width = 0, maxAscent = 0, maxDescent = 0, maxLeading = 0;
+        TextLayout tl = new TextLayout(getIterator(str), frc);
+        return tl.getBounds();
+    }
 
-        while(!str.isEmpty()) {
-            Pair<Font, Integer> values = getResponsibleFont(str).orElse(new Pair<>(fonts[MAIN_FONT_POS], 1));
-            Font font = values.getKey();
-            int n = values.getValue();
-
-            TextLayout tl = new TextLayout(str.substring(0, n), font, frc);
-            maxAscent = Math.max(maxAscent, tl.getAscent());
-            maxDescent = Math.max(maxDescent, tl.getDescent());
-            maxDescent = Math.max(maxDescent, tl.getDescent());
-            maxLeading = Math.max(maxLeading, tl.getLeading());
-            width += tl.getAdvance();
-
-            str = str.substring(n);
-        }
-
-        return new Rectangle2D.Float(0, -maxAscent, width, maxAscent + maxDescent + maxLeading);
+    public Rectangle2D getStringBounds(AttributedCharacterIterator attributedCharacterIterator, FontRenderContext frc) {
+        TextLayout tl = new TextLayout(attributedCharacterIterator, frc);
+        return tl.getBounds();
     }
 
 }

@@ -75,7 +75,8 @@ public class CommunicationServer {
                     int input = socket.getInputStream().read();
                     if ((input & IN_ACK) == 0) System.exit(0);
                     if ((input & IN_EXIT) > 0) System.exit(0);
-                    if ((input & IN_HAS_UPDATE) > 0 && calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
+                    //if ((input & IN_HAS_UPDATE) > 0 && calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
+                    if (calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
                         Bot.setRestartPending();
                         Connector.updateActivity(api);
                     }

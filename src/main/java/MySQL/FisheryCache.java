@@ -39,7 +39,7 @@ public class FisheryCache {
     public void addActivity(User user, ServerTextChannel channel) {
         int count = getUserMessageCount(channel.getServer(), user);
 
-        if (count < 300) {
+        if (count < 650) {
             try {
                 Server server = channel.getServer();
                 PowerPlantStatus powerPlantStatus = DBServer.getPowerPlantStatusFromServer(server);

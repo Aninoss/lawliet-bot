@@ -48,6 +48,7 @@ public class Connector {
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/l_10646.ttf")));
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/seguisym.ttf")));
         ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/MS-UIGothic.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/NotoEmoji.ttf")));
         DBMain.getInstance().connect();
         if (!Bot.TEST_MODE && !Bot.isDebug()) initializeUpdate();
         DiscordbotsAPI.getInstance().startWebhook();

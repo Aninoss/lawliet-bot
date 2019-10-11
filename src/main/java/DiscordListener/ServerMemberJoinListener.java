@@ -33,6 +33,37 @@ public class ServerMemberJoinListener {
             return;
         }
 
+        //Willkommensnachricht
+        try {
+            WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
+            if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
+                ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
+                    InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
+
+                    if (image != null) {
+                        channel.sendMessage(
+                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
+                                        server.getName(),
+                                        event.getUser().getMentionTag(),
+                                        Tools.numToString(locale, server.getMembers().size())),
+                                image,
+                                "welcome.png").get();
+                    } else {
+                        channel.sendMessage(
+                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
+                                        server.getName(),
+                                        event.getUser().getMentionTag(),
+                                        Tools.numToString(locale, server.getMembers().size()))).get();
+                    }
+                }
+            }
+            if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
+        } catch (IOException | ExecutionException | InterruptedException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        //Insert User into Database
         try {
             DBUser.insertUser(event.getUser());
         } catch (SQLException e) {
@@ -68,36 +99,6 @@ public class ServerMemberJoinListener {
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "autoroles", role)) event.getUser().addRole(role).get();
             }
         } catch (SQLException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        //Willkommensnachricht
-        try {
-            WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
-            if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
-                ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
-                    InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
-
-                    if (image != null) {
-                        channel.sendMessage(
-                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
-                                        server.getName(),
-                                        event.getUser().getMentionTag(),
-                                        Tools.numToString(locale, server.getMembers().size())),
-                                image,
-                                "welcome.png").get();
-                    } else {
-                        channel.sendMessage(
-                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
-                                        server.getName(),
-                                        event.getUser().getMentionTag(),
-                                        Tools.numToString(locale, server.getMembers().size()))).get();
-                    }
-                }
-            }
-            if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
-        } catch (IOException | ExecutionException | InterruptedException | SQLException e) {
             e.printStackTrace();
         }
     }

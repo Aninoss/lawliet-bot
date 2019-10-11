@@ -78,8 +78,6 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
                     rankString = getString("stringrank", rankString);
             }
 
-            //rankString = Tools.getCustomEmojiByName(event.getApi(), "rank"+(rankingSlot.getRank()+1)).getMentionTag();
-
             eb.addField(getString("template_title",
                     rankString,
                     userString),

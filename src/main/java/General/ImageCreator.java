@@ -129,8 +129,6 @@ public class ImageCreator {
         Color mainColorShadow = new Color((int) (Math.min((510.0 - (perc / 100.0 * 255.0 * 2.0)), 255) / 2), (int) (Math.min((perc / 100.0 * 255.0 * 2.0), 255) / 2), 0);
         final double SHADOW_HEIGHT = 3;
 
-        //new Rectangle(0, 0, image.getWidth(), image.getHeight() / 3)
-
         drawStringWithBorder(g, fontTop, TextManager.getString(locale,TextManager.COMMANDS,"ship_match"), Color.WHITE,image.getWidth()/2,(int) (image.getHeight() / 5.0 * 1.0),3,-1);
         drawStringWithBorder(g, font, perc + "%", mainColor, image.getWidth()/2, (int) (image.getHeight() / 5.0 * 4.0),3,-1);
 
@@ -166,7 +164,7 @@ public class ImageCreator {
             int yShift = (int) -Math.round(scaledHeight - BASE_HEIGHT) / 2;
             g2d.drawImage(base, 0, yShift, BASE_WIDTH, (int) scaledHeight, null);
 
-            g2d.setColor(new Color(0, 0, 0, 135));
+            g2d.setColor(new Color(0, 0, 0, 120));
             g2d.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
             g2d.setColor(Color.BLACK);
@@ -184,14 +182,14 @@ public class ImageCreator {
             FontRenderContext frc =
                     new FontRenderContext(null, true, false);
 
-            Rectangle2D bounds = attributedStringGenerator.getStringBounds(user.getDisplayName(server), frc);
             AttributedCharacterIterator aci = attributedStringGenerator.getIterator(user.getDisplayName(server));
+            Rectangle2D bounds = attributedStringGenerator.getStringBounds(aci, frc);
 
             double textHeight0 = bounds.getHeight();
             double textHeight1 = fontWelcome.getStringBounds(welcome, frc).getHeight();
-            double textHeightTotal = textHeight0 + textHeight1 + 8;
-            int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2) + 1;
-            int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2) + 1;
+            double textHeightTotal = textHeight0 + textHeight1 + 15;
+            int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2) + 5;
+            int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2) + 5;
 
             drawStringShadow(g2d, fontWelcome, welcome, drawX, y0,  maxWidth, 1);
             drawStringShadow(g2d, aci, bounds, drawX, y1, maxWidth, 1);

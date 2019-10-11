@@ -919,10 +919,7 @@ public class DBServer {
     }
 
     public static ArrayList<RankingSlot> getPowerPlantRankings(Server server) throws SQLException {
-        //String sql = "SELECT userId, rank, growth, coins, joule FROM (%ppranks) accountData ORDER BY rank;";
-        //sql = sql.replace("%ppranks", DBVirtualViews.getPowerPlantUsersRanks(server));
-
-        String sql = "SELECT userId, getGrowth(serverId, userId) growth, coins, joule FROM (SELECT * FROM PowerPlantUsers WHERE serverId = ?) serverMmbers ORDER BY growth DESC, joule DESC, coins DESC;";
+        String sql = "SELECT userId, getGrowth(serverId, userId) growth, coins, joule FROM (SELECT * FROM PowerPlantUsers WHERE serverId = ? AND onServer = true) serverMembers ORDER BY growth DESC, joule DESC, coins DESC;";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setLong(1, server.getId());

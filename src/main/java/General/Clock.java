@@ -67,7 +67,6 @@ public class Clock {
     }
 
     private static void onDayStart(DiscordApi api) {
-        FisheryCache.getInstance().reset(); //Reset Fishing Limit
         SellCommand.resetCoinsPerFish(); //Reset Fishery Exchange Rate
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache

@@ -26,10 +26,6 @@ public class DBBot {
     public static void synchronize(DiscordApi api) throws SQLException {
         cleanUp();
         startTrackers(api);
-        Thread t = new Thread(() -> DBBot.updateInactiveServerMembers(api));
-        t.setPriority(1);
-        t.setName("update_inactive_server_members");
-        t.start();
     }
 
     public static String getCurrentVersions() throws SQLException {
@@ -264,6 +260,7 @@ public class DBBot {
             try {
                 for(RankingSlot rankingSlot: DBServer.getPowerPlantRankings(server)) {
                     if (!userIds.contains(rankingSlot.getUserId())) {
+                        System.out.println("Server: " + server.getId() + ", User: " + rankingSlot.getUserId());
                         DBUser.updateOnServerStatus(server, rankingSlot.getUserId(), false);
                     }
                 }
