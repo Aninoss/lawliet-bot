@@ -25,7 +25,6 @@ public class CommunicationServer {
     private final byte OUT_CONNECTED = 0x2;
     private final byte IN_ACK = 0x1;
     private final byte IN_EXIT = 0x2;
-    private final byte IN_HAS_UPDATE = 0x4;
 
     private DiscordApi api;
 
@@ -72,16 +71,10 @@ public class CommunicationServer {
                     os.write(output);
                     os.flush();
 
-                    int input = socket.getInputStream().read();
-                    if ((input & IN_ACK) == 0) System.exit(0);
-                    if ((input & IN_EXIT) > 0) System.exit(0);
-                    //if ((input & IN_HAS_UPDATE) > 0 && calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
                     if (calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
                         Bot.setRestartPending();
                         Connector.updateActivity(api);
                     }
-
-                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

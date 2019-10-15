@@ -51,7 +51,7 @@ public class PermissionCheckRuntime {
                 eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
                 eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, commandTrigger, channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
 
-                server.getOwner().sendMessage(eb).get();
+                if (Tools.canSendPrivateMessage(server.getOwner()))server.getOwner().sendMessage(eb).get();
             } catch (IOException | InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -82,7 +82,7 @@ public class PermissionCheckRuntime {
                 eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
                 eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", commandTrigger, rolesList));
 
-                server.getOwner().sendMessage(eb).get();
+                if (Tools.canSendPrivateMessage(server.getOwner())) server.getOwner().sendMessage(eb).get();
             } catch (IOException | InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }

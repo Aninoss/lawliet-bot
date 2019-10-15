@@ -41,9 +41,10 @@ public class AvatarCommand extends Command implements onRecievedListener {
             userMentioned = false;
         }
         for (User user: list) {
+            String avatarUrl = user.getAvatar().getUrl().toString() + "?size=2048";
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
-                    getString("template",user.getDisplayName(server),user.getAvatar().getUrl().toString()))
-                    .setThumbnail(user.getAvatar().getUrl().toString());
+                    getString("template",user.getDisplayName(server), avatarUrl))
+                    .setThumbnail(avatarUrl);
             if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
             event.getChannel().sendMessage(eb).get();
         }

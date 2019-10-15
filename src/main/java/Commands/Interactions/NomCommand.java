@@ -44,7 +44,8 @@ public class NomCommand extends InteractionCommand implements onRecievedListener
                 "https://media1.tenor.com/images/595c70fc60e18108f10dafe074e8833e/tenor.gif?itemid=11654111",
                 "https://media1.tenor.com/images/f615ab049c0edc4b3579132ea276e3af/tenor.gif?itemid=8870471",
                 "https://media1.tenor.com/images/d6e1ffa70eb553dacdf19d26a6be0500/tenor.gif?itemid=5571354",
-                "https://media1.tenor.com/images/3799ae77c7fcd79eed7881e3e29ede4a/tenor.gif?itemid=6229812"
+                "https://media1.tenor.com/images/3799ae77c7fcd79eed7881e3e29ede4a/tenor.gif?itemid=6229812",
+                "https://media1.tenor.com/images/17ba890dc4bd5aed76ddb152ff6753a7/tenor.gif?itemid=12700091"
         );
     }
 

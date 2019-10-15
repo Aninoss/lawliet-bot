@@ -242,8 +242,8 @@ public class HelpCommand extends Command implements onNavigationListener {
         eb.setDescription(categoriesSB.toString());
 
         eb
-                .addField(getString("links_title"), getString("links_content", Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true)
-                .addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), true);
+                .addField(getString("links_title"), getString("links_content", Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true);
+        //        .addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), true);
         return eb;
     }
 
