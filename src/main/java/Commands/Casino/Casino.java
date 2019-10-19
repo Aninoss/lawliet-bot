@@ -106,7 +106,7 @@ class Casino extends Command implements onReactionAddListener {
 
     void onLose() throws SQLException, IOException {
         onGameEnd();
-        DBBot.getGameWonMultiplicator(compareKey, false, 1);
+        DBBot.getGameWonMultiplicator(compareKey, false, coinsInput);
         EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb);
     }
@@ -116,7 +116,7 @@ class Casino extends Command implements onReactionAddListener {
         won = true;
 
         long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
-        double multiplicator = DBBot.getGameWonMultiplicator(compareKey, true, winMultiplicator);
+        double multiplicator = DBBot.getGameWonMultiplicator(compareKey, true, winMultiplicator * coinsInput);
         if (!useCalculatedMultiplicator) multiplicator = 1;
 
         EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));

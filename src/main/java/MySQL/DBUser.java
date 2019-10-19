@@ -478,11 +478,13 @@ public class DBUser {
     }
 
     public static void increaseUpvotesUnclaimed(long userId, int amount) throws SQLException {
-        String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';";
+        String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';" +
+                "INSERT INTO Upvotes (userId) VALUES (?) ON DUPLICATE KEY UPDATE lastDate = NOW();";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setInt(1, amount);
         preparedStatement.setLong(2, userId);
+        preparedStatement.setLong(3, userId);
         preparedStatement.execute();
         preparedStatement.close();
     }
@@ -508,6 +510,25 @@ public class DBUser {
         preparedStatement.close();
 
         return amount;
+    }
+
+    public static Instant getNextUpvote(User user) throws SQLException {
+        Instant instant = Instant.now();
+
+        String sql = "SELECT DATE_ADD(lastDate, INTERVAL 12 HOUR) FROM Upvotes WHERE userId = ?;";
+
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+        preparedStatement.setLong(1, user.getId());
+        preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getResultSet();
+        if (resultSet.next()) {
+            instant = resultSet.getTimestamp(1).toInstant();
+        }
+        resultSet.close();
+        preparedStatement.close();
+
+        return instant;
     }
 
     public static void addDonatorStatus(User user, int weeks) throws SQLException {

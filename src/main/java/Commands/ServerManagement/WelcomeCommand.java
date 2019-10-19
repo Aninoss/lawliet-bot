@@ -1,4 +1,4 @@
-package Commands.Management;
+package Commands.ServerManagement;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
@@ -10,6 +10,7 @@ import General.*;
 import General.Mention.MentionFinder;
 import MySQL.DBMain;
 import MySQL.DBServer;
+import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.io.FileUtils;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -22,10 +23,12 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -262,9 +265,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                        .addField(getString("state0_mdescription"),
                                replaceVariables(welcomeMessageSetting.getDescription(),
                                        "`%SERVER`",
-                                       "`%USER_MENTION`",
-                                       "`%USER_NAME`",
-                                       "`%USER_DISCRIMINATED`",
+                                       "`%USER`",
                                       "`%MEMBERS`"),
                                true)
                        .addField(getString("state0_mchannel"),welcomeMessageSetting.getWelcomeChannel().getMentionTag(), true)
@@ -273,9 +274,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                        .addField(getString("state0_mgoodbyeText"),
                                replaceVariables(welcomeMessageSetting.getGoodbyeText(),
                                        "`%SERVER`",
-                                       "`%USER_MENTION`",
-                                       "`%USER_NAME`",
-                                       "`%USER_DISCRIMINATED`",
+                                       "`%USER`",
                                        "`%MEMBERS`").replace("``", "` `"),
                                 true)
                        .addField(getString("state0_mfarewellchannel"), welcomeMessageSetting.getFarewellChannel().getMentionTag(), true);
@@ -303,19 +302,15 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 .setDescription(replaceVariables(welcomeMessageSetting.getDescription(),
                         server.getName(),
                         user.getMentionTag(),
-                        user.getName(),
-                        user.getDiscriminatedName(),
                         Tools.numToString(getLocale(), server.getMembers().size())));
 
         eb.setImage(Tools.getURLFromInputStream(user.getApi(), ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
         return eb;
     }
 
-    public static String replaceVariables(String string, String arg1, String arg2, String arg3, String arg4, String arg5) {
+    public static String replaceVariables(String string, String arg1, String arg2, String arg3) {
         return string.replaceAll("(?i)" + Pattern.quote("%server"), Matcher.quoteReplacement(arg1))
-                .replaceAll("(?i)" + Pattern.quote("%user_mention"), Matcher.quoteReplacement(arg2))
-                .replaceAll("(?i)" + Pattern.quote("%user_discriminated"), Matcher.quoteReplacement(arg4))
-                .replaceAll("(?i)" + Pattern.quote("%user_name"), Matcher.quoteReplacement(arg3))
-                .replaceAll("(?i)" + Pattern.quote("%members"), Matcher.quoteReplacement(arg5));
+                .replaceAll("(?i)" + Pattern.quote("%user"), Matcher.quoteReplacement(arg2))
+                .replaceAll("(?i)" + Pattern.quote("%members"), Matcher.quoteReplacement(arg3));
     }
 }

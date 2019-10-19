@@ -9,6 +9,7 @@ import MySQL.DBUser;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 
 import java.io.IOException;
@@ -40,12 +41,15 @@ public class ServerMemberJoinListener {
                 ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
                     InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
+                    User user = event.getUser();
 
                     if (image != null) {
                         channel.sendMessage(
                                 WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
                                         server.getName(),
-                                        event.getUser().getMentionTag(),
+                                        user.getMentionTag(),
+                                        user.getName(),
+                                        user.getDiscriminatedName(),
                                         Tools.numToString(locale, server.getMembers().size())),
                                 image,
                                 "welcome.png").get();
@@ -53,7 +57,9 @@ public class ServerMemberJoinListener {
                         channel.sendMessage(
                                 WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
                                         server.getName(),
-                                        event.getUser().getMentionTag(),
+                                        user.getMentionTag(),
+                                        user.getName(),
+                                        user.getDiscriminatedName(),
                                         Tools.numToString(locale, server.getMembers().size()))).get();
                     }
                 }
