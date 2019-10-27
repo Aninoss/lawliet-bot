@@ -1,5 +1,8 @@
 package General;
 
+import Constants.Settings;
+import General.Internet.Internet;
+import General.Internet.InternetResponse;
 import ServerStuff.CommunicationServer.CommunicationServer;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import DiscordListener.*;
@@ -12,6 +15,7 @@ import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
