@@ -54,8 +54,8 @@ public class WelcomeCommand extends Command implements onNavigationListener {
         if (firstTime) {
             welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(getLocale(), event.getServer().get());
             author = event.getMessage().getUserAuthor().get();
-            checkChannelWithLog(welcomeMessageSetting.getWelcomeChannel());
-            checkChannelWithLog(welcomeMessageSetting.getFarewellChannel());
+            checkWriteInChannelWithLog(welcomeMessageSetting.getWelcomeChannel());
+            checkWriteInChannelWithLog(welcomeMessageSetting.getFarewellChannel());
             return Response.TRUE;
         }
 
@@ -98,7 +98,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    if (checkChannelWithLog(channelList.get(0))) {
+                    if (checkWriteInChannelWithLog(channelList.get(0))) {
                         welcomeMessageSetting.setWelcomeChannel(channelList.get(0));
                         DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("channelset"));
@@ -177,7 +177,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    if (checkChannelWithLog(channelList.get(0))) {
+                    if (checkWriteInChannelWithLog(channelList.get(0))) {
                         welcomeMessageSetting.setFarewellChannel(channelList.get(0));
                         DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));

@@ -1,4 +1,5 @@
 package DiscordListener;
+import Commands.Management.MemberCountDisplayCommand;
 import Commands.Management.WelcomeCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Permission;
@@ -7,6 +8,8 @@ import General.Fishing.FishingProfile;
 import MySQL.DBServer;
 import MySQL.DBUser;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.ServerVoiceChannel;
+import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -73,6 +76,13 @@ public class ServerMemberJoinListener {
         try {
             DBUser.insertUser(event.getUser());
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        //Member Count Stats
+        try {
+            MemberCountDisplayCommand.manage(locale, server);
+        } catch (SQLException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
 

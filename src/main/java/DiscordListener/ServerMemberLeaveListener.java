@@ -1,4 +1,5 @@
 package DiscordListener;
+import Commands.Management.MemberCountDisplayCommand;
 import Commands.Management.WelcomeCommand;
 import Constants.Permission;
 import General.PermissionCheckRuntime;
@@ -50,6 +51,13 @@ public class ServerMemberLeaveListener {
                     }
                 }
             } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            //Member Count Stats
+            try {
+                MemberCountDisplayCommand.manage(locale, server);
+            } catch (SQLException | ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
         } catch (SQLException e) {

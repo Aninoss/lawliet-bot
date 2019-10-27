@@ -33,7 +33,7 @@ public class DailyCommand extends Command implements onRecievedListener {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
         if (status == PowerPlantStatus.ACTIVE) {
             DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());
-            if (dailyState.isClaimed()) {
+            if (dailyState != null && dailyState.isClaimed()) {
                 FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
                 long fishes = fishingProfile.getEffect(FishingCategoryInterface.PER_DAY);

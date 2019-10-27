@@ -7,6 +7,7 @@ import General.*;
 import General.EmojiConnection.EmojiConnection;
 import General.Mention.MentionFinder;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
@@ -371,8 +372,14 @@ public class Command {
     public void deleteReactionMessage() throws ExecutionException, InterruptedException {
         Message reactionMessage = ((onReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
-        if (starterMessage.getChannel().canYouManageMessages()) starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).get();
-        else if (reactionMessage != null) reactionMessage.delete().get();
+        try {
+            if (starterMessage.getChannel().canYouManageMessages())
+                starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).get();
+            else if (reactionMessage != null) reactionMessage.delete().get();
+        } catch (InterruptedException | ExecutionException e) {
+            //Ignore
+            reactionMessage.delete().get();
+        }
     }
 
     public void removeMessageForwarder() {
@@ -421,10 +428,20 @@ public class Command {
         return text;
     }
 
-    public boolean checkChannelWithLog(ServerTextChannel channel) {
+    public boolean checkWriteInChannelWithLog(ServerTextChannel channel) {
         if (channel.canYouWrite() && channel.canYouEmbedLinks()) return true;
         try {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#"+channel.getName()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean checkManageChannelWithLog(ServerChannel channel) {
+        if (Tools.canManageChannel(channel, channel.getApi().getYourself())) return true;
+        try {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", "#"+channel.getName()));
         } catch (IOException e) {
             e.printStackTrace();
         }

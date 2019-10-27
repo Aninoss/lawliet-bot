@@ -4,11 +4,14 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
+import MySQL.DBUser;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "ping",

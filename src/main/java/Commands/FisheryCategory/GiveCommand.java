@@ -70,7 +70,7 @@ public class GiveCommand extends Command implements onRecievedListener {
                         if (eb != null) event.getChannel().sendMessage(eb);
 
                         eb = DBUser.addFishingValues(getLocale(), server, user1, 0L, value);
-                        if (eb != null) event.getChannel().sendMessage(eb).get();
+                        if (eb != null) event.getChannel().sendMessage(eb);
 
                         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", Tools.numToString(getLocale(), value), user1.getMentionTag()))).get();
                         return true;

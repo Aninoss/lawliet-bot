@@ -117,7 +117,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                     return Response.FALSE;
                 } else {
                     ServerTextChannel channel = channelList.get(0);
-                    if (checkChannelWithLog(channel)) {
+                    if (checkWriteInChannelWithLog(channel)) {
                         announcementChannel = channel;
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         setState(0);

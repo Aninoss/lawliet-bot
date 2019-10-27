@@ -2,7 +2,9 @@ package MySQL;
 
 import Constants.PowerPlantStatus;
 import General.BannedWords.BannedWords;
+import General.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 
 import java.util.*;
@@ -16,6 +18,7 @@ public class DatabaseCache {
     private Map<Long, PowerPlantStatus> powerPlantStatusMap = new HashMap<>();
     private Map<Long, ArrayList<Long>> powerPlantIgnoredChannels = new HashMap<>();
     private Map<Long, ArrayList<ServerTextChannel>> whiteListedChannels = new HashMap<>();
+    private Map<Long, ArrayList<Pair<ServerVoiceChannel, String>>> memberCountDisplays = new HashMap<>();
 
     public static DatabaseCache getInstance() {
         return ourInstance;
@@ -61,6 +64,32 @@ public class DatabaseCache {
 
     public ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) {
         return whiteListedChannels.get(server.getId());
+    }
+
+    public ArrayList<Pair<ServerVoiceChannel, String>> getMemberCountDisplays(Server server) {
+        return memberCountDisplays.get(server.getId());
+    }
+
+    public void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) {
+        Server server = display.getKey().getServer();
+        this.memberCountDisplays.computeIfAbsent(server.getId(), key -> new ArrayList<>()).add(display);
+    }
+
+    public void setMemberCountDisplays(Server server, ArrayList<Pair<ServerVoiceChannel, String>> displays) {
+        this.memberCountDisplays.put(server.getId(), displays);
+    }
+
+    public void removeMemberCountDisplay(Pair<ServerVoiceChannel, String> display) {
+        Server server = display.getKey().getServer();
+        ArrayList<Pair<ServerVoiceChannel, String>> displayList = this.memberCountDisplays.get(server.getId());
+        if (displayList == null) return;
+
+        for(Pair<ServerVoiceChannel, String> disCheck: displayList) {
+            if (disCheck.getKey().getId() == display.getKey().getId()) {
+                memberCountDisplays.get(server.getId()).remove(disCheck);
+                break;
+            }
+        }
     }
 
 }

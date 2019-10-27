@@ -19,7 +19,6 @@ import java.util.ArrayList;
     executable = false
 )
 public class ReportCommand extends Command implements onRecievedListener {
-    private static ArrayList<Integer> picked = new ArrayList<>();
 
     public ReportCommand() {
         super();

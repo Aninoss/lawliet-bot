@@ -64,7 +64,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 1:
                 ArrayList<ServerTextChannel> serverTextChannel = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
                 if (serverTextChannel.size() > 0) {
-                    if (checkChannelWithLog(serverTextChannel.get(0))) {
+                    if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                         channel = serverTextChannel.get(0);
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         return Response.TRUE;
@@ -83,7 +83,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     for(Message message: messageArrayList) {
                         if (messageIsReactionMessage(message)) {
                             ServerTextChannel messageChannel = message.getServerTextChannel().get();
-                            if (checkChannelWithLog(messageChannel)) {
+                            if (checkWriteInChannelWithLog(messageChannel)) {
                                 editMessage = message;
                                 setLog(LogStatus.SUCCESS, getString("messageset"));
                                 return Response.TRUE;

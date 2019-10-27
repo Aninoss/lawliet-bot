@@ -7,6 +7,7 @@ import org.javacord.api.entity.user.User;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -21,19 +22,19 @@ public class ListGen<T> {
 
     public ListGen() { }
 
-    public String getList(ArrayList<T> objs, Locale locale, Function<T, String> getNames) {
+    public String getList(Collection<T> objs, Locale locale, Function<T, String> getNames) {
         return getList(objs, locale, SLOT_TYPE_NONE, getNames);
     }
 
-    public String getList(ArrayList<T> objs, String valueIfEmpty, Function<T, String> getNames) {
+    public String getList(Collection<T> objs, String valueIfEmpty, Function<T, String> getNames) {
         return getList(objs, valueIfEmpty, SLOT_TYPE_NONE, getNames);
     }
 
-    public String getList(ArrayList<T> objs, Function<T, String> getNames) {
+    public String getList(Collection<T> objs, Function<T, String> getNames) {
         return getList(objs, SLOT_TYPE_NONE, getNames);
     }
 
-    public String getList(ArrayList<T> objs, Locale locale, int slotType, Function<T, String> getNames) {
+    public String getList(Collection<T> objs, Locale locale, int slotType, Function<T, String> getNames) {
         String valueIfEmpty = "";
         try {
             valueIfEmpty = TextManager.getString(locale, TextManager.GENERAL, "notset");
@@ -44,11 +45,11 @@ public class ListGen<T> {
         return getList(objs, valueIfEmpty, slotType, getNames);
     }
 
-    public String getList(ArrayList<T> objs, int slotType, Function<T, String> getNames) {
+    public String getList(Collection<T> objs, int slotType, Function<T, String> getNames) {
         return getList(objs, "", slotType, getNames);
     }
 
-    public String getList(ArrayList<T> objs, String valueIfEmpty, int slotType, Function<T, String> getNames) {
+    public String getList(Collection<T> objs, String valueIfEmpty, int slotType, Function<T, String> getNames) {
         StringBuilder sb = new StringBuilder();
         int i = 1;
         for(T obj: objs) {

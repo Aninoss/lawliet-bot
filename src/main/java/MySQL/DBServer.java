@@ -644,6 +644,63 @@ public class DBServer {
         return channels;
     }
 
+    public static ArrayList<Pair<ServerVoiceChannel, String>> getMemberCountDisplays(Server server) throws SQLException {
+        ArrayList<Pair<ServerVoiceChannel, String>> displays = DatabaseCache.getInstance().getMemberCountDisplays(server);
+
+        if (displays == null) {
+            displays = new ArrayList<>();
+
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT vcId, name FROM MemberCountDisplays WHERE serverId = ?;");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+
+            ResultSet resultSet = preparedStatement.getResultSet();
+            while (resultSet.next()) {
+                long vcId = resultSet.getLong(1);
+                String name = resultSet.getString(2);
+                if (vcId != 0 && server.getVoiceChannelById(vcId).isPresent()) {
+                    ServerVoiceChannel serverVoiceChannel = server.getVoiceChannelById(vcId).get();
+                    displays.add(new Pair<>(serverVoiceChannel, name));
+                }
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setMemberCountDisplays(server, displays);
+        }
+
+        return displays;
+    }
+
+    public static void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
+        Server server = display.getKey().getServer();
+        ArrayList<Pair<ServerVoiceChannel, String>> displays = DBServer.getMemberCountDisplays(server);
+
+        if (displays.size() < 5) {
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO MemberCountDisplays VALUES(?, ?, ?);");
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.setLong(2, display.getKey().getId());
+            preparedStatement.setString(3, display.getValue());
+            preparedStatement.execute();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().addMemberCountDisplay(display);
+        }
+    }
+
+    public static void removeMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
+        Server server = display.getKey().getServer();
+
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, display.getKey().getId());
+        preparedStatement.execute();
+        preparedStatement.close();
+
+        DatabaseCache.getInstance().removeMemberCountDisplay(display);
+    }
+
     public static boolean isChannelWhitelisted(ServerTextChannel channel) throws SQLException {
         ArrayList<ServerTextChannel> channels = getWhiteListedChannels(channel.getServer());
         if (channels.size() == 0) return true;

@@ -48,7 +48,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                     return Response.FALSE;
                 } else {
                     ServerTextChannel channel = channelsList.get(0);
-                    if (checkChannelWithLog(channel)) {
+                    if (checkWriteInChannelWithLog(channel)) {
                         moderationStatus.setChannel(channel);
                         DBServer.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("channelset"));
