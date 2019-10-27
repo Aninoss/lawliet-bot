@@ -124,7 +124,8 @@ public class FisheryCache {
                                 if (!user.isBot() &&
                                         !user.isMuted(server) &&
                                         !user.isDeafened(server) &&
-                                        !user.isSelfDeafened(server)
+                                        !user.isSelfDeafened(server) &&
+                                        !user.isSelfMuted(server)
                                 ) {
                                     validUsers.add(user);
                                 }
