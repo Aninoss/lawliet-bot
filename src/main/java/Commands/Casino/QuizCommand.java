@@ -8,6 +8,7 @@ import Constants.LogStatus;
 import Constants.Settings;
 import General.*;
 import General.Internet.Internet;
+import MySQL.DBUser;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -54,9 +55,16 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
                 log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
             }
 
-            String dataString = Internet.getData(url).getContent().get();
-            JSONObject data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
-            String diffString = data.getString("difficulty");
+            String dataString, diffString;
+            JSONObject data;
+            try {
+                dataString = Internet.getData(url).getContent().get();
+                data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
+                diffString = data.getString("difficulty");
+            } catch (Throwable e) {
+                DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput);
+                throw e;
+            }
 
             switch (diffString) {
                 case "easy":

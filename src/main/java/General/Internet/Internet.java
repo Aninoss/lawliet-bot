@@ -38,6 +38,8 @@ public class Internet {
         String line;
         StringBuilder text = new StringBuilder();
         HttpsURLConnection connection = (HttpsURLConnection) (new URL(urlString)).openConnection();
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(15000);
         try {
             Thread.sleep(pauseTimeMilis);
         } catch (InterruptedException e) {
