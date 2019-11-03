@@ -25,7 +25,7 @@ public class PermissionCheck {
     public static EmbedBuilder userhasPermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
 
-        return getEmbedBuilderForPermissions(locale, userPermission,new ArrayList<>());
+        return getEmbedBuilderForPermissions(locale, userPermission, new ArrayList<>());
     }
 
     public static EmbedBuilder bothasPermissions(Locale locale, Server server, ServerChannel channel, int botPermissions) throws IOException {

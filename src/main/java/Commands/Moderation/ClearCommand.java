@@ -31,7 +31,7 @@ public class ClearCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        if (followedString.length() > 0 && Tools.stringIsNumeric(followedString) && Long.parseLong(followedString) >= 1 && Long.parseLong(followedString) <= 500) {
+        if (followedString.length() > 0 && Tools.stringIsNumeric(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
             int count = Integer.parseInt(followedString);
             int deleted = 0;
 

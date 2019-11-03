@@ -37,6 +37,13 @@ public class ServerMemberJoinListener {
             return;
         }
 
+        //Insert User into Database
+        try {
+            DBUser.insertUser(event.getUser());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         //Willkommensnachricht
         try {
             WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
@@ -69,13 +76,6 @@ public class ServerMemberJoinListener {
             }
             if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
         } catch (IOException | ExecutionException | InterruptedException | SQLException e) {
-            e.printStackTrace();
-        }
-
-        //Insert User into Database
-        try {
-            DBUser.insertUser(event.getUser());
-        } catch (SQLException e) {
             e.printStackTrace();
         }
 

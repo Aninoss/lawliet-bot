@@ -22,7 +22,7 @@ public class URLDataContainer {
 
     public InternetResponse getData(String url, int waitingTime) throws InterruptedException, IOException {
         for (URLData urlData: new ArrayList<>(dataPackets)) {
-            if (urlData.getUrl().equalsIgnoreCase(url)) {
+            if (urlData != null && urlData.getUrl().equalsIgnoreCase(url)) {
                 while (urlData.getBlockInstant() == null && Instant.now().isBefore(urlData.getCreateInstant().plusSeconds(30))) {
                     Thread.sleep(1000);
                 }
@@ -34,7 +34,7 @@ public class URLDataContainer {
         }
 
         URLData newURLData = new URLData(url, Internet.getData(url));
-        dataPackets.add(newURLData);
+        if (url != null && newURLData != null) dataPackets.add(newURLData);
         manageCacheLimit();
         return newURLData.getData();
     }
@@ -70,7 +70,7 @@ public class URLDataContainer {
     }
 
     private void manageCacheLimit() {
-        while (dataPackets.size() > 20) {
+        while (dataPackets.size() > 25) {
             dataPackets.remove(0);
         }
     }

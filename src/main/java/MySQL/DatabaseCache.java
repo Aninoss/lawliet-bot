@@ -92,4 +92,16 @@ public class DatabaseCache {
         }
     }
 
+    public void removeMemberCountDisplay(long serverId, long vcId) {
+        ArrayList<Pair<ServerVoiceChannel, String>> displayList = this.memberCountDisplays.get(serverId);
+        if (displayList == null) return;
+
+        for(Pair<ServerVoiceChannel, String> disCheck: displayList) {
+            if (disCheck.getKey().getId() == vcId) {
+                memberCountDisplays.get(serverId).remove(disCheck);
+                break;
+            }
+        }
+    }
+
 }

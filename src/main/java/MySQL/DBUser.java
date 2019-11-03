@@ -89,9 +89,13 @@ public class DBUser {
     }
 
     public static void insertUser(User user) throws SQLException {
-        ArrayList<User> users = new ArrayList<>();
-        users.add(user);
-        insertUsers(users);
+        insertUser(user.getId());
+    }
+
+    public static void insertUser(long userId) throws SQLException {
+        ArrayList<Long> users = new ArrayList<>();
+        users.add(userId);
+        insertUserIds(users);
     }
 
     /*public static void addMessageFishBulk(Map<Long, Map<Long, ActivityUserData>> activities) throws SQLException {
@@ -478,6 +482,7 @@ public class DBUser {
     }
 
     public static void increaseUpvotesUnclaimed(long userId, int amount) throws SQLException {
+        insertUser(userId);
         String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';" +
                 "INSERT INTO Upvotes (userId) VALUES (?) ON DUPLICATE KEY UPDATE lastDate = NOW();";
 
@@ -487,6 +492,8 @@ public class DBUser {
         preparedStatement.setLong(3, userId);
         preparedStatement.execute();
         preparedStatement.close();
+
+        System.out.println("UPVOTE | " + userId);
     }
 
     public static int getUpvotesUnclaimed(Server server, User user) throws SQLException {

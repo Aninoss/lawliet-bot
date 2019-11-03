@@ -166,8 +166,12 @@ public class FisheryCache {
     }
 
     private ActivityUserData getActivities(Server server, User user) {
-        Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(server.getId(), k -> new HashMap<>());
-        return serverMap.computeIfAbsent(user.getId(), k -> new ActivityUserData());
+        return getActivities(server.getId(), user.getId());
+    }
+
+    public ActivityUserData getActivities(long serverId, long userId) {
+        Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(serverId, k -> new HashMap<>());
+        return serverMap.computeIfAbsent(userId, k -> new ActivityUserData());
     }
 
     private int getUserMessageCount(Server server, User user) {

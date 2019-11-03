@@ -4,6 +4,8 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import General.RunningCommands.RunningCommand;
 import General.RunningCommands.RunningCommandManager;
+import MySQL.ActivityUserData;
+import MySQL.FisheryCache;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
 
@@ -46,8 +48,14 @@ public class Console {
             try {
                 if (br.ready()) {
                     String s = br.readLine();
+                    String command = s;
+                    String arg = "";
                     if (s != null) {
-                        switch (s) {
+                        if (command.contains(" ")) {
+                            command = command.split(" ")[0];
+                            arg = s.substring(command.length() + 1);
+                        }
+                        switch (command) {
                             case "quit":
                                 System.exit(0);
                                 break;
@@ -71,6 +79,19 @@ public class Console {
                                 System.out.println("\n--- THREADS (" + Thread.getAllStackTraces().size() + ") ---");
                                 System.out.println(str + "\n");
 
+                                break;
+
+                            case "fishery":
+                                try {
+                                    String serverId = arg.split(" ")[0];
+                                    String userId = arg.split(" ")[1];
+                                    ActivityUserData activityUserData = FisheryCache.getInstance().getActivities(Long.parseLong(serverId), Long.parseLong(userId));
+                                    System.out.println("\nMessage: " + activityUserData.getAmountMessage());
+                                    System.out.println("VC: " + activityUserData.getAmountVC() + "\n");
+                                } catch (Throwable e) {
+                                    System.out.println("\nERROR\n");
+                                    e.printStackTrace();
+                                }
                                 break;
                         }
                     }

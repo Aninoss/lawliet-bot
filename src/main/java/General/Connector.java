@@ -12,17 +12,11 @@ import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
-import org.json.JSONObject;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -66,8 +60,7 @@ public class Connector {
         }
     }
 
-    private static Font getFont()
-    {
+    private static Font getFont() {
         Graphics g = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB).getGraphics();
         Font font = new Font(g.getFont().toString(), 0, 12);
         g.dispose();
@@ -243,7 +236,11 @@ public class Connector {
     }
 
     public static void updateActivity(DiscordApi api, int serverNumber) {
-        if (!Bot.isRestartPending()) {
+        Calendar calendar = Calendar.getInstance();
+        boolean isRestartPending = calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
+                calendar.get(Calendar.MINUTE) < 15;
+
+        if (!isRestartPending) {
             if (DBMain.getInstance().checkConnection()) {
                 api.updateStatus(UserStatus.ONLINE);
                 api.updateActivity("L.help | " + Tools.numToString(serverNumber) + " Servers | v" + Tools.getCurrentVersion());

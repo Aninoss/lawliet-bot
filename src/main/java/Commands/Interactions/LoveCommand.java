@@ -42,7 +42,8 @@ public class LoveCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/4699b77bd5e4e057750e39f4ea7caca1/tenor.gif?itemid=11514021",
                 "https://media1.tenor.com/images/277be5cb4e40f88a6bc3076e765d64ac/tenor.gif?itemid=5865253",
                 "https://media1.tenor.com/images/e9f3db84734ab5e60cd122f857fa2ec3/tenor.gif?itemid=6052595",
-                "https://media1.tenor.com/images/e858678426357728038c277598871d6d/tenor.gif?itemid=9903014"
+                "https://media1.tenor.com/images/e858678426357728038c277598871d6d/tenor.gif?itemid=9903014",
+                "https://media1.tenor.com/images/aecb71388c86293437d8836910e4323a/tenor.gif?itemid=15104660"
 
         );
     }

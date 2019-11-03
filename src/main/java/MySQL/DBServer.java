@@ -12,6 +12,7 @@ import General.SPBlock.SPBlock;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
+import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -661,6 +662,8 @@ public class DBServer {
                 if (vcId != 0 && server.getVoiceChannelById(vcId).isPresent()) {
                     ServerVoiceChannel serverVoiceChannel = server.getVoiceChannelById(vcId).get();
                     displays.add(new Pair<>(serverVoiceChannel, name));
+                } else {
+                    removeMemberCountDisplay(server.getId(), vcId);
                 }
             }
 
@@ -668,6 +671,13 @@ public class DBServer {
             preparedStatement.close();
 
             DatabaseCache.getInstance().setMemberCountDisplays(server, displays);
+        } else {
+            for(Pair<ServerVoiceChannel, String> display: displays) {
+                ServerVoiceChannel channel = display.getKey();
+                if (!channel.getCurrentCachedInstance().isPresent()) {
+                    removeMemberCountDisplay(display);
+                }
+            }
         }
 
         return displays;
@@ -699,6 +709,16 @@ public class DBServer {
         preparedStatement.close();
 
         DatabaseCache.getInstance().removeMemberCountDisplay(display);
+    }
+
+    public static void removeMemberCountDisplay(long serverId, long vcId) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;");
+        preparedStatement.setLong(1, serverId);
+        preparedStatement.setLong(2, vcId);
+        preparedStatement.execute();
+        preparedStatement.close();
+
+        DatabaseCache.getInstance().removeMemberCountDisplay(serverId, vcId);
     }
 
     public static boolean isChannelWhitelisted(ServerTextChannel channel) throws SQLException {

@@ -30,7 +30,6 @@ public class DiscordbotsWebhookSession extends WebhookServerSession {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            System.out.println("Upvote - " + userId);
         } else {
             System.out.println("Wrong type: " + type);
         }

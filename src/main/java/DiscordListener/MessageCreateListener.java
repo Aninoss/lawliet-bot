@@ -96,20 +96,8 @@ public class MessageCreateListener {
                     Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
                         Locale locale = DBServer.getServerLocale(event.getServer().get());
-                        if (event.getChannel().canYouEmbedLinks() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands") ) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
-                            if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServerTextChannel().get())) {
-                                Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-
-                                CommandManager.manage(event, command, followedString);
-                            }
-                        } else {
-                            if (event.getChannel().canYouAddNewReactions()) {
-                                event.addReactionsToMessage("✏");
-                                event.addReactionsToMessage("❌");
-                                User user = event.getMessage().getUserAuthor().get();
-                                if (Tools.canSendPrivateMessage(user)) user.sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName())).get();
-                            }
-                        }
+                        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                        CommandManager.manage(event, command, followedString);
                     }
                 }
             } else {

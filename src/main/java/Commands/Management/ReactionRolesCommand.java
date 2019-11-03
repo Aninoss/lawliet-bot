@@ -98,7 +98,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
             //Titel anpassen
             case 4:
-                if (inputString.length() > 0) {
+                if (inputString.length() > 0 && inputString.length() <= 256) {
                     title = inputString;
                     setLog(LogStatus.SUCCESS, getString("titleset", inputString));
                     setState(3);
@@ -107,7 +107,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
             //Beschreibung anpassen
             case 5:
-                if (inputString.length() > 0) {
+                if (inputString.length() > 0 && inputString.length() <= 2048) {
                     description = inputString;
                     setLog(LogStatus.SUCCESS, getString("descriptionset", inputString));
                     setState(3);
@@ -531,6 +531,14 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
         User user = event.getUser();
+
+        if (event.getEmoji().isUnicodeEmoji() &&
+                event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
+                PermissionCheck.userhasPermissions(getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getUser(), getUserPermissions()) == null
+        ) {
+            if (Tools.canSendPrivateMessage(event.getUser())) event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
+        }
+
         if (!queue.contains(user)) {
 
             try {

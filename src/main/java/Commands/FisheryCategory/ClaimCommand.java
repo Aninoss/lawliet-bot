@@ -61,9 +61,9 @@ public class ClaimCommand extends Command implements onRecievedListener {
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) throws IOException {
         if (nextUpvote.isAfter(Instant.now()))
-            EmbedFactory.addLog(eb, LogStatus.FAILURE, getString("next", Tools.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
+            EmbedFactory.addLog(eb, null, getString("next", Tools.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
         else
-            EmbedFactory.addLog(eb, LogStatus.SUCCESS, getString("next_now"));
+            EmbedFactory.addLog(eb, null, getString("next_now"));
     }
 
 }
