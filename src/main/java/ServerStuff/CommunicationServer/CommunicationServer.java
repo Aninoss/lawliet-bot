@@ -58,19 +58,10 @@ public class CommunicationServer {
                         }
                     }
 
-                    Calendar calendar = Calendar.getInstance();
-                    if (
-                        calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
-                        calendar.get(Calendar.MINUTE) >= 15 &&
-                        Bot.isRestartPending() &&
-                        RunningCommandManager.getInstance().getRunningCommands().size() == 0
-                    ) {
-                        System.exit(0);
-                    }
-
                     os.write(output);
                     os.flush();
 
+                    Calendar calendar = Calendar.getInstance();
                     if (calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
                         Bot.setRestartPending();
                         Connector.updateActivity(api);

@@ -672,7 +672,7 @@ public class DBServer {
 
             DatabaseCache.getInstance().setMemberCountDisplays(server, displays);
         } else {
-            for(Pair<ServerVoiceChannel, String> display: displays) {
+            for(Pair<ServerVoiceChannel, String> display: new ArrayList<>(displays)) {
                 ServerVoiceChannel channel = display.getKey();
                 if (!channel.getCurrentCachedInstance().isPresent()) {
                     removeMemberCountDisplay(display);

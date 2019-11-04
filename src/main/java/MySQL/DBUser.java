@@ -237,11 +237,13 @@ public class DBUser {
                             String prefix = DBServer.getPrefix(serverId);
                             Locale locale = DBServer.getServerLocale(serverId);
 
-                            channel.sendMessage(EmbedFactory.getEmbed()
-                                    .setAuthor(user)
-                                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
-                                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix)));
+                            if (user != null) {
+                                channel.sendMessage(EmbedFactory.getEmbed()
+                                        .setAuthor(user)
+                                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                                        .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
+                                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix)));
+                            }
 
                         }
                     }
