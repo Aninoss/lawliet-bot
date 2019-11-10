@@ -21,14 +21,11 @@ import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class DBServer {
-    public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
+    public static void synchronize() throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
             System.out.println("Server is getting synchronized...");
             ArrayList<String> dbServerIds = new ArrayList<>();
@@ -38,15 +35,17 @@ public class DBServer {
             resultSet.close();
             statement.close();
 
+            DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
             //Fügt fehlende DB-Einträge hinzu
-            for (Server server : api.getServers()) {
+            for (Server server : apiCollection.getServers()) {
                 if (!dbServerIds.contains(server.getIdAsString())) {
                     insertServer(server);
                 }
             }
 
             //Manage Auto Channels
-            synchronizeAutoChannelChildChannels(api);
+            synchronizeAutoChannelChildChannels();
         }
     }
 
@@ -142,7 +141,7 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static ArrayList<User> getMutedUsers(DiscordApi api, int groupId) throws SQLException {
+    public static ArrayList<User> getMutedUsers(int groupId) throws SQLException {
         ArrayList<User> users = new ArrayList<>();
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId FROM Mute WHERE muteGroupId = ?;");
         preparedStatement.setInt(1, groupId);
@@ -150,11 +149,8 @@ public class DBServer {
         ResultSet resultSet = preparedStatement.getResultSet();
         while(resultSet.next()) {
             long userId = resultSet.getLong(1);
-            try {
-                users.add(api.getUserById(userId).get());
-            } catch (InterruptedException | ExecutionException e) {
-                //Ignore
-            }
+            Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
+            userOptional.ifPresent(users::add);
         }
         resultSet.close();
         preparedStatement.close();
@@ -192,9 +188,9 @@ public class DBServer {
                     case 1:
                         while (resultSet.next()) {
                             try {
-                                User user = server.getApi().getUserById(resultSet.getLong(1)).get();
-                                spBlock.addIgnoredUser(user);
-                            } catch (SQLException | InterruptedException | ExecutionException e) {
+                                Optional<User> userOptional  = server.getMemberById(resultSet.getLong(1));
+                                userOptional.ifPresent(spBlock::addIgnoredUser);
+                            } catch (SQLException e) {
                                 //Ignore
                             }
                         }
@@ -203,9 +199,9 @@ public class DBServer {
                     case 2:
                         while (resultSet.next()) {
                             try {
-                                User user = server.getApi().getUserById(resultSet.getLong(1)).get();
-                                spBlock.addLogReciever(user);
-                            } catch (SQLException | InterruptedException | ExecutionException e) {
+                                Optional<User> userOptional  = server.getMemberById(resultSet.getLong(1));
+                                userOptional.ifPresent(spBlock::addLogReciever);
+                            } catch (SQLException e) {
                                 //Ignore
                             }
                         }
@@ -213,8 +209,8 @@ public class DBServer {
 
                     case 3:
                         while (resultSet.next()) {
-                            if (server.getApi().getServerTextChannelById(resultSet.getLong(1)).isPresent()) {
-                                ServerTextChannel serverTextChannel = server.getApi().getServerTextChannelById(resultSet.getLong(1)).get();
+                            if (server.getTextChannelById(resultSet.getLong(1)).isPresent()) {
+                                ServerTextChannel serverTextChannel = server.getTextChannelById(resultSet.getLong(1)).get();
                                 spBlock.addIgnoredChannel(serverTextChannel);
                             }
                         }
@@ -258,9 +254,9 @@ public class DBServer {
                     case 1:
                         while (resultSet.next()) {
                             try {
-                                User user = server.getApi().getUserById(resultSet.getLong(1)).get();
-                                bannedWords.addIgnoredUser(user);
-                            } catch (SQLException | InterruptedException | ExecutionException e) {
+                                Optional<User> userOptional  = server.getMemberById(resultSet.getLong(1));
+                                userOptional.ifPresent(bannedWords::addIgnoredUser);
+                            } catch (SQLException e) {
                                 //Ignore
                             }
                         }
@@ -269,9 +265,9 @@ public class DBServer {
                     case 2:
                         while (resultSet.next()) {
                             try {
-                                User user = server.getApi().getUserById(resultSet.getLong(1)).get();
-                                bannedWords.addLogReciever(user);
-                            } catch (SQLException | InterruptedException | ExecutionException e) {
+                                Optional<User> userOptional  = server.getMemberById(resultSet.getLong(1));
+                                userOptional.ifPresent(bannedWords::addLogReciever);
+                            } catch (SQLException e) {
                                 //Ignore
                             }
                         }
@@ -574,7 +570,9 @@ public class DBServer {
         );
     }
 
-    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
+    public static void synchronizeAutoChannelChildChannels() throws SQLException, ExecutionException, InterruptedException {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
         Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
         ResultSet resultSet = statement.getResultSet();
 
@@ -590,8 +588,8 @@ public class DBServer {
 
             boolean found = false;
 
-            if (api.getServerById(serverId).isPresent()) {
-                server = api.getServerById(serverId).get();
+            if (apiCollection.getServerById(serverId).isPresent()) {
+                server = apiCollection.getServerById(serverId).get();
                 if (server.getVoiceChannelById(childChannelId).isPresent()) {
                     childChannel = server.getVoiceChannelById(childChannelId).get();
 

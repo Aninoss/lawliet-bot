@@ -1,10 +1,10 @@
 package MySQL;
 
 import General.Bot;
+import General.DiscordApiCollection;
 import General.SecretManager;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.vdurmont.emoji.EmojiParser;
-import org.javacord.api.DiscordApi;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
@@ -41,10 +41,10 @@ public class DBMain implements DriverAction {
         connect = rv.getConnection();
     }
 
-    public static void synchronizeAll(DiscordApi api) throws InterruptedException, ExecutionException, SQLException {
-        DBServer.synchronize(api);
-        DBUser.synchronize(api);
-        DBBot.synchronize(api);
+    public static void synchronizeAll() throws InterruptedException, ExecutionException, SQLException {
+        DBServer.synchronize();
+        DBUser.synchronize();
+        DBBot.synchronize();
     }
 
     public static String instantToDateTimeString(Instant instant) {

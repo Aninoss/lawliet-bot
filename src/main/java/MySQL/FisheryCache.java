@@ -1,7 +1,6 @@
 package MySQL;
 
 import Constants.PowerPlantStatus;
-import General.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -16,7 +15,7 @@ import java.util.Map;
 
 public class FisheryCache {
 
-    private static FisheryCache ourInstance = new FisheryCache();
+    private static HashMap<Integer, FisheryCache> ourInstances = new HashMap<>();
 
     private Map<Long, Map<Long, ActivityUserData>> activities = new HashMap<>(); //serverId, userId, activity
     private int messagePhase = 0;
@@ -26,8 +25,8 @@ public class FisheryCache {
 
     private Instant nextMessageCheck = Instant.now(), nextVCCheck = Instant.now();
 
-    public static FisheryCache getInstance() {
-        return ourInstance;
+    public static FisheryCache getInstance(int shardId) {
+        return ourInstances.computeIfAbsent(shardId, k -> new FisheryCache());
     }
 
     private FisheryCache() {
@@ -86,8 +85,10 @@ public class FisheryCache {
                             for(long serverId: finalActivites.keySet()) {
                                 for(long userId: finalActivites.get(serverId).keySet()) {
                                     try {
-                                        DBUser.addMessageSingle(serverId, userId, finalActivites.get(serverId).get(userId));
-                                        Thread.sleep(200);
+                                        synchronized (FisheryCache.class) {
+                                            DBUser.addMessageSingle(serverId, userId, finalActivites.get(serverId).get(userId));
+                                            Thread.sleep(200);
+                                        }
                                     } catch (SQLException | InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -156,13 +157,8 @@ public class FisheryCache {
     public void startVCCollector(DiscordApi api) {
         Thread t = new Thread(() -> VCCollector(api));
         t.setPriority(1);
-        t.setName("vc_collector");
+        t.setName("vc_collector_" + api.getCurrentShard());
         t.start();
-    }
-
-    public void reset() {
-        userMessageCount = new HashMap<>();
-        userVCCount = new HashMap<>();
     }
 
     private ActivityUserData getActivities(Server server, User user) {

@@ -28,8 +28,8 @@ public class DiscordbotsAPI {
         }
     }
 
-    public void updateServerCount(DiscordApi api) {
-        if (!Bot.isDebug()) dblApi.setStats(api.getServers().size());
+    public void updateServerCount(int totalServerSize) {
+        if (!Bot.isDebug()) dblApi.setStats(totalServerSize);
     }
 
     public void startWebhook() {

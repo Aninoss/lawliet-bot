@@ -80,14 +80,14 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
                     break;
             }
 
-            question = Shortcuts.decryptString(data.getString("question"));
+            question = Tools.decryptString(data.getString("question"));
 
             ArrayList<String> orderedAnswers = new ArrayList<>();
-            orderedAnswers.add(Shortcuts.decryptString(data.getString("correct_answer")));
+            orderedAnswers.add(Tools.decryptString(data.getString("correct_answer")));
 
             JSONArray answersJSON = data.getJSONArray("incorrect_answers");
             for(int i=0; i<answersJSON.length(); i++) {
-                orderedAnswers.add(Shortcuts.decryptString(answersJSON.getString(i)));
+                orderedAnswers.add(Tools.decryptString(answersJSON.getString(i)));
             }
 
             answers = new String[orderedAnswers.size()];

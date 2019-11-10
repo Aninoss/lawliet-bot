@@ -82,7 +82,7 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
                     rankString,
                     userString),
                     getString("template_descritpion",
-                            Shortcuts.getCustomEmojiByID(server.getApi(), 417016019622559755L).getMentionTag(),
+                            DiscordApiCollection.getInstance().getCustomEmojiByID(417016019622559755L).getMentionTag(),
                             Tools.numToString(getLocale(), rankingSlot.getGrowth()),
                             Tools.numToString(getLocale(), rankingSlot.getCoins()),
                             Tools.numToString(getLocale(), rankingSlot.getJoule())));

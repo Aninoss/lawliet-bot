@@ -6,6 +6,7 @@ import General.RunningCommands.RunningCommand;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.ActivityUserData;
 import MySQL.FisheryCache;
+import ServerStuff.Donations.DonationServer;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
 
@@ -85,9 +86,20 @@ public class Console {
                                 try {
                                     String serverId = arg.split(" ")[0];
                                     String userId = arg.split(" ")[1];
-                                    ActivityUserData activityUserData = FisheryCache.getInstance().getActivities(Long.parseLong(serverId), Long.parseLong(userId));
+                                    ActivityUserData activityUserData = FisheryCache.getInstance(0).getActivities(Long.parseLong(serverId), Long.parseLong(userId));
                                     System.out.println("\nMessage: " + activityUserData.getAmountMessage());
                                     System.out.println("VC: " + activityUserData.getAmountVC() + "\n");
+                                } catch (Throwable e) {
+                                    System.out.println("\nERROR\n");
+                                    e.printStackTrace();
+                                }
+                                break;
+
+                            case "donation":
+                                try {
+                                    long userId = Long.parseLong(arg.split(" ")[0]);
+                                    double usDollars = Double.parseDouble(arg.split(" ")[1]);
+                                    DonationServer.addBonus(userId, usDollars);
                                 } catch (Throwable e) {
                                     System.out.println("\nERROR\n");
                                     e.printStackTrace();

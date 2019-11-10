@@ -21,11 +21,8 @@ import java.util.Locale;
 public class WebComServer {
 
     private static final String EVENT_COMMANDLIST = "command_list";
-    private DiscordApi api;
 
-    public WebComServer(int port, DiscordApi api) {
-        this.api = api;
-
+    public WebComServer(int port) {
         Configuration config = new Configuration();
         config.setHostname("127.0.0.1");
         config.setPort(port);
@@ -101,10 +98,7 @@ public class WebComServer {
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
             try {
-                String str = Tools.solveVariablesOfCommandText(
-                        TextManager.getString(locale, TextManager.COMMANDS, key),
-                        api
-                );
+                String str = Tools.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
                 if (!str.isEmpty())
                     str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 

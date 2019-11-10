@@ -1,21 +1,19 @@
 package ServerStuff.Donations;
 
+import General.DiscordApiCollection;
 import ServerStuff.Server.WebhookServerSession;
 import org.javacord.api.DiscordApi;
 import org.json.JSONObject;
 import java.net.Socket;
 
 public class DonationServerSession extends WebhookServerSession {
-    private DiscordApi api;
-
-    public DonationServerSession(Socket socket, DiscordApi api) {
+    public DonationServerSession(Socket socket) {
         super(socket, "donation.auth");
-        this.api = api;
     }
 
     @Override
     public void processData(String data) {
-        System.out.println("NEW DONATION!!!");
+        System.err.println("NEW DONATION!!!");
 
         JSONObject dataJSON = new JSONObject(data);
 
@@ -28,7 +26,7 @@ public class DonationServerSession extends WebhookServerSession {
         double usDollars = Double.parseDouble(dataJSON.getString("price"));
         boolean completed = dataJSON.getString("status").equalsIgnoreCase("completed");
 
-        if (completed) DonationServer.addBonus(api, userId, usDollars);
-        else DonationServer.removeBonus(api, userId);
+        if (completed) DonationServer.addBonus(userId, usDollars);
+        else DonationServer.removeBonus(userId);
     }
 }

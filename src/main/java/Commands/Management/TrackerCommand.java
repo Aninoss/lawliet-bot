@@ -52,7 +52,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
         }
 
         if (firstTime || state == 3) {
-            controll(event.getApi(), inputString, state, firstTime);
+            controll(inputString, state, firstTime);
             return Response.TRUE;
         }
         return null;
@@ -81,7 +81,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                             return true;
                     }
                 }
-                controll(event.getApi(), emojiConnection.getConnection(), state,false);
+                controll(emojiConnection.getConnection(), state,false);
                 return true;
             }
         }
@@ -89,7 +89,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
         return false;
     }
 
-    private void controll(DiscordApi api, String searchTerm, int state, boolean first) throws Throwable {
+    private void controll(String searchTerm, int state, boolean first) throws Throwable {
         while(true) {
             if (searchTerm.length() == 0) return;
 
@@ -98,7 +98,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
             switch (state) {
                 case 0:
                     if (arg.equalsIgnoreCase("add")) {
-                        updateTrackerList(api);
+                        updateTrackerList();
                         if (trackers.size() < 6) {
                             setState(1);
                         } else {
@@ -107,7 +107,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                         }
                     }
                     else if (arg.equalsIgnoreCase("remove")) {
-                        updateTrackerList(api);
+                        updateTrackerList();
                         if (trackers.size() > 0) {
                             setState(2);
                         } else {
@@ -125,7 +125,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     for (onTrackerRequestListener command : CommandContainer.getInstance().getTrackerCommands()) {
                         String trigger = ((Command) command).getTrigger();
                         if (trigger.equalsIgnoreCase(arg)) {
-                            updateTrackerList(api);
+                            updateTrackerList();
                             TrackerData trackerRemove = getTracker(arg);
                             override = trackerRemove != null;
                             if (override) {
@@ -141,7 +141,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                                 addTracker(null);
                                 if (first) endNavigation();
                             } else {
-                                updateTrackerList(api);
+                                updateTrackerList();
                                 setState(3);
                             }
                             found = true;
@@ -159,7 +159,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     if (trackerRemove != null) {
                         DBBot.removeTracker(trackerRemove);
                         TrackerManager.stopTracker(trackerRemove);
-                        updateTrackerList(api);
+                        updateTrackerList();
                         setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
                         if (trackers.size() == 0) setState(0);
                         if (first) endNavigation();
@@ -188,9 +188,9 @@ public class TrackerCommand extends Command implements onNavigationListener {
         setState(4);
     }
 
-    private void updateTrackerList(DiscordApi api) throws Throwable {
+    private void updateTrackerList() throws Throwable {
         ArrayList<TrackerData> newTrackers = new ArrayList<>();
-        for(TrackerData trackerData: DBBot.getTracker(api)) {
+        for(TrackerData trackerData: DBBot.getTracker()) {
             if (trackerData.getServer().equals(server) && trackerData.getChannel().equals(channel)) {
                 newTrackers.add(trackerData);
             }

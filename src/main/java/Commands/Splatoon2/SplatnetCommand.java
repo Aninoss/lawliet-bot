@@ -36,11 +36,11 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(getEmbed(event.getApi())).get();
+        event.getChannel().sendMessage(getEmbed()).get();
         return true;
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
+    private EmbedBuilder getEmbed() throws Throwable {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
@@ -59,7 +59,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
                 Instant endTime = new Date(data.getLong("end_time") * 1000L).toInstant();
                 if (endTime.isBefore(Instant.now())) {
                     Thread.sleep(5000);
-                    return getEmbed(api);
+                    return getEmbed();
                 }
             }
         }
@@ -76,7 +76,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
             if (endTime.isBefore(trackingTime)) trackingTime = endTime;
 
             String gearName = languageData.getJSONObject("gear").getJSONObject(data.getString("kind")).getJSONObject(data.getJSONObject("gear").getString("id")).getString("name");
-            String fieldTitle = Shortcuts.getCustomEmojiByID(api, 437258157136543744L).getMentionTag() + " __**" + gearName + "**__";
+            String fieldTitle = DiscordApiCollection.getInstance().getCustomEmojiByID(437258157136543744L).getMentionTag() + " __**" + gearName + "**__";
             int price = data.getInt("price");
 
             String mainAbility = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("skill").getString("id")).getString("name");
@@ -86,7 +86,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
             String effect = getString("nothing");
             if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
 
-            String fieldContent = getString("template", Shortcuts.getCustomEmojiByID(api, 437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(getLocale(), endTime, true), Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", DiscordApiCollection.getInstance().getCustomEmojiByID(437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(getLocale(), endTime, true), Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 
@@ -99,7 +99,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-        Message message = trackerData.getChannel().sendMessage(getEmbed(trackerData.getChannel().getApi())).get();
+        Message message = trackerData.getChannel().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
         trackerData.setInstant(trackingTime);
         return trackerData;

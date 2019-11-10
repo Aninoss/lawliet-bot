@@ -64,7 +64,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
 
             setFruits();
 
-            message = event.getChannel().sendMessage(getEmbed(event.getApi())).get();
+            message = event.getChannel().sendMessage(getEmbed()).get();
             message.addReaction(ALL_EMOJI);
             for (String str : NUMBERS) message.addReaction(str);
 
@@ -112,7 +112,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
         }
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws IOException {
+    private EmbedBuilder getEmbed() throws IOException {
         String key = "template";
         if (first) {
             key = "template_start";
@@ -122,20 +122,20 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
                 Tools.numToString(getLocale(), coinsInput),
-                getSpinningWheel(api, 0),
-                getSpinningWheel(api, 1),
-                getSpinningWheel(api, 2),
-                Tools.getCustomEmojiByName(api, "slotdr").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotlr").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotdlr").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotdl").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotud").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotur").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotlr1").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotulr").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotlr2").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotlr3").getMentionTag(),
-                Tools.getCustomEmojiByName(api, "slotul").getMentionTag(),
+                getSpinningWheel(0),
+                getSpinningWheel(1),
+                getSpinningWheel(2),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotdr").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotdlr").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotdl").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotud").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotur").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr1").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotulr").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr2").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr3").getMentionTag(),
+                DiscordApiCollection.getInstance().getCustomEmojiByName("slotul").getMentionTag(),
                 ALL_EMOJI
                 ));
 
@@ -147,8 +147,8 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
         return eb;
     }
 
-    private String getSpinningWheel(DiscordApi api, int i) {
-        if (!progress[i]) return Shortcuts.getCustomEmojiByID(api, 401057220114251787L).getMentionTag();
+    private String getSpinningWheel(int i) {
+        if (!progress[i]) return DiscordApiCollection.getInstance().getCustomEmojiByID(401057220114251787L).getMentionTag();
         else return FRUITS_CONTAINER[fruits[i]];
     }
 
@@ -180,7 +180,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
             if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(ALL_EMOJI)) {
                 for(int i=0; i<3; i++) progress[i] = true;
                 manageEnd();
-                message.edit(getEmbed(message.getApi()));
+                message.edit(getEmbed());
                 return;
             }
 
@@ -189,7 +189,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
                 if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(str) && !progress[i]) {
                     progress[i] = true;
                     manageEnd();
-                    message.edit(getEmbed(message.getApi()));
+                    message.edit(getEmbed());
                     break;
                 }
             }
@@ -206,7 +206,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
         if (active) {
             for (int i = 0; i < 3; i++) progress[i] = true;
             manageEnd();
-            message.edit(getEmbed(message.getApi()));
+            message.edit(getEmbed());
         }
     }
 }

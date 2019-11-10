@@ -2,7 +2,6 @@ package General.Porn;
 
 import General.Comment;
 import General.Internet.InternetResponse;
-import General.Shortcuts;
 import General.Tools;
 import General.Internet.URLDataContainer;
 import org.json.JSONArray;
@@ -122,8 +121,8 @@ public class PornImageDownloader {
 
         ArrayList<Comment> comments = new ArrayList<>();
         while(commentsDataString.contains("creator=\"")) {
-            String author = Shortcuts.decryptString(Tools.cutString(commentsDataString, "creator=\"", "\""));
-            String content = Shortcuts.decryptString(Tools.cutString(commentsDataString, "body=\"", "\"")).replace("[spoiler]", "||").replace("[/spoiler]", "||");
+            String author = Tools.decryptString(Tools.cutString(commentsDataString, "creator=\"", "\""));
+            String content = Tools.decryptString(Tools.cutString(commentsDataString, "body=\"", "\"")).replace("[spoiler]", "||").replace("[/spoiler]", "||");
             commentsDataString = commentsDataString.replaceFirst("creator=\"", "").replaceFirst("body=\"", "");
             comments.add(new Comment(author, content));
         }

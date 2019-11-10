@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
+import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
 import General.Tools;
@@ -32,13 +33,13 @@ public class PrefixCommand extends Command implements onRecievedListener {
                 DBServer.setPrefix(server, followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = Tools.cutSpaces(server.getDisplayName(event.getApi().getYourself()));
+                    String nickname = Tools.cutSpaces(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
-                        server.updateNickname(event.getApi().getYourself(), nickname + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(event.getApi().getYourself(), Tools.cutSpaces(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), Tools.cutSpaces(nicknameArray[0]) + " [" + followedString + "]");
                     }
                 }
 

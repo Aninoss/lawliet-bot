@@ -37,11 +37,11 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(getEmbed(event.getApi())).get();
+        event.getChannel().sendMessage(getEmbed()).get();
         return true;
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws IOException, InterruptedException {
+    private EmbedBuilder getEmbed() throws IOException, InterruptedException {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
@@ -62,7 +62,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
         if (Instant.now().isAfter(endTime[0])) {
             Thread.sleep(5000);
-            return getEmbed(api);
+            return getEmbed();
         }
 
         trackingTime = startTime[0];
@@ -76,7 +76,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
                 .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), Tools.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
-            String title = Shortcuts.getCustomEmojiByID(api, 400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(getLocale(), startTime[i], true) + " - " + Tools.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String title = DiscordApiCollection.getInstance().getCustomEmojiByID(400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(getLocale(), startTime[i], true) + " - " + Tools.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.valueOf(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {
@@ -97,7 +97,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-        Message message = trackerData.getChannel().sendMessage(getEmbed(trackerData.getChannel().getApi())).get();
+        Message message = trackerData.getChannel().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
         trackerData.setInstant(trackingTime);
         return trackerData;

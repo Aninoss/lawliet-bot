@@ -1,8 +1,6 @@
 package CommandSupporters;
 
 import Constants.Category;
-import General.Shortcuts;
-import org.javacord.api.DiscordApi;
 
 public class CategoryCalculator {
 

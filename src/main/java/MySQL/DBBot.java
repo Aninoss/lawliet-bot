@@ -1,6 +1,7 @@
 package MySQL;
 
 import General.Bot;
+import General.DiscordApiCollection;
 import General.Fishing.FishingRecords;
 import General.RankingSlot;
 import General.Tools;
@@ -23,9 +24,9 @@ import org.javacord.api.entity.user.User;
 
 public class DBBot {
 
-    public static void synchronize(DiscordApi api) throws SQLException {
+    public static void synchronize() throws SQLException {
         cleanUp();
-        startTrackers(api);
+        startTrackers();
     }
 
     public static String getCurrentVersions() throws SQLException {
@@ -112,16 +113,16 @@ public class DBBot {
         DBMain.getInstance().statement(sql);
     }
 
-    public static void startTrackers(DiscordApi api) throws SQLException {
+    public static void startTrackers() throws SQLException {
         if (!Bot.isDebug()) {
-            List<TrackerData> trackerDataList = getTracker(api);
+            List<TrackerData> trackerDataList = getTracker();
             for (TrackerData trackerData : trackerDataList) {
                 TrackerManager.startTracker(trackerData);
             }
         }
     }
 
-    public static ArrayList<TrackerData> getTracker(DiscordApi api) throws SQLException {
+    public static ArrayList<TrackerData> getTracker() throws SQLException {
         ArrayList<TrackerData> dataArrayList = new ArrayList<>();
 
         Statement statement = DBMain.getInstance().statement("SELECT * FROM Tracking;");
@@ -136,8 +137,9 @@ public class DBBot {
             String arg = resultSet.getString(7);
 
             boolean success = false;
-            if (api.getServerById(serverId).isPresent()) {
-                Server server = api.getServerById(serverId).get();
+            DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+            if (apiCollection.getServerById(serverId).isPresent()) {
+                Server server = apiCollection.getServerById(serverId).get();
                 if (server.getTextChannelById(channelId).isPresent()) {
                     ServerTextChannel channel = server.getTextChannelById(channelId).get();
                     dataArrayList.add(new TrackerData(server, channel, messageId, command, key, instant, arg));
@@ -178,7 +180,9 @@ public class DBBot {
         preparedStatement.executeUpdate();
     }
 
-    public static FishingRecords getFishingRecords(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
+    public static FishingRecords getFishingRecords() throws SQLException, ExecutionException, InterruptedException {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
         String sql = "SELECT serverId, userId, growth FROM PowerPlantUsersExtended ORDER BY growth DESC LIMIT 25;\n" +
                 "SELECT serverId, userId, joule FROM PowerPlantUsersExtended ORDER BY joule DESC LIMIT 25;\n" +
                 "SELECT serverId, userId, coins FROM PowerPlantUsersExtended ORDER BY coins DESC LIMIT 25;\n" +
@@ -191,9 +195,9 @@ public class DBBot {
         int i=0;
         for(ResultSet resultSet: new DBMultipleResultSet(sql)) {
             while (resultSet.next()) {
-                if (api.getServerById(resultSet.getLong(1)).isPresent() && api.getServerById(resultSet.getLong(1)).get().getMemberById(resultSet.getLong(2)).isPresent()) {
-                    servers[i] = api.getServerById(resultSet.getLong(1)).get();
-                    users[i] = api.getUserById(resultSet.getLong(2)).get();
+                if (apiCollection.getServerById(resultSet.getLong(1)).isPresent() && apiCollection.getServerById(resultSet.getLong(1)).get().getMemberById(resultSet.getLong(2)).isPresent()) {
+                    servers[i] = apiCollection.getServerById(resultSet.getLong(1)).get();
+                    users[i] = apiCollection.getUserById(resultSet.getLong(2)).get();
                     values[i] = resultSet.getLong(3);
                     break;
                 }
@@ -250,8 +254,8 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static void updateInactiveServerMembers(DiscordApi api) {
-        for(Server server: api.getServers()) {
+    public static void updateInactiveServerMembers() {
+        for(Server server: DiscordApiCollection.getInstance().getServers()) {
             ArrayList<Long> userIds = new ArrayList<>();
             for(User user: server.getMembers()) {
                 userIds.add(user.getId());

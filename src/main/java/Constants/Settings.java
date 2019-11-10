@@ -1,6 +1,8 @@
 package Constants;
 
 public interface Settings {
+    boolean TEST_MODE = false;
+
     long LAWLIET_ID = 368521195940741122L;
     int TIME_OUT_TIME = 10 * 60000;
     long HOME_SERVER_ID = 368531164861825024L;
@@ -13,6 +15,7 @@ public interface Settings {
     String GROWTH = "<:growth:556164492678004741>";
     int ONE_CURRENCY_TO_COINS = 100;
     long MAX = 9999999999999999L;
+    String BACK_EMOJI = "⏪";
     String[] VERSIONS = {
             "2.0.0",
             "2.1.0",

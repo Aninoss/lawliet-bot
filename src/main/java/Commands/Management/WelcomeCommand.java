@@ -131,7 +131,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     URL url = imageList.get(0);
 
                     try {
-                        long size = Tools.getURLFileSize(event.getApi(), url);
+                        long size = Tools.getURLFileSize(url);
                         if (size >= 8000000) {
                             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "file_too_large"));
                             return Response.FALSE;
@@ -307,7 +307,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         user.getDiscriminatedName(),
                         Tools.numToString(getLocale(), server.getMembers().size())));
 
-        eb.setImage(Tools.getURLFromInputStream(user.getApi(), ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
+        eb.setImage(Tools.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
         return eb;
     }
 

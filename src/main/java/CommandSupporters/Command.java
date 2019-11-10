@@ -157,8 +157,8 @@ public class Command {
                     if (i == -1) {
                         if (navigationMessage != null) {
                             if (navigationMessage.getChannel().canYouUseExternalEmojis())
-                                navigationMessage.addReaction(Shortcuts.getBackEmojiCustom(event.getApi()));
-                            else navigationMessage.addReaction(Shortcuts.getBackEmojiUnicode());
+                                navigationMessage.addReaction(DiscordApiCollection.getInstance().getBackEmojiCustom());
+                            else navigationMessage.addReaction(Settings.BACK_EMOJI);
                         }
                     }
                     if (i >= 0 && navigationMessage != null) {
@@ -181,7 +181,7 @@ public class Command {
         if (countdown != null) countdown.reset();
 
         int index = -2;
-        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Shortcuts.getBackEmojiUnicode())) || (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(Shortcuts.getBackEmojiCustom(event.getApi()).getMentionTag())))
+        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Settings.BACK_EMOJI)) || (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(DiscordApiCollection.getInstance().getBackEmojiCustom().getMentionTag())))
             index = -1;
         else {
             for(int i = 0; i < ((onNavigationListener) this).getMaxReactionNumber(); i++) {
@@ -244,14 +244,14 @@ public class Command {
                             message.getChannel().canYouAddNewReactions() &&
                             !loadingBlock &&
                             message.getReactions().stream().map(Reaction::getEmoji)
-                                    .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L))) ||
+                                    .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L))) ||
                                             emoji.equalsEmoji("⏳"))
             ) {
                 loadingStatus = LoadingStatus.ONGOING;
 
                 CompletableFuture<Void> loadingBarReaction;
                 if (message.getChannel().canYouUseExternalEmojis())
-                    loadingBarReaction = message.addReaction(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L));
+                    loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L));
                 else loadingBarReaction = message.addReaction("⏳");
 
                 loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
@@ -281,7 +281,7 @@ public class Command {
                     message = message.getLatestInstance().get();
                     try {
                         if (message.getChannel().canYouUseExternalEmojis())
-                            message.removeOwnReactionByEmoji(Shortcuts.getCustomEmojiByID(message.getApi(), 407189379749117981L)).get();
+                            message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L)).get();
                         else message.removeOwnReactionByEmoji("⏳").get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
@@ -439,7 +439,7 @@ public class Command {
     }
 
     public boolean checkManageChannelWithLog(ServerChannel channel) {
-        if (Tools.canManageChannel(channel, channel.getApi().getYourself())) return true;
+        if (Tools.canManageChannel(channel, DiscordApiCollection.getInstance().getYourself())) return true;
         try {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", "#"+channel.getName()));
         } catch (IOException e) {

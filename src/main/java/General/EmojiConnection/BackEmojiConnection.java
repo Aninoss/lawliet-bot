@@ -1,26 +1,27 @@
 package General.EmojiConnection;
 
-import General.Shortcuts;
+import Constants.Settings;
+import General.DiscordApiCollection;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
 
 public class BackEmojiConnection extends EmojiConnection {
     public BackEmojiConnection(TextChannel channel, String connection) {
         super("", connection);
-        setEmoji(channel.getApi(), channel.canYouUseExternalEmojis(), connection);
+        setEmoji(channel.canYouUseExternalEmojis(), connection);
     }
 
-    public BackEmojiConnection(DiscordApi api, boolean customEmoji, String connection) {
+    public BackEmojiConnection(boolean customEmoji, String connection) {
         super("", connection);
-        setEmoji(api, customEmoji, connection);
+        setEmoji(customEmoji, connection);
     }
 
-    private void setEmoji(DiscordApi api, boolean customEmoji, String connection) {
+    private void setEmoji(boolean customEmoji, String connection) {
         if (customEmoji) {
-            setCustomEmoji(Shortcuts.getBackEmojiCustom(api));
+            setCustomEmoji(DiscordApiCollection.getInstance().getBackEmojiCustom());
             setCustom(true);
         } else {
-            setUnicodeEmoji(Shortcuts.getBackEmojiUnicode());
+            setUnicodeEmoji(Settings.BACK_EMOJI);
             setCustom(false);
         }
     }

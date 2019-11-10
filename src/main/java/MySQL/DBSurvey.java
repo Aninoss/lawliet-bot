@@ -1,16 +1,16 @@
 package MySQL;
 
+import General.DiscordApiCollection;
 import General.Survey.*;
-import org.javacord.api.DiscordApi;
+import com.sun.corba.se.spi.activation.ServerOperations;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
 
 public class DBSurvey {
     public static Survey getCurrentSurvey() throws SQLException {
@@ -47,8 +47,10 @@ public class DBSurvey {
                 }
             } else if (i == 1) {
                 while (resultSet.next()) {
-                    Server server = user.getApi().getServerById(resultSet.getLong(1)).get();
-                    userMajorityVoteData.add(new UserMajorityVoteData(server, resultSet.getInt(2)));
+                    Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(resultSet.getLong(1));
+                    if (serverOptional.isPresent()) {
+                        userMajorityVoteData.add(new UserMajorityVoteData(serverOptional.get(), resultSet.getInt(2)));
+                    }
                 }
                 userVoteData.setMajorityVotes(userMajorityVoteData);
             }
@@ -61,7 +63,7 @@ public class DBSurvey {
         return userVoteData;
     }
 
-    public static ArrayList<SurveyServer> getUsersWithRightChoiceForCurrentSurvey(DiscordApi api) throws SQLException {
+    public static ArrayList<SurveyServer> getUsersWithRightChoiceForCurrentSurvey(DiscordApiCollection apiCollection) throws SQLException {
         String sql = "SELECT serverId, userId, (majorityVote = (SELECT personalVote FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1) GROUP BY personalVote ORDER BY COUNT(personalVote) DESC LIMIT 1))\n" +
                 "FROM SurveyMajorityVotes \n" +
                 "WHERE (SELECT powerPlant FROM DServer WHERE DServer.serverId = SurveyMajorityVotes.serverId) = 'ACTIVE'\n" +
@@ -71,20 +73,19 @@ public class DBSurvey {
         Statement statement = DBMain.getInstance().statement(sql);
 
         ResultSet resultSet = statement.getResultSet();
-        ArrayList<SurveyUser> userList = null;
+        ArrayList<SurveyUser> userList = new ArrayList<>();
         ArrayList<SurveyServer> serverList = new ArrayList<>();
         long lastServerId = -1;
         while (resultSet.next()) {
             long serverId = resultSet.getLong(1);
-            if (api.getServerById(serverId).isPresent()) {
+            if (apiCollection.getServerById(serverId).isPresent()) {
                 if (serverId != lastServerId) {
                     userList = new ArrayList<>();
-                    serverList.add(new SurveyServer(api.getServerById(serverId).get(), userList));
+                    serverList.add(new SurveyServer(apiCollection.getServerById(serverId).get(), userList));
                 }
-                try {
-                    userList.add(new SurveyUser(api.getUserById(resultSet.getLong(2)).get(), resultSet.getBoolean(3)));
-                } catch (InterruptedException | ExecutionException | SQLException e) {
-                    //Ignore
+                Optional<User> userOptional = apiCollection.getUserById(resultSet.getLong(2));
+                if (userOptional.isPresent()) {
+                    userList.add(new SurveyUser(userOptional.get(), resultSet.getBoolean(3)));
                 }
             }
             lastServerId = serverId;

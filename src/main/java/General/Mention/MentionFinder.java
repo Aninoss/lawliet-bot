@@ -1,5 +1,6 @@
 package General.Mention;
 
+import General.DiscordApiCollection;
 import General.Tools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -19,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 public class MentionFinder {
     public static MentionList<User> getUsers(Message message, String string) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
-        if (!string.contains(message.getApi().getYourself().getIdAsString())) list.remove(message.getApi().getYourself());
+        if (!string.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString())) list.remove(DiscordApiCollection.getInstance().getYourself());
         for (User user : list) {
             string = string.replace(user.getMentionTag(), "").replace("<@!"+user.getIdAsString()+">", "");
         }

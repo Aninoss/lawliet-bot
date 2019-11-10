@@ -30,24 +30,24 @@ public class StatsCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        User dephord = event.getApi().getUserById(303085910784737281L).get();
+        User dephord = DiscordApiCollection.getInstance().getUserById(303085910784737281L).get();
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",
-                event.getApi().getOwner().get().getMentionTag(),
+                DiscordApiCollection.getInstance().getOwner().getMentionTag(),
                 Settings.BOT_INVITE_URL,
                 Tools.getCurrentVersion(),
                 Tools.getInstantString(getLocale(), DBBot.getCurrentVersionDate(), true),
-                Tools.numToString(getLocale(), event.getApi().getServers().size()),
+                Tools.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
                 Tools.numToString(getLocale(), TrackerManager.getSize()),
-                event.getApi().getOwner().get().getDiscriminatedName(),
+                DiscordApiCollection.getInstance().getOwner().getDiscriminatedName(),
                 Tools.numToString(getLocale(), DBSurvey.getCurrentVotesNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));
 
 
-        FishingRecords fishingRecords = DBBot.getFishingRecords(event.getApi());
+        FishingRecords fishingRecords = DBBot.getFishingRecords();
         String args[] = new String[12];
 
         for(int i=0; i<4; i++) {

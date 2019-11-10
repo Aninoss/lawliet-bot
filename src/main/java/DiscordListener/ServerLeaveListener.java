@@ -1,6 +1,7 @@
 package DiscordListener;
 
 import General.Connector;
+import General.DiscordApiCollection;
 import MySQL.DBServer;
 import org.javacord.api.event.server.ServerLeaveEvent;
 
@@ -10,11 +11,6 @@ public class ServerLeaveListener {
     public ServerLeaveListener() {}
 
     public void onServerLeave(ServerLeaveEvent event) {
-        try {
-            event.getApi().getOwner().get().sendMessage("**---** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
-            Connector.updateActivity(event.getApi(), event.getApi().getServers().size() - 1);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        DiscordApiCollection.getInstance().getOwner().sendMessage("**---** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
     }
 }

@@ -1,5 +1,6 @@
 package ServerStuff.Donations;
 
+import General.DiscordApiCollection;
 import MySQL.DBUser;
 import ServerStuff.Server.WebhookServer;
 import org.javacord.api.DiscordApi;
@@ -8,14 +9,12 @@ import org.javacord.api.entity.server.Server;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class DonationServer extends WebhookServer {
-    private DiscordApi api;
-
-    public DonationServer(DiscordApi api, int port) {
+    public DonationServer(int port) {
         super(port);
-        this.api = api;
     }
 
     @Override
@@ -25,19 +24,20 @@ public class DonationServer extends WebhookServer {
 
     @Override
     public void startSession(Socket socket) {
-        new DonationServerSession(socket, api);
+        new DonationServerSession(socket);
     }
 
-    public static void addBonus(DiscordApi api, long userId, double usDollars) {
-        Server server = api.getServerById(557953262305804308L).get();
+    public static void addBonus(long userId, double usDollars) {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
+        Server server = apiCollection.getServerById(557953262305804308L).get();
         User user = null;
         String userName;
 
         if (userId != -1) {
-            try {
-                user = api.getUserById(userId).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            Optional<User> userOptional = apiCollection.getUserById(userId);
+            if (userOptional.isPresent()) {
+                user = apiCollection.getUserById(userId).get();
             }
         }
 
@@ -81,16 +81,16 @@ public class DonationServer extends WebhookServer {
         }
     }
 
-    public static void removeBonus(DiscordApi api, long userId) {
-        Server server = api.getServerById(557953262305804308L).get();
+    public static void removeBonus(long userId) {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+        Server server = apiCollection.getServerById(557953262305804308L).get();
         User user = null;
         String userName;
 
         if (userId != -1) {
-            try {
-                user = api.getUserById(userId).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            Optional<User> userOptional = apiCollection.getUserById(userId);
+            if (userOptional.isPresent()) {
+                user = apiCollection.getUserById(userId).get();
             }
         }
 
@@ -117,11 +117,11 @@ public class DonationServer extends WebhookServer {
         }
     }
 
-    public static void checkExpiredDonations(DiscordApi api) {
+    public static void checkExpiredDonations() {
         try {
             ArrayList<Long> userDonationExpired = DBUser.getDonationEnds();
             for(long userId: userDonationExpired) {
-                DonationServer.removeBonus(api, userId);
+                DonationServer.removeBonus(userId);
             }
         } catch (SQLException e) {
             e.printStackTrace();

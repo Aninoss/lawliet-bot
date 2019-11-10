@@ -4,6 +4,7 @@ import CommandSupporters.CommandContainer;
 import Constants.Settings;
 import General.Bot;
 import General.Connector;
+import General.DiscordApiCollection;
 import General.RunningCommands.RunningCommandManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -26,8 +27,6 @@ public class CommunicationServer {
     private final byte IN_ACK = 0x1;
     private final byte IN_EXIT = 0x2;
 
-    private DiscordApi api;
-
     public CommunicationServer(int port) {
         this.port = port;
         Thread t = new Thread(this::run);
@@ -36,6 +35,7 @@ public class CommunicationServer {
     }
 
     private void run() {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         try {
             ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());
 
@@ -48,9 +48,9 @@ public class CommunicationServer {
 
                     int output =  OUT_HEARTBEAT;
 
-                    if (api != null && api.getServerById(Settings.HOME_SERVER_ID).isPresent() && api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).isPresent()) {
+                    if (apiCollection != null && apiCollection.size() > 0 && apiCollection.getHomeServer().getTextChannelById(521088289894039562L).isPresent()) {
                         try {
-                            Message message = api.getServerById(Settings.HOME_SERVER_ID).get().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
+                            Message message = apiCollection.getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
                             if (message.getContent().equals("test")) output |=  OUT_CONNECTED;
                             message.delete();
                         } catch (InterruptedException | ExecutionException e) {
@@ -60,12 +60,6 @@ public class CommunicationServer {
 
                     os.write(output);
                     os.flush();
-
-                    Calendar calendar = Calendar.getInstance();
-                    if (calendar.get(Calendar.HOUR_OF_DAY) == 5 && calendar.get(Calendar.MINUTE) < 10 && !Bot.isRestartPending()) {
-                        Bot.setRestartPending();
-                        Connector.updateActivity(api);
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -74,9 +68,5 @@ public class CommunicationServer {
             e.printStackTrace();
             System.exit(0);
         }
-    }
-
-    public void setApi(DiscordApi api) {
-        this.api = api;
     }
 }

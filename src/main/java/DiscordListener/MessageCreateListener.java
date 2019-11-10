@@ -73,7 +73,7 @@ public class MessageCreateListener {
             String prefix = DBServer.getPrefix(event.getServer().get());
             String content = event.getMessage().getContent();
 
-            String[] prefixes = {prefix, event.getApi().getYourself().getMentionTag(), "<@!"+event.getApi().getYourself().getIdAsString()+">"};
+            String[] prefixes = {prefix, DiscordApiCollection.getInstance().getYourself().getMentionTag(), "<@!"+DiscordApiCollection.getInstance().getYourself().getIdAsString()+">"};
 
             int prefixFound = -1;
             for(int i=0; i<prefixes.length; i++) {
@@ -106,7 +106,7 @@ public class MessageCreateListener {
 
                 //Add Fisch & Manage 100 Fish Message
                 if (!Tools.serverIsBotListServer(event.getServer().get())) {
-                    FisheryCache.getInstance().addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
+                    FisheryCache.getInstance(event.getApi().getCurrentShard()).addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
                 }
 
                 //Manage Treasure Chests

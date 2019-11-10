@@ -13,11 +13,9 @@ import General.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
 import General.Survey.*;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -33,11 +31,11 @@ import java.util.concurrent.ExecutionException;
 public class Clock {
     private static boolean trafficWarned = false;
 
-    public static void tick(DiscordApi api) {
+    public static void tick() {
         //Start 10 Minutes Event Loop
         Thread t = new Thread(() -> {
             while(true) {
-                every10Minutes(api);
+                every10Minutes();
                 try {
                     Thread.sleep(1000 * 60 * 10);
                 } catch (InterruptedException e) {
@@ -53,21 +51,23 @@ public class Clock {
             while (true) {
                 Duration duration = Duration.between(Instant.now(), Tools.setInstantToNextHour(Instant.now()));
                 Thread.sleep(duration.getSeconds() * 1000 + duration.getNano() / 1000000);
-                onHourStart(api);
+                onHourStart();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private static void onHourStart(DiscordApi api) {
+    private static void onHourStart() {
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
-            onDayStart(api);
+            onDayStart();
         }
     }
 
-    private static void onDayStart(DiscordApi api) {
+    private static void onDayStart() {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
         SellCommand.resetCoinsPerFish(); //Reset Fishery Exchange Rate
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
@@ -79,7 +79,7 @@ public class Clock {
         if (day == Calendar.MONDAY || day == Calendar.THURSDAY) {
             try {
                 SurveyVotesCollector collector = new SurveyVotesCollector(DBSurvey.getCurrentSurvey().getId());
-                List<SurveyServer> serverList = DBSurvey.getUsersWithRightChoiceForCurrentSurvey(api);
+                List<SurveyServer> serverList = DBSurvey.getUsersWithRightChoiceForCurrentSurvey(apiCollection);
                 DBSurvey.nextSurvey();
                 collector.setResults(DBSurvey.getResults());
 
@@ -172,7 +172,7 @@ public class Clock {
             }
         }
 
-        DonationServer.checkExpiredDonations(api); //Check Expired Donations
+        DonationServer.checkExpiredDonations(); //Check Expired Donations
 
         //Send Bot Stats
         try {
@@ -181,7 +181,7 @@ public class Clock {
             e.printStackTrace();
         }
         try {
-            DBBot.addStatServers(api.getServers().size());
+            DBBot.addStatServers(apiCollection.getServerTotalSize());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -192,7 +192,9 @@ public class Clock {
         }
     }
 
-    private static void every10Minutes(DiscordApi api) {
+    private static void every10Minutes() {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
         //Cleans Cooldown List
         Cooldown.getInstance().clean();
 
@@ -202,8 +204,8 @@ public class Clock {
 
         if (trafficGB >= 20 && (!trafficWarned || trafficGB >= 40)) {
             try {
-                api.getOwner().get().sendMessage("Traffic Warning! " + trafficGB + " GB!");
-            } catch (InterruptedException | ExecutionException e) {
+                apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
             trafficWarned = true;
@@ -223,11 +225,11 @@ public class Clock {
         }
 
         //Updates Activity
-        Connector.updateActivity(api);
+        Connector.updateActivity();
 
         //Updates Discord Bots Server Count
-        DiscordbotsAPI.getInstance().updateServerCount(api);
-        Botsfordiscord.updateServerCount(api.getServers().size());
+        DiscordbotsAPI.getInstance().updateServerCount(apiCollection.getServerTotalSize());
+        Botsfordiscord.updateServerCount(apiCollection.getServerTotalSize());
     }
 
     public static boolean instantHasHour(Instant instant, int hour) {

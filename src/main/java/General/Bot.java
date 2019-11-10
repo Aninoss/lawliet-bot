@@ -2,7 +2,6 @@ package General;
 
 public class Bot {
 
-    public static final boolean TEST_MODE = false; //Warning: The bot always uses the non-beta token when running in test mode!
     private static boolean restartPending = false;
 
     public static boolean isDebug() {

@@ -6,7 +6,6 @@ import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -20,14 +19,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class DBUser {
-    public static void synchronize(DiscordApi api) throws SQLException {
+    public static void synchronize() throws SQLException {
         if (!Bot.isDebug()) {
             System.out.println("User werden synchronisiert...");
 
             Thread t = new Thread(() -> {
                 ArrayList<Long> userList = new ArrayList<>();
 
-                for (Server server : api.getServers()) {
+                for (Server server : DiscordApiCollection.getInstance().getServers()) {
                     for (User user : server.getMembers()) {
                         long id = user.getId();
                         if (!userList.contains(id)) userList.add(id);

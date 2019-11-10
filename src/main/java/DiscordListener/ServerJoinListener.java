@@ -3,6 +3,7 @@ package DiscordListener;
 import Constants.PowerPlantStatus;
 import Constants.Settings;
 import General.Connector;
+import General.DiscordApiCollection;
 import MySQL.DBBot;
 import MySQL.DBServer;
 import MySQL.DBUser;
@@ -25,10 +26,10 @@ public class ServerJoinListener {
             DBServer.insertServer(event.getServer());
             DBUser.insertUsers(event.getServer().getMembers());
             sendNewMessage(event.getServer());
-            event.getApi().getOwner().get().sendMessage("**+++** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
+            DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
 
-            Connector.updateActivity(event.getApi());
-        } catch (InterruptedException | ExecutionException | SQLException e) {
+            Connector.updateActivity();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

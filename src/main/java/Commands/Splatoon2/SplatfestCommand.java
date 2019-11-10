@@ -36,11 +36,11 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(getEmbed(event.getApi())).get();
+        event.getChannel().sendMessage(getEmbed()).get();
         return true;
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
+    private EmbedBuilder getEmbed() throws Throwable {
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
         String region;
         if ("en".equals(language)) {
@@ -89,7 +89,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
             case 0:
                 eb.setDescription(getString("state0", Tools.getInstantString(getLocale(), startTime, true), Tools.getInstantString(getLocale(), endTime, true)));
                 eb.setFooter(getString("state0_footer", Tools.getRemainingTimeString(getLocale(), startTime, Instant.now(), false), region.toUpperCase()));
-                addTeamsToEmbedBuilder(eb, api, languageData, festId, teamNames);
+                addTeamsToEmbedBuilder(eb, languageData, festId, teamNames);
                 trackingTime = startTime;
                 break;
 
@@ -97,7 +97,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
             case 1:
                 eb.setDescription(getString("state1", Tools.getInstantString(getLocale(), endTime, true)));
                 eb.setFooter(getString("state1_footer", Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), false), region.toUpperCase()));
-                addTeamsToEmbedBuilder(eb, api, languageData, festId, teamNames);
+                addTeamsToEmbedBuilder(eb, languageData, festId, teamNames);
                 trackingTime = endTime;
                 break;
 
@@ -105,7 +105,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
             case 2:
                 eb.setDescription(getString("state2", Tools.getInstantString(getLocale(), resultsTime, true)));
                 eb.setFooter(getString("state2_footer", Tools.getRemainingTimeString(getLocale(), resultsTime, Instant.now(), false), region.toUpperCase()));
-                addTeamsToEmbedBuilder(eb, api, languageData, festId, teamNames);
+                addTeamsToEmbedBuilder(eb, languageData, festId, teamNames);
                 trackingTime = resultsTime;
                 break;
 
@@ -145,14 +145,14 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
 
                 for(int i=0; i<teamTag.length; i++) {
                     eb.addField(
-                            getString("team", Tools.getCustomEmojiByName(api, teamTag[i]).getMentionTag(), teamNames[i]),
+                            getString("team", DiscordApiCollection.getInstance().getCustomEmojiByName(teamTag[i]).getMentionTag(), teamNames[i]),
                             content[i],
                             true);
                 }
 
                 String teamWon =  languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festId)).getJSONObject("names").getString(teamTag[result[3][2]] + "_short");
                 eb.addField(
-                        getString("state3_result", Shortcuts.getCustomEmojiByID(api, 437258157136543744L).getMentionTag()),
+                        getString("state3_result", DiscordApiCollection.getInstance().getCustomEmojiByID(437258157136543744L).getMentionTag()),
                         getString("state3_won", teamWon, String.valueOf(result[3][0]), String.valueOf(result[3][1])),
                         true);
 
@@ -166,11 +166,11 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
         return eb;
     }
 
-    private void addTeamsToEmbedBuilder(EmbedBuilder eb, DiscordApi api, JSONObject languageData, int festId, String[] teamNames) throws Throwable {
+    private void addTeamsToEmbedBuilder(EmbedBuilder eb, JSONObject languageData, int festId, String[] teamNames) throws Throwable {
         String[] teamTag = {"alpha", "bravo"};
         for(int i=0; i<teamTag.length; i++) {
             eb.addField(
-                    getString("team", Tools.getCustomEmojiByName(api, teamTag[i]).getMentionTag(), teamNames[i]),
+                    getString("team", DiscordApiCollection.getInstance().getCustomEmojiByName(teamTag[i]).getMentionTag(), teamNames[i]),
                     languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festId)).getJSONObject("names").getString(teamTag[i]+"_long"),
                     true);
         }
@@ -178,7 +178,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        EmbedBuilder eb = getEmbed(trackerData.getChannel().getApi());
+        EmbedBuilder eb = getEmbed();
         if (post || trackerData.getMessageDelete() == null) {
             if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
             Message message = trackerData.getChannel().sendMessage(eb).get();

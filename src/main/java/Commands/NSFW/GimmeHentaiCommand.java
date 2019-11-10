@@ -6,7 +6,6 @@ import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Tools;
 import General.Internet.Internet;
-import General.Shortcuts;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ public class GimmeHentaiCommand extends Command implements onRecievedListener {
 
         String data = Internet.getData(hentaiText.split("\n")[1]).getContent().get();
         String cover = Tools.cutString(data,"<meta property=\"og:image\" content=\"","\">");
-        String desc = Tools.shortenString(Shortcuts.decryptString(Tools.cutString(data,"<meta property=\"og:description\" content=\"","\">")),1024);
+        String desc = Tools.shortenString(Tools.decryptString(Tools.cutString(data,"<meta property=\"og:description\" content=\"","\">")),1024);
 
         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",hentaiText))

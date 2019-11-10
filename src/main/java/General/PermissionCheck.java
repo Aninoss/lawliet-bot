@@ -17,7 +17,7 @@ import java.util.Locale;
 public class PermissionCheck {
     public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
-        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server,channel,server.getApi().getYourself(),botPermissions);
+        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
 
         return getEmbedBuilderForPermissions(locale, userPermission,botPermission);
     }
@@ -29,8 +29,8 @@ public class PermissionCheck {
     }
 
     public static EmbedBuilder bothasPermissions(Locale locale, Server server, ServerChannel channel, int botPermissions) throws IOException {
-        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server,channel,server.getApi().getYourself(),botPermissions);
-        return getEmbedBuilderForPermissions(locale, new ArrayList<>(),botPermission);
+        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
+        return getEmbedBuilderForPermissions(locale, new ArrayList<>(), botPermission);
     }
 
     public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {

@@ -18,6 +18,8 @@ import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.jsoup.Jsoup;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -250,7 +252,7 @@ public class Tools {
         if (role.isManaged() || !server.canYouManageRoles()) return false;
 
         int highestPosition = -1;
-        for(Role ownRole: server.getRoles(api.getYourself())) {
+        for(Role ownRole: server.getRoles(DiscordApiCollection.getInstance().getYourself())) {
             if (ownRole.getPermissions().getState(PermissionType.MANAGE_ROLES) == PermissionState.ALLOWED || ownRole.getPermissions().getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED) {
                 highestPosition = Math.max(highestPosition, ownRole.getPosition());
             }
@@ -290,9 +292,7 @@ public class Tools {
         if (tags.length == 3) {
             tag = tags[2];
             String id = tag.substring(0, tag.length() - 1);
-            if (server.getApi().getCustomEmojiById(id).isPresent()) {
-                return server.getApi().getCustomEmojiById(id).get();
-            }
+            return DiscordApiCollection.getInstance().getCustomEmojiByID(id);
         }
 
         return null;
@@ -307,8 +307,8 @@ public class Tools {
         return false;
     }
 
-    public static URL getURLFromInputStream(DiscordApi api, InputStream inputStream) throws ExecutionException, InterruptedException {
-        Message message = Shortcuts.getHomeServer(api).getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
+    public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
+        Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
         Thread t =new Thread(() -> {
             try {
@@ -323,7 +323,7 @@ public class Tools {
         return url;
     }
 
-    public static long getURLFileSize(DiscordApi api, URL url) {
+    public static long getURLFileSize(URL url) {
         long size = 0;
         URLConnection conn = null;
         try {
@@ -351,26 +351,22 @@ public class Tools {
                 .replaceAll("(?i)%ChannelID",message.getServerTextChannel().get().getIdAsString())
                 .replaceAll("(?i)%ServerID",message.getServer().get().getIdAsString())
                 .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
-                .replaceAll("(?i)%@Bot",message.getServer().get().getApi().getYourself().getMentionTag())
+                .replaceAll("(?i)%@Bot",DiscordApiCollection.getInstance().getYourself().getMentionTag())
                 .replaceAll("(?i)%Prefix",prefix);
     }
 
-    public static String solveVariablesOfCommandText(String string, DiscordApi api) {
-        try {
-            return string
-                    .replaceAll("(?i)%MessageContent", "hello")
-                    .replaceAll("(?i)%#Channel", "#welcome")
-                    .replaceAll("(?i)%MessageID", "557961653975515168")
-                    .replaceAll("(?i)%ChannelID", "557953262305804310")
-                    .replaceAll("(?i)%ServerID", "557953262305804308")
-                    .replaceAll("(?i)%@User", "@" + api.getOwner().get().getDiscriminatedName())
-                    .replaceAll("(?i)%@Bot", "@" + api.getYourself().getDiscriminatedName())
-                    .replaceAll("(?i)%Prefix", "L.");
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+    public static String solveVariablesOfCommandText(String string) {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        return string;
+        return string
+                .replaceAll("(?i)%MessageContent", "hello")
+                .replaceAll("(?i)%#Channel", "#welcome")
+                .replaceAll("(?i)%MessageID", "557961653975515168")
+                .replaceAll("(?i)%ChannelID", "557953262305804310")
+                .replaceAll("(?i)%ServerID", "557953262305804308")
+                .replaceAll("(?i)%@User", "@" + apiCollection.getOwner().getDiscriminatedName())
+                .replaceAll("(?i)%@Bot", "@" + apiCollection.getYourself().getDiscriminatedName())
+                .replaceAll("(?i)%Prefix", "L.");
     }
 
     public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) throws IOException {
@@ -401,13 +397,6 @@ public class Tools {
         remaining = remaining.substring(0, remaining.length() - 2);
         remaining = Tools.replaceLast(remaining, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
         return remaining;
-    }
-
-    public static KnownCustomEmoji getCustomEmojiByName(DiscordApi api, String name) {
-        if (Shortcuts.getHomeServer(api).getCustomEmojisByName(name).size() > 0) {
-            KnownCustomEmoji[] knownCustomEmojis = new KnownCustomEmoji[0];
-            return Shortcuts.getHomeServer(api).getCustomEmojisByName(name).toArray(knownCustomEmojis)[0];
-        } return null;
     }
 
     public static Instant setInstantToNextHour(Instant instant) {
@@ -485,7 +474,7 @@ public class Tools {
 
     public static String getLoadingReaction(ServerTextChannel channel) {
         if (channel.canYouUseExternalEmojis())
-            return Shortcuts.getCustomEmojiByID(channel.getApi(), 407189379749117981L).getMentionTag();
+            return DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L).getMentionTag();
         else return "⏳";
     }
 
@@ -532,4 +521,9 @@ public class Tools {
     public static boolean canManagePermissions(ServerChannel channel, User user) {
         return channel.getServer().getPermissions(user).getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED || channel.getEffectivePermissions(user).getState(PermissionType.MANAGE_ROLES) == PermissionState.ALLOWED;
     }
+
+    public static String decryptString(String str) {
+        return Jsoup.parse(str.replace("<br />", "\n")).text();
+    }
+
 }

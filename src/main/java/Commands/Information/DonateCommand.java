@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Settings;
+import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
 import MySQL.DBUser;
@@ -11,6 +12,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -28,14 +30,8 @@ public class DonateCommand extends Command implements onRecievedListener {
         StringBuilder donators = new StringBuilder();
 
         for(long userId: DBUser.getActiveDonators()) {
-            try {
-                User user = event.getApi().getUserById(userId).get();
-                if (user != null) {
-                    donators.append(user.getDiscriminatedName()).append("\n");
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
+            userOptional.ifPresent(user -> donators.append(user.getDiscriminatedName()).append("\n"));
         }
 
         if (donators.length() == 0) donators.append(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"));

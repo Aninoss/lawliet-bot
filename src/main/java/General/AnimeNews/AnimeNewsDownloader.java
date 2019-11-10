@@ -3,7 +3,6 @@ package General.AnimeNews;
 import Constants.Language;
 import General.Internet.InternetResponse;
 import General.PostBundle;
-import General.Shortcuts;
 import General.Tools;
 import General.Internet.URLDataContainer;
 
@@ -70,16 +69,16 @@ public class AnimeNewsDownloader {
     private static AnimeNewsPost getPostDE(String data) {
         AnimeNewsPost post = new AnimeNewsPost();
 
-        post.setTitle(Shortcuts.decryptString(Tools.cutString(data, "title=\"", "\"")));
-        post.setDescription(Shortcuts.decryptString(Tools.cutString(data + "</div>", "<div class=\"td-excerpt\">", "</div>")));
+        post.setTitle(Tools.decryptString(Tools.cutString(data, "title=\"", "\"")));
+        post.setDescription(Tools.decryptString(Tools.cutString(data + "</div>", "<div class=\"td-excerpt\">", "</div>")));
         post.setImage(Tools.cutString(data, "data-lazy-srcset=\"", " "));
         post.setLink(Tools.cutString(data, "<a href=\"", "\""));
 
         if (data.contains("#comments\">")) post.setComments(Integer.parseInt(Tools.cutString(data, "#comments\">", "<")));
         else post.setComments(Integer.parseInt(Tools.cutString(data, "#respond\">", "<")));
 
-        post.setAuthor(Shortcuts.decryptString(Tools.cutString(data, "class=\"td-post-author-name\">", "</a>").split(">")[1]));
-        post.setDate(Shortcuts.decryptString(Tools.cutString(data, "datetime=\"", "</time>").split(">")[1]));
+        post.setAuthor(Tools.decryptString(Tools.cutString(data, "class=\"td-post-author-name\">", "</a>").split(">")[1]));
+        post.setDate(Tools.decryptString(Tools.cutString(data, "datetime=\"", "</time>").split(">")[1]));
         post.setId(Tools.cutString(data, "datetime=\"", "\""));
         post.setCategory("");
 
@@ -91,15 +90,15 @@ public class AnimeNewsDownloader {
 
         data = data.replace("<cite>", "").replace("</cite>", "").replaceFirst("&amp;from=I.MF\">", "").replaceFirst("<a href=\"", "");
 
-        post.setTitle(Shortcuts.decryptString(Tools.cutString(data, "&amp;from=I.MF\">", "</a>")));
-        post.setDescription(Shortcuts.decryptString(Tools.cutString(data, "<span class=\"full\">― ", "</span>")));
+        post.setTitle(Tools.decryptString(Tools.cutString(data, "&amp;from=I.MF\">", "</a>")));
+        post.setDescription(Tools.decryptString(Tools.cutString(data, "<span class=\"full\">― ", "</span>")));
         post.setImage("https://www.animenewsnetwork.com" + Tools.cutString(data, "data-src=\"", "\">"));
         post.setLink("https://www.animenewsnetwork.com" + Tools.cutString(data, "<a href=\"", "\""));
         post.setComments(Integer.parseInt(Tools.cutString(Tools.cutString(data, "<div class=\"comments\"><a href=\"", "</a></div>"), ">", " ")));
         post.setAuthor("");
-        post.setDate(Shortcuts.decryptString(Tools.cutString(Tools.cutString(data, "<time datetime=\"", "/time>"), ">", "<")));
+        post.setDate(Tools.decryptString(Tools.cutString(Tools.cutString(data, "<time datetime=\"", "/time>"), ">", "<")));
         post.setId(Tools.cutString(data, "data-track=\"id=", "</a>"));
-        post.setCategory(Shortcuts.decryptString(Tools.cutString(data, "<span class=\"topics\">", "</div>")));
+        post.setCategory(Tools.decryptString(Tools.cutString(data, "<span class=\"topics\">", "</div>")));
 
         return post;
     }

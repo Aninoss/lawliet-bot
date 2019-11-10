@@ -34,11 +34,11 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(getEmbed(event.getApi())).get();
+        event.getChannel().sendMessage(getEmbed()).get();
         return true;
     }
 
-    private EmbedBuilder getEmbed(DiscordApi api) throws Throwable {
+    private EmbedBuilder getEmbed() throws Throwable {
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
         String region;
         if (language.equalsIgnoreCase("en")) {
@@ -89,7 +89,7 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
             for (int i = 0; i < modeIDs.length; i++) {
                 String id = modeIDs[i];
                 String modeName = languageData.getJSONObject("game_modes").getJSONObject(id).getString("name");
-                String fieldTitle = Tools.getCustomEmojiByName(api, id).getMentionTag() + " __**" + modeName + "**__";
+                String fieldTitle = DiscordApiCollection.getInstance().getCustomEmojiByName(id).getMentionTag() + " __**" + modeName + "**__";
                 String[] timeNames = getString("times").split("\n");
                 StringBuilder fieldContent = new StringBuilder();
                 for (int j = 0; j < timeNames.length; j++) {
@@ -112,7 +112,7 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
             festTeams[1] = languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festData.getInt("festival_id"))).getJSONObject("names").getString("bravo_short");
 
             String id = "regular";
-            String fieldTitle = Shortcuts.getCustomEmojiByID(api,401774931420905474L).getMentionTag() + getString("splatfest_battle", festTeams[0], festTeams[1]);
+            String fieldTitle = DiscordApiCollection.getInstance().getCustomEmojiByID(401774931420905474L).getMentionTag() + getString("splatfest_battle", festTeams[0], festTeams[1]);
             String[] timeNames = getString("times").split("\n");
             String fieldContent = "";
             for (int j = 0; j < timeNames.length; j++) {
@@ -134,7 +134,7 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-        Message message = trackerData.getChannel().sendMessage(getEmbed(trackerData.getChannel().getApi())).get();
+        Message message = trackerData.getChannel().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
         trackerData.setInstant(trackingTime);
         return trackerData;

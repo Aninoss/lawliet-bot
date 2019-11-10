@@ -98,7 +98,7 @@ public class ChannelMuteCommand extends Command implements onRecievedListener  {
             moderationStatus.getChannel().sendMessage(actionEmbed).get();
         }
 
-        if (!mute || !successfulUsers.contains(event.getApi().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
+        if (!mute || !successfulUsers.contains(DiscordApiCollection.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;
 
             if (doneSomething)

@@ -3,6 +3,7 @@ package Commands.Management;
 import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
+import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
 import org.javacord.api.entity.channel.TextChannel;
@@ -45,7 +46,7 @@ public class ReportCommand extends Command implements onRecievedListener {
     }
 
     public void sendReport(User user, TextChannel reactionChannel, String content) throws Throwable {
-        user.getApi().getOwner().get().sendMessage(EmbedFactory.getEmbed()
+        DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbed()
                 .setAuthor(user.getName() + " (" + user.getIdAsString() + ")", "", user.getAvatar())
                 .setDescription(content)).get();
         reactionChannel.sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template"))).get();

@@ -107,7 +107,7 @@ public class HelpCommand extends Command implements onNavigationListener {
             String commandTrigger = command.getTrigger();
             if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger()) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
                 emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
+                emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 
                 StringBuilder usage = new StringBuilder();
                 for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_usage").split("\n")) {
@@ -158,7 +158,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                             );
 
                     emojiConnections = new ArrayList<>();
-                    emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
+                    emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
 
                     StringBuilder commands = new StringBuilder();
 
@@ -227,12 +227,11 @@ public class HelpCommand extends Command implements onNavigationListener {
 
         StringBuilder categoriesSB = new StringBuilder();
         emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(channel.getApi(), channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), "quit"));
+        emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), "quit"));
 
 
         int i = 0;
         for (String string : Category.LIST) {
-            //categoriesSB.append(LetterEmojis.LETTERS[i]).append(" | ").append(CategoryCalculator.getEmojiOfCategory(channel.getApi(), string)).append(" ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
             categoriesSB.append(LetterEmojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
             emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], string));
             i++;
