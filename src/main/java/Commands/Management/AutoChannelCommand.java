@@ -96,6 +96,12 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                     case 2:
                         setState(2);
                         return true;
+
+                    case 3:
+                        autoChannelData.setCreatorCanDisconnect(!autoChannelData.isCreatorCanDisconnect());
+                        setLog(LogStatus.SUCCESS, getString("candisconnectset", autoChannelData.isCreatorCanDisconnect()));
+                        DBServer.saveAutoChannel(autoChannelData);
+                        return true;
                 }
                 return false;
 
@@ -126,7 +132,8 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                         .addField(getString("state0_mchannelname"), replaceVariables(autoChannelData.getChannelName(),
                                 "`%VCNAME`",
                                 "`%INDEX`",
-                                "`%CREATOR`").replace("``", "` `"), true);
+                                "`%CREATOR`").replace("``", "` `"), true)
+                        .addField(getString("state0_mcandisconnect"), getString("state0_mcandisconnect_desc", Tools.getOnOffForBoolean(getLocale(), autoChannelData.isCreatorCanDisconnect())), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -142,7 +149,7 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
 
     @Override
     public int getMaxReactionNumber() {
-        return 3;
+        return 4;
     }
 
     public static String replaceVariables(String string, String arg1, String arg2, String arg3) {

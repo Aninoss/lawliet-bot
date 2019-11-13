@@ -175,6 +175,7 @@ public class CommandContainer {
         commandList.add(RealbooruCommand.class);
         commandList.add(RealLifePornCommand.class);
         commandList.add(HentaiCommand.class);
+        commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
         commandList.add(GimmeHentaiCommand.class);

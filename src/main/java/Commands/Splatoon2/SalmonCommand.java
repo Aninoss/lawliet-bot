@@ -8,7 +8,6 @@ import Constants.Permission;
 import General.*;
 import General.Internet.URLDataContainer;
 import General.Tracker.TrackerData;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -76,7 +75,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
                 .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), Tools.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
-            String title = DiscordApiCollection.getInstance().getCustomEmojiByID(400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(getLocale(), startTime[i], true) + " - " + Tools.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(getLocale(), startTime[i], true) + " - " + Tools.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.valueOf(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {

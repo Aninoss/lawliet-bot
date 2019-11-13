@@ -8,11 +8,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.Embed;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.message.embed.EmbedField;
 import org.javacord.api.entity.permission.PermissionState;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
@@ -287,12 +283,18 @@ public class Tools {
         return server.getRoleById(id);
     }
 
-    public static CustomEmoji getCustomEmojiByTag(Server server, String tag) {
-        String[] tags = tag.split(":");
-        if (tags.length == 3) {
-            tag = tags[2];
-            String id = tag.substring(0, tag.length() - 1);
-            return DiscordApiCollection.getInstance().getCustomEmojiByID(id);
+    public static CustomEmoji getCustomEmojiByTag(String tag) {
+        try {
+            String[] tags = tag.split(":");
+            if (tags.length == 3) {
+                tag = tags[2];
+                String id = tag.substring(0, tag.length() - 1);
+                if (DiscordApiCollection.getInstance().getCustomEmojiById(id).isPresent()) {
+                    return DiscordApiCollection.getInstance().getCustomEmojiById(id).get();
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
 
         return null;
@@ -474,7 +476,7 @@ public class Tools {
 
     public static String getLoadingReaction(ServerTextChannel channel) {
         if (channel.canYouUseExternalEmojis())
-            return DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L).getMentionTag();
+            return DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L).getMentionTag();
         else return "⏳";
     }
 

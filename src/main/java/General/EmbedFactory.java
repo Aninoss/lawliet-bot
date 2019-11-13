@@ -9,13 +9,18 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class EmbedFactory {
+
+    public static final Color DEFAULT_EMBED_COLOR = new Color(254, 254, 254);
+    public static final Color SUCCESS_EMBED_COLOR = Color.GREEN;
+    public static final Color FAILED_EMBED_COLOR = Color.RED;
+
     public static EmbedBuilder getCommandEmbedStandard(Command command) throws IOException {
         return getCommandEmbedStandard(command,null);
     }
 
     public static EmbedBuilder getCommandEmbedStandard(Command command, String description) throws IOException {
         EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.WHITE)
+                .setColor(DEFAULT_EMBED_COLOR)
                 .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), TextManager.COMMANDS, command.getTrigger()+"_title"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
@@ -34,7 +39,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getCommandEmbedSuccess(Command command, String description) throws IOException {
         EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.GREEN)
+                .setColor(SUCCESS_EMBED_COLOR)
                 .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "success"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
@@ -53,7 +58,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getCommandEmbedError(Command command, String description) throws IOException {
         EmbedBuilder eb =  new EmbedBuilder()
-                .setColor(Color.RED)
+                .setColor(FAILED_EMBED_COLOR)
                 .setTitle(TextManager.getString(command.getLocale(),TextManager.GENERAL,"wrong_args"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
@@ -67,7 +72,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getNSFWBlockEmbed(Locale locale) throws IOException {
         EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.RED)
+                .setColor(FAILED_EMBED_COLOR)
                 .setTitle(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_title"))
                 .setDescription(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_description"))
                 .setTimestampToNow();
@@ -77,7 +82,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getEmbed() {
         EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.WHITE)
+                .setColor(DEFAULT_EMBED_COLOR)
                 .setTimestampToNow();
 
         return eb;
@@ -85,7 +90,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getEmbedSuccessful() {
         EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.GREEN)
+                .setColor(SUCCESS_EMBED_COLOR)
                 .setTimestampToNow();
 
         return eb;
@@ -93,7 +98,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getEmbedError() {
         EmbedBuilder eb = new EmbedBuilder()
-                .setColor(Color.RED)
+                .setColor(FAILED_EMBED_COLOR)
                 .setTimestampToNow();
 
         return eb;

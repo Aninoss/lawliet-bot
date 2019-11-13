@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83C\uDCCF",
         thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
         executable = true,
+        deleteOnTimeOut = false,
         aliases = {"bj"}
 )
 public class BlackjackCommand extends Casino implements onRecievedListener, onReactionAddListener {

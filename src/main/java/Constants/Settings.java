@@ -10,6 +10,7 @@ public interface Settings {
     String SERVER_INVITE_URL = "https://discord.gg/qUe8dYt";
     String DONATION_URL = "https://donatebot.io/checkout/557953262305804308";
     String UPVOTE_URL = "https://discordbots.org/bot/368521195940741122/vote";
+    String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
     String CURRENCY = "\uD83D\uDC1F";
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";
@@ -28,6 +29,6 @@ public interface Settings {
             "2.8.0", "2.8.1", "2.8.2", "2.8.3", "2.8.4", "2.8.5", "2.8.6", "2.8.7", "2.8.8", "2.8.9", "2.8.10", "2.8.11",
             "2.9.1", "2.9.2", "2.9.3", "2.9.4", "2.9.5", "2.9.6", "2.9.7",
             "2.10.0", "2.10.1", "2.10.2", "2.10.3", "2.10.4", "2.10.5", "2.10.6", "2.10.7", "2.10.8", "2.10.9",
-            "2.11.0", "2.11.1"
+            "2.11.0", "2.11.1", "2.11.2"
     };
 }

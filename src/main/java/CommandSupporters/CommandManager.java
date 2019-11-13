@@ -11,10 +11,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -98,12 +95,6 @@ public class CommandManager {
                         event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(command.getLocale()));
                         event.getMessage().addReaction("❌");
                     }
-                } else {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError()
-                            .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "botowner_only_title"))
-                            .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "botowner_only_description"));
-                    event.getChannel().sendMessage(eb);
-                    event.getMessage().addReaction("❌");
                 }
             }
         } else {

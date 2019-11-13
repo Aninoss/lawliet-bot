@@ -8,7 +8,6 @@ import Constants.Permission;
 import General.*;
 import General.Internet.URLDataContainer;
 import General.Tracker.TrackerData;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -145,14 +144,14 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
 
                 for(int i=0; i<teamTag.length; i++) {
                     eb.addField(
-                            getString("team", DiscordApiCollection.getInstance().getCustomEmojiByName(teamTag[i]).getMentionTag(), teamNames[i]),
+                            getString("team", DiscordApiCollection.getInstance().getHomeEmojiByName(teamTag[i]).getMentionTag(), teamNames[i]),
                             content[i],
                             true);
                 }
 
                 String teamWon =  languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festId)).getJSONObject("names").getString(teamTag[result[3][2]] + "_short");
                 eb.addField(
-                        getString("state3_result", DiscordApiCollection.getInstance().getCustomEmojiByID(437258157136543744L).getMentionTag()),
+                        getString("state3_result", DiscordApiCollection.getInstance().getHomeEmojiById(437258157136543744L).getMentionTag()),
                         getString("state3_won", teamWon, String.valueOf(result[3][0]), String.valueOf(result[3][1])),
                         true);
 
@@ -170,7 +169,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
         String[] teamTag = {"alpha", "bravo"};
         for(int i=0; i<teamTag.length; i++) {
             eb.addField(
-                    getString("team", DiscordApiCollection.getInstance().getCustomEmojiByName(teamTag[i]).getMentionTag(), teamNames[i]),
+                    getString("team", DiscordApiCollection.getInstance().getHomeEmojiByName(teamTag[i]).getMentionTag(), teamNames[i]),
                     languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festId)).getJSONObject("names").getString(teamTag[i]+"_long"),
                     true);
         }

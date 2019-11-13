@@ -53,7 +53,7 @@ public class CommunicationServer {
                             Message message = apiCollection.getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
                             if (message.getContent().equals("test")) output |=  OUT_CONNECTED;
                             message.delete();
-                        } catch (InterruptedException | ExecutionException e) {
+                        } catch (Throwable e) {
                             //Ignore
                         }
                     }

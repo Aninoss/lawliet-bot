@@ -4,13 +4,10 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Constants.LogStatus;
-import Constants.Permission;
 import General.*;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
@@ -23,6 +20,7 @@ import java.util.Random;
         emoji = "\uD83C\uDFB0",
         thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
         executable = true,
+        deleteOnTimeOut = false,
         aliases = {"slots", "slotmachine"}
 )
 public class SlotCommand extends Casino implements onRecievedListener, onReactionAddListener {
@@ -125,17 +123,17 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
                 getSpinningWheel(0),
                 getSpinningWheel(1),
                 getSpinningWheel(2),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotdr").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotdlr").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotdl").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotud").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotur").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr1").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotulr").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr2").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotlr3").getMentionTag(),
-                DiscordApiCollection.getInstance().getCustomEmojiByName("slotul").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotdr").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotdlr").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotdl").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotud").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotur").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr1").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotulr").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr2").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr3").getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiByName("slotul").getMentionTag(),
                 ALL_EMOJI
                 ));
 
@@ -148,7 +146,7 @@ public class SlotCommand extends Casino implements onRecievedListener, onReactio
     }
 
     private String getSpinningWheel(int i) {
-        if (!progress[i]) return DiscordApiCollection.getInstance().getCustomEmojiByID(401057220114251787L).getMentionTag();
+        if (!progress[i]) return DiscordApiCollection.getInstance().getHomeEmojiById(401057220114251787L).getMentionTag();
         else return FRUITS_CONTAINER[fruits[i]];
     }
 

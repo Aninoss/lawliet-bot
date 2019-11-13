@@ -128,11 +128,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         return Response.TRUE;
                     } else {
                         if (inputString.startsWith("<")) {
-                            CustomEmoji customEmoji = null;
-                            for(Server server: event.getMessageAuthor().asUser().get().getMutualServers()) {
-                                customEmoji = Tools.getCustomEmojiByTag(server, inputString);
-                                if (customEmoji != null) break;
-                            }
+                            CustomEmoji customEmoji = Tools.getCustomEmojiByTag(inputString);
 
                             if (calculateEmoji(customEmoji)) return Response.TRUE;
                         } else {
@@ -508,7 +504,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
-                CustomEmoji customEmoji = Tools.getCustomEmojiByTag(editMessage.getServer().get(), parts[0]);
+                CustomEmoji customEmoji = Tools.getCustomEmojiByTag(parts[0]);
                 if (customEmoji != null)
                     emojiConnections.add(new EmojiConnection(customEmoji,parts[1]));
             } else {
@@ -566,8 +562,10 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                             List<User> userList = reaction.getUsers().get();
 
                             for (User userCheck : userList) {
-                                if (!message.getServer().get().getMembers().contains(userCheck)) {
-                                    if (userCheck != user && message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) reaction.removeUser(userCheck).get();
+                                if (!message.getServer().get().getMemberById(userCheck.getId()).isPresent() &&
+                                        userCheck.getId() != user.getId() && message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()
+                                ) {
+                                    reaction.removeUser(userCheck).get();
                                 }
                             }
                         }

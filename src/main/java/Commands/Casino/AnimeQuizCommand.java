@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 @CommandProperties(
-    trigger = "animequiz",
-    emoji = "❔",
-    thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
-    withLoadingBar = true,
-    executable = true
+        trigger = "animequiz",
+        emoji = "❔",
+        thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
+        withLoadingBar = true,
+        executable = true
 )
 public class AnimeQuizCommand extends QuizCommand {
 

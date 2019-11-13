@@ -531,7 +531,7 @@ public class DBServer {
     }
 
     public static AutoChannelData getAutoChannelFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName FROM AutoChannel WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, creatorCanDisconnect FROM AutoChannel WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
 
@@ -540,6 +540,7 @@ public class DBServer {
             long voiceChannelId = resultSet.getLong(1);
             boolean active = resultSet.getBoolean(2);
             String channelName = resultSet.getString(3);
+            boolean creatorCanDisconnect = resultSet.getBoolean(4);
 
             ServerVoiceChannel channel = null;
             if (server.getVoiceChannelById(voiceChannelId).isPresent()) {
@@ -550,7 +551,8 @@ public class DBServer {
                     server,
                     channel,
                     active,
-                    channelName
+                    channelName,
+                    creatorCanDisconnect
             );
 
             resultSet.close();
@@ -566,7 +568,8 @@ public class DBServer {
                 server,
                 null,
                 false,
-                "%VCName [%Index]"
+                "%VCName [%Index]",
+                false
         );
     }
 
@@ -607,7 +610,12 @@ public class DBServer {
 
             if (!found) {
                 removeAutoChannelChildChannel(serverId, childChannelId);
-                if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL)) childChannel.delete().get();
+                try {
+                    if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
+                        childChannel.delete().get();
+                } catch(ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -856,7 +864,7 @@ public class DBServer {
     }
 
     public static void saveAutoChannel(AutoChannelData autoChannelData) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoChannel (serverId, channelId, active, channelName) VALUES (?, ?, ?, ?)");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, creatorCanDisconnect) VALUES (?, ?, ?, ?, ?)");
         preparedStatement.setLong(1, autoChannelData.getServer().getId());
 
         ServerVoiceChannel serverVoiceChannel = autoChannelData.getVoiceChannel();
@@ -865,6 +873,7 @@ public class DBServer {
 
         preparedStatement.setBoolean(3, autoChannelData.isActive());
         preparedStatement.setString(4, autoChannelData.getChannelName());
+        preparedStatement.setBoolean(5, autoChannelData.isCreatorCanDisconnect());
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }

@@ -55,6 +55,8 @@ public class ExceptionHandler {
             }
         } else if (errorMessage.contains("CONSTRAINT `PowerPlantUserGainedUserBase`")) {
             showError = false;
+        } else if (errorMessage.contains("Read timed out")) {
+            showError = false;
         } else {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");

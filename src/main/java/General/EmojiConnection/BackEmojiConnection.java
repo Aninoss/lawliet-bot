@@ -2,7 +2,6 @@ package General.EmojiConnection;
 
 import Constants.Settings;
 import General.DiscordApiCollection;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
 
 public class BackEmojiConnection extends EmojiConnection {

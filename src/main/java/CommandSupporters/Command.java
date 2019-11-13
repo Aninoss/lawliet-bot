@@ -5,7 +5,6 @@ import CommandListeners.CommandProperties;
 import Constants.*;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
-import General.Mention.MentionFinder;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -14,13 +13,11 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
@@ -244,14 +241,14 @@ public class Command {
                             message.getChannel().canYouAddNewReactions() &&
                             !loadingBlock &&
                             message.getReactions().stream().map(Reaction::getEmoji)
-                                    .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L))) ||
+                                    .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L))) ||
                                             emoji.equalsEmoji("⏳"))
             ) {
                 loadingStatus = LoadingStatus.ONGOING;
 
                 CompletableFuture<Void> loadingBarReaction;
                 if (message.getChannel().canYouUseExternalEmojis())
-                    loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L));
+                    loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
                 else loadingBarReaction = message.addReaction("⏳");
 
                 loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
@@ -281,7 +278,7 @@ public class Command {
                     message = message.getLatestInstance().get();
                     try {
                         if (message.getChannel().canYouUseExternalEmojis())
-                            message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getCustomEmojiByID(407189379749117981L)).get();
+                            message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L)).get();
                         else message.removeOwnReactionByEmoji("⏳").get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();

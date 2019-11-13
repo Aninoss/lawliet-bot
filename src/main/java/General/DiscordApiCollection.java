@@ -3,11 +3,10 @@ package General;
 import Constants.Settings;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.emoji.CustomEmoji;
+import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.jsoup.Jsoup;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,12 +43,28 @@ public class DiscordApiCollection {
         return Optional.empty();
     }
 
+    public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {
+        for(DiscordApi api: apiList) {
+            Optional<KnownCustomEmoji> emojiOptional = api.getCustomEmojiById(emojiId);
+            if (emojiOptional.isPresent()) return emojiOptional;
+        }
+        return Optional.empty();
+    }
+
+    public Optional<KnownCustomEmoji> getCustomEmojiById(String emojiId) {
+        try {
+            return getCustomEmojiById(Long.parseLong(emojiId));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
     public Server getHomeServer() {
         long serverId = Settings.HOME_SERVER_ID;
         return getServerById(serverId).get();
     }
 
-    public boolean apiIsHomeServerApi(DiscordApi api) {
+    public boolean apiHasHomeServer(DiscordApi api) {
         long serverId = Settings.HOME_SERVER_ID;
         return getResponsibleShard(serverId) == api.getCurrentShard();
     }
@@ -58,13 +73,17 @@ public class DiscordApiCollection {
         return (int) ((serverId >> 22) % apiList.length);
     }
 
+    public int getResponsibleShard2(long serverId) {
+        return (int) ((serverId >> 22) % 2);
+    }
+
     public int size() {
         return apiList.length;
     }
 
     public boolean allShardsConnected() {
-        for(int i = 0; i < apiList.length; i++) {
-            if (apiList[i] == null) return false;
+        for (DiscordApi discordApi : apiList) {
+            if (discordApi == null) return false;
         }
         return true;
     }
@@ -121,7 +140,7 @@ public class DiscordApiCollection {
         return Arrays.asList(apiList);
     }
 
-    public CustomEmoji getCustomEmojiByID(long id) {
+    public CustomEmoji getHomeEmojiById(long id) {
         Server server = getHomeServer();
         if (server.getCustomEmojiById(id).isPresent()) {
             return server.getCustomEmojiById(id).get();
@@ -129,7 +148,7 @@ public class DiscordApiCollection {
         return null;
     }
 
-    public KnownCustomEmoji getCustomEmojiByName(String name) {
+    public KnownCustomEmoji getHomeEmojiByName(String name) {
         Server server = getHomeServer();
         if (server.getCustomEmojisByName(name).size() > 0) {
             KnownCustomEmoji[] knownCustomEmojis = new KnownCustomEmoji[0];
@@ -137,12 +156,12 @@ public class DiscordApiCollection {
         } return null;
     }
 
-    public CustomEmoji getCustomEmojiByID(String id) {
-        return getCustomEmojiByID(Long.parseLong(id));
+    public CustomEmoji getHomeEmojiById(String id) {
+        return getHomeEmojiById(Long.parseLong(id));
     }
 
     public CustomEmoji getBackEmojiCustom() {
-        return getCustomEmojiByID(511165137202446346L);
+        return getHomeEmojiById(511165137202446346L);
     }
 
 }

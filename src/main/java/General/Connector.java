@@ -107,17 +107,18 @@ public class Connector {
             api.updateStatus(UserStatus.DO_NOT_DISTURB);
             api.updateActivity("Please wait, bot is booting up...");
 
-            System.out.println("Synchronizes Data...");
-
-            new DonationServer(27440);
             FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
-            if (apiCollection.apiIsHomeServerApi(api)) {
+            if (apiCollection.apiHasHomeServer(api)) {
                 new WebComServer(15744);
                 ResourceManager.setUp(apiCollection.getHomeServer());
             }
-            if (apiCollection.allShardsConnected()) DBMain.synchronizeAll();
+            if (apiCollection.allShardsConnected()) {
+                new DonationServer(27440);
+                DBMain.synchronizeAll();
+                updateActivity();
+            }
 
-            System.out.println("The bot has been successfully booten up!");
+            System.out.printf("Shard %d has been successfully booten up!\n", api.getCurrentShard());
 
             api.addMessageCreateListener(event -> {
                 Thread t = new Thread(() -> {
@@ -234,11 +235,9 @@ public class Connector {
                 t.setName("clock");
                 t.start();
             }
-
-            updateActivity(api, apiCollection.getServerTotalSize());
-        } catch (InterruptedException | ExecutionException | SQLException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
-            api.disconnect();
+            System.exit(0);
         }
     }
 

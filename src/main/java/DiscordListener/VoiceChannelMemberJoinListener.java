@@ -58,7 +58,12 @@ public class VoiceChannelMemberJoinListener {
                     for(Map.Entry<Role, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
                         vcb.addPermissionOverwrite(entry.getKey(),entry.getValue());
                     }
-                    vcb.addPermissionOverwrite(event.getUser(), new PermissionsBuilder().setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED).build());
+
+                    PermissionsBuilder pb = new PermissionsBuilder();
+                    pb.setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED);
+                    if (autoChannelData.isCreatorCanDisconnect()) pb.setState(PermissionType.MOVE_MEMBERS, PermissionState.ALLOWED);
+
+                    vcb.addPermissionOverwrite(event.getUser(), pb.build());
 
                     ServerVoiceChannel vc = vcb.create().get();
 

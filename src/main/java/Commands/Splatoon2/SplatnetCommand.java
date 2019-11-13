@@ -8,7 +8,6 @@ import Constants.Permission;
 import General.*;
 import General.Internet.URLDataContainer;
 import General.Tracker.TrackerData;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -76,7 +75,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
             if (endTime.isBefore(trackingTime)) trackingTime = endTime;
 
             String gearName = languageData.getJSONObject("gear").getJSONObject(data.getString("kind")).getJSONObject(data.getJSONObject("gear").getString("id")).getString("name");
-            String fieldTitle = DiscordApiCollection.getInstance().getCustomEmojiByID(437258157136543744L).getMentionTag() + " __**" + gearName + "**__";
+            String fieldTitle = DiscordApiCollection.getInstance().getHomeEmojiById(437258157136543744L).getMentionTag() + " __**" + gearName + "**__";
             int price = data.getInt("price");
 
             String mainAbility = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("skill").getString("id")).getString("name");
@@ -86,7 +85,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
             String effect = getString("nothing");
             if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
 
-            String fieldContent = getString("template", DiscordApiCollection.getInstance().getCustomEmojiByID(437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(getLocale(), endTime, true), Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", DiscordApiCollection.getInstance().getHomeEmojiById(437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(getLocale(), endTime, true), Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

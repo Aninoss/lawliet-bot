@@ -10,6 +10,7 @@ import General.EmojiConnection.BackEmojiConnection;
 import General.EmojiConnection.EmojiConnection;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -49,7 +50,7 @@ public class HelpCommand extends Command implements onNavigationListener {
     @Override
     public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         for (EmojiConnection emojiConnection: emojiConnections) {
-            if (emojiConnection.isEmoji(event.getEmoji())) {
+            if (emojiConnection.isEmoji(event.getEmoji()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 searchTerm = emojiConnection.getConnection();
 
                 if (searchTerm.equals("quit")) {
@@ -241,7 +242,7 @@ public class HelpCommand extends Command implements onNavigationListener {
         eb.setDescription(categoriesSB.toString());
 
         eb
-                .addField(getString("links_title"), getString("links_content", Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true);
+                .addField(getString("links_title"), getString("links_content", Settings.LAWLIET_WEBSITE, Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true);
         //        .addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), true);
         return eb;
     }
