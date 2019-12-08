@@ -38,13 +38,15 @@ public class AutoChannelContainer {
      */
     public void removeVoiceChannel(ServerVoiceChannel tempChannel) {
         TempAutoChannel deleteObject = null;
-        for(TempAutoChannel tempAutoChannel: channelList) {
-            if (tempAutoChannel.getTempChannel() == tempChannel) {
-                deleteObject = tempAutoChannel;
-                break;
+        synchronized (this) {
+            for (TempAutoChannel tempAutoChannel : channelList) {
+                if (tempAutoChannel.getTempChannel() == tempChannel) {
+                    deleteObject = tempAutoChannel;
+                    break;
+                }
             }
+            if (deleteObject != null) channelList.remove(deleteObject);
         }
-        if (deleteObject != null) channelList.remove(deleteObject);
     }
 
     /**

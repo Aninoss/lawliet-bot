@@ -89,10 +89,17 @@ public class ImageCreator {
         return new ByteArrayInputStream(os.toByteArray());
     }
 
-    public static InputStream createImageShip(Locale locale, User user1, User user2, int n, int perc) throws IOException, ExecutionException, InterruptedException {
+    public static InputStream createImageShip(Locale locale, User user1, User user2, int n, int perc) throws IOException {
         BufferedImage image = ImageIO.read(new File("recourses/ship/" + n + ".png"));
-        BufferedImage image1 = user1.getAvatar().asBufferedImage().get();
-        BufferedImage image2 = user2.getAvatar().asBufferedImage().get();
+        BufferedImage image1;
+        BufferedImage image2;
+        try {
+            image1 = user1.getAvatar().asBufferedImage().get();
+            image2 = user2.getAvatar().asBufferedImage().get();
+        } catch (Throwable e) {
+            //Ignore
+            return null;
+        }
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = result.createGraphics();

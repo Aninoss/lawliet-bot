@@ -52,7 +52,8 @@ public class YaoiKissCommand extends InteractionCommand implements onRecievedLis
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188915503956006/e1208176-91ef-46e6-b8ef-3c9b4d21ba4b.gif",
                 "https://media1.tenor.com/images/77c21f541916b0f8f673cdd70a6b78cf/tenor.gif?itemid=12992435",
                 "https://media1.tenor.com/images/3e659c681c779d15d597f84ab5bfc1e3/tenor.gif?itemid=5539915",
-                "https://media1.tenor.com/images/e2dd4e5322906bee8c595c83f36358ba/tenor.gif?itemid=7324668"
+                "https://media1.tenor.com/images/e2dd4e5322906bee8c595c83f36358ba/tenor.gif?itemid=7324668",
+                "https://media1.tenor.com/images/9a893dc1d1c9fd459dff63e167d1cf85/tenor.gif?itemid=14971431"
         );
     }
 

@@ -24,6 +24,6 @@ public class Rule34Command extends PornCommand implements onRecievedListener {
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onPornRequestRecieved(event, followedString, " -loli -shota");
+        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList());
     }
 }

@@ -42,7 +42,8 @@ public class CuddleCommand extends InteractionCommand implements onRecievedListe
                 "https://media1.tenor.com/images/5dbb6d29ac9f63d7815a95997ecbae56/tenor.gif?itemid=13356108",
                 "https://media1.tenor.com/images/2ef3e594cc380567b53ae2f670c54ef9/tenor.gif?itemid=7287693",
                 "https://media1.tenor.com/images/58cd629d688d826cf3fb39e949637169/tenor.gif?itemid=7250489",
-                "https://media1.tenor.com/images/cc805107341e281102a2280f08b582e0/tenor.gif?itemid=13925386"
+                "https://media1.tenor.com/images/cc805107341e281102a2280f08b582e0/tenor.gif?itemid=13925386",
+                "https://media1.tenor.com/images/778d789b9c6e8e624c8650f1b988204f/tenor.gif?itemid=14839882"
         );
     }
 

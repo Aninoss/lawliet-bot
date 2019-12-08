@@ -188,7 +188,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                                     for (int j = roles.size() - 1; j >= 1; j--) {
                                         Role roleHighest = roles.get(j);
 
-                                        for (User user : roleHighest.getUsers()) {
+                                        for (User user : new ArrayList<>(roleHighest.getUsers())) {
                                             for (int k = 0; k < j; k++) {
                                                 try {
                                                     Role role = roles.get(k);

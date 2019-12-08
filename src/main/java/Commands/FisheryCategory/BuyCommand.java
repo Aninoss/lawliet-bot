@@ -92,7 +92,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                             roles.get(slot.getLevel()).addUser(event.getUser()).get();
 
                             ServerTextChannel announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
-                            if (announcementChannel != null) {
+                            if (announcementChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                                 announcementChannel.sendMessage(getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel()).getName(), String.valueOf(slot.getLevel() + 1))).get();
                             }
                         }

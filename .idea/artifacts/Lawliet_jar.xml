@@ -4,37 +4,39 @@
     <root id="root">
       <element id="archive" name="Lawliet.jar">
         <element id="module-output" name="Lawliet" />
+        <element id="module-test-output" name="Lawliet" />
       </element>
-      <element id="library" level="project" name="Maven: com.squareup.okio:okio:1.14.0" />
-      <element id="library" level="project" name="Maven: com.squareup.okhttp3:logging-interceptor:3.9.1" />
-      <element id="library" level="project" name="Maven: com.corundumstudio.socketio:netty-socketio:1.7.17" />
-      <element id="library" level="project" name="Maven: org.javacord:javacord-core:3.0.4" />
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.7" />
-      <element id="library" level="project" name="Maven: org.jsoup:jsoup:1.12.1" />
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.7" />
-      <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.5" />
-      <element id="library" level="project" name="Maven: io.netty:netty-codec-http:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: io.netty:netty-codec:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" />
-      <element id="library" level="project" name="Maven: org.apache.logging.log4j:log4j-api:2.11.0" />
-      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.25" />
-      <element id="library" level="project" name="Maven: io.netty:netty-common:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: io.netty:netty-transport-native-unix-common:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: org.discordbots:DBL-Java-Library:2.0.1" />
-      <element id="library" level="project" name="Maven: com.google.protobuf:protobuf-java:3.6.1" />
-      <element id="library" level="project" name="Maven: mysql:mysql-connector-java:8.0.17" />
-      <element id="library" level="project" name="Maven: com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.1" />
-      <element id="library" level="project" name="Maven: io.netty:netty-buffer:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: org.javacord:javacord-api:3.0.4" />
-      <element id="library" level="project" name="Maven: com.neovisionaries:nv-websocket-client:2.6" />
-      <element id="library" level="project" name="Maven: org.json:json:20180813" />
-      <element id="library" level="project" name="Maven: io.netty:netty-resolver:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: io.netty:netty-handler:4.1.32.Final" />
-      <element id="library" level="project" name="Maven: io.netty:netty-transport-native-epoll:4.1.32.Final" />
       <element id="library" level="project" name="Maven: io.netty:netty-transport:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: com.squareup.okio:okio:1.14.0" />
+      <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.5" />
+      <element id="library" level="project" name="Maven: org.jsoup:jsoup:1.12.1" />
+      <element id="library" level="project" name="Maven: io.netty:netty-codec-http:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: com.squareup.okhttp3:logging-interceptor:3.9.1" />
+      <element id="library" level="project" name="Maven: io.netty:netty-common:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: org.discordbots:DBL-Java-Library:2.0.1" />
       <element id="library" level="project" name="Maven: com.vdurmont:emoji-java:5.0.0" />
-      <element id="library" level="project" name="Maven: com.squareup.okhttp3:okhttp:3.11.0" />
+      <element id="library" level="project" name="Maven: io.netty:netty-handler:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.25" />
+      <element id="library" level="project" name="Maven: org.apache.logging.log4j:log4j-api:2.11.0" />
+      <element id="library" level="project" name="Maven: com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.1" />
+      <element id="library" level="project" name="Maven: com.neovisionaries:nv-websocket-client:2.6" />
+      <element id="library" level="project" name="Maven: io.netty:netty-transport-native-unix-common:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" />
+      <element id="library" level="project" name="Maven: mysql:mysql-connector-java:8.0.17" />
       <element id="library" level="project" name="Maven: commons-io:commons-io:2.6" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.7" />
+      <element id="library" level="project" name="Maven: io.netty:netty-codec:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: io.netty:netty-transport-native-epoll:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: io.netty:netty-buffer:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.7" />
+      <element id="library" level="project" name="Maven: com.google.protobuf:protobuf-java:3.6.1" />
+      <element id="library" level="project" name="Maven: io.netty:netty-resolver:4.1.32.Final" />
+      <element id="library" level="project" name="Maven: org.json:json:20180813" />
+      <element id="library" level="project" name="Maven: com.squareup.okhttp3:okhttp:3.11.0" />
+      <element id="library" level="project" name="Maven: com.corundumstudio.socketio:netty-socketio:1.7.17" />
+      <element id="library" level="project" name="Maven: org.javacord:javacord-api:3.0.5" />
+      <element id="library" level="project" name="Maven: org.javacord:javacord-core:3.0.5" />
+      <element id="library" level="project" name="Maven: com.github.sealedtx:java-youtube-downloader:1.0.2" />
     </root>
   </artifact>
 </component>

@@ -1,6 +1,8 @@
 package General;
 
 import Constants.Settings;
+import General.Internet.Internet;
+import General.Internet.InternetResponse;
 import ServerStuff.CommunicationServer.CommunicationServer;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import DiscordListener.*;
@@ -8,8 +10,15 @@ import ServerStuff.Donations.DonationServer;
 import General.BotResources.ResourceManager;
 import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
+import com.github.kiulian.downloader.YoutubeDownloader;
+import com.github.kiulian.downloader.YoutubeException;
+import com.github.kiulian.downloader.model.VideoDetails;
+import com.github.kiulian.downloader.model.YoutubeVideo;
+import com.github.kiulian.downloader.model.formats.AudioFormat;
+import com.github.kiulian.downloader.model.formats.VideoFormat;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.util.logging.ExceptionLogger;
 import java.awt.*;
@@ -19,6 +28,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Connector {
@@ -88,8 +98,6 @@ public class Connector {
 
         int totalShards = apiBuilder.getTotalShards();
         DiscordApiCollection.getInstance().init(totalShards);
-
-        System.out.println("Total amount of shards: " + totalShards);
 
         apiBuilder.loginAllShards()
             .forEach(shardFuture -> shardFuture

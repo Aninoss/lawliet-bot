@@ -155,6 +155,7 @@ public class Clock {
 
                         Thread t = new Thread(() -> {
                             try {
+                                System.err.println("SURVEY MESSAGE: " + slot.getUser().getName()); //TODO
                                 if (Tools.canSendPrivateMessage(slot.getUser())) slot.getUser().sendMessage(eb).get();
                             } catch (InterruptedException | ExecutionException e) {
                                 //Ignore

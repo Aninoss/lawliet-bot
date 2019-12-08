@@ -35,7 +35,9 @@ public class MentionFinder {
             }
 
             for (User u : message.getServer().get().getMembers()) {
-                if (u.getDiscriminatedName().equalsIgnoreCase(part)) {
+                String disciminatedNickname = u.getDisplayName(message.getServer().get()) + "#" + u.getDiscriminator();
+
+                if (u.getDiscriminatedName().equalsIgnoreCase(part) || disciminatedNickname.equalsIgnoreCase(part)) {
                     if (!list.contains(u)) list.add(u);
                     string = removeMentionFromString(string, part, "@");
                 }
@@ -130,6 +132,10 @@ public class MentionFinder {
     }
 
     public static MentionList<ServerTextChannel> getTextChannels(Message message, String string) {
+        return getTextChannels(message, string, false);
+    }
+
+    public static MentionList<ServerTextChannel> getTextChannels(Message message, String string, boolean tagRequired) {
         ArrayList<ServerTextChannel> list = new ArrayList<>(message.getMentionedChannels());
         for (ServerTextChannel channel : list) {
             string = string.replace(channel.getMentionTag(), "");
@@ -143,9 +149,11 @@ public class MentionFinder {
                 string = removeMentionFromString(string, part, "#");
             }
 
-            for (ServerTextChannel sc : message.getServer().get().getTextChannelsByNameIgnoreCase(part)) {
-                if (!list.contains(sc)) list.add(sc);
-                string = removeMentionFromString(string, part, "#");
+            if (!tagRequired) {
+                for (ServerTextChannel sc : message.getServer().get().getTextChannelsByNameIgnoreCase(part)) {
+                    if (!list.contains(sc)) list.add(sc);
+                    string = removeMentionFromString(string, part, "#");
+                }
             }
         }
 
@@ -330,6 +338,11 @@ public class MentionFinder {
             list.add(string);
             if (string.contains(" ") || string.contains("\n")) {
                 for (String part : string.replace("\n", " ").split(" ")) {
+                    if (part.length() > 0) list.add(part);
+                }
+            }
+            if (string.contains("@")) {
+                for (String part : string.split("@")) {
                     if (part.length() > 0) list.add(part);
                 }
             }

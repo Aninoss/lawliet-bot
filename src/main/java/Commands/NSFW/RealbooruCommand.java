@@ -2,6 +2,8 @@ package Commands.NSFW;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
+import Constants.Settings;
+import General.Tools;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
@@ -20,6 +22,6 @@ public class RealbooruCommand extends PornCommand implements onRecievedListener 
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onPornRequestRecieved(event, followedString, " -loli -shota");
+        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList());
     }
 }

@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
 Main-Class: General.Connector
-Class-Path: okio-1.14.0.jar logging-interceptor-3.9.1.jar netty-socketio
- -1.7.17.jar javacord-core-3.0.4.jar jackson-databind-2.9.7.jar jsoup-1.
- 12.1.jar jackson-core-2.9.7.jar gson-2.8.5.jar netty-codec-http-4.1.32.
- Final.jar netty-codec-4.1.32.Final.jar jackson-annotations-2.9.0.jar lo
- g4j-api-2.11.0.jar slf4j-api-1.7.25.jar netty-common-4.1.32.Final.jar n
- etty-transport-native-unix-common-4.1.32.Final.jar DBL-Java-Library-2.0
- .1.jar protobuf-java-3.6.1.jar mysql-connector-java-8.0.17.jar gson-jav
- atime-serialisers-1.1.1.jar netty-buffer-4.1.32.Final.jar javacord-api-
- 3.0.4.jar nv-websocket-client-2.6.jar json-20180813.jar netty-resolver-
- 4.1.32.Final.jar netty-handler-4.1.32.Final.jar netty-transport-native-
- epoll-4.1.32.Final.jar netty-transport-4.1.32.Final.jar emoji-java-5.0.
- 0.jar okhttp-3.11.0.jar commons-io-2.6.jar
+Class-Path: netty-transport-4.1.32.Final.jar okio-1.14.0.jar gson-2.8.5.
+ jar jsoup-1.12.1.jar netty-codec-http-4.1.32.Final.jar logging-intercep
+ tor-3.9.1.jar netty-common-4.1.32.Final.jar DBL-Java-Library-2.0.1.jar 
+ emoji-java-5.0.0.jar netty-handler-4.1.32.Final.jar slf4j-api-1.7.25.ja
+ r log4j-api-2.11.0.jar gson-javatime-serialisers-1.1.1.jar nv-websocket
+ -client-2.6.jar netty-transport-native-unix-common-4.1.32.Final.jar jac
+ kson-annotations-2.9.0.jar mysql-connector-java-8.0.17.jar commons-io-2
+ .6.jar jackson-databind-2.9.7.jar netty-codec-4.1.32.Final.jar netty-tr
+ ansport-native-epoll-4.1.32.Final.jar javacord-core-fix-animated-emoji-
+ 58abd84556-1.jar javacord-api-fix-animated-emoji-58abd84556-1.jar netty
+ -buffer-4.1.32.Final.jar jackson-core-2.9.7.jar protobuf-java-3.6.1.jar
+  netty-resolver-4.1.32.Final.jar json-20180813.jar okhttp-3.11.0.jar ne
+ tty-socketio-1.7.17.jar
 

@@ -5,32 +5,38 @@ import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Constants.Category;
 import Constants.Locales;
+import General.DiscordApiCollection;
 import General.TextManager;
 import General.Tools;
+import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import org.javacord.api.DiscordApi;
+import com.corundumstudio.socketio.listener.DataListener;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Optional;
 
 public class WebComServer {
 
     private static final String EVENT_COMMANDLIST = "command_list";
+    private static final String EVENT_SERVERLIST = "server_list";
 
     public WebComServer(int port) {
         Configuration config = new Configuration();
         config.setHostname("127.0.0.1");
         config.setPort(port);
 
-        final SocketIOServer server = new SocketIOServer(config);
+        final SocketIOServer webComServer = new SocketIOServer(config);
 
         //When the Lawliet web server connects with
-        server.addConnectListener(socketIOClient -> {
+        webComServer.addConnectListener(socketIOClient -> {
             JSONArray mainJSON = new JSONArray();
             HashMap<String, JSONObject> categories = new HashMap<>();
 
@@ -73,7 +79,36 @@ public class WebComServer {
             socketIOClient.sendEvent(EVENT_COMMANDLIST, mainJSON.toString());
         });
 
-        server.start();
+        webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, (socketIOClient, jsonObject, ackRequest) -> {
+            long userId = jsonObject.getLong("user_id");
+            Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
+
+            JSONObject mainJSON = new JSONObject();
+            JSONArray serversArray = new JSONArray();
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                for(Server server: user.getMutualServers()) {
+                    JSONObject serverObject = new JSONObject();
+                    serverObject
+                            .put("server_id", server.getId())
+                            .put("name", server.getName());
+
+                    if (server.getIcon().isPresent())
+                        serverObject.put("icon", server.getIcon().get().getUrl().toString());
+
+                    serversArray.put(serverObject);
+                }
+            }
+
+            //Send data
+            mainJSON
+                    .put("user_id", userId)
+                    .put("server_list", serversArray);
+            socketIOClient.sendEvent(EVENT_SERVERLIST, mainJSON.toString());
+        });
+
+        webComServer.start();
         System.out.println("The WebCom server has been started!");
     }
 

@@ -21,3 +21,5 @@ modules.xml
 *.iml
 *.sql
 *.log
+/temp/
+*.mp3

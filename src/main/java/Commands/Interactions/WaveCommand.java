@@ -8,7 +8,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
-        executable = false
+        executable = false,
+        aliases = {"greet"}
 )
 public class WaveCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

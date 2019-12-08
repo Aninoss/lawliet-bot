@@ -13,6 +13,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
@@ -174,18 +175,19 @@ public class HelpCommand extends Command implements onNavigationListener {
                                         .append(command.getEmoji())
                                         .append("⠀")
                                         .append(getPrefix())
-                                        .append(commandTrigger)
-                                        .append("`⠀⠀");
+                                        .append(commandTrigger);
+
+                                if (command.isNsfw()) commands.append(" ").append(getString("interaction_nsfw"));
+                                commands.append("`⠀⠀");
                             }
                         }
-                        String commandsString = commands.toString();
-                        commandsString = commandsString.substring(0, commandsString.length() - 1);
+                        commands.append(getString("interaction_nsfw_desc"));
                         if (string.equals(Category.INTERACTIONS)) {
                             eb.setDescription(getString("interactions_desc"));
-                            eb.addField(getString("interactions_title"), commandsString);
+                            eb.addField(getString("interactions_title"), commands.toString());
                         } else {
                             eb.setDescription(getString("emotes_desc"));
-                            eb.addField(getString("emotes_title"), commandsString);
+                            eb.addField(getString("emotes_title"), commands.toString());
                         }
                     }
 
@@ -195,15 +197,26 @@ public class HelpCommand extends Command implements onNavigationListener {
                         for (Class clazz : CommandContainer.getInstance().getCommandList()) {
                             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
-                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
-                                commands
-                                        .append("**")
+                            User author = getStarterMessage().getUserAuthor().get();
+                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string) && (!command.isPrivate() || author.isBotOwner())) {
+                                boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
+                                        (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw());
+
+                                commands.append("**")
                                         .append(LetterEmojis.LETTERS[i])
                                         .append(" → ")
                                         .append(command.getEmoji())
-                                        .append(" ")
-                                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase())
-                                        .append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
+                                        .append(" ");
+
+                                if (!canAccess) commands.append("~~");
+
+                                commands.append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase());
+
+                                if (!canAccess) commands.append("~~");
+                                if (command.getUserPermissions() > 0) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                                if (command.isNsfw()) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
+
+                                commands.append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
                                         .append(" - ")
                                         .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
                                         .append("\n\n");
@@ -211,6 +224,8 @@ public class HelpCommand extends Command implements onNavigationListener {
                                 i++;
                             }
                         }
+
+                        commands.append(getString("commandproperties", DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(), DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag()));
                         eb.setDescription(commands.toString());
                     }
                     return eb;
@@ -223,7 +238,7 @@ public class HelpCommand extends Command implements onNavigationListener {
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel, String arg) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setFooter(getString("donate"))
+                //.setFooter(getString("donate"))
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
 
         StringBuilder categoriesSB = new StringBuilder();

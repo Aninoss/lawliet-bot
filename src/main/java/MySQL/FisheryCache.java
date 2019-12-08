@@ -35,7 +35,7 @@ public class FisheryCache {
         t.start();
     }
 
-    public void addActivity(User user, ServerTextChannel channel) {
+    public boolean addActivity(User user, ServerTextChannel channel) {
         int count = getUserMessageCount(channel.getServer(), user);
 
         if (count < 650) {
@@ -47,15 +47,19 @@ public class FisheryCache {
                 boolean whiteListed = DBServer.isChannelWhitelisted(channel);
                 if (powerPlantStatus == PowerPlantStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
                     ActivityUserData activityUserData = getActivities(server, user);
-                    if (activityUserData.registerMessage(messagePhase, whiteListed ? channel : null)) {
+                    boolean registered = activityUserData.registerMessage(messagePhase, whiteListed ? channel : null);
+                    if (registered) {
                         setUserMessageCount(server, user, count + 1);
                     }
                     setActivities(server, user, activityUserData);
+                    return registered;
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+
+        return false;
     }
 
     private void messageCollector() {
@@ -86,8 +90,11 @@ public class FisheryCache {
                                 for(long userId: finalActivites.get(serverId).keySet()) {
                                     try {
                                         synchronized (FisheryCache.class) {
-                                            DBUser.addMessageSingle(serverId, userId, finalActivites.get(serverId).get(userId));
-                                            Thread.sleep(200);
+                                            ActivityUserData activityUserData = finalActivites.get(serverId).get(userId);
+                                            if (activityUserData.getAmountVC() + activityUserData.getAmountMessage() > 0) {
+                                                DBUser.addMessageSingle(serverId, userId, activityUserData);
+                                                Thread.sleep(200);
+                                            }
                                         }
                                     } catch (SQLException | InterruptedException e) {
                                         e.printStackTrace();
@@ -101,6 +108,20 @@ public class FisheryCache {
                         t.setName("message_collector_db");
                         t.start();
                     }
+                }
+            }
+        }
+    }
+
+    public void flush(Server server, User user) {
+        if (activities.containsKey(server.getId()) && activities.get(server.getId()).containsKey(user.getId())) {
+            ActivityUserData activityUserData = activities.get(server.getId()).get(user.getId());
+            if (activityUserData.getAmountVC() + activityUserData.getAmountMessage() > 0) {
+                try {
+                    DBUser.addMessageSingle(server.getId(), user.getId(), activityUserData);
+                    activityUserData.reset();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
         }

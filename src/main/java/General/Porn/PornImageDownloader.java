@@ -130,27 +130,7 @@ public class PornImageDownloader {
         Instant instant;
 
         if (postData.has("created_at")) {
-            String[] timeString = postData.getString("created_at").split(" ");
-
-            int month = 0;
-            String monthString = timeString[1];
-            String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-            for (int i = 0; i < 12; i++) {
-                if (monthString.equalsIgnoreCase(monthNames[i])) {
-                    month = i + 1;
-                    break;
-                }
-            }
-
-            LocalDateTime ldt1 = LocalDateTime.now()
-                    .withYear(Integer.parseInt(timeString[5]))
-                    .withMonth(month)
-                    .withDayOfMonth(Integer.parseInt(timeString[2]))
-                    .withHour(Integer.parseInt(timeString[3].split(":")[0]))
-                    .withMinute(Integer.parseInt(timeString[3].split(":")[1]))
-                    .withSecond(Integer.parseInt(timeString[3].split(":")[2]));
-
-            instant = ldt1.atZone(ZoneOffset.UTC).toInstant();
+            instant = Tools.parseDateString(postData.getString("created_at"));
         } else instant = Instant.now();
 
         String fileURL;

@@ -210,6 +210,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
             return trackerData;
         }
         if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
+        System.err.println("SURVEY TRACKER"); //TODO
         Survey survey = DBSurvey.getCurrentSurvey();
         trackerData.setMessageDelete(sendMessages(trackerData.getChannel(), survey));
         Instant nextInstant = trackerData.getInstant();

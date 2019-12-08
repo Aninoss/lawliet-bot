@@ -456,7 +456,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
     @Override
     public int getMaxReactionNumber() {
-        return 12;
+        return 18;
     }
 
     private EmbedBuilder getMessageEmbed(boolean test) throws IOException {

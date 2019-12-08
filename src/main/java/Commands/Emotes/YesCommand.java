@@ -35,7 +35,8 @@ public class YesCommand extends EmoteCommand implements onRecievedListener {
                 "https://media1.tenor.com/images/46f92f5d96b952af2f7fd8dfa98e94a4/tenor.gif?itemid=6181819",
                 "https://media1.tenor.com/images/e0f3c081f41859553539e401046f3626/tenor.gif?itemid=4493276",
                 "https://media1.tenor.com/images/f6831eeb7c2ba1984b3e5a41b047f737/tenor.gif?itemid=13451534",
-                "https://media1.tenor.com/images/081ee762032da039e6c74984f55bdb36/tenor.gif?itemid=13649649"
+                "https://media1.tenor.com/images/081ee762032da039e6c74984f55bdb36/tenor.gif?itemid=13649649",
+                "https://media1.tenor.com/images/86f6b5ac2d58b9956435f5aeb1e2ac5b/tenor.gif?itemid=10853262"
                 );
     }
 

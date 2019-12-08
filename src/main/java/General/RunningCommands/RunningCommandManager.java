@@ -1,14 +1,16 @@
 package General.RunningCommands;
 
 import CommandSupporters.Command;
+import General.Pair;
 import org.javacord.api.entity.user.User;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 public class RunningCommandManager {
     private static RunningCommandManager ourInstance = new RunningCommandManager();
 
-    private ArrayList<RunningCommand> runningCommands;
+    private ArrayList<Pair<RunningCommand, Instant>> runningCommands;
 
     public static RunningCommandManager getInstance() {
         return ourInstance;
@@ -19,13 +21,20 @@ public class RunningCommandManager {
     }
 
     public boolean canUserRunCommand(User user, String commandTrigger) {
-        RunningCommand runningCommand = find(user, commandTrigger);
+        Pair<RunningCommand, Instant> runningPair = find(user, commandTrigger);
 
-        if (runningCommand == null) {
-            runningCommand = new RunningCommand(user, commandTrigger);
-            runningCommands.add(runningCommand);
+        if (runningPair == null) {
+            runningPair = new Pair<>(new RunningCommand(user, commandTrigger), Instant.now());
+            runningCommands.add(runningPair);
             return true;
         } else {
+            Instant time = runningPair.getValue();
+            if (time.plusSeconds(60).isBefore(Instant.now())) {
+                runningCommands.remove(runningPair);
+                runningPair = new Pair<>(new RunningCommand(user, commandTrigger), Instant.now());
+                runningCommands.add(runningPair);
+                return true;
+            }
             return false;
         }
     }
@@ -35,22 +44,23 @@ public class RunningCommandManager {
     }
 
     public void remove(User user, String commandTrigger) {
-        RunningCommand runningCommand = find(user, commandTrigger);
+        Pair<RunningCommand, Instant> runningCommand = find(user, commandTrigger);
 
         if (runningCommand != null) {
             runningCommands.remove(runningCommand);
         }
     }
 
-    public RunningCommand find(User user, String commandTrigger) {
-        for(RunningCommand runningCommand: runningCommands) {
-            if (runningCommand != null && runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger)) return runningCommand;
+    public Pair<RunningCommand, Instant> find(User user, String commandTrigger) {
+        for(Pair<RunningCommand, Instant> runningPair: runningCommands) {
+            RunningCommand runningCommand = runningPair.getKey();
+            if (runningCommand != null && runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger)) return runningPair;
         }
         return null;
     }
 
-    public ArrayList<RunningCommand> getRunningCommands() {
-        return (ArrayList<RunningCommand>) new ArrayList<>(runningCommands);
+    public ArrayList<Pair<RunningCommand, Instant>> getRunningCommands() {
+        return new ArrayList<>(runningCommands);
     }
 
     public void clear() {

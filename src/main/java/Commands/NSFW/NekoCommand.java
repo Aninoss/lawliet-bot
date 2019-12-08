@@ -5,12 +5,12 @@ import CommandListeners.CommandProperties;
 @CommandProperties(
         trigger = "neko",
         executable = true,
-        emoji = "\uD83D\uDC3E",
+        emoji = "\uD83D\uDD1E",
         nsfw = true,
         withLoadingBar = true
 )
 public class NekoCommand extends Rule34ProxyCommand {
     public NekoCommand() {
-        super("animated_gif cat_girl", true);
+        super("cat_girl", false);
     }
 }

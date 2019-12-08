@@ -23,9 +23,9 @@ public class VoiceChannelMemberLeaveListener {
                 try {
                     if (PermissionCheckRuntime.getInstance().botHasPermission(DBServer.getServerLocale(event.getServer()), "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
                         if (event.getChannel().getConnectedUsers().size() == 0) {
-                            vc.delete().get();
                             AutoChannelContainer.getInstance().removeVoiceChannel(vc);
                             DBServer.removeAutoChannelChildChannel(vc);
+                            vc.delete().get();
                         }
                     }
                 } catch (InterruptedException | ExecutionException | SQLException e) {

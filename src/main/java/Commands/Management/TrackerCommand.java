@@ -61,7 +61,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
     @Override
     public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         for (EmojiConnection emojiConnection: emojiConnections) {
-            if (emojiConnection.isEmoji(event.getEmoji())) {
+            if (emojiConnection.isEmoji(event.getEmoji()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 if (emojiConnection.getConnection().equalsIgnoreCase("back")) {
                     switch (state) {
                         case 0:
@@ -95,11 +95,13 @@ public class TrackerCommand extends Command implements onNavigationListener {
 
             String arg = searchTerm.split(" ")[0].toLowerCase();
             searchTerm = Tools.cutSpaces(searchTerm.substring(arg.length()));
+
             switch (state) {
                 case 0:
                     if (arg.equalsIgnoreCase("add")) {
                         updateTrackerList();
                         if (trackers.size() < 6) {
+                            state = 1;
                             setState(1);
                         } else {
                             setLog(LogStatus.FAILURE, getString("state0_toomanytracker", "6"));
@@ -109,6 +111,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     else if (arg.equalsIgnoreCase("remove")) {
                         updateTrackerList();
                         if (trackers.size() > 0) {
+                            state = 2;
                             setState(2);
                         } else {
                             setLog(LogStatus.FAILURE, getString("state0_notracker"));
@@ -124,6 +127,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     boolean found = false;
                     for (onTrackerRequestListener command : CommandContainer.getInstance().getTrackerCommands()) {
                         String trigger = ((Command) command).getTrigger();
+
                         if (trigger.equalsIgnoreCase(arg)) {
                             updateTrackerList();
                             TrackerData trackerRemove = getTracker(arg);
@@ -142,6 +146,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                                 if (first) endNavigation();
                             } else {
                                 updateTrackerList();
+                                state = 3;
                                 setState(3);
                             }
                             found = true;
@@ -161,7 +166,9 @@ public class TrackerCommand extends Command implements onNavigationListener {
                         TrackerManager.stopTracker(trackerRemove);
                         updateTrackerList();
                         setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
-                        if (trackers.size() == 0) setState(0);
+                        if (trackers.size() == 0) {
+                            setState(0);
+                        }
                         if (first) endNavigation();
                         return;
                     }
@@ -177,10 +184,12 @@ public class TrackerCommand extends Command implements onNavigationListener {
     }
 
     private void addTracker(String key) throws Throwable {
-        TrackerData trackerData = new TrackerData(server, channel, 0, commandTrigger, key, Instant.now(), null);
-        TrackerManager.startTracker(trackerData);
-        setState(1);
-        setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
+        if (!Bot.isDebug()) {
+            TrackerData trackerData = new TrackerData(server, channel, 0, commandTrigger, key, Instant.now(), null);
+            TrackerManager.startTracker(trackerData);
+            setState(1);
+            setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
+        }
     }
 
     private void endNavigation() {

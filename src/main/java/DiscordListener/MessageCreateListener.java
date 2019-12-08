@@ -105,12 +105,15 @@ public class MessageCreateListener {
                 if (manageForwardedMessages(event)) return;
 
                 //Add Fisch & Manage 100 Fish Message
-                if (!Tools.serverIsBotListServer(event.getServer().get())) {
-                    FisheryCache.getInstance(event.getApi().getCurrentShard()).addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
+                boolean messageRegistered = false;
+                if (!Tools.serverIsBotListServer(event.getServer().get()) &&
+                        !event.getMessage().getContent().isEmpty()
+                ) {
+                    messageRegistered = FisheryCache.getInstance(event.getApi().getCurrentShard()).addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
                 }
 
                 //Manage Treasure Chests
-                if (!Tools.serverIsBotListServer(event.getServer().get()) &&
+                if (messageRegistered &&
                         new Random().nextInt(400) == 0 &&
                         DBServer.getPowerPlantStatusFromServer(event.getServer().get()) == PowerPlantStatus.ACTIVE &&
                         DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get()) &&
@@ -118,10 +121,9 @@ public class MessageCreateListener {
                         event.getChannel().canYouEmbedLinks() &&
                         event.getChannel().canYouAddNewReactions()
                 ) {
-
                     boolean noSpamChannel = true;
                     ArrayList<ServerTextChannel> channels = DBServer.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
-                    for(ServerTextChannel channel: channels) {
+                    for (ServerTextChannel channel : channels) {
                         if (channel.getId() == event.getChannel().getId()) {
                             noSpamChannel = false;
                             break;
@@ -142,21 +144,24 @@ public class MessageCreateListener {
                 }
 
                 //Manage Message Quoting
-                if (!Tools.serverIsBotListServer(event.getServer().get()) && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+                if (!Tools.serverIsBotListServer(event.getServer().get()) &&
+                        event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()
+                ) {
                     Locale locale = DBServer.getServerLocale(event.getServer().get());
-                    try {
-                        ArrayList<Message> messages = MentionFinder.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
-                        for (int i = 0; i < Math.min(3, messages.size()); i++) {
-                            Message message = messages.get(i);
-                            QuoteCommand quoteCommand = new QuoteCommand();
-                            quoteCommand.setLocale(locale);
-                            quoteCommand.postEmbed(event.getServerTextChannel().get(), message);
+                    ArrayList<Message> messages = MentionFinder.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
+                    if (messages.size() > 0 && DBServer.getAutoQuoteFromServer(event.getServer().get())) {
+                        try {
+                            for (int i = 0; i < Math.min(3, messages.size()); i++) {
+                                Message message = messages.get(i);
+                                QuoteCommand quoteCommand = new QuoteCommand();
+                                quoteCommand.setLocale(locale);
+                                quoteCommand.postEmbed(event.getServerTextChannel().get(), message);
+                            }
+                        } catch (Throwable throwable) {
+                            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
                         }
-                    } catch (Throwable throwable) {
-                        ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
                     }
                 }
-
             }
         } catch (IOException | InstantiationException | ExecutionException | SQLException | InterruptedException | IllegalAccessException e) {
             e.printStackTrace();

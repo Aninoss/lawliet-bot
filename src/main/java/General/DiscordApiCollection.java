@@ -29,6 +29,7 @@ public class DiscordApiCollection {
     }
 
     public Optional<Server> getServerById(long serverId) {
+        waitForStartup();
         return apiList[getResponsibleShard(serverId)].getServerById(serverId);
     }
 

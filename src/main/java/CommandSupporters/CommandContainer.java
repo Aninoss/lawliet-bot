@@ -64,6 +64,7 @@ public class CommandContainer {
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
+        commandList.add(AutoQuoteCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
         commandList.add(ReportCommand.class);
 
@@ -164,7 +165,9 @@ public class CommandContainer {
         commandList.add(WholesomeCommand.class);
         commandList.add(DadJokeCommand.class);
         commandList.add(AnimeNewsCommand.class);
+        commandList.add(AnimeReleasesCommand.class);
         commandList.add(IncreaseResolutionCommand.class);
+        commandList.add(YouTubeMP3Command.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);

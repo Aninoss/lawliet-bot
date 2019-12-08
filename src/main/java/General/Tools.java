@@ -67,6 +67,13 @@ public class Tools {
         return num;
     }
 
+    public static String filterLettersFromString(String string) {
+        for(int i = 0; i < 10; i++) {
+            string = string.replace(String.valueOf(i), "");
+        }
+        return string;
+    }
+
     public static String replaceLast(String text, String regex, String replacement) {
         return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
     }
@@ -526,6 +533,69 @@ public class Tools {
 
     public static String decryptString(String str) {
         return Jsoup.parse(str.replace("<br />", "\n")).text();
+    }
+
+    public static Instant parseDateString(String str) {
+        String[] timeString = str.split(" ");
+
+        int month = 0;
+        String monthString = timeString[1];
+        String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        for (int i = 0; i < 12; i++) {
+            if (monthString.equalsIgnoreCase(monthNames[i])) {
+                month = i + 1;
+                break;
+            }
+        }
+
+        LocalDateTime ldt1 = LocalDateTime.now()
+                .withYear(Integer.parseInt(timeString[5]))
+                .withMonth(month)
+                .withDayOfMonth(Integer.parseInt(timeString[2]))
+                .withHour(Integer.parseInt(timeString[3].split(":")[0]))
+                .withMinute(Integer.parseInt(timeString[3].split(":")[1]))
+                .withSecond(Integer.parseInt(timeString[3].split(":")[2]));
+
+        return ldt1.atZone(ZoneOffset.UTC).toInstant();
+    }
+
+    public static Instant parseDateString2(String str) {
+        String[] timeString = str.split(" ");
+
+        int month = 0;
+        String monthString = timeString[2];
+        String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        for (int i = 0; i < 12; i++) {
+            if (monthString.equalsIgnoreCase(monthNames[i])) {
+                month = i + 1;
+                break;
+            }
+        }
+
+        LocalDateTime ldt1 = LocalDateTime.now()
+                .withYear(Integer.parseInt(timeString[3]))
+                .withMonth(month)
+                .withDayOfMonth(Integer.parseInt(timeString[1]))
+                .withHour(Integer.parseInt(timeString[4].split(":")[0]))
+                .withMinute(Integer.parseInt(timeString[4].split(":")[1]))
+                .withSecond(Integer.parseInt(timeString[4].split(":")[2]));
+
+        return ldt1.atZone(ZoneOffset.UTC).toInstant();
+    }
+
+    public static String filterPornSearchKey(String str) {
+        for(String filter: Settings.NSFW_FILTERS) {
+            str = str.replace(filter, "");
+        }
+        return str;
+    }
+
+    public static String getNSFWTagRemoveList() {
+        StringBuilder str = new StringBuilder();
+        for(String filter: Settings.NSFW_FILTERS) {
+            str.append(" -").append(filter);
+        }
+        return str.toString();
     }
 
 }

@@ -41,4 +41,9 @@ public class ActivityUserData {
         return Optional.ofNullable(channel);
     }
 
+    public void reset() {
+        message = 0;
+        vc = 0;
+    }
+
 }

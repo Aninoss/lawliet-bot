@@ -154,6 +154,8 @@ public class DBBot {
     }
 
     public static void saveTracker(TrackerData trackerData) throws SQLException {
+        if (Bot.isDebug()) return;
+
         long messageId = 0;
         if (trackerData.getMessageDelete() != null) messageId = trackerData.getMessageDelete().getId();
 
@@ -173,6 +175,8 @@ public class DBBot {
     }
 
     public static void removeTracker(long serverId, long channelId, String command) throws SQLException {
+        if (Bot.isDebug()) return;
+
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Tracking WHERE serverId = ? AND channelId = ? AND command = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.setLong(2, channelId);

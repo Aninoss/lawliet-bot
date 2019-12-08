@@ -13,7 +13,7 @@ public class PornProxyCommand extends Command implements onRecievedListener {
 
     public PornProxyCommand(String search, String searchExtra, boolean gifOnly, String domain, String imageTemplate) {
         super();
-        this.search = search;
+        this.search = Tools.filterPornSearchKey(search);
         this.searchExtra = searchExtra;
         this.gifOnly = gifOnly;
         this.domain = domain;

@@ -44,7 +44,7 @@ public class AvatarCommand extends Command implements onRecievedListener {
             String avatarUrl = user.getAvatar().getUrl().toString() + "?size=2048";
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                     getString("template",user.getDisplayName(server), avatarUrl))
-                    .setThumbnail(avatarUrl);
+                    .setImage(avatarUrl);
             if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
             event.getChannel().sendMessage(eb).get();
         }

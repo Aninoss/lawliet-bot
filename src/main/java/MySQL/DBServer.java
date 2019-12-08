@@ -540,7 +540,8 @@ public class DBServer {
             long voiceChannelId = resultSet.getLong(1);
             boolean active = resultSet.getBoolean(2);
             String channelName = resultSet.getString(3);
-            boolean creatorCanDisconnect = resultSet.getBoolean(4);
+            //boolean creatorCanDisconnect = resultSet.getBoolean(4);
+            boolean creatorCanDisconnect = false;
 
             ServerVoiceChannel channel = null;
             if (server.getVoiceChannelById(voiceChannelId).isPresent()) {
@@ -571,6 +572,25 @@ public class DBServer {
                 "%VCName [%Index]",
                 false
         );
+    }
+
+    public static boolean getAutoQuoteFromServer(Server server) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM AutoQuote WHERE serverId = ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getResultSet();
+        if (resultSet.next()) {
+            boolean active = resultSet.getBoolean(1);
+            resultSet.close();
+            preparedStatement.close();
+            return active;
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+
+        return true;
     }
 
     public static void synchronizeAutoChannelChildChannels() throws SQLException, ExecutionException, InterruptedException {
@@ -874,6 +894,14 @@ public class DBServer {
         preparedStatement.setBoolean(3, autoChannelData.isActive());
         preparedStatement.setString(4, autoChannelData.getChannelName());
         preparedStatement.setBoolean(5, autoChannelData.isCreatorCanDisconnect());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+
+    public static void saveAutoQuote(Server server, boolean active) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoQuote (serverId, active) VALUES (?, ?)");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setBoolean(2, active);
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }

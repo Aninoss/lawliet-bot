@@ -14,6 +14,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -47,8 +48,14 @@ public class ShipCommand extends Command implements onRecievedListener {
 
         int n = Tools.pickFullRandom(picked,7);
 
+        InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1),n,percentage);
+        if (is == null) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("noavatar"))).get();
+            return false;
+        }
+
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
-                .setImage(ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1),n,percentage));
+                .setImage(is);
         event.getChannel().sendMessage(eb).get();
 
         return true;
