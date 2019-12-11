@@ -96,4 +96,3 @@ Which do you prefer?|Mayonnaise|Ketchup
 Are you good at keeping secrets?|Yes!|Not really
 Do you want to try skydiving?|Yes|No
 Which type do you want to be considered?|A kind person|A fun person
-This is the final worldwide question! When you sleep, your room is...|Completely dark|Not completely dark

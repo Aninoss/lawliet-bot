@@ -31,13 +31,13 @@
       <element id="library" level="project" name="Maven: com.neovisionaries:nv-websocket-client:2.6" />
       <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.7" />
       <element id="library" level="project" name="Maven: org.discordbots:DBL-Java-Library:2.0.1" />
-      <element id="library" level="project" name="Maven: com.vdurmont:emoji-java:5.0.0" />
       <element id="library" level="project" name="Maven: com.corundumstudio.socketio:netty-socketio:1.7.17" />
       <element id="library" level="project" name="Maven: io.netty:netty-handler:4.1.32.Final" />
       <element id="library" level="project" name="Maven: com.squareup.okio:okio:1.14.0" />
       <element id="library" level="project" name="Maven: io.netty:netty-codec-http:4.1.32.Final" />
       <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.25" />
       <element id="library" level="project" name="Maven: mysql:mysql-connector-java:8.0.17" />
+      <element id="library" level="project" name="Maven: com.vdurmont:emoji-java:5.1.1" />
     </root>
   </artifact>
 </component>

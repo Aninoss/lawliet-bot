@@ -103,16 +103,22 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     setLog(LogStatus.SUCCESS, getString("titleset", inputString));
                     setState(3);
                     return Response.TRUE;
-                } return Response.FALSE;
+                } {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "256"));
+                    return Response.FALSE;
+                }
 
             //Beschreibung anpassen
             case 5:
-                if (inputString.length() > 0 && inputString.length() <= 2048) {
+                if (inputString.length() > 0 && inputString.length() <= 1024) {
                     description = inputString;
                     setLog(LogStatus.SUCCESS, getString("descriptionset", inputString));
                     setState(3);
                     return Response.TRUE;
-                } return Response.FALSE;
+                } {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
+                    return Response.FALSE;
+                }
 
             //Verknüpfung hinzufügen
             case 6:
@@ -155,7 +161,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                                         if (remove) Thread.sleep(1000);
                                         for (Reaction reaction : getNavigationMessage().getLatestInstance().get().getReactions()) {
                                             if (reaction.getEmoji().getMentionTag().equals(inputString)) {
-                                                if (remove) reaction.remove();
+                                                if (remove) reaction.remove().get();
                                                 if (calculateEmoji(reaction.getEmoji())) return Response.TRUE;
                                                 break;
                                             }

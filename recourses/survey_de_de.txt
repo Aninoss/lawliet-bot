@@ -96,4 +96,3 @@ Was magst du lieber?|Mayonnaise|Ketchup
 Kannst du Geheimnisse gut für dich behalten?|Absolut!|Eher nicht
 Würdest du gern mal Fallschirm springen?|Ja|Nein
 Wie sollen dich andere Menschen wahrnehmen?|Als nette Person|Als lustige Person
-Das ist die letzte weltweit gestellte Frage! Das Zimmer, in dem du schläfst, ist...|ganz dunkel.|nicht ganz dunkel.
