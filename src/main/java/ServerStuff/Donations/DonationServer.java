@@ -57,18 +57,18 @@ public class DonationServer extends WebhookServer {
             user.addRole(server.getRoleById(558760578336686083L).get());
         } else userName = "**" + user.getName() + "**";
 
-        int weeks = (int) Math.round(usDollars * 2);
-        try {
-            DBUser.addDonatorStatus(user, weeks);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         String additionalString = "";
         try {
             if (DBUser.hasDonated(user)) {
                 additionalString = "*additional* ";
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        int weeks = (int) Math.round(usDollars * 2);
+        try {
+            DBUser.addDonatorStatus(user, weeks);
         } catch (SQLException e) {
             e.printStackTrace();
         }
