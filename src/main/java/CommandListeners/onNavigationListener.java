@@ -13,4 +13,5 @@ public interface onNavigationListener {
     EmbedBuilder draw(DiscordApi api, int state) throws Throwable;
     void onNavigationTimeOut(Message message) throws Throwable;
     int getMaxReactionNumber();
+    default void onNewActivityOverwrite() {}
 }

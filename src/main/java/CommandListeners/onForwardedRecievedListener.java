@@ -12,4 +12,5 @@ public interface onForwardedRecievedListener {
     Response onForwardedRecieved(MessageCreateEvent event) throws Throwable;
     Message getForwardedMessage();
     void onForwardedTimeOut() throws Throwable;
+    default void onNewActivityOverwrite() {}
 }

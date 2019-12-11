@@ -74,9 +74,9 @@ public class WebhookServerSession {
 
                     processData(formularData.toString());
                 } else {
-                    System.out.println("Rejected: Wrong Authorization!");
-                    System.out.println("Expected: " + auth);
-                    System.out.println("Got: " + authorization);
+                    System.err.println("Rejected: Wrong Authorization!");
+                    System.err.println("Expected: " + auth);
+                    System.err.println("Got: " + authorization);
                 }
             }
         } catch (IOException e) {

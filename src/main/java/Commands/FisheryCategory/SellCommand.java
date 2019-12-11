@@ -154,6 +154,12 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         }
     }
 
+    @Override
+    public void onNewActivityOverwrite() {
+        removeNavigation();
+        removeReactionListener();
+    }
+
     private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
         removeMessageForwarder();
         removeReactionListener();

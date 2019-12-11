@@ -66,7 +66,7 @@ public class CommandContainer {
         commandList.add(AutoChannelCommand.class);
         commandList.add(AutoQuoteCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
-        commandList.add(ReportCommand.class);
+        //commandList.add(ReportCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

@@ -50,6 +50,7 @@ public class CommandManager {
                                         CommandContainer.getInstance().updateLastCommandUsage();
 
                                         try {
+                                            sendOverwrittenMessages(event);
                                             if (command instanceof onRecievedListener)
                                                 command.onRecievedSuper(event, followedString);
                                             if (command instanceof onNavigationListener)
@@ -104,6 +105,18 @@ public class CommandManager {
                 User user = event.getMessage().getUserAuthor().get();
                 if (Tools.canSendPrivateMessage(user))
                     user.sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName())).get();
+            }
+        }
+    }
+
+    private static void sendOverwrittenMessages(MessageCreateEvent event) {
+        ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
+        for (int i=list.size()-1; i >= 0; i--) {
+            Command command = list.get(i);
+            if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
+                if (command instanceof onForwardedRecievedListener) ((onForwardedRecievedListener)command).onNewActivityOverwrite();
+                else if (command instanceof onNavigationListener) ((onNavigationListener)command).onNewActivityOverwrite();
+                break;
             }
         }
     }

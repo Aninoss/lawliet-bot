@@ -1,5 +1,6 @@
 package ServerStuff.WebCommunicationServer;
 
+import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
@@ -67,6 +68,7 @@ public class WebComServer {
                         commandJSON.put("examples", getLanguagePackSpecs(trigger + "_examples", trigger));
                         commandJSON.put("nsfw", command.isNsfw());
                         commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);
+                        commandJSON.put("can_be_tracked", command instanceof onTrackerRequestListener);
 
                         categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                     }

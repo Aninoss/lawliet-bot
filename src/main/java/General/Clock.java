@@ -96,7 +96,7 @@ public class Clock {
                             }
 
                             collector.add(user, surveyServer.getServer(), gains, locale);
-                        } catch (IOException | SQLException e) {
+                        } catch (Throwable e) {
                             e.printStackTrace();
                         }
                     }
@@ -157,18 +157,18 @@ public class Clock {
                             try {
                                 System.err.println("SURVEY MESSAGE: " + slot.getUser().getName()); //TODO
                                 if (Tools.canSendPrivateMessage(slot.getUser())) slot.getUser().sendMessage(eb).get();
-                            } catch (InterruptedException | ExecutionException e) {
+                            } catch (Throwable e) {
                                 //Ignore
                             }
                         });
                         t.setName("survey_notif_sender");
                         t.setPriority(5);
                         t.start();
-                    } catch (IOException e) {
+                    } catch (Throwable e) {
                         e.printStackTrace();
                     }
                 }
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }

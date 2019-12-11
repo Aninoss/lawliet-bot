@@ -462,7 +462,25 @@ public class DBServer {
 
         resultSet.close();
         preparedStatement.close();
-        return false;
+        return true;
+    }
+
+    public static boolean getPowerPlantRemindersFromServer(Server server) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantReminders FROM DServer WHERE serverId = ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getResultSet();
+        if (resultSet.next()) {
+            boolean reminders = resultSet.getBoolean(1);
+            resultSet.close();
+            preparedStatement.close();
+            return reminders;
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        return true;
     }
 
     public static boolean getPowerPlantSingleRoleFromServer(Server server) throws SQLException {
@@ -980,6 +998,14 @@ public class DBServer {
     public static void savePowerPlantTreasureChestsSetting(Server server, boolean treasureChests) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantTreasureChests = ? WHERE serverId = ?;");
         preparedStatement.setBoolean(1, treasureChests);
+        preparedStatement.setLong(2, server.getId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+
+    public static void savePowerPlantRemindersSetting(Server server, boolean reminders) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantReminders = ? WHERE serverId = ?;");
+        preparedStatement.setBoolean(1, reminders);
         preparedStatement.setLong(2, server.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();

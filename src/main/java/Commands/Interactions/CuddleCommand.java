@@ -8,7 +8,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "cuddle",
         emoji = "\uD83D\uDC50",
-        executable = false
+        executable = false,
+        aliases = {"snuggle"}
 )
 public class CuddleCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

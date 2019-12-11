@@ -137,7 +137,7 @@ public class DBUser {
                             String prefix = DBServer.getPrefix(serverId);
                             Locale locale = DBServer.getServerLocale(serverId);
 
-                            if (user != null) {
+                            if (user != null && DBServer.getPowerPlantRemindersFromServer(server)) {
                                 channel.sendMessage(EmbedFactory.getEmbed()
                                         .setAuthor(user)
                                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))

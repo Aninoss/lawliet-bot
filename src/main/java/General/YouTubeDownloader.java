@@ -2,10 +2,14 @@ package General;
 
 import com.github.kiulian.downloader.YoutubeDownloader;
 import com.github.kiulian.downloader.YoutubeException;
+import com.github.kiulian.downloader.model.VideoDetails;
 import com.github.kiulian.downloader.model.YoutubeVideo;
 import com.github.kiulian.downloader.model.formats.AudioFormat;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,25 +22,39 @@ public class YouTubeDownloader {
         String[] starters = {"v=", "youtu.be/"};
         for(String starter: starters) {
             if (str.contains(starter)) {
-                str += "&";
-                str = Tools.cutString(str, starter, "&");
-                try {
-                    YoutubeDownloader.getVideo(str);
-                } catch (IOException | YoutubeException e) {
-                    //Ignore
-                    return Optional.empty();
+                int index = str.indexOf(starter) + starter.length();
+                if (index + 11 > str.length()) return Optional.empty();
+                str = str.substring(index, index + 11);
+
+                for(char c: str.toCharArray()) {
+                    if (!Character.isLetter(c) && !Character.isDigit(c) && c != '-' && c != '_'){
+                        return Optional.empty();
+                    }
                 }
 
-                return Optional.of(str);
+                try {
+                    YoutubeVideo video = YoutubeDownloader.getVideo(str);
+                    List<AudioFormat> audioFormats = video.audioFormats();
+                    if (audioFormats.size() == 0) return Optional.empty();
+                    AudioFormat audioFormat = audioFormats.stream().max((af, b) -> af.bitrate()).get();
+                    if (audioFormat.contentLength() >= 15000000) return Optional.of("%toolong");
+                    return Optional.of(str);
+                } catch (IOException | YoutubeException e) {
+                    //Ignore
+                    e.printStackTrace();
+                }
+
+                return Optional.empty();
             }
         }
 
         return Optional.empty();
     }
 
-    public static File downloadAudio(String videoId) throws IOException, YoutubeException {
+    public static File downloadAudio(String videoId) throws IOException, YoutubeException, InterruptedException {
         if (videoRequests.contains(videoId)) {
             File file;
+
             while(!(file = new File("temp/" + videoId + ".mp3")).exists()) {
                 try {
                     Thread.sleep(1000);
@@ -48,24 +66,19 @@ public class YouTubeDownloader {
             return file;
         }
 
-        YoutubeVideo video = YoutubeDownloader.getVideo(videoId);
-        List<AudioFormat> audioFormats = video.audioFormats();
-        AudioFormat audioFormat = audioFormats.stream().max((af, b) -> af.bitrate()).get();
-        if (audioFormat.contentLength() >= 15000000) {
-            return null;
-        }
-
         videoRequests.add(videoId);
 
-        File file = new File("temp/" + videoId);
-        video.download(audioFormat, file);
+        ProcessBuilder pb = new ProcessBuilder("./ytmp3.sh", videoId);
+        Process p = pb.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-        File audioFile = file.listFiles()[0];
-        File destinationFile = new File("temp/" + videoId + ".mp3");
-        audioFile.renameTo(destinationFile);
-        new File("temp/" + videoId).delete();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        reader.close();
 
-        return destinationFile;
+        return new File("temp/" + videoId + ".mp3");
     }
 
 }

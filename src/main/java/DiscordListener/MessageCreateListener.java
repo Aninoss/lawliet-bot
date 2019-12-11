@@ -8,6 +8,7 @@ import Commands.Gimmicks.QuoteCommand;
 import Commands.FisheryCategory.FisheryCommand;
 import Constants.FishingCategoryInterface;
 import Constants.PowerPlantStatus;
+import Constants.Settings;
 import General.*;
 import General.BannedWords.BannedWordsCheck;
 import General.BotResources.ResourceManager;
@@ -41,7 +42,7 @@ public class MessageCreateListener {
         if (!event.getServer().isPresent()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle("❌ Not Supported!".toUpperCase())
-                    .setDescription("Commands via pm aren't supported!"));
+                    .setDescription(String.format("Commands via dm aren't supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", Settings.BOT_INVITE_URL)));
             return;
         }
 

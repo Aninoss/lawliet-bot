@@ -10,14 +10,16 @@ public class PornImage {
     private ArrayList<Comment> comments;
     private int score, nComments;
     private Instant instant;
+    private boolean video;
 
-    public PornImage(String imageUrl, String pageUrl, ArrayList<Comment> comments, int score, int nComments, Instant instant) {
+    public PornImage(String imageUrl, String pageUrl, ArrayList<Comment> comments, int score, int nComments, Instant instant, boolean video) {
         this.imageUrl = imageUrl;
         this.pageUrl = pageUrl;
         this.comments = comments;
         this.score = score;
         this.nComments = nComments;
         this.instant = instant;
+        this.video = video;
     }
 
     public String getImageUrl() {
@@ -42,5 +44,9 @@ public class PornImage {
 
     public Instant getInstant() {
         return instant;
+    }
+
+    public boolean isVideo() {
+        return video;
     }
 }

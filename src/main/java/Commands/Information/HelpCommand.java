@@ -214,6 +214,7 @@ public class HelpCommand extends Command implements onNavigationListener {
 
                                 if (!canAccess) commands.append("~~");
                                 if (command.getUserPermissions() > 0) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                                if (command instanceof onTrackerRequestListener) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                                 if (command.isNsfw()) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
 
                                 commands.append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
@@ -225,7 +226,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                             }
                         }
 
-                        commands.append(getString("commandproperties", DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(), DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag()));
+                        commands.append(getString("commandproperties", DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(), DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(), DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag()));
                         eb.setDescription(commands.toString());
                     }
                     return eb;

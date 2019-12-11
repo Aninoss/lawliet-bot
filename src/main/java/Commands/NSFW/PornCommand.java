@@ -14,7 +14,6 @@ public class PornCommand extends Command {
 
     protected String domain;
     protected String imageTemplate;
-    private final boolean WITH_COMMENTS = false;
 
     public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd) throws IOException, InterruptedException, ExecutionException {
 
@@ -38,7 +37,7 @@ public class PornCommand extends Command {
         }
 
         for(int j = 0; j < amount ; j++) {
-            PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false);
+            PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false, false);
             if (pornImage == null) {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
@@ -50,20 +49,12 @@ public class PornCommand extends Command {
                 if (emptyKey)
                     footerAdd = " - ⚠️ " + TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_nokey").toUpperCase();
 
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link", pornImage.getPageUrl()))
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link", pornImage.getPageUrl()))
                         .setImage(pornImage.getImageUrl())
                         .setTimestamp(pornImage.getInstant())
-                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())) + footerAdd)).get();
+                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())) + footerAdd);
 
-                if (pornImage.getComments().size() > 0 && WITH_COMMENTS) {
-                    EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_comments"));
-                    for (int i = Math.max(0, pornImage.getComments().size() - 10); i < pornImage.getComments().size(); i++) {
-                        Comment comment = pornImage.getComments().get(i);
-                        if (comment.getAuthor().length() > 0 && comment.getContent().length() > 0)
-                            eb.addField(Tools.shortenString(comment.getAuthor(), 256), Tools.shortenString(comment.getContent(), 400));
-                    }
-                    event.getChannel().sendMessage(eb).get();
-                }
+                event.getChannel().sendMessage(eb).get();
             }
         }
         return true;

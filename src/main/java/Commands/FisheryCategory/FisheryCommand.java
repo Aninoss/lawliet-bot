@@ -43,7 +43,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
     private ArrayList<Role> roles;
     private ArrayList<ServerTextChannel> ignoredChannels;
     private PowerPlantStatus status;
-    private boolean singleRole, treasureChests;
+    private boolean singleRole, treasureChests, reminders;
     private ServerTextChannel announcementChannel;
     public static final String treasureEmoji = "\uD83D\uDCB0";
     public static final String keyEmoji = "\uD83D\uDD11";
@@ -59,6 +59,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
             singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
             announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
             treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
+            reminders = DBServer.getPowerPlantRemindersFromServer(event.getServer().get());
 
             checkRolesWithLog(roles);
 
@@ -148,6 +149,12 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         return true;
 
                     case 1:
+                        reminders = !reminders;
+                        DBServer.savePowerPlantRemindersSetting(event.getServer().get(), reminders);
+                        setLog(LogStatus.SUCCESS, getString("remindersset", reminders));
+                        return true;
+
+                    case 2:
                         if (roles.size() < getMaxReactionNumber()) {
                             setState(1);
                             return true;
@@ -156,7 +163,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                             return true;
                         }
 
-                    case 2:
+                    case 3:
                         if (status == PowerPlantStatus.STOPPED) {
                             if (roles.size() > 0) {
                                 setState(2);
@@ -170,11 +177,11 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                             return true;
                         }
 
-                    case 3:
+                    case 4:
                         setState(3);
                         return true;
 
-                    case 4:
+                    case 5:
                         Server server = event.getServer().get();
 
                         if (!busyServers.contains(server)) {
@@ -228,11 +235,11 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                             return true;
                         }
 
-                    case 5:
+                    case 6:
                         setState(4);
                         return true;
 
-                    case 6:
+                    case 7:
                         if (status != PowerPlantStatus.ACTIVE) {
                             status = PowerPlantStatus.ACTIVE;
                             DBServer.savePowerPlantStatusSetting(event.getServer().get(), status);
@@ -243,7 +250,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         return true;
 
-                    case 7:
+                    case 8:
                         if (status == PowerPlantStatus.ACTIVE) {
                             server = event.getServer().get();
 
@@ -339,6 +346,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[status.ordinal()].toUpperCase() + "**", true)
                         .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), treasureChests), true)
+                        .addField(getString("state0_mreminders"), Tools.getOnOffForBoolean(getLocale(), reminders), true)
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), false)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
                         .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), true)
@@ -371,7 +379,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
 
     @Override
     public int getMaxReactionNumber() {
-        return 8;
+        return 9;
     }
 
     @Override

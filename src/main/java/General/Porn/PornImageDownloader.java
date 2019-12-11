@@ -17,11 +17,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class PornImageDownloader {
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly) throws IOException, InterruptedException {
-        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, gifOnly, 2, false);
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo) throws IOException, InterruptedException {
+        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, gifOnly, canBeVideo, 2, false);
     }
 
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, int remaining, boolean softMode) throws IOException, InterruptedException {
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo, int remaining, boolean softMode) throws IOException, InterruptedException {
         while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
@@ -41,12 +41,12 @@ public class PornImageDownloader {
 
         if (count == 0) {
             if (!softMode) {
-                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, gifOnly, remaining, true);
+                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, gifOnly, canBeVideo, remaining, true);
             } else if (remaining > 0) {
                 if (searchTerm.contains(" "))
-                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, gifOnly, remaining - 1, false);
+                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, gifOnly, canBeVideo, remaining - 1, false);
                 else if (searchTerm.contains("_"))
-                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, gifOnly, remaining - 1, false);
+                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, gifOnly, canBeVideo, remaining - 1, false);
             }
 
             return null;
@@ -56,10 +56,10 @@ public class PornImageDownloader {
         int page = r.nextInt(count)/100;
         if (searchTermEncoded.length() == 0) page = 0;
 
-        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, gifOnly);
+        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, gifOnly, canBeVideo);
     }
 
-    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly) throws IOException, InterruptedException {
+    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly, boolean canBeVideo) throws IOException, InterruptedException {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&json=1&tags="+searchTerm+"&pid="+page;
         InternetResponse internetResponse = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
 
@@ -83,7 +83,7 @@ public class PornImageDownloader {
             String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
 
             long score = 0;
-            if (Tools.UrlContainsImage(fileUrl) && (!gifOnly || fileUrl.endsWith("gif")) && postData.getInt("score") >= 0) {
+            if ((Tools.UrlContainsImage(fileUrl) || canBeVideo)  && (!gifOnly || fileUrl.endsWith("gif")) && postData.getInt("score") >= 0) {
                 count2++;
                 if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
                     score = (long) Math.pow(postData.getInt("score") + 1, 3);
@@ -140,6 +140,6 @@ public class PornImageDownloader {
         if (fileURL.contains("?")) fileURL = fileURL.split("\\?")[0];
 
 
-        return new PornImage(fileURL, postURL, comments, postData.getInt("score"), comments.size(), instant);
+        return new PornImage(fileURL, postURL, comments, postData.getInt("score"), comments.size(), instant, !Tools.UrlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
 }

@@ -3,10 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
-import Constants.FishingCategoryInterface;
-import Constants.Permission;
-import Constants.PowerPlantStatus;
-import Constants.Settings;
+import Constants.*;
 import General.*;
 import General.Fishing.FishingProfile;
 import MySQL.DBServer;
@@ -20,6 +17,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
     botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
     thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/calendar-icon.png",
     emoji = "\uD83D\uDDD3",
+    withLoadingBar = true,
     executable = true
 )
 public class DailyCommand extends Command implements onRecievedListener {
@@ -41,16 +39,11 @@ public class DailyCommand extends Command implements onRecievedListener {
                 int bonusCombo = 0;
                 int bonusDonation = 0;
                 int dailyBefore = -1;
-                String label;
                 if (dailyState.isStreakBroken()) {
-                    label = "successful_combobreak";
                     dailyBefore = dailyState.getStreak();
                 } else {
-                    dailyBefore = dailyState.getStreak()-1;
-                    if (dailyState.getStreak() < 5) {
-                        label = "successful_nocombo";
-                    } else {
-                        label = "successful_highcombo";
+                    dailyBefore = dailyState.getStreak() - 1;
+                    if (dailyState.getStreak() >= 5) {
                         bonusCombo = (int) Math.round(fishes * 0.25);
                     }
                 }
@@ -59,10 +52,17 @@ public class DailyCommand extends Command implements onRecievedListener {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(label, dailyState.getStreak() != 1, Tools.numToString(getLocale(), fishes), Tools.numToString(getLocale(), dailyState.getStreak()), Tools.numToString(getLocale(), bonusCombo))));
-                if (bonusDonation > 0) event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("donate_description", Tools.numToString(getLocale(), bonusDonation), Settings.UPVOTE_URL), getString("donate_title")).setThumbnail("http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png"));
-                else event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("upvote_description", Settings.UPVOTE_URL), getString("upvote_title")));
+                StringBuilder sb = new StringBuilder(getString("point_default", Tools.numToString(getLocale(), fishes)));
+                if (bonusCombo > 0) sb.append("\n").append(getString("point_combo", Tools.numToString(getLocale(), bonusCombo)));
+                if (bonusDonation > 0) sb.append("\n").append(getString("point_donation", Tools.numToString(getLocale(), bonusDonation)));
+
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("codeblock", sb.toString()));
+                eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", Settings.UPVOTE_URL), false);
+                if (dailyState.isStreakBroken()) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
+
+                event.getChannel().sendMessage(eb).get();
                 event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), fishes + bonusCombo + bonusDonation, 0L, dailyBefore)).get();
+
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("claimed_desription"), getString("claimed_title"));

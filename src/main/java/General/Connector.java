@@ -18,6 +18,7 @@ import com.github.kiulian.downloader.model.formats.AudioFormat;
 import com.github.kiulian.downloader.model.formats.VideoFormat;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -61,6 +62,8 @@ public class Connector {
             DBMain.getInstance().connect();
             if (!Settings.TEST_MODE && !Bot.isDebug()) initializeUpdate();
             DiscordbotsAPI.getInstance().startWebhook();
+
+            Arrays.stream(new File("temp").listFiles()).forEach(file -> file.delete()); //Cleans all temp files
 
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
@@ -265,14 +268,14 @@ public class Connector {
         if (!isRestartPending) {
             if (DBMain.getInstance().checkConnection()) {
                 api.updateStatus(UserStatus.ONLINE);
-                api.updateActivity("L.help | " + Tools.numToString(serverNumber) + " Servers | v" + Tools.getCurrentVersion());
+                api.updateActivity(ActivityType.WATCHING, "L.help | " + Tools.numToString(serverNumber) + " Servers | lawlietbot.xyz");
             } else {
                 api.updateStatus(UserStatus.DO_NOT_DISTURB);
-                api.updateActivity("ERROR - DATABASE DOWN");
+                api.updateActivity(ActivityType.WATCHING, "ERROR - DATABASE DOWN");
             }
         } else {
             api.updateStatus(UserStatus.DO_NOT_DISTURB);
-            api.updateActivity("BOT RESTARTS SOON");
+            api.updateActivity(ActivityType.WATCHING, "BOT RESTARTS SOON");
         }
     }
 
