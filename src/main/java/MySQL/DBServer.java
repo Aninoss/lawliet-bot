@@ -18,6 +18,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import javax.xml.crypto.Data;
+import javax.xml.transform.Result;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
@@ -292,6 +293,32 @@ public class DBServer {
         }
 
         return bannedWords;
+    }
+
+    public static ArrayList<String> getNSFWFilterFromServer(Server server) throws SQLException {
+        ArrayList<String> nsfwFilter = DatabaseCache.getInstance().getNSFWFilter(server);
+
+        if (nsfwFilter == null) {
+            nsfwFilter = new ArrayList<>();
+
+            String sql = "SELECT keyword FROM NSFWFilter WHERE serverId = ?;";
+
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+            preparedStatement.setLong(1, server.getId());
+            preparedStatement.execute();
+            ResultSet resultSet = preparedStatement.getResultSet();
+
+            while(resultSet.next()) {
+                nsfwFilter.add(resultSet.getString(1));
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+
+            DatabaseCache.getInstance().setNSFWFilter(server, nsfwFilter);
+        }
+
+        return nsfwFilter;
     }
 
     public static WelcomeMessageSetting getWelcomeMessageSettingFromServer(Locale locale, Server server) throws SQLException, IOException {
@@ -763,6 +790,32 @@ public class DBServer {
         preparedStatement.close();
 
         DatabaseCache.getInstance().removeMemberCountDisplay(serverId, vcId);
+    }
+
+    public static void addNSFWFilterKeyword(Server server, String keyword) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO NSFWFilter VALUES(?, ?);");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setString(2, keyword);
+        preparedStatement.execute();
+        preparedStatement.close();
+
+        ArrayList<String> nsfwFilter = DatabaseCache.getInstance().getNSFWFilter(server);
+        if (nsfwFilter == null) {
+            nsfwFilter = new ArrayList<>();
+            DatabaseCache.getInstance().setNSFWFilter(server, nsfwFilter);
+        }
+        nsfwFilter.add(keyword);
+    }
+
+    public static void removeNSFWFilterKeyword(Server server, String keyword) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM NSFWFilter WHERE serverId = ? AND keyword = ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setString(2, keyword);
+        preparedStatement.execute();
+        preparedStatement.close();
+
+        ArrayList<String> nsfwFilter = DatabaseCache.getInstance().getNSFWFilter(server);
+        if (nsfwFilter != null) nsfwFilter.remove(keyword);
     }
 
     public static boolean isChannelWhitelisted(ServerTextChannel channel) throws SQLException {

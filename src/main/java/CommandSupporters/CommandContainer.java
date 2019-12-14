@@ -65,6 +65,7 @@ public class CommandContainer {
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
         commandList.add(AutoQuoteCommand.class);
+        commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
         //commandList.add(ReportCommand.class);
 

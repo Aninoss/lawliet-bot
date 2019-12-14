@@ -31,7 +31,7 @@ public class WebhookServer {
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
-                    new DiscordbotsWebhookSession(socket);
+                    startSession(socket);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

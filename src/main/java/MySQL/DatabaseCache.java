@@ -19,6 +19,7 @@ public class DatabaseCache {
     private Map<Long, ArrayList<Long>> powerPlantIgnoredChannels = new HashMap<>();
     private Map<Long, ArrayList<ServerTextChannel>> whiteListedChannels = new HashMap<>();
     private Map<Long, ArrayList<Pair<ServerVoiceChannel, String>>> memberCountDisplays = new HashMap<>();
+    private Map<Long, ArrayList<String>> nsfwFilters = new HashMap<>();
 
     public static DatabaseCache getInstance() {
         return ourInstance;
@@ -102,6 +103,14 @@ public class DatabaseCache {
                 break;
             }
         }
+    }
+
+    public void setNSFWFilter(Server server, ArrayList<String> nsfwFilter) {
+        this.nsfwFilters.put(server.getId(), nsfwFilter);
+    }
+
+    public ArrayList<String> getNSFWFilter(Server server) {
+        return nsfwFilters.get(server.getId());
     }
 
 }

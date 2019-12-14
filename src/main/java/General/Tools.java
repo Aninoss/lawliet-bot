@@ -583,19 +583,29 @@ public class Tools {
         return ldt1.atZone(ZoneOffset.UTC).toInstant();
     }
 
-    public static String filterPornSearchKey(String str) {
+    public static String filterPornSearchKey(String str, ArrayList<String> additionalFilter) {
         for(String filter: Settings.NSFW_FILTERS) {
+            str = str.replace(filter, "");
+        }
+        for(String filter: additionalFilter) {
             str = str.replace(filter, "");
         }
         return str;
     }
 
-    public static String getNSFWTagRemoveList() {
+    public static String getNSFWTagRemoveList(ArrayList<String> additionalFilter) {
         StringBuilder str = new StringBuilder();
         for(String filter: Settings.NSFW_FILTERS) {
             str.append(" -").append(filter);
         }
+        for(String filter: additionalFilter) {
+            str.append(" -").append(filter);
+        }
         return str.toString();
+    }
+
+    public static String defuseAtEveryone(String str) {
+        return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
     }
 
 }

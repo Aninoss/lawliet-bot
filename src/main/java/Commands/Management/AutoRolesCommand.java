@@ -66,14 +66,18 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                     return Response.FALSE;
                 }
 
+                int n = 0;
                 for(Role role: roleList) {
                     if (!roles.contains(role)) {
-                        roles.add(role);
-                        DBServer.addBasicRoles(event.getServer().get(), role);
+                        if (roles.size() < getMaxReactionNumber()) {
+                            roles.add(role);
+                            DBServer.addBasicRoles(event.getServer().get(), role);
+                            n++;
+                        }
                     }
                 }
 
-                setLog(LogStatus.SUCCESS, getString("roleadd", (roleList.size() - existingRoles) != 1));
+                setLog(LogStatus.SUCCESS, getString("roleadd", n != 1));
                 setState(0);
                 return Response.TRUE;
             }

@@ -5,7 +5,10 @@ import CommandSupporters.Command;
 import General.*;
 import General.Porn.PornImage;
 import General.Porn.PornImageDownloader;
+import MySQL.DBServer;
 import org.javacord.api.event.message.MessageCreateEvent;
+
+import java.util.ArrayList;
 
 public class PornProxyCommand extends Command implements onRecievedListener {
     private String search, searchExtra, domain, imageTemplate;
@@ -13,15 +16,23 @@ public class PornProxyCommand extends Command implements onRecievedListener {
 
     public PornProxyCommand(String search, String searchExtra, boolean gifOnly, String domain, String imageTemplate) {
         super();
-        this.search = Tools.filterPornSearchKey(search);
+        this.search = search;
         this.searchExtra = searchExtra;
         this.gifOnly = gifOnly;
         this.domain = domain;
         this.imageTemplate = imageTemplate;
     }
 
+    public PornProxyCommand(String search, boolean gifOnly, String domain, String imageTemplate) {
+        this(search, "", gifOnly, domain, imageTemplate);
+    }
+
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+        ArrayList<String> nsfwFilter = DBServer.getNSFWFilterFromServer(event.getServer().get());
+        this.search = Tools.filterPornSearchKey(search, nsfwFilter);
+        this.searchExtra = Tools.getNSFWTagRemoveList(nsfwFilter) + searchExtra;
+
         int amount = 1;
         if (followedString.length() > 0) {
             boolean ok = false;

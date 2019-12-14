@@ -5,6 +5,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Settings;
 import General.*;
+import MySQL.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -26,7 +27,7 @@ public class GelbooruCommand extends PornCommand implements onRecievedListener {
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList());
+        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList(DBServer.getNSFWFilterFromServer(event.getServer().get())));
     }
 
 }

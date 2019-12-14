@@ -2,7 +2,8 @@ package Constants;
 
 public interface Permission {
     int     ATTACH_FILES_TO_TEXT_CHANNEL = 0x1,
-            BAN_USER = 0x2, CHANGE_OWN_NICKNAME = 0x4,
+            BAN_USER = 0x2,
+            CHANGE_OWN_NICKNAME = 0x4,
             REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL = 0x8,
             CREATE_CHANNELS_ON_SERVER = 0x10,
             MANAGE_EMOJIS_ON_SERVER = 0x20,
@@ -26,4 +27,6 @@ public interface Permission {
             CONNECT = 0x800000,
             MANAGE_CHANNEL = 0x1000000,
             MANAGE_PERMISSIONS_IN_CHANNEL = 0x2000000;
+
+    int MAX = MANAGE_PERMISSIONS_IN_CHANNEL;
 }

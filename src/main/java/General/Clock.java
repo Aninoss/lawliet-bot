@@ -6,6 +6,7 @@ import Constants.FishingCategoryInterface;
 import Constants.Settings;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.*;
+import ServerStuff.BotsOnDiscord;
 import ServerStuff.Botsfordiscord;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import ServerStuff.Donations.DonationServer;
@@ -231,6 +232,7 @@ public class Clock {
         //Updates Discord Bots Server Count
         DiscordbotsAPI.getInstance().updateServerCount(apiCollection.getServerTotalSize());
         Botsfordiscord.updateServerCount(apiCollection.getServerTotalSize());
+        BotsOnDiscord.updateServerCount(apiCollection.getServerTotalSize());
     }
 
     public static boolean instantHasHour(Instant instant, int hour) {

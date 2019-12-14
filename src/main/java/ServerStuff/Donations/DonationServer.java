@@ -37,7 +37,7 @@ public class DonationServer extends WebhookServer {
         if (userId != -1) {
             Optional<User> userOptional = apiCollection.getUserById(userId);
             if (userOptional.isPresent()) {
-                user = apiCollection.getUserById(userId).get();
+                user = userOptional.get();
             }
         }
 

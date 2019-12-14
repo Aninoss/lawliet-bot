@@ -55,12 +55,12 @@ public class ServerMemberJoinListener {
 
                     if (image != null) {
                         channel.sendMessage(
-                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
+                                Tools.defuseAtEveryone(WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
                                         server.getName(),
                                         user.getMentionTag(),
                                         user.getName(),
                                         user.getDiscriminatedName(),
-                                        Tools.numToString(locale, server.getMembers().size())),
+                                        Tools.numToString(locale, server.getMembers().size()))),
                                 image,
                                 "welcome.png").get();
                     } else {

@@ -42,12 +42,12 @@ public class ServerMemberLeaveListener {
                     if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
                         User user = event.getUser();
                         channel.sendMessage(
-                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getGoodbyeText(),
+                                Tools.defuseAtEveryone(WelcomeCommand.replaceVariables(welcomeMessageSetting.getGoodbyeText(),
                                         server.getName(),
                                         user.getMentionTag(),
                                         user.getName(),
                                         user.getDiscriminatedName(),
-                                        Tools.numToString(locale, server.getMembers().size()))).get();
+                                        Tools.numToString(locale, server.getMembers().size())))).get();
                     }
                 }
             } catch (IOException | ExecutionException | SQLException | InterruptedException e) {

@@ -17,6 +17,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -132,7 +133,18 @@ public class HelpCommand extends Command implements onNavigationListener {
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0],"exec:"+command.getClass().getName()));
                 }
 
-                return EmbedFactory.getEmbed()
+                String permissionsList = new ListGen<Integer>().getList(PermissionCheck.permissionsToNumberList(command.getUserPermissions()), getLocale(), ListGen.SLOT_TYPE_BULLET,
+                        i -> {
+                            try {
+                                return TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(i));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                    return "";
+                        }
+                );
+
+                EmbedBuilder eb =  EmbedFactory.getEmbed()
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
@@ -142,7 +154,11 @@ public class HelpCommand extends Command implements onNavigationListener {
                         .setFooter(getString("command_args"))
                         .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
                         .addField(getString("command_usage"),usage.toString(),true)
-                        .addField(getString( "command_example", exampleNumber > 1),examples.toString(),true);
+                        .addField(getString( "command_example", exampleNumber > 1), examples.toString(),true);
+
+                if (command.getUserPermissions() > 0) eb.addField(getString("command_userpermissions"), permissionsList,false);
+
+                return eb;
             }
         }
         return null;
