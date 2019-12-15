@@ -38,7 +38,10 @@ public class AnimeReleaseDownloader {
         String description = data.getString("description");
         description = description.substring(description.indexOf("<br />") + "<br />".length());
 
-        int episodeNum = data.getInt("crunchyroll:episodeNumber");
+        String episode;
+        if (data.get("crunchyroll:episodeNumber") instanceof Integer) episode = String.valueOf(data.getInt("crunchyroll:episodeNumber"));
+        else episode = data.getString("crunchyroll:episodeNumber");
+
         String episodeTitle = data.getString("crunchyroll:episodeTitle");
         String thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         Instant date = Tools.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
@@ -46,7 +49,7 @@ public class AnimeReleaseDownloader {
         if (Tools.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");
 
-        return new AnimeReleasePost(anime, description, episodeNum, episodeTitle, thumbnail, date, url, id);
+        return new AnimeReleasePost(anime, description, episode, episodeTitle, thumbnail, date, url, id);
     }
 
     public static PostBundle<AnimeReleasePost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException {

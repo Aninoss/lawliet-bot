@@ -4,14 +4,14 @@ import java.time.Instant;
 
 public class AnimeReleasePost {
 
-    private String anime, description, episodeTitle, thumbnail, url;
-    private int episodeNum, id;
+    private String anime, description, episodeTitle, thumbnail, url, episode;
+    private int id;
     private Instant date;
 
-    public AnimeReleasePost(String anime, String description, int episodeNum, String episodeTitle, String thumbnail, Instant date, String url, int id) {
+    public AnimeReleasePost(String anime, String description, String episode, String episodeTitle, String thumbnail, Instant date, String url, int id) {
         this.anime = anime;
         this.description = description;
-        this.episodeNum = episodeNum;
+        this.episode = episode;
         this.episodeTitle = episodeTitle;
         this.thumbnail = thumbnail;
         this.date = date;
@@ -23,8 +23,8 @@ public class AnimeReleasePost {
         return anime;
     }
 
-    public int getEpisodeNum() {
-        return episodeNum;
+    public String getEpisode() {
+        return episode;
     }
 
     public String getEpisodeTitle() {

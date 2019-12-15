@@ -32,7 +32,7 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
     private EmbedBuilder getEmbed(AnimeReleasePost post) throws IOException {
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setAuthor(post.getAnime())
-                .setTitle(getString("template_title", String.valueOf(post.getEpisodeNum()), post.getEpisodeTitle()))
+                .setTitle(getString("template_title", post.getEpisode(), post.getEpisodeTitle()))
                 .setDescription(post.getDescription())
                 .setUrl(post.getUrl())
                 .setImage(post.getThumbnail())

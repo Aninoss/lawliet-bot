@@ -128,8 +128,10 @@ public class RedditDownloader {
         post.setLink(url);
         source = "https://www.reddit.com" + data.getString("permalink");
         thumbnail = data.getString("thumbnail");
-        domain = url.split("//")[1].replace("www.", "");
-        if (domain.contains("/")) domain = domain.split("/")[0];
+        if (url.contains("//")) {
+            domain = url.split("//")[1].replace("www.", "");
+            if (domain.contains("/")) domain = domain.split("/")[0];
+        }
         boolean postSource = true;
 
         if (data.has("post_hint") && data.getString("post_hint").equals("image")) {
