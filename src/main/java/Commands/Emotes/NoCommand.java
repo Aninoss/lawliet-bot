@@ -15,8 +15,7 @@ public class NoCommand extends EmoteCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public NoCommand() {
-        super("https://media1.tenor.com/images/92353d17ff2812d65d51da22840fe8ea/tenor.gif?itemid=4704741",
-                "https://media1.tenor.com/images/90ea198565528e21b8ec47cdae286395/tenor.gif?itemid=5552213",
+        super("https://media1.tenor.com/images/90ea198565528e21b8ec47cdae286395/tenor.gif?itemid=5552213",
                 "https://media1.tenor.com/images/2cf373aef8fedfa21cc1f5587a6f9e2b/tenor.gif?itemid=8620719",
                 "https://media1.tenor.com/images/294f0756c916983835e855df0cc4a6e6/tenor.gif?itemid=5799534",
                 "https://media1.tenor.com/images/001d74c97a8c36cbaa203540b71e8745/tenor.gif?itemid=12199347",
@@ -34,8 +33,7 @@ public class NoCommand extends EmoteCommand implements onRecievedListener {
                 "https://media1.tenor.com/images/b9c243d81cb40b09b38634727b5fb7a5/tenor.gif?itemid=14119537",
                 "https://media1.tenor.com/images/5768f9f99be830649a85dacd2a5809a3/tenor.gif?itemid=9423903",
                 "https://media1.tenor.com/images/01798bf7711b3eaa726fc7708f76ddd1/tenor.gif?itemid=9320140",
-                "https://media1.tenor.com/images/b13fb0dbb71ba21d0c1c8bea1d449340/tenor.gif?itemid=12252534",
-                "https://media1.tenor.com/images/0b42fed5a4b7ff4e5f9c7680059cf0da/tenor.gif?itemid=11102640"
+                "https://media1.tenor.com/images/b13fb0dbb71ba21d0c1c8bea1d449340/tenor.gif?itemid=12252534"
         );
     }
 
