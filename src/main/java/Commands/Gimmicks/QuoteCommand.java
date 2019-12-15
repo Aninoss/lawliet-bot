@@ -131,6 +131,10 @@ public class QuoteCommand extends Command implements onRecievedListener {
     }
 
     public void postEmbed(ServerTextChannel channel, Message searchedMessage) throws IOException, ExecutionException, InterruptedException {
+        postEmbed(channel, searchedMessage, false);
+    }
+
+    public void postEmbed(ServerTextChannel channel, Message searchedMessage, boolean showAutoQuoteTurnOff) throws IOException, ExecutionException, InterruptedException {
         if (!channel.canYouWrite() || !channel.canYouEmbedLinks()) return;
 
         if (searchedMessage.getServerTextChannel().get().isNsfw() && !channel.isNsfw()) {
@@ -139,10 +143,11 @@ public class QuoteCommand extends Command implements onRecievedListener {
         }
 
         EmbedBuilder eb;
+        String footerAdd = showAutoQuoteTurnOff ? " | " + getString("turningoff") : "";
 
         if (searchedMessage.getEmbeds().size() == 0) {
             eb = EmbedFactory.getEmbed()
-                    .setFooter(getString("title"));
+                    .setFooter(getString("title") + footerAdd);
             if (searchedMessage.getContent().length() > 0) eb.setDescription("\""+searchedMessage.getContent()+"\"");
             if (searchedMessage.getAttachments().size() > 0) eb.setImage(searchedMessage.getAttachments().get(0).getUrl().toString());
         }
@@ -157,8 +162,8 @@ public class QuoteCommand extends Command implements onRecievedListener {
             if (embed.getImage().isPresent()) eb.setImage(embed.getImage().get().getUrl().toString());
             else if (searchedMessage.getAttachments().size() > 0) eb.setImage(searchedMessage.getAttachments().get(0).getUrl().toString());
             if (embed.getUrl().isPresent()) eb.setUrl(embed.getUrl().get().toString());
-            if (embed.getFooter().isPresent()) eb.setFooter(embed.getFooter().get().getText().get() + " - " + getString("title"));
-            else eb.setFooter(getString("title"));
+            if (embed.getFooter().isPresent()) eb.setFooter(embed.getFooter().get().getText().get() + " - " + getString("title") + footerAdd);
+            else eb.setFooter(getString("title") + footerAdd);
             if (embed.getFields().size() > 0) {
                 for(EmbedField ef: embed.getFields()) {
                     eb.addField(ef.getName(),ef.getValue(),ef.isInline());

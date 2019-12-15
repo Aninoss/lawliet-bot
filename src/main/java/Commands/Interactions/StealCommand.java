@@ -21,8 +21,6 @@ public class StealCommand extends InteractionCommand implements onRecievedListen
                 "https://media1.tenor.com/images/d367e30bef5386927ab0ef566197cbe1/tenor.gif?itemid=4885181",
                 "https://media1.tenor.com/images/618714d7365ac78a9206c6429a6db8ab/tenor.gif?itemid=13894357",
                 "https://media1.tenor.com/images/c4c413f322b3adfd7efd4fb92ea11e9e/tenor.gif?itemid=11744811",
-                "https://media1.tenor.com/images/452ff1d490f6d4143258ad0a80a94b90/tenor.gif?itemid=11925145",
-                "https://media1.tenor.com/images/d912633fa70c1384f730f2ead0a5832d/tenor.gif?itemid=13909465",
                 "https://media1.tenor.com/images/b0b6dcbacc72a89a6d4077a8bf1df7b7/tenor.gif?itemid=12390213",
                 "https://media1.tenor.com/images/6fcaee6c288d418f4c15b99406240860/tenor.gif?itemid=5666314"
         );

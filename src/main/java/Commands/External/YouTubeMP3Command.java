@@ -55,6 +55,11 @@ public class YouTubeMP3Command extends Command implements onRecievedListener {
                     return false;
                 }
 
+                if (videoId.equalsIgnoreCase("%error")) {
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("error_desc"), getString("error_title"))).get();
+                    return false;
+                }
+
                 String loadingEmoji = Tools.getLoadingReaction(event.getServerTextChannel().get());
                 Message message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("loading", loadingEmoji))).get();
 

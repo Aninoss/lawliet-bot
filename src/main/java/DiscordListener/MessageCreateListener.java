@@ -156,7 +156,8 @@ public class MessageCreateListener {
                                 Message message = messages.get(i);
                                 QuoteCommand quoteCommand = new QuoteCommand();
                                 quoteCommand.setLocale(locale);
-                                quoteCommand.postEmbed(event.getServerTextChannel().get(), message);
+                                quoteCommand.setPrefix(DBServer.getPrefix(event.getServer().get()));
+                                quoteCommand.postEmbed(event.getServerTextChannel().get(), message, true);
                             }
                         } catch (Throwable throwable) {
                             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());

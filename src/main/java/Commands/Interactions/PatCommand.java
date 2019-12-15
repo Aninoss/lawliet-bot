@@ -15,8 +15,6 @@ public class PatCommand extends InteractionCommand implements onRecievedListener
 
     public PatCommand() {
         super("https://media1.tenor.com/images/c0bcaeaa785a6bdf1fae82ecac65d0cc/tenor.gif?itemid=7453915",
-                "https://media1.tenor.com/images/220babfd5f8b629cc16399497ed9dd96/tenor.gif?itemid=6130861",
-                "https://media1.tenor.com/images/1e92c03121c0bd6688d17eef8d275ea7/tenor.gif?itemid=9920853",
                 "https://media1.tenor.com/images/116fe7ede5b7976920fac3bf8067d42b/tenor.gif?itemid=9200932",
                 "https://media1.tenor.com/images/da8f0e8dd1a7f7db5298bda9cc648a9a/tenor.gif?itemid=12018819",
                 "https://media1.tenor.com/images/183ff4514cbe90609e3f286adaa3d0b4/tenor.gif?itemid=5518321",
@@ -44,7 +42,6 @@ public class PatCommand extends InteractionCommand implements onRecievedListener
                 "https://media1.tenor.com/images/dadf2f2aa8efc7b0856b6af26e72a8cb/tenor.gif?itemid=6005361",
                 "https://media1.tenor.com/images/d9e575861bb2f6389cec93da6cbdfa1f/tenor.gif?itemid=9720876",
                 "https://media1.tenor.com/images/398c9c832335a13be124914c23e88fdf/tenor.gif?itemid=9939761",
-                "https://media1.tenor.com/images/dae02df4433b91feff5c2cc74b412bec/tenor.gif?itemid=14157647",
                 "https://tenor.com/view/kitten-kittens-cute-pet-give-me-attention-gif-12816949"
         );
     }

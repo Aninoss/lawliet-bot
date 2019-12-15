@@ -25,7 +25,6 @@ public class YaoiKissCommand extends InteractionCommand implements onRecievedLis
                 "https://media.giphy.com/media/7j5fVzUhE2NH2/giphy.gif",
                 "https://media.giphy.com/media/9coScZJ5G3ULm/giphy.gif",
                 "https://media.giphy.com/media/OVVDhwkEbAkSc/giphy.gif",
-                "https://media.giphy.com/media/aIoQynMLx3uF2/giphy.gif",
                 "https://media.giphy.com/media/6vJEqAaOVA1X2/giphy.gif",
                 "https://media.giphy.com/media/bJDin9kCsznpK/giphy.gif",
                 "https://media.giphy.com/media/lfHSS824l0KVG/giphy.gif",
@@ -33,13 +32,11 @@ public class YaoiKissCommand extends InteractionCommand implements onRecievedLis
                 "https://media.giphy.com/media/117UiFNyf7lLyw/giphy.gif",
                 "https://media.giphy.com/media/AeyqSQLnaSCvm/giphy.gif",
                 "https://media.giphy.com/media/EeEx2C4tA4f9m/giphy.gif",
-                "https://media.giphy.com/media/nISHppsUAzosM/giphy.gif",
                 "https://i.pinimg.com/originals/6c/e4/a4/6ce4a4d66c05a0c97f7d7948a597c0cf.gif",
                 "http://data.whicdn.com/images/29771922/nezumi-shion-yaoi-Favim.com-372782_large.gif",
                 "https://data.whicdn.com/images/247721120/original.gif",
                 "https://data.whicdn.com/images/212056054/original.gif",
                 "https://i.pinimg.com/originals/55/33/f6/5533f6796eae4c5c19d552d37e16343b.gif",
-                "https://data.whicdn.com/images/231810449/original.gif",
                 "http://sakuu.s.a.pic.centerblog.net/ca6c1dd5.gif",
                 "http://coquelico.c.o.pic.centerblog.net/319c14c5ff11e76ed8913e98cc020a15.gif",
                 "https://static.tumblr.com/847657741cb58516e429cfc8259b5f91/mt6r6jm/PwGna9yh1/tumblr_static_7jj007qzango0g480kw8ocsw0.gif",
@@ -50,10 +47,9 @@ public class YaoiKissCommand extends InteractionCommand implements onRecievedLis
                 "https://img2.gelbooru.com//images/88/f0/88f0e29bb95a4c6d4bb0bce5af1d3884.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188913234706460/tumblr_o8m4vc9Lj81vxpanzo1_500.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188915503956006/e1208176-91ef-46e6-b8ef-3c9b4d21ba4b.gif",
-                "https://media1.tenor.com/images/77c21f541916b0f8f673cdd70a6b78cf/tenor.gif?itemid=12992435",
                 "https://media1.tenor.com/images/3e659c681c779d15d597f84ab5bfc1e3/tenor.gif?itemid=5539915",
                 "https://media1.tenor.com/images/e2dd4e5322906bee8c595c83f36358ba/tenor.gif?itemid=7324668",
-                "https://media1.tenor.com/images/9a893dc1d1c9fd459dff63e167d1cf85/tenor.gif?itemid=14971431"
+                "https://data.whicdn.com/images/334723021/original.gif"
         );
     }
 

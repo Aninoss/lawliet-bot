@@ -123,8 +123,14 @@ public class CommandContainer {
         commandList.add(AwkwardCommand.class);
         commandList.add(YesCommand.class);
         commandList.add(NoCommand.class);
+        commandList.add(WaveCommand.class);
         commandList.add(CryCommand.class);
         commandList.add(DanceCommand.class);
+        commandList.add(SmileCommand.class);
+        commandList.add(AngryCommand.class);
+        commandList.add(RunCommand.class);
+        commandList.add(BlushCommand.class);
+        commandList.add(StareCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);
@@ -135,22 +141,23 @@ public class CommandContainer {
         commandList.add(StealCommand.class);
         commandList.add(ThrowCommand.class);
         commandList.add(BullyCommand.class);
-        commandList.add(NotWorkCommand.class);
+        //commandList.add(NotWorkCommand.class);
         commandList.add(EveryoneCommand.class);
         commandList.add(BiteCommand.class);
         commandList.add(NomCommand.class);
         commandList.add(PokeCommand.class);
         commandList.add(FishCommand.class);
         commandList.add(TickleCommand.class);
-        commandList.add(WaveCommand.class);
         commandList.add(HighfiveCommand.class);
         commandList.add(PatCommand.class);
         commandList.add(RewardCommand.class);
-        commandList.add(HugCommand.class);
-        commandList.add(CuddleCommand.class);
         commandList.add(MassageCommand.class);
         commandList.add(LickCommand.class);
         commandList.add(LoveCommand.class);
+        commandList.add(HugCommand.class);
+        commandList.add(YaoiHugCommand.class);
+        commandList.add(CuddleCommand.class);
+        commandList.add(YaoiCuddleCommand.class);
         commandList.add(KissCommand.class);
         commandList.add(YaoiKissCommand.class);
         commandList.add(YuriKissCommand.class);

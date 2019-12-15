@@ -36,12 +36,10 @@ public class LickCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/d702fa41028207c6523b831ec2db9467/tenor.gif?itemid=5990650",
                 "https://media1.tenor.com/images/5785566574fe6293e3be673e85d4894b/tenor.gif?itemid=5649365",
                 "https://media1.tenor.com/images/fb5e394d76ec3b91f8482177fc4203ad/tenor.gif?itemid=9803097",
-                "https://media1.tenor.com/images/cd31cb60fe4a546009c6c594fb1f6d3f/tenor.gif?itemid=10857468",
                 "https://media1.tenor.com/images/feeef4685f9307b76c78a22ba0a69f48/tenor.gif?itemid=8413059",
                 "https://media1.tenor.com/images/efd46743771a78e493e66b5d26cd2af1/tenor.gif?itemid=14002773",
                 "https://media1.tenor.com/images/0d5c3b71635cad214699cab7d6250644/tenor.gif?itemid=7272611",
                 "https://media1.tenor.com/images/a90264f34cc1d91775fb96cbca280062/tenor.gif?itemid=5070299",
-                "https://media1.tenor.com/images/c1884b41e31a210324eedc89a3490898/tenor.gif?itemid=12054787",
                 "https://cdn.discordapp.com/attachments/499629904380297226/613075980243697808/lick_yarichin.gif"
         );
     }

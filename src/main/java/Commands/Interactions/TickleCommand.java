@@ -15,7 +15,6 @@ public class TickleCommand extends InteractionCommand implements onRecievedListe
 
     public TickleCommand() {
         super("https://media1.tenor.com/images/fea79fed0168efcaf1ddfb14d8af1a6d/tenor.gif?itemid=7283507",
-                "https://media1.tenor.com/images/5cbe2cb77056ef2faf395b26fdece8eb/tenor.gif?itemid=14132818",
                 "https://media1.tenor.com/images/fcbded4ce66ab01317ee009a1aa44404/tenor.gif?itemid=11920137",
                 "https://media1.tenor.com/images/f43da23b4ed0938ce362b0374b88e42c/tenor.gif?itemid=8054679",
                 "https://media1.tenor.com/images/d38554c6e23b86c81f8d4a3764b38912/tenor.gif?itemid=11379131",

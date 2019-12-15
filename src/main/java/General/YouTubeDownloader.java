@@ -42,9 +42,8 @@ public class YouTubeDownloader {
                 } catch (IOException | YoutubeException e) {
                     //Ignore
                     e.printStackTrace();
+                    return Optional.of("%error");
                 }
-
-                return Optional.empty();
             }
         }
 

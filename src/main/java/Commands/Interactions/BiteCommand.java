@@ -33,7 +33,6 @@ public class BiteCommand extends InteractionCommand implements onRecievedListene
                 "https://media1.tenor.com/images/774226b902dac2639f2162bc40e1ad83/tenor.gif?itemid=13122306",
                 "https://media1.tenor.com/images/128c1cfb7f4e6ea4a4dce9b487648143/tenor.gif?itemid=12051598",
                 "https://media1.tenor.com/images/cb5b6f8b267be7f9f0e1dd4ac52e6439/tenor.gif?itemid=4696679",
-                "https://media1.tenor.com/images/2adef5d4fba623aeb4c5b74879107b56/tenor.gif?itemid=5160295",
                 "https://media1.tenor.com/images/c7f647ab1a07bc5cb2e2783169095329/tenor.gif?itemid=5594274",
                 "https://media1.tenor.com/images/491225e5ca713454f9cc25318129976d/tenor.gif?itemid=11039959",
                 "https://media1.tenor.com/images/c688d2cf5c50569c74ce8e8d87c40935/tenor.gif?itemid=13341413",

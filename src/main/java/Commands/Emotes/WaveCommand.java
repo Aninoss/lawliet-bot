@@ -1,6 +1,7 @@
-package Commands.Interactions;
+package Commands.Emotes;
 import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
+import Commands.Interactions.InteractionCommand;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ import java.util.ArrayList;
         executable = false,
         aliases = {"greet"}
 )
-public class WaveCommand extends InteractionCommand implements onRecievedListener {
+public class WaveCommand extends EmoteCommand implements onRecievedListener {
+
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     public WaveCommand() {
@@ -52,6 +54,6 @@ public class WaveCommand extends InteractionCommand implements onRecievedListene
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onInteractionRecieved(event, followedString, picked);
+        return onEmoteRecieved(event, picked);
     }
 }

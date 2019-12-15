@@ -34,7 +34,6 @@ public class PunchCommand extends InteractionCommand implements onRecievedListen
                 "https://media1.tenor.com/images/0dbb53b0f2a8730ea3c8a0e2502b6bac/tenor.gif?itemid=10194762",
                 "https://media1.tenor.com/images/745d16a823805edbfe83aa9363c48a87/tenor.gif?itemid=12003981",
                 "https://media1.tenor.com/images/b2308e16fa5b71c541efdd13dea4f9ba/tenor.gif?itemid=10462739",
-                "https://media1.tenor.com/images/04020c8fb0d5fe77d1d366c3155ebd8d/tenor.gif?itemid=10692694",
                 "https://media1.tenor.com/images/2c96a0f0c2e7f5e446b6771fe1b6fca8/tenor.gif?itemid=14949242"
         );
     }
