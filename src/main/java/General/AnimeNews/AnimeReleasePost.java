@@ -1,6 +1,7 @@
 package General.AnimeNews;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public class AnimeReleasePost {
 
@@ -23,8 +24,8 @@ public class AnimeReleasePost {
         return anime;
     }
 
-    public String getEpisode() {
-        return episode;
+    public Optional<String> getEpisode() {
+        return Optional.ofNullable(episode);
     }
 
     public String getEpisodeTitle() {

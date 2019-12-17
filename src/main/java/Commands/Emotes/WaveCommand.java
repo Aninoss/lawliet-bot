@@ -10,7 +10,7 @@ import java.util.ArrayList;
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
         executable = false,
-        aliases = {"greet"}
+        aliases = {"greet", "bye"}
 )
 public class WaveCommand extends EmoteCommand implements onRecievedListener {
 

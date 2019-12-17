@@ -411,10 +411,12 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
 
                 long won = Math.round(DBUser.getFishingProfile(event.getServer().get(), event.getUser()).getEffect(FishingCategoryInterface.PER_TREASURE) * (0.7 + r.nextDouble() * 0.6));
 
+                setPrefix(DBServer.getPrefix(event.getServer().get()));
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), Tools.numToString(getLocale(), won)))
-                        .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"));
+                        .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"))
+                        .setFooter(getString("treasure_footer"));
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 

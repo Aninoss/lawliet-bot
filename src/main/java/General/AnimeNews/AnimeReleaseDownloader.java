@@ -38,9 +38,13 @@ public class AnimeReleaseDownloader {
         String description = data.getString("description");
         description = description.substring(description.indexOf("<br />") + "<br />".length());
 
-        String episode;
-        if (data.get("crunchyroll:episodeNumber") instanceof Integer) episode = String.valueOf(data.getInt("crunchyroll:episodeNumber"));
-        else episode = data.getString("crunchyroll:episodeNumber");
+        String episode = null;
+
+        if (data.has("crunchyroll:episodeNumber")) {
+            if (data.get("crunchyroll:episodeNumber") instanceof Integer)
+                episode = String.valueOf(data.getInt("crunchyroll:episodeNumber"));
+            else episode = data.getString("crunchyroll:episodeNumber");
+        }
 
         String episodeTitle = data.getString("crunchyroll:episodeTitle");
         String thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");

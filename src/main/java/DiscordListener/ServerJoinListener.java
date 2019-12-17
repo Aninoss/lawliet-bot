@@ -27,11 +27,13 @@ public class ServerJoinListener {
     public void onServerJoin(ServerJoinEvent event) {
         try {
             DBServer.insertServer(event.getServer());
-            DBUser.insertUsers(event.getServer().getMembers());
+
             sendNewMessage(event.getServer());
             DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
 
+            DBServer.setPrefix(event.getServer(), "L.");
             Connector.updateActivity();
+            DBUser.insertUsers(event.getServer().getMembers());
         } catch (SQLException e) {
             e.printStackTrace();
         }
