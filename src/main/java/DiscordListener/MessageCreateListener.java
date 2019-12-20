@@ -94,11 +94,16 @@ public class MessageCreateListener {
                 String followedString = Tools.cutSpaces(newContent.substring(commandTrigger.length()));
 
                 if (commandTrigger.length() > 0) {
-                    Class clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
-                    if (clazz != null) {
-                        Locale locale = DBServer.getServerLocale(event.getServer().get());
-                        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                        CommandManager.manage(event, command, followedString);
+                    Locale locale = DBServer.getServerLocale(event.getServer().get());
+                    Class clazz;
+                    try {
+                        clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
+                        if (clazz != null) {
+                            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                            CommandManager.manage(event, command, followedString);
+                        }
+                    } catch (Throwable e) {
+                        ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
                     }
                 }
             } else {
@@ -165,7 +170,7 @@ public class MessageCreateListener {
                     }
                 }
             }
-        } catch (IOException | InstantiationException | ExecutionException | SQLException | InterruptedException | IllegalAccessException e) {
+        } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
             e.printStackTrace();
         }
     }

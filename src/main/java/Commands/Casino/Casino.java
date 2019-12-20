@@ -31,7 +31,7 @@ class Casino extends Command implements onReactionAddListener {
     Server server;
     ServerTextChannel channel;
     double winMultiplicator;
-    boolean active, won, useCalculatedMultiplicator, allowBet;
+    boolean active, won, useCalculatedMultiplicator, allowBet, onlyNumbersAsArg = true;
     final double BONUS_MULTIPLICATOR = 1;
     String compareKey;
     Message message;
@@ -64,14 +64,13 @@ class Casino extends Command implements onReactionAddListener {
         }
 
         long coins = DBUser.getFishingProfile(server, player).getCoins();
-        if (followedString.length() == 0) {
+        if (followedString.length() == 0 || (!Tools.stringContainsDigits(followedString) && !onlyNumbersAsArg)) {
             coinsInput = (long) Math.ceil(coins * 0.1);
             DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
             return true;
         }
 
         long value = Tools.filterNumberFromString(followedString);
-
         if (followedString.toLowerCase().contains("all")) {
             value = coins;
         }

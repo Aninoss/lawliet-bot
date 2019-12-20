@@ -29,7 +29,9 @@ import org.javacord.api.entity.server.Server;
     executable = false
 )
 public class WarnCommand extends Command implements onRecievedListener, onReactionAddListener  {
-    
+
+    private final int CHAR_LIMIT = 300;
+
     private Message message;
     private List<User> userList;
     private ModerationStatus moderationStatus;
@@ -54,6 +56,10 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             reason = reason.replace(user.getMentionTag(), "");
         }
         reason = Tools.cutSpaces(reason);
+        if (reason.length() > CHAR_LIMIT) {
+            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
+            return false;
+        }
 
         moderationStatus = DBServer.getModerationFromServer(event.getServer().get());
 
@@ -92,6 +98,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             } catch (InterruptedException | ExecutionException e) {
                 //Ignore
             }
+            DBServer.insertWarning(channel.getServer(), user, reason);
             process(channel.getServer(), user);
         }
 

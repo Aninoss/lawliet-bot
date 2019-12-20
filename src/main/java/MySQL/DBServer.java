@@ -142,6 +142,15 @@ public class DBServer {
         preparedStatement.close();
     }
 
+    public static void insertWarning(Server server, User user, String reason) throws SQLException {
+        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT INTO Warnings (serverId, userId, reason) VALUES (?, ?, ?);");
+        serverStatement.setLong(1, server.getId());
+        serverStatement.setLong(2, user.getId());
+        serverStatement.setString(3, reason);
+        serverStatement.executeUpdate();
+        serverStatement.close();
+    }
+
     public static ArrayList<User> getMutedUsers(int groupId) throws SQLException {
         ArrayList<User> users = new ArrayList<>();
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId FROM Mute WHERE muteGroupId = ?;");

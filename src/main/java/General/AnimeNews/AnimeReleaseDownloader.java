@@ -39,14 +39,25 @@ public class AnimeReleaseDownloader {
         description = description.substring(description.indexOf("<br />") + "<br />".length());
 
         String episode = null;
-
         if (data.has("crunchyroll:episodeNumber")) {
-            if (data.get("crunchyroll:episodeNumber") instanceof Integer)
-                episode = String.valueOf(data.getInt("crunchyroll:episodeNumber"));
-            else episode = data.getString("crunchyroll:episodeNumber");
+            try {
+                episode = Tools.numToString(locale, data.getInt("crunchyroll:episodeNumber"));
+            } catch (Throwable e) {
+                //Ignore
+                episode = data.getString("crunchyroll:episodeNumber");
+            }
         }
 
-        String episodeTitle = data.getString("crunchyroll:episodeTitle");
+        String episodeTitle;
+        try {
+            episodeTitle = data.getString("crunchyroll:episodeTitle");
+        } catch (Throwable e) {
+            //Ignore
+            double value = data.getDouble("crunchyroll:episodeTitle");
+            if (((int) value) == value) episodeTitle = String.valueOf((int) value);
+            else episodeTitle = String.valueOf(value);
+        }
+
         String thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         Instant date = Tools.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link");

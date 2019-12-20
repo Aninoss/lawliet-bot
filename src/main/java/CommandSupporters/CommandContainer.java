@@ -1,6 +1,7 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import Commands.Casino.CoinFlipCommand;
 import Commands.Information.*;
 import Commands.Casino.*;
 import Commands.Emotes.*;
@@ -43,7 +44,6 @@ public class CommandContainer {
         commandList = new ArrayList<>();
 
         //GIMMICKS
-        commandList.add(CoinFlipCommand.class);
         commandList.add(RollCommand.class);
         commandList.add(FortuneCommand.class);
         commandList.add(KiraCommand.class);
@@ -112,6 +112,7 @@ public class CommandContainer {
         commandList.add(SurveyCommand.class);
 
         //CASINO
+        commandList.add(CoinFlipCommand.class);
         commandList.add(HangmanCommand.class);
         commandList.add(SlotCommand.class);
         commandList.add(BlackjackCommand.class);
