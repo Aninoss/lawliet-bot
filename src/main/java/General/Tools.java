@@ -35,10 +35,10 @@ import java.util.concurrent.ExecutionException;
 public class Tools {
 
     public static boolean stringIsNumeric(String string) {
-        if (string.length()==0) return false;
+        if (string.length() == 0 || string.equalsIgnoreCase("-") || string.equalsIgnoreCase("+")) return false;
         for(int i=0; i<string.length(); i++) {
             char codeNum = string.charAt(i);
-            if (!Character.isDigit(codeNum) && (codeNum != '-' || i>0) && (codeNum != '+' || i>0)) return false;
+            if (!Character.isDigit(codeNum) && (codeNum != '-' || i>0) && (codeNum != '+' || i > 0)) return false;
         }
         return true;
     }

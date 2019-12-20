@@ -11,6 +11,6 @@ import CommandListeners.CommandProperties;
 )
 public class RealLifePornCommand extends RealbooruProxyCommand {
     public RealLifePornCommand() {
-        super("animated -gay -lesbian -trap", true);
+        super("animated -gay -lesbian -trap -shemale", true);
     }
 }

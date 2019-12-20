@@ -11,6 +11,6 @@ public class ServerLeaveListener {
     public ServerLeaveListener() {}
 
     public void onServerLeave(ServerLeaveEvent event) {
-        DiscordApiCollection.getInstance().getOwner().sendMessage("**---** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
+        if (event.getServer().getMembers().size() >= 100) DiscordApiCollection.getInstance().getOwner().sendMessage("**---** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
     }
 }

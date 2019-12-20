@@ -74,6 +74,7 @@ public class CommandContainer {
         commandList.add(WarnCommand.class);
         commandList.add(KickCommand.class);
         commandList.add(BanCommand.class);
+        commandList.add(WarnLogCommand.class);
         commandList.add(ChannelMuteCommand.class);
         commandList.add(ChannelUnmuteCommand.class);
         commandList.add(SelfPromotionBlockCommand.class);

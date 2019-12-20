@@ -98,7 +98,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             } catch (InterruptedException | ExecutionException e) {
                 //Ignore
             }
-            DBServer.insertWarning(channel.getServer(), user, reason);
+            DBServer.insertWarning(channel.getServer(), user, executer, reason);
             process(channel.getServer(), user);
         }
 

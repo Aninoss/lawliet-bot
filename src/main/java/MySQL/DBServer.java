@@ -9,6 +9,8 @@ import General.AutoChannel.AutoChannelData;
 import General.AutoChannel.TempAutoChannel;
 import General.BannedWords.BannedWords;
 import General.SPBlock.SPBlock;
+import General.Warnings.UserWarnings;
+import General.Warnings.WarningSlot;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -142,11 +144,12 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void insertWarning(Server server, User user, String reason) throws SQLException {
-        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT INTO Warnings (serverId, userId, reason) VALUES (?, ?, ?);");
+    public static void insertWarning(Server server, User user, User requestor, String reason) throws SQLException {
+        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT INTO Warnings (serverId, userId, requestorUserId, reason) VALUES (?, ?, ?, ?);");
         serverStatement.setLong(1, server.getId());
         serverStatement.setLong(2, user.getId());
-        serverStatement.setString(3, reason);
+        serverStatement.setLong(3, requestor.getId());
+        serverStatement.setString(4, reason);
         serverStatement.executeUpdate();
         serverStatement.close();
     }
@@ -165,6 +168,28 @@ public class DBServer {
         resultSet.close();
         preparedStatement.close();
         return users;
+    }
+
+    public static UserWarnings getWarningsForUser(Server server, User user) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT time, requestorUserId, reason FROM Warnings WHERE serverId = ? AND userId = ? ORDER BY time DESC;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, user.getId());
+        preparedStatement.execute();
+
+        UserWarnings userWarnings = new UserWarnings();
+        ResultSet resultSet = preparedStatement.getResultSet();
+        while(resultSet.next()) {
+            Instant time = resultSet.getTimestamp(1).toInstant();
+            long requestorUserId = resultSet.getLong(2);
+            Optional<User> requestor = DiscordApiCollection.getInstance().getUserById(requestorUserId);
+            String reason = resultSet.getString(3);
+            if (reason.isEmpty()) reason = null;
+            userWarnings.add(new WarningSlot(time, requestor.orElse(null), reason));
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        return userWarnings;
     }
 
     public static SPBlock getSPBlockFromServer(Server server) throws SQLException {

@@ -29,7 +29,7 @@ public class ServerJoinListener {
             DBServer.insertServer(event.getServer());
 
             sendNewMessage(event.getServer());
-            DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
+            if (event.getServer().getMembers().size() >= 100) DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** "+event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
 
             DBServer.setPrefix(event.getServer(), "L.");
             Connector.updateActivity();
