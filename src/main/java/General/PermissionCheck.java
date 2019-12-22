@@ -127,7 +127,7 @@ public class PermissionCheck {
     public static ArrayList<Integer> permissionsToNumberList(int permissions) {
         ArrayList<Integer> list = new ArrayList<>();
 
-        int i = 0;
+        int i = 1;
         for(int check = 0x1; check <= Permission.MAX; check <<= 1) {
             if ((permissions & check) > 0) {
                 list.add(i);

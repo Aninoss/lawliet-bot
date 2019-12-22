@@ -4,11 +4,11 @@ public interface Permission {
     int     ATTACH_FILES_TO_TEXT_CHANNEL = 0x1,
             BAN_USER = 0x2,
             CHANGE_OWN_NICKNAME = 0x4,
-            REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL = 0x8,
+            SEE_CHANNEL = 0x8,
             CREATE_CHANNELS_ON_SERVER = 0x10,
-            MANAGE_EMOJIS_ON_SERVER = 0x20,
+            REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL = 0x20,
             DEAFEN_MEMBERS_ON_SERVER = 0x40,
-            ADD_NEW_REACTIONS = 0x80,
+            MANAGE_EMOJIS_ON_SERVER = 0x80,
             EMBED_LINKS_IN_TEXT_CHANNELS = 0x100,
             KICK_USER = 0x200,
             MANAGE_MASSAGES_IN_TEXT_CHANNEL  = 0x400,
@@ -23,10 +23,10 @@ public interface Permission {
             VIEW_AUDIT_LOG_OF_SERVER = 0x80000,
             USE_TTS_IN_TEXT_CHANNEL = 0x100000,
             USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL = 0x200000,
-            SEE_CHANNEL = 0x400000,
-            CONNECT = 0x800000,
-            MANAGE_CHANNEL = 0x1000000,
-            MANAGE_PERMISSIONS_IN_CHANNEL = 0x2000000;
+            ADD_NEW_REACTIONS = 0x400000,
+            MANAGE_CHANNEL = 0x800000,
+            MANAGE_PERMISSIONS_IN_CHANNEL = 0x1000000,
+            CONNECT = 0x2000000;
 
     int MAX = MANAGE_PERMISSIONS_IN_CHANNEL;
 }

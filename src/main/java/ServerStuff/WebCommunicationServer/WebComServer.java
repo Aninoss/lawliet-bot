@@ -6,9 +6,7 @@ import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Constants.Category;
 import Constants.Locales;
-import General.DiscordApiCollection;
-import General.TextManager;
-import General.Tools;
+import General.*;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
@@ -66,6 +64,7 @@ public class WebComServer {
                         commandJSON.put("desc_long", getLanguagePack(trigger + "_helptext"));
                         commandJSON.put("usage", getLanguagePackSpecs(trigger + "_usage", trigger));
                         commandJSON.put("examples", getLanguagePackSpecs(trigger + "_examples", trigger));
+                        commandJSON.put("user_permissions", getCommandPermissions(command));
                         commandJSON.put("nsfw", command.isNsfw());
                         commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);
                         commandJSON.put("can_be_tracked", command instanceof onTrackerRequestListener);
@@ -124,6 +123,27 @@ public class WebComServer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        return jsonObject;
+    }
+
+    private JSONObject getCommandPermissions(Command command) {
+        JSONObject jsonObject = new JSONObject();
+
+        for(String localeString: Locales.LIST) {
+            Locale locale = new Locale(localeString);
+            String permissionsList = new ListGen<Integer>().getList(PermissionCheck.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_BULLET,
+                    i -> {
+                        try {
+                            return TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(i));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return "";
+                    }
+            );
+            jsonObject.put(locale.getDisplayName(), permissionsList);
         }
 
         return jsonObject;

@@ -99,7 +99,7 @@ public class CoinFlipCommand extends Casino implements onRecievedListener, onRea
 
         Thread t = new Thread(() -> {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
