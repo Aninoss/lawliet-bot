@@ -604,6 +604,10 @@ public class Tools {
         return str.toString();
     }
 
+    public static boolean stringContainsBannedTags(String str, ArrayList<String> additionalFilter) {
+        return !(filterPornSearchKey(str, additionalFilter).equalsIgnoreCase(str));
+    }
+
     public static String defuseAtEveryone(String str) {
         return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
     }

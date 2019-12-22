@@ -10,6 +10,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class PornCommand extends Command {
@@ -17,7 +18,7 @@ public class PornCommand extends Command {
     protected String domain;
     protected String imageTemplate;
 
-    public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd) throws IOException, InterruptedException, ExecutionException, SQLException {
+    public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd, ArrayList<String> nsfwFilter) throws IOException, InterruptedException, ExecutionException, SQLException {
         followedString = Tools.cutSpaces(Tools.filterPornSearchKey(followedString.replace(".", ""), DBServer.getNSFWFilterFromServer(event.getServer().get())));
 
         long amount = 1;
@@ -38,7 +39,7 @@ public class PornCommand extends Command {
         }
 
         for(int j = 0; j < amount ; j++) {
-            PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false, false);
+            PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false, false, nsfwFilter);
             if (pornImage == null) {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))

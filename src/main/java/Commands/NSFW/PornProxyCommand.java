@@ -51,7 +51,7 @@ public class PornProxyCommand extends Command implements onRecievedListener {
             int tries = 5;
             PornImage pornImage;
             do {
-                pornImage = PornImageDownloader.getPicture(domain, search, searchExtra, imageTemplate, gifOnly, false);
+                pornImage = PornImageDownloader.getPicture(domain, search, searchExtra, imageTemplate, gifOnly, false, nsfwFilter);
                 tries--;
             }
             while (pornImage == null && tries >= 0);

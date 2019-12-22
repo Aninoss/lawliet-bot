@@ -57,7 +57,7 @@ public class UserInfoCommand extends Command implements onRecievedListener {
                     user.getNickname(server).isPresent() ? user.getNickname(server).get() : "-",
                     user.getDiscriminator(),
                     user.getIdAsString(),
-                    user.getAvatar().getUrl().toString(),
+                    user.getAvatar().getUrl().toString() + "?size=2048",
                     user.getJoinedAtTimestamp(server).isPresent() ? Tools.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
                     Tools.getInstantString(getLocale(), user.getCreationTimestamp(), true),
                     Tools.getStats(getLocale(), user)

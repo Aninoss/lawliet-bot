@@ -103,6 +103,8 @@ public class SPCheck {
                             moderationStatus.getChannel().sendMessage(eb).get();
                         }
 
+                        DBServer.insertWarning(server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "spblock_title"));
+
                         return true;
                     }
                 } catch (IOException | ExecutionException | SQLException | InterruptedException e) {

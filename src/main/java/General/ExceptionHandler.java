@@ -57,6 +57,11 @@ public class ExceptionHandler {
             showError = false;
         } else if (errorMessage.contains("Read timed out")) {
             showError = false;
+            try {
+                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");

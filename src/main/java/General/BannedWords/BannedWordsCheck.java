@@ -74,6 +74,8 @@ public class BannedWordsCheck {
                     moderationStatus.getChannel().sendMessage(eb).get();
                 }
 
+                DBServer.insertWarning(server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_title"));
+
                 return true;
             }
         } catch (IOException | ExecutionException | SQLException | InterruptedException e) {

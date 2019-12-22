@@ -7,6 +7,8 @@ import General.Tools;
 import MySQL.DBServer;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.ArrayList;
+
 @CommandProperties(
         trigger = "realb",
         executable = true,
@@ -23,6 +25,7 @@ public class RealbooruCommand extends PornCommand implements onRecievedListener 
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList(DBServer.getNSFWFilterFromServer(event.getServer().get())));
+        ArrayList<String> nsfwFilter = DBServer.getNSFWFilterFromServer(event.getServer().get());
+        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList(nsfwFilter), nsfwFilter);
     }
 }

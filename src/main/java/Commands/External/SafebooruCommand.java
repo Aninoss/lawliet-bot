@@ -5,6 +5,8 @@ import CommandListeners.onRecievedListener;
 import Commands.NSFW.PornCommand;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.ArrayList;
+
 @CommandProperties(
         trigger = "safeb",
         emoji = "\uD83D\uDE07",
@@ -22,7 +24,7 @@ public class SafebooruCommand extends PornCommand implements onRecievedListener 
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        return onPornRequestRecieved(event, followedString, "");
+        return onPornRequestRecieved(event, followedString, "", new ArrayList<>());
     }
 
 }
