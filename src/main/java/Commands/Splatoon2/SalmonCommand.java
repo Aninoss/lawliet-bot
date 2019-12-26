@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
+import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
 import General.Internet.URLDataContainer;
@@ -36,7 +37,9 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(getEmbed()).get();
+        EmbedBuilder eb = getEmbed();
+        EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        event.getChannel().sendMessage(eb).get();
         return true;
     }
 

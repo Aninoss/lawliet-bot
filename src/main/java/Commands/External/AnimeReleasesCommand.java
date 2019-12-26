@@ -4,10 +4,12 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
+import Constants.LogStatus;
 import General.AnimeNews.AnimeReleaseDownloader;
 import General.AnimeNews.AnimeReleasePost;
 import General.EmbedFactory;
 import General.PostBundle;
+import General.TextManager;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -25,7 +27,8 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeReleasePost post = AnimeReleaseDownloader.getPost(getLocale());
-        event.getChannel().sendMessage(getEmbed(post)).get();
+        EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        event.getChannel().sendMessage(eb).get();
         return true;
     }
 

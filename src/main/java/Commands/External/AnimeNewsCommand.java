@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
+import Constants.LogStatus;
 import General.*;
 import General.AnimeNews.AnimeNewsDownloader;
 import General.AnimeNews.AnimeNewsPost;
@@ -12,6 +13,7 @@ import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import javax.xml.soap.Text;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -30,7 +32,8 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
-        event.getChannel().sendMessage(getEmbed(post)).get();
+        EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        event.getChannel().sendMessage(eb).get();
         return true;
     }
 

@@ -66,7 +66,7 @@ class Casino extends Command implements onReactionAddListener {
         long coins = DBUser.getFishingProfile(server, player).getCoins();
         if (followedString.length() == 0 || (!Tools.stringContainsDigits(followedString) && !onlyNumbersAsArg)) {
             coinsInput = (long) Math.ceil(coins * 0.1);
-            DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
+            DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput, true);
             return true;
         }
 
@@ -79,7 +79,7 @@ class Casino extends Command implements onReactionAddListener {
             if (value >= 0) {
                 if (value <= coins) {
                     coinsInput = value;
-                    DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
+                    DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput, true);
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", Tools.numToString(getLocale(), coins)))).get();
@@ -97,7 +97,7 @@ class Casino extends Command implements onReactionAddListener {
     public void onGameEnd() throws IOException, SQLException {
         won = false;
         active = false;
-        DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput);
+        DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput, true);
         removeNavigation();
         removeMessageForwarder();
         removeReactionListener(((onReactionAddListener)this).getReactionMessage());

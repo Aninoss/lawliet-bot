@@ -2,6 +2,7 @@ package Commands.Information;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
+import Constants.LogStatus;
 import General.*;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
@@ -29,7 +30,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
         //Ohne Argumente
         if (followedString.length() == 0) {
             ArrayList<String> versions = DBBot.getCurrentVersions(3);
-            event.getChannel().sendMessage(getVersionsEmbed(versions)).get();
+            event.getChannel().sendMessage(getEmbedNormal(versions)).get();
             return true;
         } else {
             //Anzahl
@@ -38,7 +39,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
                 if (i >= 1) {
                     if (i <= 10) {
                         ArrayList<String> versions = DBBot.getCurrentVersions(i);
-                        event.getChannel().sendMessage(getVersionsEmbed(versions)).get();
+                        event.getChannel().sendMessage(getEmbedNormal(versions)).get();
                         return true;
                     } else {
                         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -54,7 +55,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
                 ArrayList<String> versions = DBBot.getCurrentVersions(followedString.split(" "));
 
                 if (versions.size() > 0) {
-                    event.getChannel().sendMessage(getVersionsEmbed(versions)).get();
+                    event.getChannel().sendMessage(getEmbedNormal(versions)).get();
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -63,6 +64,12 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
                 }
             }
         }
+    }
+
+    private EmbedBuilder getEmbedNormal(ArrayList<String> versions) throws Throwable {
+        EmbedBuilder eb = getVersionsEmbed(versions);
+        EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        return eb;
     }
 
     private EmbedBuilder getVersionsEmbed(ArrayList<String> versions) throws Throwable {

@@ -23,7 +23,7 @@ import org.javacord.api.entity.server.Server;
 
 @CommandProperties(
     trigger = "warn",
-    userPermissions = Permission.KICK_USER,
+    userPermissions = Permission.KICK_USER | Permission.BAN_USER,
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Problem-warning-icon.png",
     emoji = "\uD83D\uDEA8",
     executable = false

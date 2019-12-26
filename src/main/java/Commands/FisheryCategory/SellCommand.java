@@ -17,6 +17,8 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -29,7 +31,7 @@ import java.util.concurrent.ExecutionException;
     executable = true
 )
 public class SellCommand extends Command implements onRecievedListener, onReactionAddListener, onForwardedRecievedListener {
-    private static int COINS_PER_FISH[] = {-1, -1};
+
     private Message message;
 
     public SellCommand() {
@@ -48,7 +50,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
                         getString("status",
                                 Tools.numToString(getLocale(), fishingProfile.getFish()),
                                 Tools.numToString(getLocale(), fishingProfile.getCoins()),
-                                Tools.numToString(getLocale(), getExchangeRate(0)),
+                                Tools.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
                                 getChangeEmoji()
                         ))).get();
                 message.addReaction("❌");
@@ -81,7 +83,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         if (value >= 1) {
             if (value <= fishingProfile.getFish()) {
                 long fish = value;
-                long coins = getExchangeRate(0) * value;
+                long coins = ExchangeRate.getInstance().get(0) * value;
                 EmbedBuilder eb = DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), -fish, coins);
 
                 sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedSuccess(this, getString("done")));
@@ -115,30 +117,9 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     @Override
     public void onForwardedTimeOut() {}
 
-    private int getExchangeRate(int daysAdd) {
-        if (COINS_PER_FISH[daysAdd + 1] == -1) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DATE, daysAdd);
-
-            String date = String.valueOf(calendar.get(Calendar.DAY_OF_YEAR));
-            int root = Security.getHashForString(date, date).hashCode();
-            Random r = new Random(root);
-
-            double result = r.nextDouble();
-            for (int i = 0; i < 3; i++) {
-                double d = r.nextDouble();
-                if (Math.abs(d - 0.5) < Math.abs(result - 0.5)) result = d;
-            }
-
-            COINS_PER_FISH[daysAdd + 1] = (int) Math.round(Settings.ONE_CURRENCY_TO_COINS * (0.5 + result * 1.0));
-        }
-
-        return COINS_PER_FISH[daysAdd + 1];
-    }
-
-    private String getChangeEmoji() {
-        int rateNow = getExchangeRate(0);
-        int rateBefore = getExchangeRate(-1);
+    private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+        int rateNow = ExchangeRate.getInstance().get(0);
+        int rateBefore = ExchangeRate.getInstance().get(-1);
 
         if (rateNow > rateBefore) return "\uD83D\uDD3A";
         else {
@@ -160,10 +141,10 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         removeReactionListener();
     }
 
-    private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
+    private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         removeMessageForwarder();
         removeReactionListener();
-        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(getLocale(), getExchangeRate(0)), getChangeEmoji()), getString("nointerest_title")));
+        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()), getString("nointerest_title")));
     }
 
     @Override
@@ -174,7 +155,4 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     @Override
     public void onReactionTimeOut(Message message) {}
 
-    public static void resetCoinsPerFish() {
-        COINS_PER_FISH = new int[]{-1, -1};
-    }
 }

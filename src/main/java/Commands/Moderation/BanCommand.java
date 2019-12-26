@@ -9,7 +9,7 @@ import org.javacord.api.entity.user.User;
 @CommandProperties(
     trigger = "ban",
     botPermissions = Permission.BAN_USER,
-    userPermissions = Permission.BAN_USER,
+    userPermissions = Permission.KICK_USER | Permission.BAN_USER,
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/close-2-icon.png",
     emoji = "\uD83D\uDEAB",
     executable = false

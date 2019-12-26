@@ -69,7 +69,6 @@ public class Clock {
     private static void onDayStart() {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        SellCommand.resetCoinsPerFish(); //Reset Fishery Exchange Rate
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
         RunningCommandManager.getInstance().clear(); //Resets Running Commands
@@ -204,7 +203,7 @@ public class Clock {
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
         Console.getInstance().setTraffic(trafficGB);
 
-        if (trafficGB >= 20 && (!trafficWarned || trafficGB >= 40)) {
+        if (trafficGB >= 30 && (!trafficWarned || trafficGB >= 40)) {
             try {
                 apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
             } catch (Throwable e) {
@@ -212,7 +211,7 @@ public class Clock {
             }
             trafficWarned = true;
         }
-        if (trafficGB >= 40) {
+        if (trafficGB >= 50) {
             System.out.println("Traffic Exceeded!");
             System.exit(1);
         }

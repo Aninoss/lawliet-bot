@@ -102,6 +102,7 @@ public class CommandContainer {
 
         //FISHERY
         commandList.add(FisheryCommand.class);
+        commandList.add(ExchangeRateCommand.class);
         commandList.add(SellCommand.class);
         commandList.add(BuyCommand.class);
         commandList.add(DailyCommand.class);

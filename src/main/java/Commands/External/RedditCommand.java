@@ -2,6 +2,7 @@ package Commands.External;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
+import Constants.LogStatus;
 import General.*;
 import General.PostBundle;
 import General.Reddit.RedditDownloader;
@@ -41,7 +42,9 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
                     return false;
                 }
 
-                event.getChannel().sendMessage(getEmbed(post)).get();
+                EmbedBuilder eb = getEmbed(post);
+                EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+                event.getChannel().sendMessage(eb).get();
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)

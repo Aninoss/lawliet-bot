@@ -9,18 +9,15 @@ import java.util.Base64;
 import java.util.Random;
 
 public class Security {
-    public static String getHashForString(String salt, String string) {
-        try {
-            byte[] saltByte = new byte[16];
-            new Random(salt.hashCode()).nextBytes(saltByte);
-            KeySpec spec = new PBEKeySpec(string.toCharArray(), saltByte, 65536, 128);
-            SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] hash = f.generateSecret(spec).getEncoded();
-            Base64.Encoder enc = Base64.getEncoder();
-            return enc.encodeToString(hash);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+    public static String getHashForString(String salt, String string) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        byte[] saltByte = new byte[16];
+        new Random(salt.hashCode()).nextBytes(saltByte);
+        KeySpec spec = new PBEKeySpec(string.toCharArray(), saltByte, 65536, 128);
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] hash = f.generateSecret(spec).getEncoded();
+        Base64.Encoder enc = Base64.getEncoder();
+        return enc.encodeToString(hash);
     }
+
 }

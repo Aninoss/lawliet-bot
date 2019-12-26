@@ -3,6 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LetterEmojis;
+import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
 import General.Survey.Survey;
@@ -47,7 +48,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         Survey survey = DBSurvey.getCurrentSurvey();
-        sendMessages(event.getServerTextChannel().get(), survey);
+        sendMessages(event.getServerTextChannel().get(), survey, false);
         return true;
     }
 
@@ -118,16 +119,21 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
         }
     }
 
-    private Message sendMessages(ServerTextChannel channel, Survey survey) throws InterruptedException, IOException, SQLException, ExecutionException {
+    private Message sendMessages(ServerTextChannel channel, Survey survey, boolean tracker) throws InterruptedException, IOException, SQLException, ExecutionException {
         while(lastAccess != 0 && System.currentTimeMillis() <= lastAccess + 1000 * 60) {
             Thread.sleep(100);
         }
 
         lastAccess = System.currentTimeMillis();
 
+        //Results Message
         EmbedBuilder eb = getResultsEmbed();
         if (eb != null) channel.sendMessage(eb);
-        Message message = channel.sendMessage(getSurveyEmbed(survey)).get();
+
+        //Survey Message
+        eb = getSurveyEmbed(survey);
+        if (!tracker) EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        Message message = channel.sendMessage(eb).get();
 
         for(int i=0; i<2; i++) {
             for(int j=0; j<2; j++) {
@@ -212,7 +218,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
         if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
         System.err.println("SURVEY TRACKER"); //TODO
         Survey survey = DBSurvey.getCurrentSurvey();
-        trackerData.setMessageDelete(sendMessages(trackerData.getChannel(), survey));
+        trackerData.setMessageDelete(sendMessages(trackerData.getChannel(), survey, true));
         Instant nextInstant = trackerData.getInstant();
         do {
             nextInstant = Tools.setInstantToNextDay(nextInstant);

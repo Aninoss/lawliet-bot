@@ -9,7 +9,7 @@ import org.javacord.api.entity.server.Server;
 @CommandProperties(
     trigger = "kick",
     botPermissions = Permission.KICK_USER,
-    userPermissions = Permission.KICK_USER,
+    userPermissions = Permission.KICK_USER | Permission.BAN_USER,
     thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png",
     emoji = "\uD83D\uDEAA",
     executable = false
