@@ -89,7 +89,7 @@ public class WebComServer {
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                for(Server server: user.getMutualServers()) {
+                for(Server server: DiscordApiCollection.getInstance().getMutualServers(user)) {
                     JSONObject serverObject = new JSONObject();
                     serverObject
                             .put("server_id", server.getId())

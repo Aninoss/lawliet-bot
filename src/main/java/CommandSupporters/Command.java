@@ -464,7 +464,7 @@ public class Command {
 
         if (unmanagableRoles.size() == 0) return true;
         try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", true, Tools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString()));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, Tools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
         } catch (IOException e) {
             e.printStackTrace();
         }

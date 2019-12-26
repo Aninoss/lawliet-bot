@@ -11,6 +11,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import javax.swing.text.html.BlockView;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.*;
@@ -168,141 +169,187 @@ public class DBUser {
     }
 
     public static FishingProfile getFishingProfile(Server server, User user) throws SQLException {
-        FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).flush(server, user);
+        return getFishingProfile(server, user, true);
+    }
 
-        String sql =
-                "SELECT IFNULL(joule, 0) joule, IFNULL(coins, 0) coins, categoryId, IFNULL(level, 0) lvl, categoryStartPrice, categoryPower, categoryEffect " +
-                        "FROM (SELECT * FROM PowerPlantUserPowerUp WHERE serverId = %s AND userId = %u) userPowerUp " +
-                        "RIGHT JOIN (PowerPlantCategories) USING (categoryId) " +
-                        "LEFT JOIN (PowerPlantUsers) ON PowerPlantUsers.serverId = %s AND PowerPlantUsers.userId = %u " +
-                        "ORDER BY categoryId;";
+    public static FishingProfile getFishingProfile(Server server, User user, boolean updateAccount) throws SQLException {
+        FishingProfile fishingProfile = DatabaseCache.getInstance().getFishingProfile(server.getId(), user.getId());
 
-        sql = sql.replace("%s", server.getIdAsString()).replace("%u", user.getIdAsString());
+        if (fishingProfile == null) {
+            String sql =
+                    "SELECT IFNULL(joule, 0) joule, IFNULL(coins, 0) coins, categoryId, IFNULL(level, 0) lvl, categoryStartPrice, categoryPower, categoryEffect " +
+                            "FROM (SELECT * FROM PowerPlantUserPowerUp WHERE serverId = %s AND userId = %u) userPowerUp " +
+                            "RIGHT JOIN (PowerPlantCategories) USING (categoryId) " +
+                            "LEFT JOIN (PowerPlantUsers) ON PowerPlantUsers.serverId = %s AND PowerPlantUsers.userId = %u " +
+                            "ORDER BY categoryId;";
 
-        Statement statement = DBMain.getInstance().statement(sql);
-        ResultSet resultSet = statement.getResultSet();
+            sql = sql.replace("%s", server.getIdAsString()).replace("%u", user.getIdAsString());
 
-        FishingProfile fishingProfile = null;
-        while(resultSet.next()) {
-            if (fishingProfile == null)
-                fishingProfile = new FishingProfile(server, user);
+            Statement statement = DBMain.getInstance().statement(sql);
+            ResultSet resultSet = statement.getResultSet();
 
-            long fish = resultSet.getLong(1);
-            long coins = resultSet.getLong(2);
+            while (resultSet.next()) {
+                if (fishingProfile == null)
+                    fishingProfile = new FishingProfile(server, user);
 
-            if (fish > 0) fishingProfile.setFish(fish);
-            if (coins > 0) fishingProfile.setCoins(coins);
+                long fish = resultSet.getLong(1);
+                long coins = resultSet.getLong(2);
 
-            FishingSlot fishingSlot = new FishingSlot(resultSet.getInt(3), resultSet.getLong(4), resultSet.getLong(5), resultSet.getDouble(6), resultSet.getLong(7));
-            fishingProfile.insert(fishingSlot);
+                if (fish > 0) fishingProfile.setFish(fish);
+                if (coins > 0) fishingProfile.setCoins(coins);
+
+                FishingSlot fishingSlot = new FishingSlot(resultSet.getInt(3), resultSet.getLong(4), resultSet.getLong(5), resultSet.getDouble(6), resultSet.getLong(7));
+                fishingProfile.insert(fishingSlot);
+            }
+
+            resultSet.close();
+            statement.close();
+
+            if (fishingProfile != null) {
+                long fishAdd = FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).flush(server, user, false, fishingProfile);
+                fishingProfile.setFish(fishingProfile.getFish() + fishAdd);
+
+                DatabaseCache.getInstance().setFishingProfile(fishingProfile);
+            }
+        } else {
+            if (updateAccount) {
+                String sql = "SELECT joule, coins FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;";
+
+                PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+                preparedStatement.setLong(1, server.getId());
+                preparedStatement.setLong(2, user.getId());
+                preparedStatement.execute();
+
+                ResultSet resultSet = preparedStatement.getResultSet();
+                if (resultSet.next()) {
+                    long fish = resultSet.getLong(1);
+                    long coins = resultSet.getLong(2);
+                    long fishAdd = FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).flush(server, user, false, fishingProfile);
+                    fishingProfile.setFish(fish + fishAdd);
+                    fishingProfile.setCoins(coins);
+                }
+
+                resultSet.close();
+                preparedStatement.close();
+            }
         }
-
-        resultSet.close();
-        statement.close();
 
         return fishingProfile;
     }
 
-    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins) throws SQLException, IOException {
-        return addFishingValues(locale, server, user, fish, coins, -1);
+    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, boolean silent) throws SQLException, IOException {
+        return addFishingValues(locale, server, user, fish, coins, -1, silent);
     }
 
-    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, int dailyBefore) throws SQLException, IOException {
-        register(server, user);
-        FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).flush(server, user);
-        boolean change = fish != 0 || coins != 0;
+    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins) throws SQLException, IOException {
+        return addFishingValues(locale, server, user, fish, coins, -1, false);
+    }
+
+    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, int dailyBefore, boolean silent) throws IOException, SQLException {
+        return addFishingValues(locale, server, user, fish, coins, dailyBefore, silent, 1);
+    }
+
+    public static EmbedBuilder addFishingValues(Locale locale, Server server, User user, long fish, long coins, int dailyBefore, boolean silent, int tries) throws IOException, SQLException {
+        long fishAdd = FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).flush(server, user, true);
+        boolean change = (fish + fishAdd) != 0 || coins != 0;
 
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT HIGH_PRIORITY joule, coins, getGrowth(%s, %u), getRank(%s, %u), IF(%db != -1, %db, dailyStreak) FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
 
         if (change) {
-            if (fish > 0) {
+            if (fish + fishAdd > 0) {
                 sql.append("INSERT INTO PowerPlantUserGained " +
                         "VALUES(%s, %u, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00'), %j) " +
                         "ON DUPLICATE KEY UPDATE coinsGrowth = coinsGrowth + %j;");
             }
 
-            sql.append("INSERT INTO PowerPlantUsers (serverId, userId, joule, coins) VALUES (%s, %u, LEAST(%max, GREATEST(0, %j)), LEAST(%max, GREATEST(0, %c))) ON DUPLICATE KEY UPDATE joule = LEAST(%max, GREATEST(0,joule+%j)), coins = LEAST(%max, GREATEST(0,coins+%c));" +
-                    "SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), dailyStreak FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
+            sql.append("INSERT INTO PowerPlantUsers (serverId, userId, joule, coins) VALUES (%s, %u, LEAST(%max, GREATEST(0, %j)), LEAST(%max, GREATEST(0, %c))) ON DUPLICATE KEY UPDATE joule = LEAST(%max, GREATEST(0,joule+%j)), coins = LEAST(%max, GREATEST(0,coins+%c));\n");
         }
+        if (!silent) sql.append("SELECT joule, coins, getGrowth(%s, %u), getRank(%s, %u), dailyStreak FROM (SELECT * FROM PowerPlantUsers WHERE serverId = %s and userId = %u) t;");
 
+        try {
+            String sqlString = sql.toString().
+                    replace("%max", String.valueOf(Settings.MAX)).
+                    replace("%db", String.valueOf(dailyBefore)).
+                    replace("%s", server.getIdAsString()).
+                    replace("%u", user.getIdAsString()).
+                    replace("%c", String.valueOf(coins)).
+                    replace("%j", String.valueOf(fish + fishAdd));
 
-        String sqlString = sql.toString().
-                replace("%max", String.valueOf(Settings.MAX)).
-                replace("%db", String.valueOf(dailyBefore)).
-                replace("%s", server.getIdAsString()).
-                replace("%u", user.getIdAsString()).
-                replace("%c", String.valueOf(coins)).
-                replace("%j", String.valueOf(fish));
+            if (silent) {
+                Statement statement = DBMain.getInstance().statement(sqlString);
+                statement.close();
+                return null;
+            } else {
+                long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Combo
+                String[] progressString = new String[6];
+                EmbedBuilder eb;
 
+                for (ResultSet resultSet : new DBMultipleResultSet(sqlString)) {
+                    if (resultSet.next()) {
+                        for (int j = 0; j < 5; j++) {
+                            progress[j][1] = resultSet.getLong(j + 1);
 
-        long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Combo
-        String[] progressString = new String[6];
-        EmbedBuilder eb;
-
-        int i=0;
-        for(ResultSet resultSet: new DBMultipleResultSet(sqlString)) {
-            if (i == 0) {
-                if (resultSet.next()) {
-                    for (int j = 0; j < 5; j++) {
-                        progress[j][0] = resultSet.getLong(j + 1);
-                        if (!change) {
-                            progress[j][1] = progress[j][0];
+                            switch (j) {
+                                case 0:
+                                    progress[j][0] = progress[j][1] - fish;
+                                    break;
+                                case 1:
+                                    progress[j][0] = progress[j][1] - coins;
+                                    break;
+                                case 2:
+                                    progress[j][0] = progress[j][1] - Math.max(0, fish);
+                                    break;
+                                case 3:
+                                    progress[j][0] = progress[j][1];
+                                    break;
+                                case 4:
+                                    progress[j][0] = dailyBefore != -1 ? dailyBefore : progress[j][1];
+                                    break;
+                            }
 
                             String key = "rankingprogress_update";
                             if (j == 3) key = "rankingprogress_update2";
 
-                            progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key , progress[j][0] != progress[j][1],
-                                    Tools.numToString(locale, progress[j][0])
+                            String sign = "";
+                            if (progress[j][1] > progress[j][0]) sign = "+";
+                            progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key, progress[j][0] != progress[j][1],
+                                    Tools.numToString(locale, progress[j][0]),
+                                    Tools.numToString(locale, progress[j][1]),
+                                    sign + Tools.numToString(locale, progress[j][1] - progress[j][0])
                             );
                         }
-                    }
-                } else return null;
-            } else {
-                if (resultSet.next()) {
-                    for (int j = 0; j < 5; j++) {
-                        progress[j][1] = resultSet.getLong(j + 1);
+                    } else return null;
+                    resultSet.close();
+                }
 
-                        String key = "rankingprogress_update";
-                        if (j == 3) key = "rankingprogress_update2";
+                String descriptionLabel = "rankingprogress_desription";
+                if (progress[1][0] == 0) descriptionLabel = "rankingprogress_desription_nocoins";
 
-                        String sign = "";
-                        if (progress[j][1] > progress[j][0]) sign = "+";
-                        progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key , progress[j][0] != progress[j][1],
-                                Tools.numToString(locale, progress[j][0]),
-                                Tools.numToString(locale, progress[j][1]),
-                                sign + Tools.numToString(locale, progress[j][1] - progress[j][0])
-                        );
-                    }
-                } else return null;
+                eb = EmbedFactory.getEmbed()
+                        .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())
+                        .setThumbnail("http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Money-Graph-icon.png");
+
+                progressString[5] = CodeBlockColor.WHITE;
+
+                if (fish > 0 || (fish == 0 && coins > 0)) {
+                    eb.setColor(Color.GREEN);
+                    progressString[5] = CodeBlockColor.GREEN;
+                } else if (coins <= 0 && (fish < 0 || coins < 0)) {
+                    eb.setColor(Color.RED);
+                    progressString[5] = CodeBlockColor.RED;
+                }
+
+                eb
+                        .setDescription(TextManager.getString(locale, TextManager.GENERAL, descriptionLabel, progressString))
+                        .setThumbnail(user.getAvatar());
+
+                return eb;
             }
-            resultSet.close();
-            i++;
+        } catch (SQLException e) {
+            register(server, user);
+            if (tries <= 0) throw e;
+            return addFishingValues(locale, server, user, fish, coins, dailyBefore, silent, tries - 1);
         }
-
-        String descriptionLabel = "rankingprogress_desription";
-        if (progress[1][0] == 0) descriptionLabel = "rankingprogress_desription_nocoins";
-
-        eb = EmbedFactory.getEmbed()
-                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())
-                .setThumbnail("http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Money-Graph-icon.png");
-
-        progressString[5] = CodeBlockColor.WHITE;
-
-        if (fish > 0 || (fish == 0 && coins > 0)) {
-            eb.setColor(Color.GREEN);
-        } else if (coins <= 0 && (fish < 0 || coins < 0)) {
-            eb.setColor(Color.RED);
-        }
-
-        if (progress[3][1] > progress[3][0]) progressString[5] = CodeBlockColor.RED;
-        else if (progress[3][1] < progress[3][0]) progressString[5] = CodeBlockColor.GREEN;
-
-        eb
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, descriptionLabel, progressString))
-                .setThumbnail(user.getAvatar());
-
-        return eb;
     }
 
     public static void updateOnServerStatus(Server server, User user, boolean onServer) throws SQLException {

@@ -42,17 +42,26 @@ public class RedditDownloader {
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1"+postReference;
 
         InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 60));
-        if (!internetResponse.getContent().isPresent()) return null;
+        if (!internetResponse.getContent().isPresent()) {
+            System.err.println("ERROR: Coudln't load content for r/" + sub);
+            return null;
+        }
 
         String dataString = internetResponse.getContent().get();
-        if (!dataString.startsWith("{")) return null;
+        if (!dataString.startsWith("{")) {
+            System.err.println("ERROR: Wrong JSON format r/" + sub);
+            return null;
+        }
 
         JSONObject tempData = new JSONObject(dataString).getJSONObject("data");
         if (!tempData.isNull("after")) postReference = tempData.getString("after");
         else postReference = "";
 
         JSONArray postData = tempData.getJSONArray("children");
-        if (postData.length() <= 0) return null;
+        if (postData.length() <= 0) {
+            System.err.println("ERROR: Reddit no children for r/" + sub);
+            return null;
+        }
 
         JSONObject data = postData.getJSONObject(subreddit.getRemainingIndex(postReference, postData.length())).getJSONObject("data");
 

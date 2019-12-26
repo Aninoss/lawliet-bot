@@ -42,37 +42,39 @@ public class ClearCommand extends Command implements onRecievedListener {
                 ArrayList<Message> messagesDelete = new ArrayList<>();
                 for (Message message : messageSet.descendingSet()) {
                     if (message.getCreationTimestamp().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
-                        try {
+                        /*try {
                             message.delete().get();
                             deleted++;
                         } catch (InterruptedException | ExecutionException e) {
                             //Ignore
-                        }
+                        }*/
                     } else {
                         messagesDelete.add(message);
                     }
                 }
 
-                if (messagesDelete.size() >= 2) {
+                if (messagesDelete.size() >= 1) {
                     try {
-                        event.getChannel().bulkDelete(messagesDelete).get();
+                        if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
+                        else event.getChannel().bulkDelete(messagesDelete).get();
                         deleted += messagesDelete.size();
                     } catch (InterruptedException | ExecutionException e) {
                         //Ignore
                     }
                 }
+
                 count -= messageSet.size();
             }
 
             Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("finished_description", deleted != 1, String.valueOf(deleted)))
-                    .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "10"))).get();
+                    .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "5"))).get();
             Thread t = new Thread(() -> {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Message[] messagesArray = new Message[]{m,event.getMessage()};
+                Message[] messagesArray = new Message[]{m, event.getMessage()};
                 event.getChannel().bulkDelete(messagesArray);
             });
             t.setName("clear_countdown");

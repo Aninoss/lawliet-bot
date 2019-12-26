@@ -1,6 +1,9 @@
 package MySQL;
 
+import Constants.FishingCategoryInterface;
 import Constants.PowerPlantStatus;
+import General.Fishing.FishingProfile;
+import General.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -63,7 +66,7 @@ public class FisheryCache {
     }
 
     private void messageCollector() {
-        final int MINUTES_INTERVAL = 5;
+        final int MINUTES_INTERVAL = 20;
 
         while(true) {
             try {
@@ -93,7 +96,7 @@ public class FisheryCache {
                                             ActivityUserData activityUserData = finalActivites.get(serverId).get(userId);
                                             if (activityUserData.getAmountVC() + activityUserData.getAmountMessage() > 0) {
                                                 DBUser.addMessageSingle(serverId, userId, activityUserData);
-                                                Thread.sleep(200);
+                                                Thread.sleep(500);
                                             }
                                         }
                                     } catch (SQLException | InterruptedException e) {
@@ -113,18 +116,25 @@ public class FisheryCache {
         }
     }
 
-    public void flush(Server server, User user) {
+    public long flush(Server server, User user, boolean clear) throws SQLException {
+        return flush(server, user, clear, null);
+    }
+
+    public long flush(Server server, User user, boolean clear, FishingProfile fishingProfile) throws SQLException {
         if (activities.containsKey(server.getId()) && activities.get(server.getId()).containsKey(user.getId())) {
             ActivityUserData activityUserData = activities.get(server.getId()).get(user.getId());
             if (activityUserData.getAmountVC() + activityUserData.getAmountMessage() > 0) {
-                try {
-                    DBUser.addMessageSingle(server.getId(), user.getId(), activityUserData);
-                    activityUserData.reset();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                if (fishingProfile == null) fishingProfile = DBUser.getFishingProfile(server, user, false);
+
+                long fishMessage = activityUserData.getAmountMessage() * fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE);
+                long fishVC = activityUserData.getAmountVC() * fishingProfile.getEffect(FishingCategoryInterface.PER_VC);
+
+                if (clear) activityUserData.reset();
+                return fishMessage + fishVC;
             }
         }
+
+        return 0L;
     }
 
     private void VCCollector(DiscordApi api) {

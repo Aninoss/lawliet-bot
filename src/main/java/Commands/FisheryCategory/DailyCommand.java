@@ -32,9 +32,7 @@ public class DailyCommand extends Command implements onRecievedListener {
         if (status == PowerPlantStatus.ACTIVE) {
             DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());
             if (dailyState != null && dailyState.isClaimed()) {
-                FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
-
-                long fishes = fishingProfile.getEffect(FishingCategoryInterface.PER_DAY);
+                long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false).getEffect(FishingCategoryInterface.PER_DAY);
 
                 int bonusCombo = 0;
                 int bonusDonation = 0;
@@ -61,7 +59,7 @@ public class DailyCommand extends Command implements onRecievedListener {
                 if (dailyState.isStreakBroken()) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
                 event.getChannel().sendMessage(eb).get();
-                event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), fishes + bonusCombo + bonusDonation, 0L, dailyBefore)).get();
+                event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), fishes + bonusCombo + bonusDonation, 0L, dailyBefore, false)).get();
 
                 return true;
             } else {

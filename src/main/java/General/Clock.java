@@ -92,7 +92,7 @@ public class Clock {
 
                             long gains = 0;
                             if (surveyUser.isRightChoice()) {
-                                gains = DBUser.getFishingProfile(surveyServer.getServer(), user).getEffect(FishingCategoryInterface.PER_SURVEY);
+                                gains = DBUser.getFishingProfile(surveyServer.getServer(), user, false).getEffect(FishingCategoryInterface.PER_SURVEY);
                                 DBUser.addFishingValues(locale, surveyServer.getServer(), user, 0, gains);
                             }
 

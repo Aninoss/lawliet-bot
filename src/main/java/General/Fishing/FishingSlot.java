@@ -41,4 +41,6 @@ public class FishingSlot {
     public int getId() {
         return id;
     }
+
+    public void levelUp() { level++; }
 }

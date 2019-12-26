@@ -2,6 +2,7 @@ package MySQL;
 
 import Constants.PowerPlantStatus;
 import General.BannedWords.BannedWords;
+import General.Fishing.FishingProfile;
 import General.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -20,6 +21,7 @@ public class DatabaseCache {
     private Map<Long, ArrayList<ServerTextChannel>> whiteListedChannels = new HashMap<>();
     private Map<Long, ArrayList<Pair<ServerVoiceChannel, String>>> memberCountDisplays = new HashMap<>();
     private Map<Long, ArrayList<String>> nsfwFilters = new HashMap<>();
+    private Map<Long, Map<Long, FishingProfile>> fishingProfiles = new HashMap<>();
 
     public static DatabaseCache getInstance() {
         return ourInstance;
@@ -111,6 +113,14 @@ public class DatabaseCache {
 
     public ArrayList<String> getNSFWFilter(Server server) {
         return nsfwFilters.get(server.getId());
+    }
+
+    public FishingProfile getFishingProfile(long serverId, long userId) {
+        return fishingProfiles.computeIfAbsent(serverId, key -> new HashMap<>()).get(userId);
+    }
+
+    public void setFishingProfile(FishingProfile fishingProfile) {
+        fishingProfiles.computeIfAbsent(fishingProfile.getServer().getId(), key -> new HashMap<>()).put(fishingProfile.getUser().getId(), fishingProfile);
     }
 
 }

@@ -6,10 +6,10 @@ public interface Settings {
     long LAWLIET_ID = 368521195940741122L;
     int TIME_OUT_TIME = 10 * 60000;
     long HOME_SERVER_ID = 368531164861825024L;
-    String BOT_INVITE_URL = "https://discordapp.com/oauth2/authorize?client_id=368521195940741122&scope=bot&permissions=335932542";
+    String BOT_INVITE_URL = "https://discordapp.com/oauth2/authorize?client_id=368521195940741122&scope=bot&permissions=352709718";
     String SERVER_INVITE_URL = "https://discord.gg/qUe8dYt";
     String DONATION_URL = "https://donatebot.io/checkout/557953262305804308";
-    String UPVOTE_URL = "https://discordbots.org/bot/368521195940741122/vote";
+    String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
     String CURRENCY = "\uD83D\uDC1F";
     String COINS = "<a:coin:512684910620835841>";

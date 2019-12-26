@@ -44,6 +44,21 @@ public class DiscordApiCollection {
         return Optional.empty();
     }
 
+    public ArrayList<Server> getMutualServers(User user) {
+        ArrayList<Server> servers = new ArrayList<>();
+
+        for(DiscordApi api: apiList) {
+            try {
+                User apiUser = api.getUserById(user.getId()).get();
+                apiUser.getMutualServers().stream().filter(server -> !servers.contains(server)).forEach(servers::add);
+            } catch (InterruptedException | ExecutionException e) {
+                //Ignore
+            }
+        }
+
+        return servers;
+    }
+
     public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {
         for(DiscordApi api: apiList) {
             Optional<KnownCustomEmoji> emojiOptional = api.getCustomEmojiById(emojiId);
@@ -72,10 +87,6 @@ public class DiscordApiCollection {
 
     public int getResponsibleShard(long serverId) {
         return (int) ((serverId >> 22) % apiList.length);
-    }
-
-    public int getResponsibleShard2(long serverId) {
-        return (int) ((serverId >> 22) % 2);
     }
 
     public int size() {

@@ -55,7 +55,7 @@ public class MessageCreateListener {
         //Stuff that is only active for my own Aninoss Discord server
         if (event.getServer().get().getId() == 462405241955155979L && Internet.stringIsURL(event.getMessage().getContent())) {
             try {
-                FishingProfile  fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
+                FishingProfile  fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false);
                 int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
 
                 if (level == 0) {

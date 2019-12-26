@@ -88,7 +88,7 @@ public class ServerMemberJoinListener {
 
         //Automatische Rollenvergabe bei Fisching
         try {
-            FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer(), event.getUser());
+            FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer(), event.getUser(), false);
             int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
             if (level > 0) {
                 ArrayList<Role> roles = DBServer.getPowerPlantRolesFromServer(event.getServer());

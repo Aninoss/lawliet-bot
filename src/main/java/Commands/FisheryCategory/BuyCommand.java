@@ -81,8 +81,9 @@ public class BuyCommand extends Command implements onNavigationListener {
                     FishingSlot slot = fishingProfile.find(i);
 
                     if (fishingProfile.getCoins() >= slot.getPrice()) {
-                        DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0, -slot.getPrice());
-                        DBUser.updatePowerUpLevel(event.getServer().get(), event.getUser(), slot.getId(), slot.getLevel() + 1);
+                        DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0, -slot.getPrice(), true);
+                        slot.levelUp();
+                        DBUser.updatePowerUpLevel(event.getServer().get(), event.getUser(), slot.getId(), slot.getLevel());
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
 
                         if (slot.getId() == FishingCategoryInterface.ROLE) {

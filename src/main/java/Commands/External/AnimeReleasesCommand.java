@@ -31,7 +31,7 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) throws IOException {
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setAuthor(post.getAnime())
+                .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-32x32.png")
                 .setDescription(post.getDescription())
                 .setUrl(post.getUrl())
                 .setImage(post.getThumbnail())
@@ -40,7 +40,7 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
         if (post.getEpisode().isPresent()) {
             eb.setTitle(getString("template_title", post.getEpisode().get(), post.getEpisodeTitle()));
         } else {
-            eb.setTitle(post.getEpisodeTitle());
+            if (!post.getEpisodeTitle().isEmpty()) eb.setTitle(post.getEpisodeTitle());
         }
 
         return eb;

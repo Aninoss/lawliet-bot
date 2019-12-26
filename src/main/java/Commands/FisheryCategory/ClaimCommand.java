@@ -44,7 +44,7 @@ public class ClaimCommand extends Command implements onRecievedListener {
                 event.getChannel().sendMessage(eb).get();
                 return false;
             } else {
-                long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get()).getEffect(FishingCategoryInterface.PER_DAY);
+                long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false).getEffect(FishingCategoryInterface.PER_DAY);
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, Tools.numToString(getLocale(), upvotesUnclaimed), Tools.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
                 addRemainingTimeNotification(eb, nextUpvote);
