@@ -87,14 +87,15 @@ public class BuyCommand extends Command implements onNavigationListener {
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
 
                         if (slot.getId() == FishingCategoryInterface.ROLE) {
-                            if (slot.getLevel() > 0 && singleRole) {
-                                roles.get(slot.getLevel() - 1).removeUser(event.getUser()).get();
+                            if (slot.getLevel() - 1 > 0 && singleRole) {
+                                roles.get(slot.getLevel() - 2).removeUser(event.getUser()).get();
                             }
-                            roles.get(slot.getLevel()).addUser(event.getUser()).get();
+                            roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
 
                             ServerTextChannel announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
                             if (announcementChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
-                                announcementChannel.sendMessage(getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel()).getName(), String.valueOf(slot.getLevel() + 1))).get();
+                                String announcementText = getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
+                                announcementChannel.sendMessage(Tools.defuseAtEveryone(announcementText)).get();
                             }
                         }
 

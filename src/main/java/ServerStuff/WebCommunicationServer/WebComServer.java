@@ -12,15 +12,14 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
+import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 public class WebComServer {
 
@@ -89,7 +88,9 @@ public class WebComServer {
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                for(Server server: DiscordApiCollection.getInstance().getMutualServers(user)) {
+                ArrayList<Server> mutualServers = DiscordApiCollection.getInstance().getMutualServers(user);
+                mutualServers.sort((s1, s2) -> s1.getName().compareToIgnoreCase(s2.getName()));
+                for(Server server: mutualServers) {
                     JSONObject serverObject = new JSONObject();
                     serverObject
                             .put("server_id", server.getId())

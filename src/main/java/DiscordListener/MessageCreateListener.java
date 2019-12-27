@@ -78,7 +78,7 @@ public class MessageCreateListener {
 
             int prefixFound = -1;
             for(int i=0; i<prefixes.length; i++) {
-                if (content.toLowerCase().startsWith(prefixes[i].toLowerCase())) {
+                if (prefixes[i] != null && content.toLowerCase().startsWith(prefixes[i].toLowerCase())) {
                     prefixFound = i;
                     break;
                 }

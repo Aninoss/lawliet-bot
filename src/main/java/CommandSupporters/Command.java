@@ -375,7 +375,7 @@ public class Command {
             else if (reactionMessage != null) reactionMessage.delete().get();
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
-            reactionMessage.delete().get();
+            reactionMessage.delete();
         }
     }
 

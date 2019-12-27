@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class RunningCommandManager {
     private static RunningCommandManager ourInstance = new RunningCommandManager();
 
-    private ArrayList<Pair<RunningCommand, Instant>> runningCommands;
+    private ArrayList<Pair<RunningCommand, Instant>> runningCommands = new ArrayList<>();
 
     public static RunningCommandManager getInstance() {
         return ourInstance;
@@ -53,8 +53,11 @@ public class RunningCommandManager {
 
     public Pair<RunningCommand, Instant> find(User user, String commandTrigger) {
         for(Pair<RunningCommand, Instant> runningPair: runningCommands) {
-            RunningCommand runningCommand = runningPair.getKey();
-            if (runningCommand != null && runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger)) return runningPair;
+            if (runningPair != null) {
+                RunningCommand runningCommand = runningPair.getKey();
+                if (runningCommand != null && runningCommand.getUser().getId() == user.getId() && runningCommand.getCommandTrigger().equals(commandTrigger))
+                    return runningPair;
+            }
         }
         return null;
     }

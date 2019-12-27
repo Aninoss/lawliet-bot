@@ -36,6 +36,7 @@ public class ServerMemberJoinListener {
             e.printStackTrace();
             return;
         }
+        if (locale == null) return;
 
         //Insert User into Database
         try {

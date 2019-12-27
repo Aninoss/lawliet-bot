@@ -178,7 +178,7 @@ public class FisheryCache {
                             }
                         }
                     }
-                } catch (SQLException e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }

@@ -77,7 +77,9 @@ public class DiscordApiCollection {
 
     public Server getHomeServer() {
         long serverId = Settings.HOME_SERVER_ID;
-        return getServerById(serverId).get();
+        Optional<Server> serverOptional = getServerById(serverId);
+        if (!serverOptional.isPresent()) System.exit(0);
+        return serverOptional.get();
     }
 
     public boolean apiHasHomeServer(DiscordApi api) {

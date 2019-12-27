@@ -276,8 +276,10 @@ public class DBUser {
                     replace("%j", String.valueOf(fish + fishAdd));
 
             if (silent) {
-                Statement statement = DBMain.getInstance().statement(sqlString);
-                statement.close();
+                if (!sqlString.isEmpty()) {
+                    Statement statement = DBMain.getInstance().statement(sqlString);
+                    statement.close();
+                }
                 return null;
             } else {
                 long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Combo
@@ -318,7 +320,10 @@ public class DBUser {
                                     sign + Tools.numToString(locale, progress[j][1] - progress[j][0])
                             );
                         }
-                    } else return null;
+                    } else {
+                        addFishingValues(locale, server, user, -1, 0, -1, true, tries);
+                        return addFishingValues(locale, server, user, fish, coins, dailyBefore, silent, tries);
+                    }
                     resultSet.close();
                 }
 
