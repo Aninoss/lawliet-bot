@@ -6,6 +6,7 @@ import General.*;
 import General.Porn.PornImage;
 import General.Porn.PornImageDownloader;
 import MySQL.DBServer;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
@@ -59,6 +60,13 @@ public class PornProxyCommand extends Command implements onRecievedListener {
                     .setImage(pornImage.getImageUrl())
                     .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())))
                     .setTimestamp(pornImage.getInstant())).get();
+            else {
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_proxynoresults", followedString));
+                event.getChannel().sendMessage(eb).get();
+                return false;
+            }
         }
 
         return true;

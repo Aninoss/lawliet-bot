@@ -16,7 +16,7 @@ public class YuriFuckCommand extends InteractionCommand implements onRecievedLis
 
     public YuriFuckCommand() {
         super("https://img2.gelbooru.com//images/2d/43/2d43444830e02e7e5f0c7e822516d952.gif",
-                "https://gelbooru.com/index.php?page=post&s=view&id=4664133",
+                "https://img2.gelbooru.com/images/95/39/9539017a59cb9baa98e2fe941deddfab.gif",
                 "https://img2.gelbooru.com//images/67/d5/67d55a9eabbc0a3cc2fd264ad8710de2.gif",
                 "https://img2.gelbooru.com//images/53/7d/537d2f90de32be66f525a16ff32d213f.gif",
                 "https://img2.gelbooru.com//images/7b/c1/7bc11ab89be09830a7838fe0da8619aa.gif",

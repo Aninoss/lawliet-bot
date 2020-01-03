@@ -226,7 +226,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
             if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "mcdisplays", display.getKey(), Permission.MANAGE_CHANNEL)) {
                 ServerVoiceChannelUpdater updater = display.getKey().createUpdater();
                 renameVC(server, locale, updater, display.getValue());
-                updater.update().get();
+                updater.update();
             }
         }
     }

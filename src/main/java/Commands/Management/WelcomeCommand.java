@@ -126,31 +126,6 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     return Response.TRUE;
                 }
 
-                ArrayList<URL> imageList = MentionFinder.getImages(inputString).getList();
-                if (imageList.size() > 0) {
-                    URL url = imageList.get(0);
-
-                    try {
-                        long size = Tools.getURLFileSize(url);
-                        if (size >= 8000000) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "file_too_large"));
-                            return Response.FALSE;
-                        }
-                        FileUtils.copyURLToFile(url, new File("data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png"));
-
-                        setLog(LogStatus.SUCCESS, getString("backgroundset"));
-                        setState(0);
-                        return Response.TRUE;
-                    } catch (IOException e) {
-                        if (e.toString().contains("403") && url.toString().startsWith("https://cdn.discordapp.com/attachments/")) {
-                            setLog(LogStatus.FAILURE, getString("image_no_permission"));
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("404"));
-                        }
-                        return Response.FALSE;
-                    }
-                }
-
                 setLog(LogStatus.FAILURE, getString("imagenotfound"));
                 return Response.FALSE;
 

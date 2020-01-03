@@ -51,33 +51,36 @@ public class YouTubeDownloader {
     }
 
     public static File downloadAudio(String videoId) throws IOException, YoutubeException, InterruptedException {
-        if (videoRequests.contains(videoId)) {
-            File file;
-
-            while(!(file = new File("temp/" + videoId + ".mp3")).exists()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        while (videoRequests.contains(videoId)) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+        }
 
+        File file;
+        if ((file = new File("temp/" + videoId + ".mp3")).exists()) {
             return file;
         }
 
         videoRequests.add(videoId);
 
-        ProcessBuilder pb = new ProcessBuilder("./ytmp3.sh", videoId);
-        Process p = pb.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        try {
+            ProcessBuilder pb = new ProcessBuilder("./ytmp3.sh", videoId);
+            Process p = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+            reader.close();
+
+            return new File("temp/" + videoId + ".mp3");
+        } finally {
+            videoRequests.remove(videoId);
         }
-        reader.close();
-
-        return new File("temp/" + videoId + ".mp3");
     }
 
 }

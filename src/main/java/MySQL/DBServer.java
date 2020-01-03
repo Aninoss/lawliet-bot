@@ -46,9 +46,6 @@ public class DBServer {
                     insertServer(server);
                 }
             }
-
-            //Manage Auto Channels
-            synchronizeAutoChannelChildChannels();
         }
     }
 
@@ -610,7 +607,7 @@ public class DBServer {
     }
 
     public static AutoChannelData getAutoChannelFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, creatorCanDisconnect FROM AutoChannel WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, creatorCanDisconnect, locked FROM AutoChannel WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
 
@@ -621,6 +618,7 @@ public class DBServer {
             String channelName = resultSet.getString(3);
             //boolean creatorCanDisconnect = resultSet.getBoolean(4);
             boolean creatorCanDisconnect = false;
+            boolean locked = resultSet.getBoolean(5);
 
             ServerVoiceChannel channel = null;
             if (server.getVoiceChannelById(voiceChannelId).isPresent()) {
@@ -632,7 +630,8 @@ public class DBServer {
                     channel,
                     active,
                     channelName,
-                    creatorCanDisconnect
+                    creatorCanDisconnect,
+                    locked
             );
 
             resultSet.close();
@@ -649,6 +648,7 @@ public class DBServer {
                 null,
                 false,
                 "%VCName [%Index]",
+                false,
                 false
         );
     }
@@ -673,53 +673,55 @@ public class DBServer {
     }
 
     public static void synchronizeAutoChannelChildChannels() throws SQLException, ExecutionException, InterruptedException {
-        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+        if (!Bot.isDebug()) {
+            DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
-        ResultSet resultSet = statement.getResultSet();
+            Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
+            ResultSet resultSet = statement.getResultSet();
 
-        while (resultSet.next()) {
-            long serverId = resultSet.getLong(1);
-            long childChannelId = resultSet.getLong(2);
-            long parentChannelId = resultSet.getLong(3);
+            while (resultSet.next()) {
+                long serverId = resultSet.getLong(1);
+                long childChannelId = resultSet.getLong(2);
+                long parentChannelId = resultSet.getLong(3);
 
-            Server server = null;
-            ServerVoiceChannel childChannel = null;
-            ServerVoiceChannel parentChannel = null;
+                Server server = null;
+                ServerVoiceChannel childChannel = null;
+                ServerVoiceChannel parentChannel = null;
 
 
-            boolean found = false;
+                boolean found = false;
 
-            if (apiCollection.getServerById(serverId).isPresent()) {
-                server = apiCollection.getServerById(serverId).get();
-                if (server.getVoiceChannelById(childChannelId).isPresent()) {
-                    childChannel = server.getVoiceChannelById(childChannelId).get();
+                if (apiCollection.getServerById(serverId).isPresent()) {
+                    server = apiCollection.getServerById(serverId).get();
+                    if (server.getVoiceChannelById(childChannelId).isPresent()) {
+                        childChannel = server.getVoiceChannelById(childChannelId).get();
 
-                    if (childChannel.getConnectedUsers().size() > 0 &&
-                            server.getVoiceChannelById(parentChannelId).isPresent()) {
+                        if (childChannel.getConnectedUsers().size() > 0 &&
+                                server.getVoiceChannelById(parentChannelId).isPresent()) {
 
-                        parentChannel = server.getVoiceChannelById(parentChannelId).get();
+                            parentChannel = server.getVoiceChannelById(parentChannelId).get();
 
-                        AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(parentChannel, childChannel));
-                        found = true;
+                            AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(parentChannel, childChannel));
+                            found = true;
 
+                        }
+                    }
+                }
+
+                if (!found) {
+                    removeAutoChannelChildChannel(serverId, childChannelId);
+                    try {
+                        if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
+                            childChannel.delete().get();
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
 
-            if (!found) {
-                removeAutoChannelChildChannel(serverId, childChannelId);
-                try {
-                    if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
-                        childChannel.delete().get();
-                } catch(ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            resultSet.close();
+            statement.close();
         }
-
-        resultSet.close();
-        statement.close();
     }
 
     public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
@@ -989,7 +991,7 @@ public class DBServer {
     }
 
     public static void saveAutoChannel(AutoChannelData autoChannelData) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, creatorCanDisconnect) VALUES (?, ?, ?, ?, ?)");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, creatorCanDisconnect, locked) VALUES (?, ?, ?, ?, ?, ?)");
         preparedStatement.setLong(1, autoChannelData.getServer().getId());
 
         ServerVoiceChannel serverVoiceChannel = autoChannelData.getVoiceChannel();
@@ -999,6 +1001,7 @@ public class DBServer {
         preparedStatement.setBoolean(3, autoChannelData.isActive());
         preparedStatement.setString(4, autoChannelData.getChannelName());
         preparedStatement.setBoolean(5, autoChannelData.isCreatorCanDisconnect());
+        preparedStatement.setBoolean(6, autoChannelData.isLocked());
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }

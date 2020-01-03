@@ -46,8 +46,8 @@ public class CoinFlipCommand extends Casino implements onRecievedListener, onRea
             winMultiplicator = 1;
 
             String filteredString = Tools.cutSpaces(Tools.filterLettersFromString(followedString.toLowerCase()));
-            if (filteredString.startsWith("h")) selection[0] = 0;
-            else if (filteredString.startsWith("t")) selection[0] = 1;
+            if (filteredString.contains("h")) selection[0] = 0;
+            else if (filteredString.contains("t")) selection[0] = 1;
 
             message = event.getChannel().sendMessage(getEmbed(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get())).get();
             if (selection[0] == -1) for (String str : EMOJIS) message.addReaction(str);
@@ -72,7 +72,7 @@ public class CoinFlipCommand extends Casino implements onRecievedListener, onRea
     }
 
     private EmbedBuilder getEmbed() throws IOException {
-        return getEmbed(message.getServerTextChannel().get(), message.getUserAuthor().get());
+        return getEmbed(message.getServerTextChannel().get(), player);
     }
 
     private EmbedBuilder getEmbed(ServerTextChannel channel, User user) throws IOException {
@@ -99,7 +99,7 @@ public class CoinFlipCommand extends Casino implements onRecievedListener, onRea
 
         Thread t = new Thread(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

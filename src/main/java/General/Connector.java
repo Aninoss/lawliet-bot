@@ -73,14 +73,6 @@ public class Connector {
         }
     }
 
-    private static Font getFont() {
-        Graphics g = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB).getGraphics();
-        Font font = new Font(g.getFont().toString(), 0, 12);
-        g.dispose();
-
-        return font;
-    }
-
     private static void initializeUpdate() {
         try {
             String currentVersionDB = DBBot.getCurrentVersions();
@@ -95,7 +87,6 @@ public class Connector {
     private static void connect() throws IOException {
         System.out.println("Bot is logging in...");
 
-
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
             .setToken(SecretManager.getString((Bot.isDebug() && !Settings.TEST_MODE) ? "bot.token.debugger" : "bot.token"))
             .setRecommendedTotalShards().join();
@@ -105,29 +96,57 @@ public class Connector {
 
         apiBuilder.loginAllShards()
             .forEach(shardFuture -> shardFuture
-                    .thenAccept(Connector::onApiJoin)
+                    .thenAccept(api -> onApiJoin(api, true))
                     .exceptionally(ExceptionLogger.get())
             );
     }
 
-    public static void onApiJoin(DiscordApi api) {
+    public static void reconnectApi(int shard) {
+        System.out.println("Reconnect shard " + shard);
+
+        try {
+            DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
+                    .setToken(SecretManager.getString((Bot.isDebug() && !Settings.TEST_MODE) ? "bot.token.debugger" : "bot.token"))
+                    .setCurrentShard(shard).setTotalShards(DiscordApiCollection.getInstance().size());
+
+            apiBuilder.loginAllShards()
+                    .forEach(shardFuture -> shardFuture
+                            .thenAccept(api -> onApiJoin(api, false))
+                            .exceptionally(ExceptionLogger.get())
+                    );
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    public static void onApiJoin(DiscordApi api, boolean startup) {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);
         api.setMessageCacheSize(10, 60 * 10);
+
+        api.getReconnectDelay(999999999);
 
         try {
             api.updateStatus(UserStatus.DO_NOT_DISTURB);
             api.updateActivity("Please wait, bot is booting up...");
 
             FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
-            if (apiCollection.apiHasHomeServer(api)) {
+            if (apiCollection.apiHasHomeServer(api) && startup) {
                 new WebComServer(15744);
                 ResourceManager.setUp(apiCollection.getHomeServer());
             }
+            apiCollection.markReady(api);
             if (apiCollection.allShardsConnected()) {
-                new DonationServer(27440);
-                DBMain.synchronizeAll();
-                updateActivity();
+                if (startup) {
+                    new DonationServer(27440);
+                    DBMain.synchronizeAll();
+                    updateActivity();
+                } else {
+                    DBServer.synchronize();
+                    DBUser.synchronize();
+                    updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
+                }
             }
 
             System.out.printf("Shard %d has been successfully booten up!\n", api.getCurrentShard());
@@ -240,7 +259,7 @@ public class Connector {
                 t.start();
             });
 
-            if (apiCollection.allShardsConnected() && !Bot.isDebug()) {
+            if (apiCollection.allShardsConnected() && !Bot.isDebug() && startup) {
                 Thread t = new Thread(Clock::tick);
                 t.setPriority(2);
                 addUncaughtException(t);

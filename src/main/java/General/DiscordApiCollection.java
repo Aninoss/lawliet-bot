@@ -1,12 +1,16 @@
 package General;
 
+import CommandSupporters.CommandContainer;
 import Constants.Settings;
+import MySQL.FisheryCache;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,19 +21,75 @@ public class DiscordApiCollection {
 
     private static DiscordApiCollection ourInstance = new DiscordApiCollection();
     private DiscordApi[] apiList;
+    private boolean[] apiReady;
+
+    private int[] errorCounter;
+    private boolean[] hasReconnected, isAlive;
 
     public static DiscordApiCollection getInstance() { return ourInstance; }
 
     public void init(int shardNumber) {
         apiList = new DiscordApi[shardNumber];
+        apiReady = new boolean[shardNumber];
+        errorCounter = new int[shardNumber];
+        hasReconnected = new boolean[shardNumber];
+        isAlive = new boolean[shardNumber];
     }
 
     public void insertApi(DiscordApi api) {
         apiList[api.getCurrentShard()] = api;
     }
 
+    public void markReady(DiscordApi api) {
+        apiReady[api.getCurrentShard()] = true;
+        Thread t = new Thread(() -> keepApiAlive(api));
+        t.setPriority(1);
+        t.setName("keep_alive_shard" + api.getCurrentShard());
+        t.start();
+    }
+
+    private void keepApiAlive(DiscordApi api) {
+        api.addUserStartTypingListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
+        api.addMessageCreateListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
+        while(true) {
+            try {
+                Thread.sleep(10 * 1000);
+                int n = api.getCurrentShard();
+                if (isAlive[n]) {
+                    errorCounter[n] = 0;
+                    hasReconnected[n] = false;
+                    isAlive[n] = false;
+                } else {
+                    System.out.println("Disconnect shard " + n);
+                    errorCounter[n]++;
+                    if (errorCounter[n] >= 3) {
+                        if (hasReconnected[n]) {
+                            System.err.println(Instant.now() + " ERROR: Shard offline for too long. Force complete restart");
+                            System.exit(-1);
+                        } else {
+                            System.err.println(Instant.now() + " ERROR: Shard temporary offline");
+                            apiReady[n] = false;
+                            try {
+                                CommandContainer.getInstance().clearShard(n);
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                            }
+                            FisheryCache.getInstance(n).turnOff();
+                            api.disconnect();
+                            Connector.reconnectApi(api.getCurrentShard());
+                            errorCounter[n] = 0;
+                            hasReconnected[n] = true;
+                            break;
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public Optional<Server> getServerById(long serverId) {
-        waitForStartup();
         return apiList[getResponsibleShard(serverId)].getServerById(serverId);
     }
 
@@ -96,8 +156,8 @@ public class DiscordApiCollection {
     }
 
     public boolean allShardsConnected() {
-        for (DiscordApi discordApi : apiList) {
-            if (discordApi == null) return false;
+        for (boolean connected : apiReady) {
+            if (!connected) return false;
         }
         return true;
     }
@@ -147,6 +207,7 @@ public class DiscordApiCollection {
     }
 
     public User getYourself() {
+        waitForStartup();
         return apiList[0].getYourself();
     }
 

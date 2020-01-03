@@ -12,6 +12,7 @@ import MySQL.DBServer;
 import MySQL.DBUser;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -56,12 +57,13 @@ public class GiveCommand extends Command implements onRecievedListener {
             User user0 = event.getMessage().getUserAuthor().get();
             User user1 = list.get(0);
 
-            long coins = DBUser.getFishingProfile(server, user0).getCoins();
-            long value = Tools.filterNumberFromString(followedString);
-
-            if (followedString.toLowerCase().contains("all")) {
-                value = coins;
+            if (server.getId() == 418223406698332173L) {
+                Role role = server.getRoleById(660459523676438528L).get();
+                if (!role.getUsers().contains(user0)) return false;
             }
+
+            long coins = DBUser.getFishingProfile(server, user0).getCoins();
+            long value = Tools.getAmountExt(followedString, coins);
 
             if (value != -1) {
                 if (value >= 1) {

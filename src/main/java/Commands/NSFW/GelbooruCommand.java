@@ -17,7 +17,7 @@ import java.util.ArrayList;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         withLoadingBar = true,
-        aliases = {"gel"}
+        aliases = {"gel", "gbooru", "gelbooru"}
 )
 public class GelbooruCommand extends PornCommand implements onRecievedListener {
 

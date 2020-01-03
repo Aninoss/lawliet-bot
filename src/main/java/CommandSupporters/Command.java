@@ -406,6 +406,10 @@ public class Command {
         Thread.currentThread().setName(name + ":" + getTrigger());
     }
 
+    public void stopCountdown() {
+        if (countdown != null) countdown.stop();
+    }
+
 
     public String getString(String key, String... args) throws IOException {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, args);

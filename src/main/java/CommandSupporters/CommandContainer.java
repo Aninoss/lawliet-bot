@@ -14,6 +14,8 @@ import Commands.NSFW.*;
 import Commands.FisheryCategory.*;
 import Commands.Management.*;
 import Commands.Splatoon2.*;
+import General.DiscordApiCollection;
+import org.javacord.api.DiscordApi;
 
 import java.time.Instant;
 import java.util.*;
@@ -189,6 +191,8 @@ public class CommandContainer {
         commandList.add(RealbooruCommand.class);
         commandList.add(RealLifePornCommand.class);
         commandList.add(HentaiCommand.class);
+        commandList.add(TrapCommand.class);
+        commandList.add(FutaCommand.class);
         commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
@@ -209,6 +213,27 @@ public class CommandContainer {
                 if (command instanceof onTrackerRequestListener) trackerCommands.add((onTrackerRequestListener)command);
             } catch (IllegalAccessException | InstantiationException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public void clearShard(int shardId) {
+        for(Command command: new ArrayList<>(commandsReaction)) {
+            DiscordApi api;
+            if (command instanceof onReactionAddListener) api = ((onReactionAddListener)command).getReactionMessage().getApi();
+            else api = command.getNavigationMessage().getApi();
+            if (api.getCurrentShard() == shardId) {
+                command.stopCountdown();
+                commandsReaction.remove(command);
+            }
+        }
+        for(Command command: new ArrayList<>(commandsMessageForward)) {
+            DiscordApi api;
+            if (command instanceof onForwardedRecievedListener) api = ((onForwardedRecievedListener)command).getForwardedMessage().getApi();
+            else api = command.getNavigationMessage().getApi();
+            if (api.getCurrentShard() == shardId) {
+                command.stopCountdown();
+                commandsReaction.remove(command);
             }
         }
     }

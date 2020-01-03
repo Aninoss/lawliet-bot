@@ -38,6 +38,11 @@ public class PornCommand extends Command {
             followedString = "animated_gif";
         }
 
+        switch (followedString.toLowerCase()) {
+            case "hinata": followedString = "hyuuga_hinata"; break;
+            case "konosuba": followedString = "kono_subarashii_sekai_ni_shukufuku_wo!"; break;
+        }
+
         for(int j = 0; j < amount ; j++) {
             PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false, false, nsfwFilter);
             if (pornImage == null) {

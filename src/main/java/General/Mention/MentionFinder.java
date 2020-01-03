@@ -2,11 +2,10 @@ package General.Mention;
 
 import General.DiscordApiCollection;
 import General.Tools;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.io.IOException;
@@ -154,6 +153,19 @@ public class MentionFinder {
                     if (!list.contains(sc)) list.add(sc);
                     string = removeMentionFromString(string, part, "#");
                 }
+
+                for (ChannelCategory c: message.getServer().get().getChannelCategories()) {
+                    for (ServerChannel channel: c.getChannels()) {
+                        if (channel.asServerTextChannel().isPresent() &&
+                                channel.asServerTextChannel().get().getCategory().isPresent() &&
+                                channel.asServerTextChannel().get().getCategory().get().getName().equalsIgnoreCase(part)
+                        ) {
+                            ServerTextChannel sc = channel.asServerTextChannel().get();
+                            if (!list.contains(sc)) list.add(sc);
+                            string = removeMentionFromString(string, part, "#");
+                        }
+                    }
+                }
             }
         }
 
@@ -179,6 +191,19 @@ public class MentionFinder {
             for (ServerVoiceChannel sc : message.getServer().get().getVoiceChannelsByNameIgnoreCase(part)) {
                 if (!list.contains(sc)) list.add(sc);
                 string = removeMentionFromString(string, part, "#");
+            }
+
+            for (ChannelCategory c: message.getServer().get().getChannelCategories()) {
+                for (ServerChannel channel: c.getChannels()) {
+                    if (channel.asServerVoiceChannel().isPresent() &&
+                            channel.asServerVoiceChannel().get().getCategory().isPresent() &&
+                            channel.asServerVoiceChannel().get().getCategory().get().getName().equalsIgnoreCase(part)
+                        ) {
+                        ServerVoiceChannel sc = channel.asServerVoiceChannel().get();
+                        if (!list.contains(sc)) list.add(sc);
+                        string = removeMentionFromString(string, part, "#");
+                    }
+                }
             }
         }
 

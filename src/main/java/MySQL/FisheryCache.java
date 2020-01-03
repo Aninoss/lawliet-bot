@@ -28,11 +28,15 @@ public class FisheryCache {
 
     private Instant nextMessageCheck = Instant.now(), nextVCCheck = Instant.now();
 
+    private boolean active = true;
+    private int shardId;
+
     public static FisheryCache getInstance(int shardId) {
-        return ourInstances.computeIfAbsent(shardId, k -> new FisheryCache());
+        return ourInstances.computeIfAbsent(shardId, k -> new FisheryCache(shardId));
     }
 
-    private FisheryCache() {
+    private FisheryCache(int shardId) {
+        this.shardId = shardId;
         Thread t = new Thread(this::messageCollector);
         t.setName("message_collector");
         t.start();
@@ -68,7 +72,7 @@ public class FisheryCache {
     private void messageCollector() {
         final int MINUTES_INTERVAL = 20;
 
-        while(true) {
+        while(active) {
             try {
                 Duration duration = Duration.between(Instant.now(), nextMessageCheck);
                 Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
@@ -138,7 +142,7 @@ public class FisheryCache {
     }
 
     private void VCCollector(DiscordApi api) {
-        while(true) {
+        while(active) {
             try {
                 Duration duration = Duration.between(Instant.now(), nextVCCheck);
                 Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
@@ -224,6 +228,11 @@ public class FisheryCache {
     private void setUserVCCount(Server server, User user, int amount) {
         Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
         serverMap.put(user.getId(), amount);
+    }
+
+    public void turnOff() {
+        ourInstances.remove(shardId);
+        active = false;
     }
 
 }

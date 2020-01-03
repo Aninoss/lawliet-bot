@@ -6,6 +6,7 @@ import Constants.Permission;
 import General.*;
 import General.Mention.Mention;
 import General.Mention.MentionFinder;
+import General.Mention.MentionList;
 import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -44,17 +45,15 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        userList = MentionFinder.getUsers(message, followedString).getList();
+        MentionList<User> userMentionList = MentionFinder.getUsers(message, followedString);
+        userList = userMentionList.getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
             return false;
         }
 
-        reason = followedString.replace("`", "").replace("<@!", "<@");;
-        for(User user: userList) {
-            reason = reason.replace(user.getMentionTag(), "");
-        }
+        reason = userMentionList.getResultMessageString().replace("`", "");
         reason = Tools.cutSpaces(reason);
         if (reason.length() > CHAR_LIMIT) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));

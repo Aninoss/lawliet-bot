@@ -86,7 +86,7 @@ public class PornImageDownloader {
             if ((Tools.UrlContainsImage(fileUrl) || canBeVideo)  && (!gifOnly || fileUrl.endsWith("gif")) && postData.getInt("score") >= 0 && !Tools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
                 count2++;
                 if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
-                    score = (long) Math.pow(postData.getInt("score") + 1, 3);
+                    score = (long) Math.pow(postData.getInt("score") + 1, 2.75);
                 }
             }
 

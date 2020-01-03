@@ -64,18 +64,14 @@ class Casino extends Command implements onReactionAddListener {
         }
 
         long coins = DBUser.getFishingProfile(server, player).getCoins();
-        if (followedString.length() == 0 || (!Tools.stringContainsDigits(followedString) && !onlyNumbersAsArg)) {
+        long value = Tools.getAmountExt(followedString, coins);
+        if (value == -1) {
             coinsInput = (long) Math.ceil(coins * 0.1);
             DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput, true);
             return true;
         }
 
-        long value = Tools.filterNumberFromString(followedString);
-        if (followedString.toLowerCase().contains("all")) {
-            value = coins;
-        }
-
-        if (value != -1) {
+        //if (value != -1) {
             if (value >= 0) {
                 if (value <= coins) {
                     coinsInput = value;
@@ -87,9 +83,9 @@ class Casino extends Command implements onReactionAddListener {
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
             }
-        } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
-        }
+        //} else {
+        //    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
+        //}
 
         return false;
     }

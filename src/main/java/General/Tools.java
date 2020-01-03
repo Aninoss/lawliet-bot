@@ -51,6 +51,7 @@ public class Tools {
             if (Character.isDigit(c) && record) numberString.append(c);
             if (c == '<' && string.substring(i).contains(">")) record = false;
             if (c == '>') record = true;
+            if (c == '.') break;
             i++;
         }
 
@@ -610,6 +611,23 @@ public class Tools {
 
     public static String defuseAtEveryone(String str) {
         return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
+    }
+
+    public static String removeNPC(String str) {
+        // erases all the ASCII control characters
+        str = str.replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "");
+        // removes non-printable characters from Unicode
+        str = str.replaceAll("\\p{C}", "");
+        return str;
+    }
+
+    public static long getAmountExt(String str, long available) {
+        if (str.toLowerCase().contains("all")) return available;
+        if (str.toLowerCase().contains("half")) return available / 2;
+
+        long value = Tools.filterNumberFromString(str);
+        if (value == -1) return -1;
+        return str.contains("%") ? (long)(value / 100.0 * available) : value;
     }
 
 }

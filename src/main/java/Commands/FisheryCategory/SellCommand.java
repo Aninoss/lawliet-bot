@@ -66,25 +66,20 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         removeReactionListener(message);
         removeMessageForwarder();
         FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
-        long value = Tools.filterNumberFromString(argString);
+        long value = Tools.getAmountExt(argString, fishingProfile.getFish());
 
         if (argString.equalsIgnoreCase("no")) {
             markNoInterest(event.getServerTextChannel().get());
             return true;
         }
-
-        if (argString.toLowerCase().contains("all")) {
-            value = fishingProfile.getFish();
-            if (value == 0) {
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
-                return false;
-            }
+        if (fishingProfile.getFish() == 0) {
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
+            return false;
         }
         if (value >= 1) {
             if (value <= fishingProfile.getFish()) {
-                long fish = value;
                 long coins = ExchangeRate.getInstance().get(0) * value;
-                EmbedBuilder eb = DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), -fish, coins);
+                EmbedBuilder eb = DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), -value, coins);
 
                 sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedSuccess(this, getString("done")));
                 event.getChannel().sendMessage(eb).get();
@@ -92,7 +87,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
             } else
                 sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", fishingProfile.getFish() != 1, Tools.numToString(getLocale(), fishingProfile.getFish()))));
         } else if (value == 0)
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
         else if (value == -1)
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
         return false;

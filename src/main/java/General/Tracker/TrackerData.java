@@ -49,7 +49,12 @@ public class TrackerData {
             }
         }
 
-        return messageDelete;
+        try {
+            return messageDelete == null ? null : messageDelete.getLatestInstance().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String getCommand() {

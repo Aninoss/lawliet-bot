@@ -12,7 +12,7 @@ import java.util.ArrayList;
         emoji = "\uD83D\uDE07",
         withLoadingBar = true,
         executable = true,
-        aliases = {"softb"}
+        aliases = {"softb", "safebooru", "softbooru", "sbooru"}
 )
 public class SafebooruCommand extends PornCommand implements onRecievedListener {
 

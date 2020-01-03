@@ -38,6 +38,7 @@ public class WebhookServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
+
             System.exit(0);
         }
     }

@@ -43,6 +43,7 @@ public class DBMain implements DriverAction {
 
     public static void synchronizeAll() throws InterruptedException, ExecutionException, SQLException {
         DBServer.synchronize();
+        DBServer.synchronizeAutoChannelChildChannels();
         DBUser.synchronize();
         DBBot.synchronize();
     }

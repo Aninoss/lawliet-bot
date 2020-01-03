@@ -5,7 +5,9 @@ import Constants.Permission;
 import General.AutoChannel.AutoChannelContainer;
 import General.AutoChannel.AutoChannelData;
 import General.AutoChannel.TempAutoChannel;
+import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
+import General.Tools;
 import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
@@ -50,20 +52,28 @@ public class VoiceChannelMemberJoinListener {
                         vcb.setCategory(event.getChannel().getCategory().get());
                     if (event.getChannel().getUserLimit().isPresent())
                         vcb.setUserlimit(event.getChannel().getUserLimit().get());
+                    if (autoChannelData.isLocked())
+                        vcb.setUserlimit(1);
 
                     //Transfer permissions
+                    Permissions botPermission = null;
                     for(Map.Entry<User, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
+                        if (DiscordApiCollection.getInstance().getYourself().getId() == entry.getKey().getId()) {
+                            botPermission = entry.getValue();
+                        }
                         vcb.addPermissionOverwrite(entry.getKey(),entry.getValue());
                     }
                     for(Map.Entry<Role, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
                         vcb.addPermissionOverwrite(entry.getKey(),entry.getValue());
                     }
+                    if (botPermission == null) botPermission = new PermissionsBuilder().setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED).build();
+                    else botPermission.toBuilder().setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED).build();
 
                     PermissionsBuilder pb = new PermissionsBuilder();
                     pb.setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED);
                     if (autoChannelData.isCreatorCanDisconnect()) pb.setState(PermissionType.MOVE_MEMBERS, PermissionState.ALLOWED);
-
                     vcb.addPermissionOverwrite(event.getUser(), pb.build());
+                    vcb.addPermissionOverwrite(DiscordApiCollection.getInstance().getYourself(), botPermission);
 
                     ServerVoiceChannel vc = vcb.create().get();
 

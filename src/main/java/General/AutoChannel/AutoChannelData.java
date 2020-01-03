@@ -6,15 +6,16 @@ import org.javacord.api.entity.server.Server;
 public class AutoChannelData {
     private Server server;
     private ServerVoiceChannel voiceChannel;
-    private boolean active, creatorCanDisconnect;
+    private boolean active, creatorCanDisconnect, locked;
     private String channelName;
 
-    public AutoChannelData(Server server, ServerVoiceChannel voiceChannel, boolean active, String channelName, boolean creatorCanDisconnect) {
+    public AutoChannelData(Server server, ServerVoiceChannel voiceChannel, boolean active, String channelName, boolean creatorCanDisconnect, boolean locked) {
         this.server = server;
         this.voiceChannel = voiceChannel;
         this.active = active;
         this.channelName = channelName;
         this.creatorCanDisconnect = creatorCanDisconnect;
+        this.locked = locked;
     }
 
     public Server getServer() {
@@ -55,5 +56,13 @@ public class AutoChannelData {
 
     public void setCreatorCanDisconnect(boolean creatorCanDisconnect) {
         this.creatorCanDisconnect = creatorCanDisconnect;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isLocked() {
+        return locked;
     }
 }

@@ -16,7 +16,7 @@ import java.util.ArrayList;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         withLoadingBar = true,
-        aliases = {"rule34"}
+        aliases = {"rule34", "34"}
 )
 public class Rule34Command extends PornCommand implements onRecievedListener {
     public Rule34Command() {

@@ -1,11 +1,14 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import Constants.Category;
 import General.*;
 import General.Cooldown.Cooldown;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.DBBot;
 import MySQL.DBServer;
+import org.javacord.api.entity.channel.ChannelCategory;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -40,6 +43,37 @@ public class CommandManager {
                                         });
                                         t.setName("command_usage_add");
                                         t.start();
+                                    }
+
+                                    //Only for the "Free Hentai" Server
+                                    if (event.getServer().get().getId() == 660212849817288704L && !event.getMessageAuthor().isServerAdmin()) {
+                                        boolean ok = false;
+
+                                        ServerTextChannel channel = event.getServerTextChannel().get();
+                                        ChannelCategory channelCategory = channel.getCategory().get();
+
+                                        if (channelCategory.getId() == 660260159830097942L) ok = true;
+                                        if (channelCategory.getId() == 660815066345635891L &&
+                                                (command.getCategory().equalsIgnoreCase(Category.FISHERY) || command.getCategory().equalsIgnoreCase(Category.CASINO))
+                                        ) ok = true;
+                                        if (channel.getId() == 660262919090470931L &&
+                                                (command.getCategory().equalsIgnoreCase(Category.INTERACTIONS) || command.getCategory().equalsIgnoreCase(Category.EMOTES))
+                                        ) ok = true;
+                                        if (channelCategory.getId() == 660266507774722049L && command.getCategory() == Category.NSFW) ok = true;
+
+                                        if (!ok) {
+                                            Message message = event.getChannel().sendMessage("**❌ You aren't allowed to run this command here!**").get();
+                                            Thread t = new Thread(() -> {
+                                                try {
+                                                    Thread.sleep(5000);
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                event.getChannel().deleteMessages(message, event.getMessage());
+                                            });
+                                            t.start();
+                                            return;
+                                        }
                                     }
 
                                     if (event.getServer().isPresent())

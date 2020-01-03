@@ -34,6 +34,7 @@ public class ClearCommand extends Command implements onRecievedListener {
         if (followedString.length() > 0 && Tools.stringIsNumeric(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
             int count = Integer.parseInt(followedString);
             int deleted = 0;
+            boolean skipped = false;
 
             while(count > 0) {
                 //Check for message date and therefore permissions
@@ -42,12 +43,7 @@ public class ClearCommand extends Command implements onRecievedListener {
                 ArrayList<Message> messagesDelete = new ArrayList<>();
                 for (Message message : messageSet.descendingSet()) {
                     if (message.getCreationTimestamp().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
-                        /*try {
-                            message.delete().get();
-                            deleted++;
-                        } catch (InterruptedException | ExecutionException e) {
-                            //Ignore
-                        }*/
+                        skipped = true;
                     } else {
                         messagesDelete.add(message);
                     }
@@ -66,7 +62,8 @@ public class ClearCommand extends Command implements onRecievedListener {
                 count -= messageSet.size();
             }
 
-            Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("finished_description", deleted != 1, String.valueOf(deleted)))
+            String key = skipped ? "finished_too_old" : "finished_description";
+            Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(key, deleted != 1, String.valueOf(deleted)))
                     .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "5"))).get();
             Thread t = new Thread(() -> {
                 try {

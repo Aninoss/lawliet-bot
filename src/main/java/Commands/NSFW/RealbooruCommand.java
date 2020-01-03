@@ -14,7 +14,8 @@ import java.util.ArrayList;
         executable = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
-        withLoadingBar = true
+        withLoadingBar = true,
+        aliases = {"rbooru", "realbooru"}
 )
 public class RealbooruCommand extends PornCommand implements onRecievedListener {
     public RealbooruCommand() {
