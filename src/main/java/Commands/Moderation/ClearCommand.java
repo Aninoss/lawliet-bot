@@ -55,7 +55,7 @@ public class ClearCommand extends Command implements onRecievedListener {
                         else event.getChannel().bulkDelete(messagesDelete).get();
                         deleted += messagesDelete.size();
                     } catch (InterruptedException | ExecutionException e) {
-                        //Ignore
+                        e.printStackTrace();
                     }
                 }
 
@@ -64,10 +64,10 @@ public class ClearCommand extends Command implements onRecievedListener {
 
             String key = skipped ? "finished_too_old" : "finished_description";
             Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(key, deleted != 1, String.valueOf(deleted)))
-                    .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "5"))).get();
+                    .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
             Thread t = new Thread(() -> {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(8000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -79,7 +79,7 @@ public class ClearCommand extends Command implements onRecievedListener {
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    getString("wrong_args"))).get();
+                    getString("wrong_args", "2", "500"))).get();
             return false;
         }
     }

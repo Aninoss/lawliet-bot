@@ -202,7 +202,7 @@ public class Clock {
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
         Console.getInstance().setTraffic(trafficGB);
 
-        if (trafficGB >= 30 && (!trafficWarned || trafficGB >= 40)) {
+        if (trafficGB >= 40 && (!trafficWarned || trafficGB >= 50)) {
             try {
                 apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
             } catch (Throwable e) {
@@ -210,7 +210,7 @@ public class Clock {
             }
             trafficWarned = true;
         }
-        if (trafficGB >= 50) {
+        if (trafficGB >= 60) {
             System.out.println("Traffic Exceeded!");
             System.exit(1);
         }

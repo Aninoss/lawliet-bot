@@ -48,18 +48,22 @@ public class PornProxyCommand extends Command implements onRecievedListener {
             }
         }
 
+        ArrayList<String> picks = new ArrayList<>();
         for(int i = 0; i < amount; i++) {
             int tries = 5;
             PornImage pornImage;
             do {
                 pornImage = PornImageDownloader.getPicture(domain, search, searchExtra, imageTemplate, gifOnly, false, nsfwFilter);
                 tries--;
+            } while (pornImage == null && tries >= 0);
+            if (pornImage != null) {
+                if (picks.contains(pornImage.getImageUrl())) return true;
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this)
+                        .setImage(pornImage.getImageUrl())
+                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())))
+                        .setTimestamp(pornImage.getInstant())).get();
+                picks.add(pornImage.getImageUrl());
             }
-            while (pornImage == null && tries >= 0);
-            if (pornImage != null) event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this)
-                    .setImage(pornImage.getImageUrl())
-                    .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())))
-                    .setTimestamp(pornImage.getInstant())).get();
             else {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))

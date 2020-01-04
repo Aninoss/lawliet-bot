@@ -43,6 +43,7 @@ public class PornCommand extends Command {
             case "konosuba": followedString = "kono_subarashii_sekai_ni_shukufuku_wo!"; break;
         }
 
+        ArrayList<String> picks = new ArrayList<>();
         for(int j = 0; j < amount ; j++) {
             PornImage pornImage = PornImageDownloader.getPicture(domain, followedString, stringAdd, imageTemplate, false, false, nsfwFilter);
             if (pornImage == null) {
@@ -52,6 +53,7 @@ public class PornCommand extends Command {
                 event.getChannel().sendMessage(eb).get();
                 return false;
             } else {
+                if (picks.contains(pornImage.getImageUrl())) return true;
                 String footerAdd = "";
                 if (emptyKey)
                     footerAdd = " - ⚠️ " + TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_nokey").toUpperCase();
@@ -62,6 +64,7 @@ public class PornCommand extends Command {
                         .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())) + footerAdd);
 
                 event.getChannel().sendMessage(eb).get();
+                picks.add(pornImage.getImageUrl());
             }
         }
         return true;

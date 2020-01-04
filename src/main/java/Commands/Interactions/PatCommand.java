@@ -8,7 +8,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
-        executable = false
+        executable = false,
+        aliases = {"praise"}
 )
 public class PatCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

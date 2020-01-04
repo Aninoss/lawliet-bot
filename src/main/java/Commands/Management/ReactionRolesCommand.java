@@ -13,7 +13,6 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
@@ -371,7 +370,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     }
 
     private boolean calculateEmoji(Emoji emoji) throws IOException {
-        if (emoji == null || (emoji.isCustomEmoji() && !emoji.isKnownCustomEmoji())) {
+        if (emoji == null || (emoji.isCustomEmoji() && !DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()))) {
             setLog(LogStatus.FAILURE, getString("emojiunknown"));
             return true;
         }

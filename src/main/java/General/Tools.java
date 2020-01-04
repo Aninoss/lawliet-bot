@@ -8,6 +8,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
+import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.PermissionState;
 import org.javacord.api.entity.permission.PermissionType;
@@ -297,8 +298,9 @@ public class Tools {
             if (tags.length == 3) {
                 tag = tags[2];
                 String id = tag.substring(0, tag.length() - 1);
-                if (DiscordApiCollection.getInstance().getCustomEmojiById(id).isPresent()) {
-                    return DiscordApiCollection.getInstance().getCustomEmojiById(id).get();
+                Optional<KnownCustomEmoji> customEmojiOptional = DiscordApiCollection.getInstance().getCustomEmojiById(id);
+                if (customEmojiOptional.isPresent()) {
+                    return customEmojiOptional.get();
                 }
             }
         } catch (Throwable e) {

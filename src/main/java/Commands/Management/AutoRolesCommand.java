@@ -155,7 +155,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < roles.size()) {
+                } else if (i < roles.size() && i >= 0) {
                     DBServer.removeBasicRoles(event.getServer().get(), roles.remove(i));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
                     setState(0);

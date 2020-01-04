@@ -83,6 +83,7 @@ public class CommandContainer {
         commandList.add(BannedWordsCommand.class);
         commandList.add(AutoKickCommand.class);
         commandList.add(ClearCommand.class);
+        commandList.add(FullClearCommand.class);
 
         //INFORMATION
         commandList.add(HelpCommand.class);
@@ -136,6 +137,8 @@ public class CommandContainer {
         commandList.add(RunCommand.class);
         commandList.add(BlushCommand.class);
         commandList.add(StareCommand.class);
+        commandList.add(SleepCommand.class);
+        commandList.add(NoseBleedCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);

@@ -1,6 +1,7 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import Commands.NSFW.RealbooruCommand;
 import Constants.Category;
 import General.*;
 import General.Cooldown.Cooldown;
@@ -51,6 +52,7 @@ public class CommandManager {
 
                                         ServerTextChannel channel = event.getServerTextChannel().get();
                                         ChannelCategory channelCategory = channel.getCategory().get();
+                                        String trigger = command.getTrigger();
 
                                         if (channelCategory.getId() == 660260159830097942L) ok = true;
                                         if (channelCategory.getId() == 660815066345635891L &&
@@ -59,7 +61,11 @@ public class CommandManager {
                                         if (channel.getId() == 660262919090470931L &&
                                                 (command.getCategory().equalsIgnoreCase(Category.INTERACTIONS) || command.getCategory().equalsIgnoreCase(Category.EMOTES))
                                         ) ok = true;
-                                        if (channelCategory.getId() == 660266507774722049L && command.getCategory() == Category.NSFW) ok = true;
+                                        if (channelCategory.getId() == 660266507774722049L && command.getCategory().equals(Category.NSFW)) {
+                                            boolean rlporn = trigger.equalsIgnoreCase("realb") || trigger.equalsIgnoreCase("rlporn");
+                                            if (channel.getId() == 660266692399857684L && rlporn) ok = true;
+                                            if (channel.getId() != 660266692399857684L && !rlporn) ok = true;
+                                        }
 
                                         if (!ok) {
                                             Message message = event.getChannel().sendMessage("**❌ You aren't allowed to run this command here!**").get();

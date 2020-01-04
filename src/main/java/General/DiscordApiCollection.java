@@ -63,7 +63,7 @@ public class DiscordApiCollection {
                     System.out.println("Disconnect shard " + n);
                     errorCounter[n]++;
                     if (errorCounter[n] >= 3) {
-                        if (hasReconnected[n]) {
+                        if (hasReconnected[n] || true) {
                             System.err.println(Instant.now() + " ERROR: Shard offline for too long. Force complete restart");
                             System.exit(-1);
                         } else {
@@ -120,6 +120,8 @@ public class DiscordApiCollection {
     }
 
     public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {
+        waitForStartup();
+
         for(DiscordApi api: apiList) {
             Optional<KnownCustomEmoji> emojiOptional = api.getCustomEmojiById(emojiId);
             if (emojiOptional.isPresent()) return emojiOptional;
@@ -135,10 +137,21 @@ public class DiscordApiCollection {
         }
     }
 
+    public boolean customEmojiIsKnown(CustomEmoji customEmoji) {
+        return getCustomEmojiById(customEmoji.getId()).isPresent();
+    }
+
     public Server getHomeServer() {
         long serverId = Settings.HOME_SERVER_ID;
         Optional<Server> serverOptional = getServerById(serverId);
-        if (!serverOptional.isPresent()) System.exit(0);
+        if (!serverOptional.isPresent()){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return getHomeServer();
+        }
         return serverOptional.get();
     }
 
