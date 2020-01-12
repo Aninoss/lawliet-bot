@@ -92,4 +92,13 @@ public class AutoChannelContainer {
         }
         return null;
     }
+
+    public void removeShard(int shardId) {
+        for(TempAutoChannel tempAutoChannel: new ArrayList<>(channelList)) {
+            if (tempAutoChannel.getOriginalChannel().getApi().getCurrentShard() == shardId) {
+                channelList.remove(tempAutoChannel);
+            }
+        }
+    }
+
 }

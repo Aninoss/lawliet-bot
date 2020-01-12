@@ -66,7 +66,8 @@ public class CommunicationServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(0);
+            System.err.println(Instant.now() + " ERROR: Exception in communication server");
+            System.exit(-1);
         }
     }
 }

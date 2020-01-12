@@ -137,7 +137,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                                     setLog(LogStatus.FAILURE, getString("state1_alreadytracking"));
                                     return;
                                 }
-                                TrackerManager.stopTracker(trackerRemove);
+                                TrackerManager.stopTracker(trackerRemove, true);
                             }
                             this.command = command;
                             this.commandTrigger = trigger;
@@ -163,7 +163,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     TrackerData trackerRemove = getTracker(arg);
                     if (trackerRemove != null) {
                         DBBot.removeTracker(trackerRemove);
-                        TrackerManager.stopTracker(trackerRemove);
+                        TrackerManager.stopTracker(trackerRemove, true);
                         updateTrackerList();
                         setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
                         if (trackers.size() == 0) {
@@ -199,8 +199,8 @@ public class TrackerCommand extends Command implements onNavigationListener {
 
     private void updateTrackerList() throws Throwable {
         ArrayList<TrackerData> newTrackers = new ArrayList<>();
-        for(TrackerData trackerData: DBBot.getTracker()) {
-            if (trackerData.getServer().equals(server) && trackerData.getChannel().equals(channel)) {
+        for(TrackerData trackerData: DBBot.getTracker(server.getApi())) {
+            if (trackerData.getServer().getId() == server.getId() && trackerData.getChannel().equals(channel)) {
                 newTrackers.add(trackerData);
             }
         }

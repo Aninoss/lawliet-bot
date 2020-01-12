@@ -36,12 +36,13 @@ import java.util.concurrent.ExecutionException;
 public class Tools {
 
     public static boolean stringIsNumeric(String string) {
-        if (string.length() == 0 || string.equalsIgnoreCase("-") || string.equalsIgnoreCase("+")) return false;
-        for(int i=0; i<string.length(); i++) {
-            char codeNum = string.charAt(i);
-            if (!Character.isDigit(codeNum) && (codeNum != '-' || i>0) && (codeNum != '+' || i > 0)) return false;
+        try {
+            Double.parseDouble(string);
+            Long.parseLong(string.replace(".", ""));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
-        return true;
     }
 
     public static long filterNumberFromString(String string) {
@@ -252,12 +253,16 @@ public class Tools {
     }
 
     public static boolean canManageRole(Role role) {
-        DiscordApi api = role.getApi();
+        return canManageRole(DiscordApiCollection.getInstance().getYourself(), role);
+    }
+
+    public static boolean canManageRole(User user, Role role) {
         Server server = role.getServer();
-        if (role.isManaged() || !server.canYouManageRoles()) return false;
+        if (role.isManaged() || !server.canManageRoles(user)) return false;
+        if (server.getOwner().getId() == user.getId()) return true;
 
         int highestPosition = -1;
-        for(Role ownRole: server.getRoles(DiscordApiCollection.getInstance().getYourself())) {
+        for(Role ownRole: server.getRoles(user)) {
             if (ownRole.getPermissions().getState(PermissionType.MANAGE_ROLES) == PermissionState.ALLOWED || ownRole.getPermissions().getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED) {
                 highestPosition = Math.max(highestPosition, ownRole.getPosition());
             }

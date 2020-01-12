@@ -5,6 +5,7 @@ import ServerStuff.DiscordBotsAPI.DiscordbotsWebhookSession;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
 
 public class WebhookServer {
     private int port;
@@ -38,8 +39,8 @@ public class WebhookServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-
-            System.exit(0);
+            System.err.println(Instant.now() + " ERROR: Exception in webhook server");
+            System.exit(-1);
         }
     }
 }

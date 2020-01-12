@@ -2,7 +2,6 @@ package MySQL;
 
 import General.DiscordApiCollection;
 import General.Survey.*;
-import com.sun.corba.se.spi.activation.ServerOperations;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
 import java.sql.PreparedStatement;
@@ -63,7 +62,9 @@ public class DBSurvey {
         return userVoteData;
     }
 
-    public static ArrayList<SurveyServer> getUsersWithRightChoiceForCurrentSurvey(DiscordApiCollection apiCollection) throws SQLException {
+    public static ArrayList<SurveyServer> getUsersWithRightChoiceForCurrentSurvey() throws SQLException {
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
         String sql = "SELECT serverId, userId, (majorityVote = (SELECT personalVote FROM SurveyVotes WHERE surveyId = (SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1) GROUP BY personalVote ORDER BY COUNT(personalVote) DESC LIMIT 1))\n" +
                 "FROM SurveyMajorityVotes \n" +
                 "WHERE (SELECT powerPlant FROM DServer WHERE DServer.serverId = SurveyMajorityVotes.serverId) = 'ACTIVE'\n" +

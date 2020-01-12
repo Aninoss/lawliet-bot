@@ -96,3 +96,22 @@ Was magst du lieber?|Mayonnaise|Ketchup
 Kannst du Geheimnisse gut für dich behalten?|Absolut!|Eher nicht
 Würdest du gern mal Fallschirm springen?|Ja|Nein
 Wie sollen dich andere Menschen wahrnehmen?|Als nette Person|Als lustige Person
+Was macht dir mehr zu schaffen?|Hitze|Kälte
+Siehst du von deinem Haus aus viele Sterne?|Ja|Leider nicht
+Weißt du, was du vorgestern zu Abend hattest?|Ja|Nein
+Was liegt dir eher?|Mein Gehirn einsetzen|Meinen Körper einsetzen
+Dein Freund kommt zehn Minuten zu spät. Du bist...|sauer|gelassen
+Bist du Brillenträger?|Ja|Nein
+Wie viele Stunden schläfst du nachts?|Acht oder mehr|Weniger als acht
+Glaubst du an Wahrsagerei?|Ja|Nein
+Wie viele Personen leben gemeinsam mit dir?|Vier oder mehr|Drei oder weniger
+Glaubst du an Gespenster?|Ja|Nein
+Würdest du zukünftig gerne einmal im Ausland leben?|Ja|Nein
+Welchen Sport würdest du dir eher ansehen?|Baseball|Fußball
+Was würdest du tun, wenn du eine hohe Geldsumme bekommen würdest?|Ausgeben|Sparen
+Liest du oft?|Ja|Nein
+Hast du schon einmal ein UFO gesehen?|Ja|Nein
+Kannst du dir alle Geburtstage deiner Familie merken?|Ja|Nein
+Was ist dir beim Essen wichtiger?|Portionsgröße|Geschmack
+Magst du es, fotografiert zu werden?|Ja|Nein
+Magst du Horrorfilme?|Ja|Nicht so...

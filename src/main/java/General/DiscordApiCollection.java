@@ -2,6 +2,9 @@ package General;
 
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
+import General.AutoChannel.AutoChannelContainer;
+import General.RunningCommands.RunningCommandManager;
+import General.Tracker.TrackerManager;
 import MySQL.FisheryCache;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.emoji.CustomEmoji;
@@ -20,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class DiscordApiCollection {
 
     private static DiscordApiCollection ourInstance = new DiscordApiCollection();
-    private DiscordApi[] apiList;
+    private DiscordApi[] apiList = new DiscordApi[0];
     private boolean[] apiReady;
 
     private int[] errorCounter;
@@ -62,8 +65,8 @@ public class DiscordApiCollection {
                 } else {
                     System.out.println("Disconnect shard " + n);
                     errorCounter[n]++;
-                    if (errorCounter[n] >= 3) {
-                        if (hasReconnected[n] || true) {
+                    if (errorCounter[n] >= 5) {
+                        if (hasReconnected[n]) {
                             System.err.println(Instant.now() + " ERROR: Shard offline for too long. Force complete restart");
                             System.exit(-1);
                         } else {
@@ -75,6 +78,9 @@ public class DiscordApiCollection {
                                 e.printStackTrace();
                             }
                             FisheryCache.getInstance(n).turnOff();
+                            AutoChannelContainer.getInstance().removeShard(n);
+                            TrackerManager.stopShard(n);
+                            RunningCommandManager.getInstance().clearShard(n);
                             api.disconnect();
                             Connector.reconnectApi(api.getCurrentShard());
                             errorCounter[n] = 0;
@@ -90,6 +96,7 @@ public class DiscordApiCollection {
     }
 
     public Optional<Server> getServerById(long serverId) {
+        if (apiList[getResponsibleShard(serverId)] == null) return Optional.empty();
         return apiList[getResponsibleShard(serverId)].getServerById(serverId);
     }
 
@@ -197,7 +204,7 @@ public class DiscordApiCollection {
         return n;
     }
 
-    private void waitForStartup() {
+    public void waitForStartup() {
         while(!allShardsConnected()) {
             try {
                 Thread.sleep(1000);

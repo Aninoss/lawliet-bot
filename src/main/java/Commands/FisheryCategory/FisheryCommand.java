@@ -61,7 +61,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
             treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
             reminders = DBServer.getPowerPlantRemindersFromServer(event.getServer().get());
 
-            checkRolesWithLog(roles);
+            checkRolesWithLog(roles, null);
 
             return Response.TRUE;
         }
@@ -73,7 +73,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    if (!checkRolesWithLog(roleList)) return Response.FALSE;
+                    if (!checkRolesWithLog(roleList, event.getMessage().getUserAuthor().get())) return Response.FALSE;
 
                     int existingRoles = 0;
                     for (Role role : roleList) {

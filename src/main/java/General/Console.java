@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.time.Instant;
 import java.util.ArrayList;
 
 public class Console {
@@ -58,6 +59,7 @@ public class Console {
                         }
                         switch (command) {
                             case "quit":
+                                System.err.println(Instant.now() + " LOG: Manual quit");
                                 System.exit(0);
                                 break;
 

@@ -16,18 +16,16 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-public class DBBot {
+import javax.swing.text.html.Option;
 
-    public static void synchronize() throws SQLException {
-        cleanUp();
-        startTrackers();
-    }
+public class DBBot {
 
     public static String getCurrentVersions() throws SQLException {
         String result = null;
@@ -108,21 +106,21 @@ public class DBBot {
         return 1;
     }
 
-    public static void cleanUp() throws SQLException {
+    public static void fisheryCleanUp() throws SQLException {
         String sql = "DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;";
         DBMain.getInstance().statement(sql);
     }
 
-    public static void startTrackers() throws SQLException {
+    public static void startTrackers(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
-            List<TrackerData> trackerDataList = getTracker();
+            List<TrackerData> trackerDataList = getTracker(api);
             for (TrackerData trackerData : trackerDataList) {
                 TrackerManager.startTracker(trackerData);
             }
         }
     }
 
-    public static ArrayList<TrackerData> getTracker() throws SQLException {
+    public static ArrayList<TrackerData> getTracker(DiscordApi api) throws SQLException {
         ArrayList<TrackerData> dataArrayList = new ArrayList<>();
 
         Statement statement = DBMain.getInstance().statement("SELECT * FROM Tracking;");
@@ -136,19 +134,15 @@ public class DBBot {
             Instant instant = resultSet.getTimestamp(6).toInstant();
             String arg = resultSet.getString(7);
 
-            boolean success = false;
-            DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-            if (apiCollection.getServerById(serverId).isPresent()) {
-                Server server = apiCollection.getServerById(serverId).get();
-                if (server.getTextChannelById(channelId).isPresent()) {
-                    ServerTextChannel channel = server.getTextChannelById(channelId).get();
+            Optional<Server> serverOptional = api.getServerById(serverId);
+            if (serverOptional.isPresent()) {
+                Server server = serverOptional.get();
+                Optional<ServerTextChannel> channelOptional = server.getTextChannelById(channelId);
+                if (channelOptional.isPresent()) {
+                    ServerTextChannel channel = channelOptional.get();
                     dataArrayList.add(new TrackerData(server, channel, messageId, command, key, instant, arg));
-                    success = true;
-                }
+                } else removeTracker(serverId, channelId, command);
             }
-
-            if (!success)
-                removeTracker(serverId, channelId, command);
         }
         return dataArrayList;
     }

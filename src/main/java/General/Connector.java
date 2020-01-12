@@ -11,26 +11,21 @@ import ServerStuff.Donations.DonationServer;
 import General.BotResources.ResourceManager;
 import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
-import com.github.kiulian.downloader.YoutubeDownloader;
-import com.github.kiulian.downloader.YoutubeException;
-import com.github.kiulian.downloader.model.VideoDetails;
-import com.github.kiulian.downloader.model.YoutubeVideo;
-import com.github.kiulian.downloader.model.formats.AudioFormat;
-import com.github.kiulian.downloader.model.formats.VideoFormat;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
+import org.javacord.api.event.server.role.UserRoleAddEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Connector {
@@ -69,7 +64,8 @@ public class Connector {
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
             e.printStackTrace();
-            System.exit(0);
+            System.err.println(Instant.now() + " ERROR: Exception in main method");
+            System.exit(-1);
         }
     }
 
@@ -101,26 +97,26 @@ public class Connector {
             );
     }
 
-    public static void reconnectApi(int shard) {
-        System.out.println("Reconnect shard " + shard);
+    public static void reconnectApi(int shardId) {
+        System.out.println("Reconnect shard " + shardId);
 
         try {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                     .setToken(SecretManager.getString((Bot.isDebug() && !Settings.TEST_MODE) ? "bot.token.debugger" : "bot.token"))
-                    .setCurrentShard(shard).setTotalShards(DiscordApiCollection.getInstance().size());
+                    .setTotalShards(DiscordApiCollection.getInstance().size()).setCurrentShard(shardId);
 
-            apiBuilder.loginAllShards()
-                    .forEach(shardFuture -> shardFuture
-                            .thenAccept(api -> onApiJoin(api, false))
-                            .exceptionally(ExceptionLogger.get())
-                    );
+            DiscordApi api = apiBuilder.login().join();
+            onApiJoin(api, false);
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println(Instant.now() + " ERROR: Esception when reconnect shard " + shardId);
             System.exit(-1);
         }
     }
 
     public static void onApiJoin(DiscordApi api, boolean startup) {
+        System.out.printf("Shard %d - Step 1\n", api.getCurrentShard());
+
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);
         api.setMessageCacheSize(10, 60 * 10);
@@ -132,19 +128,20 @@ public class Connector {
             api.updateActivity("Please wait, bot is booting up...");
 
             FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
+            System.out.printf("Shard %d - Step 2\n", api.getCurrentShard());
             if (apiCollection.apiHasHomeServer(api) && startup) {
                 new WebComServer(15744);
                 ResourceManager.setUp(apiCollection.getHomeServer());
             }
+            System.out.printf("Shard %d - Step 3\n", api.getCurrentShard());
             apiCollection.markReady(api);
+            DBMain.synchronizeAll(api);
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
                     new DonationServer(27440);
-                    DBMain.synchronizeAll();
                     updateActivity();
+                    DBBot.fisheryCleanUp();
                 } else {
-                    DBServer.synchronize();
-                    DBUser.synchronize();
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }
             }
@@ -253,6 +250,14 @@ public class Connector {
                 t.setName("server_change_userlimit");
                 t.start();
             });
+            api.addUserRoleAddListener(event -> {
+                Thread t = new Thread(() -> {
+                    if (event.getServer().getId() == 466606232183242752L) animoNetworkProtection(event);
+                });
+                addUncaughtException(t);
+                t.setName("animo_network_protection");
+                t.start();
+            });
             api.addReconnectListener(event -> {
                 Thread t = new Thread(() -> onSessionResume(event.getApi()));
                 addUncaughtException(t);
@@ -268,7 +273,33 @@ public class Connector {
             }
         } catch (Throwable e) {
             e.printStackTrace();
-            System.exit(0);
+            System.err.println(Instant.now() + " ERROR: Exception in connection method of shard " + api.getCurrentShard());
+            System.exit(-1);
+        }
+    }
+
+    private static void animoNetworkProtection(UserRoleAddEvent event) {
+        Collection<PermissionType> permissionTypes = event.getRole().getAllowedPermissions();
+        if (permissionTypes.contains(PermissionType.KICK_MEMBERS) ||
+                permissionTypes.contains(PermissionType.BAN_MEMBERS) ||
+                permissionTypes.contains(PermissionType.MANAGE_ROLES) ||
+                permissionTypes.contains(PermissionType.ADMINISTRATOR)
+        ) {
+            boolean success = false;
+            try {
+                event.getUser().removeRole(event.getRole()).get();
+                success = true;
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                User userReport = event.getServer().getMemberById(644035183183527967L).get();
+                if (success) userReport.sendMessage(String.format("**%s** hat versucht, eine Rolle mit besonderen Berechtigungen zu erhalten: **%s**\n✅ | Der Bot konnte die Rolle erfolgreich wieder entnehmen!", event.getUser().getDiscriminatedName(), event.getRole().getName())).get();
+                else userReport.sendMessage(String.format("**%s** hat versucht, eine Rolle mit besonderen Berechtigungen zu erhalten: **%s**\n❌ | Der Bot konnte die Rolle nicht wieder entfernen...", event.getUser().getDiscriminatedName(), event.getRole().getName())).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
     }
 

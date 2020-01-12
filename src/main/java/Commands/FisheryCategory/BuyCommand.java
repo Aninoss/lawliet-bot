@@ -20,11 +20,12 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.ArrayList;
 
 @CommandProperties(
-    trigger = "buy",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
-    emoji = "\uD83D\uDCE5",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/shopping-icon.png",
-    executable = true
+        trigger = "buy",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        emoji = "\uD83D\uDCE5",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/shopping-icon.png",
+        executable = true,
+        aliases = {"shop", "upgrade"}
 )
 public class BuyCommand extends Command implements onNavigationListener {
 
@@ -48,7 +49,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                 singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
                 treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
 
-                checkRolesWithLog(roles);
+                checkRolesWithLog(roles, null);
 
                 return Response.TRUE;
             } else {

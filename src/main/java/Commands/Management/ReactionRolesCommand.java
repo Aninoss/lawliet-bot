@@ -505,7 +505,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         this.description = Tools.cutSpaces(embed.getDescription().get());
 
         emojiConnections = new ArrayList<>();
-        checkRolesWithLog(MentionFinder.getRoles(editMessage, embed.getFields().get(0).getValue()).getList());
+        checkRolesWithLog(MentionFinder.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {

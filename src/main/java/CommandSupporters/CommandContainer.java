@@ -183,7 +183,7 @@ public class CommandContainer {
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
         commandList.add(IncreaseResolutionCommand.class);
-        commandList.add(YouTubeMP3Command.class);
+        //commandList.add(YouTubeMP3Command.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);
@@ -321,4 +321,5 @@ public class CommandContainer {
     public void updateLastCommandUsage() {
         lastCommandUsage = Instant.now();
     }
+
 }

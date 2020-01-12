@@ -17,6 +17,8 @@ import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
+
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -76,101 +78,7 @@ public class Clock {
         //Survey Results
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
-        if (day == Calendar.MONDAY || day == Calendar.THURSDAY) {
-            try {
-                SurveyVotesCollector collector = new SurveyVotesCollector(DBSurvey.getCurrentSurvey().getId());
-                List<SurveyServer> serverList = DBSurvey.getUsersWithRightChoiceForCurrentSurvey(apiCollection);
-                DBSurvey.nextSurvey();
-                collector.setResults(DBSurvey.getResults());
-
-                for (SurveyServer surveyServer : serverList) {
-                    Locale locale = DBServer.getServerLocale(surveyServer.getServer());
-                    for (SurveyUser surveyUser : surveyServer.getUserList()) {
-                        try {
-                            User user = surveyUser.getUser();
-
-                            long gains = 0;
-                            if (surveyUser.isRightChoice()) {
-                                gains = DBUser.getFishingProfile(surveyServer.getServer(), user, false).getEffect(FishingCategoryInterface.PER_SURVEY);
-                                DBUser.addFishingValues(locale, surveyServer.getServer(), user, 0, gains);
-                            }
-
-                            collector.add(user, surveyServer.getServer(), gains, locale);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                for (SurveyCollectorSlot slot : collector.getSlots()) {
-                    try {
-                        Locale locale = slot.getLocale();
-                        String[] surveyData = SurveyCommand.getSurveyData(collector.getSurveyId(), locale);
-                        SurveyResults surveyResults = collector.getSurveyResults();
-                        int answerWonId = surveyResults.getWinner();
-                        String answerWon;
-                        final String TROPHY = "\uD83C\uDFC6";
-
-                        if (answerWonId < 2)
-                            answerWon = TROPHY + " " + surveyData[answerWonId + 1].toUpperCase() + " " + TROPHY;
-                        else
-                            answerWon = TextManager.getString(locale, TextManager.COMMANDS, "survey_results_draw").toUpperCase();
-
-                        int percentage = 50;
-                        if (answerWonId < 2) percentage = (int) Math.round(surveyResults.getUserVoteRelative(answerWonId) * 100);
-
-                        EmbedBuilder eb = EmbedFactory.getEmbed()
-                                .setTitle(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_title"))
-                                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_template",
-                                        surveyData[0], surveyData[1], surveyData[2], answerWon, String.valueOf(percentage)));
-
-                        StringBuilder[] stringBuilder = {new StringBuilder(), new StringBuilder()};
-
-                        for (Server server : slot.getServers()) {
-                            long gains = slot.getServerGains(server);
-
-                            int type = 1;
-                            if (gains > 0) type = 0;
-
-                            stringBuilder[type].append("• ").append(server.getName());
-
-                            if (gains > 0) {
-                                stringBuilder[type].append(" (**+").append(Settings.COINS).append(" ").append(Tools.numToString(locale, gains)).append("**)");
-                            }
-
-                            stringBuilder[type].append("\n");
-                        }
-
-                        for(int i = 0; i < stringBuilder.length; i++) {
-                            String str = stringBuilder[i].toString();
-
-                            if (str.length() > 0) {
-                                eb.addField(
-                                        TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_wonlost", i),
-                                        str,
-                                        false
-                                );
-                            }
-                        }
-
-                        Thread t = new Thread(() -> {
-                            try {
-                                if (Tools.canSendPrivateMessage(slot.getUser())) slot.getUser().sendMessage(eb).get();
-                            } catch (Throwable e) {
-                                //Ignore
-                            }
-                        });
-                        t.setName("survey_notif_sender");
-                        t.setPriority(5);
-                        t.start();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
+        if (day == Calendar.MONDAY || day == Calendar.THURSDAY) updateSurvey();
 
         DonationServer.checkExpiredDonations(); //Check Expired Donations
 
@@ -188,6 +96,104 @@ public class Clock {
         try {
             DBBot.addStatUpvotes();
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void updateSurvey() {
+        try {
+            DiscordApiCollection.getInstance().waitForStartup();
+
+            SurveyVotesCollector collector = new SurveyVotesCollector(DBSurvey.getCurrentSurvey().getId());
+            List<SurveyServer> serverList = DBSurvey.getUsersWithRightChoiceForCurrentSurvey();
+            DBSurvey.nextSurvey();
+            collector.setResults(DBSurvey.getResults());
+
+            for (SurveyServer surveyServer : serverList) {
+                Locale locale = DBServer.getServerLocale(surveyServer.getServer());
+                for (SurveyUser surveyUser : surveyServer.getUserList()) {
+                    try {
+                        User user = surveyUser.getUser();
+
+                        long gains = 0;
+                        if (surveyUser.isRightChoice()) {
+                            gains = DBUser.getFishingProfile(surveyServer.getServer(), user, false).getEffect(FishingCategoryInterface.PER_SURVEY);
+                            DBUser.addFishingValues(locale, surveyServer.getServer(), user, 0, gains);
+                        }
+
+                        collector.add(user, surveyServer.getServer(), gains, locale);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            for (SurveyCollectorSlot slot : collector.getSlots()) {
+                try {
+                    Locale locale = slot.getLocale();
+                    String[] surveyData = SurveyCommand.getSurveyData(collector.getSurveyId(), locale);
+                    SurveyResults surveyResults = collector.getSurveyResults();
+                    int answerWonId = surveyResults.getWinner();
+                    String answerWon;
+                    final String TROPHY = "\uD83C\uDFC6";
+
+                    if (answerWonId < 2)
+                        answerWon = TROPHY + " " + surveyData[answerWonId + 1].toUpperCase() + " " + TROPHY;
+                    else
+                        answerWon = TextManager.getString(locale, TextManager.COMMANDS, "survey_results_draw").toUpperCase();
+
+                    int percentage = 50;
+                    if (answerWonId < 2) percentage = (int) Math.round(surveyResults.getUserVoteRelative(answerWonId) * 100);
+
+                    EmbedBuilder eb = EmbedFactory.getEmbed()
+                            .setTitle(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_title"))
+                            .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_template",
+                                    surveyData[0], surveyData[1], surveyData[2], answerWon, String.valueOf(percentage)));
+
+                    StringBuilder[] stringBuilder = {new StringBuilder(), new StringBuilder()};
+
+                    for (Server server : slot.getServers()) {
+                        long gains = slot.getServerGains(server);
+
+                        int type = 1;
+                        if (gains > 0) type = 0;
+
+                        stringBuilder[type].append("• ").append(server.getName());
+
+                        if (gains > 0) {
+                            stringBuilder[type].append(" (**+").append(Settings.COINS).append(" ").append(Tools.numToString(locale, gains)).append("**)");
+                        }
+
+                        stringBuilder[type].append("\n");
+                    }
+
+                    for(int i = 0; i < stringBuilder.length; i++) {
+                        String str = stringBuilder[i].toString();
+
+                        if (str.length() > 0) {
+                            eb.addField(
+                                    TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_wonlost", i),
+                                    str,
+                                    false
+                            );
+                        }
+                    }
+
+                    Thread t = new Thread(() -> {
+                        try {
+                            if (Tools.canSendPrivateMessage(slot.getUser())) slot.getUser().sendMessage(eb).get();
+                        } catch (Throwable e) {
+                            //Ignore
+                        }
+                    });
+                    t.setName("survey_notif_sender");
+                    t.setPriority(5);
+                    t.start();
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -211,8 +217,8 @@ public class Clock {
             trafficWarned = true;
         }
         if (trafficGB >= 60) {
-            System.out.println("Traffic Exceeded!");
-            System.exit(1);
+            System.err.println(Instant.now() + " ERROR: Too much traffic!");
+            System.exit(-1);
         }
 
         //Checks Database Connection
@@ -228,9 +234,19 @@ public class Clock {
         Connector.updateActivity();
 
         //Updates Discord Bots Server Count
-        DiscordbotsAPI.getInstance().updateServerCount(apiCollection.getServerTotalSize());
-        Botsfordiscord.updateServerCount(apiCollection.getServerTotalSize());
-        BotsOnDiscord.updateServerCount(apiCollection.getServerTotalSize());
+        if (apiCollection.allShardsConnected()) {
+            DiscordbotsAPI.getInstance().updateServerCount(apiCollection.getServerTotalSize());
+            Botsfordiscord.updateServerCount(apiCollection.getServerTotalSize());
+            BotsOnDiscord.updateServerCount(apiCollection.getServerTotalSize());
+        }
+
+        //Updates survey manually
+        File surveyCheckFile = new File("survey_update");
+        if (surveyCheckFile.exists()) {
+            surveyCheckFile.delete();
+            System.out.println("UPDATE SURVEY");
+            updateSurvey();
+        }
     }
 
     public static boolean instantHasHour(Instant instant, int hour) {

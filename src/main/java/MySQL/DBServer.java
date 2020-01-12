@@ -19,6 +19,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import javax.swing.text.html.Option;
 import javax.xml.crypto.Data;
 import javax.xml.transform.Result;
 import java.io.IOException;
@@ -28,9 +29,9 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class DBServer {
-    public static void synchronize() throws SQLException, ExecutionException, InterruptedException {
+    public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
-            System.out.println("Server is getting synchronized...");
+            System.out.println("Servers are getting synchronized...");
             ArrayList<String> dbServerIds = new ArrayList<>();
             Statement statement = DBMain.getInstance().statement("SELECT serverId FROM DServer;");
             ResultSet resultSet = statement.getResultSet();
@@ -40,8 +41,8 @@ public class DBServer {
 
             DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-            //Fügt fehlende DB-Einträge hinzu
-            for (Server server : apiCollection.getServers()) {
+            //Inserts missing database entries
+            for (Server server : api.getServers()) {
                 if (!dbServerIds.contains(server.getIdAsString())) {
                     insertServer(server);
                 }
@@ -672,10 +673,8 @@ public class DBServer {
         return true;
     }
 
-    public static void synchronizeAutoChannelChildChannels() throws SQLException, ExecutionException, InterruptedException {
+    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
-            DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-
             Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
             ResultSet resultSet = statement.getResultSet();
 
@@ -684,37 +683,37 @@ public class DBServer {
                 long childChannelId = resultSet.getLong(2);
                 long parentChannelId = resultSet.getLong(3);
 
-                Server server = null;
+                Server server;
                 ServerVoiceChannel childChannel = null;
-                ServerVoiceChannel parentChannel = null;
+                ServerVoiceChannel parentChannel;
 
 
                 boolean found = false;
 
-                if (apiCollection.getServerById(serverId).isPresent()) {
-                    server = apiCollection.getServerById(serverId).get();
+                Optional<Server> serverOptional = api.getServerById(serverId);
+                if (serverOptional.isPresent()) {
+                    server = serverOptional.get();
                     if (server.getVoiceChannelById(childChannelId).isPresent()) {
                         childChannel = server.getVoiceChannelById(childChannelId).get();
 
                         if (childChannel.getConnectedUsers().size() > 0 &&
-                                server.getVoiceChannelById(parentChannelId).isPresent()) {
-
+                                server.getVoiceChannelById(parentChannelId).isPresent()
+                        ) {
                             parentChannel = server.getVoiceChannelById(parentChannelId).get();
 
                             AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(parentChannel, childChannel));
                             found = true;
-
                         }
                     }
-                }
 
-                if (!found) {
-                    removeAutoChannelChildChannel(serverId, childChannelId);
-                    try {
-                        if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
-                            childChannel.delete().get();
-                    } catch (ExecutionException | InterruptedException e) {
-                        e.printStackTrace();
+                    if (!found) {
+                        removeAutoChannelChildChannel(serverId, childChannelId);
+                        try {
+                            if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
+                                childChannel.delete().get();
+                        } catch (ExecutionException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

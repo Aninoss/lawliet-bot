@@ -1,10 +1,8 @@
 package General.Tracker;
 
-import com.sun.istack.internal.NotNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
-
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +76,7 @@ public class TrackerData {
         this.key = key;
     }
 
-    public void setInstant(@NotNull Instant instant) {
+    public void setInstant(Instant instant) {
         if (instant == null) throw new NullPointerException();
         this.instant = instant;
     }

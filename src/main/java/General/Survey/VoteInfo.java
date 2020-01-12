@@ -2,14 +2,20 @@ package General.Survey;
 
 import General.Tools;
 
+import java.util.Optional;
+
 public class VoteInfo {
+
     private String topic;
     private String[] choices;
     private int[] values;
-    public VoteInfo(String topic, String[] choices, int[] values) {
+    private long creatorId;
+
+    public VoteInfo(String topic, String[] choices, int[] values, long creatorId) {
         setTopic(topic);
         setChoices(choices);
         setValues(values);
+        this.creatorId = creatorId;
     }
 
     public String getTopic() {
@@ -61,5 +67,10 @@ public class VoteInfo {
 
     public int getSize() {
         return choices.length;
+    }
+
+    public Optional<Long> getCreatorId() {
+        if (creatorId == -1) return Optional.empty();
+        return Optional.of(creatorId);
     }
 }

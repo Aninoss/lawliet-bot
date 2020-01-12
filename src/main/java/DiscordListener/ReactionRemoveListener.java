@@ -39,7 +39,7 @@ public class ReactionRemoveListener {
         try {
             if (message.getAuthor().isYourself() && message.getEmbeds().size() > 0) {
                 Embed embed = message.getEmbeds().get(0);
-                if (embed.getTitle().isPresent() && !embed.getFooter().isPresent()) {
+                if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
                     for (onReactionRemoveStatic command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {

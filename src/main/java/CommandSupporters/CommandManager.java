@@ -1,6 +1,7 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import Commands.Moderation.WarnCommand;
 import Commands.NSFW.RealbooruCommand;
 import Constants.Category;
 import General.*;
@@ -12,16 +13,23 @@ import org.javacord.api.entity.channel.ChannelCategory;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
+
+    private static HashMap<Long, Instant> cooldownHentai = new HashMap<>();
+
     public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
         Locale locale = command.getLocale();
         String commandTrigger = command.getTrigger();
@@ -31,6 +39,12 @@ public class CommandManager {
                     if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
                         if (event.getChannel().canYouEmbedLinks() || command.getTrigger().equalsIgnoreCase("help")) {
                             EmbedBuilder errEmbed = PermissionCheck.userAndBothavePermissions(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
+
+                            if (command instanceof WarnCommand && event.getServer().get().getId() == 660212849817288704L) {
+                                Role modRole = event.getServer().get().getRoleById(661931103166398465L).get();
+                                if (modRole.getUsers().contains(event.getMessage().getUserAuthor().get())) errEmbed = null;
+                            }
+
                             if (errEmbed == null || command.getTrigger().equalsIgnoreCase("help")) {
                                 if (Cooldown.getInstance().canPost(event.getMessageAuthor().asUser().get())) {
                                     //Add command usage to database
@@ -46,46 +60,10 @@ public class CommandManager {
                                         t.start();
                                     }
 
-                                    //Only for the "Free Hentai" Server
-                                    if (event.getServer().get().getId() == 660212849817288704L && !event.getMessageAuthor().isServerAdmin()) {
-                                        boolean ok = false;
-
-                                        ServerTextChannel channel = event.getServerTextChannel().get();
-                                        ChannelCategory channelCategory = channel.getCategory().get();
-                                        String trigger = command.getTrigger();
-
-                                        if (channelCategory.getId() == 660260159830097942L) ok = true;
-                                        if (channelCategory.getId() == 660815066345635891L &&
-                                                (command.getCategory().equalsIgnoreCase(Category.FISHERY) || command.getCategory().equalsIgnoreCase(Category.CASINO))
-                                        ) ok = true;
-                                        if (channel.getId() == 660262919090470931L &&
-                                                (command.getCategory().equalsIgnoreCase(Category.INTERACTIONS) || command.getCategory().equalsIgnoreCase(Category.EMOTES))
-                                        ) ok = true;
-                                        if (channelCategory.getId() == 660266507774722049L && command.getCategory().equals(Category.NSFW)) {
-                                            boolean rlporn = trigger.equalsIgnoreCase("realb") || trigger.equalsIgnoreCase("rlporn");
-                                            if (channel.getId() == 660266692399857684L && rlporn) ok = true;
-                                            if (channel.getId() != 660266692399857684L && !rlporn) ok = true;
-                                        }
-
-                                        if (!ok) {
-                                            Message message = event.getChannel().sendMessage("**❌ You aren't allowed to run this command here!**").get();
-                                            Thread t = new Thread(() -> {
-                                                try {
-                                                    Thread.sleep(5000);
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                event.getChannel().deleteMessages(message, event.getMessage());
-                                            });
-                                            t.start();
-                                            return;
-                                        }
-                                    }
-
                                     if (event.getServer().isPresent())
                                         cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
 
-                                    if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get(), command.getTrigger())) {
+                                    if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get(), command.getTrigger(), event.getApi().getCurrentShard())) {
                                         manageSlowCommandLoadingReaction(command, event.getMessage());
                                         CommandContainer.getInstance().updateLastCommandUsage();
 

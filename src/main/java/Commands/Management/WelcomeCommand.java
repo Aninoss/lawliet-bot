@@ -119,6 +119,11 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     }
 
                     BufferedImage bi = messageAttachment.downloadAsImage().get();
+                    if (bi == null) {
+                        setLog(LogStatus.FAILURE, getString("imagenotfound"));
+                        return Response.FALSE;
+                    }
+
                     ImageIO.write(bi, "png", new File("data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png"));
 
                     setLog(LogStatus.SUCCESS, getString("backgroundset"));

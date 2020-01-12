@@ -3,6 +3,7 @@ package Commands.Gimmicks;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LetterEmojis;
+import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
 import General.Survey.VoteInfo;
@@ -18,14 +19,16 @@ import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-    trigger = "vote",
-    botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Hand-thumbs-up-like-2-icon.png",
-    emoji = "\uD83D\uDDF3️️",
-    executable = false
+        trigger = "vote",
+        botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Hand-thumbs-up-like-2-icon.png",
+        emoji = "\uD83D\uDDF3",
+        executable = false,
+        aliases = {"poll"}
 )
 public class VoteCommand extends Command implements onRecievedListener, onReactionAddStatic, onReactionRemoveStatic {
 
@@ -52,8 +55,8 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
                     values[i] = 0;
                 }
 
-                VoteInfo voteInfo = new VoteInfo(topic, answers, values);
-                EmbedBuilder eb = getEmbed(voteInfo);
+                VoteInfo voteInfo = new VoteInfo(topic, answers, values, event.getMessage().getUserAuthor().get().getId());
+                EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getServerTextChannel().get().sendMessage(eb).get();
                 for (int i = 0; i < answers.length; i++) {
                     message.addReaction(LetterEmojis.LETTERS[i]);
@@ -66,7 +69,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
         }
     }
 
-    public EmbedBuilder getEmbed(VoteInfo voteInfo) throws IOException {
+    public EmbedBuilder getEmbed(VoteInfo voteInfo, boolean open) throws IOException {
         StringBuilder answerText = new StringBuilder();
         StringBuilder resultsText = new StringBuilder();
 
@@ -75,10 +78,15 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
             resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(Tools.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + Tools.getEmptyCharacter())
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + (open ? Tools.getEmptyCharacter() : ""))
                 .addField(getString("topic"), voteInfo.getTopic(),false)
                 .addField(getString("choices"), answerText.toString(),false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")",resultsText.toString(),false);
+
+        if (voteInfo.getCreatorId().isPresent())
+            eb.setFooter(getString("footer", String.valueOf(voteInfo.getCreatorId().get())));
+
+        if (!open) EmbedFactory.addLog(eb, LogStatus.WARNING, getString("closed"));
 
         return eb;
     }
@@ -110,7 +118,22 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
             if (!found) values[i] = 0;
         }
 
-        return new VoteInfo(topic, choices, values);
+        long creatorId = -1;
+        if (embed.getFooter().isPresent()) {
+            Optional<String> footerStringOptional = embed.getFooter().get().getText();
+            if (footerStringOptional.isPresent()) {
+                String footerString = footerStringOptional.get();
+                if (footerString.contains(" ")) {
+                    String creatorIdString = footerString.split(" ")[0];
+                    if (Tools.stringIsNumeric(creatorIdString)) {
+                        creatorId = Long.parseLong(creatorIdString);
+                    }
+                }
+            }
+
+        }
+
+        return new VoteInfo(topic, choices, values, creatorId);
     }
 
     private void removeEmoteIfNotSupported(Message message, ReactionAddEvent reactionAddEvent) {
@@ -136,7 +159,19 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
         boolean block = false;
         boolean userFound = false;
 
+        //UPdate VoteInfo
+        VoteInfo voteInfo = getValuesFromMessage(message);
         User user = event.getUser();
+
+        if (event.getEmoji().getMentionTag().equalsIgnoreCase("❌") &&
+                voteInfo.getCreatorId().isPresent() &&
+                voteInfo.getCreatorId().get() == event.getUser().getId()
+        ) {
+            message.edit(getEmbed(voteInfo, false)).get();
+            if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
+            return;
+        }
+
         for (Reaction reaction : message.getReactions()) {
             if (!reaction.getEmoji().getMentionTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
                 try {
@@ -149,21 +184,29 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
                     e.printStackTrace();
                 }
             } else {
-                userFound = reaction.getUsers().get().contains(user);
+                for(int i = 0; i < voteInfo.getValues().length; i++) {
+                    if (event.getEmoji().getMentionTag().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+                        userFound = reaction.getUsers().get().contains(user);
+                        break;
+                    }
+                }
+                if (!userFound) reaction.removeUser(user);
             }
         }
 
-        //VoteInfo aktualisierung
-        VoteInfo voteInfo = getValuesFromMessage(message);
-
         //VoteInfo ausführen
-        if (!block && userFound) message.edit(getEmbed(voteInfo)).get();
+        if (!block && userFound) message.edit(getEmbed(voteInfo, true)).get();
     }
 
     @Override
     public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) throws Throwable {
         VoteInfo voteInfo = getValuesFromMessage(message);
-        message.edit(getEmbed(voteInfo)).get();
+        for(int i = 0; i < voteInfo.getValues().length; i++) {
+            if (event.getEmoji().getMentionTag().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+                message.edit(getEmbed(voteInfo, true)).get();
+                break;
+            }
+        }
     }
 
     @Override

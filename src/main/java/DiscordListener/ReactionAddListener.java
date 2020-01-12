@@ -23,7 +23,7 @@ public class ReactionAddListener {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
             if (event.getMessageId() == command.getReactionMessageID()) {
                 if (event.getUser().getId() == command.getReactionUserID()) {
-                    RunningCommandManager.getInstance().add(event.getUser(), command.getTrigger());
+                    RunningCommandManager.getInstance().add(event.getUser(), command.getTrigger(), event.getApi().getCurrentShard());
 
                     try {
                         if (command instanceof onReactionAddListener) command.onReactionAddSuper(event);
@@ -66,7 +66,7 @@ public class ReactionAddListener {
         try {
             if (message.getAuthor().isYourself() && message.getEmbeds().size() > 0) {
                 Embed embed = message.getEmbeds().get(0);
-                if (embed.getTitle().isPresent() && !embed.getFooter().isPresent()) {
+                if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
                     for (onReactionAddStatic command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {

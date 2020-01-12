@@ -44,7 +44,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
         if (firstTime) {
             roles = DBServer.getBasicRolesFromServer(event.getServer().get());
-            checkRolesWithLog(roles);
+            checkRolesWithLog(roles, event.getMessage().getUserAuthor().get());
             return Response.TRUE;
         }
 
@@ -54,7 +54,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
             } else {
-                if (!checkRolesWithLog(roleList)) return Response.FALSE;
+                if (!checkRolesWithLog(roleList, event.getMessage().getUserAuthor().get())) return Response.FALSE;
 
                 int existingRoles = 0;
                 for(Role role: roleList) {

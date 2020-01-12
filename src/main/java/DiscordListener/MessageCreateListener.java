@@ -193,7 +193,7 @@ public class MessageCreateListener {
 
                 try {
                     if (canPost) {
-                        RunningCommandManager.getInstance().add(event.getMessage().getUserAuthor().get(), command.getTrigger());
+                        RunningCommandManager.getInstance().add(event.getMessage().getUserAuthor().get(), command.getTrigger(), event.getApi().getCurrentShard());
 
                         if (command instanceof onForwardedRecievedListener) {
                             boolean end = command.onForwardedRecievedSuper(event);

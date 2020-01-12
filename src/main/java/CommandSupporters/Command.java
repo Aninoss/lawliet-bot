@@ -38,12 +38,14 @@ public class Command {
     private String[] options;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
     private int state = 0;
+    private Thread thread;
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
 
     public Command() {
         commandProperties = this.getClass().getAnnotation(CommandProperties.class);
         category = CategoryCalculator.getCategoryByCommand(this.getClass());
+        thread = Thread.currentThread();
     }
 
     public void onRecievedSuper(MessageCreateEvent event, String followedString) {
@@ -459,14 +461,29 @@ public class Command {
         return false;
     }
 
-    public boolean checkRolesWithLog(ArrayList<Role> roles) {
+    public boolean checkRolesWithLog(ArrayList<Role> roles, User requester) {
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
 
         for(Role role: roles) {
             if (!Tools.canManageRole(role)) unmanagableRoles.add(role);
         }
 
-        if (unmanagableRoles.size() == 0) return true;
+        if (unmanagableRoles.size() == 0) {
+            ArrayList<Role> forbiddenRoles = new ArrayList<>();
+
+            if (requester == null) requester = DiscordApiCollection.getInstance().getYourself();
+            for(Role role: roles) {
+                if (!Tools.canManageRole(requester, role)) forbiddenRoles.add(role);
+            }
+
+            if (forbiddenRoles.size() == 0) return true;
+            try {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, Tools.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
         try {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, Tools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
         } catch (IOException e) {
@@ -518,6 +535,9 @@ public class Command {
     public void setLog(LogStatus logStatus, String string) {
         this.log = string;
         this.logStatus = logStatus;
+    }
+    public Thread getThread() {
+        return thread;
     }
 
 }

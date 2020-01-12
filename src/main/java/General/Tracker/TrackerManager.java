@@ -7,7 +7,6 @@ import Constants.Permission;
 import General.PermissionCheckRuntime;
 import MySQL.DBBot;
 import MySQL.DBServer;
-import com.sun.istack.internal.NotNull;
 
 import java.awt.*;
 import java.sql.SQLException;
@@ -84,12 +83,24 @@ public class TrackerManager {
         trackerConnections.add(new TrackerConnection(trackerData, t));
     }
 
-    public static void stopTracker(TrackerData trackerData) throws SQLException {
+    public static void stopTracker(TrackerData trackerData, boolean removeFromDatabase) throws SQLException {
         TrackerConnection trackerConnectionRemove = getTrackerConnection(trackerData);
         if (trackerConnectionRemove != null) {
             trackerConnectionRemove.getThread().interrupt();
             trackerConnections.remove(trackerConnectionRemove);
-            DBBot.removeTracker(trackerData);
+            if (removeFromDatabase) DBBot.removeTracker(trackerData);
+        }
+    }
+
+    public static void stopShard(int shardId) {
+        for(TrackerConnection trackerConnection: new ArrayList<>(trackerConnections)) {
+            if (trackerConnection.getTrackerData().getServer().getApi().getCurrentShard() == shardId) {
+                try {
+                    stopTracker(trackerConnection.getTrackerData(), false);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

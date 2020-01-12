@@ -6,6 +6,7 @@ import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
+import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -20,14 +21,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class DBUser {
-    public static void synchronize() throws SQLException {
+    public static void synchronize(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
-            System.out.println("User werden synchronisiert...");
+            System.out.printf("Users of shard %d are getting synchronized...\n", api.getCurrentShard());
 
             Thread t = new Thread(() -> {
                 ArrayList<Long> userList = new ArrayList<>();
 
-                for (Server server : DiscordApiCollection.getInstance().getServers()) {
+                for (Server server : api.getServers()) {
                     for (User user : server.getMembers()) {
                         long id = user.getId();
                         if (!userList.contains(id)) userList.add(id);
@@ -49,13 +50,13 @@ public class DBUser {
                     //Fügt fehlende DB-Einträge hinzu
                     insertUserIds(userList);
 
-                    System.out.println("User-Synchronisation abgeschlossen!");
+                    System.out.printf("Users synchronization of shard %d finished!\n", api.getCurrentShard());
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             });
 
-            t.setName("synchr_user");
+            t.setName("synchr_user_" + api.getCurrentShard());
             t.start();
         }
     }
