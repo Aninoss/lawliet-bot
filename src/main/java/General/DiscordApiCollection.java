@@ -35,7 +35,7 @@ public class DiscordApiCollection {
             try {
                 Thread.sleep(100 * 1000);
                 if (!allShardsConnected()) {
-                    System.err.println(Instant.now() + " ERROR: Could not boot up!");
+                    ExceptionHandler.showErrorLog("Could not boot up!");
                     System.exit(-1);
                 }
             } catch (InterruptedException e) {
@@ -85,10 +85,10 @@ public class DiscordApiCollection {
                     errorCounter[n]++;
                     if (errorCounter[n] >= 5) {
                         if (hasReconnected[n]) {
-                            System.err.println(Instant.now() + " ERROR: Shard offline for too long. Force complete restart");
+                            ExceptionHandler.showErrorLog(String.format("Shard %d offline for too long. Force complete restart", n));
                             System.exit(-1);
                         } else {
-                            System.err.println(Instant.now() + " ERROR: Shard temporary offline");
+                            ExceptionHandler.showErrorLog(String.format("Shard %d temporary offline", n));
                             apiReady[n] = false;
                             try {
                                 CommandContainer.getInstance().clearShard(n);

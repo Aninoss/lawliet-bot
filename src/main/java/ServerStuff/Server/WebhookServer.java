@@ -1,5 +1,6 @@
 package ServerStuff.Server;
 
+import General.ExceptionHandler;
 import ServerStuff.DiscordBotsAPI.DiscordbotsWebhookSession;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class WebhookServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println(Instant.now() + " ERROR: Exception in webhook server");
+            ExceptionHandler.showErrorLog("Exception in webhook server");
             System.exit(-1);
         }
     }

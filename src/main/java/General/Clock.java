@@ -217,7 +217,7 @@ public class Clock {
             trafficWarned = true;
         }
         if (trafficGB >= 60) {
-            System.err.println(Instant.now() + " ERROR: Too much traffic!");
+            ExceptionHandler.showErrorLog("Too much traffic!");
             System.exit(-1);
         }
 

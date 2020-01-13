@@ -5,6 +5,7 @@ import Constants.Settings;
 import General.Bot;
 import General.Connector;
 import General.DiscordApiCollection;
+import General.ExceptionHandler;
 import General.RunningCommands.RunningCommandManager;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -52,7 +53,7 @@ public class CommunicationServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println(Instant.now() + " ERROR: Exception in communication server");
+            ExceptionHandler.showErrorLog("Exception in communication server");
             System.exit(-1);
         }
     }

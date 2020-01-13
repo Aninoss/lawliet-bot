@@ -1,9 +1,6 @@
 package General;
 
 import Constants.Settings;
-import General.Internet.Internet;
-import General.Internet.InternetResponse;
-import ServerStuff.BotsOnDiscord;
 import ServerStuff.CommunicationServer.CommunicationServer;
 import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
 import DiscordListener.*;
@@ -15,7 +12,6 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.event.server.role.UserRoleAddEvent;
@@ -64,7 +60,7 @@ public class Connector {
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
             e.printStackTrace();
-            System.err.println(Instant.now() + " ERROR: Exception in main method");
+            ExceptionHandler.showErrorLog("Exception in main method");
             System.exit(-1);
         }
     }
@@ -109,7 +105,7 @@ public class Connector {
             onApiJoin(api, false);
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println(Instant.now() + " ERROR: Esception when reconnect shard " + shardId);
+            ExceptionHandler.showErrorLog("Exception when reconnect shard " + shardId);
             System.exit(-1);
         }
     }
@@ -273,7 +269,7 @@ public class Connector {
             }
         } catch (Throwable e) {
             e.printStackTrace();
-            System.err.println(Instant.now() + " ERROR: Exception in connection method of shard " + api.getCurrentShard());
+            ExceptionHandler.showErrorLog("Exception in connection method of shard " + api.getCurrentShard());
             System.exit(-1);
         }
     }
@@ -337,7 +333,7 @@ public class Connector {
 
     private static void addUncaughtException(Thread t) {
         t.setUncaughtExceptionHandler((t1, e) -> {
-            System.err.println(t1.toString() + " has thrown an exception: " + e.getMessage());
+            ExceptionHandler.showErrorLog(t1.toString() + " has thrown an exception: " + e.getMessage());
             e.printStackTrace();
         });
     }

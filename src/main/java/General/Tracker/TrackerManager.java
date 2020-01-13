@@ -21,7 +21,6 @@ public class TrackerManager {
 
     public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {
         if (trackerData == null) {
-            System.err.println("Error: got a null reference for a trackerData object!");
             return;
         }
 

@@ -1,5 +1,6 @@
 package ServerStuff.Server;
 
+import General.ExceptionHandler;
 import General.SecretManager;
 
 import java.io.*;
@@ -74,9 +75,7 @@ public class WebhookServerSession {
 
                     processData(formularData.toString());
                 } else {
-                    System.err.println("Rejected: Wrong Authorization!");
-                    System.err.println("Expected: " + auth);
-                    System.err.println("Got: " + authorization);
+                    ExceptionHandler.showErrorLog(String.format("Rejected - Wrong Authorization!\nExpected: %s\nGot: %s", auth, authorization));
                 }
             }
         } catch (IOException e) {

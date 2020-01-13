@@ -15,6 +15,7 @@ import Commands.FisheryCategory.*;
 import Commands.Management.*;
 import Commands.Splatoon2.*;
 import General.DiscordApiCollection;
+import General.ExceptionHandler;
 import org.javacord.api.DiscordApi;
 
 import java.time.Instant;
@@ -242,7 +243,7 @@ public class CommandContainer {
     }
 
     private void addCommand(String trigger, Command command) {
-        if (commands.containsKey(trigger)) System.err.println("Error: dupicate key for \"" + command.getTrigger() + "\"");
+        if (commands.containsKey(trigger)) ExceptionHandler.showErrorLog("Dupicate key for \"" + command.getTrigger() + "\"");
         else commands.put(trigger, command.getClass());
     }
 

@@ -43,13 +43,11 @@ public class RedditDownloader {
 
         InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 60));
         if (!internetResponse.getContent().isPresent()) {
-            System.err.println("ERROR: Coudln't load content for r/" + sub);
             return null;
         }
 
         String dataString = internetResponse.getContent().get();
         if (!dataString.startsWith("{")) {
-            System.err.println("ERROR: Wrong JSON format r/" + sub);
             return null;
         }
 
@@ -59,7 +57,6 @@ public class RedditDownloader {
 
         JSONArray postData = tempData.getJSONArray("children");
         if (postData.length() <= 0) {
-            System.err.println("ERROR: Reddit no children for r/" + sub);
             return null;
         }
 

@@ -13,7 +13,7 @@ public class DonationServerSession extends WebhookServerSession {
 
     @Override
     public void processData(String data) {
-        System.err.println("NEW DONATION!!!");
+        System.err.println("### NEW DONATION!!! ###");
 
         JSONObject dataJSON = new JSONObject(data);
 

@@ -59,7 +59,6 @@ public class Console {
                         }
                         switch (command) {
                             case "quit":
-                                System.err.println(Instant.now() + " LOG: Manual quit");
                                 System.exit(0);
                                 break;
 

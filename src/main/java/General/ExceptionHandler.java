@@ -1,18 +1,12 @@
 package General;
 
-import CommandSupporters.Command;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-
-import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Verarbeitet Exceptions
@@ -90,6 +84,12 @@ public class ExceptionHandler {
         } catch (Throwable e1) {
             e1.printStackTrace();
         }
+    }
+
+    public static void showErrorLog(String str) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        System.err.printf("[ERROR] %s: %s\n", dtf.format(now), str);
     }
 
 }
