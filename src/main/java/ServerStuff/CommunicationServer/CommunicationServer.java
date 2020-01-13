@@ -35,7 +35,6 @@ public class CommunicationServer {
     }
 
     private void run() {
-        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         try {
             ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());
 
@@ -45,20 +44,7 @@ public class CommunicationServer {
                 try {
                     Socket socket = serverSocket.accept();
                     OutputStream os = socket.getOutputStream();
-
-                    int output =  OUT_HEARTBEAT;
-
-                    if (apiCollection != null && apiCollection.size() > 0 && apiCollection.getHomeServer().getTextChannelById(521088289894039562L).isPresent()) {
-                        try {
-                            Message message = apiCollection.getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage("test").get();
-                            if (message.getContent().equals("test")) output |=  OUT_CONNECTED;
-                            message.delete();
-                        } catch (Throwable e) {
-                            //Ignore
-                        }
-                    }
-
-                    os.write(output);
+                    os.write(OUT_HEARTBEAT | OUT_CONNECTED);
                     os.flush();
                 } catch (IOException e) {
                     e.printStackTrace();

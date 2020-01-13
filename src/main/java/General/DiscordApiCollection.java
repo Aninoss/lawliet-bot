@@ -5,6 +5,7 @@ import Constants.Settings;
 import General.AutoChannel.AutoChannelContainer;
 import General.RunningCommands.RunningCommandManager;
 import General.Tracker.TrackerManager;
+import MySQL.DatabaseCache;
 import MySQL.FisheryCache;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.emoji.CustomEmoji;
@@ -28,6 +29,23 @@ public class DiscordApiCollection {
 
     private int[] errorCounter;
     private boolean[] hasReconnected, isAlive;
+
+    private DiscordApiCollection() {
+        Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(100 * 1000);
+                if (!allShardsConnected()) {
+                    System.err.println(Instant.now() + " ERROR: Could not boot up!");
+                    System.exit(-1);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        t.setPriority(1);
+        t.setName("bootup_timebomb");
+        t.start();
+    }
 
     public static DiscordApiCollection getInstance() { return ourInstance; }
 
@@ -81,6 +99,7 @@ public class DiscordApiCollection {
                             AutoChannelContainer.getInstance().removeShard(n);
                             TrackerManager.stopShard(n);
                             RunningCommandManager.getInstance().clearShard(n);
+                            DatabaseCache.getInstance().clearShard(n);
                             api.disconnect();
                             Connector.reconnectApi(api.getCurrentShard());
                             errorCounter[n] = 0;

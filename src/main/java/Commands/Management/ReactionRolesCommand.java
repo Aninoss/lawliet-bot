@@ -103,7 +103,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     setState(3);
                     return Response.TRUE;
                 } {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "256"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
                     return Response.FALSE;
                 }
 

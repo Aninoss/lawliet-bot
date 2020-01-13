@@ -1,7 +1,6 @@
 package Commands.External;
 
 import CommandListeners.CommandProperties;
-import Commands.NSFW.RedditTemplateCommand;
 
 @CommandProperties(
     trigger = "wholesome",

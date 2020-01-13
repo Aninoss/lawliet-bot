@@ -319,7 +319,7 @@ public class Connector {
         if (!isRestartPending) {
             if (DBMain.getInstance().checkConnection()) {
                 api.updateStatus(UserStatus.ONLINE);
-                api.updateActivity(ActivityType.WATCHING, "L.help | " + Tools.numToString(serverNumber) + " Servers | lawlietbot.xyz");
+                api.updateActivity(ActivityType.WATCHING, "L.help | " + Tools.numToString(serverNumber) + " | www.lawlietbot.xyz");
             } else {
                 api.updateStatus(UserStatus.DO_NOT_DISTURB);
                 api.updateActivity(ActivityType.WATCHING, "ERROR - DATABASE DOWN");

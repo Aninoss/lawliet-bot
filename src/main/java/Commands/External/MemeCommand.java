@@ -1,12 +1,6 @@
 package Commands.External;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
-import CommandSupporters.Command;
-import Commands.NSFW.RedditTemplateCommand;
-import General.*;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
         trigger = "meme",

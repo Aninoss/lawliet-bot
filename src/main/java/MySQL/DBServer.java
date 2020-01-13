@@ -673,7 +673,7 @@ public class DBServer {
         return true;
     }
 
-    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
+    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
             Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
             ResultSet resultSet = statement.getResultSet();
@@ -693,8 +693,9 @@ public class DBServer {
                 Optional<Server> serverOptional = api.getServerById(serverId);
                 if (serverOptional.isPresent()) {
                     server = serverOptional.get();
-                    if (server.getVoiceChannelById(childChannelId).isPresent()) {
-                        childChannel = server.getVoiceChannelById(childChannelId).get();
+                    Optional<ServerVoiceChannel> optionalServerVoiceChannel = server.getVoiceChannelById(childChannelId);
+                    if (optionalServerVoiceChannel.isPresent()) {
+                        childChannel = optionalServerVoiceChannel.get();
 
                         if (childChannel.getConnectedUsers().size() > 0 &&
                                 server.getVoiceChannelById(parentChannelId).isPresent()
@@ -707,13 +708,13 @@ public class DBServer {
                     }
 
                     if (!found) {
-                        removeAutoChannelChildChannel(serverId, childChannelId);
                         try {
                             if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
                                 childChannel.delete().get();
                         } catch (ExecutionException | InterruptedException e) {
                             e.printStackTrace();
                         }
+                        removeAutoChannelChildChannel(serverId, childChannelId);
                     }
                 }
             }

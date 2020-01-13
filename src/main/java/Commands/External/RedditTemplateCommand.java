@@ -1,4 +1,4 @@
-package Commands.NSFW;
+package Commands.External;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
@@ -28,6 +28,16 @@ public class RedditTemplateCommand extends Command implements onRecievedListener
             tries--;
         }
         while (post == null && tries >= 0);
+
+        if (post == null) {
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "error"))
+                    .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_error", followedString));
+
+            event.getChannel().sendMessage(eb).get();
+
+            return false;
+        }
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
                 .setTitle(post.getTitle())

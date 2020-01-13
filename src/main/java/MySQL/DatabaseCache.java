@@ -2,6 +2,7 @@ package MySQL;
 
 import Constants.PowerPlantStatus;
 import General.BannedWords.BannedWords;
+import General.DiscordApiCollection;
 import General.Fishing.FishingProfile;
 import General.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -121,6 +122,36 @@ public class DatabaseCache {
 
     public void setFishingProfile(FishingProfile fishingProfile) {
         fishingProfiles.computeIfAbsent(fishingProfile.getServer().getId(), key -> new HashMap<>()).put(fishingProfile.getUser().getId(), fishingProfile);
+    }
+
+    public void clearShard(int shardId) {
+        //Server Banned Words
+        for(Long serverId: new ArrayList<>(serverBannedWords.keySet())) {
+            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
+                serverBannedWords.remove(serverId);
+            }
+        }
+
+        //White Listed Channels
+        for(Long serverId: new ArrayList<>(whiteListedChannels.keySet())) {
+            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
+                whiteListedChannels.remove(serverId);
+            }
+        }
+
+        //Member Count Displays
+        for(Long serverId: new ArrayList<>(memberCountDisplays.keySet())) {
+            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
+                memberCountDisplays.remove(serverId);
+            }
+        }
+
+        //Fishery Profiles
+        for(Long serverId: new ArrayList<>(fishingProfiles.keySet())) {
+            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
+                fishingProfiles.remove(serverId);
+            }
+        }
     }
 
 }
