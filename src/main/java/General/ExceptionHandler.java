@@ -90,6 +90,7 @@ public class ExceptionHandler {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         System.err.printf("[ERROR] %s: %s\n", dtf.format(now), str);
+        System.out.printf("[ERROR] %s: %s\n", dtf.format(now), str);
     }
 
 }

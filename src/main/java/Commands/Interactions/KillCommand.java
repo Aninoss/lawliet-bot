@@ -8,7 +8,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "kill",
         emoji = "☠️",
-        executable = false
+        executable = false,
+        aliases = {"die"}
 )
 public class KillCommand extends InteractionCommand implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();

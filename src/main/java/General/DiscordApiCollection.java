@@ -63,10 +63,12 @@ public class DiscordApiCollection {
 
     public void markReady(DiscordApi api) {
         apiReady[api.getCurrentShard()] = true;
-        Thread t = new Thread(() -> keepApiAlive(api));
-        t.setPriority(1);
-        t.setName("keep_alive_shard" + api.getCurrentShard());
-        t.start();
+        if (!Bot.isDebug()) {
+            Thread t = new Thread(() -> keepApiAlive(api));
+            t.setPriority(1);
+            t.setName("keep_alive_shard" + api.getCurrentShard());
+            t.start();
+        }
     }
 
     private void keepApiAlive(DiscordApi api) {
@@ -83,7 +85,7 @@ public class DiscordApiCollection {
                 } else {
                     System.out.println("Disconnect shard " + n);
                     errorCounter[n]++;
-                    if (errorCounter[n] >= 5) {
+                    if (errorCounter[n] >= 4) {
                         if (hasReconnected[n]) {
                             ExceptionHandler.showErrorLog(String.format("Shard %d offline for too long. Force complete restart", n));
                             System.exit(-1);
@@ -110,6 +112,8 @@ public class DiscordApiCollection {
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                ExceptionHandler.showErrorLog("Exception in connection observer!");
+                System.exit(-1);
             }
         }
     }

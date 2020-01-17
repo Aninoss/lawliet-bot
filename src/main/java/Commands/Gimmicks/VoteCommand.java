@@ -159,13 +159,15 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
         boolean block = false;
         boolean userFound = false;
 
-        //UPdate VoteInfo
+        //Update VoteInfo
+        message.getLatestInstance().get();
         VoteInfo voteInfo = getValuesFromMessage(message);
         User user = event.getUser();
 
         if (event.getEmoji().getMentionTag().equalsIgnoreCase("❌") &&
                 voteInfo.getCreatorId().isPresent() &&
-                voteInfo.getCreatorId().get() == event.getUser().getId()
+                voteInfo.getCreatorId().get() == event.getUser().getId() &&
+                message.getReactions().size() > 0
         ) {
             message.edit(getEmbed(voteInfo, false)).get();
             if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) message.removeAllReactions();

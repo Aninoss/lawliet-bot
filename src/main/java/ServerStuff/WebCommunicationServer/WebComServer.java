@@ -91,15 +91,17 @@ public class WebComServer {
                 ArrayList<Server> mutualServers = DiscordApiCollection.getInstance().getMutualServers(user);
                 mutualServers.sort((s1, s2) -> s1.getName().compareToIgnoreCase(s2.getName()));
                 for(Server server: mutualServers) {
-                    JSONObject serverObject = new JSONObject();
-                    serverObject
-                            .put("server_id", server.getId())
-                            .put("name", server.getName());
+                    if (Tools.userHasAdminPermissions(server, user)) {
+                        JSONObject serverObject = new JSONObject();
+                        serverObject
+                                .put("server_id", server.getId())
+                                .put("name", server.getName());
 
-                    if (server.getIcon().isPresent())
-                        serverObject.put("icon", server.getIcon().get().getUrl().toString());
+                        if (server.getIcon().isPresent())
+                            serverObject.put("icon", server.getIcon().get().getUrl().toString());
 
-                    serversArray.put(serverObject);
+                        serversArray.put(serverObject);
+                    }
                 }
             }
 

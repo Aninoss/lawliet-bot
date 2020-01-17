@@ -112,6 +112,7 @@ public class Connector {
 
     public static void onApiJoin(DiscordApi api, boolean startup) {
         System.out.printf("Shard %d - Step 1\n", api.getCurrentShard());
+        api.setAutomaticMessageCacheCleanupEnabled(true);
 
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);
@@ -258,6 +259,9 @@ public class Connector {
                 Thread t = new Thread(() -> onSessionResume(event.getApi()));
                 addUncaughtException(t);
                 t.start();
+            });
+            api.addLostConnectionListener(event -> {
+               ExceptionHandler.showErrorLog(String.format("Shard %d connection lost!", api.getCurrentShard()));
             });
 
             if (apiCollection.allShardsConnected() && !Bot.isDebug() && startup) {
