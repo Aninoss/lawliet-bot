@@ -15,16 +15,19 @@ import com.corundumstudio.socketio.listener.DataListener;
 import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.javacord.api.entity.user.UserStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class WebComServer {
 
     private static final String EVENT_COMMANDLIST = "command_list";
     private static final String EVENT_SERVERLIST = "server_list";
+    private static final String EVENT_SERVERMEMBERS = "server_members";
 
     public WebComServer(int port) {
         Configuration config = new Configuration();
@@ -110,6 +113,33 @@ public class WebComServer {
                     .put("user_id", userId)
                     .put("server_list", serversArray);
             socketIOClient.sendEvent(EVENT_SERVERLIST, mainJSON.toString());
+        });
+
+        webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, (socketIOClient, jsonObject, ackRequest) -> {
+            long userId = jsonObject.getLong("user_id");
+            long serverId = jsonObject.getLong("server_id");
+            Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                JSONObject mainJSON = new JSONObject()
+                        .put("success", false)
+                        .put("user_id", userId);
+
+                Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
+                if (serverOptional.isPresent()) {
+                    Server server = serverOptional.get();
+                    if (Tools.userHasAdminPermissions(server, user)) {
+                        mainJSON
+                                .put("success", true)
+                                .put("members_online", server.getMembers().stream().filter(userCheck -> userCheck.getStatus() != UserStatus.OFFLINE).count())
+                                .put("members_total", server.getMembers().size());
+                    }
+                }
+
+                socketIOClient.sendEvent(EVENT_SERVERMEMBERS, mainJSON.toString());
+            }
         });
 
         webComServer.start();
