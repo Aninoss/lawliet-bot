@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 public class RunningCommandManager {
+
     private static RunningCommandManager ourInstance = new RunningCommandManager();
 
     private ArrayList<Pair<RunningCommand, Instant>> runningCommands = new ArrayList<>();
@@ -76,6 +77,15 @@ public class RunningCommandManager {
             if (runningCommand.getShardId() == shardId) {
                 runningCommands.remove(runningCommandPair);
                 runningCommand.stop();
+            }
+        }
+    }
+
+    public void clean() {
+        for(Pair<RunningCommand, Instant> runningPair: new ArrayList<>(runningCommands)) {
+            Instant time = runningPair.getValue();
+            if (time.plusSeconds(60).isBefore(Instant.now())) {
+                runningCommands.remove(runningPair);
             }
         }
     }

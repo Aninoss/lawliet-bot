@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelMemberJoinListener {
-    public  VoiceChannelMemberJoinListener(){}
 
     private String getNewVCName(AutoChannelData autoChannelData, ServerVoiceChannelMemberJoinEvent event, int n) {
         String name = autoChannelData.getChannelName();

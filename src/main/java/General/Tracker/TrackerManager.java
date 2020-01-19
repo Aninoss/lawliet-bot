@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class TrackerManager {
+
     private static ArrayList<TrackerConnection> trackerConnections = new ArrayList<>();
 
     public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {

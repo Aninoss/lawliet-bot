@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Calendar;
 
 public class SIGNALTRANSMITTER {
+
     private static SIGNALTRANSMITTER ourInstance = new SIGNALTRANSMITTER();
 
     private String key;

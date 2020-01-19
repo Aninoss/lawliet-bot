@@ -3,6 +3,7 @@ package General.Internet;
 import java.time.Instant;
 
 public class URLData {
+
     private String url;
     private Instant blockInstant, createInstant;
     private InternetResponse data;

@@ -3,6 +3,7 @@ package General.Survey;
 import org.javacord.api.entity.user.User;
 
 public class SurveyUser {
+
     private User user;
     private boolean rightChoice;
 

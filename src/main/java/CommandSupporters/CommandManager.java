@@ -28,8 +28,6 @@ import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
 
-    private static HashMap<Long, Instant> cooldownHentai = new HashMap<>();
-
     public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
         Locale locale = command.getLocale();
         String commandTrigger = command.getTrigger();

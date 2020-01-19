@@ -4,6 +4,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
 public class ModerationStatus {
+
     private Server server;
     private ServerTextChannel channel;
     private boolean question;

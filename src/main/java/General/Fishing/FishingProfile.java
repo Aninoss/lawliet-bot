@@ -1,30 +1,31 @@
 package General.Fishing;
 
+import General.DiscordApiCollection;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.util.ArrayList;
 
 public class FishingProfile {
-    private Server server;
-    private User user;
+
+    private long serverId, userId;
     private long fish, coins;
     private ArrayList<FishingSlot> slots;
 
     public FishingProfile(Server server, User user) {
-        this.server = server;
-        this.user = user;
+        this.serverId = server.getId();
+        this.userId = user.getId();
         this.fish = 0;
         this.coins = 0;
         this.slots = new ArrayList<>();
     }
 
     public Server getServer() {
-        return server;
+        return DiscordApiCollection.getInstance().getServerById(serverId).get();
     }
 
     public User getUser() {
-        return user;
+        return DiscordApiCollection.getInstance().getUserById(userId).get();
     }
 
     public long getFish() {

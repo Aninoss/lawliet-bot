@@ -1,5 +1,6 @@
 package General.Tracker;
 
+import General.DiscordApiCollection;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
@@ -9,20 +10,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class TrackerData {
-    private Server server;
-    private ServerTextChannel channel;
-    private Message messageDelete;
+    private long serverId, channelId, messageId;
     private String command, key, arg;
     private Instant instant;
-    private long messageId;
     private boolean saveChanges;
 
     public TrackerData(Server server, ServerTextChannel channel, long messageId, String command, String key, Instant instant, String arg) {
         if (instant == null) throw new NullPointerException();
-        this.server = server;
-        this.channel = channel;
+        this.serverId = server.getId();
+        this.channelId = channel.getId();
         this.messageId = messageId;
-        this.messageDelete = null;
         this.command = command;
         this.key = key;
         this.instant = instant;
@@ -31,28 +28,15 @@ public class TrackerData {
     }
 
     public Server getServer() {
-        return server;
+        return DiscordApiCollection.getInstance().getServerById(serverId).orElse(null);
     }
 
     public ServerTextChannel getChannel() {
-        return channel;
+        return DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).orElse(null);
     }
 
-    public Message getMessageDelete() {
-        if (messageDelete == null && messageId != 0) {
-            try {
-                messageDelete = channel.getMessageById(messageId).get(1, TimeUnit.MINUTES);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                //Ignore
-            }
-        }
-
-        try {
-            return messageDelete == null ? null : messageDelete.getLatestInstance().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public Message getMessageDelete() throws ExecutionException, InterruptedException {
+        return messageId == 0 ? null : DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).get().getMessageById(messageId).get();
     }
 
     public String getCommand() {
@@ -69,7 +53,7 @@ public class TrackerData {
     }
 
     public void setMessageDelete(Message messageDelete) {
-        this.messageDelete = messageDelete;
+        this.messageId = messageDelete.getId();
     }
 
     public void setKey(String key) {
@@ -95,6 +79,10 @@ public class TrackerData {
 
     public boolean isSaveChanges() {
         return saveChanges;
+    }
+
+    public long getMessageId() {
+        return messageId;
     }
 
 }

@@ -5,6 +5,7 @@ import General.DiscordApiCollection;
 import org.javacord.api.entity.channel.TextChannel;
 
 public class BackEmojiConnection extends EmojiConnection {
+
     public BackEmojiConnection(TextChannel channel, String connection) {
         super("", connection);
         setEmoji(channel.canYouUseExternalEmojis(), connection);

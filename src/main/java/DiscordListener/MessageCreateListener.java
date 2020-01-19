@@ -34,7 +34,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class MessageCreateListener {
-    public MessageCreateListener() {}
 
     public void onMessageCreate(MessageCreateEvent event) {
         if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class InternetResponse {
+
     private String content;
     private int code;
     private Map<String, List<String>> headerFields;

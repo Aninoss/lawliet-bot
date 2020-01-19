@@ -5,10 +5,9 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.*;
 import General.*;
-import General.Fishing.FishingProfile;
 import MySQL.DBServer;
 import MySQL.DBUser;
-import MySQL.DailyState;
+import General.DailyState;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

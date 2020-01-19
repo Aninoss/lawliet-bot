@@ -4,6 +4,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
 public class WelcomeMessageSetting {
+
     private Server server;
     private String title, description, goodbyeText;
     private boolean activated, goodbye;

@@ -1,37 +1,23 @@
 package General.AutoChannel;
 
+import General.DiscordApiCollection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 
-/**
- * Jeweils ein Objekt pro erstellten temporären VC. Hier wird der erstellte Channel sowie das Original gespeichert.
- */
 public class TempAutoChannel {
-    private ServerVoiceChannel tempChannel;
-    private ServerVoiceChannel originalChannel;
 
-    /**
-     * Jeweils ein Objekt pro erstellten temporären VC. Hier wird der erstellte Channel sowie das Original gespeichert.
-     * @param originalChannel Der originale Auto Channel
-     * @param tempChannel Der temporäre Auto Channel
-     */
+    private long serverId, tempChannelId, originalChannelId;
+
     public TempAutoChannel(ServerVoiceChannel originalChannel, ServerVoiceChannel tempChannel) {
-        this.originalChannel = originalChannel;
-        this.tempChannel = tempChannel;
+        this.serverId = originalChannel.getServer().getId();
+        this.originalChannelId = originalChannel.getId();
+        this.tempChannelId = tempChannel.getId();
     }
 
-    /**
-     * Gibt den entsprechenden temporären Channel zurück.
-     * @return ServerVoiceChannel
-     */
     public ServerVoiceChannel getTempChannel() {
-        return tempChannel;
+        return DiscordApiCollection.getInstance().getServerById(serverId).get().getVoiceChannelById(tempChannelId).get();
     }
 
-    /**
-     * Gibt den entsprechenden original Channel zurück.
-     * @return ServerVoiceChannel
-     */
     public ServerVoiceChannel getOriginalChannel() {
-        return originalChannel;
+        return DiscordApiCollection.getInstance().getServerById(serverId).get().getVoiceChannelById(originalChannelId).get();
     }
 }

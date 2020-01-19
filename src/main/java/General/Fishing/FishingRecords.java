@@ -4,6 +4,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 public class FishingRecords {
+
     private Server[] servers;
     private User[] users;
     private long[] values;

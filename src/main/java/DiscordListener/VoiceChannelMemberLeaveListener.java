@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelMemberLeaveListener {
-    public VoiceChannelMemberLeaveListener(){}
 
     public void onLeave(ServerVoiceChannelMemberLeaveEvent event) {
         if (event.getUser().isYourself()) return;

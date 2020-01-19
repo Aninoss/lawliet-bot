@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class AnimeReleaseDownloader {
+
     public static AnimeReleasePost getPost(Locale locale) throws IOException, InterruptedException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";

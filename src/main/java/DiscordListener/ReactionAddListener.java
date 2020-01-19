@@ -17,8 +17,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ReactionAddListener {
 
-    public ReactionAddListener() {}
-
     public static boolean manageReactionCommands(SingleReactionEvent event) {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
             if (event.getMessageId() == command.getReactionMessageID()) {

@@ -27,7 +27,7 @@ public class CommandContainer {
         return ourInstance;
     }
 
-    private HashMap<String,Class> commands;
+    private HashMap<String, Class> commands;
     private ArrayList<onReactionAddStatic> staticReactionAddCommands;
     private ArrayList<onReactionRemoveStatic> staticReactionRemoveCommands;
     private ArrayList<onTrackerRequestListener> trackerCommands;
@@ -98,7 +98,7 @@ public class CommandContainer {
         commandList.add(InviteCommand.class);
         commandList.add(UpvoteCommand.class);
         commandList.add(DonateCommand.class);
-        commandList.add(TipsCommand.class);
+        //commandList.add(TipsCommand.class);
 
         //BOT OWNER
         commandList.add(EmojisCommand.class);

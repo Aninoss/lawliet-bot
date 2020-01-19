@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 public class URLDataContainer {
+
     private ArrayList<URLData> dataPackets;
     private static URLDataContainer instance = new URLDataContainer();
 
@@ -34,7 +35,7 @@ public class URLDataContainer {
         }
 
         URLData newURLData = new URLData(url, Internet.getData(url));
-        if (url != null && newURLData != null) dataPackets.add(newURLData);
+        if (url != null) dataPackets.add(newURLData);
         manageCacheLimit();
         return newURLData.getData();
     }
@@ -70,7 +71,7 @@ public class URLDataContainer {
     }
 
     private void manageCacheLimit() {
-        while (dataPackets.size() > 25) {
+        while (dataPackets.size() > 20) {
             dataPackets.remove(0);
         }
     }

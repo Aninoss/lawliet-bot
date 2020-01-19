@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 
 public class DiscordbotsWebhookSession extends WebhookServerSession {
+
     public DiscordbotsWebhookSession(Socket socket) {
         super(socket, "discordbots.auth");
     }

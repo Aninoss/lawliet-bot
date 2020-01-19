@@ -1,23 +1,25 @@
 package General.BannedWords;
 
+import General.DiscordApiCollection;
 import General.Tools;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class BannedWords {
+
     private boolean active;
-    private ArrayList<User> ignoredUser, logRecievers;
+    private ArrayList<Long> ignoredUser, logRecievers;
     private ArrayList<String> words;
-    private Server server;
+    private long serverId;
 
     public BannedWords(Server server) {
         ignoredUser = new ArrayList<>();
         logRecievers = new ArrayList<>();
         words = new ArrayList<>();
         active = false;
-        this.server = server;
+        this.serverId = server.getId();
     }
 
     public void setActive(boolean active) {
@@ -25,11 +27,11 @@ public class BannedWords {
     }
 
     public void addIgnoredUser(User user) {
-        if (!ignoredUser.contains(user)) ignoredUser.add(user);
+        if (!ignoredUser.contains(user.getId())) ignoredUser.add(user.getId());
     }
 
     public void addLogReciever(User user) {
-        if (!logRecievers.contains(user)) logRecievers.add(user);
+        if (!logRecievers.contains(user.getId())) logRecievers.add(user.getId());
     }
 
     public boolean addWord(String word) {
@@ -48,23 +50,31 @@ public class BannedWords {
     }
 
     public ArrayList<User> getIgnoredUser() {
-        return ignoredUser;
+        return ignoredUser.stream()
+                .filter(userId -> DiscordApiCollection.getInstance().getUserById(userId).isPresent())
+                .map(userId -> DiscordApiCollection.getInstance().getUserById(userId).get())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ArrayList<User> getLogRecievers() {
-        return logRecievers;
+        return logRecievers.stream()
+                .filter(userId -> DiscordApiCollection.getInstance().getUserById(userId).isPresent())
+                .map(userId -> DiscordApiCollection.getInstance().getUserById(userId).get())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public Server getServer() {
-        return server;
+        return DiscordApiCollection.getInstance().getServerById(serverId).get();
     }
 
-    public void setIgnoredUser(ArrayList<User> ignoredUser) {
-        this.ignoredUser = ignoredUser;
+    public void setIgnoredUser(ArrayList<User> ignoredUserObjects) {
+        ignoredUser = new ArrayList<>();
+        ignoredUserObjects.forEach(user -> this.ignoredUser.add(user.getId()));
     }
 
-    public void setLogRecievers(ArrayList<User> logRecievers) {
-        this.logRecievers = logRecievers;
+    public void setLogRecievers(ArrayList<User> logRecieverObjects) {
+        logRecievers = new ArrayList<>();
+        logRecieverObjects.forEach(user -> this.logRecievers.add(user.getId()));
     }
 
     public void resetIgnoredUser() {

@@ -22,7 +22,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class ServerJoinListener {
-    public ServerJoinListener() {}
 
     public void onServerJoin(ServerJoinEvent event) {
         try {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MentionList<E> {
+
     private ArrayList<E> list;
     private String resultMessageString;
 

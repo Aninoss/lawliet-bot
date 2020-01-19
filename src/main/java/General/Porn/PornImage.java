@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 public class PornImage {
+
     private String imageUrl, pageUrl;
     private ArrayList<Comment> comments;
     private int score, nComments;

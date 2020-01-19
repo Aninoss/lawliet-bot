@@ -1,6 +1,7 @@
 package General.Fishing;
 
 public class FishingSlot {
+
     private int id;
     private long level, startPrice, effect;
     private double power;

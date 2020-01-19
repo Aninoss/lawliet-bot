@@ -12,7 +12,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-import javax.swing.text.html.BlockView;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.*;
@@ -21,7 +20,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class DBUser {
-    public static void synchronize(DiscordApi api) throws SQLException {
+
+    public static void synchronize(DiscordApi api) {
         if (!Bot.isDebug()) {
             System.out.printf("Users of shard %d are getting synchronized...\n", api.getCurrentShard());
 

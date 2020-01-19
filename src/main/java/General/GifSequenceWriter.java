@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.Iterator;
 
 public class GifSequenceWriter {
+
     protected ImageWriter gifWriter;
     protected ImageWriteParam imageWriteParam;
     protected IIOMetadata imageMetaData;

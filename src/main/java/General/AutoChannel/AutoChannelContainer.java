@@ -4,10 +4,8 @@ import org.javacord.api.entity.channel.ServerVoiceChannel;
 
 import java.util.ArrayList;
 
-/**
- * Speichert alle aktiven Auto Channels
- */
 public class AutoChannelContainer {
+
     private static AutoChannelContainer ourInstance = new AutoChannelContainer();
     private ArrayList<TempAutoChannel> channelList = new ArrayList<>();
 
@@ -15,27 +13,11 @@ public class AutoChannelContainer {
         return ourInstance;
     }
 
-    /**
-     * Speichert alle aktiven Auto Channels
-     */
-    private AutoChannelContainer() {}
-
-    /**
-     * Fügt einen Voice Channel in die Liste hinzu
-     *
-     * @param tempAutoChannel Ein TempAutoChannel-Object
-     * @return Das hinzugefügte TempAutoChannel-Object
-     */
     public TempAutoChannel addVoiceChannel(TempAutoChannel tempAutoChannel) {
         channelList.add(tempAutoChannel);
         return tempAutoChannel;
     }
 
-    /**
-     * Entfernt einen Voice Channel aus der Liste
-     *
-     * @param tempChannel Der temporäre Channel als ServerVoiceChannel
-     */
     public void removeVoiceChannel(ServerVoiceChannel tempChannel) {
         TempAutoChannel deleteObject = null;
         synchronized (this) {
@@ -49,12 +31,6 @@ public class AutoChannelContainer {
         }
     }
 
-    /**
-     * Gibt die Größe der Voice Channel Liste zurück
-     *
-     * @param originalChannel Der originale ServerVoiceChannel des Temporären
-     * @return int
-     */
     public int getSize(ServerVoiceChannel originalChannel) {
         int counter = 0;
         for(TempAutoChannel tempAutoChannel: channelList) {
@@ -64,27 +40,14 @@ public class AutoChannelContainer {
         return counter;
     }
 
-    /**
-     * Gibt die Größe der Voice Channel Liste zurück
-     * @return int
-     */
     public int getSize() {
         return channelList.size();
     }
 
-    /**
-     * Gibt die aktuelle Voice Channel Liste zurück
-     */
     public ArrayList<TempAutoChannel> getChannelList() {
         return channelList;
     }
 
-    /**
-     * Gibt den TempAutoChannel entsprechend des VoiceServerChannels zurück
-     *
-     * @param tempChannel Der originale ServerVoiceChannel des Temporären
-     * @return boolean
-     */
     public TempAutoChannel getTempAutoChannel(ServerVoiceChannel tempChannel) {
         for(TempAutoChannel tempAutoChannel: channelList) {
             if (tempAutoChannel.getTempChannel().getId() == tempChannel.getId())
@@ -94,11 +57,7 @@ public class AutoChannelContainer {
     }
 
     public void removeShard(int shardId) {
-        for(TempAutoChannel tempAutoChannel: new ArrayList<>(channelList)) {
-            if (tempAutoChannel.getOriginalChannel().getApi().getCurrentShard() == shardId) {
-                channelList.remove(tempAutoChannel);
-            }
-        }
+        channelList.removeIf(tempAutoChannel -> tempAutoChannel.getOriginalChannel().getApi().getCurrentShard() == shardId);
     }
 
 }

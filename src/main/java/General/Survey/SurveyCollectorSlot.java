@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class SurveyCollectorSlot {
+
     private User user;
     private HashMap<Language, Integer> languageCounter;
     private HashMap<Server, Long> servers;

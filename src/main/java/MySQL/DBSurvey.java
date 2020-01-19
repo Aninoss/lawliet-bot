@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class DBSurvey {
+
     public static Survey getCurrentSurvey() throws SQLException {
         Statement statement = DBMain.getInstance().statement("SELECT * FROM SurveyDates ORDER BY surveyId DESC LIMIT 1;");
         ResultSet resultSet = statement.getResultSet();

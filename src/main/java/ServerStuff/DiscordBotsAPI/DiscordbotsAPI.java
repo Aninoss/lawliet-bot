@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class DiscordbotsAPI {
+
     private static DiscordbotsAPI ourInstance = new DiscordbotsAPI();
     private DiscordBotListAPI dblApi;
 

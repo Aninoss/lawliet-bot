@@ -3,6 +3,7 @@ package General.RunningCommands;
 import org.javacord.api.entity.user.User;
 
 public class RunningCommand {
+
     private User user;
     private String commandTrigger;
     private Thread thread;

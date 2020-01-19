@@ -25,7 +25,6 @@ import java.util.Locale;
 public class AutoQuoteCommand extends Command implements onRecievedListener, onReactionAddListener {
     private Message message;
 
-    private final String[] activeEmoji = new String[]{"off", "on"};
     private final String[] activeArgs = new String[]{"off", "on"};
 
     public AutoQuoteCommand() {

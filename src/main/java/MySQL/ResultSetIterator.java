@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.Iterator;
 
 public class ResultSetIterator implements Iterator<ResultSet> {
+
     private Statement statement;
     private boolean hasMoreResultSets = false;
     private int i=0;

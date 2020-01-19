@@ -12,6 +12,7 @@ import java.util.Locale;
  * Verarbeitet Exceptions
  */
 public class ExceptionHandler {
+
     public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
         boolean showError = true;
 

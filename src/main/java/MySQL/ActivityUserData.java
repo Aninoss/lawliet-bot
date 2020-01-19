@@ -1,13 +1,15 @@
 package MySQL;
 
+import General.DiscordApiCollection;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.server.Server;
 
 import java.util.Optional;
 
 public class ActivityUserData {
 
     private int lastPhase = -1, message, vc;
-    private ServerTextChannel channel = null;
+    private long serverId = -1, channelId = -1;
 
     public ActivityUserData() {
         message = 0;
@@ -18,7 +20,10 @@ public class ActivityUserData {
         if (phase > lastPhase) {
             lastPhase = phase;
             message++;
-            if (channel != null) this.channel = channel;
+            if (channel != null) {
+                this.channelId = channel.getId();
+                this.serverId = channel.getServer().getId();
+            }
             return true;
         }
 
@@ -38,7 +43,13 @@ public class ActivityUserData {
     }
 
     public Optional<ServerTextChannel> getChannel() {
-        return Optional.ofNullable(channel);
+        Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
+        if (serverOptional.isPresent()) {
+            Server server = serverOptional.get();
+            return server.getTextChannelById(channelId);
+        }
+
+        return Optional.empty();
     }
 
     public void reset() {

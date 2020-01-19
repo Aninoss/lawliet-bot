@@ -1,24 +1,26 @@
 package General.Cooldown;
 
+import General.DiscordApiCollection;
 import org.javacord.api.entity.user.User;
 
 import java.time.Instant;
 
 public class CooldownData {
-    private User user;
+
+    private long userId;
     private Instant endTimer;
     private int value;
     private boolean botIsSending;
 
     public CooldownData(User user) {
-        this.user = user;
+        this.userId = user.getId();
         this.value = 1;
         this.botIsSending = false;
         resetTimer();
     }
 
     public User getUser() {
-        return user;
+        return DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
     }
 
     public boolean canPost() {

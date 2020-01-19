@@ -1,6 +1,7 @@
 package General.Tracker;
 
 public class TrackerConnection {
+
     private TrackerData trackerData;
     private Thread thread;
 

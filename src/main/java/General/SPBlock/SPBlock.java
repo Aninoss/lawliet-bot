@@ -8,6 +8,7 @@ import org.javacord.api.entity.user.User;
 import java.util.ArrayList;
 
 public class SPBlock {
+
     private boolean active, blockName;
     private ArrayList<User> ignoredUser, logRecievers;
     private ArrayList<ServerTextChannel> ignoredChannels;

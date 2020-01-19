@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class RedditDownloader {
+
     public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException {
         sub = URLEncoder.encode(sub, "UTF-8");
 

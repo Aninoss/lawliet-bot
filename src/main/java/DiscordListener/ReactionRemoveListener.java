@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ReactionRemoveListener {
-    public ReactionRemoveListener(){}
 
     public void onReactionRemove(ReactionRemoveEvent event) {
         if (event.getUser().isYourself() || event.getUser().isBot()) return;

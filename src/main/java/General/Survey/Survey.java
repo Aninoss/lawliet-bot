@@ -3,6 +3,7 @@ package General.Survey;
 import java.time.Instant;
 
 public class Survey {
+
     private int id;
     private Instant start;
 

@@ -1,6 +1,7 @@
 package General.AnimeNews;
 
 public class AnimeNewsPost {
+
     private String title = "", description = "", image = "", link = "", author = "", date = "", id = "", category;
     private int comments;
 

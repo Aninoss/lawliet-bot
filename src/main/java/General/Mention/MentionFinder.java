@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 public class MentionFinder {
+
     public static MentionList<User> getUsers(Message message, String string) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
         if (!string.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString())) list.remove(DiscordApiCollection.getInstance().getYourself());

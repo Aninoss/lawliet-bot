@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class SurveyVotesCollector {
+
     private ArrayList<SurveyCollectorSlot> slots;
     private int surveyId;
     private SurveyResults surveyResults;

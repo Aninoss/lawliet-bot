@@ -5,6 +5,7 @@ import org.javacord.api.entity.server.Server;
 import java.util.ArrayList;
 
 public class SurveyServer {
+
     private Server server;
     private ArrayList<SurveyUser> userList;
 

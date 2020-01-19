@@ -150,14 +150,11 @@ public class DBBot {
     public static void saveTracker(TrackerData trackerData) throws SQLException {
         if (Bot.isDebug()) return;
 
-        long messageId = 0;
-        if (trackerData.getMessageDelete() != null) messageId = trackerData.getMessageDelete().getId();
-
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Tracking VALUES (?, ?, ?, ?, ?, ?, ?);");
         preparedStatement.setLong(1, trackerData.getServer().getId());
         preparedStatement.setLong(2, trackerData.getChannel().getId());
         preparedStatement.setString(3, trackerData.getCommand());
-        preparedStatement.setLong(4, messageId);
+        preparedStatement.setLong(4, trackerData.getMessageId());
         preparedStatement.setString(5, trackerData.getKey());
         preparedStatement.setString(6, DBMain.instantToDateTimeString(trackerData.getInstant()));
         preparedStatement.setString(7, trackerData.getArg());

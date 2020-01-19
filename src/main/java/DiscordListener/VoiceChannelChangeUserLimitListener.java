@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelChangeUserLimitListener {
-    public VoiceChannelChangeUserLimitListener(){}
 
     public void onVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) {
         for (TempAutoChannel tempAutoChannel : AutoChannelContainer.getInstance().getChannelList()) {

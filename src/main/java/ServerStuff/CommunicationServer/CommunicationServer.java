@@ -22,11 +22,10 @@ import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 
 public class CommunicationServer {
+
     private int port;
     private final byte OUT_HEARTBEAT = 0x1;
     private final byte OUT_CONNECTED = 0x2;
-    private final byte IN_ACK = 0x1;
-    private final byte IN_EXIT = 0x2;
 
     public CommunicationServer(int port) {
         this.port = port;

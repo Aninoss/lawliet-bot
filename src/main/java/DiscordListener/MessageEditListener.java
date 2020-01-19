@@ -6,7 +6,6 @@ import General.SPBlock.SPCheck;
 import org.javacord.api.event.message.MessageEditEvent;
 
 public class MessageEditListener {
-    public MessageEditListener() {}
 
     public void onMessageEdit(MessageEditEvent event) {
         if (!event.getMessage().isPresent() || !event.getMessage().get().getUserAuthor().isPresent() || event.getMessage().get().getAuthor().isYourself() || !event.getServer().isPresent() || event.getMessage().get().getUserAuthor().get().isBot()) return;

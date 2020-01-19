@@ -18,7 +18,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ServerMemberLeaveListener {
-    public ServerMemberLeaveListener(){}
 
     public void onLeave(ServerMemberLeaveEvent event) {
         if (event.getUser().isYourself()) return;

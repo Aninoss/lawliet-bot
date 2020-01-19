@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.Iterator;
 
 public class DBMultipleResultSet implements Iterable<ResultSet> {
+
     private String sql;
     private PreparedStatement preparedStatement;
 
@@ -22,4 +23,5 @@ public class DBMultipleResultSet implements Iterable<ResultSet> {
         if (preparedStatement != null) return new ResultSetIterator(preparedStatement);
         else return new ResultSetIterator(sql);
     }
+
 }

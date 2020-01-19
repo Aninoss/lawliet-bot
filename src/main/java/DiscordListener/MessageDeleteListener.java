@@ -10,7 +10,6 @@ import org.javacord.api.event.message.MessageDeleteEvent;
 import java.util.ArrayList;
 
 public class MessageDeleteListener {
-    public MessageDeleteListener() {}
 
     public void onMessageDelete(MessageDeleteEvent event) {
         if (!event.getMessage().isPresent() || !event.getMessage().get().getUserAuthor().isPresent() || !event.getServer().isPresent() || event.getMessage().get().getUserAuthor().get().isBot()) return;

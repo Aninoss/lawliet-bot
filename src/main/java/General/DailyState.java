@@ -1,4 +1,4 @@
-package MySQL;
+package General;
 
 public class DailyState {
     private int streak;

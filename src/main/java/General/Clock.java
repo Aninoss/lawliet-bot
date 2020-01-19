@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class Clock {
+
     private static boolean trafficWarned = false;
 
     public static void tick() {
@@ -203,6 +204,9 @@ public class Clock {
 
         //Cleans Cooldown List
         Cooldown.getInstance().clean();
+
+        //Cleans Running Commands
+        RunningCommandManager.getInstance().clean();
 
         //Analyzes Traffic
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();

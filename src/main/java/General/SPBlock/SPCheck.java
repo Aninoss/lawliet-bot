@@ -18,6 +18,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class SPCheck {
+
     public static boolean checkForSelfPromotion(Server server, Message message) {
         String content = message.getContent();
         content = content.replaceAll("(?i)"+ Settings.SERVER_INVITE_URL, "");

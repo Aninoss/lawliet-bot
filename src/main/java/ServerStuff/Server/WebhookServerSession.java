@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class WebhookServerSession {
+
     private String auth = "";
     private Socket socket;
     private InputStream inputStream;

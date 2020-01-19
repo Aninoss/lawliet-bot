@@ -12,6 +12,7 @@ import General.SPBlock.SPBlock;
 import General.Warnings.UserWarnings;
 import General.Warnings.WarningSlot;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
@@ -27,8 +28,10 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class DBServer {
+
     public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
             System.out.println("Servers are getting synchronized...");
@@ -725,7 +728,8 @@ public class DBServer {
     }
 
     public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
-        ArrayList<ServerTextChannel> channels = DatabaseCache.getInstance().getWhiteListedChannels(server);
+        ArrayList<Long> channels = DatabaseCache.getInstance().getWhiteListedChannels(server);
+        ArrayList<ServerTextChannel> channelObjects = new ArrayList<>();
 
         if (channels == null) {
             channels = new ArrayList<>();
@@ -739,7 +743,8 @@ public class DBServer {
                 long id = resultSet.getLong(1);
                 if (id != 0 && server.getChannelById(id).isPresent()) {
                     ServerTextChannel serverTextChannel = server.getTextChannelById(id).get();
-                    channels.add(serverTextChannel);
+                    channels.add(serverTextChannel.getId());
+                    channelObjects.add(serverTextChannel);
                 }
             }
 
@@ -747,13 +752,19 @@ public class DBServer {
             preparedStatement.close();
 
             DatabaseCache.getInstance().setWhiteListedChannels(server, channels);
+        } else {
+            channels.stream()
+                    .filter(channelId -> server.getTextChannelById(channelId).isPresent())
+                    .map(channelId -> server.getTextChannelById(channelId).get())
+                    .forEach(channelObjects::add);
         }
 
-        return channels;
+        return channelObjects;
     }
 
     public static ArrayList<Pair<ServerVoiceChannel, String>> getMemberCountDisplays(Server server) throws SQLException {
-        ArrayList<Pair<ServerVoiceChannel, String>> displays = DatabaseCache.getInstance().getMemberCountDisplays(server);
+        ArrayList<Pair<Long, String>> displays = DatabaseCache.getInstance().getMemberCountDisplays(server);
+        ArrayList<Pair<ServerVoiceChannel, String>> displayObjects = new ArrayList<>();
 
         if (displays == null) {
             displays = new ArrayList<>();
@@ -768,7 +779,8 @@ public class DBServer {
                 String name = resultSet.getString(2);
                 if (vcId != 0 && server.getVoiceChannelById(vcId).isPresent()) {
                     ServerVoiceChannel serverVoiceChannel = server.getVoiceChannelById(vcId).get();
-                    displays.add(new Pair<>(serverVoiceChannel, name));
+                    displays.add(new Pair<>(serverVoiceChannel.getId(), name));
+                    displayObjects.add(new Pair<>(serverVoiceChannel, name));
                 } else {
                     removeMemberCountDisplay(server.getId(), vcId);
                 }
@@ -779,15 +791,20 @@ public class DBServer {
 
             DatabaseCache.getInstance().setMemberCountDisplays(server, displays);
         } else {
-            for(Pair<ServerVoiceChannel, String> display: new ArrayList<>(displays)) {
-                ServerVoiceChannel channel = display.getKey();
-                if (!channel.getCurrentCachedInstance().isPresent()) {
-                    removeMemberCountDisplay(display);
+            displays.stream()
+                    .filter(pair -> server.getVoiceChannelById(pair.getKey()).isPresent())
+                    .map(pair -> new Pair<>(server.getVoiceChannelById(pair.getKey()).get(), pair.getValue()))
+                    .forEach(displayObjects::add);
+
+            for(Pair<Long, String> display: new ArrayList<>(displays)) {
+                Optional<ServerVoiceChannel> channelOptional = server.getVoiceChannelById(display.getKey());
+                if (!channelOptional.isPresent()) {
+                    removeMemberCountDisplay(server, display);
                 }
             }
         }
 
-        return displays;
+        return displayObjects;
     }
 
     public static void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
@@ -802,20 +819,22 @@ public class DBServer {
             preparedStatement.execute();
             preparedStatement.close();
 
-            DatabaseCache.getInstance().addMemberCountDisplay(display);
+            DatabaseCache.getInstance().addMemberCountDisplay(server, new Pair<>(display.getKey().getId(), display.getValue()));
         }
     }
 
     public static void removeMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
-        Server server = display.getKey().getServer();
+        removeMemberCountDisplay(display.getKey().getServer(), new Pair<>(display.getKey().getId(), display.getValue()));
+    }
 
+    public static void removeMemberCountDisplay(Server server, Pair<Long, String> display) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;");
         preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, display.getKey().getId());
+        preparedStatement.setLong(2, display.getKey());
         preparedStatement.execute();
         preparedStatement.close();
 
-        DatabaseCache.getInstance().removeMemberCountDisplay(display);
+        DatabaseCache.getInstance().removeMemberCountDisplay(server, display);
     }
 
     public static void removeMemberCountDisplay(long serverId, long vcId) throws SQLException {
@@ -1046,7 +1065,7 @@ public class DBServer {
         }
 
         DBMain.getInstance().statement(sql.toString());
-        DatabaseCache.getInstance().setWhiteListedChannels(server, channels);
+        DatabaseCache.getInstance().setWhiteListedChannels(server, channels.stream().map(DiscordEntity::getId).collect(Collectors.toCollection(ArrayList::new)));
     }
 
     public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {

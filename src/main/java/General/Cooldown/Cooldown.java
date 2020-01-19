@@ -5,6 +5,7 @@ import org.javacord.api.entity.user.User;
 import java.util.ArrayList;
 
 public class Cooldown {
+
     public static final int COOLDOWN_TIME_IN_SECONDS = 6;
     public static final int MAX_ALLOWED = 3;
 

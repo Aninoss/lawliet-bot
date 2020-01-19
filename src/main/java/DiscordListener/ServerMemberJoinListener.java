@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ServerMemberJoinListener {
-    public ServerMemberJoinListener(){}
 
     public void onJoin(ServerMemberJoinEvent event) {
         if (event.getUser().isYourself()) return;

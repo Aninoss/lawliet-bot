@@ -113,10 +113,10 @@ public class Connector {
     public static void onApiJoin(DiscordApi api, boolean startup) {
         System.out.printf("Shard %d - Step 1\n", api.getCurrentShard());
         api.setAutomaticMessageCacheCleanupEnabled(true);
+        api.setMessageCacheSize(10, Settings.TIME_OUT_TIME / 1000);
 
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);
-        api.setMessageCacheSize(10, 60 * 10);
 
         api.getReconnectDelay(999999999);
 

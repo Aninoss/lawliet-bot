@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class DonationServer extends WebhookServer {
+
     public DonationServer(int port) {
         super(port);
     }

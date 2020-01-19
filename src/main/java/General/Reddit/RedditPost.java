@@ -5,6 +5,7 @@ import Commands.External.RedditCommand;
 import java.time.Instant;
 
 public class RedditPost {
+
     private String title, author, link, subreddit, domain, image, thumbnail, description, flair;
     private int score, comments;
     private boolean nsfw;

@@ -32,6 +32,7 @@ import java.util.ArrayList;
     executable = true
 )
 public class TrackerCommand extends Command implements onNavigationListener {
+
     private ArrayList<EmojiConnection> emojiConnections;
     private Server server;
     private ServerTextChannel channel;

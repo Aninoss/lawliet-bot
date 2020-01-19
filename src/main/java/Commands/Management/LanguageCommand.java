@@ -19,6 +19,7 @@ import java.util.Locale;
         executable = true
 )
 public class LanguageCommand extends Command implements onRecievedListener, onReactionAddListener {
+
     private Message message;
 
     private final String[] languageEmojis = new String[]{"\uD83C\uDDE9\uD83C\uDDEA", "\uD83C\uDDEC\uD83C\uDDE7"};

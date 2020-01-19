@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class AutoRolesCommand extends Command implements onNavigationListener {
     
     private ArrayList<Role> roles;
-    private static ArrayList<Server> busyServers = new ArrayList<>();
+    private static ArrayList<Long> busyServers = new ArrayList<>();
 
     public AutoRolesCommand() {
         super();
@@ -114,7 +114,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                         }
 
                     case 2:
-                        if (!busyServers.contains(event.getServer().get())) {
+                        if (!busyServers.contains(event.getServer().get().getId())) {
                             if (roles.size() > 0) {
                                 transferRoles(event.getServer().get(), roles);
                                 setLog(LogStatus.SUCCESS, getString("transferset", roles.size() != 1));
@@ -129,7 +129,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                         }
 
                     case 3:
-                        if (!busyServers.contains(event.getServer().get())) {
+                        if (!busyServers.contains(event.getServer().get().getId())) {
                             if (roles.size() > 0) {
                                 removeRoles(event.getServer().get(), roles);
                                 setLog(LogStatus.SUCCESS, getString("removeset", roles.size() != 1));
@@ -197,7 +197,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
     private void transferRoles(Server server, ArrayList<Role> roles) {
         Thread t = new Thread(() -> {
-            busyServers.add(server);
+            busyServers.add(server.getId());
 
             for (User user : server.getMembers()) {
                 for (Role role : roles) {
@@ -205,7 +205,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 }
             }
 
-            busyServers.remove(server);
+            busyServers.remove(server.getId());
         });
         t.setName("autoroles_transfering");
         t.start();
@@ -213,7 +213,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
     private void removeRoles(Server server, ArrayList<Role> roles) {
         Thread t = new Thread(() -> {
-            busyServers.add(server);
+            busyServers.add(server.getId());
 
             for (User user : server.getMembers()) {
                 for (Role role : roles) {
@@ -221,7 +221,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 }
             }
 
-            busyServers.remove(server);
+            busyServers.remove(server.getId());
         });
         t.setName("autoroles_transfering");
         t.start();

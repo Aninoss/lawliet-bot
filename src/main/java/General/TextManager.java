@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class TextManager {
+
     public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions";
 
     public static String getString(Locale locale, String category, String key, String... args) throws IOException {

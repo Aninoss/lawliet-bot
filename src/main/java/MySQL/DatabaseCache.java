@@ -19,8 +19,8 @@ public class DatabaseCache {
     private Map<Long, BannedWords> serverBannedWords = new HashMap<>();
     private Map<Long, PowerPlantStatus> powerPlantStatusMap = new HashMap<>();
     private Map<Long, ArrayList<Long>> powerPlantIgnoredChannels = new HashMap<>();
-    private Map<Long, ArrayList<ServerTextChannel>> whiteListedChannels = new HashMap<>();
-    private Map<Long, ArrayList<Pair<ServerVoiceChannel, String>>> memberCountDisplays = new HashMap<>();
+    private Map<Long, ArrayList<Long>> whiteListedChannels = new HashMap<>();
+    private Map<Long, ArrayList<Pair<Long, String>>> memberCountDisplays = new HashMap<>();
     private Map<Long, ArrayList<String>> nsfwFilters = new HashMap<>();
     private Map<Long, Map<Long, FishingProfile>> fishingProfiles = new HashMap<>();
 
@@ -62,34 +62,32 @@ public class DatabaseCache {
         this.powerPlantIgnoredChannels.put(server.getId(), powerPlantIgnoredChannels);
     }
 
-    public void setWhiteListedChannels(Server server, ArrayList<ServerTextChannel> channels) {
+    public void setWhiteListedChannels(Server server, ArrayList<Long> channels) {
         this.whiteListedChannels.put(server.getId(), channels);
     }
 
-    public ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) {
+    public ArrayList<Long> getWhiteListedChannels(Server server) {
         return whiteListedChannels.get(server.getId());
     }
 
-    public ArrayList<Pair<ServerVoiceChannel, String>> getMemberCountDisplays(Server server) {
+    public ArrayList<Pair<Long, String>> getMemberCountDisplays(Server server) {
         return memberCountDisplays.get(server.getId());
     }
 
-    public void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) {
-        Server server = display.getKey().getServer();
+    public void addMemberCountDisplay(Server server, Pair<Long, String> display) {
         this.memberCountDisplays.computeIfAbsent(server.getId(), key -> new ArrayList<>()).add(display);
     }
 
-    public void setMemberCountDisplays(Server server, ArrayList<Pair<ServerVoiceChannel, String>> displays) {
+    public void setMemberCountDisplays(Server server, ArrayList<Pair<Long, String>> displays) {
         this.memberCountDisplays.put(server.getId(), displays);
     }
 
-    public void removeMemberCountDisplay(Pair<ServerVoiceChannel, String> display) {
-        Server server = display.getKey().getServer();
-        ArrayList<Pair<ServerVoiceChannel, String>> displayList = this.memberCountDisplays.get(server.getId());
+    public void removeMemberCountDisplay(Server server, Pair<Long, String> display) {
+        ArrayList<Pair<Long, String>> displayList = this.memberCountDisplays.get(server.getId());
         if (displayList == null) return;
 
-        for(Pair<ServerVoiceChannel, String> disCheck: displayList) {
-            if (disCheck.getKey().getId() == display.getKey().getId()) {
+        for(Pair<Long, String> disCheck: displayList) {
+            if (disCheck.getKey() == display.getKey()) {
                 memberCountDisplays.get(server.getId()).remove(disCheck);
                 break;
             }
@@ -97,11 +95,11 @@ public class DatabaseCache {
     }
 
     public void removeMemberCountDisplay(long serverId, long vcId) {
-        ArrayList<Pair<ServerVoiceChannel, String>> displayList = this.memberCountDisplays.get(serverId);
+        ArrayList<Pair<Long, String>> displayList = this.memberCountDisplays.get(serverId);
         if (displayList == null) return;
 
-        for(Pair<ServerVoiceChannel, String> disCheck: displayList) {
-            if (disCheck.getKey().getId() == vcId) {
+        for(Pair<Long, String> disCheck: displayList) {
+            if (disCheck.getKey() == vcId) {
                 memberCountDisplays.get(serverId).remove(disCheck);
                 break;
             }
@@ -122,36 +120,6 @@ public class DatabaseCache {
 
     public void setFishingProfile(FishingProfile fishingProfile) {
         fishingProfiles.computeIfAbsent(fishingProfile.getServer().getId(), key -> new HashMap<>()).put(fishingProfile.getUser().getId(), fishingProfile);
-    }
-
-    public void clearShard(int shardId) {
-        //Server Banned Words
-        for(Long serverId: new ArrayList<>(serverBannedWords.keySet())) {
-            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
-                serverBannedWords.remove(serverId);
-            }
-        }
-
-        //White Listed Channels
-        for(Long serverId: new ArrayList<>(whiteListedChannels.keySet())) {
-            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
-                whiteListedChannels.remove(serverId);
-            }
-        }
-
-        //Member Count Displays
-        for(Long serverId: new ArrayList<>(memberCountDisplays.keySet())) {
-            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
-                memberCountDisplays.remove(serverId);
-            }
-        }
-
-        //Fishery Profiles
-        for(Long serverId: new ArrayList<>(fishingProfiles.keySet())) {
-            if (DiscordApiCollection.getInstance().getResponsibleShard(serverId) == shardId) {
-                fishingProfiles.remove(serverId);
-            }
-        }
     }
 
 }

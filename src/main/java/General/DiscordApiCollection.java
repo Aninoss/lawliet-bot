@@ -101,7 +101,6 @@ public class DiscordApiCollection {
                             AutoChannelContainer.getInstance().removeShard(n);
                             TrackerManager.stopShard(n);
                             RunningCommandManager.getInstance().clearShard(n);
-                            DatabaseCache.getInstance().clearShard(n);
                             api.disconnect();
                             Connector.reconnectApi(api.getCurrentShard());
                             errorCounter[n] = 0;

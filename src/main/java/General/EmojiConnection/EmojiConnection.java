@@ -9,6 +9,7 @@ import org.javacord.api.entity.message.Message;
 import java.util.concurrent.CompletableFuture;
 
 public class EmojiConnection {
+
     private String unicodeEmoji, connection;
     private CustomEmoji customEmoji;
     private boolean custom = false;

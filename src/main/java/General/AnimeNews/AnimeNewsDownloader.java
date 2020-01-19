@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class AnimeNewsDownloader {
+
     public static AnimeNewsPost getPost(Locale locale) throws IOException, InterruptedException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";

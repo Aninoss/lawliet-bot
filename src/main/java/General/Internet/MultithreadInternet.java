@@ -3,6 +3,7 @@ package General.Internet;
 import java.io.IOException;
 
 public class MultithreadInternet {
+
     private InternetResponse[] returnStrings;
     private String[] urlStrings;
     private int downloaded;

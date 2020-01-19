@@ -3,6 +3,7 @@ package General;
 import java.util.Random;
 
 public class GameCard {
+
     private int value;
     private String emoji;
     private boolean ace;

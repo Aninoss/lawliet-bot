@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class PornImageDownloader {
+
     public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException {
         return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, gifOnly, canBeVideo, 2, false, additionalFilters);
     }

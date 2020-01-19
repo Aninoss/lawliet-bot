@@ -5,6 +5,7 @@ import ServerStuff.Server.WebhookServer;
 import java.net.Socket;
 
 public class DiscordbotsWebhook extends WebhookServer {
+
     public DiscordbotsWebhook() {
         super(9998);
     }

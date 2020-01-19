@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class SurveyResults {
+
     private int[] userVotes;
     private int[] majorityVotes;
     private int surveyId;

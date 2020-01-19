@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class PermissionCheck {
+
     public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) throws IOException {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);

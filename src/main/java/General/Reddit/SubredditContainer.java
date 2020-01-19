@@ -3,6 +3,7 @@ package General.Reddit;
 import java.util.ArrayList;
 
 public class SubredditContainer {
+
     private static SubredditContainer ourInstance = new SubredditContainer();
     private ArrayList<Subreddit> subreddits;
 
@@ -21,6 +22,7 @@ public class SubredditContainer {
 
         Subreddit subreddit = new Subreddit(name);
         subreddits.add(subreddit);
+        while(subreddits.size() > 20) subreddits.remove(0);
 
         return subreddit;
     }
@@ -28,4 +30,5 @@ public class SubredditContainer {
     public void reset() {
         subreddits = new ArrayList<>();
     }
+
 }

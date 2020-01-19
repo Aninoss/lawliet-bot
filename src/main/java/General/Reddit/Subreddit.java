@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Subreddit {
+
     private String name, postReference, tempReference;
     private ArrayList<Integer> used;
     private int limit = 25;
@@ -42,7 +43,4 @@ public class Subreddit {
         return postReference;
     }
 
-    public ArrayList<Integer> getUsed() {
-        return used;
-    }
 }

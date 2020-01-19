@@ -1,6 +1,7 @@
 package General;
 
 public class Comment {
+
     private String author, content;
 
     public Comment(String author, String content) {

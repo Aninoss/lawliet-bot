@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.awt.AlphaComposite;
 
 public class ImageCreator {
+
     public static InputStream createImageTriggered(User user) throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;

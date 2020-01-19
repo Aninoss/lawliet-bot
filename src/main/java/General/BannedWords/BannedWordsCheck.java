@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class BannedWordsCheck {
+
     public static boolean checkForBannedWordUsaqe(Server server, Message message) {
         String input = message.getContent();
 
