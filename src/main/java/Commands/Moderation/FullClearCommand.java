@@ -112,7 +112,7 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel(), trackerData.getKey(), null);
+        Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel().get(), trackerData.getKey(), null);
         if (pair == null) return null;
         trackerData.setInstant(Instant.now().plus(1, ChronoUnit.HOURS));
         return trackerData;

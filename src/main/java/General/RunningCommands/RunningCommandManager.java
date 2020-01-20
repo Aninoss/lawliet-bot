@@ -72,7 +72,7 @@ public class RunningCommandManager {
     }
 
     public synchronized void clearShard(int shardId) {
-        for(Pair<RunningCommand, Instant> runningCommandPair: runningCommands) {
+        for(Pair<RunningCommand, Instant> runningCommandPair: new ArrayList<>(runningCommands)) {
             RunningCommand runningCommand = runningCommandPair.getKey();
             if (runningCommand.getShardId() == shardId) {
                 runningCommands.remove(runningCommandPair);
@@ -81,7 +81,7 @@ public class RunningCommandManager {
         }
     }
 
-    public void clean() {
+    public synchronized void clean() {
         for(Pair<RunningCommand, Instant> runningPair: new ArrayList<>(runningCommands)) {
             Instant time = runningPair.getValue();
             if (time.plusSeconds(60).isBefore(Instant.now())) {

@@ -10,10 +10,9 @@ import General.AnimeNews.AnimeNewsDownloader;
 import General.AnimeNews.AnimeNewsPost;
 import General.PostBundle;
 import General.Tracker.TrackerData;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import javax.xml.soap.Text;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -58,8 +57,9 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
             return trackerData;
         }
 
+        ServerTextChannel channel = trackerData.getChannel().get();
         for(AnimeNewsPost post: postBundle.getPosts()) {
-            trackerData.getChannel().sendMessage(getEmbed(post)).get();
+            channel.sendMessage(getEmbed(post)).get();
         }
 
         trackerData.setArg(postBundle.getNewestPost());

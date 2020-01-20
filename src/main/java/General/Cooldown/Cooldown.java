@@ -25,7 +25,7 @@ public class Cooldown {
         return data.canPost();
     }
 
-    private CooldownData addValue(User user) {
+    private synchronized CooldownData addValue(User user) {
         CooldownData data = find(user);
 
         if (data == null) {
@@ -36,9 +36,9 @@ public class Cooldown {
         return data;
     }
 
-    private CooldownData find(User user) {
+    private synchronized CooldownData find(User user) {
         for(CooldownData data: dataList) {
-            if (data.getUser() == user) return data;
+            if (data.getUserId() == user.getId()) return data;
         }
         return null;
     }
@@ -54,9 +54,7 @@ public class Cooldown {
         else return false;
     }
 
-    public void clean() {
-        for(CooldownData data: new ArrayList<>(dataList)) {
-            if (data.canPost()) dataList.remove(data);
-        }
+    public synchronized void clean() {
+        dataList.removeIf(CooldownData::canPost);
     }
 }

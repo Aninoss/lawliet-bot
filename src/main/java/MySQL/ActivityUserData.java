@@ -43,13 +43,7 @@ public class ActivityUserData {
     }
 
     public Optional<ServerTextChannel> getChannel() {
-        Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
-        if (serverOptional.isPresent()) {
-            Server server = serverOptional.get();
-            return server.getTextChannelById(channelId);
-        }
-
-        return Optional.empty();
+        return DiscordApiCollection.getInstance().getServerTextChannelById(serverId, channelId);
     }
 
     public void reset() {

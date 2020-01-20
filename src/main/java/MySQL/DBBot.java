@@ -151,8 +151,8 @@ public class DBBot {
         if (Bot.isDebug()) return;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Tracking VALUES (?, ?, ?, ?, ?, ?, ?);");
-        preparedStatement.setLong(1, trackerData.getServer().getId());
-        preparedStatement.setLong(2, trackerData.getChannel().getId());
+        preparedStatement.setLong(1, trackerData.getServerId());
+        preparedStatement.setLong(2, trackerData.getChannelId());
         preparedStatement.setString(3, trackerData.getCommand());
         preparedStatement.setLong(4, trackerData.getMessageId());
         preparedStatement.setString(5, trackerData.getKey());
@@ -162,7 +162,7 @@ public class DBBot {
     }
 
     public static void removeTracker(TrackerData trackerData) throws SQLException {
-        removeTracker(trackerData.getServer().getId(), trackerData.getChannel().getId(), trackerData.getCommand());
+        removeTracker(trackerData.getServerId(), trackerData.getChannelId(), trackerData.getCommand());
     }
 
     public static void removeTracker(long serverId, long channelId, String command) throws SQLException {

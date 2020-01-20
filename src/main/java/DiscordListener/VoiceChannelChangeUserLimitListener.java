@@ -11,26 +11,30 @@ import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeave
 
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelChangeUserLimitListener {
 
     public void onVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) {
         for (TempAutoChannel tempAutoChannel : AutoChannelContainer.getInstance().getChannelList()) {
-            ServerVoiceChannel vc = tempAutoChannel.getTempChannel();
-            if (event.getChannel().getId() == vc.getId()) {
-                int childUserLimit = event.getNewUserLimit().orElse(-1);
-                int parentUserLimit = tempAutoChannel.getOriginalChannel().getUserLimit().orElse(-1);
+            if (event.getChannel().getId() == tempAutoChannel.getTempChannelId()) {
+                Optional<ServerVoiceChannel> originalVCOptional = tempAutoChannel.getOriginalChannel();
 
-                if (parentUserLimit != -1 && (childUserLimit == -1 || childUserLimit > parentUserLimit)) {
-                    try {
-                        Locale locale = DBServer.getServerLocale(event.getServer());
+                if (originalVCOptional.isPresent()) {
+                    int childUserLimit = event.getNewUserLimit().orElse(-1);
+                    int parentUserLimit = originalVCOptional.get().getUserLimit().orElse(-1);
 
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "autochannel", vc, Permission.MANAGE_CHANNEL)) {
-                            vc.createUpdater().setUserLimit(parentUserLimit).update().get();
+                    if (parentUserLimit != -1 && (childUserLimit == -1 || childUserLimit > parentUserLimit)) {
+                        try {
+                            Locale locale = DBServer.getServerLocale(event.getServer());
+
+                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                                event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().get();
+                            }
+                        } catch (SQLException | InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
                         }
-                    } catch (SQLException | InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
                     }
                 }
 

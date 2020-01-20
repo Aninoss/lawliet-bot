@@ -17,14 +17,13 @@ public class VoiceChannelMemberLeaveListener {
     public void onLeave(ServerVoiceChannelMemberLeaveEvent event) {
         if (event.getUser().isYourself()) return;
         for (TempAutoChannel tempAutoChannel : AutoChannelContainer.getInstance().getChannelList()) {
-            ServerVoiceChannel vc = tempAutoChannel.getTempChannel();
-            if (event.getChannel().getId() == vc.getId()) {
+            if (event.getChannel().getId() == tempAutoChannel.getTempChannelId()) {
                 try {
                     if (PermissionCheckRuntime.getInstance().botHasPermission(DBServer.getServerLocale(event.getServer()), "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
                         if (event.getChannel().getConnectedUsers().size() == 0) {
-                            AutoChannelContainer.getInstance().removeVoiceChannel(vc);
-                            DBServer.removeAutoChannelChildChannel(vc);
-                            vc.delete().get();
+                            AutoChannelContainer.getInstance().removeVoiceChannel(event.getChannel().getId());
+                            DBServer.removeAutoChannelChildChannel(event.getChannel());
+                            event.getChannel().delete().get();
                         }
                     }
                 } catch (InterruptedException | ExecutionException | SQLException e) {

@@ -46,7 +46,7 @@ public class DatabaseCache {
         return serverPrefixes.get(serverId);
     }
 
-    public void setBannedWords(Server server, BannedWords bannedWords) { serverBannedWords.put(server.getId(), bannedWords); }
+    public void setBannedWords(long serverId, BannedWords bannedWords) { serverBannedWords.put(serverId, bannedWords); }
 
     public BannedWords getBannedWords(Server server) { return serverBannedWords.get(server.getId()); }
 
@@ -119,7 +119,7 @@ public class DatabaseCache {
     }
 
     public void setFishingProfile(FishingProfile fishingProfile) {
-        fishingProfiles.computeIfAbsent(fishingProfile.getServer().getId(), key -> new HashMap<>()).put(fishingProfile.getUser().getId(), fishingProfile);
+        fishingProfiles.computeIfAbsent(fishingProfile.getServerId(), key -> new HashMap<>()).put(fishingProfile.getUserId(), fishingProfile);
     }
 
 }

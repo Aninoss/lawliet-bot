@@ -82,9 +82,9 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (trackerData.getMessageDelete() == null || trackerData.getMessageDelete().getCreationTimestamp().isBefore(DBBot.getCurrentVersionDate())) {
+        if (!trackerData.getMessageDelete().isPresent() || trackerData.getMessageDelete().get().getCreationTimestamp().isBefore(DBBot.getCurrentVersionDate())) {
             ArrayList<String> versions = DBBot.getCurrentVersions(1);
-            Message message = trackerData.getChannel().sendMessage(getVersionsEmbed(versions)).get();
+            Message message = trackerData.getChannel().get().sendMessage(getVersionsEmbed(versions)).get();
             trackerData.setMessageDelete(message);
         }
 

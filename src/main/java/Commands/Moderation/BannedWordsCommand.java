@@ -50,7 +50,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    bannedWords.setIgnoredUser(userIgnoredList);
+                    bannedWords.setIgnoredUserIds(userIgnoredList);
                     DBServer.saveBannedWords(bannedWords);
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
@@ -63,7 +63,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    bannedWords.setLogRecievers(logRecieverList);
+                    bannedWords.setLogRecieverIds(logRecieverList);
                     DBServer.saveBannedWords(bannedWords);
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
@@ -172,8 +172,8 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), bannedWords.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(bannedWords.getIgnoredUser(), getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(bannedWords.getLogRecievers(), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(bannedWords.getIgnoredUserIds(), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(bannedWords.getLogRecieverIds(), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mwords"), getWords(), true);
 
             case 1:

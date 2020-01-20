@@ -19,8 +19,8 @@ public class CooldownData {
         resetTimer();
     }
 
-    public User getUser() {
-        return DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
+    public long getUserId() {
+        return userId;
     }
 
     public boolean canPost() {

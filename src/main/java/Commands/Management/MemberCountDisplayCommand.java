@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,7 +52,11 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            displays = DBServer.getMemberCountDisplays(event.getServer().get());
+            displays = new ArrayList<>();
+            for(Pair<Long, String> display: DBServer.getMemberCountDisplays(event.getServer().get())) {
+                Optional<ServerVoiceChannel> voiceChannelOptional = event.getServer().get().getVoiceChannelById(display.getKey());
+                voiceChannelOptional.ifPresent(serverVoiceChannel -> displays.add(new Pair<>(serverVoiceChannel, display.getValue())));
+            }
             return Response.TRUE;
         }
 
@@ -221,12 +226,16 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     }
 
     public static void manage(Locale locale, Server server) throws SQLException, ExecutionException, InterruptedException {
-        ArrayList<Pair<ServerVoiceChannel, String>> displays = DBServer.getMemberCountDisplays(server);
-        for(Pair<ServerVoiceChannel, String> display: displays) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "mcdisplays", display.getKey(), Permission.MANAGE_CHANNEL)) {
-                ServerVoiceChannelUpdater updater = display.getKey().createUpdater();
-                renameVC(server, locale, updater, display.getValue());
-                updater.update();
+        ArrayList<Pair<Long, String>> displays = DBServer.getMemberCountDisplays(server);
+        for(Pair<Long, String> display: displays) {
+            Optional<ServerVoiceChannel> voiceChannelOptional = server.getVoiceChannelById(display.getKey());
+            if (voiceChannelOptional.isPresent()) {
+                ServerVoiceChannel voiceChannel = voiceChannelOptional.get();
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "mcdisplays", voiceChannel, Permission.MANAGE_CHANNEL)) {
+                    ServerVoiceChannelUpdater updater = voiceChannel.createUpdater();
+                    renameVC(server, locale, updater, display.getValue());
+                    updater.update();
+                }
             }
         }
     }

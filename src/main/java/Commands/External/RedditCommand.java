@@ -8,6 +8,7 @@ import General.PostBundle;
 import General.Reddit.RedditDownloader;
 import General.Reddit.RedditPost;
 import General.Tracker.TrackerData;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -82,8 +83,9 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
+        ServerTextChannel channel = trackerData.getChannel().get();
         if (trackerData.getKey().length() == 0) {
-            trackerData.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
+            channel.sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
             return null;
         } else {
             trackerData.setInstant(Instant.now().plusSeconds(60 * 10));
@@ -93,14 +95,14 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
 
             if (postBundle != null) {
                 for(RedditPost post: postBundle.getPosts()) {
-                    if (!post.isNsfw() || trackerData.getChannel().isNsfw()) {
-                        if (trackerData.getArg() != null) trackerData.getChannel().sendMessage(getEmbed(post));
+                    if (!post.isNsfw() || channel.isNsfw()) {
+                        if (trackerData.getArg() != null) channel.sendMessage(getEmbed(post));
                         containsOnlyNsfw = false;
                     }
                 }
 
                 if (containsOnlyNsfw && trackerData.getArg() == null) {
-                    trackerData.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
+                    channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
                     return null;
                 }
 
@@ -111,7 +113,7 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_noresults_tracker", trackerData.getKey()));
-                    trackerData.getChannel().sendMessage(eb).get();
+                    channel.sendMessage(eb).get();
                     return null;
                 } else {
                     trackerData.setSaveChanges(false);

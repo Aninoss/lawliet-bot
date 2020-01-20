@@ -15,14 +15,10 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-import javax.swing.text.html.Option;
-import javax.xml.crypto.Data;
-import javax.xml.transform.Result;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
@@ -324,7 +320,7 @@ public class DBServer {
             }
             preparedStatement.close();
 
-            DatabaseCache.getInstance().setBannedWords(server, bannedWords);
+            DatabaseCache.getInstance().setBannedWords(server.getId(), bannedWords);
         }
 
         return bannedWords;
@@ -762,9 +758,8 @@ public class DBServer {
         return channelObjects;
     }
 
-    public static ArrayList<Pair<ServerVoiceChannel, String>> getMemberCountDisplays(Server server) throws SQLException {
+    public static ArrayList<Pair<Long, String>> getMemberCountDisplays(Server server) throws SQLException {
         ArrayList<Pair<Long, String>> displays = DatabaseCache.getInstance().getMemberCountDisplays(server);
-        ArrayList<Pair<ServerVoiceChannel, String>> displayObjects = new ArrayList<>();
 
         if (displays == null) {
             displays = new ArrayList<>();
@@ -780,7 +775,6 @@ public class DBServer {
                 if (vcId != 0 && server.getVoiceChannelById(vcId).isPresent()) {
                     ServerVoiceChannel serverVoiceChannel = server.getVoiceChannelById(vcId).get();
                     displays.add(new Pair<>(serverVoiceChannel.getId(), name));
-                    displayObjects.add(new Pair<>(serverVoiceChannel, name));
                 } else {
                     removeMemberCountDisplay(server.getId(), vcId);
                 }
@@ -791,11 +785,6 @@ public class DBServer {
 
             DatabaseCache.getInstance().setMemberCountDisplays(server, displays);
         } else {
-            displays.stream()
-                    .filter(pair -> server.getVoiceChannelById(pair.getKey()).isPresent())
-                    .map(pair -> new Pair<>(server.getVoiceChannelById(pair.getKey()).get(), pair.getValue()))
-                    .forEach(displayObjects::add);
-
             for(Pair<Long, String> display: new ArrayList<>(displays)) {
                 Optional<ServerVoiceChannel> channelOptional = server.getVoiceChannelById(display.getKey());
                 if (!channelOptional.isPresent()) {
@@ -804,12 +793,12 @@ public class DBServer {
             }
         }
 
-        return displayObjects;
+        return displays;
     }
 
     public static void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
         Server server = display.getKey().getServer();
-        ArrayList<Pair<ServerVoiceChannel, String>> displays = DBServer.getMemberCountDisplays(server);
+        ArrayList<Pair<Long, String>> displays = DBServer.getMemberCountDisplays(server);
 
         if (displays.size() < 5) {
             PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO MemberCountDisplays VALUES(?, ?, ?);");
@@ -926,7 +915,7 @@ public class DBServer {
     }
 
     public static void saveBannedWords(BannedWords bannedWords) throws SQLException {
-        DatabaseCache.getInstance().setBannedWords(bannedWords.getServer(), bannedWords);
+        DatabaseCache.getInstance().setBannedWords(bannedWords.getServerId(), bannedWords);
 
         //Basis
         String sqlString = "REPLACE INTO BannedWords VALUES (?, ?);" +
@@ -935,28 +924,28 @@ public class DBServer {
                 "DELETE FROM BannedWordsWords WHERE serverId = ?;";
 
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement(sqlString);
-        baseStatement.setLong(1, bannedWords.getServer().getId());
+        baseStatement.setLong(1, bannedWords.getServerId());
         baseStatement.setBoolean(2, bannedWords.isActive());
-        baseStatement.setLong(3, bannedWords.getServer().getId());
-        baseStatement.setLong(4, bannedWords.getServer().getId());
-        baseStatement.setLong(5, bannedWords.getServer().getId());
+        baseStatement.setLong(3, bannedWords.getServerId());
+        baseStatement.setLong(4, bannedWords.getServerId());
+        baseStatement.setLong(5, bannedWords.getServerId());
         baseStatement.executeUpdate();
         baseStatement.close();
 
         //Ignorierte User
-        if(bannedWords.getIgnoredUser().size() > 0) {
+        if(bannedWords.getIgnoredUserIds().size() > 0) {
             StringBuilder sql = new StringBuilder();
-            for(User user: bannedWords.getIgnoredUser()) {
-                sql.append("INSERT IGNORE INTO BannedWordsIgnoredUsers VALUES (").append(bannedWords.getServer().getIdAsString()).append(",").append(user.getIdAsString()).append(");");
+            for(User user: bannedWords.getIgnoredUserIds()) {
+                sql.append("INSERT IGNORE INTO BannedWordsIgnoredUsers VALUES (").append(bannedWords.getServerId()).append(",").append(user.getIdAsString()).append(");");
             }
             DBMain.getInstance().statement(sql.toString());
         }
 
         //Log-Empfänger
-        if(bannedWords.getLogRecievers().size() > 0) {
+        if(bannedWords.getLogRecieverIds().size() > 0) {
             StringBuilder sql = new StringBuilder();
-            for(User user: bannedWords.getLogRecievers()) {
-                sql.append("INSERT IGNORE INTO BannedWordsLogRecievers VALUES (").append(bannedWords.getServer().getIdAsString()).append(",").append(user.getIdAsString()).append(");");
+            for(User user: bannedWords.getLogRecieverIds()) {
+                sql.append("INSERT IGNORE INTO BannedWordsLogRecievers VALUES (").append(bannedWords.getServerId()).append(",").append(user.getIdAsString()).append(");");
             }
             DBMain.getInstance().statement(sql.toString());
         }
@@ -971,7 +960,7 @@ public class DBServer {
             baseStatement = DBMain.getInstance().preparedStatement(sql.toString());
             for(int i = 0; i < bannedWords.getWords().size(); i++) {
                 String word = bannedWords.getWords().get(i);
-                baseStatement.setLong((i * 2) + 1, bannedWords.getServer().getId());
+                baseStatement.setLong((i * 2) + 1, bannedWords.getServerId());
                 baseStatement.setString((i * 2) + 2, word);
             }
             baseStatement.executeUpdate();

@@ -22,7 +22,7 @@ public class BannedWordsCheck {
 
         try {
             BannedWords bannedWords = DBServer.getBannedWordsFromServer(server);
-            if (bannedWords.isActive() && stringContainsWord(input, bannedWords.getWords()) && !bannedWords.getIgnoredUser().contains(message.getUserAuthor().get()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
+            if (bannedWords.isActive() && stringContainsWord(input, bannedWords.getWords()) && !bannedWords.getIgnoredUserIds().contains(message.getUserAuthor().get()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
                 boolean successful = true;
                 User author = message.getUserAuthor().get();
 
@@ -56,7 +56,7 @@ public class BannedWordsCheck {
                 if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
                 else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
-                for(User user: bannedWords.getLogRecievers()) {
+                for(User user: bannedWords.getLogRecieverIds()) {
                     try {
                         user.sendMessage(eb).get();
                     } catch (InterruptedException | ExecutionException e) {

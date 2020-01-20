@@ -98,8 +98,8 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-        Message message = trackerData.getChannel().sendMessage(getEmbed()).get();
+        trackerData.deletePreviousMessage();
+        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
         trackerData.setInstant(trackingTime);
         return trackerData;

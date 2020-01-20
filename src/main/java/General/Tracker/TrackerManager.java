@@ -4,9 +4,11 @@ import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.Permission;
+import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
 import MySQL.DBBot;
 import MySQL.DBServer;
+import org.javacord.api.entity.channel.ServerTextChannel;
 
 import java.awt.*;
 import java.sql.SQLException;
@@ -14,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class TrackerManager {
@@ -25,25 +28,21 @@ public class TrackerManager {
             return;
         }
 
-        Locale locale = DBServer.getServerLocale(trackerData.getServer());
+        Locale locale = DBServer.getServerLocale(trackerData.getServerId());
         Command command = CommandManager.createCommandByTrigger(trackerData.getCommand(), locale);
         if (((onTrackerRequestListener) command).needsPrefix())
-            command.setPrefix(DBServer.getPrefix(trackerData.getServer()));
+            command.setPrefix(DBServer.getPrefix(trackerData.getServerId()));
 
         while (true) {
             try {
                 Duration duration = Duration.between(Instant.now(), trackerData.getInstant());
                 Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
 
-                try {
-                    trackerData.getChannel().getLatestInstance().get();
-                } catch (InterruptedException | ExecutionException e) {
-                    //Ignore
-                    return;
-                }
+                Optional<ServerTextChannel> channelOptional = trackerData.getChannel();
+                if (!channelOptional.isPresent()) return;
 
                 while(true) {
-                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), trackerData.getChannel(),  Permission.SEE_CHANNEL | Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), channelOptional.get(),  Permission.SEE_CHANNEL | Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                         Thread.sleep(30 * 60 * 1000);
                     } else break;
                 }
@@ -94,7 +93,7 @@ public class TrackerManager {
 
     public static void stopShard(int shardId) {
         for(TrackerConnection trackerConnection: new ArrayList<>(trackerConnections)) {
-            if (trackerConnection.getTrackerData().getServer().getApi().getCurrentShard() == shardId) {
+            if (DiscordApiCollection.getInstance().getResponsibleShard(trackerConnection.getTrackerData().getServerId()) == shardId) {
                 try {
                     stopTracker(trackerConnection.getTrackerData(), false);
                 } catch (SQLException e) {
@@ -116,7 +115,7 @@ public class TrackerManager {
 
         for(TrackerConnection trackerConnection: new ArrayList<>(trackerConnections)) {
             TrackerData trackerData2 = trackerConnection.getTrackerData();
-            if (trackerData.getServer().getId() == trackerData2.getServer().getId() && trackerData.getChannel().getId() == trackerData2.getChannel().getId() && trackerData.getCommand().equals(trackerData2.getCommand())) {
+            if (trackerData.getServerId() == trackerData2.getServerId() && trackerData.getChannelId() == trackerData2.getChannelId() && trackerData.getCommand().equals(trackerData2.getCommand())) {
                 return trackerConnection;
             }
         }

@@ -5,6 +5,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -27,16 +28,25 @@ public class TrackerData {
         this.saveChanges = true;
     }
 
-    public Server getServer() {
-        return DiscordApiCollection.getInstance().getServerById(serverId).orElse(null);
+    public void deletePreviousMessage() {
+        Optional<Message> messageOptional = getMessageDelete();
+        messageOptional.ifPresent(Message::delete);
     }
 
-    public ServerTextChannel getChannel() {
-        return DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).orElse(null);
+    public long getServerId() {
+        return serverId;
     }
 
-    public Message getMessageDelete() throws ExecutionException, InterruptedException {
-        return messageId == 0 ? null : DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).get().getMessageById(messageId).get();
+    public long getChannelId() {
+        return channelId;
+    }
+
+    public Optional<ServerTextChannel> getChannel() {
+        return DiscordApiCollection.getInstance().getServerTextChannelById(serverId, channelId);
+    }
+
+    public Optional<Message> getMessageDelete() {
+        return DiscordApiCollection.getInstance().getMessageById(serverId, channelId, messageId);
     }
 
     public String getCommand() {

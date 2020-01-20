@@ -135,8 +135,8 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-        Message message = trackerData.getChannel().sendMessage(getEmbed()).get();
+        trackerData.deletePreviousMessage();
+        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
         trackerData.setInstant(trackingTime);
         return trackerData;

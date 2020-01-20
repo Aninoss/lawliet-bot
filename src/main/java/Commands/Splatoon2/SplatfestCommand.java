@@ -178,9 +178,9 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        if (post || trackerData.getMessageDelete() == null) {
-            if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-            Message message = trackerData.getChannel().sendMessage(eb).get();
+        if (post) {
+            trackerData.deletePreviousMessage();
+            Message message = trackerData.getChannel().get().sendMessage(eb).get();
             trackerData.setMessageDelete(message);
         }
         trackerData.setInstant(trackingTime);

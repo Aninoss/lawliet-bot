@@ -20,12 +20,12 @@ public class FishingProfile {
         this.slots = new ArrayList<>();
     }
 
-    public Server getServer() {
-        return DiscordApiCollection.getInstance().getServerById(serverId).get();
+    public long getServerId() {
+        return serverId;
     }
 
-    public User getUser() {
-        return DiscordApiCollection.getInstance().getUserById(userId).get();
+    public long getUserId() {
+        return userId;
     }
 
     public long getFish() {

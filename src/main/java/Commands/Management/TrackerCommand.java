@@ -201,7 +201,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
     private void updateTrackerList() throws Throwable {
         ArrayList<TrackerData> newTrackers = new ArrayList<>();
         for(TrackerData trackerData: DBBot.getTracker(server.getApi())) {
-            if (trackerData.getServer().getId() == server.getId() && trackerData.getChannel().equals(channel)) {
+            if (trackerData.getServerId() == server.getId() && trackerData.getChannelId() == channel.getId()) {
                 newTrackers.add(trackerData);
             }
         }

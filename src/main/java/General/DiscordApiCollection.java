@@ -8,9 +8,12 @@ import General.Tracker.TrackerManager;
 import MySQL.DatabaseCache;
 import MySQL.FisheryCache;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
+import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
@@ -122,12 +125,26 @@ public class DiscordApiCollection {
         return apiList[getResponsibleShard(serverId)].getServerById(serverId);
     }
 
-    public Optional<User> getUserById(long userId) {
-        for(DiscordApi api: apiList) {
+    public Optional<User> getUserById(long serverId, long userId) {
+        int shardId = getResponsibleShard(serverId);
+        if (apiList[shardId] != null) {
             try {
-                return Optional.of(api.getUserById(userId).get());
+                return Optional.of(apiList[shardId].getUserById(userId).get());
             } catch (InterruptedException | ExecutionException e) {
                 //Ignore
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<User> getUserById(long userId) {
+        for(DiscordApi api: apiList) {
+            if (api != null) {
+                try {
+                    return Optional.of(api.getUserById(userId).get());
+                } catch (InterruptedException | ExecutionException e) {
+                    //Ignore
+                }
             }
         }
         return Optional.empty();
@@ -146,6 +163,50 @@ public class DiscordApiCollection {
         }
 
         return servers;
+    }
+
+    public Optional<ServerTextChannel> getServerTextChannelById(long serverId, long channelId) {
+        Optional<Server> server = getServerById(serverId);
+        if (server.isPresent()) {
+            return server.get().getTextChannelById(channelId);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<ServerVoiceChannel> getServerVoiceChannelById(long serverId, long channelId) {
+        Optional<Server> server = getServerById(serverId);
+        if (server.isPresent()) {
+            return server.get().getVoiceChannelById(channelId);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Message> getMessageById(long serverId, long channelId, long messageId) {
+        Optional<Server> server = getServerById(serverId);
+        if (server.isPresent()) {
+            return getMessageById(server.get(), channelId, messageId);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Message> getMessageById(Server server, long channelId, long messageId) {
+        Optional<ServerTextChannel> channel = server.getTextChannelById(channelId);
+        if (channel.isPresent()) {
+            return getMessageById(channel.get(), messageId);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Message> getMessageById(ServerTextChannel channel, long messageId) {
+        try {
+            return Optional.of(channel.getMessageById(messageId).get());
+        } catch (InterruptedException | ExecutionException e) {
+            return Optional.empty();
+        }
     }
 
     public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {

@@ -3,6 +3,9 @@ package General.AutoChannel;
 import General.DiscordApiCollection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 public class TempAutoChannel {
 
     private long serverId, tempChannelId, originalChannelId;
@@ -13,11 +16,20 @@ public class TempAutoChannel {
         this.tempChannelId = tempChannel.getId();
     }
 
-    public ServerVoiceChannel getTempChannel() {
-        return DiscordApiCollection.getInstance().getServerById(serverId).get().getVoiceChannelById(tempChannelId).get();
+    public long getTempChannelId() {
+        return tempChannelId;
     }
 
-    public ServerVoiceChannel getOriginalChannel() {
-        return DiscordApiCollection.getInstance().getServerById(serverId).get().getVoiceChannelById(originalChannelId).get();
+    public long getOriginalChannelId() {
+        return originalChannelId;
     }
+
+    public Optional<ServerVoiceChannel> getOriginalChannel() {
+        return DiscordApiCollection.getInstance().getServerVoiceChannelById(serverId, originalChannelId);
+    }
+
+    public long getServerId() {
+        return serverId;
+    }
+
 }

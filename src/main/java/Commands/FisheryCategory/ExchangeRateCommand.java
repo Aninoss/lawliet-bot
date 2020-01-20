@@ -3,29 +3,19 @@ package Commands.FisheryCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import Constants.Permission;
-import Constants.PowerPlantStatus;
-import Constants.Response;
 import General.EmbedFactory;
 import General.ExchangeRate;
-import General.Fishing.FishingProfile;
 import General.TextManager;
 import General.Tools;
 import General.Tracker.TrackerData;
-import MySQL.DBMain;
-import MySQL.DBServer;
-import MySQL.DBUser;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "exch",
@@ -61,8 +51,8 @@ public class ExchangeRateCommand extends Command implements onRecievedListener, 
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
-        Message message = trackerData.getChannel().sendMessage(getEmbed()).get();
+        trackerData.deletePreviousMessage();
+        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
         trackerData.setInstant(Tools.setInstantToNextDay(Instant.now()).plusSeconds(10));
         return trackerData;

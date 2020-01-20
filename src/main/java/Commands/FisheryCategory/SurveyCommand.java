@@ -211,13 +211,14 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), trackerData.getChannel(), Permission.ADD_NEW_REACTIONS)) {
+        ServerTextChannel channel = trackerData.getChannel().get();
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channel, Permission.ADD_NEW_REACTIONS)) {
             trackerData.setSaveChanges(false);
             return trackerData;
         }
-        if (trackerData.getMessageDelete() != null) trackerData.getMessageDelete().delete();
+        trackerData.deletePreviousMessage();
         Survey survey = DBSurvey.getCurrentSurvey();
-        trackerData.setMessageDelete(sendMessages(trackerData.getChannel(), survey, true));
+        trackerData.setMessageDelete(sendMessages(channel, survey, true));
         Instant nextInstant = trackerData.getInstant();
         do {
             nextInstant = Tools.setInstantToNextDay(nextInstant);

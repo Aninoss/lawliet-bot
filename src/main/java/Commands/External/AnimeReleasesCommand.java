@@ -11,6 +11,7 @@ import General.EmbedFactory;
 import General.PostBundle;
 import General.TextManager;
 import General.Tracker.TrackerData;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
@@ -59,8 +60,9 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
             return trackerData;
         }
 
+        ServerTextChannel channel = trackerData.getChannel().get();
         for(AnimeReleasePost post: postBundle.getPosts()) {
-            trackerData.getChannel().sendMessage(getEmbed(post)).get();
+            channel.sendMessage(getEmbed(post)).get();
         }
 
         trackerData.setArg(postBundle.getNewestPost());
