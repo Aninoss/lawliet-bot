@@ -34,11 +34,11 @@ public class PornProxyCommand extends Command implements onRecievedListener {
         this.search = Tools.filterPornSearchKey(search, nsfwFilter);
         this.searchExtra = Tools.getNSFWTagRemoveList(nsfwFilter) + searchExtra;
 
-        int amount = 1;
+        long amount = 1;
         if (followedString.length() > 0) {
             boolean ok = false;
             if (Tools.stringIsNumeric(followedString)) {
-                amount = Integer.parseInt(followedString);
+                amount = Tools.filterNumberFromString(followedString);
                 if (amount >= 1 && amount <= 20) ok = true;
             }
             if (!ok) {

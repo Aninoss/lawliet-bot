@@ -59,7 +59,8 @@ public class AnimeReleaseDownloader {
             else episodeTitle = String.valueOf(value);
         }
 
-        String thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
+        String thumbnail = "";
+        if (data.has("media:thumbnail")) thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         Instant date = Tools.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link");
         if (Tools.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");

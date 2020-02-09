@@ -117,7 +117,7 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
                 gameCards[0].add(new GameCard());
                 logStatus = LogStatus.SUCCESS;
                 log = getString("getcard", 0);
-                message.edit(getEmbed()).get();
+                message.edit(getEmbed());
 
                 if (getCardSize(0) > 21) {
                     block = true;
@@ -127,7 +127,7 @@ public class BlackjackCommand extends Casino implements onRecievedListener, onRe
 
                     logStatus = LogStatus.LOSE;
                     log = getString("toomany", 0);
-                    message.edit(getEmbed()).get();
+                    message.edit(getEmbed());
                 }
             } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[1])) {
                 finished = true;

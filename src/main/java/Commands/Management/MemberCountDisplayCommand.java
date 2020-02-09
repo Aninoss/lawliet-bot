@@ -241,10 +241,13 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     }
 
     public static void renameVC(Server server, Locale locale, ServerVoiceChannelUpdater updater, String name) {
+        long members = server.getMembers().size();
+        long botMembers = server.getMembers().stream().filter(User::isBot).count();
+
         updater.setName(replaceVariables(name,
-                Tools.numToString(locale, server.getMemberCount()),
-                Tools.numToString(locale, server.getMembers().stream().filter(user -> !user.isBot()).count()),
-                Tools.numToString(locale, server.getMembers().stream().filter(User::isBot).count())
+                Tools.numToString(locale, members),
+                Tools.numToString(locale, members - botMembers),
+                Tools.numToString(locale, botMembers)
         ));
     }
 

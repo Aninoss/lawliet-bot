@@ -637,4 +637,10 @@ public class Tools {
         return str.contains("%") ? (long)(value / 100.0 * available) : value;
     }
 
+    public static boolean isItWeekend() {
+        Calendar c1 = Calendar.getInstance();
+        return c1.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY ||
+                c1.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+    }
+
 }

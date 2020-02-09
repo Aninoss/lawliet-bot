@@ -47,8 +47,12 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
             int n;
             do {
                 n = r.nextInt(wordList.size());
-                answer = wordList.get(n).toUpperCase();
-            } while(answer.endsWith("S"));
+                answer = wordList.get(n).toUpperCase()
+                        .replace("Ä", "AE")
+                        .replace("Ö", "OE")
+                        .replace("Ü", "UE")
+                        .replace("ß", "SS");
+            } while(answer.length() < 4);
 
             first = true;
             health = MAX_HEALTH;

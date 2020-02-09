@@ -119,7 +119,7 @@ public class RedditDownloader {
         String description = "", url = "", source = "", thumbnail = "", domain = "";
         Object flair;
 
-        post.setSubreddit(data.getString("subreddit_name_prefixed"));
+        if (data.has("subreddit_name_prefixed")) post.setSubreddit(data.getString("subreddit_name_prefixed"));
         post.setScore(data.getInt("score"));
         post.setComments(data.getInt("num_comments"));
         post.setInstant(new Date(data.getLong("created_utc") * 1000L).toInstant());

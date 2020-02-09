@@ -251,7 +251,7 @@ public class DiscordApiCollection {
     }
 
     public int getResponsibleShard(long serverId) {
-        return (int) ((serverId >> 22) % apiList.length);
+        return Math.abs((int) ((serverId >> 22) % apiList.length));
     }
 
     public int size() {

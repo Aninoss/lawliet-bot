@@ -118,7 +118,13 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         return Response.FALSE;
                     }
 
-                    BufferedImage bi = messageAttachment.downloadAsImage().get();
+                    BufferedImage bi;
+                    try {
+                        bi = messageAttachment.downloadAsImage().get();
+                    } catch (Throwable e) {
+                        setLog(LogStatus.FAILURE, getString("imagenotfound"));
+                        return Response.FALSE;
+                    }
                     if (bi == null) {
                         setLog(LogStatus.FAILURE, getString("imagenotfound"));
                         return Response.FALSE;

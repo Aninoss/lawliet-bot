@@ -582,10 +582,10 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     }
                 }
 
-                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
+                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction();
                 queueRemove(message.getId(), user.getId());
             } catch (Throwable e) {
-                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction().get();
+                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction();
                 queueRemove(message.getId(), user.getId());
                 throw e;
             }

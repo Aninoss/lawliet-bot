@@ -29,6 +29,11 @@ public class WebhookServer {
     private void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) { /* failed */ }
+            }));
             onServerStart();
             while (true) {
                 try {
@@ -36,6 +41,8 @@ public class WebhookServer {
                     startSession(socket);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    ExceptionHandler.showErrorLog("Webhook Server Error!");
+                    System.exit(-1);
                 }
             }
         } catch (IOException e) {
