@@ -59,10 +59,8 @@ public class TrackerManager {
                     trackerConnections.remove(getTrackerConnection(oldTrackerData));
                     return;
                 }
-            } catch (InterruptedException e) {
-                //Ignore
-                return;
             } catch (Throwable e) {
+                if (e instanceof InterruptedException) return;
                 e.printStackTrace();
                 Thread.sleep(5 * 60 * 1000);
             }

@@ -143,7 +143,7 @@ public class Connector {
                 }
             }
 
-            System.out.printf("Shard %d has been successfully booten up!\n", api.getCurrentShard());
+            ExceptionHandler.showInfoLog(String.format("Shard %d connection established!", api.getCurrentShard()));
 
             api.addMessageCreateListener(event -> {
                 Thread t = new Thread(() -> {
@@ -259,9 +259,6 @@ public class Connector {
                 Thread t = new Thread(() -> onSessionResume(event.getApi()));
                 addUncaughtException(t);
                 t.start();
-            });
-            api.addLostConnectionListener(event -> {
-               ExceptionHandler.showErrorLog(String.format("Shard %d connection lost!", api.getCurrentShard()));
             });
 
             if (apiCollection.allShardsConnected() && !Bot.isDebug() && startup) {

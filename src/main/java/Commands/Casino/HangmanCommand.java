@@ -45,14 +45,22 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
             List<String> wordList = FileManager.readInList(new File("recourses/hangman_" + getLocale().getDisplayName() + ".txt"));
 
             int n;
+            boolean ok;
             do {
+                ok = true;
                 n = r.nextInt(wordList.size());
                 answer = wordList.get(n).toUpperCase()
                         .replace("Ä", "AE")
                         .replace("Ö", "OE")
                         .replace("Ü", "UE")
                         .replace("ß", "SS");
-            } while(answer.length() < 4);
+                for(char c: answer.toCharArray()) {
+                    if (!Character.isLetter(c)) {
+                        ok = false;
+                        break;
+                    }
+                }
+            } while(answer.length() < 4 || !ok);
 
             first = true;
             health = MAX_HEALTH;
@@ -60,8 +68,6 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
             used = new ArrayList<>();
             message = event.getChannel().sendMessage(getEmbed()).get();
             message.addReaction("❌");
-
-            showAllNonLetterSymbols();
 
             return true;
         }
@@ -109,12 +115,6 @@ public class HangmanCommand extends Casino implements onRecievedListener, onForw
         logStatus = LogStatus.LOSE;
         onLose();
         log = getString("abort");
-    }
-
-    private void showAllNonLetterSymbols() {
-        for(int i = 0; i < answer.length(); i++) {
-            if (!Character.isLetter(answer.charAt(i))) progress[i] = true;
-        }
     }
 
     private String getUsedString() {

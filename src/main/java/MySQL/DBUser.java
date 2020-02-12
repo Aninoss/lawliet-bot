@@ -198,7 +198,7 @@ public class DBUser {
                 long coins = resultSet.getLong(2);
 
                 if (fish > 0) fishingProfile.setFish(fish);
-                if (coins > 0) fishingProfile.setCoins(coins);
+                if (coins > 0) fishingProfile.setCoins(coins - CasinoBetContainer.getInstance().getCurrentBet(user));
 
                 FishingSlot fishingSlot = new FishingSlot(resultSet.getInt(3), resultSet.getLong(4), resultSet.getLong(5), resultSet.getDouble(6), resultSet.getLong(7));
                 fishingProfile.insert(fishingSlot);
@@ -228,7 +228,7 @@ public class DBUser {
                     long coins = resultSet.getLong(2);
                     long fishAdd = FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).flush(server, user, false, fishingProfile);
                     fishingProfile.setFish(fish + fishAdd);
-                    fishingProfile.setCoins(coins);
+                    fishingProfile.setCoins(coins - CasinoBetContainer.getInstance().getCurrentBet(user));
                 }
 
                 resultSet.close();
@@ -292,6 +292,7 @@ public class DBUser {
                     if (resultSet.next()) {
                         for (int j = 0; j < 5; j++) {
                             progress[j][1] = resultSet.getLong(j + 1);
+                            if (j == 1) progress[j][1] -= CasinoBetContainer.getInstance().getCurrentBet(user);
 
                             switch (j) {
                                 case 0:

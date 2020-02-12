@@ -37,12 +37,6 @@ public class CommunicationServer {
     private void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) { /* failed */ }
-            }));
-
             System.out.println("Communication Server is running!");
 
             while (true) {

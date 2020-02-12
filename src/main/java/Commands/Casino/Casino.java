@@ -3,8 +3,8 @@ package Commands.Casino;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
-import Constants.LogStatus;
 import Constants.PowerPlantStatus;
+import General.CasinoBetContainer;
 import General.EmbedFactory;
 import General.RunningCommands.RunningCommandManager;
 import General.TextManager;
@@ -18,7 +18,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
@@ -67,33 +66,29 @@ class Casino extends Command implements onReactionAddListener {
         long value = Tools.getAmountExt(followedString, coins);
         if (value == -1) {
             coinsInput = (long) Math.ceil(coins * 0.1);
-            DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput, true);
+            CasinoBetContainer.getInstance().addBet(player, coinsInput);
             return true;
         }
 
-        //if (value != -1) {
-            if (value >= 0) {
-                if (value <= coins) {
-                    coinsInput = value;
-                    DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput, true);
-                    return true;
-                } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", Tools.numToString(getLocale(), coins)))).get();
-                }
+        if (value >= 0) {
+            if (value <= coins) {
+                coinsInput = value;
+                CasinoBetContainer.getInstance().addBet(player, coinsInput);
+                return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", Tools.numToString(getLocale(), coins)))).get();
             }
-        //} else {
-        //    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
-        //}
+        } else {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
+        }
 
         return false;
     }
 
-    public void onGameEnd() throws IOException, SQLException {
+    public void onGameEnd() throws IOException {
         won = false;
         active = false;
-        DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput, true);
+        CasinoBetContainer.getInstance().removeBet(player, coinsInput);
         removeNavigation();
         removeMessageForwarder();
         removeReactionListener(((onReactionAddListener)this).getReactionMessage());

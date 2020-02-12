@@ -94,4 +94,11 @@ public class ExceptionHandler {
         System.out.printf("[ERROR] %s: %s\n", dtf.format(now), str);
     }
 
+    public static void showInfoLog(String str) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        System.err.printf("[INFO] %s: %s\n", dtf.format(now), str);
+        System.out.printf("[INFO] %s: %s\n", dtf.format(now), str);
+    }
+
 }
