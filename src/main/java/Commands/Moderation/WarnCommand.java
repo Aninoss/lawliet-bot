@@ -36,7 +36,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     private Message message;
     private List<User> userList;
     private ModerationStatus moderationStatus;
-    private String reason;
+    protected String reason;
 
     public WarnCommand() {
         super();

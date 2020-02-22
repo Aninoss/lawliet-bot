@@ -22,7 +22,7 @@ public class KickCommand extends WarnCommand  {
 
     @Override
     public void process(Server server, User user) throws Throwable {
-        server.kickUser(user).get();
+        server.kickUser(user, reason).get();
     }
 
     @Override

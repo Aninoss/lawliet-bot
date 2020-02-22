@@ -7,7 +7,6 @@ import Constants.*;
 import General.*;
 import MySQL.DBServer;
 import MySQL.DBUser;
-import General.DailyState;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

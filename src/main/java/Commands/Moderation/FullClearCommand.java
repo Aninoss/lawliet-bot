@@ -5,20 +5,19 @@ import CommandListeners.onRecievedListener;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.Pair;
-import General.TextManager;
-import General.Tools;
+import General.*;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -112,8 +111,13 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel().get(), trackerData.getKey(), null);
-        if (pair == null) return null;
+        Optional<ServerTextChannel> channelOptional = trackerData.getChannel();
+        if (channelOptional.isPresent()) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channelOptional.get(), Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL)) {
+                Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel().get(), trackerData.getKey(), null);
+                if (pair == null) return null;
+            }
+        }
         trackerData.setInstant(Instant.now().plus(1, ChronoUnit.HOURS));
         return trackerData;
     }

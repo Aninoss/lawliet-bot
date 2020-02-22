@@ -65,7 +65,7 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
             channel.sendMessage(getEmbed(post)).get();
         }
 
-        trackerData.setArg(postBundle.getNewestPost());
+        if (postBundle.getNewestPost() != null) trackerData.setArg(postBundle.getNewestPost());
         return trackerData;
     }
 

@@ -168,7 +168,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                         }
 
                         try {
-                            message.getServer().get().kickUser(user).get();
+                            message.getServer().get().kickUser(user, getString("auditlog")).get();
                             kicked++;
                         } catch (InterruptedException | ExecutionException e) {
                             //Ignore

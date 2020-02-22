@@ -96,22 +96,3 @@ Which do you prefer?|Mayonnaise|Ketchup
 Are you good at keeping secrets?|Yes!|Not really
 Do you want to try skydiving?|Yes|No
 Which type do you want to be considered?|A kind person|A fun person
-Which do you like the least?|Heat|Cold
-Can you see lots of stars from your house?|Yes|Not really
-Do you recall what you ate for dinner two days ago?|Yes|No
-Which are you better at?|Using my brains|Using my brawn
-Your friend is ten minutes late for a date. You are...|Angry|Indifferent
-Do you wear glasses?|Yes|No
-How many hours do you sleep at night?|Eight or more|Less than eight
-Do you believe in fortune-telling?|Yes|No
-How many people do you live with?|Four or more|Three or less
-Do you believe ghosts exist?|Yes|No
-Do you want to live in a foreign country?|Yes|No
-Which would you prefer to watch, baseball or soccer?|Baseball|Soccer
-If I received a gift of money, I would...|Spend it|Save it
-Do you read books often?|Yes|Not so much
-Have you ever seen a UFO?|Yes|No
-Do you know the birthdays of all of your family members?|Yes|No
-At mealtime, which are you more particular about?|Amount|Taste
-Do you like having your photo taken?|Yes|No
-Do you like horror movies?|Yes|Not really . . .

@@ -22,7 +22,7 @@ public class BanCommand extends WarnCommand  {
 
     @Override
     public void process(Server server, User user) throws Throwable {
-        server.banUser(user).get();
+        server.banUser(user, 7, reason).get();
     }
 
     @Override

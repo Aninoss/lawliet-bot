@@ -11,6 +11,6 @@ import CommandListeners.CommandProperties;
 )
 public class NekoCommand extends GelbooruProxyCommand {
     public NekoCommand() {
-        super("cat_girl", false);
+        super("cat_girl -futa", false);
     }
 }

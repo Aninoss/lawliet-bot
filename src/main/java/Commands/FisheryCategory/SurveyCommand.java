@@ -93,7 +93,9 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
                             }
                         }
                         List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + getLocale().getDisplayName() + ".txt"));
-                        String[] surveyData = surveyList.get(survey.getId()).split("\\|");
+                        int n = survey.getId();
+                        while(n >= surveyList.size()) n -= surveyList.size();
+                        String[] surveyData = surveyList.get(n).split("\\|");
                         UserVoteData votes = DBSurvey.getUserVotes(event.getUser());
 
                         String[] voteStrings = new String[2];
@@ -149,7 +151,6 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
 
     private EmbedBuilder getResultsEmbed() throws SQLException, IOException {
         SurveyResults surveyResults = DBSurvey.getResults();
-        if (surveyResults.getSurveyId() == 0) return null;
         String[] surveyData = surveyResults.getQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("results_title"));
@@ -196,6 +197,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
 
     public static String[] getSurveyData(int surveyId, Locale locale) throws IOException {
         List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
+        while(surveyId >= surveyList.size()) surveyId -= surveyList.size();
         return surveyList.get(surveyId).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
     }
 

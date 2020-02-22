@@ -17,6 +17,14 @@ public class SurveyResults {
         this.userVotes = userVotes;
         this.majorityVotes = majorityVotes;
         this.surveyId = surveyId;
+
+        List<String> surveyList = null;
+        try {
+            surveyList = FileManager.readInList(new File("recourses/survey_en_us.txt"));
+            while(this.surveyId >= surveyList.size()) this.surveyId -= surveyList.size();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getUserVote(int i) {
@@ -54,7 +62,4 @@ public class SurveyResults {
         return 2;
     }
 
-    public int getSurveyId() {
-        return surveyId;
-    }
 }
