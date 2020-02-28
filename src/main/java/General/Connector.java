@@ -18,6 +18,7 @@ import org.javacord.api.event.server.role.UserRoleAddEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import java.awt.*;
 import java.io.*;
+import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -35,6 +36,20 @@ public class Connector {
                 FileOutputStream fos = new FileOutputStream(file);
                 PrintStream ps = new PrintStream(fos);
                 System.setErr(ps);
+            }
+
+            //Check for faulty ports
+            ArrayList<Integer> missingPort;
+            if ((missingPort = checkPorts(35555, 15744, 27440, 9998)).size() > 0) {
+                StringBuilder portsString = new StringBuilder();
+                for(int port: missingPort) {
+                    portsString.append(port).append(", ");
+                }
+                String portsStringFinal = portsString.toString();
+                portsStringFinal = portsStringFinal.substring(0, portsStringFinal.length() - 2);
+
+                ExceptionHandler.showErrorLog(String.format("Error on port/s %s!", portsStringFinal));
+                System.exit(1);
             }
 
             new CommunicationServer(35555); //Start Communication Server
@@ -63,6 +78,22 @@ public class Connector {
             ExceptionHandler.showErrorLog("Exception in main method");
             System.exit(-1);
         }
+    }
+
+    private static ArrayList<Integer> checkPorts(int... ports) {
+        ArrayList<Integer> missingPorts = new ArrayList<>();
+
+        for(int port: ports) {
+            try {
+                ServerSocket serverSocket = new ServerSocket(port);
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                missingPorts.add(port);
+            }
+        }
+
+        return missingPorts;
     }
 
     private static void initializeUpdate() {
@@ -247,14 +278,6 @@ public class Connector {
                 t.setName("server_change_userlimit");
                 t.start();
             });
-            api.addUserRoleAddListener(event -> {
-                Thread t = new Thread(() -> {
-                    if (event.getServer().getId() == 466606232183242752L) animoNetworkProtection(event);
-                });
-                addUncaughtException(t);
-                t.setName("animo_network_protection");
-                t.start();
-            });
             api.addReconnectListener(event -> {
                 Thread t = new Thread(() -> onSessionResume(event.getApi()));
                 addUncaughtException(t);
@@ -272,31 +295,6 @@ public class Connector {
             e.printStackTrace();
             ExceptionHandler.showErrorLog("Exception in connection method of shard " + api.getCurrentShard());
             System.exit(-1);
-        }
-    }
-
-    private static void animoNetworkProtection(UserRoleAddEvent event) {
-        Collection<PermissionType> permissionTypes = event.getRole().getAllowedPermissions();
-        if (permissionTypes.contains(PermissionType.KICK_MEMBERS) ||
-                permissionTypes.contains(PermissionType.BAN_MEMBERS) ||
-                permissionTypes.contains(PermissionType.MANAGE_ROLES) ||
-                permissionTypes.contains(PermissionType.ADMINISTRATOR)
-        ) {
-            boolean success = false;
-            try {
-                event.getUser().removeRole(event.getRole()).get();
-                success = true;
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                User userReport = event.getServer().getMemberById(644035183183527967L).get();
-                if (success) userReport.sendMessage(String.format("**%s** hat versucht, eine Rolle mit besonderen Berechtigungen zu erhalten: **%s**\n✅ | Der Bot konnte die Rolle erfolgreich wieder entnehmen!", event.getUser().getDiscriminatedName(), event.getRole().getName())).get();
-                else userReport.sendMessage(String.format("**%s** hat versucht, eine Rolle mit besonderen Berechtigungen zu erhalten: **%s**\n❌ | Der Bot konnte die Rolle nicht wieder entfernen...", event.getUser().getDiscriminatedName(), event.getRole().getName())).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
         }
     }
 

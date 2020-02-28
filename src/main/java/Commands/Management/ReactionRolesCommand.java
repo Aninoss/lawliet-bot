@@ -287,14 +287,14 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                             Message m;
                             if (!editMode) {
                                 m = channel.sendMessage(getMessageEmbed(false)).get();
-                                for(EmojiConnection emojiConnection: emojiConnections) {
+                                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                                     emojiConnection.addReaction(m);
                                 }
                             }
                             else {
                                 editMessage.edit(getMessageEmbed(false));
                                 m = editMessage;
-                                for(EmojiConnection emojiConnection: emojiConnections) {
+                                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                                     boolean exist = false;
                                     for(Reaction reaction: m.getReactions()) {
                                         if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
@@ -306,7 +306,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                                 }
                                 for(Reaction reaction: m.getReactions()) {
                                     boolean exist = false;
-                                    for(EmojiConnection emojiConnection: emojiConnections) {
+                                    for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                                         if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
                                             exist = true;
                                             break;
@@ -375,7 +375,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             return true;
         }
 
-        for(EmojiConnection emojiConnection: emojiConnections) {
+        for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
             if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
                 setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
                 return true;
@@ -437,7 +437,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
             case 7:
                 ArrayList<String> optionsDelete = new ArrayList<>();
-                for(EmojiConnection emojiConnection: emojiConnections) {
+                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                     optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
                 }
                 String[] strings = new String[0];
@@ -481,7 +481,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
     private String getLinkString() {
         StringBuilder link = new StringBuilder();
-        for(EmojiConnection emojiConnection: emojiConnections) {
+        for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
             link.append(emojiConnection.getEmojiTag());
             link.append(" → ");
             link.append(emojiConnection.getConnection());
@@ -548,7 +548,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 if (!multipleRoles) {
                     queueAdd(message.getId(), user.getId());
 
-                    for (EmojiConnection emojiConnection : emojiConnections) {
+                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                         Optional<Role> rOpt = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (rOpt.isPresent()) {
                             Role r = rOpt.get();
@@ -558,7 +558,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     }
                 }
 
-                for (EmojiConnection emojiConnection : emojiConnections) {
+                for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                     if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
                         Optional<Role> rOpt = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (!rOpt.isPresent()) return;
@@ -596,7 +596,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) {
         updateValuesFromMessage(message);
         if (removeRole) {
-            for (EmojiConnection emojiConnection : emojiConnections) {
+            for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
                     Optional<Role> rOpt = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                     if (!rOpt.isPresent()) return;

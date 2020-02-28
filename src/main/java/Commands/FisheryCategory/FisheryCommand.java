@@ -21,6 +21,7 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -36,9 +37,8 @@ import java.util.concurrent.ExecutionException;
 )
 public class FisheryCommand extends Command implements onNavigationListener,onReactionAddStatic  {
 
-    public FisheryCommand() {
-        super();
-    }
+    private static final int MAX_ROLES = 50;
+    private int page, pageMax;
 
     private ArrayList<Role> roles;
     private ArrayList<ServerTextChannel> ignoredChannels;
@@ -155,17 +155,19 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         return true;
 
                     case 2:
-                        if (roles.size() < getMaxReactionNumber()) {
+                        if (roles.size() < MAX_ROLES) {
                             setState(1);
                             return true;
                         } else {
-                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(getMaxReactionNumber())));
+                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(MAX_ROLES)));
                             return true;
                         }
 
                     case 3:
                         if (status == PowerPlantStatus.STOPPED) {
                             if (roles.size() > 0) {
+                                page = 0;
+                                pageMax = (roles.size() - 1) / 10;
                                 setState(2);
                                 return true;
                             } else {
@@ -296,11 +298,21 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < roles.size()) {
-                    DBServer.removePowerPlantRoles(event.getServer().get(), roles.remove(i));
+                } else if (i < Math.min(10, roles.size() - 10 * page)) {
+                    DBServer.removePowerPlantRoles(event.getServer().get(), roles.remove(i + page * 10));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
                     setState(0);
                     return true;
+                } else if (pageMax > 0) {
+                    if (i == 10) {
+                        page--;
+                        if (page < 0) page = pageMax;
+                        return true;
+                    } else if (i == 11) {
+                        page++;
+                        if (page > pageMax) page = 0;
+                        return true;
+                    }
                 }
 
             case 3:
@@ -343,7 +355,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
         switch (state) {
             case 0:
                 setOptions(getString("state0_options_"+ status.ordinal()).split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[status.ordinal()].toUpperCase() + "**", true)
                         .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), treasureChests), true)
                         .addField(getString("state0_mreminders"), Tools.getOnOffForBoolean(getLocale(), reminders), true)
@@ -356,12 +368,21 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                String[] roleStrings = new String[roles.size()];
-                for(int i=0; i<roleStrings.length; i++) {
-                    roleStrings[i] = roles.get(i).getMentionTag();
+                String[] roleStrings = new String[Math.min(10, roles.size()) + (pageMax > 0 ? 2 : 0)];
+                Arrays.fill(roleStrings, "");
+
+                for(int i=0; i < Math.min(10, roles.size() - page * 10); i++) {
+                    roleStrings[i] = roles.get(i + page * 10).getMentionTag();
+                }
+                if (pageMax > 0) {
+                    roleStrings[10] = getString("state2_previous");
+                    roleStrings[11] = getString("state2_next");
                 }
                 setOptions(roleStrings);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", pageMax > 0, String.valueOf(page), String.valueOf(pageMax)), getString("state2_title"));
+                if (pageMax > 0) eb.setFooter(getString("state2_page", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
+                return eb;
 
             case 3:
                 setOptions(new String[]{getString("state3_options")});
@@ -379,7 +400,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
 
     @Override
     public int getMaxReactionNumber() {
-        return 9;
+        return 12;
     }
 
     @Override

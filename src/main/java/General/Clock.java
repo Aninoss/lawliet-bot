@@ -1,6 +1,5 @@
 package General;
 
-import Commands.FisheryCategory.SellCommand;
 import Commands.FisheryCategory.SurveyCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
@@ -29,7 +28,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public class Clock {
 
@@ -39,13 +37,13 @@ public class Clock {
         //Start 10 Minutes Event Loop
         Thread t = new Thread(() -> {
             while(true) {
-                every10Minutes();
                 try {
                     Thread.sleep(1000 * 60 * 10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     break;
                 }
+                every10Minutes();
             }
         });
         t.setName("clock_10min");
@@ -200,6 +198,9 @@ public class Clock {
     }
 
     private static void every10Minutes() {
+        if (!DiscordApiCollection.getInstance().allShardsConnected())
+            ExceptionHandler.showErrorLog("At least 1 shard is offline!");
+
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
         //Cleans Cooldown List
@@ -250,6 +251,23 @@ public class Clock {
             surveyCheckFile.delete();
             System.out.println("UPDATE SURVEY");
             updateSurvey();
+        }
+
+        //Restart All Shards at 05:15 AM
+        Calendar calendar = Calendar.getInstance();
+        if (calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
+                calendar.get(Calendar.MINUTE) >= 15 &&
+                calendar.get(Calendar.MINUTE) < 25
+        ) {
+            if (new File("update/Lawliet.jar").exists()) {
+                ExceptionHandler.showInfoLog("Prepare Updates...");
+                System.exit(0);
+            }
+            for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {
+                FisheryCache.getInstance(i).resetLimits();
+                DiscordApiCollection.getInstance().reconnectShard(i);
+                DiscordApiCollection.getInstance().waitForStartup();
+            }
         }
     }
 

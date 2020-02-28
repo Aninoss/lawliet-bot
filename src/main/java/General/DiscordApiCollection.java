@@ -94,19 +94,7 @@ public class DiscordApiCollection {
                             System.exit(-1);
                         } else {
                             ExceptionHandler.showErrorLog(String.format("Shard %d temporary offline", n));
-                            apiReady[n] = false;
-                            try {
-                                CommandContainer.getInstance().clearShard(n);
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
-                            FisheryCache.getInstance(n).turnOff();
-                            AutoChannelContainer.getInstance().removeShard(n);
-                            TrackerManager.stopShard(n);
-                            RunningCommandManager.getInstance().clearShard(n);
-                            api.disconnect();
-                            Connector.reconnectApi(api.getCurrentShard());
-                            errorCounter[n] = 0;
+                            reconnectShard(n);
                             hasReconnected[n] = true;
                             break;
                         }
@@ -117,6 +105,26 @@ public class DiscordApiCollection {
                 ExceptionHandler.showErrorLog("Exception in connection observer!");
                 System.exit(-1);
             }
+        }
+    }
+
+    public void reconnectShard(int n) {
+        if (apiReady[n]) {
+            DiscordApi api = apiList[n];
+            apiReady[n] = false;
+            try {
+                CommandContainer.getInstance().clearShard(n);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            FisheryCache.getInstance(n).turnOff();
+            AutoChannelContainer.getInstance().removeShard(n);
+            TrackerManager.stopShard(n);
+            RunningCommandManager.getInstance().clearShard(n);
+            api.disconnect();
+            Connector.reconnectApi(api.getCurrentShard());
+            hasReconnected[n] = false;
+            errorCounter[n] = 0;
         }
     }
 

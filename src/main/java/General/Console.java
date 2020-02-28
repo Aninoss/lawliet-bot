@@ -1,21 +1,16 @@
 package General;
 
-import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
-import General.RunningCommands.RunningCommand;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.ActivityUserData;
 import MySQL.FisheryCache;
 import ServerStuff.Donations.DonationServer;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.time.Instant;
-import java.util.ArrayList;
 
 public class Console {
 
@@ -153,6 +148,8 @@ public class Console {
         //Max Memory
         maxMemory = Math.max(maxMemory, memoryUsed);
         sb.append("Max Memory: ").append(String.format("%1$.2f", maxMemory) + " / " + String.format("%1$.2f", memoryTotal) + " MB").append("\n");
+
+        ExceptionHandler.showInfoLog(String.format("RAM: %f / %f", memoryUsed, maxMemory));
 
         //Threads
         sb.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append("\n");
