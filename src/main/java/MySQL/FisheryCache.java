@@ -236,4 +236,9 @@ public class FisheryCache {
         active = false;
     }
 
+    public void resetLimits() {
+        userMessageCount = new HashMap<>();
+        userVCCount = new HashMap<>();
+    }
+
 }
