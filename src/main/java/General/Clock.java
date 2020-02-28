@@ -261,6 +261,8 @@ public class Clock {
         ) {
             if (new File("update/Lawliet.jar").exists()) {
                 ExceptionHandler.showInfoLog("Prepare Updates...");
+                for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
+                    FisheryCache.getInstance(i).saveData();
                 System.exit(0);
             }
             for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {

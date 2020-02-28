@@ -8,6 +8,8 @@ import General.BotResources.ResourceManager;
 import General.Mention.MentionFinder;
 import MySQL.DBServer;
 import MySQL.DBUser;
+import MySQL.DatabaseCache;
+import MySQL.FisheryCache;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -45,6 +47,8 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
     private PowerPlantStatus status;
     private boolean singleRole, treasureChests, reminders;
     private ServerTextChannel announcementChannel;
+    private Pair<Long, Long> rolePrices;
+
     public static final String treasureEmoji = "\uD83D\uDCB0";
     public static final String keyEmoji = "\uD83D\uDD11";
     private static ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
@@ -60,6 +64,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
             announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
             treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
             reminders = DBServer.getPowerPlantRemindersFromServer(event.getServer().get());
+            rolePrices = DBServer.getFisheryRolePrices(event.getServer().get());
 
             checkRolesWithLog(roles, null);
 
@@ -127,6 +132,29 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                     } else {
                         return Response.FALSE;
                     }
+                }
+
+            case 5:
+                if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
+                    String[] parts = inputString.split("-");
+                    long priceMin = Tools.filterNumberFromString(parts[0]);
+                    long priceMax = Tools.filterNumberFromString(parts[1]);
+
+                    if (priceMin >= -1 && priceMax >= -1) {
+                        if (priceMin == -1) priceMin = rolePrices.getKey();
+                        if (priceMax == -1) priceMax = rolePrices.getValue();
+                        rolePrices = new Pair<>(priceMin, priceMax);
+                        DBServer.savePowerPlantRolePrices(event.getServer().get(), rolePrices);
+                        setLog(LogStatus.SUCCESS, getString("pricesset"));
+                        setState(0);
+                        return Response.TRUE;
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("prices_notnegative"));
+                        return Response.FALSE;
+                    }
+                } else {
+                    setLog(LogStatus.FAILURE, getString("prices_wrongvalues"));
+                    return Response.FALSE;
                 }
         }
 
@@ -242,6 +270,10 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         return true;
 
                     case 7:
+                        setState(5);
+                        return true;
+
+                    case 8:
                         if (status != PowerPlantStatus.ACTIVE) {
                             status = PowerPlantStatus.ACTIVE;
                             DBServer.savePowerPlantStatusSetting(event.getServer().get(), status);
@@ -252,13 +284,15 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         return true;
 
-                    case 8:
+                    case 9:
                         if (status == PowerPlantStatus.ACTIVE) {
                             server = event.getServer().get();
 
                             if (!busyServers.contains(server)) {
                                 status = PowerPlantStatus.STOPPED;
                                 DBServer.removePowerPlant(server);
+                                FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).stopServer(server);
+                                DatabaseCache.getInstance().fishingProfileRemoveServer(server);
                                 Thread t = new Thread(() -> {
                                     busyServers.add(server);
 
@@ -301,7 +335,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 } else if (i < Math.min(10, roles.size() - 10 * page)) {
                     DBServer.removePowerPlantRoles(event.getServer().get(), roles.remove(i + page * 10));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    setState(0);
+                    if (roles.size() == 0) setState(0);
                     return true;
                 } else if (pageMax > 0) {
                     if (i == 10) {
@@ -344,6 +378,13 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         return true;
                 }
                 return false;
+
+            case 5:
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                }
+                return false;
         }
         return false;
     }
@@ -361,8 +402,9 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                         .addField(getString("state0_mreminders"), Tools.getOnOffForBoolean(getLocale(), reminders), true)
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), false)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
-                        .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), true)
-                        .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), singleRole)), getString("state0_msinglerole_desc"), true);
+                        .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), false)
+                        .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), singleRole)), getString("state0_msinglerole_desc"), false)
+                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", Tools.numToString(getLocale(), rolePrices.getKey()), Tools.numToString(getLocale(), rolePrices.getValue())), false);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -391,6 +433,9 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
             case 4:
                 setOptions(new String[]{getString("state4_options")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+
+            case 5:
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state5_description"), getString("state5_title"));
         }
         return null;
     }

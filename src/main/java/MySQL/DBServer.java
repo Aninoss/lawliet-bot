@@ -1117,6 +1117,7 @@ public class DBServer {
         preparedStatement.setLong(2, server.getId());
         preparedStatement.setLong(3, server.getId());
         preparedStatement.executeUpdate();
+
         savePowerPlantStatusSetting(server, PowerPlantStatus.STOPPED);
     }
 
@@ -1194,4 +1195,30 @@ public class DBServer {
 
         return rankingSlots;
     }
+
+    public static Pair<Long, Long> getFisheryRolePrices(Server server) throws SQLException {
+        Pair<Long, Long> prices = null;
+        String sql = "SELECT powerPlantRoleMin, powerPlantRoleMax FROM DServer WHERE serverId = ?;";
+
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getResultSet();
+        if (resultSet.next()) {
+            prices = new Pair<>(resultSet.getLong(1), resultSet.getLong(2));
+        }
+
+        return prices;
+    }
+
+    public static void savePowerPlantRolePrices(Server server, Pair<Long, Long> prices) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantRoleMin = ?, powerPlantRoleMax = ? WHERE serverId = ?;");
+        preparedStatement.setLong(1, prices.getKey());
+        preparedStatement.setLong(2, prices.getValue());
+        preparedStatement.setLong(3, server.getId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+
 }

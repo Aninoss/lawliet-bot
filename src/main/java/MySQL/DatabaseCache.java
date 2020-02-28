@@ -122,4 +122,8 @@ public class DatabaseCache {
         fishingProfiles.computeIfAbsent(fishingProfile.getServerId(), key -> new HashMap<>()).put(fishingProfile.getUserId(), fishingProfile);
     }
 
+    public void fishingProfileRemoveServer(Server server) {
+        fishingProfiles.remove(server.getId());
+    }
+
 }

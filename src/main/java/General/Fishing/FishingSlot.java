@@ -44,4 +44,9 @@ public class FishingSlot {
     }
 
     public void levelUp() { level++; }
+
+    public long getPriceForLevel(long level) {
+        return (long) (Math.pow(getValue(level), power) * startPrice);
+    }
+
 }

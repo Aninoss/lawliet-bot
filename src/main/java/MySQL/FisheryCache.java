@@ -2,6 +2,7 @@ package MySQL;
 
 import Constants.FishingCategoryInterface;
 import Constants.PowerPlantStatus;
+import General.DiscordApiCollection;
 import General.Fishing.FishingProfile;
 import General.Pair;
 import General.Tools;
@@ -16,10 +17,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class FisheryCache {
 
     private static HashMap<Integer, FisheryCache> ourInstances = new HashMap<>();
+    private final int MINUTES_INTERVAL = 60;
 
     private Map<Long, Map<Long, ActivityUserData>> activities = new HashMap<>(); //serverId, userId, activity
     private int messagePhase = 0;
@@ -38,6 +41,7 @@ public class FisheryCache {
 
     private FisheryCache(int shardId) {
         this.shardId = shardId;
+        this.messagePhase = shardId * MINUTES_INTERVAL * 3 / DiscordApiCollection.getInstance().size();
         Thread t = new Thread(this::messageCollector);
         t.setName("message_collector");
         t.start();
@@ -71,8 +75,6 @@ public class FisheryCache {
     }
 
     private void messageCollector() {
-        final int MINUTES_INTERVAL = 20;
-
         while(active) {
             try {
                 Duration duration = Duration.between(Instant.now(), nextMessageCheck);
@@ -85,38 +87,41 @@ public class FisheryCache {
             messagePhase++;
             if (messagePhase >= 3 * MINUTES_INTERVAL) {
                 messagePhase = 0;
+                saveData();
+            }
+        }
+    }
 
-                Map<Long, Map<Long, ActivityUserData>> finalActivites = activities;
-                activities = new HashMap<>();
+    public void saveData() {
+        Map<Long, Map<Long, ActivityUserData>> finalActivites = activities;
+        activities = new HashMap<>();
 
-                synchronized (this) {
-                    if (finalActivites.size() > 0) {
-                        Thread t = new Thread(() -> {
-                            System.out.println("Collector START");
+        synchronized (this) {
+            if (finalActivites.size() > 0) {
+                Thread t = new Thread(() -> {
+                    System.out.println("Collector START");
 
-                            for(long serverId: finalActivites.keySet()) {
-                                for(long userId: finalActivites.get(serverId).keySet()) {
-                                    try {
-                                        synchronized (FisheryCache.class) {
-                                            ActivityUserData activityUserData = finalActivites.get(serverId).get(userId);
-                                            if (activityUserData.getAmountVC() + activityUserData.getAmountMessage() > 0) {
-                                                DBUser.addMessageSingle(serverId, userId, activityUserData);
-                                                Thread.sleep(500);
-                                            }
-                                        }
-                                    } catch (SQLException | InterruptedException e) {
-                                        e.printStackTrace();
+                    for(long serverId: finalActivites.keySet()) {
+                        for(long userId: finalActivites.get(serverId).keySet()) {
+                            try {
+                                synchronized (FisheryCache.class) {
+                                    ActivityUserData activityUserData = finalActivites.get(serverId).get(userId);
+                                    if (activityUserData.getAmountVC() + activityUserData.getAmountMessage() > 0) {
+                                        DBUser.addMessageSingle(serverId, userId, activityUserData);
+                                        Thread.sleep(1000);
                                     }
                                 }
+                            } catch (SQLException | InterruptedException e) {
+                                e.printStackTrace();
                             }
-
-                            System.out.println("Collector END");
-                        });
-
-                        t.setName("message_collector_db");
-                        t.start();
+                        }
                     }
-                }
+
+                    System.out.println("Collector END");
+                });
+
+                t.setName("message_collector_db");
+                t.start();
             }
         }
     }
@@ -188,6 +193,13 @@ public class FisheryCache {
                 }
             }
         }
+    }
+
+    public void stopServer(Server server) {
+        activities.remove(server.getId());
+        userMessageCount.remove(server.getId());
+        userVCCount.remove(server.getId());
+
     }
 
     public void startVCCollector(DiscordApi api) {

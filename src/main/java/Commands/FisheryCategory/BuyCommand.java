@@ -14,9 +14,11 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -38,16 +40,18 @@ public class BuyCommand extends Command implements onNavigationListener {
     private int numberReactions = 0;
     private boolean treasureChests;
     private boolean singleRole;
+    private Server server;
 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
             if (status == PowerPlantStatus.ACTIVE) {
-                fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
-                roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
-                singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer().get());
-                treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get());
+                server = event.getServer().get();
+                fishingProfile = DBUser.getFishingProfile(server, event.getMessage().getUserAuthor().get());
+                roles = DBServer.getPowerPlantRolesFromServer(server);
+                singleRole = DBServer.getPowerPlantSingleRoleFromServer(server);
+                treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(server);
 
                 checkRolesWithLog(roles, null);
 
@@ -81,8 +85,10 @@ public class BuyCommand extends Command implements onNavigationListener {
                     ) i++;
                     FishingSlot slot = fishingProfile.find(i);
 
-                    if (fishingProfile.getCoins() >= slot.getPrice()) {
-                        DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0, -slot.getPrice(), true);
+                    long price = slot.getPrice();
+                    if (slot.getId() == FishingCategoryInterface.ROLE) price = calculateRolePrice(slot);
+                    if (fishingProfile.getCoins() >= price) {
+                        DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0, -price, true);
                         slot.levelUp();
                         DBUser.updatePowerUpLevel(event.getServer().get(), event.getUser(), slot.getId(), slot.getLevel());
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
@@ -135,11 +141,14 @@ public class BuyCommand extends Command implements onNavigationListener {
                             (slot.getId() != FishingCategoryInterface.PER_TREASURE || treasureChests)
                     ) {
                         String productDescription = "???";
+                        long price = slot.getPrice();
                         if (slot.getId() != FishingCategoryInterface.ROLE)
                             productDescription = getString("product_des_" + slot.getId(), Tools.numToString(getLocale(), slot.getDeltaEffect()));
-                        else if (roles.get(slot.getLevel()) != null)
+                        else if (roles.get(slot.getLevel()) != null) {
+                            price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getId(), roles.get(slot.getLevel()).getMentionTag());
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()], getString("product_" + slot.getId() + "_0"), String.valueOf(slot.getLevel()), Tools.numToString(getLocale(), slot.getPrice()), productDescription));
+                        }
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()], getString("product_" + slot.getId() + "_0"), String.valueOf(slot.getLevel()), Tools.numToString(getLocale(), price), productDescription));
 
                         numberReactions++;
                         eb.addField(Tools.getEmptyCharacter(), description.toString());
@@ -166,6 +175,20 @@ public class BuyCommand extends Command implements onNavigationListener {
                 return EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"));
         }
         return null;
+    }
+
+    private long calculateRolePrice(FishingSlot slot) throws SQLException {
+        double price = slot.getPrice();
+        Pair<Long, Long> prices = DBServer.getFisheryRolePrices(server);
+
+        double priceCurrentMin = slot.getPriceForLevel(0);
+        double priceCurrentMax = slot.getPriceForLevel(roles.size() - 1);
+
+        double priceIdealMin = prices.getKey();
+        double priceIdealMax = prices.getValue();
+
+        if (roles.size() == 1) return (long) priceIdealMin;
+        return Math.round((price - priceCurrentMin) * ((priceIdealMax - priceIdealMin) / (priceCurrentMax - priceCurrentMin)) + priceIdealMin);
     }
 
     @Override
