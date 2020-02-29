@@ -42,13 +42,11 @@ public class WebhookServer {
                 } catch (IOException e) {
                     e.printStackTrace();
                     ExceptionHandler.showErrorLog("Webhook Server Error!");
-                    System.exit(-1);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
             ExceptionHandler.showErrorLog("Exception in webhook server");
-            System.exit(-1);
         }
     }
 }

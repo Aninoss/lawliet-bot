@@ -2,6 +2,7 @@ package MySQL;
 
 import General.Bot;
 import General.DiscordApiCollection;
+import General.ExceptionHandler;
 import General.SecretManager;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.vdurmont.emoji.EmojiParser;
@@ -44,11 +45,17 @@ public class DBMain implements DriverAction {
         connect = rv.getConnection();
     }
 
-    public static void synchronizeAll(DiscordApi api) throws InterruptedException, ExecutionException, SQLException {
-        DBServer.synchronize(api);
-        DBServer.synchronizeAutoChannelChildChannels(api);
-        DBUser.synchronize(api);
-        DBBot.startTrackers(api);
+    public static void synchronizeAll(DiscordApi api) {
+        try {
+            DBServer.synchronize(api);
+            DBServer.synchronizeAutoChannelChildChannels(api);
+            DBUser.synchronize(api);
+            DBBot.startTrackers(api);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            ExceptionHandler.showErrorLog("Error in synchronization method!");
+            System.exit(-1);
+        }
     }
 
     public static String instantToDateTimeString(Instant instant) {

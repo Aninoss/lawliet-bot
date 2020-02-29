@@ -163,7 +163,12 @@ public class Connector {
             }
             System.out.printf("Shard %d - Step 3\n", api.getCurrentShard());
             apiCollection.markReady(api);
-            DBMain.synchronizeAll(api);
+
+            Thread st = new Thread(() -> DBMain.synchronizeAll(api));
+            st.setName("synchro_shard_" + api.getCurrentShard());
+            st.setPriority(1);
+            st.start();
+
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
                     new DonationServer(27440);
@@ -172,6 +177,7 @@ public class Connector {
                 } else {
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }
+                ExceptionHandler.showInfoLog("All shards have been connected successfully!");
             }
 
             ExceptionHandler.showInfoLog(String.format("Shard %d connection established!", api.getCurrentShard()));

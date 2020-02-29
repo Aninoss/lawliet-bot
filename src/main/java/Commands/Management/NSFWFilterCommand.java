@@ -165,7 +165,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 14;
+        return 18;
     }
 
 }
