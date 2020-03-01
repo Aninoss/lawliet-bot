@@ -165,7 +165,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
-                                roles.size() > 0 && roleLvl > 0 ? roles.get(roleLvl- 1).getMentionTag() : "**-**",
+                                roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getMentionTag() : "**-**",
                                 Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                         )
                 );

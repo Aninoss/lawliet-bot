@@ -1,23 +1,21 @@
 package General.Reddit;
 
 import General.*;
+import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
-import General.Internet.URLDataContainer;
 import General.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class RedditDownloader {
 
-    public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException {
+    public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
         sub = URLEncoder.encode(sub, "UTF-8");
 
         RedditPost redditPost;
@@ -31,7 +29,7 @@ public class RedditDownloader {
         return redditPost;
     }
 
-    public static RedditPost getPost(Locale locale, String sub) throws IOException, InterruptedException {
+    public static RedditPost getPost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
@@ -42,7 +40,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1"+postReference;
 
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 60));
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 60);
         if (!internetResponse.getContent().isPresent()) {
             return null;
         }
@@ -66,13 +64,13 @@ public class RedditDownloader {
         return getPost(locale, data);
     }
 
-    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws IOException, InterruptedException {
+    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws IOException, InterruptedException, ExecutionException {
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, 2000, Instant.now().plusSeconds(60 * 9));
+        InternetResponse internetResponse =InternetCache.getData(downloadUrl, 60 * 9);
         if (!internetResponse.getContent().isPresent()) return null;
 
         String dataString = internetResponse.getContent().get();

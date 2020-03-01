@@ -1,28 +1,25 @@
 package General.Porn;
 
 import General.Comment;
+import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.Tools;
-import General.Internet.URLDataContainer;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class PornImageDownloader {
 
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException {
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
         return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, gifOnly, canBeVideo, 2, false, additionalFilters);
     }
 
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo, int remaining, boolean softMode, ArrayList<String> additionalFilters) throws IOException, InterruptedException {
+    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean gifOnly, boolean canBeVideo, int remaining, boolean softMode, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
         while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
@@ -36,7 +33,7 @@ public class PornImageDownloader {
         );
 
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
-        String data = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60)).getContent().get();
+        String data = InternetCache.getData(url, 60 * 60).getContent().get();
 
         int count = Math.min(200*100, Integer.parseInt(Tools.cutString(data,"count=\"","\"")));
 
@@ -60,9 +57,9 @@ public class PornImageDownloader {
         return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, gifOnly, canBeVideo, additionalFilters);
     }
 
-    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException {
+    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&json=1&tags="+searchTerm+"&pid="+page;
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(url, Instant.now().plusSeconds(60 * 60));
+        InternetResponse internetResponse = InternetCache.getData(url, 60 * 60);
 
         if (!internetResponse.getContent().isPresent()) return null;
 
@@ -112,13 +109,13 @@ public class PornImageDownloader {
         return null;
     }
 
-    private static PornImage getSpecificPictureOnPage(String domain, JSONArray data, int pos, String imageTemplate) throws IOException, InterruptedException {
+    private static PornImage getSpecificPictureOnPage(String domain, JSONArray data, int pos, String imageTemplate) throws IOException, InterruptedException, ExecutionException {
         JSONObject postData = data.getJSONObject(pos);
 
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
         String commentURL = "https://"+domain+"/index.php?page=dapi&s=comment&q=index&post_id=" + postData.getInt("id");
 
-        String commentsDataString = URLDataContainer.getInstance().getData(commentURL , Instant.now().plusSeconds(60 * 60)).getContent().get();
+        String commentsDataString = InternetCache.getData(commentURL , 60 * 60).getContent().get();
 
         ArrayList<Comment> comments = new ArrayList<>();
         while(commentsDataString.contains("creator=\"")) {

@@ -6,7 +6,7 @@ public interface Permission {
             CHANGE_OWN_NICKNAME = 0x4,
             SEE_CHANNEL = 0x8,
             CREATE_CHANNELS_ON_SERVER = 0x10,
-            REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL = 0x20,
+            REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL = 0x400,
             DEAFEN_MEMBERS_ON_SERVER = 0x40,
             MANAGE_EMOJIS_ON_SERVER = 0x80,
             EMBED_LINKS_IN_TEXT_CHANNELS = 0x100,

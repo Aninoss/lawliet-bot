@@ -7,7 +7,7 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
-import General.Internet.URLDataContainer;
+import General.Internet.InternetCache;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -51,8 +51,8 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray netData = new JSONObject(URLDataContainer.getInstance().getData(urls[0]).getContent().get()).getJSONArray("merchandises");
-        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]).getContent().get());;
+        JSONArray netData = new JSONObject(InternetCache.getData(urls[0]).getContent().get()).getJSONArray("merchandises");
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).getContent().get());;
 
         //Sorgt dafür, dass die aktuellen Daten genommen werden.
         if (netData.length() == 6) {
@@ -94,7 +94,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
 
         this.trackingTime = trackingTime;
 
-        URLDataContainer.getInstance().setInstantForURL(trackingTime, urls);
+        InternetCache.setExpirationDate(trackingTime, urls);
         return eb;
     }
 

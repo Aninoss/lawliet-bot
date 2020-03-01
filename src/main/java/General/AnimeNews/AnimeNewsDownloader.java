@@ -1,24 +1,23 @@
 package General.AnimeNews;
 
 import Constants.Language;
+import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.PostBundle;
 import General.Tools;
-import General.Internet.URLDataContainer;
-
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class AnimeNewsDownloader {
 
-    public static AnimeNewsPost getPost(Locale locale) throws IOException, InterruptedException {
+    public static AnimeNewsPost getPost(Locale locale) throws IOException, InterruptedException, ExecutionException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 14));
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 14);
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 
@@ -26,12 +25,12 @@ public class AnimeNewsDownloader {
         else return getPostEN(getCurrentPostStringEN(dataString));
     }
 
-    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException {
+    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException, ExecutionException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 14));
+        InternetResponse internetResponse =InternetCache.getData(downloadUrl, 60 * 14);
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 

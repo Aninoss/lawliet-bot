@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
-import General.Internet.URLDataContainer;
+import General.Internet.InternetCache;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -55,9 +55,9 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONObject mapData = new JSONObject(URLDataContainer.getInstance().getData(urls[0]).getContent().get());
-        JSONObject festData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]).getContent().get()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
-        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[2]).getContent().get());;
+        JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).getContent().get());
+        JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).getContent().get()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).getContent().get());;
         boolean isSplatfest = false;
         String festMapName;
         String[] festTeams = new String[2];
@@ -127,7 +127,7 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
             eb.addField(fieldTitle, fieldContent, false);
         }
 
-        URLDataContainer.getInstance().setInstantForURL(endTime, urls);
+        InternetCache.setExpirationDate(endTime, urls);
         trackingTime = endTime;
 
         return eb;

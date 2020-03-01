@@ -38,7 +38,6 @@ public class Tools {
     public static boolean stringIsDouble(String string) {
         try {
             Double.parseDouble(string);
-            Long.parseLong(string.replace(".", ""));
             return true;
         } catch (NumberFormatException e) {
             return false;

@@ -1,28 +1,27 @@
 package General.AnimeNews;
 
 import Constants.Language;
-import General.Internet.Internet;
+import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
-import General.Internet.URLDataContainer;
 import General.PostBundle;
 import General.Tools;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class AnimeReleaseDownloader {
 
-    public static AnimeReleasePost getPost(Locale locale) throws IOException, InterruptedException {
+    public static AnimeReleasePost getPost(Locale locale) throws IOException, InterruptedException, ExecutionException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 4));
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4);
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 
@@ -69,12 +68,12 @@ public class AnimeReleaseDownloader {
         return new AnimeReleasePost(anime, description, episode, episodeTitle, thumbnail, date, url, id);
     }
 
-    public static PostBundle<AnimeReleasePost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException {
+    public static PostBundle<AnimeReleasePost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException, ExecutionException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = URLDataContainer.getInstance().getData(downloadUrl, Instant.now().plusSeconds(60 * 4));
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4);
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 

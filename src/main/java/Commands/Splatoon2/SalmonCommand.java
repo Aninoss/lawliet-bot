@@ -7,7 +7,7 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
-import General.Internet.URLDataContainer;
+import General.Internet.InternetCache;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "salmon",
@@ -43,7 +44,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws IOException, InterruptedException {
+    private EmbedBuilder getEmbed() throws IOException, InterruptedException, ExecutionException {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
@@ -52,8 +53,8 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray salmonData = new JSONObject(URLDataContainer.getInstance().getData(urls[0]).getContent().get()).getJSONArray("details");
-        JSONObject languageData = new JSONObject(URLDataContainer.getInstance().getData(urls[1]).getContent().get());;
+        JSONArray salmonData = new JSONObject(InternetCache.getData(urls[0]).getContent().get()).getJSONArray("details");
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).getContent().get());;
 
         Instant[] startTime = new Instant[datesShown];
         Instant[] endTime = new Instant[datesShown];
@@ -92,7 +93,7 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
             eb.addField(title, body, false);
         }
 
-        URLDataContainer.getInstance().setInstantForURL(trackingTime, urls);
+        InternetCache.setExpirationDate(trackingTime, urls);
         return eb;
     }
 
