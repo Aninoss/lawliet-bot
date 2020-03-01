@@ -12,7 +12,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -63,7 +62,7 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
     private Pair<Integer, Boolean> fullClear(ServerTextChannel channel, String str, Message messageBefore) throws ExecutionException, InterruptedException, IOException {
         int hours = 0;
         if (str.length() > 0) {
-            if (Tools.stringIsNumeric(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
+            if (Tools.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 hours = Integer.parseInt(str);
             } else {
                 channel.sendMessage(EmbedFactory.getCommandEmbedError(this,

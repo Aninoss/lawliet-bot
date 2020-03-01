@@ -5,7 +5,6 @@ import General.Tools;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.io.IOException;
@@ -225,7 +224,7 @@ public class MentionFinder {
             for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
                 Message m;
                 try {
-                    if (Tools.stringIsNumeric(part) && (m = channel.getMessageById(part).get()) != null) {
+                    if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
                             string = removeMentionFromString(string, part, "");
@@ -246,7 +245,7 @@ public class MentionFinder {
             for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
                 Message m;
                 try {
-                    if (Tools.stringIsNumeric(part) && (m = channel.getMessageById(part).get()) != null) {
+                    if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
                             string = removeMentionFromString(string, part, "");
@@ -268,7 +267,7 @@ public class MentionFinder {
         for (String part : getArgs(string)) {
             Message m;
             try {
-                if (Tools.stringIsNumeric(part) && (m = channel.getMessageById(part).get()) != null) {
+                if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                     if (m.getChannel() == channel) {
                         if (!list.contains(m)) list.add(m);
                         string = removeMentionFromString(string, part, "");
@@ -327,7 +326,7 @@ public class MentionFinder {
 
             Message m;
             try {
-                if (Tools.stringIsNumeric(part) && (m = channel.getMessageById(part).get()) != null) {
+                if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                     if (m.getChannel() == channel) {
                         if (!list.contains(m)) list.add(m);
                         string = removeMentionFromString(string, part, "");

@@ -34,8 +34,8 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
             return true;
         } else {
             //Anzahl
-            if (Tools.stringIsNumeric(followedString)) {
-                int i = Integer.parseInt(followedString);
+            if (Tools.stringIsLong(followedString)) {
+                long i = Long.parseLong(followedString);
                 if (i >= 1) {
                     if (i <= 10) {
                         ArrayList<String> versions = DBBot.getCurrentVersions(i);

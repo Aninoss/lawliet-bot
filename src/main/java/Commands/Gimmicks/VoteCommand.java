@@ -125,7 +125,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
                 String footerString = footerStringOptional.get();
                 if (footerString.contains(" ")) {
                     String creatorIdString = footerString.split(" ")[0];
-                    if (Tools.stringIsNumeric(creatorIdString)) {
+                    if (Tools.stringIsLong(creatorIdString)) {
                         creatorId = Long.parseLong(creatorIdString);
                     }
                 }

@@ -35,10 +35,28 @@ import java.util.concurrent.ExecutionException;
 
 public class Tools {
 
-    public static boolean stringIsNumeric(String string) {
+    public static boolean stringIsDouble(String string) {
         try {
             Double.parseDouble(string);
             Long.parseLong(string.replace(".", ""));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean stringIsLong(String string) {
+        try {
+            Long.parseLong(string);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean stringIsInt(String string) {
+        try {
+            Integer.parseInt(string);
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -620,14 +638,6 @@ public class Tools {
         return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
     }
 
-    public static String removeNPC(String str) {
-        // erases all the ASCII control characters
-        str = str.replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "");
-        // removes non-printable characters from Unicode
-        str = str.replaceAll("\\p{C}", "");
-        return str;
-    }
-
     public static long getAmountExt(String str, long available) {
         if (str.toLowerCase().contains("all")) return available;
         if (str.toLowerCase().contains("half")) return available / 2;
@@ -635,12 +645,6 @@ public class Tools {
         long value = Tools.filterNumberFromString(str);
         if (value == -1) return -1;
         return str.contains("%") ? (long)(value / 100.0 * available) : value;
-    }
-
-    public static boolean isItWeekend() {
-        Calendar c1 = Calendar.getInstance();
-        return c1.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY ||
-                c1.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
     }
 
 }

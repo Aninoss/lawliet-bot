@@ -37,7 +37,7 @@ public class PornProxyCommand extends Command implements onRecievedListener {
         long amount = 1;
         if (followedString.length() > 0) {
             boolean ok = false;
-            if (Tools.stringIsNumeric(followedString)) {
+            if (Tools.stringIsDouble(followedString)) {
                 amount = Tools.filterNumberFromString(followedString);
                 if (amount >= 1 && amount <= 20) ok = true;
             }

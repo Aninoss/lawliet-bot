@@ -23,8 +23,6 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-import javax.swing.text.html.Option;
-
 public class DBBot {
 
     public static String getCurrentVersions() throws SQLException {
@@ -37,7 +35,7 @@ public class DBBot {
         return result;
     }
 
-    public static ArrayList<String> getCurrentVersions(int i) throws SQLException {
+    public static ArrayList<String> getCurrentVersions(long i) throws SQLException {
         ArrayList<String> versions = new ArrayList<>();
         Statement statement = DBMain.getInstance().statement("SELECT version FROM Version ORDER BY date DESC LIMIT " + i + ";");
         ResultSet resultSet = statement.getResultSet();
@@ -52,7 +50,7 @@ public class DBBot {
 
         StringBuilder sb = new StringBuilder();
         for(int i=0; i < Math.min(10, versions.length); i++) {
-            if (Tools.stringIsNumeric(versions[i].replace(".", ""))) {
+            if (Tools.stringIsDouble(versions[i].replace(".", ""))) {
                 if (i == 0) sb.append("WHERE version = '").append(versions[i]).append("'");
                 else sb.append(" OR version = '").append(versions[i]).append("'");
             }

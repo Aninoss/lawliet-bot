@@ -30,7 +30,7 @@ public class RollCommand extends Command implements onRecievedListener {
         double drawn, border;
         boolean userMentioned = true;
 
-        if (followedString.length() == 0 || !Tools.stringIsNumeric(followedString)){
+        if (followedString.length() == 0 || !Tools.stringIsDouble(followedString)){
             border = 6;
             userMentioned = false;
         }
