@@ -40,12 +40,7 @@ public class PermissionCheckRuntime {
         if (canPostError(server, permissions) && canContactOwner(server)) {
             try {
                 String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> {
-                    try {
-                        return "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**";
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return "";
+                    return "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**";
                 });
                 EmbedBuilder eb = EmbedFactory.getEmbedError();
                 eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
@@ -83,7 +78,7 @@ public class PermissionCheckRuntime {
                 eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", commandTrigger, rolesList));
 
                 if (Tools.canSendPrivateMessage(server.getOwner())) server.getOwner().sendMessage(eb).get();
-            } catch (IOException | InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
             setErrorInstant(server, PERMISSION_ROLE_POS);

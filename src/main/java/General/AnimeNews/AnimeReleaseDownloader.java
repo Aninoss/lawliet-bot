@@ -21,7 +21,7 @@ public class AnimeReleaseDownloader {
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4);
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 
@@ -73,7 +73,7 @@ public class AnimeReleaseDownloader {
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4);
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 

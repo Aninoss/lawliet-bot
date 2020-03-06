@@ -150,7 +150,7 @@ public class DBUser {
                         }
                         break;
                     }
-                } catch (SQLException | IOException e) {
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }

@@ -36,11 +36,7 @@ public class ListGen<T> {
 
     public String getList(Collection<T> objs, Locale locale, int slotType, Function<T, String> getNames) {
         String valueIfEmpty = "";
-        try {
-            valueIfEmpty = TextManager.getString(locale, TextManager.GENERAL, "notset");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        valueIfEmpty = TextManager.getString(locale, TextManager.GENERAL, "notset");
 
         return getList(objs, valueIfEmpty, slotType, getNames);
     }

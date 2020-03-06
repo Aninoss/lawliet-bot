@@ -12,7 +12,8 @@ import org.javacord.api.event.message.MessageCreateEvent;
         trigger = "signup",
         thumbnail = "http://icons.iconarchive.com/icons/custom-icon-design/flatastic-3/128/signup-icon.png",
         emoji = "✏️",
-        executable = true
+        executable = true,
+        aliases = {"giveaway"}
 )
 public class SignUpCommand extends Command implements onRecievedListener {
 

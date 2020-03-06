@@ -89,14 +89,10 @@ public class CommandManager {
                                     if (!Cooldown.getInstance().isBotIsSending(user)) {
                                         Cooldown.getInstance().setBotIsSending(user, true);
 
-                                        try {
-                                            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                                                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "cooldown_title"))
-                                                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "cooldown_description", user.getMentionTag(), String.valueOf(Cooldown.COOLDOWN_TIME_IN_SECONDS)));
-                                            event.getChannel().sendMessage(eb).get();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
+                                        EmbedBuilder eb = EmbedFactory.getEmbedError()
+                                                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "cooldown_title"))
+                                                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "cooldown_description", user.getMentionTag(), String.valueOf(Cooldown.COOLDOWN_TIME_IN_SECONDS)));
+                                        event.getChannel().sendMessage(eb).get();
 
                                         Cooldown.getInstance().setBotIsSending(user, false);
                                     }

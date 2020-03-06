@@ -7,27 +7,28 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class InternetCache {
 
     private static HashMap<String, Instant> expirationDates = new HashMap<>();
-    private static LoadingCache<String, InternetResponse> cache = CacheBuilder.newBuilder()
+    private static LoadingCache<String, CompletableFuture<InternetResponse>> cache = CacheBuilder.newBuilder()
             .maximumSize(20)
             .removalListener((removalNotification) -> removeExpirationDate((String) removalNotification.getKey()))
             .build(
-                    new CacheLoader<String, InternetResponse>() {
+                    new CacheLoader<String, CompletableFuture<InternetResponse>>() {
                         @Override
-                        public InternetResponse load(@NonNull String url) throws IOException {
+                        public CompletableFuture<InternetResponse> load(@NonNull String url) throws IOException {
                             return Internet.getData(url);
                         }
                     });
 
-    public static InternetResponse getData(String url) throws ExecutionException {
+    public static CompletableFuture<InternetResponse> getData(String url) throws ExecutionException {
         return getData(url, 60 * 5);
     }
 
-    public static InternetResponse getData(String url, int expirationTimeSeconds) throws ExecutionException {
+    public static CompletableFuture<InternetResponse> getData(String url, int expirationTimeSeconds) throws ExecutionException {
         if (!expirationDates.containsKey(url) || expirationDates.get(url).isBefore(Instant.now())) {
             expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
             cache.invalidate(url);

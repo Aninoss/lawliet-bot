@@ -55,9 +55,9 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).getContent().get());
-        JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).getContent().get()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).getContent().get());;
+        JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get());
+        JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).get().getContent().get());;
         boolean isSplatfest = false;
         String festMapName;
         String[] festTeams = new String[2];

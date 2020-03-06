@@ -1,6 +1,8 @@
 package General;
 
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -23,11 +25,7 @@ public class ExceptionHandler {
 
         String errorMessage = stacktrace.split("\n")[0];
         if (errorMessage.contains("500: Internal Server Error")) {
-            try {
-                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
         } else if (errorMessage.contains("Server returned HTTP response code: 5")) {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
@@ -52,11 +50,7 @@ public class ExceptionHandler {
             showError = false;
         } else if (errorMessage.contains("Read timed out")) {
             showError = false;
-            try {
-                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else {
             try {
                 errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
@@ -90,15 +84,18 @@ public class ExceptionHandler {
     public static void showErrorLog(String str) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        System.err.printf("[ERROR] %s: %s\n", dtf.format(now), str);
-        System.out.printf("[ERROR] %s: %s\n", dtf.format(now), str);
+        String text = String.format("[ERROR] %s: %s", dtf.format(now), str);
+        System.err.println(text);
+        System.out.println(text);
+        DiscordApiCollection.getInstance().getOwner().sendMessage(text);
     }
 
     public static void showInfoLog(String str) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        System.err.printf("[INFO] %s: %s\n", dtf.format(now), str);
-        System.out.printf("[INFO] %s: %s\n", dtf.format(now), str);
+        String text = String.format("[INFO] %s: %s", dtf.format(now), str);
+        System.err.println(text);
+        System.out.println(text);
     }
 
 }

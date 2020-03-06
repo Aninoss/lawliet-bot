@@ -29,9 +29,9 @@ public class DadJokeCommand extends Command implements onRecievedListener {
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         String joke;
         if (Tools.getLanguage(getLocale()) == Language.DE) {
-            joke = Internet.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").getContent().get();
+            joke = Internet.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").get().getContent().get();
         } else {
-            joke = new JSONObject(Internet.getData("https://icanhazdadjoke.com/slack").getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
+            joke = new JSONObject(Internet.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
         }
 
         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, joke)).get();

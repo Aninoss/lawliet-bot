@@ -433,21 +433,13 @@ public class Command {
 
     public boolean checkWriteInChannelWithLog(ServerTextChannel channel) {
         if (channel.canYouWrite() && channel.canYouEmbedLinks()) return true;
-        try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#"+channel.getName()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#"+channel.getName()));
         return false;
     }
 
     public boolean checkManageChannelWithLog(ServerChannel channel) {
         if (Tools.canManageChannel(channel, DiscordApiCollection.getInstance().getYourself())) return true;
-        try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", "#"+channel.getName()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", "#"+channel.getName()));
         return false;
     }
 

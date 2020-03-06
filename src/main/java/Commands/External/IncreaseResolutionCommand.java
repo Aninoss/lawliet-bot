@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "waifu2x",
@@ -64,7 +65,7 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
     }
 
 
-    private String processImage(URL url) throws IOException {
+    private String processImage(URL url) throws IOException, ExecutionException, InterruptedException {
         if (url.toString().equals("https://i.pinimg.com/236x/a4/a6/43/a4a6430b557982c69b50bcf174c6077f.jpg")) return "https://cdn.discordapp.com/attachments/499629904380297226/611959216038477825/waifu2x.jpg";
         if (url.toString().equals("https://avatarfiles.alphacoders.com/699/thumb-69905.png")) return "https://cdn.discordapp.com/attachments/499629904380297226/611960284239626241/waifu2x2.jpg";
 
@@ -77,7 +78,7 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
                 new Pair<>("Content-Type", "application/x-www-form-urlencoded")
         };
 
-        String data = Internet.getData("https://api.deepai.org/api/waifu2x", query, properties).getContent().get();
+        String data = Internet.getData("https://api.deepai.org/api/waifu2x", query, properties).get().getContent().get();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");
     }

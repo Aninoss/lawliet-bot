@@ -10,14 +10,15 @@ public class TextManager {
 
     public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions";
 
-    public static String getString(Locale locale, String category, String key, String... args) throws IOException {
+    public static String getString(Locale locale, String category, String key, String... args) {
         return getString(locale, category, key, -1, args);
     }
 
-    public static String getString(Locale locale, String category, String key, int option, String... args) throws IOException {
+    public static String getString(Locale locale, String category, String key, int option, String... args) {
         ResourceBundle texts = ResourceBundle.getBundle(category, locale, new UTF8Control());
         if (!texts.containsKey(key)) {
-            throw new IOException("Key " + key + " not found in " + category);
+            ExceptionHandler.showErrorLog("Key " + key + " not found in " + category);
+            return "???";
         } else {
             //Get String
             String text = texts.getString(key);

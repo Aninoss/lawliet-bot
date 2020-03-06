@@ -151,11 +151,7 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            try {
-                jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, TextManager.COMMANDS, key));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, TextManager.COMMANDS, key));
         }
 
         return jsonObject;
@@ -167,14 +163,7 @@ public class WebComServer {
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
             String permissionsList = new ListGen<Integer>().getList(PermissionCheck.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_BULLET,
-                    i -> {
-                        try {
-                            return TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(i));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return "";
-                    }
+                    i -> TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(i))
             );
             jsonObject.put(locale.getDisplayName(), permissionsList);
         }
@@ -187,15 +176,11 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            try {
-                String str = Tools.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
-                if (!str.isEmpty())
-                    str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
+            String str = Tools.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
+            if (!str.isEmpty())
+                str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 
-                jsonObject.put(locale.getDisplayName(), str);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            jsonObject.put(locale.getDisplayName(), str);
         }
 
         return jsonObject;

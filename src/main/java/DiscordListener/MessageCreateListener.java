@@ -169,7 +169,7 @@ public class MessageCreateListener {
                     }
                 }
             }
-        } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+        } catch (ExecutionException | SQLException | InterruptedException e) {
             e.printStackTrace();
         }
     }

@@ -1,16 +1,19 @@
 Manifest-Version: 1.0
 Main-Class: General.Connector
-Class-Path: gson-2.8.5.jar log4j-api-2.11.0.jar netty-common-4.1.32.Fina
- l.jar mysql-connector-java-8.0.17.jar logging-interceptor-3.9.1.jar net
- ty-socketio-1.7.17.jar netty-codec-http-4.1.32.Final.jar netty-transpor
- t-4.1.32.Final.jar jackson-core-2.9.7.jar netty-transport-native-unix-c
- ommon-4.1.32.Final.jar gson-javatime-serialisers-1.1.1.jar emoji-java-5
- .1.1.jar commons-io-2.6.jar DBL-Java-Library-2.0.1.jar jackson-databind
- -2.9.7.jar javacord-api-3.0.5.jar netty-buffer-4.1.32.Final.jar javacor
- d-core-3.0.5.jar jsoup-1.12.1.jar protobuf-java-3.6.1.jar slf4j-api-1.7
- .25.jar netty-codec-4.1.32.Final.jar netty-resolver-4.1.32.Final.jar fa
- stjson-1.2.47.jar java-youtube-downloader-1.0.2.jar okio-1.14.0.jar jso
- n-20180813.jar okhttp-3.11.0.jar netty-handler-4.1.32.Final.jar nv-webs
- ocket-client-2.6.jar jackson-annotations-2.9.0.jar netty-transport-nati
- ve-epoll-4.1.32.Final.jar
+Class-Path: netty-buffer-4.1.32.Final.jar fastjson-1.2.47.jar java-youtu
+ be-downloader-1.0.2.jar gson-2.8.5.jar jsr305-3.0.2.jar j2objc-annotati
+ ons-1.3.jar checker-qual-2.8.1.jar listenablefuture-9999.0-empty-to-avo
+ id-conflict-with-guava.jar netty-transport-native-epoll-4.1.32.Final.ja
+ r netty-codec-http-4.1.32.Final.jar jackson-annotations-2.9.0.jar anima
+ l-sniffer-annotations-1.18.jar netty-socketio-1.7.17.jar netty-resolver
+ -4.1.32.Final.jar log4j-api-2.11.0.jar error_prone_annotations-2.3.2.ja
+ r nv-websocket-client-2.6.jar netty-codec-4.1.32.Final.jar protobuf-jav
+ a-3.6.1.jar jsoup-1.12.1.jar javacord-api-3.0.5.jar gson-javatime-seria
+ lisers-1.1.1.jar netty-common-4.1.32.Final.jar slf4j-api-1.7.25.jar gua
+ va-28.1-jre.jar logging-interceptor-3.9.1.jar netty-transport-native-un
+ ix-common-4.1.32.Final.jar failureaccess-1.0.1.jar netty-handler-4.1.32
+ .Final.jar DBL-Java-Library-2.0.1.jar javacord-core-3.0.5.jar okhttp-3.
+ 11.0.jar commons-io-2.6.jar emoji-java-5.1.1.jar jackson-core-2.9.7.jar
+  netty-transport-4.1.32.Final.jar mysql-connector-java-8.0.17.jar jacks
+ on-databind-2.9.7.jar okio-1.14.0.jar json-20180813.jar
 

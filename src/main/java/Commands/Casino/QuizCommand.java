@@ -58,7 +58,7 @@ public class QuizCommand extends Casino implements onRecievedListener, onReactio
             String dataString, diffString;
             JSONObject data;
             try {
-                dataString = Internet.getData(url).getContent().get();
+                dataString = Internet.getData(url).get().getContent().get();
                 data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
                 diffString = data.getString("difficulty");
             } catch (Throwable e) {

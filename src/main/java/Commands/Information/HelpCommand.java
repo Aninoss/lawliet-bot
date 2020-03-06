@@ -134,14 +134,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                 }
 
                 String permissionsList = new ListGen<Integer>().getList(PermissionCheck.permissionsToNumberList(command.getUserPermissions()), getLocale(), ListGen.SLOT_TYPE_BULLET,
-                        i -> {
-                            try {
-                                return TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(i));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                    return "";
-                        }
+                        i -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(i))
                 );
 
                 EmbedBuilder eb =  EmbedFactory.getEmbed()
@@ -255,7 +248,6 @@ public class HelpCommand extends Command implements onNavigationListener {
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel, String arg) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                //.setFooter(getString("donate"))
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
 
         StringBuilder categoriesSB = new StringBuilder();
@@ -274,8 +266,8 @@ public class HelpCommand extends Command implements onNavigationListener {
         eb.setDescription(categoriesSB.toString());
 
         eb
-                .addField(getString("links_title"), getString("links_content", Settings.LAWLIET_WEBSITE, Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true);
-        //        .addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), true);
+                .addField(getString("links_title"), getString("links_content", Settings.LAWLIET_WEBSITE, Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true)
+                .addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), false);
         return eb;
     }
 

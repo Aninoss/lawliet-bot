@@ -93,7 +93,7 @@ public class GearCommand extends Command implements onRecievedListener {
                             Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
                             Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
                             Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
-                            buyableRoles.size() > 0 && roleLvl > 0 ? buyableRoles.get(roleLvl- 1).getMentionTag() : "**-**",
+                            buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? buyableRoles.get(roleLvl - 1).getMentionTag() : "**-**",
                             Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                     ), false);
 

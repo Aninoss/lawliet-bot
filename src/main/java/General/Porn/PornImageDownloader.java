@@ -33,7 +33,7 @@ public class PornImageDownloader {
         );
 
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
-        String data = InternetCache.getData(url, 60 * 60).getContent().get();
+        String data = InternetCache.getData(url, 60 * 60).get().getContent().get();
 
         int count = Math.min(200*100, Integer.parseInt(Tools.cutString(data,"count=\"","\"")));
 
@@ -59,7 +59,7 @@ public class PornImageDownloader {
 
     private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean gifOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&json=1&tags="+searchTerm+"&pid="+page;
-        InternetResponse internetResponse = InternetCache.getData(url, 60 * 60);
+        InternetResponse internetResponse = InternetCache.getData(url, 60 * 60).get();
 
         if (!internetResponse.getContent().isPresent()) return null;
 
@@ -115,7 +115,7 @@ public class PornImageDownloader {
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
         String commentURL = "https://"+domain+"/index.php?page=dapi&s=comment&q=index&post_id=" + postData.getInt("id");
 
-        String commentsDataString = InternetCache.getData(commentURL , 60 * 60).getContent().get();
+        String commentsDataString = InternetCache.getData(commentURL , 60 * 60).get().getContent().get();
 
         ArrayList<Comment> comments = new ArrayList<>();
         while(commentsDataString.contains("creator=\"")) {

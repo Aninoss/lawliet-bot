@@ -521,12 +521,7 @@ public class Tools {
     }
 
     public static String getStats(Locale locale, User user) {
-        try {
-            return TextManager.getString(locale, TextManager.GENERAL, "status_" + user.getStatus().getStatusString());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Error!";
-        }
+        return TextManager.getString(locale, TextManager.GENERAL, "status_" + user.getStatus().getStatusString());
     }
 
     public static boolean canSendPrivateMessage(User user) {

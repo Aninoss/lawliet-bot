@@ -53,8 +53,8 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONObject festData = new JSONObject(InternetCache.getData(urls[0]).getContent().get()).getJSONObject(region);
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).getContent().get());;
+        JSONObject festData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get()).getJSONObject(region);
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get());;
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setTimestampToNow()

@@ -8,6 +8,7 @@ import General.SecretManager;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public class Botsfordiscord {
 
@@ -19,9 +20,9 @@ public class Botsfordiscord {
                     new Pair<>("Content-Type", "application/json"),
                     new Pair<>("Authorization", SecretManager.getString("botsfordiscord.token"))
             };
-            InternetResponse internetResponse = Internet.getData("https://botsfordiscord.com/api/bot/" + Settings.LAWLIET_ID, jsonObject.toString(), properties);
+            InternetResponse internetResponse = Internet.getData("https://botsfordiscord.com/api/bot/" + Settings.LAWLIET_ID, jsonObject.toString(), properties).get();
             return internetResponse.getCode() == 200;
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return false;

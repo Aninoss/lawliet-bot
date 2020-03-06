@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.concurrent.ExecutionException;
 
 public class SIGNALTRANSMITTER {
 
@@ -24,14 +25,14 @@ public class SIGNALTRANSMITTER {
     private SIGNALTRANSMITTER() {
         try {
             login();
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private void login() throws IOException {
+    private void login() throws IOException, ExecutionException, InterruptedException {
         String body = "username="+ SecretManager.getString("SIGNALTRANSMITTER.username") +"&password=" + SecretManager.getString("SIGNALTRANSMITTER.password") + "&login=1";
-        InternetResponse internetResponse = Internet.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new Pair<>("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+        InternetResponse internetResponse = Internet.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new Pair<>("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")).get();
         cookie = internetResponse.getCookies().get().get(0);
         key = new JSONObject(internetResponse.getContent().get()).getString("redirect").split("/")[1];
     }
@@ -44,20 +45,20 @@ public class SIGNALTRANSMITTER {
     public double getTrafficGB() {
         try {
             return getTrafficGB(5);
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
 
         return -1;
     }
 
-    private double getTrafficGB(int tries) throws IOException {
+    private double getTrafficGB(int tries) throws IOException, ExecutionException, InterruptedException {
         if (tries <= 0) {
             System.out.println("Giving up");
             return -1;
         }
 
-        JSONObject data = new JSONObject(Internet.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", getProperties()).getContent().get());
+        JSONObject data = new JSONObject(Internet.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", getProperties()).get().getContent().get());
         String act = data.getString("act");
         if (act.equals("bandwidth")) {
             Calendar calendar = Calendar.getInstance();

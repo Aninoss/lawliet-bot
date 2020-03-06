@@ -66,7 +66,7 @@ public class SPCheck {
                         if (spBlock.getAction() == SPAction.KICK_USER) {
                             try {
                                 server.kickUser(author, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (InterruptedException | ExecutionException | IOException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 successful = false;
                                 //Ignore
                             }
@@ -76,7 +76,7 @@ public class SPCheck {
                         if (spBlock.getAction() == SPAction.BAN_USER) {
                             try {
                                 server.banUser(author, 1, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (InterruptedException | ExecutionException | IOException e) {
+                            } catch (InterruptedException | ExecutionException e) {
                                 successful = false;
                                 //Ignore
                             }

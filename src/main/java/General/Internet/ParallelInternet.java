@@ -18,9 +18,9 @@ public class ParallelInternet {
                 if (!responseHashMap.containsKey(url)) {
                     CompletableFuture<InternetResponse> completableFuture = new CompletableFuture<>();
                     responseHashMap.put(url, completableFuture);
-                    completableFuture.complete(Internet.getData(url));
+                    completableFuture.complete(Internet.getData(url).get());
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });

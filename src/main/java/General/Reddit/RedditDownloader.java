@@ -40,7 +40,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1"+postReference;
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 60);
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 60).get();
         if (!internetResponse.getContent().isPresent()) {
             return null;
         }
@@ -70,7 +70,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
-        InternetResponse internetResponse =InternetCache.getData(downloadUrl, 60 * 9);
+        InternetResponse internetResponse =InternetCache.getData(downloadUrl, 60 * 9).get();
         if (!internetResponse.getContent().isPresent()) return null;
 
         String dataString = internetResponse.getContent().get();
@@ -118,8 +118,8 @@ public class RedditDownloader {
         Object flair;
 
         if (data.has("subreddit_name_prefixed")) post.setSubreddit(data.getString("subreddit_name_prefixed"));
-        post.setScore(data.getInt("score"));
-        post.setComments(data.getInt("num_comments"));
+        post.setScore(data.has("score") ? data.getInt("score") : 0);
+        post.setComments(data.has("num_comments") ? data.getInt("num_comments") : 0);
         post.setInstant(new Date(data.getLong("created_utc") * 1000L).toInstant());
         post.setNsfw(data.getBoolean("over_18"));
         post.setTitle(Tools.shortenString(data.getString("title"), 256));
