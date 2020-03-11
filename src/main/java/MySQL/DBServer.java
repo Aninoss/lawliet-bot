@@ -352,7 +352,7 @@ public class DBServer {
         return nsfwFilter;
     }
 
-    public static WelcomeMessageSetting getWelcomeMessageSettingFromServer(Locale locale, Server server) throws SQLException, IOException {
+    public static WelcomeMessageSetting getWelcomeMessageSettingFromServer(Locale locale, Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel FROM ServerWelcomeMessage WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
@@ -581,9 +581,9 @@ public class DBServer {
     }
 
     public static ModerationStatus getModerationFromServer(Server server) throws SQLException {
-        ModerationStatus moderationStatus = new ModerationStatus(server, null, true);
+        ModerationStatus moderationStatus = new ModerationStatus(server, null, true, 0, 0);
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question FROM Moderation WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, autoKick, autoBan FROM Moderation WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
 
@@ -591,13 +591,15 @@ public class DBServer {
         if (resultSet.next()) {
             long channelId = resultSet.getLong(1);
             boolean question = resultSet.getBoolean(2);
+            int autoKick = resultSet.getInt(3);
+            int autoBan = resultSet.getInt(4);
 
             ServerTextChannel channel = null;
             if (server.getTextChannelById(channelId).isPresent()) {
                 channel = server.getTextChannelById(channelId).get();
             }
 
-            moderationStatus = new ModerationStatus(server, channel, question);
+            moderationStatus = new ModerationStatus(server, channel, question, autoKick, autoBan);
         }
 
         resultSet.close();
@@ -1058,11 +1060,13 @@ public class DBServer {
     }
 
     public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Moderation VALUES (?, ?, ?);");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Moderation VALUES (?, ?, ?, ?, ?);");
         preparedStatement.setLong(1, moderationStatus.getServer().getId());
-        if (moderationStatus.getChannel() != null) preparedStatement.setLong(2, moderationStatus.getChannel().getId());
+        if (moderationStatus.getChannel().isPresent()) preparedStatement.setLong(2, moderationStatus.getChannel().get().getId());
         else preparedStatement.setNull(2, Types.BIGINT);
         preparedStatement.setBoolean(3, moderationStatus.isQuestion());
+        preparedStatement.setInt(4, moderationStatus.getAutoKick());
+        preparedStatement.setInt(5, moderationStatus.getAutoBan());
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }

@@ -7,10 +7,13 @@ import MySQL.FisheryCache;
 import ServerStuff.Donations.DonationServer;
 import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
+import org.javacord.api.entity.server.Server;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.util.Optional;
 
 public class Console {
 
@@ -100,6 +103,11 @@ public class Console {
                                     System.out.println("\nERROR\n");
                                     e.printStackTrace();
                                 }
+                                break;
+
+                            case "ss":
+                                long serverId = Long.parseLong(arg);
+                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getMembers().size()));
                                 break;
                         }
                     }

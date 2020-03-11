@@ -73,6 +73,12 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
         return eb;
     }
 
+    private EmbedBuilder getVersionsEmbed(String version) throws Throwable {
+        ArrayList<String> versions = new ArrayList<>();
+        versions.add(version);
+        return getVersionsEmbed(new ArrayList<String>(versions));
+    }
+
     private EmbedBuilder getVersionsEmbed(ArrayList<String> versions) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setFooter(getString("footer"));
         for(String str: versions) {
@@ -83,13 +89,12 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (!trackerData.getMessageDelete().isPresent() || trackerData.getMessageDelete().get().getCreationTimestamp().isBefore(DBBot.getCurrentVersionDate())) {
-            ArrayList<String> versions = DBBot.getCurrentVersions(1);
-            Message message = trackerData.getChannel().get().sendMessage(getVersionsEmbed(versions)).get();
-            trackerData.setMessageDelete(message);
+        if (trackerData.getArg() == null || !trackerData.getArg().equals(Tools.getCurrentVersion())) {
+            trackerData.getChannel().get().sendMessage(getVersionsEmbed(Tools.getCurrentVersion())).get();
+            trackerData.setArg(Tools.getCurrentVersion());
+        } else {
+            TrackerManager.interruptTracker(trackerData);
         }
-
-        TrackerManager.interruptTracker(trackerData);
         return trackerData;
     }
 

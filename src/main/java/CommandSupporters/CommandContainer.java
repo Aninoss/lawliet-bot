@@ -91,7 +91,7 @@ public class CommandContainer {
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);
         commandList.add(UserInfoCommand.class);
-        commandList.add(SignUpCommand.class);
+        //commandList.add(SignUpCommand.class);
         commandList.add(PingCommand.class);
         commandList.add(NewCommand.class);
         commandList.add(StatsCommand.class);

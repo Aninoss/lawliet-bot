@@ -28,7 +28,7 @@ public class ServerMemberJoinListener {
         if (event.getUser().isYourself()) return;
 
         Server server = event.getServer();
-        Locale locale = null;
+        Locale locale;
         try {
             locale = DBServer.getServerLocale(server);
         } catch (SQLException e) {
@@ -75,7 +75,7 @@ public class ServerMemberJoinListener {
                 }
             }
             if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
-        } catch (IOException | ExecutionException | InterruptedException | SQLException e) {
+        } catch (ExecutionException | InterruptedException | SQLException e) {
             e.printStackTrace();
         }
 

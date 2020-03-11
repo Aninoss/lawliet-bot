@@ -90,7 +90,6 @@ public class Command {
     public void onReactionAddSuper(SingleReactionEvent event) {
         updateThreadName();
 
-        if (commandProperties.withLoadingBar()) addLoadingReaction();
         if (countdown != null) countdown.reset();
 
         try {

@@ -75,7 +75,6 @@ public class VoiceChannelMemberJoinListener {
                     vcb.addPermissionOverwrite(DiscordApiCollection.getInstance().getYourself(), botPermission);
 
                     ServerVoiceChannel vc = vcb.create().get();
-                    vc.updateRawPosition((event.getChannel().getRawPosition()));
 
                     if (userIsConnected(event.getChannel(), event.getUser())) {
                         AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(event.getChannel(), vc));

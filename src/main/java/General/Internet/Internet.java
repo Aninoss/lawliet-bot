@@ -93,7 +93,7 @@ public class Internet {
     }
 
     public static boolean stringIsURL(String str) {
-        if (str.contains("http://") || str.contains("https://")) return true;
+        if (str.contains("http://") || str.contains("https://") || str.contains("www")) return true;
 
         String [] parts = str.split("\\s+");
 

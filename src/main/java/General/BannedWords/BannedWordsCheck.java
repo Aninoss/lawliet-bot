@@ -1,6 +1,7 @@
 package General.BannedWords;
 
 import Commands.Moderation.BannedWordsCommand;
+import Commands.Moderation.ModSettingsCommand;
 import Constants.Permission;
 import General.*;
 import MySQL.DBServer;
@@ -65,17 +66,17 @@ public class BannedWordsCheck {
                 }
 
                 ModerationStatus moderationStatus = DBServer.getModerationFromServer(server);
-                if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(locale, "bannedwords", moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                if (moderationStatus.getChannel().isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(locale, "bannedwords", moderationStatus.getChannel().get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                     eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
                             .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                             .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true);
                     if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
                     else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
-                    moderationStatus.getChannel().sendMessage(eb).get();
+                    moderationStatus.getChannel().get().sendMessage(eb).get();
                 }
 
-                DBServer.insertWarning(server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_title"));
+                ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_title"));
 
                 return true;
             }

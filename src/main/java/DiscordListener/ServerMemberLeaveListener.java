@@ -49,7 +49,7 @@ public class ServerMemberLeaveListener {
                                         Tools.numToString(locale, server.getMembers().size())))).get();
                     }
                 }
-            } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+            } catch (ExecutionException | SQLException | InterruptedException e) {
                 e.printStackTrace();
             }
 

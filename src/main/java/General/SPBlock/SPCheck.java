@@ -1,5 +1,6 @@
 package General.SPBlock;
 
+import Commands.Moderation.ModSettingsCommand;
 import Commands.Moderation.SelfPromotionBlockCommand;
 import Constants.Permission;
 import Constants.SPAction;
@@ -94,17 +95,17 @@ public class SPCheck {
                         }
 
                         ModerationStatus moderationStatus = DBServer.getModerationFromServer(server);
-                        if (moderationStatus.getChannel() != null && PermissionCheckRuntime.getInstance().botHasPermission(locale, "spblock", moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                        if (moderationStatus.getChannel().isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(locale, "spblock", moderationStatus.getChannel().get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                             eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
                                     .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true)
                                     .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
                             if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
                             else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
 
-                            moderationStatus.getChannel().sendMessage(eb).get();
+                            moderationStatus.getChannel().get().sendMessage(eb).get();
                         }
 
-                        DBServer.insertWarning(server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "spblock_title"));
+                        ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "spblock_title"));
 
                         return true;
                     }

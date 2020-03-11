@@ -315,7 +315,8 @@ public class Connector {
     public static void updateActivity(DiscordApi api, int serverNumber) {
         Calendar calendar = Calendar.getInstance();
         boolean isRestartPending = calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
-                calendar.get(Calendar.MINUTE) < 15;
+                calendar.get(Calendar.MINUTE) < 15 &&
+                new File("update/Lawliet.jar").exists();
 
         if (!isRestartPending) {
             if (DBMain.getInstance().checkConnection()) {

@@ -254,7 +254,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
             case 3:
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS,  commandTrigger + "_trackerkey"), getString("state3_title"));
 
             case 4:
                 return EmbedFactory.getCommandEmbedSuccess(this, getString("state4_description"));

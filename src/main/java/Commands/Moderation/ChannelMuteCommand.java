@@ -91,11 +91,11 @@ public class ChannelMuteCommand extends Command implements onRecievedListener  {
 
         ModerationStatus moderationStatus = DBServer.getModerationFromServer(event.getServer().get());
 
-        if (moderationStatus.getChannel() != null &&
-                PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), moderationStatus.getChannel(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS) &&
+        if (moderationStatus.getChannel().isPresent() &&
+                PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), moderationStatus.getChannel().get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS) &&
                 doneSomething
         ) {
-            moderationStatus.getChannel().sendMessage(actionEmbed).get();
+            moderationStatus.getChannel().get().sendMessage(actionEmbed).get();
         }
 
         if (!mute || !successfulUsers.contains(DiscordApiCollection.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
