@@ -1,5 +1,6 @@
 package MySQL;
 
+import Constants.FishingCategoryInterface;
 import Constants.Permission;
 import Constants.PowerPlantStatus;
 import Constants.SPAction;
@@ -187,6 +188,15 @@ public class DBServer {
         resultSet.close();
         preparedStatement.close();
         return userWarnings;
+    }
+
+    public static void removeWarningsForUser(Server server, User user, int n) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Warnings WHERE serverId = ? AND userId = ? ORDER BY time DESC LIMIT ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, user.getId());
+        preparedStatement.setInt(3, n);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
     }
 
     public static SPBlock getSPBlockFromServer(Server server) throws SQLException {
@@ -581,9 +591,9 @@ public class DBServer {
     }
 
     public static ModerationStatus getModerationFromServer(Server server) throws SQLException {
-        ModerationStatus moderationStatus = new ModerationStatus(server, null, true, 0, 0);
+        ModerationStatus moderationStatus = new ModerationStatus(server, null, true, 0, 0, 30, 30);
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, autoKick, autoBan FROM Moderation WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, autoKick, autoBan, autoKickDays, autoBanDays FROM Moderation WHERE serverId = ?;");
         preparedStatement.setLong(1, server.getId());
         preparedStatement.execute();
 
@@ -593,13 +603,15 @@ public class DBServer {
             boolean question = resultSet.getBoolean(2);
             int autoKick = resultSet.getInt(3);
             int autoBan = resultSet.getInt(4);
+            int autoKickDays = resultSet.getInt(5);
+            int autoBanDays = resultSet.getInt(6);
 
             ServerTextChannel channel = null;
             if (server.getTextChannelById(channelId).isPresent()) {
                 channel = server.getTextChannelById(channelId).get();
             }
 
-            moderationStatus = new ModerationStatus(server, channel, question, autoKick, autoBan);
+            moderationStatus = new ModerationStatus(server, channel, question, autoKick, autoBan, autoKickDays, autoBanDays);
         }
 
         resultSet.close();
@@ -1060,13 +1072,15 @@ public class DBServer {
     }
 
     public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Moderation VALUES (?, ?, ?, ?, ?);");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Moderation (serverId, channelId, question, autoKick, autoBan, autoKickDays, autoBanDays) VALUES (?, ?, ?, ?, ?, ?, ?);");
         preparedStatement.setLong(1, moderationStatus.getServer().getId());
         if (moderationStatus.getChannel().isPresent()) preparedStatement.setLong(2, moderationStatus.getChannel().get().getId());
         else preparedStatement.setNull(2, Types.BIGINT);
         preparedStatement.setBoolean(3, moderationStatus.isQuestion());
         preparedStatement.setInt(4, moderationStatus.getAutoKick());
         preparedStatement.setInt(5, moderationStatus.getAutoBan());
+        preparedStatement.setInt(6, moderationStatus.getAutoKickDays());
+        preparedStatement.setInt(7, moderationStatus.getAutoBanDays());
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }
@@ -1223,6 +1237,21 @@ public class DBServer {
         preparedStatement.setLong(3, server.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();
+    }
+
+    public static double getRoleExp() throws SQLException {
+        double exp = 1;
+
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT categoryPower FROM PowerPlantCategories WHERE categoryId = ?;");
+        preparedStatement.setInt(1, FishingCategoryInterface.ROLE);
+        preparedStatement.execute();
+        ResultSet resultSet = preparedStatement.getResultSet();
+
+        if (resultSet.next()) {
+            exp = resultSet.getDouble(1);
+        }
+
+        return exp;
     }
 
 }

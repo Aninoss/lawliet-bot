@@ -192,7 +192,7 @@ public class Tools {
             counted++;
         }
 
-        if (counted == 0) return null;
+        if (counted == 0) throw new IOException();
         if (counted > 1) multi = true;
 
         String string = sb.toString();
@@ -200,7 +200,7 @@ public class Tools {
 
         if (string.contains(", ")) string = Tools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
-        return new Mention(string,multi);
+        return new Mention(string, multi);
     }
 
     public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) throws IOException {
@@ -213,7 +213,7 @@ public class Tools {
             counted++;
         }
 
-        if (counted == 0) return null;
+        if (counted == 0) throw new IOException();
         if (counted > 1) multi = true;
 
         String string = sb.toString();

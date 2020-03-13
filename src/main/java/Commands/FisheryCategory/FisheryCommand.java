@@ -5,6 +5,7 @@ import CommandSupporters.Command;
 import Constants.*;
 import General.*;
 import General.BotResources.ResourceManager;
+import General.Fishing.FishingSlot;
 import General.Mention.MentionFinder;
 import MySQL.DBServer;
 import MySQL.DBUser;
@@ -22,6 +23,8 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -389,6 +392,31 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
         return false;
     }
 
+    private String getRoleString(Role role, double power) {
+        int n = roles.indexOf(role);
+        try {
+            return getString("state0_rolestring", role.getMentionTag(), Tools.numToString(getFisheryRolePrice(role.getServer(), roles, n, power)));
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public static long getFisheryRolePrice(Server server, ArrayList<Role> roles, int n, double power) throws SQLException {
+        Pair<Long, Long> prices = DBServer.getFisheryRolePrices(server);
+
+        long price = FishingSlot.getPriceForLevel(n, power);
+
+        double priceCurrentMin = FishingSlot.getPriceForLevel(0, power);
+        double priceCurrentMax = FishingSlot.getPriceForLevel(roles.size() - 1, power);
+
+        double priceIdealMin = prices.getKey();
+        double priceIdealMax = prices.getValue();
+
+        if (roles.size() == 1) return (long) priceIdealMin;
+        return Math.round((price - priceCurrentMin) * ((priceIdealMax - priceIdealMin) / (priceCurrentMax - priceCurrentMin)) + priceIdealMin);
+    }
+
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
@@ -396,11 +424,13 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
         switch (state) {
             case 0:
                 setOptions(getString("state0_options_"+ status.ordinal()).split("\n"));
+                double rolePower = DBServer.getRoleExp();
+
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[status.ordinal()].toUpperCase() + "**", true)
                         .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), treasureChests), true)
                         .addField(getString("state0_mreminders"), Tools.getOnOffForBoolean(getLocale(), reminders), true)
-                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), false)
+                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), role -> getRoleString(role, rolePower)), false)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
                         .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), false)
                         .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), singleRole)), getString("state0_msinglerole_desc"), false)

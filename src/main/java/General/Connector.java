@@ -38,6 +38,8 @@ public class Connector {
                 System.setErr(ps);
             }
 
+            Console.getInstance().start(); //Starts Console Listener
+
             //Check for faulty ports
             ArrayList<Integer> missingPort;
             if ((missingPort = checkPorts(35555, 15744, 27440, 9998)).size() > 0) {
@@ -50,13 +52,12 @@ public class Connector {
 
                 ExceptionHandler.showErrorLog(String.format("Error on port/s %s!", portsStringFinal));
                 System.exit(1);
+                return;
             }
 
             new CommunicationServer(35555); //Start Communication Server
 
             if (Settings.TEST_MODE) System.out.println("ATTENTION: The bot is running in test mode!");
-
-            Console.getInstance().start(); //Starts Console Listener
 
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));

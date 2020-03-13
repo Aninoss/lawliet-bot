@@ -10,6 +10,7 @@ import General.AnimeNews.AnimeReleasePost;
 import General.EmbedFactory;
 import General.PostBundle;
 import General.TextManager;
+import General.Tools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -62,7 +63,19 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
 
         ServerTextChannel channel = trackerData.getChannel().get();
         for(AnimeReleasePost post: postBundle.getPosts()) {
-            channel.sendMessage(getEmbed(post)).get();
+            boolean canPost = trackerData.getKey().equalsIgnoreCase("all");
+            if (!canPost) {
+                for (String animeName : trackerData.getKey().split(",")) {
+                    if (post.getAnime().toLowerCase().contains(Tools.cutSpaces(animeName.toLowerCase()))) {
+                        canPost = true;
+                        break;
+                    }
+                }
+            }
+
+            if (canPost) {
+                channel.sendMessage(getEmbed(post)).get();
+            }
         }
 
         if (postBundle.getNewestPost() != null) trackerData.setArg(postBundle.getNewestPost());
@@ -71,7 +84,7 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
 
     @Override
     public boolean trackerUsesKey() {
-        return false;
+        return true;
     }
 
     @Override

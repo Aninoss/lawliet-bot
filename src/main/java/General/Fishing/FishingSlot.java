@@ -26,7 +26,7 @@ public class FishingSlot {
         return (getValue(level + 1) - getValue(level)) * effect;
     }
 
-    private long getValue(long level) {
+    public static long getValue(long level) {
         long value = 0;
         for(int i = 1; i <= level + 1; i++) {
             value += i;
@@ -45,8 +45,20 @@ public class FishingSlot {
 
     public void levelUp() { level++; }
 
-    public long getPriceForLevel(long level) {
-        return (long) (Math.pow(getValue(level), power) * startPrice);
+    public static long getPriceForLevel(long level, double power) {
+        return (long) (Math.pow(factorial((int) level + 1) + getValue(level), power));
     }
 
+    private static long factorial(int n) {
+        long value = 1;
+        for(int i = 1; i <= n; i++) {
+            value *= i;
+        }
+
+        return value;
+    }
+
+    public double getPower() {
+        return power;
+    }
 }

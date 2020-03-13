@@ -16,10 +16,6 @@ import org.javacord.api.entity.user.User;
 )
 public class BanCommand extends WarnCommand  {
 
-    public BanCommand() {
-        super();
-    }
-
     @Override
     public void process(Server server, User user) throws Throwable {
         server.banUser(user, 7, reason).get();

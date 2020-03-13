@@ -10,14 +10,16 @@ public class ModerationStatus {
     private Server server;
     private ServerTextChannel channel;
     private boolean question;
-    private int autoKick, autoBan;
+    private int autoKick, autoBan, autoKickDays, autoBanDays;
 
-    public ModerationStatus(Server server, ServerTextChannel channel, boolean question, int autoKick, int autoBan) {
+    public ModerationStatus(Server server, ServerTextChannel channel, boolean question, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
         this.server = server;
         this.channel = channel;
         this.question = question;
         this.autoKick = autoKick;
         this.autoBan = autoBan;
+        this.autoKickDays = autoKickDays;
+        this.autoBanDays = autoBanDays;
     }
 
     public Server getServer() {
@@ -43,6 +45,14 @@ public class ModerationStatus {
     public void setAutoBan(int autoBan) {
         this.autoBan = autoBan;
     }
+
+    public int getAutoKickDays() { return autoKickDays; }
+
+    public void setAutoKickDays(int autoKickDays) { this.autoKickDays = autoKickDays; }
+
+    public int getAutoBanDays() { return autoBanDays; }
+
+    public void setAutoBanDays(int autoBanDays) { this.autoBanDays = autoBanDays; }
 
     public boolean isQuestion() {
         return question;

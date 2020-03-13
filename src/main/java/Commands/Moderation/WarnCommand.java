@@ -38,10 +38,6 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     private ModerationStatus moderationStatus;
     protected String reason;
 
-    public WarnCommand() {
-        super();
-    }
-
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
@@ -101,13 +97,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             process(channel.getServer(), user);
         }
 
-        StringBuilder mentions = new StringBuilder();
-        for(User user: userList) {
-            mentions.append(user.getMentionTag()).append(" ");
-        }
-
-        if (moderationStatus.getChannel().isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), moderationStatus.getChannel().get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS))
-            moderationStatus.getChannel().get().sendMessage(actionEmbed).get();
+        ModSettingsCommand.postLog(this, actionEmbed, moderationStatus);
 
         EmbedBuilder successEb = EmbedFactory.getCommandEmbedSuccess(this, getString("success_description", mention.isMultiple(), mention.getString()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);

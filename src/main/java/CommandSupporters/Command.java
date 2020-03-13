@@ -483,7 +483,6 @@ public class Command {
         return false;
     }
 
-
     //Just getters and setters, nothing important
     public String getPrefix() { return prefix; }
     public void setPrefix(String prefix) { this.prefix = prefix; }

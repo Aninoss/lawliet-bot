@@ -46,6 +46,7 @@ public class TextManager {
 
             //Fill Params
             for (int i = args.length-1; i >= 0; i--) {
+                text = text.replace("%l" + i, args[i].toLowerCase());
                 text = text.replace("%" + i, args[i]);
             }
 

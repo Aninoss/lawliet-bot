@@ -178,17 +178,7 @@ public class BuyCommand extends Command implements onNavigationListener {
     }
 
     private long calculateRolePrice(FishingSlot slot) throws SQLException {
-        double price = slot.getPrice();
-        Pair<Long, Long> prices = DBServer.getFisheryRolePrices(server);
-
-        double priceCurrentMin = slot.getPriceForLevel(0);
-        double priceCurrentMax = slot.getPriceForLevel(roles.size() - 1);
-
-        double priceIdealMin = prices.getKey();
-        double priceIdealMax = prices.getValue();
-
-        if (roles.size() == 1) return (long) priceIdealMin;
-        return Math.round((price - priceCurrentMin) * ((priceIdealMax - priceIdealMin) / (priceCurrentMax - priceCurrentMin)) + priceIdealMin);
+        return FisheryCommand.getFisheryRolePrice(server, roles, slot.getLevel(), slot.getPower());
     }
 
     @Override

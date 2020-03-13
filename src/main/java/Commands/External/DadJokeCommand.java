@@ -11,6 +11,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 @CommandProperties(
     trigger = "dadjoke",
@@ -21,13 +22,10 @@ import java.time.Instant;
 )
 public class DadJokeCommand extends Command implements onRecievedListener {
 
-    public DadJokeCommand() {
-        super();
-    }
-
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         String joke;
+
         if (Tools.getLanguage(getLocale()) == Language.DE) {
             joke = Internet.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").get().getContent().get();
         } else {

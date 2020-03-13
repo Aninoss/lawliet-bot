@@ -1,5 +1,6 @@
 package General.BannedWords;
 
+import CommandSupporters.CommandManager;
 import Commands.Moderation.BannedWordsCommand;
 import Commands.Moderation.ModSettingsCommand;
 import Constants.Permission;
@@ -65,22 +66,18 @@ public class BannedWordsCheck {
                     }
                 }
 
-                ModerationStatus moderationStatus = DBServer.getModerationFromServer(server);
-                if (moderationStatus.getChannel().isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(locale, "bannedwords", moderationStatus.getChannel().get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
-                    eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
-                            .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                            .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true);
-                    if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
-                    else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
+                eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
+                        .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                        .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true);
+                if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
+                else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
-                    moderationStatus.getChannel().get().sendMessage(eb).get();
-                }
-
+                ModSettingsCommand.postLog(CommandManager.createCommandByClass(BannedWordsCommand.class, locale), eb, server);
                 ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_title"));
 
                 return true;
             }
-        } catch (IOException | ExecutionException | SQLException | InterruptedException e) {
+        } catch (IOException | SQLException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
 
