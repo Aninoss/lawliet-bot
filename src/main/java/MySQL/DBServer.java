@@ -1182,31 +1182,50 @@ public class DBServer {
         ResultSet resultSet = preparedStatement.getResultSet();
 
         ArrayList<RankingSlot> rankingSlots = new ArrayList<>();
+        ArrayList<Long> missingUserId = new ArrayList<>();
+
         int i = 1;
         int rank = i;
 
         long growthPrevious = -1, joulePrevious = -1, coinsPrevious = -1;
 
         while(resultSet != null && resultSet.next()) {
-            User user = null;
             long userId = resultSet.getLong(1);
-            if (server.getMemberById(userId).isPresent())
-                user = server.getMemberById(userId).get();
-            //int rank = resultSet.getInt(2);
-            long growth = resultSet.getLong(2);
-            long coins = resultSet.getLong(3);
-            long joule = resultSet.getLong(4);
+            Optional<User> userOptional = server.getMemberById(userId);
 
-            if (growth != growthPrevious || joule != joulePrevious || coins != coinsPrevious) {
-                growthPrevious = growth;
-                joulePrevious = joule;
-                coinsPrevious = coins;
-                rank = i;
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                long growth = resultSet.getLong(2);
+                long coins = resultSet.getLong(3);
+                long joule = resultSet.getLong(4);
+
+                if (growth != growthPrevious || joule != joulePrevious || coins != coinsPrevious) {
+                    growthPrevious = growth;
+                    joulePrevious = joule;
+                    coinsPrevious = coins;
+                    rank = i;
+                }
+
+                rankingSlots.add(new RankingSlot(rank, joule, coins, growth, user, userId));
+                i++;
+            } else {
+                missingUserId.add(userId);
             }
-
-            rankingSlots.add(new RankingSlot(rank, joule, coins, growth, user, userId));
-            i++;
         }
+
+        Thread t = new Thread(() -> {
+            for(long userId: missingUserId) {
+                try {
+                    DBUser.updateOnServerStatus(server, userId, false);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.setName("users_setinactive");
+        t.setPriority(1);
+        t.start();
 
         resultSet.close();
         preparedStatement.close();

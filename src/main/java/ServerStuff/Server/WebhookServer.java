@@ -41,12 +41,10 @@ public class WebhookServer {
                     startSession(socket);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    ExceptionHandler.showErrorLog("Webhook Server Error!");
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            ExceptionHandler.showErrorLog("Exception in webhook server");
         }
     }
 }

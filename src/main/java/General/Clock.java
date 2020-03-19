@@ -248,9 +248,10 @@ public class Clock {
         //Updates survey manually
         File surveyCheckFile = new File("survey_update");
         if (surveyCheckFile.exists()) {
-            surveyCheckFile.delete();
-            System.out.println("UPDATE SURVEY");
-            updateSurvey();
+            if (surveyCheckFile.delete()) {
+                System.out.println("UPDATE SURVEY");
+                updateSurvey();
+            }
         }
 
         //Restart All Shards at 05:15 AM
@@ -259,17 +260,10 @@ public class Clock {
                 calendar.get(Calendar.MINUTE) >= 15 &&
                 calendar.get(Calendar.MINUTE) < 25
         ) {
-            if (new File("update/Lawliet.jar").exists()) {
-                ExceptionHandler.showInfoLog("Prepare Updates...");
-                for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
-                    FisheryCache.getInstance(i).saveData();
-                System.exit(0);
-            }
-            for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {
-                FisheryCache.getInstance(i).resetLimits();
-                DiscordApiCollection.getInstance().reconnectShard(i);
-                DiscordApiCollection.getInstance().waitForStartup();
-            }
+            ExceptionHandler.showInfoLog("Daily restart..");
+            for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
+                FisheryCache.getInstance(i).saveData();
+            System.exit(0);
         }
     }
 

@@ -52,8 +52,9 @@ public class ShipCommand extends Command implements onRecievedListener {
         int percentage = new Random(randomNum).nextInt(101);
 
         int n = Tools.pickFullRandom(picked,7);
+        if (event.getServer().get().getId() == 580048842020487180L) n = 7;
 
-        InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1),n,percentage);
+        InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1), n, percentage);
         if (is == null) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("noavatar"))).get();
             return false;

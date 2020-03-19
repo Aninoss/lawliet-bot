@@ -19,11 +19,14 @@ public class MessageDeleteListener {
         for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
             long messageId = 0;
-            if (command instanceof onForwardedRecievedListener) messageId = ((onForwardedRecievedListener) command).getForwardedMessage().getId();
-            else if (command instanceof onNavigationListener) messageId = command.getNavigationMessage().getId();
+            if (command != null) {
+                if (command instanceof onForwardedRecievedListener)
+                    messageId = ((onForwardedRecievedListener) command).getForwardedMessage().getId();
+                else if (command instanceof onNavigationListener) messageId = command.getNavigationMessage().getId();
 
-            if (event.getMessageId() == messageId) {
-                CommandContainer.getInstance().removeForwarder(command);
+                if (event.getMessageId() == messageId) {
+                    CommandContainer.getInstance().removeForwarder(command);
+                }
             }
         }
 
@@ -32,11 +35,14 @@ public class MessageDeleteListener {
         for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
             long messageId = 0;
-            if (command instanceof onReactionAddListener) messageId = ((onReactionAddListener) command).getReactionMessage().getId();
-            else if (command instanceof onNavigationListener) messageId = command.getNavigationMessage().getId();
+            if (command != null) {
+                if (command instanceof onReactionAddListener)
+                    messageId = ((onReactionAddListener) command).getReactionMessage().getId();
+                else if (command instanceof onNavigationListener) messageId = command.getNavigationMessage().getId();
 
-            if (event.getMessageId() == messageId) {
-                CommandContainer.getInstance().removeReactionListener(command);
+                if (event.getMessageId() == messageId) {
+                    CommandContainer.getInstance().removeReactionListener(command);
+                }
             }
         }
     }

@@ -14,6 +14,7 @@ import org.javacord.api.entity.user.UserStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.*;
 
 public class WebComServer {
@@ -30,10 +31,13 @@ public class WebComServer {
         final SocketIOServer webComServer = new SocketIOServer(config);
 
         webComServer.addConnectListener(new OnConnection(this));
+        webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnConnection(this));
         webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList(this));
         webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers(this));
 
         webComServer.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(webComServer::stop));
+
         System.out.println("The WebCom server has been started!");
     }
 

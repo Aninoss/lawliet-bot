@@ -137,7 +137,7 @@ public class ImageCreator {
         Color mainColorShadow = new Color((int) (Math.min((510.0 - (perc / 100.0 * 255.0 * 2.0)), 255) / 2), (int) (Math.min((perc / 100.0 * 255.0 * 2.0), 255) / 2), 0);
         final double SHADOW_HEIGHT = 3;
 
-        drawStringWithBorder(g, fontTop, TextManager.getString(locale,TextManager.COMMANDS,"ship_match"), Color.WHITE,image.getWidth()/2,(int) (image.getHeight() / 5.0 * 1.0),3,-1);
+        if (n != 7) drawStringWithBorder(g, fontTop, TextManager.getString(locale,TextManager.COMMANDS,"ship_match"), Color.WHITE,image.getWidth()/2,(int) (image.getHeight() / 5.0 * 1.0),3,-1);
         drawStringWithBorder(g, font, perc + "%", mainColor, image.getWidth()/2, (int) (image.getHeight() / 5.0 * 4.0),3,-1);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();

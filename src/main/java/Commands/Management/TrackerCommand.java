@@ -92,10 +92,8 @@ public class TrackerCommand extends Command implements onNavigationListener {
 
     private void controll(String searchTerm, int state, boolean first) throws Throwable {
         while(true) {
-            if (searchTerm.length() == 0) return;
-
+            if (searchTerm.replace(" ", "").length() == 0) return;
             String arg = searchTerm.split(" ")[0].toLowerCase();
-            searchTerm = Tools.cutSpaces(searchTerm.substring(arg.length()));
 
             switch (state) {
                 case 0:
@@ -177,10 +175,12 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     return;
 
                 case 3:
-                    addTracker(arg);
+                    addTracker(searchTerm);
                     if (first) endNavigation();
                     return;
             }
+
+            searchTerm = Tools.cutSpaces(searchTerm.substring(arg.length()));
         }
     }
 
@@ -254,7 +254,10 @@ public class TrackerCommand extends Command implements onNavigationListener {
             case 3:
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                return EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS,  commandTrigger + "_trackerkey"), getString("state3_title"));
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS,  commandTrigger + "_trackerkey"), getString("state3_title"));
+                if (override) EmbedFactory.addLog(eb, null, getString("state3_override"));
+
+                return eb;
 
             case 4:
                 return EmbedFactory.getCommandEmbedSuccess(this, getString("state4_description"));

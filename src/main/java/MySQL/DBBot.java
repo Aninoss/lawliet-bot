@@ -176,12 +176,12 @@ public class DBBot {
     public static FishingRecords getFishingRecords() throws SQLException, ExecutionException, InterruptedException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        String sql = "SELECT serverId, userId, growth FROM PowerPlantUsersExtended ORDER BY growth DESC LIMIT 25;\n" +
-                "SELECT serverId, userId, joule FROM PowerPlantUsersExtended ORDER BY joule DESC LIMIT 25;\n" +
-                "SELECT serverId, userId, coins FROM PowerPlantUsersExtended ORDER BY coins DESC LIMIT 25;\n" +
-                "SELECT serverId, userId, dailyStreak FROM PowerPlantUsersExtended ORDER BY dailyStreak DESC LIMIT 25;";
+        String sql = "SELECT serverId, userId, growth FROM PowerPlantUsersExtended ORDER BY growth DESC LIMIT 5;\n" +
+                "SELECT serverId, userId, joule FROM PowerPlantUsersExtended ORDER BY joule DESC LIMIT 5;\n" +
+                "SELECT serverId, userId, coins FROM PowerPlantUsersExtended ORDER BY coins DESC LIMIT 5;\n" +
+                "SELECT serverId, userId, dailyStreak FROM PowerPlantUsersExtended ORDER BY dailyStreak DESC LIMIT 5;";
 
-       Server[] servers = new Server[4];
+        Server[] servers = new Server[4];
         User[] users = new User[4];
         long[] values = new long[4];
 

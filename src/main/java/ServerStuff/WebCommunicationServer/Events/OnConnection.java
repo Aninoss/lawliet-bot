@@ -6,14 +6,16 @@ import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Constants.Category;
 import ServerStuff.WebCommunicationServer.WebComServer;
+import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.ConnectListener;
+import com.corundumstudio.socketio.listener.DataListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class OnConnection implements ConnectListener {
+public class OnConnection implements ConnectListener, DataListener<JSONObject> {
 
     private WebComServer webComServer;
 
@@ -23,6 +25,15 @@ public class OnConnection implements ConnectListener {
 
     @Override
     public void onConnect(SocketIOClient socketIOClient) {
+        run(socketIOClient);
+    }
+
+    @Override
+    public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
+        run(socketIOClient);
+    }
+
+    private void run(SocketIOClient socketIOClient) {
         JSONArray mainJSON = new JSONArray();
         HashMap<String, JSONObject> categories = new HashMap<>();
 

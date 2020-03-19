@@ -30,10 +30,6 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
     private int page;
     private final String[] SCROLL_EMOJIS = {"⏪", "⏩"};
 
-    public TopCommand() {
-        super();
-    }
-
     @Override
     public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
@@ -52,7 +48,7 @@ public class TopCommand extends Command implements onRecievedListener, onReactio
 
     private EmbedBuilder getEmbed(Server server) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
-        for(int i = page*10; i < Math.min(rankingSlots.size(), page*10 + 10); i++) {
+        for(int i = page * 10; i < Math.min(rankingSlots.size(), page * 10 + 10); i++) {
             RankingSlot rankingSlot = rankingSlots.get(i);
             String userString;
             User user = rankingSlot.getUser();

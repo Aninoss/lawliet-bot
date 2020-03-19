@@ -28,7 +28,7 @@ public class ServerMemberLeaveListener {
 
             //Update on server status
             try {
-                if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), false);
+                if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser().getId(), false);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
