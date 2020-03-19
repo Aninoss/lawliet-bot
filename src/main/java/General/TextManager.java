@@ -1,5 +1,6 @@
 package General;
 
+import Constants.Locales;
 import Constants.Settings;
 
 import java.io.IOException;
@@ -8,7 +9,7 @@ import java.util.ResourceBundle;
 
 public class TextManager {
 
-    public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions";
+    public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions", FAQ = "faq";
 
     public static String getString(Locale locale, String category, String key, String... args) {
         return getString(locale, category, key, -1, args);
@@ -64,8 +65,13 @@ public class TextManager {
         else return getString(locale, category, key, 1, args);
     }
 
+    public static int getKeySize(String category) {
+        ResourceBundle texts = ResourceBundle.getBundle(category, new Locale(Locales.EN));
+        return texts.keySet().size();
+    }
+
     public static int getKeySize(Locale locale, String category) {
         ResourceBundle texts = ResourceBundle.getBundle(category, locale);
-        return texts.keySet().size();
+        return texts.keySet().size() - 1;
     }
 }

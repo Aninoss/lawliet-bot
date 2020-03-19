@@ -1,6 +1,6 @@
 package DiscordListener;
-import Commands.Management.MemberCountDisplayCommand;
-import Commands.Management.WelcomeCommand;
+import Commands.ManagementCategory.MemberCountDisplayCommand;
+import Commands.ManagementCategory.WelcomeCommand;
 import Constants.Permission;
 import General.PermissionCheckRuntime;
 import General.Tools;
@@ -12,7 +12,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;

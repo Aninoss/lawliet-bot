@@ -1,13 +1,12 @@
 package DiscordListener;
 
-import Commands.Management.AutoChannelCommand;
+import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
 import General.AutoChannel.AutoChannelContainer;
 import General.AutoChannel.AutoChannelData;
 import General.AutoChannel.TempAutoChannel;
 import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
-import General.Tools;
 import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;

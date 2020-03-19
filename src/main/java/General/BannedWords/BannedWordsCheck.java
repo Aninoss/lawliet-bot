@@ -1,9 +1,8 @@
 package General.BannedWords;
 
 import CommandSupporters.CommandManager;
-import Commands.Moderation.BannedWordsCommand;
-import Commands.Moderation.ModSettingsCommand;
-import Constants.Permission;
+import Commands.ModerationCategory.BannedWordsCommand;
+import Commands.ModerationCategory.ModSettingsCommand;
 import General.*;
 import MySQL.DBServer;
 import org.javacord.api.entity.message.Message;

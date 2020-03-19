@@ -1,14 +1,12 @@
 package General.SPBlock;
 
 import CommandSupporters.CommandManager;
-import Commands.Moderation.ModSettingsCommand;
-import Commands.Moderation.SelfPromotionBlockCommand;
-import Constants.Permission;
+import Commands.ModerationCategory.ModSettingsCommand;
+import Commands.ModerationCategory.SelfPromotionBlockCommand;
 import Constants.SPAction;
 import Constants.Settings;
 import General.*;
 import MySQL.DBServer;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;

@@ -1,20 +1,19 @@
 package CommandSupporters;
 
 import CommandListeners.*;
-import Commands.Casino.CoinFlipCommand;
-import Commands.Information.*;
-import Commands.Casino.*;
-import Commands.Emotes.*;
-import Commands.External.*;
-import Commands.Gimmicks.*;
-import Commands.BotOwner.*;
-import Commands.Interactions.*;
-import Commands.Moderation.*;
-import Commands.NSFW.*;
+import Commands.CasinoCategory.CoinFlipCommand;
+import Commands.InformationCategory.*;
+import Commands.CasinoCategory.*;
+import Commands.EmotesCategory.*;
+import Commands.ExternalCategory.*;
+import Commands.GimmicksCategory.*;
+import Commands.BotOwnerCategory.*;
+import Commands.InteractionsCategory.*;
+import Commands.ModerationCategory.*;
+import Commands.NSFWCategory.*;
 import Commands.FisheryCategory.*;
-import Commands.Management.*;
-import Commands.Splatoon2.*;
-import General.DiscordApiCollection;
+import Commands.ManagementCategory.*;
+import Commands.Splatoon2Category.*;
 import General.ExceptionHandler;
 import org.javacord.api.DiscordApi;
 
@@ -89,6 +88,7 @@ public class CommandContainer {
 
         //INFORMATION
         commandList.add(HelpCommand.class);
+        commandList.add(FAQCommand.class);
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);
         commandList.add(UserInfoCommand.class);

@@ -1,7 +1,5 @@
 package General.Reddit;
 
-import Commands.External.RedditCommand;
-
 import java.time.Instant;
 
 public class RedditPost {

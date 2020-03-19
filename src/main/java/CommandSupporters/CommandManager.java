@@ -1,16 +1,12 @@
 package CommandSupporters;
 
 import CommandListeners.*;
-import Commands.Moderation.WarnCommand;
-import Commands.NSFW.RealbooruCommand;
-import Constants.Category;
+import Commands.ModerationCategory.WarnCommand;
 import General.*;
 import General.Cooldown.Cooldown;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.DBBot;
 import MySQL.DBServer;
-import org.javacord.api.entity.channel.ChannelCategory;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -19,11 +15,8 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
