@@ -1,4 +1,4 @@
-package ServerStuff.CommunicationServer;
+package ServerStuff;
 
 import CommandSupporters.CommandContainer;
 import Constants.Settings;

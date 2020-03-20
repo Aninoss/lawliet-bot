@@ -4,16 +4,13 @@ import CommandSupporters.CommandContainer;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.ActivityUserData;
 import MySQL.FisheryCache;
-import ServerStuff.Donations.DonationServer;
-import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
+import ServerStuff.DonationHandler;
+import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
-import org.javacord.api.entity.server.Server;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.util.Optional;
 
 public class Console {
 
@@ -69,15 +66,23 @@ public class Console {
                                 break;
 
                             case "threads":
-                                StringBuilder sb = new StringBuilder();
-                                for(Thread t: Thread.getAllStackTraces().keySet())
-                                    sb.append(t.getName()).append(", ");
+                                try {
+                                    StringBuilder sb = new StringBuilder();
 
-                                String str = sb.toString();
-                                str = str.substring(0, str.length() - 2);
+                                    for (Thread t : Thread.getAllStackTraces().keySet()) {
+                                        if (arg.isEmpty() || t.getName().matches(arg)) {
+                                            sb.append(t.getName()).append(", ");
+                                        }
+                                    }
 
-                                System.out.println("\n--- THREADS (" + Thread.getAllStackTraces().size() + ") ---");
-                                System.out.println(str + "\n");
+                                    String str = sb.toString();
+                                    if (str.length() >= 2) str = str.substring(0, str.length() - 2);
+
+                                    System.out.println("\n--- THREADS (" + Thread.getAllStackTraces().size() + ") ---");
+                                    System.out.println(str + "\n");
+                                } catch (Throwable e) {
+                                    e.printStackTrace();
+                                }
 
                                 break;
 
@@ -98,7 +103,7 @@ public class Console {
                                 try {
                                     long userId = Long.parseLong(arg.split(" ")[0]);
                                     double usDollars = Double.parseDouble(arg.split(" ")[1]);
-                                    DonationServer.addBonus(userId, usDollars);
+                                    DonationHandler.addBonus(userId, usDollars);
                                 } catch (Throwable e) {
                                     System.out.println("\nERROR\n");
                                     e.printStackTrace();
@@ -160,8 +165,8 @@ public class Console {
         //Threads
         sb.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append("\n");
 
-        ExceptionHandler.showInfoLog(String.format("RAM: %f / %f", memoryUsed, maxMemory));
-        ExceptionHandler.showInfoLog(String.format("Threads: %d", Thread.getAllStackTraces().keySet().size()));
+        //ExceptionHandler.showInfoLog(String.format("RAM: %f / %f", memoryUsed, maxMemory));
+        //ExceptionHandler.showInfoLog(String.format("Threads: %d", Thread.getAllStackTraces().keySet().size()));
 
         //Activities
         sb.append("Activities: ").append(CommandContainer.getInstance().getActivitiesSize()).append("\n");

@@ -37,7 +37,7 @@ public class FAQCommand extends ListAbstract implements onRecievedListener {
 
     protected Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable {
         Pair<String, String> slot = slots.get(i);
-        return new Pair<>(slot.getKey(), slot.getValue());
+        return new Pair<>(getString("question", slot.getKey()), slot.getValue());
     }
 
     protected int getSize() { return slots.size(); }

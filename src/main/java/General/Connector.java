@@ -1,20 +1,15 @@
 package General;
 
 import Constants.Settings;
-import ServerStuff.CommunicationServer.CommunicationServer;
-import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
+import ServerStuff.CommunicationServer;
 import DiscordListener.*;
-import ServerStuff.Donations.DonationServer;
 import General.BotResources.ResourceManager;
 import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.user.UserStatus;
-import org.javacord.api.event.server.role.UserRoleAddEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import java.awt.*;
 import java.io.*;
@@ -23,7 +18,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class Connector {
 
@@ -42,7 +36,7 @@ public class Connector {
 
             //Check for faulty ports
             ArrayList<Integer> missingPort;
-            if ((missingPort = checkPorts(35555, 15744, 27440, 9998)).size() > 0) {
+            if ((missingPort = checkPorts(35555, 15744)).size() > 0) {
                 StringBuilder portsString = new StringBuilder();
                 for(int port: missingPort) {
                     portsString.append(port).append(", ");
@@ -69,7 +63,6 @@ public class Connector {
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/NotoEmoji.ttf")));
             DBMain.getInstance().connect();
             if (!Settings.TEST_MODE && !Bot.isDebug()) initializeUpdate();
-            DiscordbotsAPI.getInstance().startWebhook();
 
             Arrays.stream(new File("temp").listFiles()).forEach(file -> file.delete()); //Cleans all temp files
 
@@ -173,7 +166,6 @@ public class Connector {
 
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
-                    new DonationServer(27440);
                     updateActivity();
                     DBBot.fisheryCleanUp();
                 } else {

@@ -1,4 +1,4 @@
-package ServerStuff.SIGNALTRANSMITTER;
+package ServerStuff;
 
 import General.Internet.Internet;
 import General.Internet.InternetResponse;

@@ -7,7 +7,7 @@ import General.RankingSlot;
 import General.Tools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
-import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
+import ServerStuff.DiscordbotsAPI;
 import org.javacord.api.DiscordApi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

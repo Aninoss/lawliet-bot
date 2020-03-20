@@ -1,10 +1,9 @@
-package ServerStuff.DiscordBotsAPI;
+package ServerStuff;
 
 import Constants.Settings;
 import General.Bot;
 import General.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
-import org.javacord.api.DiscordApi;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -31,10 +30,6 @@ public class DiscordbotsAPI {
 
     public void updateServerCount(int totalServerSize) {
         if (!Bot.isDebug()) dblApi.setStats(totalServerSize);
-    }
-
-    public void startWebhook() {
-        new DiscordbotsWebhook();
     }
 
     public int getTotalUpvotes() {

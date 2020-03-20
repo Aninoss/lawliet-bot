@@ -1,32 +1,16 @@
-package ServerStuff.Donations;
+package ServerStuff;
 
 import General.DiscordApiCollection;
 import MySQL.DBUser;
-import ServerStuff.Server.WebhookServer;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
-import java.net.Socket;
+import org.javacord.api.entity.user.User;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public class DonationServer extends WebhookServer {
-
-    public DonationServer(int port) {
-        super(port);
-    }
-
-    @Override
-    public void onServerStart() {
-        System.out.println("Donation Server is running!");
-    }
-
-    @Override
-    public void startSession(Socket socket) {
-        new DonationServerSession(socket);
-    }
+public class DonationHandler {
 
     public static void addBonus(long userId, double usDollars) {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
@@ -122,10 +106,11 @@ public class DonationServer extends WebhookServer {
         try {
             ArrayList<Long> userDonationExpired = DBUser.getDonationEnds();
             for(long userId: userDonationExpired) {
-                DonationServer.removeBonus(userId);
+                removeBonus(userId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 }

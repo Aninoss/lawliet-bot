@@ -5,14 +5,10 @@ import Constants.FishingCategoryInterface;
 import Constants.Settings;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.*;
-import ServerStuff.BotsOnDiscord;
-import ServerStuff.Botsfordiscord;
-import ServerStuff.DiscordBotsAPI.DiscordbotsAPI;
-import ServerStuff.Donations.DonationServer;
+import ServerStuff.*;
 import General.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
 import General.Survey.*;
-import ServerStuff.SIGNALTRANSMITTER.SIGNALTRANSMITTER;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
@@ -79,7 +75,7 @@ public class Clock {
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         if (day == Calendar.MONDAY || day == Calendar.THURSDAY) updateSurvey();
 
-        DonationServer.checkExpiredDonations(); //Check Expired Donations
+        DonationHandler.checkExpiredDonations(); //Check Expired Donations
 
         //Send Bot Stats
         try {
@@ -213,7 +209,7 @@ public class Clock {
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
         Console.getInstance().setTraffic(trafficGB);
 
-        if (trafficGB >= 38 && (!trafficWarned || trafficGB >= 48)) {
+        if (trafficGB >= 50 && (!trafficWarned || trafficGB >= 60)) {
             try {
                 apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
             } catch (Throwable e) {
@@ -221,7 +217,7 @@ public class Clock {
             }
             trafficWarned = true;
         }
-        if (trafficGB >= 48) {
+        if (trafficGB >= 60) {
             ExceptionHandler.showErrorLog("Too much traffic!");
             System.exit(-1);
         }

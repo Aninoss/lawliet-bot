@@ -3,10 +3,7 @@ package ServerStuff.WebCommunicationServer;
 import CommandSupporters.Command;
 import Constants.Locales;
 import General.*;
-import ServerStuff.WebCommunicationServer.Events.OnCommandList;
-import ServerStuff.WebCommunicationServer.Events.OnEventServerList;
-import ServerStuff.WebCommunicationServer.Events.OnEventServerMembers;
-import ServerStuff.WebCommunicationServer.Events.OnFAQList;
+import ServerStuff.WebCommunicationServer.Events.*;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import org.json.JSONObject;
@@ -19,6 +16,8 @@ public class WebComServer {
     public static final String EVENT_FAQLIST = "faq_list";
     public static final String EVENT_SERVERLIST = "server_list";
     public static final String EVENT_SERVERMEMBERS = "server_members";
+    public static final String EVENT_TOPGG = "topgg";
+    public static final String EVENT_DONATEBOT_IO = "donatebot.io";
 
     public WebComServer(int port) {
         Configuration config = new Configuration();
@@ -34,6 +33,8 @@ public class WebComServer {
         webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this));
         webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList(this));
         webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers(this));
+        webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG());
+        webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO());
 
         webComServer.start();
         Runtime.getRuntime().addShutdownHook(new Thread(webComServer::stop));

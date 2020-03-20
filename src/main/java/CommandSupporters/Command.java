@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class Command {
+public abstract class Command {
 
     private String category, prefix;
     private CommandProperties commandProperties;
@@ -526,6 +526,7 @@ public class Command {
         this.log = string;
         this.logStatus = logStatus;
     }
+
     public Thread getThread() {
         return thread;
     }
