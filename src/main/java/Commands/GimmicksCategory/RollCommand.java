@@ -25,7 +25,7 @@ public class RollCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Random n = new Random();
         double drawn, border;
         boolean userMentioned = true;

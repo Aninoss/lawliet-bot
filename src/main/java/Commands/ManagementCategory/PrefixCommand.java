@@ -26,7 +26,7 @@ public class PrefixCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 5) {

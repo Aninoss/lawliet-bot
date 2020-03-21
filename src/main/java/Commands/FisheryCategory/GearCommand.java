@@ -41,7 +41,7 @@ public class GearCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
         if (status == PowerPlantStatus.ACTIVE) {
             Server server = event.getServer().get();

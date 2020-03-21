@@ -40,7 +40,7 @@ public class BlackjackCommand extends CasinoAbstract implements onRecievedListen
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
             winMultiplicator = 1;
             block = false;

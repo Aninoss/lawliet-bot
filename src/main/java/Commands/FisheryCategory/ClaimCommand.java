@@ -30,7 +30,7 @@ public class ClaimCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
         if (status == PowerPlantStatus.ACTIVE) {
             Instant nextUpvote = DBUser.getNextUpvote(event.getMessage().getUserAuthor().get());

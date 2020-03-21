@@ -112,7 +112,7 @@ public class Console {
 
                             case "ss":
                                 long serverId = Long.parseLong(arg);
-                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getMembers().size()));
+                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMembers().size()));
                                 break;
                         }
                     }

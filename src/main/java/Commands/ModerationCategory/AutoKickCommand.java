@@ -39,7 +39,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (!serverBlockList.contains(event.getServer().get())) {
             if (followedString.length() > 0 && Tools.stringIsInt(followedString) && Integer.parseInt(followedString) >= 1) {
                 serverBlockList.add(event.getServer().get());

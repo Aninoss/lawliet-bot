@@ -45,6 +45,11 @@ public class Connector {
                 portsStringFinal = portsStringFinal.substring(0, portsStringFinal.length() - 2);
 
                 ExceptionHandler.showErrorLog(String.format("Error on port/s %s!", portsStringFinal));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 System.exit(1);
                 return;
             }

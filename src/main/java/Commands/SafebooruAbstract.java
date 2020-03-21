@@ -1,6 +1,6 @@
 package Commands;
 
-public abstract class SafebooruAbstract extends PornAbstractAbstract {
+public abstract class SafebooruAbstract extends PornPredefinedAbstract {
 
     @Override
     protected String getSearchExtra() {

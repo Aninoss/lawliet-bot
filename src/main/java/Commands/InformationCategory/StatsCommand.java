@@ -24,7 +24,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 public class StatsCommand extends Command implements onRecievedListener {
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         User dephord = DiscordApiCollection.getInstance().getUserById(303085910784737281L).get();
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,

@@ -1,9 +1,6 @@
 package Commands;
 
-import CommandListeners.onRecievedListener;
-import Commands.PornAbstractAbstract;
-
-public abstract class RealbooruAbstract extends PornAbstractAbstract {
+public abstract class RealbooruAbstract extends PornPredefinedAbstract {
 
     @Override
     protected String getSearchExtra() {

@@ -32,7 +32,7 @@ public class WarnLogCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
         ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();

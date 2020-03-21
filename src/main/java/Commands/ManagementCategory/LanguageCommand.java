@@ -31,7 +31,7 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.length() > 0) {
             int language = -1;
             for(int i=0; i<languageArgs.length; i++) {

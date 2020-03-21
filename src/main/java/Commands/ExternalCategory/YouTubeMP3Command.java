@@ -28,7 +28,7 @@ public class YouTubeMP3Command extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
 
         if (!followedString.isEmpty()) {
             Optional<String> videoIdOptional = YouTubeDownloader.getVideoID(followedString);

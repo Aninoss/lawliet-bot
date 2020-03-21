@@ -23,7 +23,7 @@ public class FAQCommand extends ListAbstract implements onRecievedListener {
     private ArrayList<Pair<String, String>> slots;
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         slots = new ArrayList<>();
         for(int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
             String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i));

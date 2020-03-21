@@ -1,11 +1,7 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
-import Commands.PornAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
+import Commands.PornSearchAbstract;
 
 @CommandProperties(
         trigger = "safeb",
@@ -14,7 +10,7 @@ import java.util.ArrayList;
         executable = true,
         aliases = {"softb", "safebooru", "softbooru", "sbooru"}
 )
-public class SafebooruCommand extends PornAbstract {
+public class SafebooruCommand extends PornSearchAbstract {
 
     @Override
     protected String getDomain() {

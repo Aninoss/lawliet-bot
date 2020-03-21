@@ -19,7 +19,7 @@ import org.json.JSONObject;
 public class DadJokeCommand extends Command implements onRecievedListener {
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String joke;
 
         if (Tools.getLanguage(getLocale()) == Language.DE) {

@@ -45,19 +45,6 @@ public class FishingSlot {
 
     public void levelUp() { level++; }
 
-    public static long getPriceForLevel(long level, double power) {
-        return (long) (Math.pow(factorial((int) level + 1) + getValue(level), power));
-    }
-
-    private static long factorial(int n) {
-        long value = 1;
-        for(int i = 1; i <= n; i++) {
-            value *= i;
-        }
-
-        return value;
-    }
-
     public double getPower() {
         return power;
     }

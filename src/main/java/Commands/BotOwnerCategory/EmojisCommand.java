@@ -21,7 +21,7 @@ public class EmojisCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder sb = new StringBuilder();
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
         int i = 0, j = 0;

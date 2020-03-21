@@ -39,7 +39,7 @@ public class HangmanCommand extends CasinoAbstract implements onRecievedListener
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
             Random r = new Random();
             List<String> wordList = FileManager.readInList(new File("recourses/hangman_" + getLocale().getDisplayName() + ".txt"));

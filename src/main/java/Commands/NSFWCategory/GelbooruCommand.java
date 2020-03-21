@@ -1,13 +1,7 @@
 package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
-import Commands.PornAbstract;
-import General.*;
-import MySQL.DBServer;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
+import Commands.PornSearchAbstract;
 
 @CommandProperties(
         trigger = "gelb",
@@ -17,7 +11,7 @@ import java.util.ArrayList;
         withLoadingBar = true,
         aliases = {"gel", "gbooru", "gelbooru"}
 )
-public class GelbooruCommand extends PornAbstract {
+public class GelbooruCommand extends PornSearchAbstract {
 
     @Override
     protected String getDomain() {

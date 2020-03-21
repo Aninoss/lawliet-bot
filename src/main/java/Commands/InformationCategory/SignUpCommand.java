@@ -18,7 +18,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 public class SignUpCommand extends Command implements onRecievedListener {
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean success = DBUser.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
         if (success) {

@@ -31,7 +31,7 @@ public class ChannelInfoCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
         ArrayList<ServerTextChannel> list = MentionFinder.getTextChannels(event.getMessage(), followedString).getList();

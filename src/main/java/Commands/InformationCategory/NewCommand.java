@@ -26,7 +26,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         //Ohne Argumente
         if (followedString.length() == 0) {
             ArrayList<String> versions = DBBot.getCurrentVersions(3);

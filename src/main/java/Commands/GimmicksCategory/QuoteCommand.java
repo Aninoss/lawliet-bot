@@ -36,7 +36,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         return calculateResults(event.getMessage(),followedString);
     }
 

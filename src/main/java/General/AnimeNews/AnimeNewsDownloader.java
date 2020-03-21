@@ -30,7 +30,7 @@ public class AnimeNewsDownloader {
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
-        InternetResponse internetResponse =InternetCache.getData(downloadUrl, 60 * 14).get();
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
         if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 

@@ -27,7 +27,7 @@ import java.time.Instant;
 public class AnimeReleasesCommand extends Command implements onRecievedListener, onTrackerRequestListener {
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeReleasePost post = AnimeReleaseDownloader.getPost(getLocale());
         EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();

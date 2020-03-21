@@ -43,7 +43,7 @@ public class SlotCommand extends CasinoAbstract implements onRecievedListener, o
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
             useCalculatedMultiplicator = false;
             first = true;

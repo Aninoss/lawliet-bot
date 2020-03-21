@@ -39,7 +39,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
         if (status == PowerPlantStatus.ACTIVE) {
             if (followedString.length() > 0) {

@@ -40,7 +40,7 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
     private Message message;
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
         MentionList<User> userMentions = MentionFinder.getUsers(event.getMessage(), followedString);

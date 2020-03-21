@@ -9,18 +9,19 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class InteractionAbstract extends Command implements onRecievedListener {
 
     private String[] gifs;
-    private static ArrayList<Integer> picked = new ArrayList<>();
+    private static HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
 
     public InteractionAbstract() { this.gifs = getGifs(); }
 
     protected abstract String[] getGifs();
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         Mention mention = Tools.getMentionedString(getLocale(), message, followedString);
         if (mention == null) {
@@ -35,7 +36,8 @@ public abstract class InteractionAbstract extends Command implements onRecievedL
             return false;
         }
 
-        String gifUrl = gifs[Tools.pickFullRandom(picked, gifs.length)];
+        ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
+        String gifUrl = gifs[Tools.pickFullRandom(pickedCommand, gifs.length)];
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.getString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**"))
                 .setImage(gifUrl);
 

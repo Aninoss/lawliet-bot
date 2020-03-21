@@ -57,7 +57,7 @@ public abstract class Command {
 
         boolean successful = false;
         try {
-            successful = ((onRecievedListener) this).onRecieved(event, followedString);
+            successful = ((onRecievedListener) this).onReceived(event, followedString);
         } catch (Throwable e) {
             ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
             return;

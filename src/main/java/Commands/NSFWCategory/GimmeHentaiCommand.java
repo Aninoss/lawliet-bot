@@ -22,7 +22,7 @@ public class GimmeHentaiCommand extends Command implements onRecievedListener {
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String hentaiText = null;
         int n = Tools.pickFullRandom(picked,10);
 

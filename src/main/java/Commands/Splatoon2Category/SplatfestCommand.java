@@ -34,7 +34,7 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         event.getChannel().sendMessage(getEmbed()).get();
         return true;
     }

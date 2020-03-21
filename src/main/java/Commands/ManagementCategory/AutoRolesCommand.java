@@ -29,7 +29,7 @@ import java.util.ArrayList;
         emoji = "\uD83D\uDC6A",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/User-group-icon.png",
         executable = true,
-        aliases = {"basicroles", "autorole"}
+        aliases = {"basicroles", "autorole", "aroles"}
 )
 public class AutoRolesCommand extends Command implements onNavigationListener {
     
@@ -192,7 +192,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 8;
+        return 12;
     }
 
     private void transferRoles(Server server, ArrayList<Role> roles) {

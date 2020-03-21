@@ -14,7 +14,7 @@ public abstract class RedditAbstract extends Command implements onRecievedListen
     public abstract String getSubreddit();
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         RedditPost post;
 
         int tries = 5;

@@ -405,16 +405,11 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
     public static long getFisheryRolePrice(Server server, ArrayList<Role> roles, int n, double power) throws SQLException {
         Pair<Long, Long> prices = DBServer.getFisheryRolePrices(server);
 
-        long price = FishingSlot.getPriceForLevel(n, power);
-
-        double priceCurrentMin = FishingSlot.getPriceForLevel(0, power);
-        double priceCurrentMax = FishingSlot.getPriceForLevel(roles.size() - 1, power);
-
         double priceIdealMin = prices.getKey();
         double priceIdealMax = prices.getValue();
 
         if (roles.size() == 1) return (long) priceIdealMin;
-        return Math.round((price - priceCurrentMin) * ((priceIdealMax - priceIdealMin) / (priceCurrentMax - priceCurrentMin)) + priceIdealMin);
+        return Math.round(priceIdealMin + (priceIdealMax - priceIdealMin) * Math.pow(n / (double)(roles.size() - 1), power));
     }
 
     @Override
@@ -440,7 +435,7 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                String[] roleStrings = new String[Math.min(10, roles.size()) + (pageMax > 0 ? 2 : 0)];
+                String[] roleStrings = new String[pageMax > 0 ? 12 : roles.size()];
                 Arrays.fill(roleStrings, "");
 
                 for(int i=0; i < Math.min(10, roles.size() - page * 10); i++) {

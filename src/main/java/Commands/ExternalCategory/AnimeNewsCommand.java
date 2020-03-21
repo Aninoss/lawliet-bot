@@ -29,7 +29,7 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
         EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();

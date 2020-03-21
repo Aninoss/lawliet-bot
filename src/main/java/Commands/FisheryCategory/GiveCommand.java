@@ -34,7 +34,7 @@ public class GiveCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (event.getMessage().getUserAuthor().get().isBot()) return false;
 
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());

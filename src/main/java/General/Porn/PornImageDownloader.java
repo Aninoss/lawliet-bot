@@ -47,6 +47,7 @@ public class PornImageDownloader {
                     return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, gifOnly, canBeVideo, remaining - 1, false, additionalFilters);
             }
 
+            System.out.println("oof");
             return null;
         }
 

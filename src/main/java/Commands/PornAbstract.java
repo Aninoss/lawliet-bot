@@ -2,25 +2,23 @@ package Commands;
 
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
-import General.*;
+import General.EmbedFactory;
 import General.Porn.PornImage;
-import General.Porn.PornImageDownloader;
+import General.TextManager;
+import General.Tools;
 import MySQL.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public abstract class PornAbstract extends Command implements onRecievedListener {
 
-    protected abstract String getDomain();
-    protected abstract String getImageTemplate();
+    public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable;
 
-    public boolean onPornRequestRecieved(MessageCreateEvent event, String followedString, String stringAdd, ArrayList<String> nsfwFilter) throws IOException, InterruptedException, ExecutionException, SQLException {
-        followedString = Tools.cutSpaces(Tools.filterPornSearchKey(followedString.replace(".", ""), DBServer.getNSFWFilterFromServer(event.getServer().get())));
+    @Override
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        ArrayList<String> nsfwFilter = DBServer.getNSFWFilterFromServer(event.getServer().get());
+        followedString = Tools.filterPornSearchKey(followedString, nsfwFilter);
 
         long amount = 1;
         if (Tools.stringContainsDigits(followedString)) {
@@ -31,50 +29,45 @@ public abstract class PornAbstract extends Command implements onRecievedListener
                 return false;
             }
         }
-
         followedString = Tools.cutSpaces(Tools.filterLettersFromString(followedString));
-        boolean emptyKey = false;
-        if (followedString.length() == 0) {
-            emptyKey = true;
-            followedString = "animated_gif";
-        }
 
-        switch (followedString.toLowerCase()) {
-            case "hinata": followedString = "hyuuga_hinata"; break;
-            case "konosuba": followedString = "kono_subarashii_sekai_ni_shukufuku_wo!"; break;
-        }
+        boolean first = true;
+        do {
+            ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount));
 
-        ArrayList<String> picks = new ArrayList<>();
-        for(int j = 0; j < amount ; j++) {
-            PornImage pornImage = PornImageDownloader.getPicture(getDomain(), followedString, stringAdd, getImageTemplate(), false, false, nsfwFilter);
-            if (pornImage == null) {
+            if (first && pornImages.size() == 0) {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
                 event.getChannel().sendMessage(eb).get();
                 return false;
-            } else {
-                if (picks.contains(pornImage.getImageUrl())) return true;
-                String footerAdd = "";
-                if (emptyKey)
-                    footerAdd = " - ⚠️ " + TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_nokey").toUpperCase();
+            }
 
+            if (first && pornImages.size() == 1 && !pornImages.get(0).isVideo()) {
+                PornImage pornImage = pornImages.get(0);
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link", pornImage.getPageUrl()))
                         .setImage(pornImage.getImageUrl())
                         .setTimestamp(pornImage.getInstant())
-                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())) + footerAdd);
+                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())));
 
                 event.getChannel().sendMessage(eb).get();
-                picks.add(pornImage.getImageUrl());
-            }
-        }
-        return true;
-    }
+            } else {
+                for (int i = 0; i < pornImages.size(); i += 3) {
+                    StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_title", getEmoji(), TextManager.getString(getLocale(), TextManager.COMMANDS, getTrigger() + "_title")));
+                    for (int j = 0; j < Math.min(3, pornImages.size() - i); j++) {
+                        sb.append('\n').append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link_template", pornImages.get(i + j).getImageUrl()));
+                    }
 
-    @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
-        ArrayList<String> nsfwFilter = DBServer.getNSFWFilterFromServer(event.getServer().get());
-        return onPornRequestRecieved(event, followedString, Tools.getNSFWTagRemoveList(nsfwFilter), nsfwFilter);
+                    event.getChannel().sendMessage(sb.toString()).get();
+                }
+            }
+
+            amount -= 3;
+            first = false;
+        } while (amount > 0);
+
+        return true;
+
     }
 
 }

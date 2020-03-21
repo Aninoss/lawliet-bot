@@ -38,7 +38,7 @@ public class CoinFlipCommand extends CasinoAbstract implements onRecievedListene
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         onlyNumbersAsArg = false;
         if (onGameStart(event, followedString)) {
             useCalculatedMultiplicator = false;

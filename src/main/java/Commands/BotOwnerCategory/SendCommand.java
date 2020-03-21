@@ -24,7 +24,7 @@ public class SendCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String[] split = followedString.split(" ");
         if (split.length < 2) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this));

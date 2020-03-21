@@ -1,8 +1,6 @@
 package Commands;
 
-import Commands.PornAbstractAbstract;
-
-public abstract class GelbooruAbstract extends PornAbstractAbstract {
+public abstract class GelbooruAbstract extends PornPredefinedAbstract {
 
     @Override
     protected String getSearchExtra() {

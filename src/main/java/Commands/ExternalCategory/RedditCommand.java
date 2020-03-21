@@ -27,7 +27,7 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         followedString = Tools.cutSpaces(followedString);
         if (followedString.startsWith("r/")) followedString = followedString.substring(2);
 

@@ -37,7 +37,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         followedString = Tools.cutSpaces(followedString.replace("\n", ""));
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String args[] = followedString.split("\\|");

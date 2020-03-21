@@ -25,7 +25,7 @@ public class DailyCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
         if (status == PowerPlantStatus.ACTIVE) {
             DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());

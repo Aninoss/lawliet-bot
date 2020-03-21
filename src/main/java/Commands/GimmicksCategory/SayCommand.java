@@ -27,7 +27,7 @@ public class SayCommand extends Command implements onRecievedListener {
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         MentionList<ServerTextChannel> mentionedChannels = MentionFinder.getTextChannels(event.getMessage(), followedString, true);
         followedString = mentionedChannels.getResultMessageString();
 

@@ -38,7 +38,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     protected String reason;
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         MentionList<User> userMentionList = MentionFinder.getUsers(message, followedString);
         userList = userMentionList.getList();

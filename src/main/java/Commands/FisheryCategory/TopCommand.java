@@ -30,7 +30,7 @@ public class TopCommand extends ListAbstract implements onRecievedListener {
     private ArrayList<RankingSlot> rankingSlots;
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
         if (status == PowerPlantStatus.ACTIVE) {
             rankingSlots = DBServer.getPowerPlantRankings(event.getServer().get());

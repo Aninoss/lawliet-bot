@@ -36,7 +36,7 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Pair<Integer, Boolean> pair = fullClear(event.getServerTextChannel().get(), followedString, event.getMessage());
         if (pair == null) return false;
         boolean skipped = pair.getValue();

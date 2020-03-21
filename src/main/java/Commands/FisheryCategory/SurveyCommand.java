@@ -46,7 +46,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Survey survey = DBSurvey.getCurrentSurvey();
         sendMessages(event.getServerTextChannel().get(), survey, false);
         return true;

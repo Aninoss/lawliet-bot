@@ -526,8 +526,8 @@ public class Tools {
 
     public static boolean canSendPrivateMessage(User user) {
         try {
-            user.openPrivateChannel().get();
-            return true;
+            PrivateChannel privateChannel = user.openPrivateChannel().get();
+            return privateChannel.canYouWrite();
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }

@@ -35,7 +35,7 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
     }
 
     @Override
-    public boolean onRecieved(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         URL url = null;
         List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
 
