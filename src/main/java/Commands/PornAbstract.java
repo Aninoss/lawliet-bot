@@ -53,7 +53,7 @@ public abstract class PornAbstract extends Command implements onRecievedListener
                 event.getChannel().sendMessage(eb).get();
             } else {
                 for (int i = 0; i < pornImages.size(); i += 3) {
-                    StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_title", getEmoji(), TextManager.getString(getLocale(), TextManager.COMMANDS, getTrigger() + "_title"), getPrefix(), getTrigger()));
+                    StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), TextManager.COMMANDS, getTrigger() + "_title"), getPrefix(), getTrigger(), followedString));
                     for (int j = 0; j < Math.min(3, pornImages.size() - i); j++) {
                         sb.append('\n').append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link_template", pornImages.get(i + j).getImageUrl()));
                     }

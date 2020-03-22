@@ -80,10 +80,12 @@ public class PornImageDownloader {
             String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
 
             long score = 0;
-            if ((Tools.UrlContainsImage(fileUrl) || canBeVideo) && (!animatedOnly || fileUrl.endsWith("gif") || !Tools.UrlContainsImage(fileUrl)) && postData.getInt("score") >= 0 && !Tools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
+            boolean postIsImage = Tools.UrlContainsImage(fileUrl);
+            boolean postIsGif = fileUrl.endsWith("gif");
+            if ((postIsImage || canBeVideo) && (!animatedOnly || postIsGif || !postIsImage) && postData.getInt("score") >= 0 && !Tools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
                 count2++;
                 if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
-                    score = (long) Math.pow(postData.getInt("score") + 1, 2.75);
+                    score = (long) Math.pow(postData.getInt("score") + 1, 2.75) * (postIsGif ? 3 : 1);
                 }
             }
 
