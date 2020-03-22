@@ -14,11 +14,11 @@ public class HentaiCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated_gif -yaoi -yuri";
+        return "animated -yaoi -yuri";
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return true;
     }
 

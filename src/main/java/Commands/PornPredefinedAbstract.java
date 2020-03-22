@@ -1,13 +1,8 @@
 package Commands;
 
 import CommandListeners.onRecievedListener;
-import CommandSupporters.Command;
-import General.*;
 import General.Porn.PornImage;
 import General.Porn.PornImageDownloader;
-import MySQL.DBServer;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 
@@ -17,7 +12,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract implements onR
 
     protected abstract String getSearchExtra();
 
-    protected abstract boolean isGifOnly();
+    protected abstract boolean isAnimatedOnly();
 
     protected abstract String getDomain();
 
@@ -29,19 +24,19 @@ public abstract class PornPredefinedAbstract extends PornAbstract implements onR
 
         search = getSearchKey();
         String searchAdd = getSearchExtra();
-        boolean gifOnly = isGifOnly();
+        boolean animatedOnly = isAnimatedOnly();
         String domain = getDomain();
         String imageTemplate = getImageTemplate();
 
-        int tries = 3;
+        int tries = 5;
         for (int i = 0; i < amount; ) {
-            PornImage pornImage = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, gifOnly, true, nsfwFilter);
+            PornImage pornImage = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter);
 
             if (pornImage == null || pornImages.stream().anyMatch(pi -> pi.getImageUrl().equals(pornImage.getImageUrl()))) {
                 tries--;
                 if (tries <= 0) break;
             } else {
-                tries = 3;
+                tries = 5;
                 pornImages.add(pornImage);
                 i++;
             }

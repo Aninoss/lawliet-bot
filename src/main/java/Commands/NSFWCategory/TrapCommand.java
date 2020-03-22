@@ -14,11 +14,11 @@ public class TrapCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated_gif trap";
+        return "animated trap";
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return true;
     }
 

@@ -18,7 +18,7 @@ public class NekoCommand extends GelbooruAbstract {
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return false;
     }
 

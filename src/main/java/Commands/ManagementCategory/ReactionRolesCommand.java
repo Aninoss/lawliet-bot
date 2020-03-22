@@ -39,7 +39,9 @@ import java.util.concurrent.ExecutionException;
         aliases = {"rmess", "reactionrole", "rroles"}
 )
 public class ReactionRolesCommand extends Command implements onNavigationListener, onReactionAddStatic, onReactionRemoveStatic {
-    
+
+    private static final int MAX_LINKS = 18;
+
     private String title, description;
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private Emoji emojiTemp;
@@ -251,9 +253,9 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         return true;
 
                     case 2:
-                        if (emojiConnections.size() < getMaxReactionNumber()) setState(6);
+                        if (emojiConnections.size() < MAX_LINKS) setState(6);
                         else {
-                            setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(getMaxReactionNumber())));
+                            setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(MAX_LINKS)));
                         }
                         roleTemp = null;
                         emojiTemp = null;
@@ -350,7 +352,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 if (i < emojiConnections.size() && i != -2) {
                     setLog(LogStatus.SUCCESS, getString("linkremoved"));
                     emojiConnections.remove(i);
-                    setState(3);
+                    if (emojiConnections.size() == 0) setState(3);
                     return true;
                 }
                 return false;
@@ -456,8 +458,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     }
 
     @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {
-    }
+    public void onNavigationTimeOut(Message message) throws Throwable {}
 
     @Override
     public int getMaxReactionNumber() {

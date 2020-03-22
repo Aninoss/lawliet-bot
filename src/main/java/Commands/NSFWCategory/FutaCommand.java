@@ -14,11 +14,11 @@ public class FutaCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated_gif futa";
+        return "animated futa";
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return true;
     }
 

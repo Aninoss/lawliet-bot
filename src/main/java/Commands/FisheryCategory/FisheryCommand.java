@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutionException;
 public class FisheryCommand extends Command implements onNavigationListener,onReactionAddStatic  {
 
     private static final int MAX_ROLES = 50;
-    private int page, pageMax;
 
     private ArrayList<Role> roles;
     private ArrayList<ServerTextChannel> ignoredChannels;
@@ -197,8 +196,6 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                     case 3:
                         if (status == PowerPlantStatus.STOPPED) {
                             if (roles.size() > 0) {
-                                page = 0;
-                                pageMax = (roles.size() - 1) / 10;
                                 setState(2);
                                 return true;
                             } else {
@@ -335,21 +332,11 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < Math.min(10, roles.size() - 10 * page)) {
-                    DBServer.removePowerPlantRoles(event.getServer().get(), roles.remove(i + page * 10));
+                } else if (i < roles.size()) {
+                    DBServer.removePowerPlantRoles(event.getServer().get(), roles.remove(i));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
                     if (roles.size() == 0) setState(0);
                     return true;
-                } else if (pageMax > 0) {
-                    if (i == 10) {
-                        page--;
-                        if (page < 0) page = pageMax;
-                        return true;
-                    } else if (i == 11) {
-                        page++;
-                        if (page > pageMax) page = 0;
-                        return true;
-                    }
                 }
 
             case 3:
@@ -392,24 +379,30 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
         return false;
     }
 
-    private String getRoleString(Role role, double power) {
+    private String getRoleString(Role role) {
         int n = roles.indexOf(role);
         try {
-            return getString("state0_rolestring", role.getMentionTag(), Tools.numToString(getFisheryRolePrice(role.getServer(), roles, n, power)));
+            return getString("state0_rolestring", role.getMentionTag(), Tools.numToString(getFisheryRolePrice(role.getServer(), roles, n)));
         } catch (IOException | SQLException e) {
             e.printStackTrace();
             return "";
         }
     }
 
-    public static long getFisheryRolePrice(Server server, ArrayList<Role> roles, int n, double power) throws SQLException {
+    public static long getFisheryRolePrice(Server server, ArrayList<Role> roles, int n) throws SQLException {
         Pair<Long, Long> prices = DBServer.getFisheryRolePrices(server);
 
         double priceIdealMin = prices.getKey();
         double priceIdealMax = prices.getValue();
 
         if (roles.size() == 1) return (long) priceIdealMin;
-        return Math.round(priceIdealMin + (priceIdealMax - priceIdealMin) * Math.pow(n / (double)(roles.size() - 1), power));
+
+        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double)(roles.size() - 1));
+
+        double price = Math.pow(power, n);
+        double priceMax = Math.pow(power, roles.size() - 1);
+
+        return Math.round(price * (priceIdealMax / priceMax));
     }
 
     @Override
@@ -419,13 +412,12 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
         switch (state) {
             case 0:
                 setOptions(getString("state0_options_"+ status.ordinal()).split("\n"));
-                double rolePower = DBServer.getRoleExp();
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[status.ordinal()].toUpperCase() + "**", true)
                         .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), treasureChests), true)
                         .addField(getString("state0_mreminders"), Tools.getOnOffForBoolean(getLocale(), reminders), true)
-                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), role -> getRoleString(role, rolePower)), false)
+                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
                         .addField(getString("state0_mannouncementchannel"), Tools.getStringIfNotNull(announcementChannel, notSet), false)
                         .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), singleRole)), getString("state0_msinglerole_desc"), false)
@@ -435,20 +427,13 @@ public class FisheryCommand extends Command implements onNavigationListener,onRe
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                String[] roleStrings = new String[pageMax > 0 ? 12 : roles.size()];
-                Arrays.fill(roleStrings, "");
-
-                for(int i=0; i < Math.min(10, roles.size() - page * 10); i++) {
-                    roleStrings[i] = roles.get(i + page * 10).getMentionTag();
-                }
-                if (pageMax > 0) {
-                    roleStrings[10] = getString("state2_previous");
-                    roleStrings[11] = getString("state2_next");
+                String[] roleStrings = new String[roles.size()];
+                for(int i = 0; i < roleStrings.length; i++) {
+                    roleStrings[i] = roles.get(i).getMentionTag();
                 }
                 setOptions(roleStrings);
 
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", pageMax > 0, String.valueOf(page), String.valueOf(pageMax)), getString("state2_title"));
-                if (pageMax > 0) eb.setFooter(getString("state2_page", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
                 return eb;
 
             case 3:

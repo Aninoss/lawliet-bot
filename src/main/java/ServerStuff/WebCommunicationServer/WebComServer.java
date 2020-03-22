@@ -47,7 +47,7 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, category, key));
+            jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, category, key).replace("%PREFIX", "L."));
         }
 
         return jsonObject;

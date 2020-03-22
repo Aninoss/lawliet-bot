@@ -14,11 +14,11 @@ public class YaoiCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated_gif yaoi";
+        return "animated yaoi";
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return true;
     }
 

@@ -26,8 +26,8 @@ public class FAQCommand extends ListAbstract implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         slots = new ArrayList<>();
         for(int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
-            String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i));
-            String answer = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.answer", i));
+            String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("%PREFIX", getPrefix());
+            String answer = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.answer", i)).replace("%PREFIX", getPrefix());
             slots.add(new Pair<>(question, answer));
         }
 

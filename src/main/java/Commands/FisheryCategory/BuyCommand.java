@@ -178,7 +178,7 @@ public class BuyCommand extends Command implements onNavigationListener {
     }
 
     private long calculateRolePrice(FishingSlot slot) throws SQLException {
-        return FisheryCommand.getFisheryRolePrice(server, roles, slot.getLevel(), slot.getPower());
+        return FisheryCommand.getFisheryRolePrice(server, roles, slot.getLevel());
     }
 
     @Override

@@ -18,7 +18,7 @@ public class SoftYuriCommand extends SafebooruAbstract {
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return false;
     }
 

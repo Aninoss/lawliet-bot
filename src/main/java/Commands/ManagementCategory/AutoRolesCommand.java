@@ -32,7 +32,9 @@ import java.util.ArrayList;
         aliases = {"basicroles", "autorole", "aroles"}
 )
 public class AutoRolesCommand extends Command implements onNavigationListener {
-    
+
+    private static final int MAX_ROLES = 12;
+
     private ArrayList<Role> roles;
     private static ArrayList<Long> busyServers = new ArrayList<>();
 
@@ -69,7 +71,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 int n = 0;
                 for(Role role: roleList) {
                     if (!roles.contains(role)) {
-                        if (roles.size() < getMaxReactionNumber()) {
+                        if (roles.size() < MAX_ROLES) {
                             roles.add(role);
                             DBServer.addBasicRoles(event.getServer().get(), role);
                             n++;
@@ -96,11 +98,11 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                         return false;
 
                     case 0:
-                        if (roles.size() < getMaxReactionNumber()) {
+                        if (roles.size() < MAX_ROLES) {
                             setState(1);
                             return true;
                         } else {
-                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(getMaxReactionNumber())));
+                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(MAX_ROLES)));
                             return true;
                         }
 
@@ -158,7 +160,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 } else if (i < roles.size() && i >= 0) {
                     DBServer.removeBasicRoles(event.getServer().get(), roles.remove(i));
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    setState(0);
+                    if (roles.size() == 0) setState(0);
                     return true;
                 }
         }

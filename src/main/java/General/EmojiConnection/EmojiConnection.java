@@ -87,7 +87,10 @@ public class EmojiConnection {
         EmojiConnection[] emojiConnections = getEmojiConnectionArray(channel, withBackButton, connections);
         StringBuilder sb = new StringBuilder();
 
-        for(EmojiConnection emojiConnection: emojiConnections) {
+        for(int i = 0; i < emojiConnections.length; i++) {
+            EmojiConnection emojiConnection = emojiConnections[i];
+
+            if (i == 10) sb.append("\n");
             sb.append(emojiConnection.getEmojiTag());
             sb.append(" | ");
             sb.append(emojiConnection.getConnection());

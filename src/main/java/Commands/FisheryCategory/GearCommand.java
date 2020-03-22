@@ -32,13 +32,9 @@ import java.util.concurrent.ExecutionException;
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         emoji = "\uD83C\uDFA3",
         executable = true,
-        aliases = {"equip", "equipment"}
+        aliases = {"equip", "equipment", "inv", "inventory"}
 )
 public class GearCommand extends Command implements onRecievedListener {
-
-    public GearCommand() {
-        super();
-    }
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
@@ -54,9 +50,7 @@ public class GearCommand extends Command implements onRecievedListener {
             }
             boolean userMentioned = true;
             boolean userBefore = list.size() > 0;
-            for(User user: new ArrayList<>(list)) {
-                if (user.isBot()) list.remove(user);
-            }
+            list.removeIf(User::isBot);
             if (list.size() == 0) {
                 if (userBefore) {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(),TextManager.COMMANDS,"acc_nobot"))).get();
@@ -108,4 +102,5 @@ public class GearCommand extends Command implements onRecievedListener {
             return false;
         }
     }
+
 }

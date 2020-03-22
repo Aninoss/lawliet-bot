@@ -19,6 +19,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +38,7 @@ public abstract class Command {
     private String log;
     private String[] options;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
-    private int state = 0;
+    private int state = 0, page = 0, pageMax = 0;
     private Thread thread;
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
@@ -175,7 +176,7 @@ public abstract class Command {
     public void onNavigationReactionSuper(SingleReactionEvent event) {
         updateThreadName();
 
-        resetNavigation();
+        //resetNavigation();
         if (countdown != null) countdown.reset();
 
         int index = -2;
@@ -189,9 +190,23 @@ public abstract class Command {
                 }
             }
         }
-        boolean changed;
+        boolean changed = true;
         try {
-            changed = ((onNavigationListener) this).controllerReaction(event, index, state);
+            if (index >= 10 && options != null && options.length > 10) {
+                if (index == 10) {
+                    page--;
+                    if (page < 0) page = pageMax;
+                } else if (index == 11) {
+                    page++;
+                    if (page > pageMax) page = 0;
+                }
+                resetNavigation();
+            } else {
+                if (options != null && options.length > 10 && index >= 0) index += 10 * page;
+                resetNavigation();
+                changed = ((onNavigationListener) this).controllerReaction(event, index, state);
+            }
+
             if (changed) drawSuper(event.getApi(), event.getChannel());
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getChannel());
@@ -203,12 +218,26 @@ public abstract class Command {
                 .setTimestampToNow();
 
         if (options != null && options.length > 0) {
-            String str = EmojiConnection.getOptionsString(channel, false, options);
+            String[] newOptions;
+
+            if (options.length <= 10) { newOptions = options; }
+            else {
+                newOptions = new String[12];
+                Arrays.fill(newOptions, "");
+                if (Math.min(10, options.length - 10 * page) >= 0)
+                    System.arraycopy(options, page * 10, newOptions, 0, Math.min(10, options.length - 10 * page));
+
+                newOptions[10] = TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous");
+                newOptions[11] = TextManager.getString(getLocale(), TextManager.GENERAL, "list_next");
+            }
+
+            String str = EmojiConnection.getOptionsString(channel, false, newOptions);
             eb.addField(Tools.getEmptyCharacter(), Tools.getEmptyCharacter());
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str);
         }
 
         EmbedFactory.addLog(eb, logStatus, log);
+        if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
         if (navigationMessage == null) {
             if (navigationPrivateMessage) {
@@ -226,7 +255,6 @@ public abstract class Command {
     private void resetNavigation() {
         log = "";
         logStatus = null;
-        options = null;
     }
 
     public void addLoadingReaction() {
@@ -496,7 +524,11 @@ public abstract class Command {
     public boolean isNavigationPrivateMessage() { return navigationPrivateMessage; }
     public void setReactionUserID(long reactionUserID) { this.reactionUserID = reactionUserID; }
     public long getReactionUserID() { return reactionUserID; }
-    public void setState(int state) { this.state = state; }
+    public void setState(int state) {
+        this.options = null;
+        this.page = 0;
+        this.state = state;
+    }
     public Message getNavigationMessage() { return navigationMessage; }
 
 
@@ -521,7 +553,10 @@ public abstract class Command {
     public void blockLoading() { loadingBlock = true; }
 
     public String[] getOptions() { return options; }
-    public void setOptions(String[] options) { this.options = options; }
+    public void setOptions(String[] options) {
+        this.options = options;
+        this.pageMax = Math.max(0, options.length - 1) / 10;
+    }
     public void setLog(LogStatus logStatus, String string) {
         this.log = string;
         this.logStatus = logStatus;

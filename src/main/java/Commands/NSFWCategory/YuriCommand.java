@@ -14,11 +14,11 @@ public class YuriCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated_gif yuri";
+        return "animated yuri";
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return true;
     }
 

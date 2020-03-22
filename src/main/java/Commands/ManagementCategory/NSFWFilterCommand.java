@@ -29,6 +29,8 @@ import java.util.ArrayList;
 )
 public class NSFWFilterCommand extends Command implements onNavigationListener {
 
+    private static final int MAX_FILTERS = 18;
+
     private ArrayList<String> keywords;
     private final static int MAX_LENGTH = 50;
 
@@ -68,7 +70,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                 int n = 0;
                 for(String str: mentionedKeywords) {
                     if (!keywords.contains(str)) {
-                        if (keywords.size() < getMaxReactionNumber() && !str.isEmpty() && str.length() <= MAX_LENGTH) {
+                        if (keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
                             DBServer.addNSFWFilterKeyword(event.getServer().get(), str);
                             n++;
                         }
@@ -94,11 +96,11 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                         return false;
 
                     case 0:
-                        if (keywords.size() < getMaxReactionNumber()) {
+                        if (keywords.size() < MAX_FILTERS) {
                             setState(1);
                             return true;
                         } else {
-                            setLog(LogStatus.FAILURE, getString("toomanykeywords", String.valueOf(getMaxReactionNumber())));
+                            setLog(LogStatus.FAILURE, getString("toomanykeywords", String.valueOf(MAX_FILTERS)));
                             return true;
                         }
 
@@ -126,7 +128,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                 } else if (i < keywords.size()) {
                     DBServer.removeNSFWFilterKeyword(event.getServer().get(), keywords.remove(i));
                     setLog(LogStatus.SUCCESS, getString("keywordremove"));
-                    setState(0);
+                    if (keywords.size() == 0) setState(0);
                     return true;
                 }
         }

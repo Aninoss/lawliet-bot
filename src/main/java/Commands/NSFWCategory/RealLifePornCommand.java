@@ -18,7 +18,7 @@ public class RealLifePornCommand extends RealbooruAbstract {
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return true;
     }
 

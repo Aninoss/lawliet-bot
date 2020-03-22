@@ -27,7 +27,7 @@ public abstract class PornSearchAbstract extends PornAbstract implements onRecie
         String domain = getDomain();
         String imageTemplate = getImageTemplate();
 
-        if (search.length() == 0) search = "animated_gif";
+        if (search.length() == 0) search = "animated";
 
         switch (search.toLowerCase()) {
             case "hinata":
@@ -38,7 +38,7 @@ public abstract class PornSearchAbstract extends PornAbstract implements onRecie
                 break;
         }
 
-        int tries = 3;
+        int tries = 5;
         for (int i = 0; i < amount; ) {
             PornImage pornImage = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, false, true, nsfwFilter);
 
@@ -46,7 +46,7 @@ public abstract class PornSearchAbstract extends PornAbstract implements onRecie
                 tries--;
                 if (tries <= 0) break;
             } else {
-                tries = 3;
+                tries = 5;
                 pornImages.add(pornImage);
                 i++;
             }

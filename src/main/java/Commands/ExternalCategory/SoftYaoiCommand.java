@@ -18,7 +18,7 @@ public class SoftYaoiCommand extends SafebooruAbstract {
     }
 
     @Override
-    protected boolean isGifOnly() {
+    protected boolean isAnimatedOnly() {
         return false;
     }
 
