@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
         emoji = "\uD83E\uDDEE️",
         thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/trends-icon.png",
         executable = true,
-        aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays"}
+        aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
 public class MemberCountDisplayCommand extends Command implements onNavigationListener  {
 

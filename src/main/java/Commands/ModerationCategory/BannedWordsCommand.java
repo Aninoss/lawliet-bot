@@ -3,6 +3,7 @@ package Commands.ModerationCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
+import CommandSupporters.NavigationHelper;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
@@ -19,6 +20,8 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @CommandProperties(
     trigger = "bannedwords",
@@ -30,7 +33,10 @@ import java.util.ArrayList;
 )
 public class BannedWordsCommand extends Command implements onNavigationListener {
 
+    private static final int MAX_WORDS = 20;
+
     private BannedWords bannedWords;
+    private NavigationHelper<String> wordsNavigationHelper;
 
     public BannedWordsCommand() {
         super();
@@ -40,6 +46,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             bannedWords = DBServer.getBannedWordsFromServer(event.getServer().get());
+            wordsNavigationHelper = new NavigationHelper<>(this, bannedWords.getWords(), String.class, MAX_WORDS);
             return Response.TRUE;
         }
 
@@ -71,18 +78,12 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                 }
 
             case 3:
-                bannedWords.resetWords();
-                if (inputString.length() > 0) {
-                    String wordContainer = inputString.replace("\n", " ");
-                    for(String word: wordContainer.split(" ")) {
-                        bannedWords.addWord(word);
-                    }
-                }
-
-                DBServer.saveBannedWords(bannedWords);
-                setLog(LogStatus.SUCCESS, getString("wordsset"));
-                setState(0);
-                return Response.TRUE;
+                String[] wordArray = inputString.replace("\n", " ").split(" ");
+                List<String> wordList = Arrays.asList(wordArray);
+                if (wordsNavigationHelper.addData(wordList, inputString, event.getMessage().getUserAuthor().get(), 0, word -> {}) == Response.TRUE) {
+                    DBServer.saveBannedWords(bannedWords);
+                    return Response.TRUE;
+                } else return Response.FALSE;
         }
 
         return null;
@@ -113,6 +114,10 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
 
                     case 3:
                         setState(3);
+                        return true;
+
+                    case 4:
+                        setState(4);
                         return true;
                 }
                 return false;
@@ -148,19 +153,17 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                 return false;
 
             case 3:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        bannedWords.resetWords();
-                        DBServer.saveBannedWords(bannedWords);
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("wordsset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
                 }
                 return false;
+
+            case 4:
+                if (wordsNavigationHelper.removeData(i, 0, word -> {})) {
+                    DBServer.saveBannedWords(bannedWords);
+                    return true;
+                }
         }
         return false;
     }
@@ -174,7 +177,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), bannedWords.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(bannedWords.getIgnoredUserIds(), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(bannedWords.getLogRecieverIds(), getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mwords"), getWords(), true);
+                       .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:
                 setOptions(new String[]{getString("empty")});
@@ -184,23 +187,21 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                 setOptions(new String[]{getString("empty")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
 
-            case 3:
-                setOptions(new String[]{getString("empty")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title"));
+            case 3: return wordsNavigationHelper.drawDataAdd(getString("state3_title"), getString("state3_description"));
+            case 4: return wordsNavigationHelper.drawDataRemove(getString("state4_title"), getString("state4_description"));
         }
         return null;
     }
 
     @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {
-    }
+    public void onNavigationTimeOut(Message message) throws Throwable {}
 
     @Override
     public int getMaxReactionNumber() {
-        return 4;
+        return 12;
     }
 
-    private String getWords() throws IOException {
+    private String getWordsString() throws IOException {
         ArrayList<String> words = bannedWords.getWords();
         if (words.size() == 0) {
             return TextManager.getString(getLocale(), TextManager.GENERAL, "notset");

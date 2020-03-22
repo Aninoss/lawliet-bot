@@ -3,6 +3,7 @@ package Commands.ManagementCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
+import CommandSupporters.NavigationHelper;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
@@ -17,6 +18,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -28,7 +30,10 @@ import java.util.ArrayList;
 )
 public class WhiteListCommand extends Command implements onNavigationListener {
 
+    private static final int MAX_CHANNELS = 3;
+
     private ArrayList<ServerTextChannel> channels;
+    private NavigationHelper<ServerTextChannel> channelNavigationHelper;
 
     public WhiteListCommand() {
         super();
@@ -38,21 +43,19 @@ public class WhiteListCommand extends Command implements onNavigationListener {
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             channels = DBServer.getWhiteListedChannels(event.getServer().get());
+            channelNavigationHelper = new NavigationHelper<>(this, channels, ServerTextChannel.class, MAX_CHANNELS);
             return Response.TRUE;
         }
 
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
-            if (channelList.size() == 0) {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                return Response.FALSE;
-            } else {
-                channels = channelList;
-                setLog(LogStatus.SUCCESS, getString("channelset"));
-                setState(0);
-                DBServer.saveWhiteListedChannels(event.getServer().get(), channels);
-                return Response.TRUE;
-            }
+            return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0, channel -> {
+                try {
+                    DBServer.addWhiteListedChannel(event.getServer().get(), channel);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
         return null;
@@ -68,17 +71,28 @@ public class WhiteListCommand extends Command implements onNavigationListener {
                         return false;
 
                     case 0:
-                        setState(1);
+                        channelNavigationHelper.startDataAdd(1);
                         return true;
 
                     case 1:
+                        channelNavigationHelper.startDataRemove(2);
+                        return true;
+
+                    case 2:
                         if (channels.size() > 0) {
-                            setLog(LogStatus.SUCCESS, getString("channelset"));
-                            channels = new ArrayList<>();
-                            DBServer.saveWhiteListedChannels(event.getServer().get(), channels);
+                            setLog(LogStatus.SUCCESS, getString("channelcleared"));
+                            new ArrayList<>(channels).forEach(channel -> {
+                                try {
+                                    channels.remove(channel);
+                                    DBServer.removeWhiteListedChannel(event.getServer().get(), channel);
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                            channels.clear();
                             return true;
                         } else {
-                            setLog(LogStatus.FAILURE, getString("nochannel"));
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_start_remove_none_channel"));
                             return true;
                         }
                 }
@@ -89,6 +103,16 @@ public class WhiteListCommand extends Command implements onNavigationListener {
                     setState(0);
                     return true;
                 }
+                break;
+
+            case 2:
+                return channelNavigationHelper.removeData(i, 0, channel -> {
+                    try {
+                        DBServer.removeWhiteListedChannel(event.getServer().get(), channel);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                });
         }
         return false;
     }
@@ -102,8 +126,8 @@ public class WhiteListCommand extends Command implements onNavigationListener {
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_mchannel"), new ListGen<ServerTextChannel>().getList(channels, everyChannel, Mentionable::getMentionTag), true);
 
-            case 1:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+            case 1: return channelNavigationHelper.drawDataAdd();
+            case 2: return channelNavigationHelper.drawDataRemove();
         }
         return null;
     }
@@ -113,6 +137,6 @@ public class WhiteListCommand extends Command implements onNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 2;
+        return 12;
     }
 }

@@ -254,9 +254,10 @@ public class Clock {
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
                 calendar.get(Calendar.MINUTE) >= 15 &&
-                calendar.get(Calendar.MINUTE) < 25
+                calendar.get(Calendar.MINUTE) < 25 &&
+                Bot.hasUpdate()
         ) {
-            ExceptionHandler.showInfoLog("Daily restart..");
+            ExceptionHandler.showInfoLog("Restart for Update...");
             for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
                 FisheryCache.getInstance(i).saveData();
             System.exit(0);

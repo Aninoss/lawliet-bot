@@ -378,13 +378,14 @@ public class DBServer {
                     channel[i] = server.getTextChannelById(channelId).get();
                 } else {
                     if (server.getSystemChannel().isPresent()) channel[i] = server.getSystemChannel().get();
-                    else channel[i] = server.getTextChannels().get(0);
+                    else if (server.getTextChannels().size() > 0) channel[i] = server.getTextChannels().get(0);
+                    else channel[i] = null;
                 }
             }
 
             WelcomeMessageSetting welcomeMessageSetting = new WelcomeMessageSetting(
                     server,
-                    resultSet.getBoolean(1),
+                    channel[0] != null && channel[1] != null && resultSet.getBoolean(1),
                     resultSet.getString(2),
                     resultSet.getString(3),
                     channel[0],
@@ -761,7 +762,7 @@ public class DBServer {
             resultSet.close();
             preparedStatement.close();
 
-            DatabaseCache.getInstance().setWhiteListedChannels(server, channels);
+            channels.forEach(channel -> DatabaseCache.getInstance().addWhiteListedChannel(server, channel));
         } else {
             channels.stream()
                     .filter(channelId -> server.getTextChannelById(channelId).isPresent())
@@ -1056,19 +1057,24 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void saveWhiteListedChannels(Server server, ArrayList<ServerTextChannel> channels) throws SQLException {
-        StringBuilder sql = new StringBuilder("DELETE FROM WhiteListedChannels WHERE serverId = " + server.getIdAsString() + ";\n");
-        for(ServerTextChannel channel: channels) {
-            sql
-                    .append("INSERT IGNORE INTO WhiteListedChannels VALUES (")
-                    .append(server.getIdAsString())
-                    .append(",")
-                    .append(channel.getIdAsString())
-                    .append(");\n");
-        }
+    public static void removeWhiteListedChannel(Server server, ServerTextChannel channel) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM WhiteListedChannels WHERE serverId = ? AND channelId = ?;");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, channel.getId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
 
-        DBMain.getInstance().statement(sql.toString());
-        DatabaseCache.getInstance().setWhiteListedChannels(server, channels.stream().map(DiscordEntity::getId).collect(Collectors.toCollection(ArrayList::new)));
+        DatabaseCache.getInstance().removeWhiteListedChannel(server, channel.getId());
+    }
+
+    public static void addWhiteListedChannel(Server server, ServerTextChannel channel) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO WhiteListedChannels VALUES (?, ?);");
+        preparedStatement.setLong(1, server.getId());
+        preparedStatement.setLong(2, channel.getId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+
+        DatabaseCache.getInstance().addWhiteListedChannel(server, channel.getId());
     }
 
     public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {

@@ -62,8 +62,12 @@ public class DatabaseCache {
         this.powerPlantIgnoredChannels.put(server.getId(), powerPlantIgnoredChannels);
     }
 
-    public void setWhiteListedChannels(Server server, ArrayList<Long> channels) {
-        this.whiteListedChannels.put(server.getId(), channels);
+    public void addWhiteListedChannel(Server server, long channelId) {
+        this.whiteListedChannels.computeIfAbsent(server.getId(), key -> new ArrayList<>()).add(channelId);
+    }
+
+    public void removeWhiteListedChannel(Server server, long channelId) {
+        this.whiteListedChannels.computeIfAbsent(server.getId(), key -> new ArrayList<>()).remove(channelId);
     }
 
     public ArrayList<Long> getWhiteListedChannels(Server server) {

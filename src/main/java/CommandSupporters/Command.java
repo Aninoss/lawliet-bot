@@ -18,10 +18,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -240,11 +237,15 @@ public abstract class Command {
         if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
         if (navigationMessage == null) {
-            if (navigationPrivateMessage) {
-                if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
-                navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
+            try {
+                if (navigationPrivateMessage) {
+                    if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
+                    navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
+                } else navigationMessage = channel.sendMessage(eb).get();
+            } catch (Throwable e) {
+                ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger());
+                throw e;
             }
-            else navigationMessage = channel.sendMessage(eb).get();
         }
         else {
             if (navigationMessage.getCurrentCachedInstance().isPresent())
@@ -480,7 +481,7 @@ public abstract class Command {
         return false;
     }
 
-    public boolean checkRolesWithLog(ArrayList<Role> roles, User requester) {
+    public boolean checkRolesWithLog(List<Role> roles, User requester) {
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
 
         for(Role role: roles) {

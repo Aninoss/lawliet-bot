@@ -3,6 +3,7 @@ package Commands.ManagementCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
+import CommandSupporters.NavigationHelper;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
@@ -37,6 +38,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
 
     private ArrayList<Role> roles;
     private static ArrayList<Long> busyServers = new ArrayList<>();
+    private NavigationHelper<Role> roleNavigationHelper;
 
     public AutoRolesCommand() {
         super();
@@ -46,43 +48,20 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
         if (firstTime) {
             roles = DBServer.getBasicRolesFromServer(event.getServer().get());
+            roleNavigationHelper = new NavigationHelper<>(this, roles, Role.class, MAX_ROLES);
             checkRolesWithLog(roles, event.getMessage().getUserAuthor().get());
             return Response.TRUE;
         }
 
         if (state == 1) {
             ArrayList<Role> roleList = MentionFinder.getRoles(event.getMessage(), inputString).getList();
-            if (roleList.size() == 0) {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                return Response.FALSE;
-            } else {
-                if (!checkRolesWithLog(roleList, event.getMessage().getUserAuthor().get())) return Response.FALSE;
-
-                int existingRoles = 0;
-                for(Role role: roleList) {
-                    if (roles.contains(role)) existingRoles ++;
+            return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0, role -> {
+                try {
+                    DBServer.addBasicRoles(event.getServer().get(), role);
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-
-                if (existingRoles >= roleList.size()) {
-                    setLog(LogStatus.FAILURE, getString("roleexists", roleList.size() != 1));
-                    return Response.FALSE;
-                }
-
-                int n = 0;
-                for(Role role: roleList) {
-                    if (!roles.contains(role)) {
-                        if (roles.size() < MAX_ROLES) {
-                            roles.add(role);
-                            DBServer.addBasicRoles(event.getServer().get(), role);
-                            n++;
-                        }
-                    }
-                }
-
-                setLog(LogStatus.SUCCESS, getString("roleadd", n != 1));
-                setState(0);
-                return Response.TRUE;
-            }
+            });
         }
 
         return null;
@@ -98,22 +77,12 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                         return false;
 
                     case 0:
-                        if (roles.size() < MAX_ROLES) {
-                            setState(1);
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(MAX_ROLES)));
-                            return true;
-                        }
+                        roleNavigationHelper.startDataAdd(1);
+                        return true;
 
                     case 1:
-                        if (roles.size() > 0) {
-                            setState(2);
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("norolesset"));
-                            return true;
-                        }
+                        roleNavigationHelper.startDataRemove(2);
+                        return true;
 
                     case 2:
                         if (!busyServers.contains(event.getServer().get().getId())) {
@@ -154,15 +123,13 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                 }
 
             case 2:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                } else if (i < roles.size() && i >= 0) {
-                    DBServer.removeBasicRoles(event.getServer().get(), roles.remove(i));
-                    setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    if (roles.size() == 0) setState(0);
-                    return true;
-                }
+                return roleNavigationHelper.removeData(i, 0, role -> {
+                    try {
+                        DBServer.removeBasicRoles(event.getServer().get(), role);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                });
         }
         return false;
     }
@@ -176,15 +143,10 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), true);
 
             case 1:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+                return roleNavigationHelper.drawDataAdd();
 
             case 2:
-                String[] roleStrings = new String[roles.size()];
-                for(int i=0; i<roleStrings.length; i++) {
-                    roleStrings[i] = roles.get(i).getMentionTag();
-                }
-                setOptions(roleStrings);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return roleNavigationHelper.drawDataRemove();
         }
         return null;
     }
