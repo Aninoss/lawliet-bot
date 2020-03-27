@@ -9,7 +9,7 @@ import Constants.Permission;
 import Constants.Response;
 import General.*;
 import General.Mention.MentionFinder;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -47,7 +47,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
         if (firstTime) {
-            roles = DBServer.getBasicRolesFromServer(event.getServer().get());
+            roles = DBServerOld.getBasicRolesFromServer(event.getServer().get());
             roleNavigationHelper = new NavigationHelper<>(this, roles, Role.class, MAX_ROLES);
             checkRolesWithLog(roles, event.getMessage().getUserAuthor().get());
             return Response.TRUE;
@@ -57,7 +57,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
             ArrayList<Role> roleList = MentionFinder.getRoles(event.getMessage(), inputString).getList();
             return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0, role -> {
                 try {
-                    DBServer.addBasicRoles(event.getServer().get(), role);
+                    DBServerOld.addBasicRoles(event.getServer().get(), role);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -125,7 +125,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
             case 2:
                 return roleNavigationHelper.removeData(i, 0, role -> {
                     try {
-                        DBServer.removeBasicRoles(event.getServer().get(), role);
+                        DBServerOld.removeBasicRoles(event.getServer().get(), role);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }

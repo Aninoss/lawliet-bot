@@ -9,7 +9,7 @@ import Constants.Permission;
 import Constants.Response;
 import General.*;
 import General.Mention.MentionFinder;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -42,7 +42,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            channels = DBServer.getWhiteListedChannels(event.getServer().get());
+            channels = DBServerOld.getWhiteListedChannels(event.getServer().get());
             channelNavigationHelper = new NavigationHelper<>(this, channels, ServerTextChannel.class, MAX_CHANNELS);
             return Response.TRUE;
         }
@@ -51,7 +51,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
             ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
             return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0, channel -> {
                 try {
-                    DBServer.addWhiteListedChannel(event.getServer().get(), channel);
+                    DBServerOld.addWhiteListedChannel(event.getServer().get(), channel);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -84,7 +84,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
                             new ArrayList<>(channels).forEach(channel -> {
                                 try {
                                     channels.remove(channel);
-                                    DBServer.removeWhiteListedChannel(event.getServer().get(), channel);
+                                    DBServerOld.removeWhiteListedChannel(event.getServer().get(), channel);
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -108,7 +108,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
             case 2:
                 return channelNavigationHelper.removeData(i, 0, channel -> {
                     try {
-                        DBServer.removeWhiteListedChannel(event.getServer().get(), channel);
+                        DBServerOld.removeWhiteListedChannel(event.getServer().get(), channel);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }

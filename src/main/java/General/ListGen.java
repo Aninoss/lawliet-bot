@@ -68,7 +68,7 @@ public class ListGen<T> {
             i++;
         }
         if (sb.toString().isEmpty()) return valueIfEmpty;
-        return sb.toString();
+        return Tools.shortenStringLine(sb.toString(), 1024);
     }
 
 }

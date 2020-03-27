@@ -10,7 +10,7 @@ import General.Mention.MentionFinder;
 import General.Mention.MentionList;
 import General.TextManager;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -71,7 +71,7 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
         nString = removeAll ? getString("all") : Tools.numToString(getLocale(), n);
         userString = Tools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), users).getString();
 
-        if (DBServer.getModerationFromServer(channel.getServer()).isQuestion()) {
+        if (DBServerOld.getModerationFromServer(channel.getServer()).isQuestion()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmation", n != 1, nString, userString));
             postMessage(eb);
             for(int i = 0; i < 2; i++) this.message.addReaction(Tools.getEmojiForBoolean(i == 0)).get();
@@ -86,13 +86,13 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
         removeReactionListener();
 
         for(User user: users)
-            DBServer.removeWarningsForUser(channel.getServer(), user, n);
+            DBServerOld.removeWarningsForUser(channel.getServer(), user, n);
 
         postMessage(EmbedFactory.getCommandEmbedSuccess(this,
                 getString("success", n != 1, nString, userString)
         ));
 
-        DBServer.getModerationFromServer(channel.getServer()).getChannel().ifPresent(serverTextChannel -> {
+        DBServerOld.getModerationFromServer(channel.getServer()).getChannel().ifPresent(serverTextChannel -> {
             try {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                         getString("modlog", n != 1, requestor.getMentionTag(), nString, userString)

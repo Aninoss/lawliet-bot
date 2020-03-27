@@ -7,10 +7,11 @@ import Constants.Permission;
 import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
 import MySQL.DBBot;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
-import java.awt.*;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -23,15 +24,16 @@ public class TrackerManager {
 
     private static ArrayList<TrackerConnection> trackerConnections = new ArrayList<>();
 
-    public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException {
+    public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException, ExecutionException {
         if (trackerData == null) {
             return;
         }
 
-        Locale locale = DBServer.getServerLocale(trackerData.getServerId());
-        Command command = CommandManager.createCommandByTrigger(trackerData.getCommand(), locale);
-        if (((onTrackerRequestListener) command).needsPrefix())
-            command.setPrefix(DBServer.getPrefix(trackerData.getServerId()));
+        ServerBean serverBean = DBServer.getInstance().getServerBean(trackerData.getServerId());
+
+        Locale locale = serverBean.getLocale();
+        String prefix = serverBean.getPrefix();
+        Command command = CommandManager.createCommandByTrigger(trackerData.getCommand(), locale, prefix);
 
         while (true) {
             try {
@@ -71,7 +73,7 @@ public class TrackerManager {
         Thread t = new Thread(() -> {
             try {
                 TrackerManager.manageTracker(trackerData);
-            } catch (InstantiationException | SQLException | InterruptedException | IllegalAccessException e) {
+            } catch (InstantiationException | SQLException | InterruptedException | IllegalAccessException | ExecutionException e) {
                 e.printStackTrace();
             }
         });

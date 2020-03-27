@@ -5,6 +5,7 @@ import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.Tools;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -82,10 +83,18 @@ public class PornImageDownloader {
             long score = 0;
             boolean postIsImage = Tools.UrlContainsImage(fileUrl);
             boolean postIsGif = fileUrl.endsWith("gif");
-            if ((postIsImage || canBeVideo) && (!animatedOnly || postIsGif || !postIsImage) && postData.getInt("score") >= 0 && !Tools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
+
+            long scoreTmp = 1;
+            try {
+                scoreTmp = (long) Math.pow(postData.getInt("score") + 1, 2.75) * (postIsGif ? 3 : 1);
+            } catch (JSONException e) {
+                //Ignore
+            }
+
+            if ((postIsImage || canBeVideo) && (!animatedOnly || postIsGif || !postIsImage) && scoreTmp >= 0 && !Tools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
                 count2++;
                 if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
-                    score = (long) Math.pow(postData.getInt("score") + 1, 2.75) * (postIsGif ? 3 : 1);
+                    score = scoreTmp;
                 }
             }
 
@@ -96,8 +105,8 @@ public class PornImageDownloader {
 
         if (scoreList.size() == 0) return null;
 
-        long pos = (long) (r.nextDouble()*totalScore);
-        for(int i=0; i < scoreList.size(); i++) {
+        long pos = (long) (r.nextDouble() * totalScore);
+        for(int i = 0; i < scoreList.size(); i++) {
             pos -= scoreList.get(i);
             if (pos < 0) {
                 JSONObject postData = data.getJSONObject(posList.get(i));
@@ -107,6 +116,7 @@ public class PornImageDownloader {
             }
         }
 
+        PornImageCache.getInstance().clear(searchTerm);
         return null;
     }
 
@@ -139,6 +149,13 @@ public class PornImageDownloader {
         if (fileURL.contains("?")) fileURL = fileURL.split("\\?")[0];
 
 
-        return new PornImage(fileURL, postURL, comments, postData.getInt("score"), comments.size(), instant, !Tools.UrlContainsImage(fileURL) && !fileURL.endsWith("gif"));
+        int score = 0;
+        try {
+            score = postData.getInt("score");
+        } catch (JSONException e) {
+            //Ignore
+        }
+
+        return new PornImage(fileURL, postURL, comments, score, comments.size(), instant, !Tools.UrlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
 }

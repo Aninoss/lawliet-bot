@@ -126,8 +126,4 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
         return true;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

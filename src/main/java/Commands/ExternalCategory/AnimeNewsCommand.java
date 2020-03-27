@@ -71,8 +71,4 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

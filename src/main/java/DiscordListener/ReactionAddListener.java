@@ -6,7 +6,9 @@ import CommandSupporters.CommandContainer;
 import General.ExceptionHandler;
 import General.RunningCommands.RunningCommandManager;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -66,12 +68,11 @@ public class ReactionAddListener {
                 Embed embed = message.getEmbeds().get(0);
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
-                    for (onReactionAddStatic command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
+                    for (onReactionAddStaticListener command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {
-                            if (command.requiresLocale()) {
-                                Locale locale = DBServer.getServerLocale(event.getServer().get());
-                                ((Command) command).setLocale(locale);
-                            }
+                            ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
+                            ((Command) command).setLocale(serverBean.getLocale());
+                            ((Command) command).setPrefix(serverBean.getPrefix());
                             command.onReactionAddStatic(message, event);
                             return;
                         }

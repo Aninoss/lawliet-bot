@@ -1,24 +1,12 @@
 package Commands;
 
-import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
-import Constants.Permission;
-import Constants.PowerPlantStatus;
 import General.*;
-import MySQL.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public abstract class ListAbstract extends Command implements onReactionAddListener {
 

@@ -1,33 +1,24 @@
 package MySQL;
 
-import Constants.FishingCategoryInterface;
-import Constants.Permission;
-import Constants.PowerPlantStatus;
-import Constants.SPAction;
+import Constants.*;
 import General.*;
-import General.AutoChannel.AutoChannelContainer;
-import General.AutoChannel.AutoChannelData;
-import General.AutoChannel.TempAutoChannel;
-import General.BannedWords.BannedWords;
 import General.SPBlock.SPBlock;
 import General.Warnings.UserWarnings;
 import General.Warnings.WarningSlot;
+import MySQL.Server.DBServer;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-public class DBServer {
+public class DBServerOld {
 
     public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
         if (!Bot.isDebug()) {
@@ -50,122 +41,11 @@ public class DBServer {
         }
     }
 
-    public static boolean serverIsInDatabase(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT serverId FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-        ResultSet resultSet = preparedStatement.getResultSet();
-
-        boolean exists = resultSet.next();
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return exists;
-    }
-
-    public static String getPrefix(Server server) throws SQLException {
-        return getPrefix(server.getId());
-    }
-
-    public static String getPrefix(long serverId) throws SQLException {
-        String prefix = DatabaseCache.getInstance().getPrefix(serverId);
-
-        if (prefix == null) {
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix FROM DServer WHERE serverId = ?;");
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) prefix = resultSet.getString(1);
-            resultSet.close();
-            preparedStatement.close();
-
-            DatabaseCache.getInstance().setPrefix(serverId, prefix);
-        }
-
-        return prefix;
-    }
-
-    public static void setPrefix(Server server, String prefix) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET prefix = ? WHERE serverId = ?;");
-        preparedStatement.setString(1, prefix);
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        DatabaseCache.getInstance().setPrefix(server.getId(), prefix);
-    }
-
     public static void insertServer(Server server) throws SQLException {
         PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO DServer (serverId) VALUES (?);");
         serverStatement.setString(1, server.getIdAsString());
         serverStatement.executeUpdate();
         serverStatement.close();
-    }
-
-    public static void removeServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static Locale getServerLocale(Server server) throws SQLException {
-        return getServerLocale(server.getId());
-    }
-
-    public static Locale getServerLocale(long serverId) throws SQLException {
-        Locale locale = DatabaseCache.getInstance().getLocale(serverId);
-
-        if (locale == null) {
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT locale FROM DServer WHERE serverId = ?;");
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) locale = new Locale(resultSet.getString(1));
-            resultSet.close();
-            preparedStatement.close();
-
-            DatabaseCache.getInstance().setLocale(serverId, locale);
-        }
-
-        return locale;
-    }
-
-    public static void setServerLocale(Server server, Locale locale) throws SQLException {
-        DatabaseCache.getInstance().setLocale(server.getId(), locale);
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET locale = ? WHERE serverId = ?;");
-        preparedStatement.setString(1, locale.getDisplayName());
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void insertWarning(Server server, User user, User requestor, String reason) throws SQLException {
-        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT INTO Warnings (serverId, userId, requestorUserId, reason) VALUES (?, ?, ?, ?);");
-        serverStatement.setLong(1, server.getId());
-        serverStatement.setLong(2, user.getId());
-        serverStatement.setLong(3, requestor.getId());
-        serverStatement.setString(4, reason);
-        serverStatement.executeUpdate();
-        serverStatement.close();
-    }
-
-    public static ArrayList<User> getMutedUsers(int groupId) throws SQLException {
-        ArrayList<User> users = new ArrayList<>();
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId FROM Mute WHERE muteGroupId = ?;");
-        preparedStatement.setInt(1, groupId);
-        preparedStatement.execute();
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while(resultSet.next()) {
-            long userId = resultSet.getLong(1);
-            Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
-            userOptional.ifPresent(users::add);
-        }
-        resultSet.close();
-        preparedStatement.close();
-        return users;
     }
 
     public static UserWarnings getWarningsForUser(Server server, User user) throws SQLException {
@@ -263,77 +143,6 @@ public class DBServer {
         preparedStatement.close();
 
         return spBlock;
-    }
-
-    public static BannedWords getBannedWordsFromServer(Server server) throws SQLException {
-        BannedWords bannedWords = DatabaseCache.getInstance().getBannedWords(server);
-
-        if (bannedWords == null) {
-            bannedWords = new BannedWords(server);
-
-            String sql = "SELECT active FROM BannedWords WHERE serverId = ?;" +
-                    "SELECT userId FROM BannedWordsIgnoredUsers WHERE serverId = ?;" +
-                    "SELECT userId FROM BannedWordsLogRecievers WHERE serverId = ?;" +
-                    "SELECT word FROM BannedWordsWords WHERE serverId = ?;";
-
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-            preparedStatement.setLong(1, server.getId());
-            preparedStatement.setLong(2, server.getId());
-            preparedStatement.setLong(3, server.getId());
-            preparedStatement.setLong(4, server.getId());
-            preparedStatement.execute();
-
-            //Basisinhalte der Banned Words runterladen
-            int i = 0;
-            for (ResultSet resultSet : new DBMultipleResultSet(preparedStatement)) {
-                switch (i) {
-                    case 0:
-                        if (resultSet.next()) {
-                            bannedWords.setActive(resultSet.getBoolean(1));
-                        }
-                        break;
-
-                    case 1:
-                        while (resultSet.next()) {
-                            try {
-                                Optional<User> userOptional  = server.getMemberById(resultSet.getLong(1));
-                                userOptional.ifPresent(bannedWords::addIgnoredUser);
-                            } catch (SQLException e) {
-                                //Ignore
-                            }
-                        }
-                        break;
-
-                    case 2:
-                        while (resultSet.next()) {
-                            try {
-                                Optional<User> userOptional  = server.getMemberById(resultSet.getLong(1));
-                                userOptional.ifPresent(bannedWords::addLogReciever);
-                            } catch (SQLException e) {
-                                //Ignore
-                            }
-                        }
-                        break;
-
-                    case 3:
-                        while (resultSet.next()) {
-                            try {
-                                String word = resultSet.getString(1);
-                                bannedWords.addWord(word);
-                            } catch (SQLException e) {
-                                //Ignore
-                            }
-                        }
-                        break;
-                }
-                i++;
-            }
-            preparedStatement.close();
-
-            DatabaseCache.getInstance().setBannedWords(server.getId(), bannedWords);
-        }
-
-        return bannedWords;
     }
 
     public static ArrayList<String> getNSFWFilterFromServer(Server server) throws SQLException {
@@ -493,104 +302,6 @@ public class DBServer {
         return channelIds;
     }
 
-
-
-    public static PowerPlantStatus getPowerPlantStatusFromServer(Server server) throws SQLException {
-        PowerPlantStatus powerPlantStatus = DatabaseCache.getInstance().getPowerPlantStatus(server);
-
-        if (powerPlantStatus == null) {
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlant FROM DServer WHERE serverId = ?;");
-            preparedStatement.setLong(1, server.getId());
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                powerPlantStatus = PowerPlantStatus.valueOf(resultSet.getString(1));
-                DatabaseCache.getInstance().setPowerPlantStatus(server, powerPlantStatus);
-            }
-
-            resultSet.close();
-            preparedStatement.close();
-        }
-
-        return powerPlantStatus;
-    }
-
-    public static boolean getPowerPlantTreasureChestsFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantTreasureChests FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            boolean treasureChests = resultSet.getBoolean(1);
-            resultSet.close();
-            preparedStatement.close();
-            return treasureChests;
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-        return true;
-    }
-
-    public static boolean getPowerPlantRemindersFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantReminders FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            boolean reminders = resultSet.getBoolean(1);
-            resultSet.close();
-            preparedStatement.close();
-            return reminders;
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-        return true;
-    }
-
-    public static boolean getPowerPlantSingleRoleFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantSingleRole FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            boolean singleRole = resultSet.getBoolean(1);
-            resultSet.close();
-            preparedStatement.close();
-            return singleRole;
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-        return false;
-    }
-
-    public static ServerTextChannel getPowerPlantAnnouncementChannelFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT powerPlantAnnouncementChannelId FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            long channelId = resultSet.getLong(1);
-            resultSet.close();
-            preparedStatement.close();
-
-            if (server.getTextChannelById(channelId).isPresent())
-                return server.getTextChannelById(channelId).get();
-            else return null;
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-        return null;
-    }
-
     public static ModerationStatus getModerationFromServer(Server server) throws SQLException {
         ModerationStatus moderationStatus = new ModerationStatus(server, null, true, 0, 0, 30, 30);
 
@@ -619,123 +330,6 @@ public class DBServer {
         preparedStatement.close();
 
         return moderationStatus;
-    }
-
-    public static AutoChannelData getAutoChannelFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, creatorCanDisconnect, locked FROM AutoChannel WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            long voiceChannelId = resultSet.getLong(1);
-            boolean active = resultSet.getBoolean(2);
-            String channelName = resultSet.getString(3);
-            //boolean creatorCanDisconnect = resultSet.getBoolean(4);
-            boolean creatorCanDisconnect = false;
-            boolean locked = resultSet.getBoolean(5);
-
-            ServerVoiceChannel channel = null;
-            if (server.getVoiceChannelById(voiceChannelId).isPresent()) {
-                channel = server.getVoiceChannelById(voiceChannelId).get();
-            }
-
-            AutoChannelData autoChannelData = new AutoChannelData(
-                    server,
-                    channel,
-                    active,
-                    channelName,
-                    creatorCanDisconnect,
-                    locked
-            );
-
-            resultSet.close();
-            preparedStatement.close();
-
-            return autoChannelData;
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return new AutoChannelData(
-                server,
-                null,
-                false,
-                "%VCName [%Index]",
-                false,
-                false
-        );
-    }
-
-    public static boolean getAutoQuoteFromServer(Server server) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM AutoQuote WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            boolean active = resultSet.getBoolean(1);
-            resultSet.close();
-            preparedStatement.close();
-            return active;
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return true;
-    }
-
-    public static void synchronizeAutoChannelChildChannels(DiscordApi api) throws SQLException {
-        if (!Bot.isDebug()) {
-            Statement statement = DBMain.getInstance().statement("SELECT AutoChannel.serverId, AutoChannelChildChannels.channelId, AutoChannel.channelId FROM AutoChannelChildChannels LEFT JOIN AutoChannel USING(serverId);");
-            ResultSet resultSet = statement.getResultSet();
-
-            while (resultSet.next()) {
-                long serverId = resultSet.getLong(1);
-                long childChannelId = resultSet.getLong(2);
-                long parentChannelId = resultSet.getLong(3);
-
-                Server server;
-                ServerVoiceChannel childChannel = null;
-                ServerVoiceChannel parentChannel;
-
-
-                boolean found = false;
-
-                Optional<Server> serverOptional = api.getServerById(serverId);
-                if (serverOptional.isPresent()) {
-                    server = serverOptional.get();
-                    Optional<ServerVoiceChannel> optionalServerVoiceChannel = server.getVoiceChannelById(childChannelId);
-                    if (optionalServerVoiceChannel.isPresent()) {
-                        childChannel = optionalServerVoiceChannel.get();
-
-                        if (childChannel.getConnectedUsers().size() > 0 &&
-                                server.getVoiceChannelById(parentChannelId).isPresent()
-                        ) {
-                            parentChannel = server.getVoiceChannelById(parentChannelId).get();
-
-                            AutoChannelContainer.getInstance().addVoiceChannel(new TempAutoChannel(parentChannel, childChannel));
-                            found = true;
-                        }
-                    }
-
-                    if (!found) {
-                        try {
-                            if (childChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getServerLocale(server), "autochannel", childChannel, Permission.MANAGE_CHANNEL))
-                                childChannel.delete().get();
-                        } catch (ExecutionException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        removeAutoChannelChildChannel(serverId, childChannelId);
-                    }
-                }
-            }
-
-            resultSet.close();
-            statement.close();
-        }
     }
 
     public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
@@ -813,10 +407,10 @@ public class DBServer {
 
     public static void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
         Server server = display.getKey().getServer();
-        ArrayList<Pair<Long, String>> displays = DBServer.getMemberCountDisplays(server);
+        ArrayList<Pair<Long, String>> displays = DBServerOld.getMemberCountDisplays(server);
 
         if (displays.size() < 5) {
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO MemberCountDisplays VALUES(?, ?, ?);");
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO MemberCountDisplays VALUES(?, ?, ?);");
             preparedStatement.setLong(1, server.getId());
             preparedStatement.setLong(2, display.getKey().getId());
             preparedStatement.setString(3, display.getValue());
@@ -929,60 +523,6 @@ public class DBServer {
         }
     }
 
-    public static void saveBannedWords(BannedWords bannedWords) throws SQLException {
-        DatabaseCache.getInstance().setBannedWords(bannedWords.getServerId(), bannedWords);
-
-        //Basis
-        String sqlString = "REPLACE INTO BannedWords VALUES (?, ?);" +
-                "DELETE FROM BannedWordsIgnoredUsers WHERE serverId = ?;" +
-                "DELETE FROM BannedWordsLogRecievers WHERE serverId = ?;" +
-                "DELETE FROM BannedWordsWords WHERE serverId = ?;";
-
-        PreparedStatement baseStatement = DBMain.getInstance().preparedStatement(sqlString);
-        baseStatement.setLong(1, bannedWords.getServerId());
-        baseStatement.setBoolean(2, bannedWords.isActive());
-        baseStatement.setLong(3, bannedWords.getServerId());
-        baseStatement.setLong(4, bannedWords.getServerId());
-        baseStatement.setLong(5, bannedWords.getServerId());
-        baseStatement.executeUpdate();
-        baseStatement.close();
-
-        //Ignorierte User
-        if(bannedWords.getIgnoredUserIds().size() > 0) {
-            StringBuilder sql = new StringBuilder();
-            for(User user: bannedWords.getIgnoredUserIds()) {
-                sql.append("INSERT IGNORE INTO BannedWordsIgnoredUsers VALUES (").append(bannedWords.getServerId()).append(",").append(user.getIdAsString()).append(");");
-            }
-            DBMain.getInstance().statement(sql.toString());
-        }
-
-        //Log-Empfänger
-        if(bannedWords.getLogRecieverIds().size() > 0) {
-            StringBuilder sql = new StringBuilder();
-            for(User user: bannedWords.getLogRecieverIds()) {
-                sql.append("INSERT IGNORE INTO BannedWordsLogRecievers VALUES (").append(bannedWords.getServerId()).append(",").append(user.getIdAsString()).append(");");
-            }
-            DBMain.getInstance().statement(sql.toString());
-        }
-
-        //Words
-        if(bannedWords.getWords().size() > 0) {
-            StringBuilder sql = new StringBuilder();
-            for(int i = 0; i < bannedWords.getWords().size(); i++) {
-                sql.append("INSERT IGNORE INTO BannedWordsWords VALUES (?, ?);");
-            }
-
-            baseStatement = DBMain.getInstance().preparedStatement(sql.toString());
-            for(int i = 0; i < bannedWords.getWords().size(); i++) {
-                String word = bannedWords.getWords().get(i);
-                baseStatement.setLong((i * 2) + 1, bannedWords.getServerId());
-                baseStatement.setString((i * 2) + 2, word);
-            }
-            baseStatement.executeUpdate();
-            baseStatement.close();
-        }
-    }
-
     public static void saveWelcomeMessageSetting(WelcomeMessageSetting welcomeMessageSetting) throws SQLException {
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("REPLACE INTO ServerWelcomeMessage VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
         baseStatement.setLong(1, welcomeMessageSetting.getServer().getId());
@@ -1011,50 +551,6 @@ public class DBServer {
         baseStatement.setLong(2, role.getId());
         baseStatement.executeUpdate();
         baseStatement.close();
-    }
-
-    public static void saveAutoChannel(AutoChannelData autoChannelData) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, creatorCanDisconnect, locked) VALUES (?, ?, ?, ?, ?, ?)");
-        preparedStatement.setLong(1, autoChannelData.getServer().getId());
-
-        ServerVoiceChannel serverVoiceChannel = autoChannelData.getVoiceChannel();
-        if (serverVoiceChannel != null) preparedStatement.setLong(2, autoChannelData.getVoiceChannel().getId());
-        else preparedStatement.setNull(2, Types.BIGINT);
-
-        preparedStatement.setBoolean(3, autoChannelData.isActive());
-        preparedStatement.setString(4, autoChannelData.getChannelName());
-        preparedStatement.setBoolean(5, autoChannelData.isCreatorCanDisconnect());
-        preparedStatement.setBoolean(6, autoChannelData.isLocked());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void saveAutoQuote(Server server, boolean active) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO AutoQuote (serverId, active) VALUES (?, ?)");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setBoolean(2, active);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void addAutoChannelChildChannel(ServerVoiceChannel channel) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO AutoChannelChildChannels VALUES (?, ?)");
-        preparedStatement.setLong(1, channel.getServer().getId());
-        preparedStatement.setLong(2, channel.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void removeAutoChannelChildChannel(ServerVoiceChannel channel) throws SQLException {
-        removeAutoChannelChildChannel(channel.getServer().getId(), channel.getId());
-    }
-
-    public static void removeAutoChannelChildChannel(long serverId, long channelId) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM AutoChannelChildChannels WHERE serverId = ? AND channelId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.setLong(2, channelId);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
     }
 
     public static void removeWhiteListedChannel(Server server, ServerTextChannel channel) throws SQLException {
@@ -1107,31 +603,6 @@ public class DBServer {
         preparedStatement.close();
     }
 
-    public static void savePowerPlantStatusSetting(Server server, PowerPlantStatus status) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlant = ? WHERE serverId = ?;");
-        preparedStatement.setString(1, status.name());
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        DatabaseCache.getInstance().setPowerPlantStatus(server, status);
-    }
-
-    public static void savePowerPlantTreasureChestsSetting(Server server, boolean treasureChests) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantTreasureChests = ? WHERE serverId = ?;");
-        preparedStatement.setBoolean(1, treasureChests);
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void savePowerPlantRemindersSetting(Server server, boolean reminders) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantReminders = ? WHERE serverId = ?;");
-        preparedStatement.setBoolean(1, reminders);
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
 
     public static void removePowerPlant(Server server) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;" +
@@ -1142,7 +613,11 @@ public class DBServer {
         preparedStatement.setLong(3, server.getId());
         preparedStatement.executeUpdate();
 
-        savePowerPlantStatusSetting(server, PowerPlantStatus.STOPPED);
+        try {
+            DBServer.getInstance().getServerBean(server.getId()).setFisheryStatus(FisheryStatus.STOPPED);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void savePowerPlantIgnoredChannels(Server server, ArrayList<ServerTextChannel> channels) throws SQLException {
@@ -1160,23 +635,6 @@ public class DBServer {
         channels.forEach(channel -> channelIds.add(channel.getId()));
 
         DatabaseCache.getInstance().setPowerPlantIgnoredChannels(server, channelIds);
-    }
-
-    public static void savePowerPlantSingleRole(Server server, boolean singleRole) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantSingleRole = ? WHERE serverId = ?;");
-        preparedStatement.setBoolean(1, singleRole);
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static void savePowerPlantAnnouncementChannel(Server server, ServerTextChannel channel) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantAnnouncementChannelId = ? WHERE serverId = ?;");
-        if (channel != null) preparedStatement.setLong(1, channel.getId());
-        else preparedStatement.setNull(1, Types.BIGINT);
-        preparedStatement.setLong(2, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
     }
 
     public static ArrayList<RankingSlot> getPowerPlantRankings(Server server) throws SQLException {
@@ -1239,44 +697,14 @@ public class DBServer {
         return rankingSlots;
     }
 
-    public static Pair<Long, Long> getFisheryRolePrices(Server server) throws SQLException {
-        Pair<Long, Long> prices = null;
-        String sql = "SELECT powerPlantRoleMin, powerPlantRoleMax FROM DServer WHERE serverId = ?;";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            prices = new Pair<>(resultSet.getLong(1), resultSet.getLong(2));
-        }
-
-        return prices;
-    }
-
-    public static void savePowerPlantRolePrices(Server server, Pair<Long, Long> prices) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET powerPlantRoleMin = ?, powerPlantRoleMax = ? WHERE serverId = ?;");
-        preparedStatement.setLong(1, prices.getKey());
-        preparedStatement.setLong(2, prices.getValue());
-        preparedStatement.setLong(3, server.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
-    public static double getRoleExp() throws SQLException {
-        double exp = 1;
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT categoryPower FROM PowerPlantCategories WHERE categoryId = ?;");
-        preparedStatement.setInt(1, FishingCategoryInterface.ROLE);
-        preparedStatement.execute();
-        ResultSet resultSet = preparedStatement.getResultSet();
-
-        if (resultSet.next()) {
-            exp = resultSet.getDouble(1);
-        }
-
-        return exp;
+    public static void insertWarning(Server server, User user, User requestor, String reason) throws SQLException {
+        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT INTO Warnings (serverId, userId, requestorUserId, reason) VALUES (?, ?, ?, ?);");
+        serverStatement.setLong(1, server.getId());
+        serverStatement.setLong(2, user.getId());
+        serverStatement.setLong(3, requestor.getId());
+        serverStatement.setString(4, reason);
+        serverStatement.executeUpdate();
+        serverStatement.close();
     }
 
 }

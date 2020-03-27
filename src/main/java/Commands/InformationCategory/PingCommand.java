@@ -4,6 +4,10 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
+import MySQL.AutoChannel.AutoChannelBean;
+import MySQL.AutoChannel.DBAutoChannel;
+import MySQL.AutoQuote.AutoQuoteBean;
+import MySQL.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -18,10 +22,6 @@ import java.time.Instant;
 )
 public class PingCommand extends Command implements onRecievedListener {
 
-    public PingCommand() {
-        super();
-    }
-
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Instant startTime = event.getMessage().getCreationTimestamp();
@@ -29,7 +29,7 @@ public class PingCommand extends Command implements onRecievedListener {
         Instant endTime = Instant.now();
 
         Duration duration = Duration.between(startTime, endTime);
-        message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong", String.valueOf((Math.abs(duration.getSeconds()*1000000000) + Math.abs(duration.getNano())) / 1000000)))).get();
+        message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong", String.valueOf((Math.abs(duration.getSeconds() * 1000000000) + Math.abs(duration.getNano())) / 1000000)))).get();
 
         return true;
     }

@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executable = true
 )
-public class SurveyCommand extends Command implements onRecievedListener, onReactionAddStatic, onTrackerRequestListener {
+public class SurveyCommand extends Command implements onRecievedListener, onReactionAddStaticListener, onTrackerRequestListener {
 
     private static long lastAccess = 0;
 
@@ -202,11 +202,6 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
     }
 
     @Override
-    public boolean requiresLocale() {
-        return true;
-    }
-
-    @Override
     public String getTitleStartIndicator() {
         return getEmoji();
     }
@@ -235,8 +230,4 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

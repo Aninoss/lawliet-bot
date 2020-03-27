@@ -2,27 +2,31 @@ package General;
 
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
-import General.AutoChannel.AutoChannelContainer;
+import General.Internet.Internet;
+import General.Internet.InternetResponse;
 import General.RunningCommands.RunningCommandManager;
 import General.Tracker.TrackerManager;
-import MySQL.DatabaseCache;
+import MySQL.DBServerOld;
 import MySQL.FisheryCache;
+import MySQL.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
-import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import org.javacord.api.entity.webhook.Webhook;
+import org.javacord.api.entity.webhook.WebhookBuilder;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class DiscordApiCollection {
 
@@ -118,7 +122,6 @@ public class DiscordApiCollection {
                 e.printStackTrace();
             }
             FisheryCache.getInstance(n).turnOff();
-            AutoChannelContainer.getInstance().removeShard(n);
             TrackerManager.stopShard(n);
             RunningCommandManager.getInstance().clearShard(n);
             api.disconnect();
@@ -348,6 +351,106 @@ public class DiscordApiCollection {
 
     public CustomEmoji getBackEmojiCustom() {
         return getHomeEmojiById(511165137202446346L);
+    }
+
+    public Optional<ServerTextChannel> getRandomWritableChannel(Server server) {
+        if (server.getSystemChannel().isPresent() && server.getSystemChannel().get().canYouWrite()) {
+            return server.getSystemChannel();
+        } else {
+            for(ServerTextChannel channel: server.getTextChannels()) {
+                if (channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                    return Optional.of(channel);
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Webhook> getOwnWebhook(Server server) {
+        if (!Tools.userHasServerPermission(server, getYourself(), PermissionType.MANAGE_WEBHOOKS))
+            return Optional.empty();
+
+        try {
+            List<Webhook> webhookList = server.getWebhooks().get().stream().filter(webhook -> webhook.getCreator().isPresent() && webhook.getCreator().get().isYourself()).collect(Collectors.toList());
+            if (webhookList.size() > 0) return Optional.of(webhookList.get(0));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
+
+    public void insertWebhook(Server server) {
+        if (!getOwnWebhook(server).isPresent()) {
+            User yourself = getYourself();
+
+            try {
+                if (Tools.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
+                    return;
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            ServerTextChannel finalChannel = null;
+            if (server.getSystemChannel().isPresent() && Tools.userHasChannelPermission(server.getSystemChannel().get(), yourself, PermissionType.MANAGE_WEBHOOKS))
+                finalChannel = server.getSystemChannel().get();
+
+            else {
+                for (ServerTextChannel channel: server.getTextChannels()) {
+                    if (Tools.userHasChannelPermission(channel, yourself, PermissionType.MANAGE_WEBHOOKS)) {
+                        finalChannel = channel;
+                        break;
+                    }
+                }
+            }
+
+            if (finalChannel != null) {
+                WebhookBuilder webhookBuilder = finalChannel.createWebhookBuilder();
+                webhookBuilder.setAvatar(yourself.getAvatar())
+                        .setName(yourself.getName());
+                try {
+                    Webhook webhook = webhookBuilder.create().get();
+                    if (webhook.getToken().isPresent()) {
+                        String url = String.format("https://discordapp.com/api/webhooks/%s/%s", webhook.getId(), webhook.getToken().get());
+                        DBServer.getInstance().getServerBean(server.getId()).setWebhookUrl(url);
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    //Ignore
+                }
+            }
+        }
+    }
+
+    public void clearOwnWebhooks(Server server) {
+        try {
+            server.getWebhooks().get().stream()
+                    .filter(webhook -> webhook.getCreator().isPresent() && webhook.getCreator().get().isYourself())
+                    .forEach(Webhook::delete);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public CompletableFuture<InternetResponse> removeWebhook(String webhookUrl) throws IOException {
+        String[] segments = webhookUrl.split("/");
+        String webhookId = segments[segments.length - 2];
+        String token = segments[segments.length - 1];
+
+        return Internet.getData(String.format("https://discordapp.com/api/v6/webhooks/%s/%s", webhookId, token), "DELETE", 0, "");
+    }
+
+    public CompletableFuture<InternetResponse> sendToWebhook(Server server, String webhookUrl, String content) throws IOException {
+        User yourself = getYourself();
+
+        Pair<String, String> contentType = new Pair<>("Content-type", "application/json");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("username", server.getDisplayName(yourself));
+        jsonObject.put("avatar_url", yourself.getAvatar().getUrl());
+        jsonObject.put("content", content);
+
+        return Internet.getData(webhookUrl, "POST", jsonObject.toString(), contentType);
     }
 
 }

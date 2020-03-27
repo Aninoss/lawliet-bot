@@ -7,7 +7,7 @@ import CommandSupporters.CommandManager;
 import Commands.GimmicksCategory.QuoteCommand;
 import Commands.FisheryCategory.FisheryCommand;
 import Constants.FishingCategoryInterface;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import Constants.Settings;
 import General.*;
 import General.BannedWords.BannedWordsCheck;
@@ -17,9 +17,12 @@ import General.Internet.Internet;
 import General.Mention.MentionFinder;
 import General.RunningCommands.RunningCommandManager;
 import General.SPBlock.SPCheck;
-import MySQL.DBServer;
+import MySQL.AutoQuote.DBAutoQuote;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.FisheryCache;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -68,7 +71,8 @@ public class MessageCreateListener {
         }
 
         try {
-            String prefix = DBServer.getPrefix(event.getServer().get());
+            ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
+            String prefix = serverBean.getPrefix();
             String content = event.getMessage().getContent();
 
             String[] prefixes = {prefix, DiscordApiCollection.getInstance().getYourself().getMentionTag(), "<@!"+DiscordApiCollection.getInstance().getYourself().getIdAsString()+">"};
@@ -91,8 +95,8 @@ public class MessageCreateListener {
                 String followedString = Tools.cutSpaces(newContent.substring(commandTrigger.length()));
 
                 if (commandTrigger.length() > 0) {
-                    Locale locale = DBServer.getServerLocale(event.getServer().get());
-                    Class clazz;
+                    Locale locale = serverBean.getLocale();
+                    Class<? extends Command> clazz;
                     try {
                         clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                         if (clazz != null) {
@@ -118,14 +122,14 @@ public class MessageCreateListener {
                 //Manage Treasure Chests
                 if (messageRegistered &&
                         new Random().nextInt(400) == 0 &&
-                        DBServer.getPowerPlantStatusFromServer(event.getServer().get()) == PowerPlantStatus.ACTIVE &&
-                        DBServer.getPowerPlantTreasureChestsFromServer(event.getServer().get()) &&
+                        serverBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
+                        serverBean.isFisheryTreasureChests() &&
                         event.getChannel().canYouWrite() &&
                         event.getChannel().canYouEmbedLinks() &&
                         event.getChannel().canYouAddNewReactions()
                 ) {
                     boolean noSpamChannel = true;
-                    ArrayList<ServerTextChannel> channels = DBServer.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
+                    ArrayList<ServerTextChannel> channels = DBServerOld.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
                     for (ServerTextChannel channel : channels) {
                         if (channel.getId() == event.getChannel().getId()) {
                             noSpamChannel = false;
@@ -134,7 +138,7 @@ public class MessageCreateListener {
                     }
 
                     if (noSpamChannel) {
-                        Locale locale = DBServer.getServerLocale(event.getServer().get());
+                        Locale locale = serverBean.getLocale();
                         EmbedBuilder eb = EmbedFactory.getEmbed()
                                 .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Tools.getEmptyCharacter())
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
@@ -150,15 +154,15 @@ public class MessageCreateListener {
                 if (!Tools.serverIsBotListServer(event.getServer().get()) &&
                         event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()
                 ) {
-                    Locale locale = DBServer.getServerLocale(event.getServer().get());
+                    Locale locale = serverBean.getLocale();
                     ArrayList<Message> messages = MentionFinder.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
-                    if (messages.size() > 0 && DBServer.getAutoQuoteFromServer(event.getServer().get())) {
+                    if (messages.size() > 0 && DBAutoQuote.getInstance().getAutoQuoteBean(event.getServer().get().getId()).isActive()) {
                         try {
                             for (int i = 0; i < Math.min(3, messages.size()); i++) {
                                 Message message = messages.get(i);
                                 QuoteCommand quoteCommand = new QuoteCommand();
                                 quoteCommand.setLocale(locale);
-                                quoteCommand.setPrefix(DBServer.getPrefix(event.getServer().get()));
+                                quoteCommand.setPrefix(serverBean.getPrefix());
                                 quoteCommand.postEmbed(event.getServerTextChannel().get(), message, true);
                             }
                         } catch (Throwable throwable) {

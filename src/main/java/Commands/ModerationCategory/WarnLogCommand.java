@@ -9,7 +9,7 @@ import General.TextManager;
 import General.Tools;
 import General.Warnings.UserWarnings;
 import General.Warnings.WarningSlot;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -47,7 +47,7 @@ public class WarnLogCommand extends Command implements onRecievedListener {
             userMentioned = false;
         }
         for (User user: list) {
-            UserWarnings userWarnings = DBServer.getWarningsForUser(server, user);
+            UserWarnings userWarnings = DBServerOld.getWarningsForUser(server, user);
 
             StringBuilder latestWarnings = new StringBuilder();
             for(WarningSlot warningSlot: userWarnings.getLatest(3)) {

@@ -10,7 +10,7 @@ import Constants.SPAction;
 import General.*;
 import General.Mention.MentionFinder;
 import General.SPBlock.SPBlock;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -41,7 +41,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            spBlock = DBServer.getSPBlockFromServer(event.getServer().get());
+            spBlock = DBServerOld.getSPBlockFromServer(event.getServer().get());
             return Response.TRUE;
         }
 
@@ -53,7 +53,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     return Response.FALSE;
                 } else {
                     spBlock.setIgnoredUser(userIgnoredList);
-                    DBServer.saveSPBlock(spBlock);
+                    DBServerOld.saveSPBlock(spBlock);
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return Response.TRUE;
@@ -66,7 +66,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     return Response.FALSE;
                 } else {
                     spBlock.setIgnoredChannels(channelIgnoredList);
-                    DBServer.saveSPBlock(spBlock);
+                    DBServerOld.saveSPBlock(spBlock);
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return Response.TRUE;
@@ -79,7 +79,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     return Response.FALSE;
                 } else {
                     spBlock.setLogRecievers(logRecieverList);
-                    DBServer.saveSPBlock(spBlock);
+                    DBServerOld.saveSPBlock(spBlock);
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
                     return Response.TRUE;
@@ -100,7 +100,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
 
                     case 0:
                         spBlock.setActive(!spBlock.isActive());
-                        DBServer.saveSPBlock(spBlock);
+                        DBServerOld.saveSPBlock(spBlock);
                         setLog(LogStatus.SUCCESS, getString("onoffset", !spBlock.isActive()));
                         return true;
 
@@ -130,7 +130,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
 
                     case 0:
                         spBlock.resetIgnoredUser();
-                        DBServer.saveSPBlock(spBlock);
+                        DBServerOld.saveSPBlock(spBlock);
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                         return true;
@@ -145,7 +145,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
 
                     case 0:
                         spBlock.resetIgnoredChannels();
-                        DBServer.saveSPBlock(spBlock);
+                        DBServerOld.saveSPBlock(spBlock);
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;
@@ -160,7 +160,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
 
                     case 0:
                         spBlock.resetLogRecievers();
-                        DBServer.saveSPBlock(spBlock);
+                        DBServerOld.saveSPBlock(spBlock);
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                         return true;
@@ -173,7 +173,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     return true;
                 } else if (i <= 2) {
                     spBlock.setAction(SPAction.values()[i]);
-                    DBServer.saveSPBlock(spBlock);
+                    DBServerOld.saveSPBlock(spBlock);
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("actionset"));
                     return true;

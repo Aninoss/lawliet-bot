@@ -26,13 +26,13 @@ public class CommandContainer {
         return ourInstance;
     }
 
-    private HashMap<String, Class> commands;
-    private ArrayList<onReactionAddStatic> staticReactionAddCommands;
-    private ArrayList<onReactionRemoveStatic> staticReactionRemoveCommands;
+    private HashMap<String, Class<? extends Command>> commands;
+    private ArrayList<onReactionAddStaticListener> staticReactionAddCommands;
+    private ArrayList<onReactionRemoveStaticListener> staticReactionRemoveCommands;
     private ArrayList<onTrackerRequestListener> trackerCommands;
     private ArrayList<Command> commandsReaction;
     private ArrayList<Command> commandsMessageForward;
-    private ArrayList<Class> commandList;
+    private ArrayList<Class<? extends Command>> commandList;
     private Instant lastCommandUsage;
 
     private CommandContainer() {
@@ -62,7 +62,7 @@ public class CommandContainer {
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
         commandList.add(TrackerCommand.class);
-        commandList.add(ReactionRolesCommand.class);
+        commandList.add(ReactionRolesCommandListenerListener.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
@@ -141,6 +141,7 @@ public class CommandContainer {
         commandList.add(StareCommand.class);
         commandList.add(SleepCommand.class);
         commandList.add(NoseBleedCommand.class);
+        commandList.add(LaughCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);
@@ -201,6 +202,7 @@ public class CommandContainer {
         commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
+        commandList.add(FurryCommand.class);
         commandList.add(GimmeHentaiCommand.class);
 
         //SPLATOON
@@ -208,13 +210,13 @@ public class CommandContainer {
         commandList.add(SalmonCommand.class);
         commandList.add(SplatnetCommand.class);
 
-        for(Class clazz: commandList) {
+        for(Class<? extends Command> clazz: commandList) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz);
                 addCommand(command.getTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
-                if (command instanceof onReactionAddStatic) staticReactionAddCommands.add((onReactionAddStatic)command);
-                if (command instanceof onReactionRemoveStatic) staticReactionRemoveCommands.add((onReactionRemoveStatic)command);
+                if (command instanceof onReactionAddStaticListener) staticReactionAddCommands.add((onReactionAddStaticListener)command);
+                if (command instanceof onReactionRemoveStaticListener) staticReactionRemoveCommands.add((onReactionRemoveStaticListener)command);
                 if (command instanceof onTrackerRequestListener) trackerCommands.add((onTrackerRequestListener)command);
             } catch (IllegalAccessException | InstantiationException e) {
                 e.printStackTrace();
@@ -249,15 +251,15 @@ public class CommandContainer {
     }
 
 
-    public HashMap<String,Class> getCommands() {
+    public HashMap<String, Class<? extends Command>> getCommands() {
         return commands;
     }
 
-    public ArrayList<onReactionAddStatic> getStaticReactionAddCommands() {
+    public ArrayList<onReactionAddStaticListener> getStaticReactionAddCommands() {
         return staticReactionAddCommands;
     }
 
-    public ArrayList<onReactionRemoveStatic> getStaticReactionRemoveCommands() {
+    public ArrayList<onReactionRemoveStaticListener> getStaticReactionRemoveCommands() {
         return staticReactionRemoveCommands;
     }
 
@@ -312,7 +314,7 @@ public class CommandContainer {
         return trackerCommands;
     }
 
-    public ArrayList<Class> getCommandList() {
+    public ArrayList<Class<? extends Command>> getCommandList() {
         return commandList;
     }
 

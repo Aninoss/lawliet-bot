@@ -5,6 +5,8 @@ import ServerStuff.CommunicationServer;
 import DiscordListener.*;
 import General.BotResources.ResourceManager;
 import MySQL.*;
+import ServerStuff.Discordbotlist;
+import ServerStuff.Divinediscordbots;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -23,15 +25,6 @@ public class Connector {
 
     public static void main(String[] args) {
         try {
-            //Redirect error outputs to a file
-            if (!Bot.isDebug() && !Settings.TEST_MODE) {
-                String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
-                File file = new File("data/error_log/" + fileName + "_err.log");
-                FileOutputStream fos = new FileOutputStream(file);
-                PrintStream ps = new PrintStream(fos);
-                System.setErr(ps);
-            }
-
             Console.getInstance().start(); //Starts Console Listener
 
             //Check for faulty ports
@@ -52,6 +45,15 @@ public class Connector {
                 }
                 System.exit(1);
                 return;
+            }
+
+            //Redirect error outputs to a file
+            if (!Bot.isDebug() && !Settings.TEST_MODE) {
+                String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
+                File file = new File("data/error_log/" + fileName + "_err.log");
+                FileOutputStream fos = new FileOutputStream(file);
+                PrintStream ps = new PrintStream(fos);
+                System.setErr(ps);
             }
 
             new CommunicationServer(35555); //Start Communication Server
@@ -223,21 +225,35 @@ public class Connector {
             });
             api.addServerVoiceChannelMemberJoinListener(event -> {
                 Thread t = new Thread(() -> {
-                    new VoiceChannelMemberJoinListener().onJoin(event);
+                    try {
+                        new VoiceChannelMemberJoinListener().onJoin(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
                 addUncaughtException(t);
                 t.setName("vc_member_join");
                 t.start();
             });
             api.addServerVoiceChannelMemberLeaveListener(event -> {
-                Thread t = new Thread(() -> new VoiceChannelMemberLeaveListener().onLeave(event));
+                Thread t = new Thread(() -> {
+                    try {
+                        new VoiceChannelMemberLeaveListener().onLeave(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
                 addUncaughtException(t);
                 t.setName("vc_member_leave");
                 t.start();
             });
             api.addServerMemberJoinListener(event -> {
                 Thread t = new Thread(() -> {
-                    new ServerMemberJoinListener().onJoin(event);
+                    try {
+                        new ServerMemberJoinListener().onJoin(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
                 addUncaughtException(t);
                 t.setName("member_join");
@@ -245,7 +261,11 @@ public class Connector {
             });
             api.addServerMemberLeaveListener(event -> {
                 Thread t = new Thread(() -> {
-                    new ServerMemberLeaveListener().onLeave(event);
+                    try {
+                        new ServerMemberLeaveListener().onLeave(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
                 addUncaughtException(t);
                 t.setName("member_leave");
@@ -253,7 +273,11 @@ public class Connector {
             });
             api.addServerChannelDeleteListener(event -> {
                 Thread t = new Thread(() -> {
-                    new ServerChannelDeleteListener().onDelete(event);
+                    try {
+                        new ServerChannelDeleteListener().onDelete(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
                 addUncaughtException(t);
                 t.setName("channel_delete");
@@ -261,7 +285,11 @@ public class Connector {
             });
             api.addServerJoinListener(event -> {
                 Thread t = new Thread(() -> {
-                    new ServerJoinListener().onServerJoin(event);
+                    try {
+                        new ServerJoinListener().onServerJoin(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
                 addUncaughtException(t);
                 t.setName("server_join");
@@ -269,7 +297,11 @@ public class Connector {
             });
             api.addServerLeaveListener(event -> {
                 Thread t = new Thread(() -> {
-                    new ServerLeaveListener().onServerLeave(event);
+                    try {
+                        new ServerLeaveListener().onServerLeave(event);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
                 addUncaughtException(t);
                 t.setName("server_leave");

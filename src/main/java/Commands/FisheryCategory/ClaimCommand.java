@@ -7,9 +7,9 @@ import Constants.*;
 import General.EmbedFactory;
 import General.TextManager;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
-import org.javacord.api.entity.message.embed.Embed;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -31,8 +31,8 @@ public class ClaimCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-        if (status == PowerPlantStatus.ACTIVE) {
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
             Instant nextUpvote = DBUser.getNextUpvote(event.getMessage().getUserAuthor().get());
             int upvotesUnclaimed = DBUser.getUpvotesUnclaimed(event.getServer().get(), event.getMessage().getUserAuthor().get());
 

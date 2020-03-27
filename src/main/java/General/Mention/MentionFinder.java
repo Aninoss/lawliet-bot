@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 public class MentionFinder {
 
@@ -283,15 +284,14 @@ public class MentionFinder {
     public static MentionList<Message> getMessagesURL(Message message, String string) {
         ArrayList<Message> list = new ArrayList<>();
         for(String part: getArgs(string)) {
-            String prefix = "https://discordapp.com/channels/"+message.getServer().get().getId()+"/";
-            if (part.startsWith(prefix)) {
-                part = part.substring(prefix.length());
+            String regex = String.format("https://.*discordapp.com/channels/%d/\\d*/\\d*", message.getServer().get().getId());
+            if (Pattern.matches(regex, part)) {
                 String[] parts = part.split("/");
-                if (parts.length == 2) {
-                    Message m;
+                if (parts.length == 7) {
                     try {
-                        if (message.getServer().get().getTextChannelById(parts[0]).isPresent() && (m = message.getServer().get().getTextChannelById(parts[0]).get().getMessageById(parts[1]).get()) != null) {
-                            if (m.getIdAsString().equals(parts[1])) {
+                        Message m;
+                        if (message.getServer().get().getTextChannelById(parts[5]).isPresent() && (m = message.getServer().get().getTextChannelById(parts[5]).get().getMessageById(parts[6]).get()) != null) {
+                            if (m.getIdAsString().equals(parts[6])) {
                                 if (!list.contains(m)) list.add(m);
                                 string = removeMentionFromString(string, part, "");
                             }
@@ -361,13 +361,32 @@ public class MentionFinder {
         ArrayList<String> list = new ArrayList<>();
         if (string.length() > 0) {
             list.add(string);
-            if (string.contains(" ") || string.contains("\n")) {
-                for (String part : string.replace("\n", " ").split(" ")) {
+            if (string.contains(" ")) {
+                for (String part : string.split(" ")) {
+                    if (part.length() > 0) list.add(part);
+                }
+            }
+            if (string.contains("\n")) {
+                for (String part : string.split("\n")) {
+                    part = Tools.cutSpaces(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("@")) {
                 for (String part : string.split("@")) {
+                    part = Tools.cutSpaces(part);
+                    if (part.length() > 0) list.add(part);
+                }
+            }
+            if (string.contains(",")) {
+                for (String part : string.split(",")) {
+                    part = Tools.cutSpaces(part);
+                    if (part.length() > 0) list.add(part);
+                }
+            }
+            if (string.contains("|")) {
+                for (String part : string.split("\\|")) {
+                    part = Tools.cutSpaces(part);
                     if (part.length() > 0) list.add(part);
                 }
             }

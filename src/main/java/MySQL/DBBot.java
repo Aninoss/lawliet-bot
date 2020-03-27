@@ -7,7 +7,7 @@ import General.RankingSlot;
 import General.Tools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
-import ServerStuff.DiscordbotsAPI;
+import ServerStuff.TopGG;
 import org.javacord.api.DiscordApi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -109,11 +108,15 @@ public class DBBot {
         DBMain.getInstance().statement(sql);
     }
 
-    public static void startTrackers(DiscordApi api) throws SQLException {
+    public static synchronized void startTrackers(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
-            List<TrackerData> trackerDataList = getTracker(api);
-            for (TrackerData trackerData : trackerDataList) {
+            for (TrackerData trackerData : getTracker(api)) {
                 TrackerManager.startTracker(trackerData);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -241,8 +244,8 @@ public class DBBot {
     public static void addStatUpvotes() throws SQLException {
         String sql = "INSERT INTO StatsUpvotes VALUES(NOW(), ?, ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setInt(1, DiscordbotsAPI.getInstance().getTotalUpvotes());
-        preparedStatement.setInt(2, DiscordbotsAPI.getInstance().getMonthlyUpvotes());
+        preparedStatement.setInt(1, TopGG.getInstance().getTotalUpvotes());
+        preparedStatement.setInt(2, TopGG.getInstance().getMonthlyUpvotes());
         preparedStatement.execute();
         preparedStatement.close();
     }
@@ -255,7 +258,7 @@ public class DBBot {
             }
 
             try {
-                for(RankingSlot rankingSlot: DBServer.getPowerPlantRankings(server)) {
+                for(RankingSlot rankingSlot: DBServerOld.getPowerPlantRankings(server)) {
                     if (!userIds.contains(rankingSlot.getUserId())) {
                         System.out.println("Server: " + server.getId() + ", User: " + rankingSlot.getUserId());
                         DBUser.updateOnServerStatus(server, rankingSlot.getUserId(), false);

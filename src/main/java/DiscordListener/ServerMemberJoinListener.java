@@ -2,11 +2,14 @@ package DiscordListener;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.FishingCategoryInterface;
+import Constants.Locales;
 import Constants.Permission;
 import General.*;
 import General.Fishing.FishingProfile;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -21,18 +24,11 @@ import java.util.concurrent.ExecutionException;
 
 public class ServerMemberJoinListener {
 
-    public void onJoin(ServerMemberJoinEvent event) {
+    public void onJoin(ServerMemberJoinEvent event) throws Exception {
         if (event.getUser().isYourself()) return;
 
         Server server = event.getServer();
-        Locale locale;
-        try {
-            locale = DBServer.getServerLocale(server);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (locale == null) return;
+        Locale locale = DBServer.getInstance().getServerBean(event.getServer().getId()).getLocale();
 
         //Insert User into Database
         try {
@@ -43,7 +39,7 @@ public class ServerMemberJoinListener {
 
         //Willkommensnachricht
         try {
-            WelcomeMessageSetting welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(locale, server);
+            WelcomeMessageSetting welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(locale, server);
             if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
                 ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
@@ -52,7 +48,7 @@ public class ServerMemberJoinListener {
 
                     if (image != null) {
                         channel.sendMessage(
-                                Tools.defuseAtEveryone(WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
+                                Tools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
                                         server.getName(),
                                         user.getMentionTag(),
                                         user.getName(),
@@ -88,10 +84,10 @@ public class ServerMemberJoinListener {
             FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer(), event.getUser(), false);
             int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
             if (level > 0) {
-                ArrayList<Role> roles = DBServer.getPowerPlantRolesFromServer(event.getServer());
-                boolean singleRole = DBServer.getPowerPlantSingleRoleFromServer(event.getServer());
+                ArrayList<Role> roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer());
+                ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().getId());
 
-                if (singleRole) {
+                if (serverBean.isFisherySingleRoles()) {
                     Role role = roles.get(level - 1);
                     if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "fishery", role)) role.addUser(event.getUser()).get();
                 } else {
@@ -107,7 +103,7 @@ public class ServerMemberJoinListener {
 
         //Automatisiere Rollenvergabe
         try {
-            ArrayList<Role> basicRoles = DBServer.getBasicRolesFromServer(event.getServer());
+            ArrayList<Role> basicRoles = DBServerOld.getBasicRolesFromServer(event.getServer());
             for (Role role : basicRoles) {
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "autoroles", role)) event.getUser().addRole(role).get();
             }

@@ -111,8 +111,4 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

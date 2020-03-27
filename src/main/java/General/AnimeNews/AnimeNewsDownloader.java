@@ -25,7 +25,7 @@ public class AnimeNewsDownloader {
         else return getPostEN(getCurrentPostStringEN(dataString));
     }
 
-    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws IOException, InterruptedException, ExecutionException {
+    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws InterruptedException, ExecutionException {
         String downloadUrl;
         if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
@@ -57,9 +57,11 @@ public class AnimeNewsDownloader {
 
         ArrayList<AnimeNewsPost> postSendList = new ArrayList<>();
         if (newestPostId != null) {
-            for(int i=postList.size()-1; i >= 0; i--) {
+            for(int i = postList.size()-1; i >= 0; i--) {
                 postSendList.add(postList.get(i));
             }
+        } else if (postList.size() > 0)  {
+            postSendList.add(postList.get(0));
         }
 
         if (postList.size() > 0) newestPostId = postList.get(0).getId();

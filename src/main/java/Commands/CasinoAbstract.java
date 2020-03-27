@@ -3,15 +3,16 @@ package Commands;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import General.CasinoBetContainer;
 import General.EmbedFactory;
 import General.RunningCommands.RunningCommandManager;
 import General.TextManager;
 import General.Tools;
 import MySQL.DBBot;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -58,8 +59,8 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
             return true;
         }
 
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(server);
-        if (status != PowerPlantStatus.ACTIVE) {
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status != FisheryStatus.ACTIVE) {
             coinsInput = 0;
             return true;
         }

@@ -147,8 +147,4 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

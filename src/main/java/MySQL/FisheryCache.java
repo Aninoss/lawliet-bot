@@ -1,11 +1,10 @@
 package MySQL;
 
 import Constants.FishingCategoryInterface;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import General.DiscordApiCollection;
 import General.Fishing.FishingProfile;
-import General.Pair;
-import General.Tools;
+import MySQL.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -17,7 +16,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class FisheryCache {
 
@@ -25,7 +24,7 @@ public class FisheryCache {
     private final int MINUTES_INTERVAL = 60;
 
     private Map<Long, Map<Long, ActivityUserData>> activities = new HashMap<>(); //serverId, userId, activity
-    private int messagePhase = 0;
+    private int messagePhase;
 
     private Map<Long, Map<Long, Integer>> userMessageCount = new HashMap<>(); //serverId, userId, counter
     private Map<Long, Map<Long, Integer>> userVCCount = new HashMap<>(); //serverId, userId, counter
@@ -53,11 +52,11 @@ public class FisheryCache {
         if (count < 650) {
             try {
                 Server server = channel.getServer();
-                PowerPlantStatus powerPlantStatus = DBServer.getPowerPlantStatusFromServer(server);
-                ArrayList<Long> powerPlantIgnoredChannelIds = DBServer.getPowerPlantIgnoredChannelIdsFromServer(server);
+                FisheryStatus fisheryStatus = DBServer.getInstance().getServerBean(server.getId()).getFisheryStatus();
+                ArrayList<Long> powerPlantIgnoredChannelIds = DBServerOld.getPowerPlantIgnoredChannelIdsFromServer(server);
 
-                boolean whiteListed = DBServer.isChannelWhitelisted(channel);
-                if (powerPlantStatus == PowerPlantStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
+                boolean whiteListed = DBServerOld.isChannelWhitelisted(channel);
+                if (fisheryStatus == FisheryStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
                     ActivityUserData activityUserData = getActivities(server, user);
                     boolean registered = activityUserData.registerMessage(messagePhase, whiteListed ? channel : null);
                     if (registered) {
@@ -66,7 +65,7 @@ public class FisheryCache {
                     setActivities(server, user, activityUserData);
                     return registered;
                 }
-            } catch (SQLException e) {
+            } catch (SQLException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
@@ -155,11 +154,11 @@ public class FisheryCache {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            nextVCCheck = Instant.now().plusSeconds(60);
+            nextVCCheck = Instant.now().plusSeconds(2 * 60);
 
             for (Server server : api.getServers()) {
                 try {
-                    if (DBServer.getPowerPlantStatusFromServer(server) == PowerPlantStatus.ACTIVE) {
+                    if (DBServer.getInstance().getServerBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
                         for (ServerVoiceChannel channel : server.getVoiceChannels()) {
                             ArrayList<User> validUsers = new ArrayList<>();
                             for (User user : channel.getConnectedUsers()) {
@@ -178,10 +177,10 @@ public class FisheryCache {
                             ) {
                                 for (User user : validUsers) {
                                     int count = getUserVCCount(server, user);
-                                    if (count < 300) {
-                                        setUserVCCount(server, user, count + 1);
+                                    if (count < 420) {
+                                        setUserVCCount(server, user, count + 2);
                                         ActivityUserData activityUserData = getActivities(server, user);
-                                        activityUserData.registerVC();
+                                        activityUserData.registerVC(2);
                                         setActivities(server, user, activityUserData);
                                     }
                                 }

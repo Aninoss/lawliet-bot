@@ -1,19 +1,14 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.*;
-import CommandSupporters.Command;
 import Commands.ListAbstract;
 import Constants.Permission;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import General.*;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 
@@ -31,9 +26,9 @@ public class TopCommand extends ListAbstract implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-        if (status == PowerPlantStatus.ACTIVE) {
-            rankingSlots = DBServer.getPowerPlantRankings(event.getServer().get());
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
+            rankingSlots = DBServerOld.getPowerPlantRankings(event.getServer().get());
             init(event.getServerTextChannel().get());
             return true;
         } else {

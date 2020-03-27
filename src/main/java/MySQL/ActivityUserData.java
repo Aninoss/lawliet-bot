@@ -30,8 +30,8 @@ public class ActivityUserData {
         return false;
     }
 
-    public void registerVC() {
-        vc++;
+    public void registerVC(int amount) {
+        vc += amount;
     }
 
     public int getAmountMessage() {

@@ -8,7 +8,9 @@ import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -30,7 +32,7 @@ public class PrefixCommand extends Command implements onRecievedListener {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 5) {
-                DBServer.setPrefix(server, followedString);
+                DBServer.getInstance().getServerBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
                     String nickname = Tools.cutSpaces(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));

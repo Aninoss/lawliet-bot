@@ -5,7 +5,8 @@ import CommandSupporters.Command;
 import Constants.Locales;
 import Constants.Permission;
 import General.EmbedFactory;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
@@ -46,7 +47,7 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
                 setLocale(new Locale(languageLocales[language]));
             }
 
-            DBServer.setServerLocale(event.getServer().get(), getLocale());
+            DBServer.getInstance().getServerBean(event.getServer().get().getId()).setLocale(getLocale());
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
             return true;
         } else {
@@ -64,7 +65,7 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
             String str = languageEmojis[i];
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 setLocale(new Locale(languageLocales[i]));
-                DBServer.setServerLocale(event.getServer().get(), getLocale());
+                DBServer.getInstance().getServerBean(event.getServer().get().getId()).setLocale(getLocale());
                 getReactionMessage().edit(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;

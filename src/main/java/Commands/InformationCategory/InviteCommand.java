@@ -12,7 +12,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
         thumbnail = "http://icons.iconarchive.com/icons/thehoth/seo/128/seo-chain-link-icon.png",
         emoji = "\uD83D\uDD17",
         executable = true,
-        aliases = {"link", "addbot"}
+        aliases = {"link", "addbot", "inv"}
 )
 public class InviteCommand extends Command implements onRecievedListener {
 

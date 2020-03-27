@@ -6,7 +6,9 @@ import Commands.ModerationCategory.SelfPromotionBlockCommand;
 import Constants.SPAction;
 import Constants.Settings;
 import General.*;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -34,7 +36,7 @@ public class SPCheck {
 
             if (contentContainsDiscordLink(content)) {
                 try {
-                    SPBlock spBlock = DBServer.getSPBlockFromServer(server);
+                    SPBlock spBlock = DBServerOld.getSPBlockFromServer(server);
                     if (spBlock.isActive() && !spBlock.getIgnoredUser().contains(message.getUserAuthor().get()) && !spBlock.getIgnoredChannels().contains(message.getServerTextChannel().get()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
                         boolean successful = true;
                         User author = message.getUserAuthor().get();
@@ -48,7 +50,8 @@ public class SPCheck {
                         }
 
                         //Poster informieren
-                        Locale locale = DBServer.getServerLocale(server);
+                        ServerBean serverBean = DBServer.getInstance().getServerBean(server.getId());
+                        Locale locale = serverBean.getLocale();
                         SelfPromotionBlockCommand selfPromotionBlockCommand = new SelfPromotionBlockCommand();
                         selfPromotionBlockCommand.setLocale(locale);
 

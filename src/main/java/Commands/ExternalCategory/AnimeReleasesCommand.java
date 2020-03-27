@@ -87,8 +87,4 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
         return true;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

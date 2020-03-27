@@ -18,6 +18,7 @@ public class WebComServer {
     public static final String EVENT_SERVERMEMBERS = "server_members";
     public static final String EVENT_TOPGG = "topgg";
     public static final String EVENT_DONATEBOT_IO = "donatebot.io";
+    public static final String EVENT_FEEDBACK = "feedback";
 
     public WebComServer(int port) {
         Configuration config = new Configuration();
@@ -31,10 +32,11 @@ public class WebComServer {
 
         webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this));
         webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this));
-        webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList(this));
-        webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers(this));
+        webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList());
+        webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers());
         webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG());
         webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO());
+        webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
 
         webComServer.start();
         Runtime.getRuntime().addShutdownHook(new Thread(webComServer::stop));

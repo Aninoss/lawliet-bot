@@ -7,10 +7,11 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import General.*;
-import General.AutoChannel.AutoChannelData;
 import General.Mention.MentionFinder;
-import MySQL.DBServer;
+import MySQL.AutoChannel.AutoChannelBean;
+import MySQL.AutoChannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -31,7 +32,7 @@ import java.util.regex.Pattern;
 )
 public class AutoChannelCommand extends Command implements onNavigationListener {
     
-    private AutoChannelData autoChannelData;
+    private AutoChannelBean autoChannelBean;
 
     public AutoChannelCommand() {
         super();
@@ -40,7 +41,7 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            autoChannelData = DBServer.getAutoChannelFromServer(event.getServer().get());
+            autoChannelBean = DBAutoChannel.getInstance().getAutoChannelBean(event.getServer().get().getId());
             return Response.TRUE;
         }
 
@@ -51,19 +52,17 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    autoChannelData.setVoiceChannel(channelList.get(0));
+                    autoChannelBean.setParentChannelId(channelList.get(0).getId());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
-                    DBServer.saveAutoChannel(autoChannelData);
                     return Response.TRUE;
                 }
 
             case 2:
                 if (inputString.length() > 0 && inputString.length() < 50) {
-                    autoChannelData.setChannelName(inputString);
+                    autoChannelBean.setNameMask(inputString);
                     setLog(LogStatus.SUCCESS, getString("channelnameset"));
                     setState(0);
-                    DBServer.saveAutoChannel(autoChannelData);
                     return Response.TRUE;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "50"));
@@ -84,9 +83,8 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                         return false;
 
                     case 0:
-                        autoChannelData.setActive(!autoChannelData.isActive());
-                        setLog(LogStatus.SUCCESS, getString("activeset", autoChannelData.isActive()));
-                        DBServer.saveAutoChannel(autoChannelData);
+                        autoChannelBean.toggleActive();
+                        setLog(LogStatus.SUCCESS, getString("activeset", autoChannelBean.isActive()));
                         return true;
 
                     case 1:
@@ -98,9 +96,8 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 3:
-                        autoChannelData.setLocked(!autoChannelData.isLocked());
-                        setLog(LogStatus.SUCCESS, getString("lockedset", autoChannelData.isLocked()));
-                        DBServer.saveAutoChannel(autoChannelData);
+                        autoChannelBean.toggleLocked();
+                        setLog(LogStatus.SUCCESS, getString("lockedset", autoChannelBean.isLocked()));
                         return true;
                 }
                 return false;
@@ -127,13 +124,13 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), Tools.getOnOffForBoolean(getLocale(), autoChannelData.isActive()), true)
-                        .addField(getString("state0_mchannel"), Tools.getStringIfNotNull(autoChannelData.getVoiceChannel(), notSet), true)
-                        .addField(getString("state0_mchannelname"), replaceVariables(autoChannelData.getChannelName(),
+                        .addField(getString("state0_mactive"), Tools.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
+                        .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet), true)
+                        .addField(getString("state0_mchannelname"), replaceVariables(autoChannelBean.getNameMask(),
                                 "`%VCNAME`",
                                 "`%INDEX`",
                                 "`%CREATOR`").replace("``", "` `"), true)
-                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", Tools.getOnOffForBoolean(getLocale(), autoChannelData.isLocked())), true);
+                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", Tools.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

@@ -1,23 +1,24 @@
 package Commands;
 
 import CommandListeners.onRecievedListener;
-import CommandSupporters.Command;
 import General.*;
 import General.Porn.PornImage;
 import General.Porn.PornImageDownloader;
-import MySQL.DBServer;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
 
 public abstract class PornSearchAbstract extends PornAbstract implements onRecievedListener {
 
+    private String notice = null;
+
     protected abstract String getDomain();
     protected abstract String getImageTemplate();
+
+    @Override
+    public Optional<String> getNoticeOptional() {
+        return Optional.ofNullable(notice);
+    }
 
     @Override
     public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable {
@@ -27,7 +28,10 @@ public abstract class PornSearchAbstract extends PornAbstract implements onRecie
         String domain = getDomain();
         String imageTemplate = getImageTemplate();
 
-        if (search.length() == 0) search = "animated";
+        if (search.isEmpty()) {
+            search = "animated";
+            notice = TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_nokey");
+        }
 
         switch (search.toLowerCase()) {
             case "hinata":

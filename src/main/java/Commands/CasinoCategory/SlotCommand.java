@@ -135,7 +135,8 @@ public class SlotCommand extends CasinoAbstract implements onRecievedListener, o
                 DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr2").getMentionTag(),
                 DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr3").getMentionTag(),
                 DiscordApiCollection.getInstance().getHomeEmojiByName("slotul").getMentionTag(),
-                ALL_EMOJI
+                ALL_EMOJI,
+                DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag()
                 ));
 
         if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));

@@ -6,6 +6,8 @@ import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -18,6 +20,7 @@ import java.sql.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class DBUser {
 
@@ -136,10 +139,12 @@ public class DBUser {
                             Server server = channel.getServer();
                             User user = server.getMemberById(userId).orElse(null);
 
-                            String prefix = DBServer.getPrefix(serverId);
-                            Locale locale = DBServer.getServerLocale(serverId);
+                            ServerBean serverBean = DBServer.getInstance().getServerBean(serverId);
 
-                            if (user != null && DBServer.getPowerPlantRemindersFromServer(server)) {
+                            String prefix = serverBean.getPrefix();
+                            Locale locale = serverBean.getLocale();
+
+                            if (user != null && serverBean.isFisheryReminders()) {
                                 channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
                                         .setAuthor(user)
                                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
@@ -150,7 +155,7 @@ public class DBUser {
                         }
                         break;
                     }
-                } catch (SQLException e) {
+                } catch (SQLException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }

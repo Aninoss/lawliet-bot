@@ -8,7 +8,7 @@ import Constants.*;
 import General.*;
 import General.Mention.MentionFinder;
 import General.Warnings.UserWarnings;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -47,7 +47,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            moderationStatus = DBServer.getModerationFromServer(event.getServer().get());
+            moderationStatus = DBServerOld.getModerationFromServer(event.getServer().get());
             return Response.TRUE;
         }
 
@@ -61,7 +61,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                     ServerTextChannel channel = channelsList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
                         moderationStatus.setChannel(channel);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
@@ -108,7 +108,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                     if (value >= 1) {
                         moderationStatus.setAutoKick(autoKickTemp);
                         moderationStatus.setAutoKickDays(value);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return Response.TRUE;
@@ -127,7 +127,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                     if (value >= 1) {
                         moderationStatus.setAutoBan(autoBanTemp);
                         moderationStatus.setAutoBanDays(value);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return Response.TRUE;
@@ -159,7 +159,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
 
                     case 1:
                         moderationStatus.switchQuestion();
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("setquestion", moderationStatus.isQuestion()));
                         return true;
 
@@ -181,7 +181,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
 
                     case 0:
                         moderationStatus.setChannel(null);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("channelreset"));
                         setState(0);
                         return true;
@@ -196,7 +196,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
 
                     case 0:
                         moderationStatus.setAutoKick(0);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -211,7 +211,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
 
                     case 0:
                         moderationStatus.setAutoBan(0);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -227,7 +227,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                     case 0:
                         moderationStatus.setAutoKick(autoKickTemp);
                         moderationStatus.setAutoKickDays(0);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -243,7 +243,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                     case 0:
                         moderationStatus.setAutoBan(autoBanTemp);
                         moderationStatus.setAutoBanDays(0);
-                        DBServer.saveModeration(moderationStatus);
+                        DBServerOld.saveModeration(moderationStatus);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -301,10 +301,10 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     }
 
     public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws SQLException {
-        DBServer.insertWarning(server, user, requestor, reason);
+        DBServerOld.insertWarning(server, user, requestor, reason);
 
-        ModerationStatus moderationStatus = DBServer.getModerationFromServer(server);
-        UserWarnings userWarnings = DBServer.getWarningsForUser(server, user);
+        ModerationStatus moderationStatus = DBServerOld.getModerationFromServer(server);
+        UserWarnings userWarnings = DBServerOld.getWarningsForUser(server, user);
 
         int autoKickDays = moderationStatus.getAutoKickDays();
         int autoBanDays = moderationStatus.getAutoBanDays();
@@ -344,7 +344,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     }
 
     public static void postLog(Command command, EmbedBuilder eb, Server server) throws SQLException {
-        postLog(command, eb, DBServer.getModerationFromServer(server));
+        postLog(command, eb, DBServerOld.getModerationFromServer(server));
     }
 
     public static void postLog(Command command, EmbedBuilder eb, ModerationStatus moderationStatus) {

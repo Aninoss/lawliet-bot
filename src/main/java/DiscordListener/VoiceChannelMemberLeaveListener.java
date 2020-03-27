@@ -1,33 +1,31 @@
 package DiscordListener;
 
 import Constants.Permission;
-import General.AutoChannel.AutoChannelContainer;
-import General.PermissionCheck;
-import General.AutoChannel.TempAutoChannel;
 import General.PermissionCheckRuntime;
-import MySQL.DBServer;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
+import MySQL.AutoChannel.AutoChannelBean;
+import MySQL.AutoChannel.DBAutoChannel;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelMemberLeaveListener {
 
-    public void onLeave(ServerVoiceChannelMemberLeaveEvent event) {
+    public void onLeave(ServerVoiceChannelMemberLeaveEvent event) throws Exception {
         if (event.getUser().isYourself()) return;
-        for (TempAutoChannel tempAutoChannel : AutoChannelContainer.getInstance().getChannelList()) {
-            if (event.getChannel().getId() == tempAutoChannel.getTempChannelId()) {
-                try {
-                    if (PermissionCheckRuntime.getInstance().botHasPermission(DBServer.getServerLocale(event.getServer()), "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
-                        if (event.getChannel().getConnectedUsers().size() == 0) {
-                            AutoChannelContainer.getInstance().removeVoiceChannel(event.getChannel().getId());
-                            DBServer.removeAutoChannelChildChannel(event.getChannel());
-                            event.getChannel().delete().get();
-                        }
+
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getAutoChannelBean(event.getServer().getId());
+        for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannels())) {
+            if (event.getChannel().getId() == childChannelId) {
+                ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().getId());
+                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                    if (event.getChannel().getConnectedUsers().size() == 0) {
+                        autoChannelBean.getChildChannels().remove(childChannelId);
+                        event.getChannel().delete().get();
                     }
-                } catch (InterruptedException | ExecutionException | SQLException e) {
-                    e.printStackTrace();
                 }
                 break;
             }

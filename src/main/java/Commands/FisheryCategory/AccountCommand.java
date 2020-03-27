@@ -4,11 +4,12 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import General.*;
 import General.Mention.MentionFinder;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -36,8 +37,8 @@ public class AccountCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-        if (status == PowerPlantStatus.ACTIVE) {
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
             ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();

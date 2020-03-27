@@ -11,6 +11,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,12 +21,12 @@ public class NavigationHelper<T> {
     private enum Type { Unknown, Role, TextChannel, User };
 
     private Command command;
-    private ArrayList<T> srcList;
+    private List<T> srcList;
     private int max;
     private Type type = Type.Unknown;
     private String typeString = "";
 
-    public NavigationHelper(Command command, ArrayList<T> srcList, Class<T> typeClass, int max) {
+    public NavigationHelper(Command command, List<T> srcList, Class<T> typeClass, int max) {
         this.command = command;
         this.srcList = srcList;
         this.max = max;
@@ -93,8 +94,8 @@ public class NavigationHelper<T> {
 
     public EmbedBuilder drawDataAdd() throws IOException {
         return drawDataAdd(
-                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_desc" + typeString),
-                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_title" + typeString)
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_title" + typeString),
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_desc" + typeString)
         );
     }
 

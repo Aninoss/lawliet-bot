@@ -102,8 +102,4 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return true;
-    }
 }

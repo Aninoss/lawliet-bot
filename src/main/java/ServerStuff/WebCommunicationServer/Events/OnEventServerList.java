@@ -23,12 +23,6 @@ import java.util.Optional;
 
 public class OnEventServerList implements DataListener<JSONObject> {
 
-    private WebComServer webComServer;
-
-    public OnEventServerList(WebComServer webComServer) {
-        this.webComServer = webComServer;
-    }
-
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
         long userId = jsonObject.getLong("user_id");

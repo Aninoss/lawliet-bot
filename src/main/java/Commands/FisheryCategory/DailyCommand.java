@@ -5,8 +5,9 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.*;
 import General.*;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -20,14 +21,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
 )
 public class DailyCommand extends Command implements onRecievedListener {
 
-    public DailyCommand() {
-        super();
-    }
-
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-        if (status == PowerPlantStatus.ACTIVE) {
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
             DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());
             if (dailyState != null && dailyState.isClaimed()) {
                 long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false).getEffect(FishingCategoryInterface.PER_DAY);

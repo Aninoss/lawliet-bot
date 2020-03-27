@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"poll"}
 )
-public class VoteCommand extends Command implements onRecievedListener, onReactionAddStatic, onReactionRemoveStatic {
+public class VoteCommand extends Command implements onRecievedListener, onReactionAddStaticListener, onReactionRemoveStaticListener {
 
     public VoteCommand() {
         super();
@@ -209,11 +209,6 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
                 break;
             }
         }
-    }
-
-    @Override
-    public boolean requiresLocale() {
-        return true;
     }
 
     @Override

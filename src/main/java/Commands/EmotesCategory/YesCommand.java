@@ -4,9 +4,10 @@ import CommandListeners.onRecievedListener;
 import Commands.EmoteAbstract;
 
 @CommandProperties(
-    trigger = "yes",
-    emoji = "\uD83D\uDC4D",
-    executable = true
+        trigger = "yes",
+        emoji = "\uD83D\uDC4D",
+        executable = true,
+        aliases = {"thumbsup", "thumpsup"}
 )
 public class YesCommand extends EmoteAbstract implements onRecievedListener {
 

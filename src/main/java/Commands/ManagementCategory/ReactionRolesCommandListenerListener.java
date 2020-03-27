@@ -8,11 +8,12 @@ import Constants.Response;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
 import General.Mention.MentionFinder;
+import General.Mention.MentionList;
 import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
+import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
@@ -38,7 +39,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"rmess", "reactionrole", "rroles"}
 )
-public class ReactionRolesCommand extends Command implements onNavigationListener, onReactionAddStatic, onReactionRemoveStatic {
+public class ReactionRolesCommandListenerListener extends Command implements onNavigationListener, onReactionAddStaticListener, onReactionRemoveStaticListener {
 
     private static final int MAX_LINKS = 18;
 
@@ -52,7 +53,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
     private static ArrayList<Pair<Long, Long>> queue = new ArrayList<>();
 
-    public ReactionRolesCommand() {
+    public ReactionRolesCommandListenerListener() {
         super();
     }
 
@@ -73,7 +74,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         return Response.FALSE;
                     }
                 }
-                setLog(LogStatus.FAILURE,TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
 
             //Reaction Message bearbeiten
@@ -81,7 +82,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 addLoadingReaction();
                 ArrayList<Message> messageArrayList = MentionFinder.getMessagesAll(event.getMessage(), inputString).getList();
                 if (messageArrayList.size() > 0) {
-                    for(Message message: messageArrayList) {
+                    for (Message message : messageArrayList) {
                         if (messageIsReactionMessage(message)) {
                             ServerTextChannel messageChannel = message.getServerTextChannel().get();
                             if (checkWriteInChannelWithLog(messageChannel)) {
@@ -104,10 +105,11 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     setLog(LogStatus.SUCCESS, getString("titleset", inputString));
                     setState(3);
                     return Response.TRUE;
-                } {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
-                    return Response.FALSE;
                 }
+            {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
+                return Response.FALSE;
+            }
 
             //Beschreibung anpassen
             case 5:
@@ -116,66 +118,80 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                     setLog(LogStatus.SUCCESS, getString("descriptionset", inputString));
                     setState(3);
                     return Response.TRUE;
-                } {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
-                    return Response.FALSE;
                 }
+            {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
+                return Response.FALSE;
+            }
 
             //Verknüpfung hinzufügen
             case 6:
                 if (inputString.length() > 0) {
-                    ArrayList<Role> list = MentionFinder.getRoles(event.getMessage(), inputString).getList();
+                    boolean updateRole = false, updateEmoji = false;
+                    String inputString2 = null;
+
+                    Optional<KnownCustomEmoji> customEmojiOpt = Tools.getCustomEmojiByTag(inputString);
+                    if (customEmojiOpt.isPresent()) {
+                        updateEmoji = calculateEmoji(customEmojiOpt.get());
+                        inputString2 = inputString.replaceFirst(customEmojiOpt.get().getMentionTag(), "");
+                    } else {
+                        try {
+                            boolean remove = true;
+                            for (Reaction reaction : getNavigationMessage().getReactions()) {
+                                if (reaction.getEmoji().getMentionTag().equals(inputString)) {
+                                    remove = false;
+                                    break;
+                                }
+                            }
+
+                            List<String> emojis = EmojiParser.extractEmojis(inputString);
+
+                            if (emojis.size() > 0) {
+                                boolean success = false;
+                                try {
+                                    getNavigationMessage().addReaction(emojis.get(0)).get();
+                                    success = true;
+                                } catch (ExecutionException e) {
+                                    //Ignore
+                                }
+                                if (success) {
+                                    if (remove) Thread.sleep(500);
+                                    for (Reaction reaction : getNavigationMessage().getLatestInstance().get().getReactions()) {
+                                        if (emojis.get(0).equals(reaction.getEmoji().getMentionTag())) {
+                                            if (remove) reaction.remove().get();
+                                            inputString2 = Tools.cutSpaces(inputString.replaceFirst(emojis.get(0), ""));
+                                            updateEmoji = calculateEmoji(reaction.getEmoji());
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    MentionList<Role> mentionedRoles = MentionFinder.getRoles(event.getMessage(), inputString);
+                    if (inputString2 != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionFinder.getRoles(event.getMessage(), inputString2);
+                    ArrayList<Role> list = mentionedRoles.getList();
                     if (list.size() > 0) {
                         Role roleTest = list.get(0);
 
                         if (!checkRoleWithLog(roleTest)) return Response.FALSE;
 
                         roleTemp = roleTest;
-                        setLog(LogStatus.SUCCESS, getString("roleset"));
+                        updateRole = true;
+
+                        inputString = mentionedRoles.getResultMessageString();
+                        //setLog(LogStatus.SUCCESS, getString("roleset"));
+                        //return Response.TRUE;
+                    }
+
+                    if (updateEmoji || updateRole) {
                         return Response.TRUE;
-                    } else {
-                        if (inputString.startsWith("<")) {
-                            CustomEmoji customEmoji = Tools.getCustomEmojiByTag(inputString);
-
-                            if (calculateEmoji(customEmoji)) return Response.TRUE;
-                        } else {
-                            try {
-                                boolean remove = true;
-                                for(Reaction reaction: getNavigationMessage().getReactions()) {
-                                    if (reaction.getEmoji().getMentionTag().equals(inputString)) {
-                                        remove = false;
-                                        break;
-                                    }
-                                }
-
-                                List<String> emojis = EmojiParser.extractEmojis(inputString);
-
-                                if (emojis.size() > 0) {
-                                    boolean success = false;
-                                    try {
-                                        getNavigationMessage().addReaction(emojis.get(0)).get();
-                                        success = true;
-                                    } catch (ExecutionException e) {
-                                        //Ignore
-                                    }
-                                    if (success) {
-                                        if (remove) Thread.sleep(1000);
-                                        for (Reaction reaction : getNavigationMessage().getLatestInstance().get().getReactions()) {
-                                            if (reaction.getEmoji().getMentionTag().equals(inputString)) {
-                                                if (remove) reaction.remove().get();
-                                                if (calculateEmoji(reaction.getEmoji())) return Response.TRUE;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
-                            }
-                        }
                     }
                 }
-                
+
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
         }
@@ -279,13 +295,13 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                         return true;
 
                     case 6:
-                        if (title != null && description != null && emojiConnections.size() > 0) {
+                        if (emojiConnections.size() > 0) {
                             setState(8);
                             return true;
                         } break;
 
                     case 7:
-                        if (title != null && description != null && emojiConnections.size() > 0) {
+                        if (emojiConnections.size() > 0) {
                             Message m;
                             if (!editMode) {
                                 m = channel.sendMessage(getMessageEmbed(false)).get();
@@ -384,7 +400,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             }
         }
 
-        setLog(LogStatus.SUCCESS, getString("emojiset"));
+        //setLog(LogStatus.SUCCESS, getString("emojiset"));
         emojiTemp = emoji;
         return true;
     }
@@ -408,7 +424,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
             case 3:
                 setOptions(getString("state3_options").split("\n"));
 
-                if (title == null || description == null || emojiConnections.size() == 0) {
+                if (emojiConnections.size() == 0) {
                     String[] optionsNew = new String[getOptions().length-2];
                     for(int i=0; i < optionsNew.length; i++) {
                         optionsNew[i] = getOptions()[i];
@@ -421,8 +437,8 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 else add = "new";
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
-                        .addField(getString("state3_mtitle"), Tools.getStringIfNotNull(title, notSet), false)
-                        .addField(getString("state3_mdescription"), Tools.getStringIfNotNull(description, notSet), false)
+                        .addField(getString("state3_mtitle"), Tools.getStringIfNotNull(title, notSet), true)
+                        .addField(getString("state3_mdescription"), Tools.getStringIfNotNull(description, notSet), true)
                         .addField(getString("state3_mshortcuts"), Tools.getStringIfNotNull(getLinkString(), notSet), false)
                         .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", Tools.getOnOffForBoolean(getLocale(), removeRole), Tools.getOnOffForBoolean(getLocale(), multipleRoles)), false);
 
@@ -442,8 +458,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
                 for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                     optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
                 }
-                String[] strings = new String[0];
-                setOptions(optionsDelete.toArray(strings));
+                setOptions(optionsDelete.toArray(new String[0]));
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state7_description"), getString("state7_title"));
 
@@ -462,7 +477,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
 
     @Override
     public int getMaxReactionNumber() {
-        return 18;
+        return 12;
     }
 
     private EmbedBuilder getMessageEmbed(boolean test) throws IOException {
@@ -472,7 +487,7 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         if (!removeRole && !test) titleAdd = Tools.getEmptyCharacter();
         if (!multipleRoles && !test) titleAdd += Tools.getEmptyCharacter() + Tools.getEmptyCharacter();
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setTitle(getEmoji() + " " + title + identity + titleAdd)
+                .setTitle(getEmoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
                 .setDescription(description)
                 .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString());
         if (test) eb.setFooter(getString("previewfooter"));
@@ -503,16 +518,14 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
         removeRole = (hiddenNumber & 0x1) <= 0;
         multipleRoles = (hiddenNumber & 0x2) <= 0;
         this.title = Tools.cutSpaces(title.substring(3));
-        this.description = Tools.cutSpaces(embed.getDescription().get());
+        if (embed.getDescription().isPresent()) this.description = Tools.cutSpaces(embed.getDescription().get());
 
         emojiConnections = new ArrayList<>();
         checkRolesWithLog(MentionFinder.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
-                CustomEmoji customEmoji = Tools.getCustomEmojiByTag(parts[0]);
-                if (customEmoji != null)
-                    emojiConnections.add(new EmojiConnection(customEmoji,parts[1]));
+                Tools.getCustomEmojiByTag(parts[0]).ifPresent(customEmoji -> emojiConnections.add(new EmojiConnection(customEmoji, parts[1])));
             } else {
                 emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
             }
@@ -628,11 +641,6 @@ public class ReactionRolesCommand extends Command implements onNavigationListene
     private static synchronized void queueRemove(long messageId, long userId) {
         Pair<Long, Long> pair = queueFind(messageId, userId);
         if (pair != null) queue.remove(pair);
-    }
-
-    @Override
-    public boolean requiresLocale() {
-        return true;
     }
 
     @Override

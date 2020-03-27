@@ -243,7 +243,7 @@ public abstract class Command {
                     navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
                 } else navigationMessage = channel.sendMessage(eb).get();
             } catch (Throwable e) {
-                ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger());
+                ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
                 throw e;
             }
         }
@@ -543,10 +543,10 @@ public abstract class Command {
     public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
-        if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStatic) {
+        if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStaticListener) {
             perm |= Permission.ADD_NEW_REACTIONS;
         }
-        if (this instanceof onReactionAddStatic) {
+        if (this instanceof onReactionAddStaticListener) {
             perm |= Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
         }
         return perm;

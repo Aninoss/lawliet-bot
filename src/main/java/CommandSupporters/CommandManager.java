@@ -6,7 +6,7 @@ import General.*;
 import General.Cooldown.Cooldown;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.DBBot;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -25,7 +25,7 @@ public class CommandManager {
         Locale locale = command.getLocale();
         String commandTrigger = command.getTrigger();
         if (event.getChannel().canYouWrite() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands")) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
-            if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServer.isChannelWhitelisted(event.getServerTextChannel().get())) {
+            if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServerOld.isChannelWhitelisted(event.getServerTextChannel().get())) {
                 if (!command.isPrivate() || event.getMessage().getAuthor().isBotOwner()) {
                     if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
                         if (event.getChannel().canYouEmbedLinks() || command.getTrigger().equalsIgnoreCase("help")) {
@@ -131,12 +131,12 @@ public class CommandManager {
 
         //Count Forwarded Listeners
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
-        for (int i = 0; i < list.size(); i++) {
-            Command command = list.get(i);
+        for (Command command : list) {
             Message message = null;
             long activityUserId = command.getReactionUserID();
 
-            if (command instanceof onForwardedRecievedListener) message = ((onForwardedRecievedListener) command).getForwardedMessage();
+            if (command instanceof onForwardedRecievedListener)
+                message = ((onForwardedRecievedListener) command).getForwardedMessage();
             else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
 
             if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
@@ -147,12 +147,12 @@ public class CommandManager {
 
         //Count Reaction Listeners
         list = CommandContainer.getInstance().getReactionInstances();
-        for (int i = 0; i < list.size(); i++) {
-            Command command = list.get(i);
+        for (Command command : list) {
             Message message = null;
             long activityUserId = command.getReactionUserID();
 
-            if (command instanceof onReactionAddListener) message = ((onReactionAddListener) command).getReactionMessage();
+            if (command instanceof onReactionAddListener)
+                message = ((onReactionAddListener) command).getReactionMessage();
             else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
 
             if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
@@ -167,11 +167,11 @@ public class CommandManager {
 
             //Remove Forwarded Listeners
             list = CommandContainer.getInstance().getMessageForwardInstances();
-            for (int i = 0; i < list.size(); i++) {
-                Command command = list.get(i);
+            for (Command command : list) {
                 Message message = null;
 
-                if (command instanceof onForwardedRecievedListener) message = ((onForwardedRecievedListener) command).getForwardedMessage();
+                if (command instanceof onForwardedRecievedListener)
+                    message = ((onForwardedRecievedListener) command).getForwardedMessage();
                 else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
 
                 if (message != null && removeMessageId == message.getId()) {
@@ -183,11 +183,11 @@ public class CommandManager {
 
             //Remove Reaction Listeners
             list = CommandContainer.getInstance().getReactionInstances();
-            for (int i = 0; i < list.size(); i++) {
-                Command command = list.get(i);
+            for (Command command : list) {
                 Message message = null;
 
-                if (command instanceof onReactionAddListener) message = ((onReactionAddListener) command).getReactionMessage();
+                if (command instanceof onReactionAddListener)
+                    message = ((onReactionAddListener) command).getReactionMessage();
                 else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
 
                 if (message != null && removeMessageId == message.getId()) {
@@ -216,19 +216,19 @@ public class CommandManager {
     }
 
     public static Command createCommandByTrigger(String trigger) throws IllegalAccessException, InstantiationException {
-        Class clazz = CommandContainer.getInstance().getCommands().get(trigger);
+        Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz);
     }
 
     public static Command createCommandByTrigger(String trigger, Locale locale) throws IllegalAccessException, InstantiationException {
-        Class clazz = CommandContainer.getInstance().getCommands().get(trigger);
+        Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz, locale);
     }
 
     public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
-        Class clazz = CommandContainer.getInstance().getCommands().get(trigger);
+        Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz, locale, prefix);
     }
@@ -253,25 +253,25 @@ public class CommandManager {
     }
 
 
-    public static Command createCommandByClass(Class clazz) throws IllegalAccessException, InstantiationException {
+    public static Command createCommandByClass(Class<? extends Command> clazz) throws IllegalAccessException, InstantiationException {
         return (Command) clazz.newInstance();
     }
 
-    public static Command createCommandByClass(Class clazz, Locale locale) throws IllegalAccessException, InstantiationException {
+    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale) throws IllegalAccessException, InstantiationException {
         Command command = createCommandByClass(clazz);
         command.setLocale(locale);
 
         return command;
     }
 
-    public static Command createCommandByClass(Class clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
+    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
         Command command = createCommandByClass(clazz, locale);
         command.setPrefix(prefix);
 
         return command;
     }
 
-    public static CommandProperties getCommandProperties(Class command) {
+    public static CommandProperties getCommandProperties(Class<? extends Command> command) {
         return (CommandProperties) command.getAnnotation(CommandProperties.class);
     }
 

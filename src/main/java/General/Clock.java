@@ -5,6 +5,7 @@ import Constants.FishingCategoryInterface;
 import Constants.Settings;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.*;
+import MySQL.Server.DBServer;
 import ServerStuff.*;
 import General.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
@@ -105,7 +106,7 @@ public class Clock {
             collector.setResults(DBSurvey.getResults());
 
             for (SurveyServer surveyServer : serverList) {
-                Locale locale = DBServer.getServerLocale(surveyServer.getServer());
+                Locale locale = DBServer.getInstance().getServerBean(surveyServer.getServer().getId()).getLocale();
                 for (SurveyUser surveyUser : surveyServer.getUserList()) {
                     try {
                         User user = surveyUser.getUser();
@@ -236,9 +237,12 @@ public class Clock {
 
         //Updates Discord Bots Server Count
         if (apiCollection.allShardsConnected()) {
-            DiscordbotsAPI.getInstance().updateServerCount(apiCollection.getServerTotalSize());
-            Botsfordiscord.updateServerCount(apiCollection.getServerTotalSize());
-            BotsOnDiscord.updateServerCount(apiCollection.getServerTotalSize());
+            int totalServers = apiCollection.getServerTotalSize();
+            TopGG.getInstance().updateServerCount(totalServers);
+            Botsfordiscord.updateServerCount(totalServers);
+            BotsOnDiscord.updateServerCount(totalServers);
+            Discordbotlist.updateServerCount(totalServers);
+            Divinediscordbots.updateServerCount(totalServers);
         }
 
         //Updates survey manually

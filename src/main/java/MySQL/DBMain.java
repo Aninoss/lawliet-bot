@@ -1,9 +1,9 @@
 package MySQL;
 
 import General.Bot;
-import General.DiscordApiCollection;
 import General.ExceptionHandler;
 import General.SecretManager;
+import MySQL.AutoChannel.DBAutoChannel;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
 
 public class DBMain implements DriverAction {
 
@@ -47,8 +46,8 @@ public class DBMain implements DriverAction {
 
     public static void synchronizeAll(DiscordApi api) {
         try {
-            DBServer.synchronize(api);
-            DBServer.synchronizeAutoChannelChildChannels(api);
+            DBServerOld.synchronize(api);
+            DBAutoChannel.getInstance().synchronize(api);
             DBUser.synchronize(api);
             DBBot.startTrackers(api);
         } catch (Throwable e) {
@@ -74,6 +73,16 @@ public class DBMain implements DriverAction {
         Statement statement = connect.createStatement();
         statement.execute(sql);
         return statement;
+    }
+
+    public int statementUpdate(String sql) throws SQLException {
+        int n;
+
+        Statement statement = connect.createStatement();
+        n = statement.executeUpdate(sql);
+        statement.close();
+
+        return n;
     }
 
     public Statement statement() throws SQLException {

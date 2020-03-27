@@ -9,7 +9,7 @@ import Constants.Response;
 import General.*;
 import General.Mention.MentionFinder;
 import MySQL.DBMain;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -49,7 +49,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            welcomeMessageSetting = DBServer.getWelcomeMessageSettingFromServer(getLocale(), event.getServer().get());
+            welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(getLocale(), event.getServer().get());
             author = event.getMessage().getUserAuthor().get();
             checkWriteInChannelWithLog(welcomeMessageSetting.getWelcomeChannel());
             checkWriteInChannelWithLog(welcomeMessageSetting.getFarewellChannel());
@@ -61,7 +61,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 20) {
                         welcomeMessageSetting.setTitle(inputString);
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
                         setState(0);
                         return Response.TRUE;
@@ -78,7 +78,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 500) {
                         welcomeMessageSetting.setDescription(inputString);
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
                         setState(0);
                         return Response.TRUE;
@@ -97,7 +97,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
                         welcomeMessageSetting.setWelcomeChannel(channelList.get(0));
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
@@ -143,7 +143,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 500) {
                         welcomeMessageSetting.setGoodbyeText(inputString);
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
                         setState(0);
                         return Response.TRUE;
@@ -162,7 +162,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
                         welcomeMessageSetting.setFarewellChannel(channelList.get(0));
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));
                         setState(0);
                         return Response.TRUE;
@@ -185,7 +185,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
 
                     case 0:
                         welcomeMessageSetting.setActivated(!welcomeMessageSetting.isActivated());
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("activateset", !welcomeMessageSetting.isActivated()));
                         return true;
 
@@ -207,7 +207,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
 
                     case 5:
                         welcomeMessageSetting.setGoodbye(!welcomeMessageSetting.isGoodbye());
-                        DBServer.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
                         setLog(LogStatus.SUCCESS, getString("goodbyeset", !welcomeMessageSetting.isGoodbye()));
                         return true;
 

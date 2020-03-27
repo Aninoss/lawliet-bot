@@ -6,7 +6,7 @@ import Commands.EmoteAbstract;
         trigger = "no",
         emoji = "\uD83D\uDC4E",
         executable = true,
-        aliases = {"nope"}
+        aliases = {"nope", "thumbsdown", "thumpsdown"}
 )
 public class NoCommand extends EmoteAbstract {
 

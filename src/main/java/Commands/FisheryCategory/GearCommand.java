@@ -5,15 +5,16 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.FishingCategoryInterface;
 import Constants.Permission;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import General.EmbedFactory;
 import General.Fishing.FishingProfile;
 import General.Fishing.FishingSlot;
 import General.Mention.MentionFinder;
 import General.TextManager;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -32,14 +33,14 @@ import java.util.concurrent.ExecutionException;
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         emoji = "\uD83C\uDFA3",
         executable = true,
-        aliases = {"equip", "equipment", "inv", "inventory"}
+        aliases = {"equip", "equipment", "inventory", "level"}
 )
 public class GearCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-        if (status == PowerPlantStatus.ACTIVE) {
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
             ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
@@ -61,7 +62,7 @@ public class GearCommand extends Command implements onRecievedListener {
                 }
             }
 
-            ArrayList<Role> buyableRoles = DBServer.getPowerPlantRolesFromServer(server);
+            ArrayList<Role> buyableRoles = DBServerOld.getPowerPlantRolesFromServer(server);
             for(User user: list) {
                 FishingProfile fishingProfile = DBUser.getFishingProfile(server, user);
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", Tools.numToString(getLocale(), fishingProfile.getFish()), Tools.numToString(getLocale(), fishingProfile.getCoins())));

@@ -192,8 +192,4 @@ public class SplatfestCommand extends Command implements onRecievedListener, onT
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

@@ -7,8 +7,10 @@ import Constants.*;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
+import MySQL.Server.ServerBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -20,6 +22,8 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "buy",
@@ -38,20 +42,18 @@ public class BuyCommand extends Command implements onNavigationListener {
     private ArrayList<Role> roles;
     private FishingProfile fishingProfile;
     private int numberReactions = 0;
-    private boolean treasureChests;
-    private boolean singleRole;
     private Server server;
+    private ServerBean serverBean;
 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-            if (status == PowerPlantStatus.ACTIVE) {
+            FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+            if (status == FisheryStatus.ACTIVE) {
+                serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
                 server = event.getServer().get();
                 fishingProfile = DBUser.getFishingProfile(server, event.getMessage().getUserAuthor().get());
-                roles = DBServer.getPowerPlantRolesFromServer(server);
-                singleRole = DBServer.getPowerPlantSingleRoleFromServer(server);
-                treasureChests = DBServer.getPowerPlantTreasureChestsFromServer(server);
+                roles = DBServerOld.getPowerPlantRolesFromServer(server);
 
                 checkRolesWithLog(roles, null);
 
@@ -74,10 +76,10 @@ public class BuyCommand extends Command implements onNavigationListener {
             } else if (i >= 0) {
                 synchronized(event.getUser())  {
                     fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
-                    roles = DBServer.getPowerPlantRolesFromServer(event.getServer().get());
+                    roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer().get());
 
                     //Skip treasure chests if they aren't active
-                    if (i >= FishingCategoryInterface.PER_TREASURE && !treasureChests) i++;
+                    if (i >= FishingCategoryInterface.PER_TREASURE && !serverBean.isFisheryTreasureChests()) i++;
 
                     //Skip role if it shouldn't be bought
                     if (i >= FishingCategoryInterface.ROLE &&
@@ -94,15 +96,15 @@ public class BuyCommand extends Command implements onNavigationListener {
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
 
                         if (slot.getId() == FishingCategoryInterface.ROLE) {
-                            if (slot.getLevel() - 1 > 0 && singleRole) {
+                            if (slot.getLevel() - 1 > 0 && serverBean.isFisherySingleRoles()) {
                                 roles.get(slot.getLevel() - 2).removeUser(event.getUser()).get();
                             }
                             roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
 
-                            ServerTextChannel announcementChannel = DBServer.getPowerPlantAnnouncementChannelFromServer(event.getServer().get());
-                            if (announcementChannel != null && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                            Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
+                            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannelOpt.get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                                 String announcementText = getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
-                                announcementChannel.sendMessage(Tools.defuseAtEveryone(announcementText)).get();
+                                announcementChannelOpt.get().sendMessage(Tools.defuseMassPing(announcementText)).get();
                             }
                         }
 
@@ -138,7 +140,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                             (slot.getId() != FishingCategoryInterface.ROLE ||
                             (slot.getLevel() < roles.size() &&
                                     Tools.canManageRole(roles.get(slot.getLevel())))) &&
-                            (slot.getId() != FishingCategoryInterface.PER_TREASURE || treasureChests)
+                            (slot.getId() != FishingCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
                     ) {
                         String productDescription = "???";
                         long price = slot.getPrice();
@@ -177,7 +179,7 @@ public class BuyCommand extends Command implements onNavigationListener {
         return null;
     }
 
-    private long calculateRolePrice(FishingSlot slot) throws SQLException {
+    private long calculateRolePrice(FishingSlot slot) throws ExecutionException {
         return FisheryCommand.getFisheryRolePrice(server, roles, slot.getLevel());
     }
 

@@ -7,7 +7,7 @@ import General.*;
 import General.Mention.Mention;
 import General.Mention.MentionFinder;
 import General.Mention.MentionList;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -55,7 +55,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             return false;
         }
 
-        moderationStatus = DBServer.getModerationFromServer(event.getServer().get());
+        moderationStatus = DBServerOld.getModerationFromServer(event.getServer().get());
 
         if (moderationStatus.isQuestion()) {
             Mention mention = Tools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);

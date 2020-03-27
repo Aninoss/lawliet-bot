@@ -1,17 +1,15 @@
 package DiscordListener;
 
-import CommandListeners.onNavigationListener;
-import CommandListeners.onReactionAddListener;
-import CommandListeners.onReactionRemoveStatic;
+import CommandListeners.onReactionRemoveStaticListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 
-import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -40,12 +38,9 @@ public class ReactionRemoveListener {
                 Embed embed = message.getEmbeds().get(0);
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
-                    for (onReactionRemoveStatic command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
+                    for (onReactionRemoveStaticListener command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {
-                            if (command.requiresLocale()) {
-                                Locale locale = DBServer.getServerLocale(event.getServer().get());
-                                ((Command) command).setLocale(locale);
-                            }
+                            ((Command) command).setLocale(DBServer.getInstance().getServerBean(event.getServer().get().getId()).getLocale());
                             command.onReactionRemoveStatic(message, event);
                             return;
                         }

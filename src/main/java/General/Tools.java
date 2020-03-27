@@ -4,9 +4,7 @@ import Constants.Language;
 import Constants.Settings;
 import General.Mention.Mention;
 import General.Mention.MentionFinder;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.*;
-import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
@@ -99,9 +97,13 @@ public class Tools {
     }
 
     public static String cutString(String string, String start, String end) {
-        string = cutString(string, start);
-        string = string.substring(0, string.indexOf(end));
-        return string;
+        try {
+            string = cutString(string, start);
+            string = string.substring(0, string.indexOf(end));
+            return string;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public static String cutString(String string, String start) {
@@ -258,6 +260,21 @@ public class Tools {
         return str;
     }
 
+    public static String shortenStringLine(String str, int limit) {
+        if (str.length() > limit) {
+            str = str.substring(0, limit - 4);
+
+            if (str.contains("\n")) {
+                int pos = str.lastIndexOf("\n");
+                str = str.substring(0, pos);
+            }
+            while ((str.charAt(str.length()-1) == '.' || str.charAt(str.length()-1) == ' ' || str.charAt(str.length()-1) == '\n') && str.length() > 0) str = str.substring(0,str.length()-1);
+
+            str = str + "\n(…)";
+        }
+        return str;
+    }
+
     public static String getStringIfNotNull(Object o, String ifNull) {
         if (o == null || o.toString().length() == 0) return ifNull;
 
@@ -314,22 +331,17 @@ public class Tools {
         return server.getRoleById(id);
     }
 
-    public static CustomEmoji getCustomEmojiByTag(String tag) {
-        try {
-            String[] tags = tag.split(":");
+    public static Optional<KnownCustomEmoji> getCustomEmojiByTag(String string) {
+        if (string.contains("<") && string.contains(">")) {
+            String content = Tools.cutString(string, "<", ">");
+            String[] tags = content.split(":");
             if (tags.length == 3) {
-                tag = tags[2];
-                String id = tag.substring(0, tag.length() - 1);
-                Optional<KnownCustomEmoji> customEmojiOptional = DiscordApiCollection.getInstance().getCustomEmojiById(id);
-                if (customEmojiOptional.isPresent()) {
-                    return customEmojiOptional.get();
-                }
+                String id = tags[2];
+                return DiscordApiCollection.getInstance().getCustomEmojiById(id);
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public static boolean userHasAdminPermissions(Server server, User user) {
@@ -544,11 +556,11 @@ public class Tools {
     }
 
     public static boolean canManageChannel(ServerChannel channel, User user) {
-        return channel.getServer().getPermissions(user).getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED || channel.getEffectivePermissions(user).getState(PermissionType.MANAGE_CHANNELS) == PermissionState.ALLOWED;
+        return userHasChannelPermission(channel, user, PermissionType.MANAGE_CHANNELS);
     }
 
     public static boolean canManagePermissions(ServerChannel channel, User user) {
-        return channel.getServer().getPermissions(user).getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED || channel.getEffectivePermissions(user).getState(PermissionType.MANAGE_ROLES) == PermissionState.ALLOWED;
+        return userHasChannelPermission(channel, user, PermissionType.MANAGE_ROLES);
     }
 
     public static String decryptString(String str) {
@@ -628,8 +640,8 @@ public class Tools {
         return !(filterPornSearchKey(str, additionalFilter).equalsIgnoreCase(str));
     }
 
-    public static String defuseAtEveryone(String str) {
-        return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
+    public static String defuseMassPing(String str) {
+        return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere").replace("<@&", "<@\u200B&");
     }
 
     public static long getAmountExt(String str, long available) {
@@ -639,6 +651,17 @@ public class Tools {
         long value = Tools.filterNumberFromString(str);
         if (value == -1) return -1;
         return str.contains("%") ? (long)(value / 100.0 * available) : value;
+    }
+
+    public static boolean userHasServerPermission(Server server, User user, PermissionType permissionType) {
+        if (Tools.userHasAdminPermissions(server, user)) return true;
+        return server.getAllowedPermissions(user).contains(permissionType);
+    }
+
+    public static boolean userHasChannelPermission(ServerChannel channel, User user, PermissionType permissionType) {
+        if (Tools.userHasAdminPermissions(channel.getServer(), user)) return true;
+        if (channel.getEffectivePermissions(user).getState(permissionType) == PermissionState.ALLOWED) return true;
+        return channel.getEffectivePermissions(user).getState(permissionType) == PermissionState.UNSET && channel.getServer().getAllowedPermissions(user).contains(permissionType);
     }
 
 }

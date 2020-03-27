@@ -1,5 +1,5 @@
 package Constants;
 
-public enum PowerPlantStatus {
+public enum FisheryStatus {
     STOPPED, PAUSED, ACTIVE;
 }

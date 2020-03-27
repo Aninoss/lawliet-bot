@@ -8,16 +8,16 @@ import org.discordbots.api.client.DiscordBotListAPI;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class DiscordbotsAPI {
+public class TopGG {
 
-    private static DiscordbotsAPI ourInstance = new DiscordbotsAPI();
+    private static TopGG ourInstance = new TopGG();
     private DiscordBotListAPI dblApi;
 
-    public static DiscordbotsAPI getInstance() {
+    public static TopGG getInstance() {
         return ourInstance;
     }
 
-    private DiscordbotsAPI() {
+    private TopGG() {
         try {
             dblApi = new DiscordBotListAPI.Builder()
                     .token(SecretManager.getString("discordbots.token"))

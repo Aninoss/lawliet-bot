@@ -8,7 +8,7 @@ import Constants.Permission;
 import Constants.Response;
 import General.EmbedFactory;
 import General.ListGen;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -41,7 +41,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
         if (firstTime) {
-            keywords = DBServer.getNSFWFilterFromServer(event.getServer().get());
+            keywords = DBServerOld.getNSFWFilterFromServer(event.getServer().get());
             return Response.TRUE;
         }
 
@@ -71,7 +71,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                 for(String str: mentionedKeywords) {
                     if (!keywords.contains(str)) {
                         if (keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
-                            DBServer.addNSFWFilterKeyword(event.getServer().get(), str);
+                            DBServerOld.addNSFWFilterKeyword(event.getServer().get(), str);
                             n++;
                         }
                     }
@@ -126,7 +126,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                     setState(0);
                     return true;
                 } else if (i < keywords.size()) {
-                    DBServer.removeNSFWFilterKeyword(event.getServer().get(), keywords.remove(i));
+                    DBServerOld.removeNSFWFilterKeyword(event.getServer().get(), keywords.remove(i));
                     setLog(LogStatus.SUCCESS, getString("keywordremove"));
                     if (keywords.size() == 0) setState(0);
                     return true;

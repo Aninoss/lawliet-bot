@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Constants.*;
 import General.*;
 import General.Mention.MentionFinder;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
@@ -50,7 +50,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
             displays = new ArrayList<>();
-            for(Pair<Long, String> display: DBServer.getMemberCountDisplays(event.getServer().get())) {
+            for(Pair<Long, String> display: DBServerOld.getMemberCountDisplays(event.getServer().get())) {
                 Optional<ServerVoiceChannel> voiceChannelOptional = event.getServer().get().getVoiceChannelById(display.getKey());
                 voiceChannelOptional.ifPresent(serverVoiceChannel -> displays.add(new Pair<>(serverVoiceChannel, display.getValue())));
             }
@@ -154,7 +154,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                     }
 
                     Pair<ServerVoiceChannel, String> dispay = new Pair<>(currentVC, currentName);
-                    DBServer.addMemberCountDisplay(dispay);
+                    DBServerOld.addMemberCountDisplay(dispay);
 
                     setLog(LogStatus.SUCCESS, getString("displayadd"));
                     setState(0);
@@ -168,7 +168,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                     setState(0);
                     return true;
                 } else if (i < displays.size()) {
-                    DBServer.removeMemberCountDisplay(displays.get(i));
+                    DBServerOld.removeMemberCountDisplay(displays.get(i));
                     setLog(LogStatus.SUCCESS, getString("displayremove"));
                     setState(0);
                     return true;
@@ -223,7 +223,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     }
 
     public static void manage(Locale locale, Server server) throws SQLException, ExecutionException, InterruptedException {
-        ArrayList<Pair<Long, String>> displays = DBServer.getMemberCountDisplays(server);
+        ArrayList<Pair<Long, String>> displays = DBServerOld.getMemberCountDisplays(server);
         for(Pair<Long, String> display: displays) {
             Optional<ServerVoiceChannel> voiceChannelOptional = server.getVoiceChannelById(display.getKey());
             if (voiceChannelOptional.isPresent()) {

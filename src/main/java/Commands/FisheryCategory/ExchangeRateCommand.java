@@ -63,8 +63,4 @@ public class ExchangeRateCommand extends Command implements onRecievedListener, 
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

@@ -94,9 +94,10 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
-                for(RedditPost post: postBundle.getPosts()) {
+                for(int i = 0; i < postBundle.getPosts().size(); i++) {
+                    RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNsfw()) {
-                        if (trackerData.getArg() != null) channel.sendMessage(getEmbed(post));
+                        if (trackerData.getArg() != null || i == 0) channel.sendMessage(getEmbed(post));
                         containsOnlyNsfw = false;
                     }
                 }
@@ -126,11 +127,6 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
     @Override
     public boolean trackerUsesKey() {
         return true;
-    }
-
-    @Override
-    public boolean needsPrefix() {
-        return false;
     }
 
 }

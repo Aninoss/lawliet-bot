@@ -112,8 +112,4 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
         return false;
     }
 
-    @Override
-    public boolean needsPrefix() {
-        return false;
-    }
 }

@@ -4,7 +4,8 @@ import CommandSupporters.CommandManager;
 import Commands.ModerationCategory.BannedWordsCommand;
 import Commands.ModerationCategory.ModSettingsCommand;
 import General.*;
-import MySQL.DBServer;
+import MySQL.BannedWords.BannedWordsBean;
+import MySQL.BannedWords.DBBannedWords;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -22,8 +23,8 @@ public class BannedWordsCheck {
         String input = message.getContent();
 
         try {
-            BannedWords bannedWords = DBServer.getBannedWordsFromServer(server);
-            if (bannedWords.isActive() && stringContainsWord(input, bannedWords.getWords()) && !bannedWords.getIgnoredUserIds().contains(message.getUserAuthor().get()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
+            BannedWordsBean bannedWordsBean = DBBannedWords.getInstance().getBannedWordsBean(server.getId());
+            if (bannedWordsBean.isActive() && stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords())) && !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
                 boolean successful = true;
                 User author = message.getUserAuthor().get();
 
@@ -37,7 +38,7 @@ public class BannedWordsCheck {
                 }
 
                 //Poster informieren
-                Locale locale = DBServer.getServerLocale(server);
+                Locale locale = bannedWordsBean.getServerBean().getLocale();
                 BannedWordsCommand bannedWordsCommand = new BannedWordsCommand();
                 bannedWordsCommand.setLocale(locale);
 
@@ -57,7 +58,7 @@ public class BannedWordsCheck {
                 if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
                 else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
-                for(User user: bannedWords.getLogRecieverIds()) {
+                for(User user: bannedWordsBean.getLogReceiverUserIds().transform(server::getMemberById)) {
                     try {
                         user.sendMessage(eb).get();
                     } catch (InterruptedException | ExecutionException e) {
@@ -76,7 +77,7 @@ public class BannedWordsCheck {
 
                 return true;
             }
-        } catch (IOException | SQLException | IllegalAccessException | InstantiationException e) {
+        } catch (IOException | SQLException | IllegalAccessException | InstantiationException | ExecutionException e) {
             e.printStackTrace();
         }
 

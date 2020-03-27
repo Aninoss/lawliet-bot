@@ -7,7 +7,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
@@ -43,11 +43,11 @@ public class AutoQuoteCommand extends Command implements onRecievedListener, onR
             }
 
             boolean active = option == 1;
-            DBServer.saveAutoQuote(event.getServer().get(), active);
+            DBAutoQuote.getInstance().getAutoQuoteBean(event.getServer().get().getId()).setActive(active);
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set", active))).get();
             return true;
         } else {
-            String onOffText = Tools.getOnOffForBoolean(getLocale(), DBServer.getAutoQuoteFromServer(event.getServer().get()));
+            String onOffText = Tools.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().getAutoQuoteBean(event.getServer().get().getId()).isActive());
             message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("reaction", onOffText))).get();
             for(int i = 0; i < 2; i++) {
                 message.addReaction(Tools.getEmojiForBoolean(i == 1));
@@ -62,7 +62,7 @@ public class AutoQuoteCommand extends Command implements onRecievedListener, onR
             String str = Tools.getEmojiForBoolean(i == 1);
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 boolean active = i == 1;
-                DBServer.saveAutoQuote(event.getServer().get(), active);
+                DBAutoQuote.getInstance().getAutoQuoteBean(event.getServer().get().getId()).setActive(active);
                 getReactionMessage().edit(EmbedFactory.getCommandEmbedSuccess(this, getString("set", active))).get();
                 removeReactionListener(getReactionMessage());
                 return;

@@ -53,6 +53,8 @@ public class AnimeReleaseDownloader {
             for(int i = postList.size()-1; i >= 0; i--) {
                 postSendList.add(postList.get(i));
             }
+        } else if (postList.size() > 0) {
+            postSendList.add(postList.get(0));
         }
 
         if (postList.size() > 0) newestPostId = String.valueOf(postList.get(0).getId());

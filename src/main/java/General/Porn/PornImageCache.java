@@ -24,6 +24,10 @@ public class PornImageCache {
         find(searchKeyString).add(imageURL, max);
     }
 
+    public void clear(String searchKeyString) {
+        searchKeys.removeIf(searchKey -> searchKey.getSearchKey().equals(searchKeyString));
+    }
+
     private PornImageCacheSearchKey find(String searchKeyString) {
         for(PornImageCacheSearchKey searchKey: searchKeys) {
             if (searchKey.getSearchKey().equals(searchKeyString)) return searchKey;

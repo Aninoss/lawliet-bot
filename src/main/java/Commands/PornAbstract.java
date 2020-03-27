@@ -2,23 +2,26 @@ package Commands;
 
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
+import Constants.LogStatus;
 import General.EmbedFactory;
 import General.Porn.PornImage;
 import General.TextManager;
 import General.Tools;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public abstract class PornAbstract extends Command implements onRecievedListener {
 
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable;
+    public abstract Optional<String> getNoticeOptional();
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        ArrayList<String> nsfwFilter = DBServer.getNSFWFilterFromServer(event.getServer().get());
-        followedString = Tools.filterPornSearchKey(followedString, nsfwFilter);
+        ArrayList<String> nsfwFilter = DBServerOld.getNSFWFilterFromServer(event.getServer().get());
+        followedString = Tools.defuseMassPing(Tools.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
         long amount = 1;
         if (Tools.stringContainsDigits(followedString)) {
@@ -50,6 +53,7 @@ public abstract class PornAbstract extends Command implements onRecievedListener
                         .setTimestamp(pornImage.getInstant())
                         .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())));
 
+                getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
                 event.getChannel().sendMessage(eb).get();
             } else {
                 for (int i = 0; i < pornImages.size(); i += 3) {
@@ -58,6 +62,7 @@ public abstract class PornAbstract extends Command implements onRecievedListener
                         sb.append('\n').append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link_template", pornImages.get(i + j).getImageUrl()));
                     }
 
+                    getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_notice", notice)));
                     event.getChannel().sendMessage(sb.toString()).get();
                 }
             }

@@ -3,13 +3,13 @@ package Commands.FisheryCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Permission;
-import Constants.PowerPlantStatus;
+import Constants.FisheryStatus;
 import Constants.Response;
-import Constants.Settings;
 import General.*;
 import General.Fishing.FishingProfile;
-import MySQL.DBServer;
+import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -19,8 +19,6 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Calendar;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -40,8 +38,8 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        PowerPlantStatus status = DBServer.getPowerPlantStatusFromServer(event.getServer().get());
-        if (status == PowerPlantStatus.ACTIVE) {
+        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {
