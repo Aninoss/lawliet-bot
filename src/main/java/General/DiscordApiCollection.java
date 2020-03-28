@@ -3,12 +3,14 @@ package General;
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
 import General.Internet.Internet;
+import General.Internet.InternetProperty;
 import General.Internet.InternetResponse;
 import General.RunningCommands.RunningCommandManager;
 import General.Tracker.TrackerManager;
 import MySQL.DBServerOld;
 import MySQL.FisheryCache;
 import MySQL.Server.DBServer;
+import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -443,7 +445,7 @@ public class DiscordApiCollection {
     public CompletableFuture<InternetResponse> sendToWebhook(Server server, String webhookUrl, String content) throws IOException {
         User yourself = getYourself();
 
-        Pair<String, String> contentType = new Pair<>("Content-type", "application/json");
+        InternetProperty contentType = new InternetProperty("Content-type", "application/json");
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("username", server.getDisplayName(yourself));

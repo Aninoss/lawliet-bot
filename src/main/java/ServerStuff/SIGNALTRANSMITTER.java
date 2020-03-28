@@ -1,11 +1,11 @@
 package ServerStuff;
 
 import General.Internet.Internet;
+import General.Internet.InternetProperty;
 import General.Internet.InternetResponse;
-import General.Pair;
 import General.SecretManager;
+import javafx.util.Pair;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
@@ -32,7 +32,7 @@ public class SIGNALTRANSMITTER {
 
     private void login() throws IOException, ExecutionException, InterruptedException {
         String body = "username="+ SecretManager.getString("SIGNALTRANSMITTER.username") +"&password=" + SecretManager.getString("SIGNALTRANSMITTER.password") + "&login=1";
-        InternetResponse internetResponse = Internet.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new Pair<>("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")).get();
+        InternetResponse internetResponse = Internet.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new InternetProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")).get();
         cookie = internetResponse.getCookies().get().get(0);
         key = new JSONObject(internetResponse.getContent().get()).getString("redirect").split("/")[1];
     }
@@ -78,10 +78,10 @@ public class SIGNALTRANSMITTER {
         }
     }
 
-    private Pair[] getProperties() {
-        return new Pair[]{
-                new Pair<>("Cookie", cookie),
-                new Pair<>("Content-Type", "application/x-www-form-urlencoded")
+    private InternetProperty[] getProperties() {
+        return new InternetProperty[]{
+                new InternetProperty("Cookie", cookie),
+                new InternetProperty("Content-Type", "application/x-www-form-urlencoded")
         };
     }
 

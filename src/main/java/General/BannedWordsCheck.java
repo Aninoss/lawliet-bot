@@ -1,4 +1,4 @@
-package General.BannedWords;
+package General;
 
 import CommandSupporters.CommandManager;
 import Commands.ModerationCategory.BannedWordsCommand;

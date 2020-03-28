@@ -10,6 +10,7 @@ import General.EmojiConnection.EmojiConnection;
 import General.Mention.MentionFinder;
 import General.Mention.MentionList;
 import com.vdurmont.emoji.EmojiParser;
+import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.Emoji;

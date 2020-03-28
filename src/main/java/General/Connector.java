@@ -5,8 +5,6 @@ import ServerStuff.CommunicationServer;
 import DiscordListener.*;
 import General.BotResources.ResourceManager;
 import MySQL.*;
-import ServerStuff.Discordbotlist;
-import ServerStuff.Divinediscordbots;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;

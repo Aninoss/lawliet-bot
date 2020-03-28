@@ -1,11 +1,10 @@
-package MySQL;
+package General;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.collections.ListChangeListener;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class CustomObservableList<T> extends ObservableListWrapper<T> implements Observer {
 

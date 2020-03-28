@@ -1,7 +1,7 @@
 package MySQL;
 
 import General.Fishing.FishingProfile;
-import General.Pair;
+import javafx.util.Pair;
 import org.javacord.api.entity.server.Server;
 
 import java.util.*;

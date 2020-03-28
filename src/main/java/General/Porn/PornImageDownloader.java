@@ -1,6 +1,7 @@
 package General.Porn;
 
 import General.Comment;
+import General.ExceptionHandler;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.Tools;
@@ -36,7 +37,13 @@ public class PornImageDownloader {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
         String data = InternetCache.getData(url, 60 * 60).get().getContent().get();
 
-        int count = Math.min(200 * 100, Integer.parseInt(Tools.cutString(data,"count=\"","\"")));
+        int count;
+        try {
+            count = Math.min(200 * 100, Integer.parseInt(Tools.cutString(data, "count=\"", "\"")));
+        } catch (NumberFormatException e) {
+            ExceptionHandler.showErrorLog("Error for search key " + searchTerm);
+            throw e;
+        }
         if (count == 0) {
             if (!softMode) {
                 return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining, true, additionalFilters);

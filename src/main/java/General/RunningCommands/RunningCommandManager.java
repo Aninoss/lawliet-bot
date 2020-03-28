@@ -1,7 +1,7 @@
 package General.RunningCommands;
 
 import CommandSupporters.Command;
-import General.Pair;
+import javafx.util.Pair;
 import org.javacord.api.entity.user.User;
 
 import java.time.Instant;

@@ -243,6 +243,7 @@ public class Clock {
             BotsOnDiscord.updateServerCount(totalServers);
             Discordbotlist.updateServerCount(totalServers);
             Divinediscordbots.updateServerCount(totalServers);
+            Discordbotsgg.updateServerCount(totalServers);
         }
 
         //Updates survey manually

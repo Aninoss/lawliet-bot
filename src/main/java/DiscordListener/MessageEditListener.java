@@ -2,7 +2,7 @@ package DiscordListener;
 
 import Constants.FishingCategoryInterface;
 import General.*;
-import General.BannedWords.BannedWordsCheck;
+import General.BannedWordsCheck;
 import General.Fishing.FishingProfile;
 import General.Internet.Internet;
 import General.SPBlock.SPCheck;

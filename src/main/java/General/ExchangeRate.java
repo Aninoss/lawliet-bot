@@ -13,12 +13,11 @@ public class ExchangeRate {
 
     private static ExchangeRate instance = new ExchangeRate();
     private ExchangeRate() {}
-
-    private HashMap<String, Integer> rateMap = new HashMap<>();
-
     public static ExchangeRate getInstance() {
         return instance;
     }
+
+    private HashMap<String, Integer> rateMap = new HashMap<>();
 
     public int get(int offset) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
         Calendar calendar = Calendar.getInstance();

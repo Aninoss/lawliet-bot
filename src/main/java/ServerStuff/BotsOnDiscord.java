@@ -2,9 +2,10 @@ package ServerStuff;
 
 import Constants.Settings;
 import General.Internet.Internet;
+import General.Internet.InternetProperty;
 import General.Internet.InternetResponse;
-import General.Pair;
 import General.SecretManager;
+import javafx.util.Pair;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -16,9 +17,9 @@ public class BotsOnDiscord {
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("guildCount", serverCount);
-            Pair[] properties = new Pair[]{
-                    new Pair<>("Content-Type", "application/json"),
-                    new Pair<>("Authorization", SecretManager.getString("bots.ondiscord.token"))
+            InternetProperty[] properties = new InternetProperty[]{
+                    new InternetProperty("Content-Type", "application/json"),
+                    new InternetProperty("Authorization", SecretManager.getString("bots.ondiscord.token"))
             };
             InternetResponse internetResponse = Internet.getData("https://bots.ondiscord.xyz/bot-api/bots/" + Settings.LAWLIET_ID + "/guilds", jsonObject.toString(), properties).get();
             return internetResponse.getCode() == 204;

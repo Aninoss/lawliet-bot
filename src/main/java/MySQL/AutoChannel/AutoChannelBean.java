@@ -1,13 +1,9 @@
 package MySQL.AutoChannel;
 
 import General.DiscordApiCollection;
-import MySQL.CustomObservableList;
+import General.CustomObservableList;
 import MySQL.Server.ServerBean;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 

@@ -10,7 +10,7 @@ import Constants.FishingCategoryInterface;
 import Constants.FisheryStatus;
 import Constants.Settings;
 import General.*;
-import General.BannedWords.BannedWordsCheck;
+import General.BannedWordsCheck;
 import General.BotResources.ResourceManager;
 import General.Fishing.FishingProfile;
 import General.Internet.Internet;

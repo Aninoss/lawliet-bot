@@ -2,9 +2,10 @@ package ServerStuff;
 
 import Constants.Settings;
 import General.Internet.Internet;
+import General.Internet.InternetProperty;
 import General.Internet.InternetResponse;
-import General.Pair;
 import General.SecretManager;
+import javafx.util.Pair;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -16,9 +17,9 @@ public class Discordbotlist {
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("guilds", String.valueOf(serverCount));
-            Pair[] properties = new Pair[]{
-                    new Pair<>("Content-Type", "application/json"),
-                    new Pair<>("Authorization", "Bot " + SecretManager.getString("discordbotlist.token"))
+            InternetProperty[] properties = new InternetProperty[]{
+                    new InternetProperty("Content-Type", "application/json"),
+                    new InternetProperty("Authorization", "Bot " + SecretManager.getString("discordbotlist.token"))
             };
             InternetResponse internetResponse = Internet.getData(String.format("https://discordbotlist.com/api/bots/%s/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
             return internetResponse.getCode() == 204;

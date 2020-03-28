@@ -23,7 +23,7 @@ public class DadJokeCommand extends Command implements onRecievedListener {
         String joke;
 
         if (Tools.getLanguage(getLocale()) == Language.DE) {
-            joke = Internet.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").get().getContent().get();
+            joke = Internet.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").get().getContent().get().split("\\|")[0];
         } else {
             joke = new JSONObject(Internet.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
         }
