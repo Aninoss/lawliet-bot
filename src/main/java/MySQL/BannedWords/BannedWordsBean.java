@@ -36,7 +36,7 @@ public class BannedWordsBean extends Observable {
 
     public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
 
-    public ServerBean getServerBean() {
+    public ServerBean getBean() {
         return serverBean;
     }
 

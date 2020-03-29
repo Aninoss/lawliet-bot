@@ -415,7 +415,7 @@ public class DiscordApiCollection {
                     Webhook webhook = webhookBuilder.create().get();
                     if (webhook.getToken().isPresent()) {
                         String url = String.format("https://discordapp.com/api/webhooks/%s/%s", webhook.getId(), webhook.getToken().get());
-                        DBServer.getInstance().getServerBean(server.getId()).setWebhookUrl(url);
+                        DBServer.getInstance().getBean(server.getId()).setWebhookUrl(url);
                     }
                 } catch (InterruptedException | ExecutionException e) {
                     //Ignore

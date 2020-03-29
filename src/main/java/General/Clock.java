@@ -106,7 +106,7 @@ public class Clock {
             collector.setResults(DBSurvey.getResults());
 
             for (SurveyServer surveyServer : serverList) {
-                Locale locale = DBServer.getInstance().getServerBean(surveyServer.getServer().getId()).getLocale();
+                Locale locale = DBServer.getInstance().getBean(surveyServer.getServer().getId()).getLocale();
                 for (SurveyUser surveyUser : surveyServer.getUserList()) {
                     try {
                         User user = surveyUser.getUser();

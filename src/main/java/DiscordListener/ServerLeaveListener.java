@@ -17,7 +17,7 @@ public class ServerLeaveListener {
 
     public void onServerLeave(ServerLeaveEvent event) throws Exception {
         Server server = event.getServer();
-        ServerBean serverBean = DBServer.getInstance().getServerBean(server.getId());
+        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
         String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "kick_message", Settings.FEEDBACK_WEBSITE);
 
         serverBean.getWebhookUrl().ifPresent(webhookUrl -> {

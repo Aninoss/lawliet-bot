@@ -23,7 +23,7 @@ public class ServerMemberLeaveListener {
     public void onLeave(ServerMemberLeaveEvent event) throws Exception {
         if (event.getUser().isYourself()) return;
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getServerBean(event.getServer().getId()).getLocale();
+        Locale locale = DBServer.getInstance().getBean(event.getServer().getId()).getLocale();
 
         //Update on server status
         try {

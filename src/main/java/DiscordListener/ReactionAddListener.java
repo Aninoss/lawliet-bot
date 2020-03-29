@@ -70,7 +70,7 @@ public class ReactionAddListener {
                     String title = embed.getTitle().get();
                     for (onReactionAddStaticListener command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {
-                            ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
+                            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
                             ((Command) command).setLocale(serverBean.getLocale());
                             ((Command) command).setPrefix(serverBean.getPrefix());
                             command.onReactionAddStatic(message, event);

@@ -71,7 +71,7 @@ public class MessageCreateListener {
         }
 
         try {
-            ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
+            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             String prefix = serverBean.getPrefix();
             String content = event.getMessage().getContent();
 
@@ -156,7 +156,7 @@ public class MessageCreateListener {
                 ) {
                     Locale locale = serverBean.getLocale();
                     ArrayList<Message> messages = MentionFinder.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
-                    if (messages.size() > 0 && DBAutoQuote.getInstance().getAutoQuoteBean(event.getServer().get().getId()).isActive()) {
+                    if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {
                         try {
                             for (int i = 0; i < Math.min(3, messages.size()); i++) {
                                 Message message = messages.get(i);

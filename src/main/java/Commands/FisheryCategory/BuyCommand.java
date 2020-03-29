@@ -48,9 +48,9 @@ public class BuyCommand extends Command implements onNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+            FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
             if (status == FisheryStatus.ACTIVE) {
-                serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
+                serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
                 server = event.getServer().get();
                 fishingProfile = DBUser.getFishingProfile(server, event.getMessage().getUserAuthor().get());
                 roles = DBServerOld.getPowerPlantRolesFromServer(server);

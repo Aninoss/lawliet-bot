@@ -6,6 +6,7 @@ import Constants.Locales;
 import Constants.Permission;
 import General.*;
 import General.Fishing.FishingProfile;
+import MySQL.AutoRoles.DBAutoRoles;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
@@ -28,7 +29,7 @@ public class ServerMemberJoinListener {
         if (event.getUser().isYourself()) return;
 
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getServerBean(event.getServer().getId()).getLocale();
+        Locale locale = DBServer.getInstance().getBean(event.getServer().getId()).getLocale();
 
         //Insert User into Database
         try {
@@ -85,7 +86,7 @@ public class ServerMemberJoinListener {
             int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
             if (level > 0) {
                 ArrayList<Role> roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer());
-                ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().getId());
+                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
 
                 if (serverBean.isFisherySingleRoles()) {
                     Role role = roles.get(level - 1);
@@ -103,11 +104,10 @@ public class ServerMemberJoinListener {
 
         //Automatisiere Rollenvergabe
         try {
-            ArrayList<Role> basicRoles = DBServerOld.getBasicRolesFromServer(event.getServer());
-            for (Role role : basicRoles) {
+            for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById)) {
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "autoroles", role)) event.getUser().addRole(role).get();
             }
-        } catch (SQLException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

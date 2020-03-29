@@ -139,7 +139,7 @@ public class DBUser {
                             Server server = channel.getServer();
                             User user = server.getMemberById(userId).orElse(null);
 
-                            ServerBean serverBean = DBServer.getInstance().getServerBean(serverId);
+                            ServerBean serverBean = DBServer.getInstance().getBean(serverId);
 
                             String prefix = serverBean.getPrefix();
                             Locale locale = serverBean.getLocale();

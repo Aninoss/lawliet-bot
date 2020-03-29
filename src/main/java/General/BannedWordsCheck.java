@@ -23,7 +23,7 @@ public class BannedWordsCheck {
         String input = message.getContent();
 
         try {
-            BannedWordsBean bannedWordsBean = DBBannedWords.getInstance().getBannedWordsBean(server.getId());
+            BannedWordsBean bannedWordsBean = DBBannedWords.getInstance().getBean(server.getId());
             if (bannedWordsBean.isActive() && stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords())) && !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
                 boolean successful = true;
                 User author = message.getUserAuthor().get();
@@ -38,7 +38,7 @@ public class BannedWordsCheck {
                 }
 
                 //Poster informieren
-                Locale locale = bannedWordsBean.getServerBean().getLocale();
+                Locale locale = bannedWordsBean.getBean().getLocale();
                 BannedWordsCommand bannedWordsCommand = new BannedWordsCommand();
                 bannedWordsCommand.setLocale(locale);
 

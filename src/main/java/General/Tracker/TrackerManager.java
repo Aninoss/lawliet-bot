@@ -29,7 +29,7 @@ public class TrackerManager {
             return;
         }
 
-        ServerBean serverBean = DBServer.getInstance().getServerBean(trackerData.getServerId());
+        ServerBean serverBean = DBServer.getInstance().getBean(trackerData.getServerId());
 
         Locale locale = serverBean.getLocale();
         String prefix = serverBean.getPrefix();

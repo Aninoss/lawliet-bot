@@ -56,7 +56,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            serverBean = DBServer.getInstance().getServerBean(event.getServer().get().getId());
+            serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer().get());
             ignoredChannels = DBServerOld.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
 
@@ -375,7 +375,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
     }
 
     public static long getFisheryRolePrice(Server server, ArrayList<Role> roles, int n) throws ExecutionException {
-        ServerBean serverBean = DBServer.getInstance().getServerBean(server.getId());
+        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
 
         double priceIdealMin = serverBean.getFisheryRoleMin();
         double priceIdealMax = serverBean.getFisheryRoleMax();

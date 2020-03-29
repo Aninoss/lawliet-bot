@@ -34,14 +34,10 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
     
     private AutoChannelBean autoChannelBean;
 
-    public AutoChannelCommand() {
-        super();
-    }
-
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            autoChannelBean = DBAutoChannel.getInstance().getAutoChannelBean(event.getServer().get().getId());
+            autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().get().getId());
             return Response.TRUE;
         }
 

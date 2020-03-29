@@ -17,7 +17,7 @@ public class VoiceChannelChangeUserLimitListener {
 
     public void onVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) {
         try {
-            AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getAutoChannelBean(event.getServer().getId());
+            AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
             for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannels())) {
                 if (event.getChannel().getId() == childChannelId) {
                     autoChannelBean.getParentChannel().ifPresent(channel -> {
@@ -26,7 +26,7 @@ public class VoiceChannelChangeUserLimitListener {
 
                         if (parentUserLimit != -1 && (childUserLimit == -1 || childUserLimit > parentUserLimit)) {
                             try {
-                                ServerBean serverBean = DBServer.getInstance().getServerBean(event.getServer().getId());
+                                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                                 Locale locale = serverBean.getLocale();
 
                                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {

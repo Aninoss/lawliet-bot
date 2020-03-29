@@ -227,27 +227,6 @@ public class DBServerOld {
                 postChannel);
     }
 
-    public static ArrayList<Role> getBasicRolesFromServer(Server server) throws SQLException {
-        ArrayList<Role> roleList = new ArrayList<>();
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT roleId FROM BasicRole WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while (resultSet.next()) {
-            long id = resultSet.getLong(1);
-            if (server.getRoleById(id).isPresent()) {
-                roleList.add(server.getRoleById(id).get());
-            }
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return roleList;
-    }
-
     public static ArrayList<Role> getPowerPlantRolesFromServer(Server server) throws SQLException {
         ArrayList<Role> roleList = new ArrayList<>();
 
@@ -538,14 +517,6 @@ public class DBServerOld {
         baseStatement.close();
     }
 
-    public static void addBasicRoles(Server server, Role role) throws SQLException {
-        PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO BasicRole VALUES (?, ?);");
-        baseStatement.setLong(1, server.getId());
-        baseStatement.setLong(2, role.getId());
-        baseStatement.executeUpdate();
-        baseStatement.close();
-    }
-
     public static void addPowerPlantRoles(Server server, Role role) throws SQLException {
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO PowerPlantRoles VALUES (?, ?);");
         baseStatement.setLong(1, server.getId());
@@ -588,14 +559,6 @@ public class DBServerOld {
         preparedStatement.close();
     }
 
-    public static void removeBasicRoles(Server server, Role role) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM BasicRole WHERE serverId = ? AND roleId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, role.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
-
     public static void removePowerPlantRoles(Server server, Role role) throws SQLException {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantRoles WHERE serverId = ? AND roleId = ?;");
         preparedStatement.setLong(1, server.getId());
@@ -615,7 +578,7 @@ public class DBServerOld {
         preparedStatement.executeUpdate();
 
         try {
-            DBServer.getInstance().getServerBean(server.getId()).setFisheryStatus(FisheryStatus.STOPPED);
+            DBServer.getInstance().getBean(server.getId()).setFisheryStatus(FisheryStatus.STOPPED);
         } catch (ExecutionException e) {
             e.printStackTrace();
         }

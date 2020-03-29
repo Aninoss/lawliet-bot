@@ -11,7 +11,7 @@ public class ServerChannelDeleteListener {
     public void onDelete(ServerChannelDeleteEvent event) throws Exception {
         if (event.getChannel().getType() == ChannelType.SERVER_VOICE_CHANNEL) {
             DBAutoChannel.getInstance()
-                    .getAutoChannelBean(event.getServer().getId())
+                    .getBean(event.getServer().getId())
                     .getChildChannels()
                     .removeIf(childChannelId -> childChannelId == event.getChannel().getId());
         }

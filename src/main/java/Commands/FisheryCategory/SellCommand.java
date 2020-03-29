@@ -38,7 +38,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);

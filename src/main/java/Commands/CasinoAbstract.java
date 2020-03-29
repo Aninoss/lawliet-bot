@@ -59,7 +59,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
             return true;
         }
 
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
             coinsInput = 0;
             return true;

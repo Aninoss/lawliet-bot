@@ -24,10 +24,6 @@ import java.time.Instant;
 )
 public class AnimeNewsCommand extends Command implements onRecievedListener, onTrackerRequestListener {
 
-    public AnimeNewsCommand() {
-        super();
-    }
-
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());

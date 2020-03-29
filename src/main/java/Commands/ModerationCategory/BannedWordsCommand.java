@@ -43,7 +43,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            bannedWordsBean = DBBannedWords.getInstance().getBannedWordsBean(event.getServer().get().getId());
+            bannedWordsBean = DBBannedWords.getInstance().getBean(event.getServer().get().getId());
             wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
             return Response.TRUE;
         }

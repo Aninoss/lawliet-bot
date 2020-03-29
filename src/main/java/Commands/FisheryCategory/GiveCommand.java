@@ -38,7 +38,7 @@ public class GiveCommand extends Command implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (event.getMessage().getUserAuthor().get().isBot()) return false;
 
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();

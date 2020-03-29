@@ -52,7 +52,7 @@ public class FisheryCache {
         if (count < 650) {
             try {
                 Server server = channel.getServer();
-                FisheryStatus fisheryStatus = DBServer.getInstance().getServerBean(server.getId()).getFisheryStatus();
+                FisheryStatus fisheryStatus = DBServer.getInstance().getBean(server.getId()).getFisheryStatus();
                 ArrayList<Long> powerPlantIgnoredChannelIds = DBServerOld.getPowerPlantIgnoredChannelIdsFromServer(server);
 
                 boolean whiteListed = DBServerOld.isChannelWhitelisted(channel);
@@ -158,7 +158,7 @@ public class FisheryCache {
 
             for (Server server : api.getServers()) {
                 try {
-                    if (DBServer.getInstance().getServerBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
+                    if (DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
                         for (ServerVoiceChannel channel : server.getVoiceChannels()) {
                             ArrayList<User> validUsers = new ArrayList<>();
                             for (User user : channel.getConnectedUsers()) {

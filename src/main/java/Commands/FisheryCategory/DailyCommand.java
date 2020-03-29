@@ -23,7 +23,7 @@ public class DailyCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());
             if (dailyState != null && dailyState.isClaimed()) {

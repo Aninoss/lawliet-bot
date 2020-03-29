@@ -47,7 +47,7 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
                 setLocale(new Locale(languageLocales[language]));
             }
 
-            DBServer.getInstance().getServerBean(event.getServer().get().getId()).setLocale(getLocale());
+            DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
             return true;
         } else {
@@ -65,7 +65,7 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
             String str = languageEmojis[i];
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 setLocale(new Locale(languageLocales[i]));
-                DBServer.getInstance().getServerBean(event.getServer().get().getId()).setLocale(getLocale());
+                DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
                 getReactionMessage().edit(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;

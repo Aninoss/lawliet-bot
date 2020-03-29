@@ -39,7 +39,7 @@ public class GearCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();

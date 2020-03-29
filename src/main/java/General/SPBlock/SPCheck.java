@@ -50,7 +50,7 @@ public class SPCheck {
                         }
 
                         //Poster informieren
-                        ServerBean serverBean = DBServer.getInstance().getServerBean(server.getId());
+                        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
                         Locale locale = serverBean.getLocale();
                         SelfPromotionBlockCommand selfPromotionBlockCommand = new SelfPromotionBlockCommand();
                         selfPromotionBlockCommand.setLocale(locale);

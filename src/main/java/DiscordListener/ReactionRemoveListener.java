@@ -40,7 +40,7 @@ public class ReactionRemoveListener {
                     String title = embed.getTitle().get();
                     for (onReactionRemoveStaticListener command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {
-                            ((Command) command).setLocale(DBServer.getInstance().getServerBean(event.getServer().get().getId()).getLocale());
+                            ((Command) command).setLocale(DBServer.getInstance().getBean(event.getServer().get().getId()).getLocale());
                             command.onReactionRemoveStatic(message, event);
                             return;
                         }

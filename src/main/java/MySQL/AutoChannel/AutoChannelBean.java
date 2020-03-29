@@ -39,7 +39,7 @@ public class AutoChannelBean extends Observable {
 
     public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
 
-    public ServerBean getServerBean() {
+    public ServerBean getBean() {
         return serverBean;
     }
 
@@ -66,6 +66,7 @@ public class AutoChannelBean extends Observable {
     public CustomObservableList<Long> getChildChannels() {
         return childChannels;
     }
+
 
     /* Setters */
 

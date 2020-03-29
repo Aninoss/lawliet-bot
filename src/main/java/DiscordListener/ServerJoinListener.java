@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 public class ServerJoinListener {
 
     public void onServerJoin(ServerJoinEvent event) throws Exception {
-        DBServer.getInstance().getServerBean(event.getServer().getId());
+        DBServer.getInstance().getBean(event.getServer().getId());
 
         DiscordApiCollection.getInstance().getRandomWritableChannel(event.getServer()).ifPresent(this::sendNewMessage);
         DiscordApiCollection.getInstance().insertWebhook(event.getServer());

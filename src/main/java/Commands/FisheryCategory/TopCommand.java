@@ -27,7 +27,7 @@ public class TopCommand extends ListAbstract implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             rankingSlots = DBServerOld.getPowerPlantRankings(event.getServer().get());
             init(event.getServerTextChannel().get());

@@ -14,6 +14,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Instant;
 
 @CommandProperties(
@@ -31,15 +32,20 @@ public class ClaimCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getServerBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
-            Instant nextUpvote = DBUser.getNextUpvote(event.getMessage().getUserAuthor().get());
+            Instant nextUpvote = null;
+            try {
+                nextUpvote = DBUser.getNextUpvote(event.getMessage().getUserAuthor().get());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             int upvotesUnclaimed = DBUser.getUpvotesUnclaimed(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
             if (upvotesUnclaimed == 0) {
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("nothing_description", Settings.UPVOTE_URL), getString("nothing_title"));
-                addRemainingTimeNotification(eb, nextUpvote);
+                if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
                 event.getChannel().sendMessage(eb).get();
                 return false;
@@ -47,7 +53,7 @@ public class ClaimCommand extends Command implements onRecievedListener {
                 long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false).getEffect(FishingCategoryInterface.PER_DAY);
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, Tools.numToString(getLocale(), upvotesUnclaimed), Tools.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
-                addRemainingTimeNotification(eb, nextUpvote);
+                if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
                 event.getChannel().sendMessage(eb);
                 event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), Math.round(fishes * 0.25 * upvotesUnclaimed), 0L)).get();

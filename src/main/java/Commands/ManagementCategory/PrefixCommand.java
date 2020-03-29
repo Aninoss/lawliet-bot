@@ -32,7 +32,7 @@ public class PrefixCommand extends Command implements onRecievedListener {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 5) {
-                DBServer.getInstance().getServerBean(event.getServer().get().getId()).setPrefix(followedString);
+                DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
                     String nickname = Tools.cutSpaces(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
