@@ -11,6 +11,7 @@ import org.javacord.api.DiscordApi;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -61,8 +62,8 @@ public class DBMain implements DriverAction {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant,ZoneOffset.systemDefault()));
     }
 
-    public static String instantToDateString(Instant instant) {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.ofInstant(instant,ZoneOffset.systemDefault()));
+    public static String localDateToDateString(LocalDate localDate) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localDate);
     }
 
     public PreparedStatement preparedStatement(String sql) throws SQLException {
@@ -105,12 +106,13 @@ public class DBMain implements DriverAction {
         return success;
     }
 
-    public static String encryptEmojis(String str) {
+    /*public static String encryptEmojis(String str) {
         return EmojiParser.parseToAliases(str);
-    }
+    }*/
 
     @Override
     public void deregister() {
         System.out.println("Driver deregistered");
     }
+
 }

@@ -5,6 +5,7 @@ import Commands.ModerationCategory.WarnCommand;
 import General.*;
 import General.Cooldown.Cooldown;
 import General.RunningCommands.RunningCommandManager;
+import MySQL.CommandUsages.DBCommandUsages;
 import MySQL.DBBot;
 import MySQL.DBServerOld;
 import org.javacord.api.entity.message.Message;
@@ -39,17 +40,7 @@ public class CommandManager {
                             if (errEmbed == null || command.getTrigger().equalsIgnoreCase("help")) {
                                 if (Cooldown.getInstance().canPost(event.getMessageAuthor().asUser().get())) {
                                     //Add command usage to database
-                                    if (!Bot.isDebug()) {
-                                        Thread t = new Thread(() -> {
-                                            try {
-                                                DBBot.addCommandUsage(command.getTrigger());
-                                            } catch (SQLException e) {
-                                                e.printStackTrace();
-                                            }
-                                        });
-                                        t.setName("command_usage_add");
-                                        t.start();
-                                    }
+                                    DBCommandUsages.getInstance().getBean(commandTrigger).increase();
 
                                     if (event.getServer().isPresent())
                                         cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());

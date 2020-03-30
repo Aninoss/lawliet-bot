@@ -121,12 +121,12 @@ public class QuizCommand extends CasinoAbstract implements onRecievedListener, o
             if (active) {
                 onAnswerSelected(-1);
             }
-        } catch (InterruptedException | IOException | SQLException e) {
+        } catch (InterruptedException | IOException | SQLException | ExecutionException e) {
             e.printStackTrace();
         }
     }
 
-    private void onAnswerSelected(int selected) throws IOException, SQLException {
+    private void onAnswerSelected(int selected) throws IOException, SQLException, ExecutionException {
         if (selected == correctAnswer) {
             onWin();
             logStatus = LogStatus.WIN;

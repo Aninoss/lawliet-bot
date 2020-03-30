@@ -2,6 +2,8 @@ package ServerStuff;
 
 import General.DiscordApiCollection;
 import MySQL.DBUser;
+import MySQL.Donators.DBDonators;
+import MySQL.Donators.DonatorBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
@@ -12,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DonationHandler {
 
-    public static void addBonus(long userId, double usDollars) {
+    public static void addBonus(long userId, double usDollars) throws ExecutionException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
         Server server = apiCollection.getServerById(557953262305804308L).get();
@@ -37,26 +39,20 @@ public class DonationHandler {
             return;
         }
 
+        DonatorBean donatorBean = DBDonators.getInstance().getBean(userId);
+
         if (server.isMember(user)) {
             userName = user.getMentionTag();
             user.addRole(server.getRoleById(558760578336686083L).get());
         } else userName = "**" + user.getName() + "**";
 
         String additionalString = "";
-        try {
-            if (DBUser.hasDonated(user)) {
-                additionalString = "*additional* ";
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (donatorBean.isValid()) {
+            additionalString = "*additional* ";
         }
 
         int weeks = (int) Math.round(usDollars * 2);
-        try {
-            DBUser.addDonatorStatus(user, weeks);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        donatorBean.addWeeks(weeks);
 
         try {
             server.getTextChannelById(605661187216244749L).get().
@@ -66,11 +62,12 @@ public class DonationHandler {
         }
     }
 
-    public static void removeBonus(long userId) {
+    public static void removeBonus(DonatorBean donatorBean) throws ExecutionException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         Server server = apiCollection.getServerById(557953262305804308L).get();
         User user = null;
         String userName;
+        long userId = donatorBean.getUserId();
 
         if (userId != -1) {
             Optional<User> userOptional = apiCollection.getUserById(userId);
@@ -96,7 +93,7 @@ public class DonationHandler {
         }
 
         try {
-            DBUser.removeDonation(userId);
+            DBDonators.getInstance().removeBean(donatorBean);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -104,10 +101,13 @@ public class DonationHandler {
 
     public static void checkExpiredDonations() {
         try {
-            ArrayList<Long> userDonationExpired = DBUser.getDonationEnds();
-            for(long userId: userDonationExpired) {
-                removeBonus(userId);
-            }
+            DBDonators.getInstance().getAllBeans().stream().filter(donatorBean -> !donatorBean.isValid()).forEach(donatorBean -> {
+                try {
+                    removeBonus(donatorBean);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
         } catch (SQLException e) {
             e.printStackTrace();
         }

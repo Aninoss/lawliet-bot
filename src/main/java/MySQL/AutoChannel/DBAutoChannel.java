@@ -3,6 +3,7 @@ package MySQL.AutoChannel;
 import General.Bot;
 import General.DiscordApiCollection;
 import MySQL.DBArrayListLoad;
+import MySQL.DBKeySetLoad;
 import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
 import MySQL.Server.DBServer;
@@ -129,16 +130,8 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
     }
 
     private ArrayList<Long> getAllChildChannelServerIds() throws SQLException {
-        ArrayList<Long> serverIds = new ArrayList<>();
-
-        Statement statement = DBMain.getInstance().statement("SELECT serverId FROM AutoChannelChildChannels;");
-        ResultSet resultSet = statement.getResultSet();
-        while (resultSet.next()) serverIds.add(resultSet.getLong(1));
-
-        resultSet.close();
-        statement.close();
-
-        return serverIds;
+        return new DBKeySetLoad<Long>("AutoChannelChildChannels", "serverId")
+                .get(resultSet -> resultSet.getLong(1));
     }
 
 }

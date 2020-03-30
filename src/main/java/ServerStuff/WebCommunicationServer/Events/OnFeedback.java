@@ -19,14 +19,18 @@ public class OnFeedback implements DataListener<JSONObject> {
 
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
+        String cause = jsonObject.getString("cause");
         String reason = jsonObject.getString("reason");
-        String explanation = jsonObject.getString("explanation");
+        Optional<String> usernameDiscriminated = Optional.ofNullable(
+                jsonObject.has("username_discriminated") ? jsonObject.getString("username_discriminated") : null
+        );
 
-        ExceptionHandler.showInfoLog("New Feedback! ### " + reason + " ###\n" + explanation);
+        ExceptionHandler.showInfoLog("New Feedback! ### " + cause + " ###\n" + reason);
 
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setTitle(reason)
-                .setDescription(explanation);
+                .setTitle(cause)
+                .setDescription(reason);
+        usernameDiscriminated.ifPresent(eb::setAuthor);
 
         DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
 

@@ -14,6 +14,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 
 @CommandProperties(
@@ -152,7 +153,7 @@ public class SlotCommand extends CasinoAbstract implements onRecievedListener, o
         else return FRUITS_CONTAINER[fruits[i]];
     }
 
-    private void manageEnd() throws IOException, SQLException {
+    private void manageEnd() throws IOException, SQLException, ExecutionException {
         for(boolean b: progress) if (!b) return;
 
         removeReactionListener(getReactionMessage());

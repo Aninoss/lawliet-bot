@@ -1,5 +1,6 @@
 package ServerStuff.WebCommunicationServer.Events;
 
+import MySQL.Donators.DBDonators;
 import ServerStuff.DonationHandler;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
@@ -21,7 +22,7 @@ public class OnDonatebotIO implements DataListener<JSONObject> {
         boolean completed = jsonObject.getString("status").equalsIgnoreCase("completed");
 
         if (completed) DonationHandler.addBonus(userId, usDollars);
-        else DonationHandler.removeBonus(userId);
+        else DonationHandler.removeBonus(DBDonators.getInstance().getBean(userId));
 
         //Send data
         socketIOClient.sendEvent(WebComServer.EVENT_DONATEBOT_IO);

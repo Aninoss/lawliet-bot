@@ -12,6 +12,8 @@ import General.Tools;
 import MySQL.DBBot;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.GameStatistics.DBGameStatistics;
+import MySQL.GameStatistics.GameStatisticsBean;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -97,19 +99,29 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
         removeReactionListener(((onReactionAddListener)this).getReactionMessage());
     }
 
-    protected void onLose() throws SQLException, IOException {
+    protected void onLose() throws SQLException, IOException, ExecutionException {
         onGameEnd();
-        if (coinsInput > 0) DBBot.getGameWonMultiplicator(compareKey, false, Math.pow(coinsInput, 0.25));
+        if (coinsInput > 0) {
+            DBGameStatistics.getInstance().getBean(compareKey).addValue(false, Math.pow(coinsInput, 0.25));
+        }
         EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
-    protected void onWin() throws IOException, SQLException {
+    protected void onWin() throws IOException, SQLException, ExecutionException {
         onGameEnd();
         won = true;
 
         long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
-        double multiplicator = coinsInput == 0 || !useCalculatedMultiplicator ? 1 : DBBot.getGameWonMultiplicator(compareKey, true, winMultiplicator * Math.pow(coinsInput, 0.25));
+
+        double multiplicator = 1;
+        if (coinsInput != 0 && useCalculatedMultiplicator) {
+            GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().getBean(compareKey);
+            gameStatisticsBean.addValue(true, winMultiplicator * Math.pow(coinsInput, 0.25));
+
+            double won = gameStatisticsBean.getValue(true), lost = gameStatisticsBean.getValue(false);
+            if (won > 0 && lost > 0) multiplicator = lost / won;
+        }
 
         EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
         if (coinsInput > 0) channel.sendMessage(eb);

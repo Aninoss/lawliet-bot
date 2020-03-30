@@ -8,11 +8,14 @@ import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
 import MySQL.DBUser;
+import MySQL.Donators.DBDonators;
+import MySQL.Donators.DonatorBean;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "donate",
@@ -28,9 +31,10 @@ public class DonateCommand extends Command implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder donators = new StringBuilder();
 
-        for(long userId: DBUser.getActiveDonators()) {
-            Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
-            userOptional.ifPresent(user -> donators.append(user.getDiscriminatedName()).append("\n"));
+        for(DonatorBean donatorBean: DBDonators.getInstance().getAllBeans().stream().filter(DonatorBean::isValid).collect(Collectors.toList())) {
+            DiscordApiCollection.getInstance().getUserById(donatorBean.getUserId()).ifPresent(user ->
+                    donators.append(user.getDiscriminatedName()).append("\n")
+            );
         }
 
         if (donators.length() == 0) donators.append(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"));

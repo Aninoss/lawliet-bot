@@ -7,6 +7,7 @@ import Constants.*;
 import General.*;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
+import MySQL.Donators.DBDonators;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -41,7 +42,7 @@ public class DailyCommand extends Command implements onRecievedListener {
                     }
                 }
 
-                if (DBUser.hasDonated(event.getMessage().getUserAuthor().get())) {
+                if (DBDonators.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).isValid()) {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 

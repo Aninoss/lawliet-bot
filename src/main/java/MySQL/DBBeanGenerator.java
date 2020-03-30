@@ -7,9 +7,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public abstract class DBBeanGenerator<T, U extends Observable> implements Observer {
@@ -17,6 +15,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> implements Observ
     private final DBBeanGenerator<T, U> instance = this;
     private ArrayList<U> changed;
     private Instant nextCheck;
+    private boolean allLoaded = false;
     private LoadingCache<T, U> cache = CacheBuilder.newBuilder().build(
         new CacheLoader<T, U>() {
             @Override
@@ -90,10 +89,33 @@ public abstract class DBBeanGenerator<T, U extends Observable> implements Observ
         }
     }
 
+    public List<U> getAllBeans() throws SQLException {
+        if (this instanceof CompleteLoadOnStartup) {
+            if (!allLoaded) {
+                ((CompleteLoadOnStartup<T>) this).getKeySet().forEach(value -> {
+                    try {
+                        cache.get(value);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                allLoaded = true;
+            }
+
+            return new ArrayList<>(cache.asMap().values());
+        }
+
+        return new ArrayList<>();
+    }
+
     protected LoadingCache<T, U> getCache() { return cache; }
 
     public interface IntervalSave {
         int getIntervalMinutes();
+    }
+
+    public interface CompleteLoadOnStartup<T> {
+        ArrayList<T> getKeySet() throws SQLException;
     }
 
 }

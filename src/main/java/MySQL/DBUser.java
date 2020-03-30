@@ -18,6 +18,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -401,7 +402,7 @@ public class DBUser {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setLong(1, server.getId());
         preparedStatement.setLong(2, user.getId());
-        preparedStatement.setString(3, DBMain.instantToDateString(Instant.now()));
+        preparedStatement.setString(3, DBMain.localDateToDateString(LocalDate.now()));
         preparedStatement.setLong(4, server.getId());
         preparedStatement.setLong(5, user.getId());
         preparedStatement.execute();
@@ -501,78 +502,6 @@ public class DBUser {
         preparedStatement.close();
 
         return instant;
-    }
-
-    public static void addDonatorStatus(User user, int weeks) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO Donators VALUES(?, NOW() + INTERVAL ? WEEK) ON DUPLICATE KEY UPDATE end = end + INTERVAL ? WEEK;");
-
-        preparedStatement.setLong(1, user.getId());
-        preparedStatement.setInt(2, weeks);
-        preparedStatement.setInt(3, weeks);
-        preparedStatement.execute();
-
-        preparedStatement.close();
-    }
-
-    public static ArrayList<Long> getDonationEnds() throws SQLException {
-        ArrayList<Long> users = new ArrayList<>();
-        String sql = "SELECT userId FROM Donators WHERE end <= NOW();";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while (resultSet.next()) {
-            users.add(resultSet.getLong(1));
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return users;
-    }
-
-    public static void removeDonation(long userId) throws SQLException {
-        String sql = "DELETE FROM Donators WHERE userId = ?;";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, userId);
-        preparedStatement.execute();
-        preparedStatement.close();
-    }
-
-    public static boolean hasDonated(User user) throws SQLException {
-        String sql = "SELECT * FROM Donators WHERE userId = ? AND end > NOW();";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, user.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        boolean hasDonated = resultSet.next();
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return hasDonated;
-    }
-
-    public static ArrayList<Long> getActiveDonators() throws SQLException {
-        ArrayList<Long> users = new ArrayList<>();
-        String sql = "SELECT userId FROM Donators WHERE end > NOW();";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while (resultSet.next()) {
-            users.add(resultSet.getLong(1));
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return users;
     }
 
     public static boolean registerGiveaway(Server server, User user) throws SQLException {

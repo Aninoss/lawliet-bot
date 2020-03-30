@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "hangman",
@@ -111,7 +112,7 @@ public class HangmanCommand extends CasinoAbstract implements onRecievedListener
         return sb.toString();
     }
 
-    private void onAbort() throws IOException, SQLException {
+    private void onAbort() throws IOException, SQLException, ExecutionException {
         logStatus = LogStatus.LOSE;
         onLose();
         log = getString("abort");
@@ -164,7 +165,7 @@ public class HangmanCommand extends CasinoAbstract implements onRecievedListener
         return Response.FALSE;
     }
 
-    private void onWrong(String input) throws IOException, SQLException {
+    private void onWrong(String input) throws IOException, SQLException, ExecutionException {
         health --;
 
         if (health > 0) {
@@ -179,7 +180,7 @@ public class HangmanCommand extends CasinoAbstract implements onRecievedListener
         message.edit(getEmbed());
     }
 
-    private void onRight(String input) throws IOException, SQLException {
+    private void onRight(String input) throws IOException, SQLException, ExecutionException {
         boolean finished = true;
         for (boolean set : progress) {
             if (!set) {

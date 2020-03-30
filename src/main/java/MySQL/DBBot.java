@@ -81,28 +81,6 @@ public class DBBot {
         preparedStatement.close();
     }
 
-    public static double getGameWonMultiplicator(String game, boolean won, double valueAdd) throws SQLException {
-        String str = "INSERT IGNORE INTO GameStatistics (game, won) VALUES(?, 0);" +
-                "INSERT IGNORE INTO GameStatistics (game, won) VALUES(?, 1);" +
-                "UPDATE GameStatistics set value = value + ? WHERE game = ? AND won = ?;" +
-                "SELECT IFNULL(lost.value / won.value, 1) FROM GameStatistics lost, GameStatistics won WHERE lost.game = ? AND lost.won = 0 AND lost.game = won.game AND won.won = 1;";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(str);
-        preparedStatement.setString(1, game);
-        preparedStatement.setString(2, game);
-        preparedStatement.setDouble(3, valueAdd);
-        preparedStatement.setString(4, game);
-        preparedStatement.setBoolean(5, won);
-        preparedStatement.setString(6, game);
-
-        for(ResultSet resultSet: new DBMultipleResultSet(preparedStatement)) {
-            resultSet.next();
-            return resultSet.getDouble(1);
-        }
-
-        return 1;
-    }
-
     public static void fisheryCleanUp() throws SQLException {
         String sql = "DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;";
         DBMain.getInstance().statement(sql);
@@ -174,56 +152,6 @@ public class DBBot {
         preparedStatement.setLong(2, channelId);
         preparedStatement.setString(3, command);
         preparedStatement.executeUpdate();
-    }
-
-    public static FishingRecords getFishingRecords() throws SQLException, ExecutionException, InterruptedException {
-        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-
-        String sql = "SELECT serverId, userId, growth FROM PowerPlantUsersExtended ORDER BY growth DESC LIMIT 5;\n" +
-                "SELECT serverId, userId, joule FROM PowerPlantUsersExtended ORDER BY joule DESC LIMIT 5;\n" +
-                "SELECT serverId, userId, coins FROM PowerPlantUsersExtended ORDER BY coins DESC LIMIT 5;\n" +
-                "SELECT serverId, userId, dailyStreak FROM PowerPlantUsersExtended ORDER BY dailyStreak DESC LIMIT 5;";
-
-        Server[] servers = new Server[4];
-        User[] users = new User[4];
-        long[] values = new long[4];
-
-        int i=0;
-        for(ResultSet resultSet: new DBMultipleResultSet(sql)) {
-            while (resultSet.next()) {
-                if (apiCollection.getServerById(resultSet.getLong(1)).isPresent() && apiCollection.getServerById(resultSet.getLong(1)).get().getMemberById(resultSet.getLong(2)).isPresent()) {
-                    servers[i] = apiCollection.getServerById(resultSet.getLong(1)).get();
-                    users[i] = apiCollection.getUserById(resultSet.getLong(2)).get();
-                    values[i] = resultSet.getLong(3);
-                    break;
-                }
-            }
-            i++;
-        }
-
-        return new FishingRecords(servers, users, values);
-    }
-
-    public static void addCommandUsage(String trigger) throws SQLException {
-        String sql = "INSERT INTO CommandUsages VALUES(?, 1) ON DUPLICATE KEY UPDATE usages = usages + 1;";
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setString(1, trigger);
-        preparedStatement.execute();
-        preparedStatement.close();
-    }
-
-    public static int getTotalCommandUsages() throws SQLException {
-        int count = 0;
-
-        Statement statement = DBMain.getInstance().statement("SELECT SUM(usages) FROM CommandUsages;");
-        ResultSet resultSet = statement.getResultSet();
-
-        if (resultSet.next()) count = resultSet.getInt(1);
-
-        resultSet.close();
-        statement.close();
-
-        return count;
     }
 
     public static void addStatServers(int serverCount) throws SQLException {

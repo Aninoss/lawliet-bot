@@ -37,9 +37,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
                     serverId,
                     DBServer.getInstance().getBean(serverId),
                     false,
-                    new ArrayList<>(),
-                    new ArrayList<>(),
-                    new ArrayList<>()
+                    getIgnoredUsers(serverId),
+                    getLogReceivers(serverId),
+                    getWords(serverId)
             );
         }
 

@@ -73,8 +73,6 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 return Response.FALSE;
 
             case 2:
-                inputString = DBMain.encryptEmojis(inputString);
-
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 500) {
                         welcomeMessageSetting.setDescription(inputString);
@@ -138,8 +136,6 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 return Response.FALSE;
 
             case 6:
-                inputString = DBMain.encryptEmojis(inputString);
-
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 500) {
                         welcomeMessageSetting.setGoodbyeText(inputString);
