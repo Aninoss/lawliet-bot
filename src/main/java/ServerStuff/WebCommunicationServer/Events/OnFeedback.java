@@ -4,6 +4,7 @@ import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.ExceptionHandler;
 import MySQL.DBUser;
+import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
@@ -28,6 +29,9 @@ public class OnFeedback implements DataListener<JSONObject> {
                 .setDescription(explanation);
 
         DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
+
+        //Send data
+        socketIOClient.sendEvent(WebComServer.EVENT_FEEDBACK);
     }
 
 }

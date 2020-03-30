@@ -47,6 +47,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
     private ServerBean serverBean;
     private ArrayList<Role> roles;
     private ArrayList<ServerTextChannel> ignoredChannels;
+    private boolean stopLock = true;
 
     public static final String treasureEmoji = "\uD83D\uDCB0";
     public static final String keyEmoji = "\uD83D\uDD11";
@@ -263,6 +264,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
                     case 8:
                         if (serverBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             serverBean.setFisheryStatus(FisheryStatus.ACTIVE);
+                            stopLock = true;
                         } else {
                             serverBean.setFisheryStatus(FisheryStatus.PAUSED);
                         }
@@ -273,34 +275,40 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
                         if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             server = event.getServer().get();
 
-                            if (!busyServers.contains(server)) {
-                                DBServerOld.removePowerPlant(server);
-                                FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).stopServer(server);
-                                DatabaseCache.getInstance().fishingProfileRemoveServer(server);
-                                Thread t = new Thread(() -> {
-                                    busyServers.add(server);
+                            if (stopLock) {
+                                stopLock = false;
+                                setLog(LogStatus.WARNING, getString("stoplock"));
+                                return true;
+                            } else {
+                                if (!busyServers.contains(server)) {
+                                    DBServerOld.removePowerPlant(server);
+                                    FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).stopServer(server);
+                                    DatabaseCache.getInstance().fishingProfileRemoveServer(server);
+                                    Thread t = new Thread(() -> {
+                                        busyServers.add(server);
 
-                                    for (User user : event.getServer().get().getMembers()) {
-                                        for (Role role : roles) {
-                                            if (role.getUsers().contains(user)) {
-                                                try {
-                                                    role.removeUser(user).get();
-                                                } catch (InterruptedException | ExecutionException e) {
-                                                    e.printStackTrace();
+                                        for (User user : event.getServer().get().getMembers()) {
+                                            for (Role role : roles) {
+                                                if (role.getUsers().contains(user)) {
+                                                    try {
+                                                        role.removeUser(user).get();
+                                                    } catch (InterruptedException | ExecutionException e) {
+                                                        e.printStackTrace();
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
 
-                                    busyServers.remove(server);
-                                });
-                                t.setName("fishery_role_updater");
-                                t.start();
-                                setLog(LogStatus.SUCCESS, getString("setstatus"));
-                                return true;
-                            } else {
-                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
-                                return true;
+                                        busyServers.remove(server);
+                                    });
+                                    t.setName("fishery_role_updater");
+                                    t.start();
+                                    setLog(LogStatus.SUCCESS, getString("setstatus"));
+                                    return true;
+                                } else {
+                                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
+                                    return true;
+                                }
                             }
                         }
                 }

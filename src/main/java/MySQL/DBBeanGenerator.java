@@ -40,12 +40,14 @@ public abstract class DBBeanGenerator<T, U extends Observable> implements Observ
 
             Thread t = new Thread(() -> {
                 try {
-                    Duration duration = Duration.between(Instant.now(), nextCheck);
-                    Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
-                    nextCheck = Instant.now().plusSeconds(minutes * 60);
-                    if (changed.size() > 0) intervalSave();
+                    while(true) {
+                        Duration duration = Duration.between(Instant.now(), nextCheck);
+                        Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
+                        nextCheck = Instant.now().plusSeconds(minutes * 60);
+                        if (changed.size() > 0) intervalSave();
+                    }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    //Ignore
                 }
             });
             t.setName("dbbean_interval_save");
@@ -87,6 +89,8 @@ public abstract class DBBeanGenerator<T, U extends Observable> implements Observ
             }
         }
     }
+
+    protected LoadingCache<T, U> getCache() { return cache; }
 
     public interface IntervalSave {
         int getIntervalMinutes();

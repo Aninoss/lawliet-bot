@@ -30,6 +30,9 @@ public class OnTopGG implements DataListener<JSONObject> {
         if (type.equals("upvote")) {
             try {
                 DBUser.increaseUpvotesUnclaimed(userId, amount);
+
+                //Send data
+                socketIOClient.sendEvent(WebComServer.EVENT_TOPGG);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

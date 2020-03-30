@@ -51,8 +51,7 @@ public class OnEventServerList implements DataListener<JSONObject> {
         }
 
         //Send data
-        mainJSON
-                .put("user_id", userId)
+        mainJSON.put("user_id", userId)
                 .put("server_list", serversArray);
         socketIOClient.sendEvent(WebComServer.EVENT_SERVERLIST, mainJSON.toString());
     }

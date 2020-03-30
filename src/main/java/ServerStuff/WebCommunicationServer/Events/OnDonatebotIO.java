@@ -1,6 +1,7 @@
 package ServerStuff.WebCommunicationServer.Events;
 
 import ServerStuff.DonationHandler;
+import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
@@ -21,6 +22,9 @@ public class OnDonatebotIO implements DataListener<JSONObject> {
 
         if (completed) DonationHandler.addBonus(userId, usDollars);
         else DonationHandler.removeBonus(userId);
+
+        //Send data
+        socketIOClient.sendEvent(WebComServer.EVENT_DONATEBOT_IO);
     }
 
 }

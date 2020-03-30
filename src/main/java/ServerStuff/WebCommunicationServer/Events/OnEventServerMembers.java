@@ -26,22 +26,19 @@ public class OnEventServerMembers implements DataListener<JSONObject> {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
-            JSONObject mainJSON = new JSONObject()
-                    .put("success", false)
-                    .put("user_id", userId);
-
             Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
             if (serverOptional.isPresent()) {
                 Server server = serverOptional.get();
                 if (Tools.userHasAdminPermissions(server, user)) {
-                    mainJSON
-                            .put("success", true)
+                    JSONObject mainJSON = new JSONObject()
+                            .put("user_id", userId)
                             .put("members_online", server.getMembers().stream().filter(userCheck -> userCheck.getStatus() != UserStatus.OFFLINE).count())
                             .put("members_total", server.getMembers().size());
+
+                    //Send Data
+                    socketIOClient.sendEvent(WebComServer.EVENT_SERVERMEMBERS, mainJSON.toString());
                 }
             }
-
-            socketIOClient.sendEvent(WebComServer.EVENT_SERVERMEMBERS, mainJSON.toString());
         }
     }
 
