@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-public abstract class DBBeanGenerator<T, U extends Observable> implements Observer {
+public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached implements Observer {
 
     private final DBBeanGenerator<T, U> instance = this;
     private ArrayList<U> changed;
@@ -116,6 +116,11 @@ public abstract class DBBeanGenerator<T, U extends Observable> implements Observ
 
     public interface CompleteLoadOnStartup<T> {
         ArrayList<T> getKeySet() throws SQLException;
+    }
+
+    @Override
+    public void clear() {
+        cache.invalidateAll();
     }
 
 }

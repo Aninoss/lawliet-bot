@@ -90,7 +90,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
         return false;
     }
 
-    protected void onGameEnd() throws IOException {
+    protected void onGameEnd() {
         won = false;
         active = false;
         CasinoBetContainer.getInstance().removeBet(player, coinsInput);
@@ -101,7 +101,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
 
     protected void onLose() throws SQLException, IOException, ExecutionException {
         onGameEnd();
-        if (coinsInput > 0) {
+        if (coinsInput > 0 && useCalculatedMultiplicator) {
             DBGameStatistics.getInstance().getBean(compareKey).addValue(false, Math.pow(coinsInput, 0.25));
         }
         EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);

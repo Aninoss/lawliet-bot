@@ -6,8 +6,10 @@ import CommandSupporters.Command;
 import Constants.*;
 import General.*;
 import General.Mention.MentionFinder;
-import MySQL.DBServerOld;
-import javafx.util.Pair;
+import MySQL.MemberCountDisplays.DBMemberCountDisplays;
+import MySQL.MemberCountDisplays.MemberCountBean;
+import MySQL.MemberCountDisplays.MemberCountDisplay;
+import MySQL.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
@@ -39,22 +41,14 @@ import java.util.regex.Pattern;
 )
 public class MemberCountDisplayCommand extends Command implements onNavigationListener  {
 
-    public MemberCountDisplayCommand() {
-        super();
-    }
-
-    private ArrayList<Pair<ServerVoiceChannel, String>> displays;
+    private MemberCountBean memberCountBean;
     private ServerVoiceChannel currentVC = null;
     private String currentName = null;
     
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            displays = new ArrayList<>();
-            for(Pair<Long, String> display: DBServerOld.getMemberCountDisplays(event.getServer().get())) {
-                Optional<ServerVoiceChannel> voiceChannelOptional = event.getServer().get().getVoiceChannelById(display.getKey());
-                voiceChannelOptional.ifPresent(serverVoiceChannel -> displays.add(new Pair<>(serverVoiceChannel, display.getValue())));
-            }
+            memberCountBean = DBMemberCountDisplays.getInstance().getBean(event.getServer().get().getId());
             return Response.TRUE;
         }
 
@@ -79,11 +73,9 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                 ServerVoiceChannel channel = vcList.get(0);
                 if (!checkManageChannelWithLog(channel)) return Response.FALSE;
 
-                for(Pair<ServerVoiceChannel, String> display: displays) {
-                    if (display.getKey().getId() == channel.getId()) {
-                        setLog(LogStatus.FAILURE, getString("alreadyexists"));
-                        return Response.FALSE;
-                    }
+                if (memberCountBean.getMemberCountBeanSlots().containsKey(channel.getId())) {
+                    setLog(LogStatus.FAILURE, getString("alreadyexists"));
+                    return Response.FALSE;
                 }
 
                 currentVC = channel;
@@ -106,7 +98,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                         return false;
 
                     case 0:
-                        if (displays.size() < 5) {
+                        if (memberCountBean.getMemberCountBeanSlots().size() < 5) {
                             setState(1);
                             currentVC = null;
                             currentName = null;
@@ -117,7 +109,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                         }
 
                     case 1:
-                        if (displays.size() > 0) {
+                        if (memberCountBean.getMemberCountBeanSlots().size() > 0) {
                             setState(2);
                             return true;
                         } else {
@@ -154,8 +146,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                         return true;
                     }
 
-                    Pair<ServerVoiceChannel, String> dispay = new Pair<>(currentVC, currentName);
-                    DBServerOld.addMemberCountDisplay(dispay);
+                    memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplay(event.getServer().get().getId(), currentVC.getId(), currentName));
 
                     setLog(LogStatus.SUCCESS, getString("displayadd"));
                     setState(0);
@@ -168,8 +159,9 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < displays.size()) {
-                    DBServerOld.removeMemberCountDisplay(displays.get(i));
+                } else if (i < memberCountBean.getMemberCountBeanSlots().size()) {
+                    memberCountBean.getMemberCountBeanSlots().remove(new ArrayList<>(memberCountBean.getMemberCountBeanSlots().keySet()).get(i));
+
                     setLog(LogStatus.SUCCESS, getString("displayremove"));
                     setState(0);
                     return true;
@@ -186,10 +178,14 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<Pair<ServerVoiceChannel, String>>()
-                                .getList(displays, getLocale(), pair -> {
+                        .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplay>()
+                                .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     try {
-                                        return getString("state0_displays", pair.getKey().getName(), pair.getValue());
+                                        if (bean.getVoiceChannel().isPresent()) {
+                                            return getString("state0_displays", bean.getVoiceChannel().get().getName(), bean.getMask());
+                                        } else {
+                                            return getString("state0_displays", "???", bean.getMask());
+                                        }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -201,9 +197,10 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Tools.getStringIfNotNull(currentVC, notSet), highlightVariables(Tools.getStringIfNotNull(currentName, notSet))), getString("state1_title"));
 
             case 2:
-                String[] roleStrings = new String[displays.size()];
-                for(int i=0; i<roleStrings.length; i++) {
-                    roleStrings[i] = displays.get(i).getKey().getName();
+                ArrayList<MemberCountDisplay> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
+                String[] roleStrings = new String[channelNames.size()];
+                for(int i = 0; i < roleStrings.length; i++) {
+                    roleStrings[i] = channelNames.get(i).getMask();
                 }
                 setOptions(roleStrings);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
@@ -224,14 +221,13 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     }
 
     public static void manage(Locale locale, Server server) throws SQLException, ExecutionException, InterruptedException {
-        ArrayList<Pair<Long, String>> displays = DBServerOld.getMemberCountDisplays(server);
-        for(Pair<Long, String> display: displays) {
-            Optional<ServerVoiceChannel> voiceChannelOptional = server.getVoiceChannelById(display.getKey());
-            if (voiceChannelOptional.isPresent()) {
-                ServerVoiceChannel voiceChannel = voiceChannelOptional.get();
+        ArrayList<MemberCountDisplay> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
+        for(MemberCountDisplay display: displays) {
+            if (display.getVoiceChannel().isPresent()) {
+                ServerVoiceChannel voiceChannel = display.getVoiceChannel().get();
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "mcdisplays", voiceChannel, Permission.MANAGE_CHANNEL)) {
                     ServerVoiceChannelUpdater updater = voiceChannel.createUpdater();
-                    renameVC(server, locale, updater, display.getValue());
+                    renameVC(server, locale, updater, display.getMask());
                     updater.update();
                 }
             }

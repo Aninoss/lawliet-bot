@@ -13,6 +13,9 @@ public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implem
 
     public CustomObservableMap(HashMap<T, U> map) {
         super(map);
+        map.values().forEach(value -> {
+            if (value instanceof Observable) ((Observable) value).addObserver(this);
+        });
         addListener((MapChangeListener<? super T, ? super U>) this::onChange);
     }
 

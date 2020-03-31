@@ -4,22 +4,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.Function;
 
-public class DBArrayListLoad<T> {
+public class DBDataLoad<T> {
 
    private PreparedStatement preparedStatement;
 
-    public DBArrayListLoad(String mySQLQuery, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {
+    public DBDataLoad(String mySQLQuery, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {
         preparedStatement = DBMain.getInstance().preparedStatement(mySQLQuery);
         preparedStatementConsumer.accept(preparedStatement);
         preparedStatement.execute();
     }
 
-    public DBArrayListLoad(String table, String requiredAttribute, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
+    public DBDataLoad(String table, String requiredAttribute, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
         this(table, new String[]{requiredAttribute}, where, wherePreparedStatementConsumer);
     }
 
-    public DBArrayListLoad(String table, String[] requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
+    public DBDataLoad(String table, String[] requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
         if (requiredAttributes.length == 0) throw new SQLException("No attributes specified!");
 
         StringBuilder attrString = new StringBuilder();
@@ -45,6 +47,21 @@ public class DBArrayListLoad<T> {
         preparedStatement.close();
 
         return list;
+    }
+
+    public <U> HashMap<U, T> getHashMap(Function<T, U> getKeyFuntion, SQLFunction<ResultSet, T> function) throws SQLException {
+        ResultSet resultSet = preparedStatement.getResultSet();
+        HashMap<U, T> map = new HashMap<>();
+
+        while (resultSet.next()) {
+            T value = function.apply(resultSet);
+            map.put(getKeyFuntion.apply(value), value);
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+
+        return map;
     }
 
     public interface SQLConsumer<T> {

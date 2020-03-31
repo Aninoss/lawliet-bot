@@ -1,45 +1,31 @@
 package MySQL.Donators;
 
-import java.time.DateTimeException;
+import General.CustomObservableList;
+import General.CustomObservableMap;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Observable;
 
 public class DonatorBean extends Observable {
 
-    private long userId;
-    private LocalDate donationEnd;
+    private CustomObservableMap<Long, DonatorBeanSlot> slots;
 
-    public DonatorBean(long userId, LocalDate donationEnd) {
-        this.userId = userId;
-        this.donationEnd = donationEnd;
-    }
+    public DonatorBean(HashMap<Long, DonatorBeanSlot> slots) { this.slots = new CustomObservableMap<>(slots); }
 
 
     /* Getters */
 
-    public long getUserId() {
-        return userId;
+    public CustomObservableMap<Long, DonatorBeanSlot> getMap() { return slots; }
+
+    public DonatorBeanSlot get(long userId) {
+        return slots.computeIfAbsent(userId, key -> new DonatorBeanSlot(
+                userId,
+                LocalDate.now()
+        ));
     }
-
-    public LocalDate getDonationEnd() {
-        return donationEnd;
-    }
-
-    public boolean isValid() {
-        return donationEnd.isAfter(LocalDate.now());
-    }
-
-
-    /* Setters */
-
-    public void setDonationEnd(LocalDate donationEnd) {
-        this.donationEnd = donationEnd;
-        setChanged();
-        notifyObservers();
-    }
-
-    public void addWeeks(int weeks) { setDonationEnd(donationEnd.plus(weeks, ChronoUnit.WEEKS)); }
 
 }

@@ -13,6 +13,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
@@ -513,6 +514,7 @@ public abstract class Command {
     }
 
     //Just getters and setters, nothing important
+    public Server getServer() { return starterMessage.getServer().get(); }
     public String getPrefix() { return prefix; }
     public void setPrefix(String prefix) { this.prefix = prefix; }
     public String getCategory() { return category; }

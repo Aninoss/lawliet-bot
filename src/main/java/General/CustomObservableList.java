@@ -2,6 +2,7 @@ package General;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.collections.ListChangeListener;
+import org.javacord.api.entity.permission.Role;
 
 import java.util.*;
 import java.util.function.Function;
@@ -14,6 +15,9 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
 
     public CustomObservableList(List<T> list) {
         super(list);
+        list.forEach(value -> {
+            if (value instanceof Observable) ((Observable) value).addObserver(this);
+        });
         addListener((ListChangeListener<? super T>) this::onChange);
     }
 

@@ -55,7 +55,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
                     800000000,
                     null
             );
-            saveBean(serverBean);
+            insertBean(serverBean);
         }
 
         resultSet.close();
@@ -64,9 +64,8 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         return serverBean;
     }
 
-    @Override
-    protected void saveBean(ServerBean serverBean) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+    private void insertBean(ServerBean serverBean) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         preparedStatement.setLong(1, serverBean.getServerId());
         preparedStatement.setString(2, serverBean.getPrefix());
         preparedStatement.setString(3, serverBean.getLocale().getDisplayName());
@@ -85,6 +84,33 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         Optional<String> webhookOpt = serverBean.getWebhookUrl();
         if (webhookOpt.isPresent()) preparedStatement.setString(11, webhookOpt.get());
         else preparedStatement.setNull(11, Types.VARCHAR);
+
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+
+    @Override
+    protected void saveBean(ServerBean serverBean) throws SQLException {
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, webhookUrl = ? WHERE serverId = ?;");
+        preparedStatement.setLong(11, serverBean.getServerId());
+
+        preparedStatement.setString(1, serverBean.getPrefix());
+        preparedStatement.setString(2, serverBean.getLocale().getDisplayName());
+        preparedStatement.setString(3, serverBean.getFisheryStatus().name());
+        preparedStatement.setBoolean(4, serverBean.isFisherySingleRoles());
+
+        Optional<Long> announcementChannelIdOpt = serverBean.getFisheryAnnouncementChannelId();
+        if (announcementChannelIdOpt.isPresent()) preparedStatement.setLong(5, announcementChannelIdOpt.get());
+        else preparedStatement.setNull(5, Types.BIGINT);
+
+        preparedStatement.setBoolean(6, serverBean.isFisheryTreasureChests());
+        preparedStatement.setBoolean(7, serverBean.isFisheryReminders());
+        preparedStatement.setLong(8, serverBean.getFisheryRoleMin());
+        preparedStatement.setLong(9, serverBean.getFisheryRoleMax());
+
+        Optional<String> webhookOpt = serverBean.getWebhookUrl();
+        if (webhookOpt.isPresent()) preparedStatement.setString(10, webhookOpt.get());
+        else preparedStatement.setNull(10, Types.VARCHAR);
 
         preparedStatement.executeUpdate();
         preparedStatement.close();

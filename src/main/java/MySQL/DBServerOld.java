@@ -282,36 +282,6 @@ public class DBServerOld {
         return channelIds;
     }
 
-    public static ModerationStatus getModerationFromServer(Server server) throws SQLException {
-        ModerationStatus moderationStatus = new ModerationStatus(server, null, true, 0, 0, 30, 30);
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, autoKick, autoBan, autoKickDays, autoBanDays FROM Moderation WHERE serverId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            long channelId = resultSet.getLong(1);
-            boolean question = resultSet.getBoolean(2);
-            int autoKick = resultSet.getInt(3);
-            int autoBan = resultSet.getInt(4);
-            int autoKickDays = resultSet.getInt(5);
-            int autoBanDays = resultSet.getInt(6);
-
-            ServerTextChannel channel = null;
-            if (server.getTextChannelById(channelId).isPresent()) {
-                channel = server.getTextChannelById(channelId).get();
-            }
-
-            moderationStatus = new ModerationStatus(server, channel, question, autoKick, autoBan, autoKickDays, autoBanDays);
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-
-        return moderationStatus;
-    }
-
     public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
         ArrayList<Long> channels = DatabaseCache.getInstance().getWhiteListedChannels(server);
         ArrayList<ServerTextChannel> channelObjects = new ArrayList<>();
@@ -345,84 +315,6 @@ public class DBServerOld {
         }
 
         return channelObjects;
-    }
-
-    public static ArrayList<Pair<Long, String>> getMemberCountDisplays(Server server) throws SQLException {
-        ArrayList<Pair<Long, String>> displays = DatabaseCache.getInstance().getMemberCountDisplays(server);
-
-        if (displays == null) {
-            displays = new ArrayList<>();
-
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT vcId, name FROM MemberCountDisplays WHERE serverId = ?;");
-            preparedStatement.setLong(1, server.getId());
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                long vcId = resultSet.getLong(1);
-                String name = resultSet.getString(2);
-                if (vcId != 0 && server.getVoiceChannelById(vcId).isPresent()) {
-                    ServerVoiceChannel serverVoiceChannel = server.getVoiceChannelById(vcId).get();
-                    displays.add(new Pair<>(serverVoiceChannel.getId(), name));
-                } else {
-                    removeMemberCountDisplay(server.getId(), vcId);
-                }
-            }
-
-            resultSet.close();
-            preparedStatement.close();
-
-            DatabaseCache.getInstance().setMemberCountDisplays(server, displays);
-        } else {
-            for(Pair<Long, String> display: new ArrayList<>(displays)) {
-                Optional<ServerVoiceChannel> channelOptional = server.getVoiceChannelById(display.getKey());
-                if (!channelOptional.isPresent()) {
-                    removeMemberCountDisplay(server, display);
-                }
-            }
-        }
-
-        return displays;
-    }
-
-    public static void addMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
-        Server server = display.getKey().getServer();
-        ArrayList<Pair<Long, String>> displays = DBServerOld.getMemberCountDisplays(server);
-
-        if (displays.size() < 5) {
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO MemberCountDisplays VALUES(?, ?, ?);");
-            preparedStatement.setLong(1, server.getId());
-            preparedStatement.setLong(2, display.getKey().getId());
-            preparedStatement.setString(3, display.getValue());
-            preparedStatement.execute();
-            preparedStatement.close();
-
-            DatabaseCache.getInstance().addMemberCountDisplay(server, new Pair<>(display.getKey().getId(), display.getValue()));
-        }
-    }
-
-    public static void removeMemberCountDisplay(Pair<ServerVoiceChannel, String> display) throws SQLException {
-        removeMemberCountDisplay(display.getKey().getServer(), new Pair<>(display.getKey().getId(), display.getValue()));
-    }
-
-    public static void removeMemberCountDisplay(Server server, Pair<Long, String> display) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, display.getKey());
-        preparedStatement.execute();
-        preparedStatement.close();
-
-        DatabaseCache.getInstance().removeMemberCountDisplay(server, display);
-    }
-
-    public static void removeMemberCountDisplay(long serverId, long vcId) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.setLong(2, vcId);
-        preparedStatement.execute();
-        preparedStatement.close();
-
-        DatabaseCache.getInstance().removeMemberCountDisplay(serverId, vcId);
     }
 
     public static void addNSFWFilterKeyword(Server server, String keyword) throws SQLException {
@@ -543,20 +435,6 @@ public class DBServerOld {
         preparedStatement.close();
 
         DatabaseCache.getInstance().addWhiteListedChannel(server, channel.getId());
-    }
-
-    public static void saveModeration(ModerationStatus moderationStatus) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Moderation (serverId, channelId, question, autoKick, autoBan, autoKickDays, autoBanDays) VALUES (?, ?, ?, ?, ?, ?, ?);");
-        preparedStatement.setLong(1, moderationStatus.getServer().getId());
-        if (moderationStatus.getChannel().isPresent()) preparedStatement.setLong(2, moderationStatus.getChannel().get().getId());
-        else preparedStatement.setNull(2, Types.BIGINT);
-        preparedStatement.setBoolean(3, moderationStatus.isQuestion());
-        preparedStatement.setInt(4, moderationStatus.getAutoKick());
-        preparedStatement.setInt(5, moderationStatus.getAutoBan());
-        preparedStatement.setInt(6, moderationStatus.getAutoKickDays());
-        preparedStatement.setInt(7, moderationStatus.getAutoBanDays());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
     }
 
     public static void removePowerPlantRoles(Server server, Role role) throws SQLException {

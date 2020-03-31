@@ -8,6 +8,8 @@ import General.Mention.Mention;
 import General.Mention.MentionFinder;
 import General.Mention.MentionList;
 import MySQL.DBServerOld;
+import MySQL.Moderation.DBModeration;
+import MySQL.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -34,7 +36,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
 
     private Message message;
     private List<User> userList;
-    private ModerationStatus moderationStatus;
+    private ModerationBean moderationBean;
     protected String reason;
 
     @Override
@@ -55,9 +57,9 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             return false;
         }
 
-        moderationStatus = DBServerOld.getModerationFromServer(event.getServer().get());
+        moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
-        if (moderationStatus.isQuestion()) {
+        if (moderationBean.isQuestion()) {
             Mention mention = Tools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
@@ -96,7 +98,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             process(channel.getServer(), user);
         }
 
-        ModSettingsCommand.postLog(this, actionEmbed, moderationStatus);
+        ModSettingsCommand.postLog(this, actionEmbed, moderationBean);
 
         EmbedBuilder successEb = EmbedFactory.getCommandEmbedSuccess(this, getString("success_description", mention.isMultiple(), mention.getString()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);

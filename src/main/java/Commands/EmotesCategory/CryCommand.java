@@ -6,7 +6,7 @@ import Commands.EmoteAbstract;
         trigger = "cry",
         emoji = "\uD83D\uDE2D",
         executable = true,
-        aliases = {"sad"}
+        aliases = {"sad" , "sob"}
 )
 public class CryCommand extends EmoteAbstract {
 

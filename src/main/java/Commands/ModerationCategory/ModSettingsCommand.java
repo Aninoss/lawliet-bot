@@ -9,7 +9,10 @@ import General.*;
 import General.Mention.MentionFinder;
 import General.Warnings.UserWarnings;
 import MySQL.DBServerOld;
+import MySQL.Moderation.DBModeration;
+import MySQL.Moderation.ModerationBean;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -35,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class ModSettingsCommand extends Command implements onNavigationListener  {
     
-    private ModerationStatus moderationStatus;
+    private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
     private static final String EMOJI_AUTOMOD = "\uD83D\uDC77",
             TN_AUTOMOD = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Road-Worker-1-icon.png";
@@ -47,7 +50,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
         if (firstTime) {
-            moderationStatus = DBServerOld.getModerationFromServer(event.getServer().get());
+            moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
             return Response.TRUE;
         }
 
@@ -60,8 +63,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 } else {
                     ServerTextChannel channel = channelsList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
-                        moderationStatus.setChannel(channel);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAnnouncementChannelId(channel.getId());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
@@ -106,9 +108,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 if (Tools.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
-                        moderationStatus.setAutoKick(autoKickTemp);
-                        moderationStatus.setAutoKickDays(value);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAutoKick(autoKickTemp, value);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return Response.TRUE;
@@ -125,9 +125,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 if (Tools.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
-                        moderationStatus.setAutoBan(autoBanTemp);
-                        moderationStatus.setAutoBanDays(value);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAutoBan(autoBanTemp, value);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return Response.TRUE;
@@ -158,9 +156,8 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 1:
-                        moderationStatus.switchQuestion();
-                        DBServerOld.saveModeration(moderationStatus);
-                        setLog(LogStatus.SUCCESS, getString("setquestion", moderationStatus.isQuestion()));
+                        moderationBean.toggleQuestion();
+                        setLog(LogStatus.SUCCESS, getString("setquestion", moderationBean.isQuestion()));
                         return true;
 
                     case 2:
@@ -180,8 +177,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 0:
-                        moderationStatus.setChannel(null);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAnnouncementChannelId(null);
                         setLog(LogStatus.SUCCESS, getString("channelreset"));
                         setState(0);
                         return true;
@@ -195,8 +191,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 0:
-                        moderationStatus.setAutoKick(0);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAutoKick(0, 0);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -210,8 +205,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 0:
-                        moderationStatus.setAutoBan(0);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAutoBan(0, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -225,9 +219,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 0:
-                        moderationStatus.setAutoKick(autoKickTemp);
-                        moderationStatus.setAutoKickDays(0);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAutoKick(autoKickTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -241,9 +233,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         return true;
 
                     case 0:
-                        moderationStatus.setAutoBan(autoBanTemp);
-                        moderationStatus.setAutoBanDays(0);
-                        DBServerOld.saveModeration(moderationStatus);
+                        moderationBean.setAutoKick(autoBanTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -260,9 +250,9 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mchannel"), Tools.getStringIfNotNull(moderationStatus.getChannel().orElse(null), notSet), true)
-                        .addField(getString("state0_mquestion"), Tools.getOnOffForBoolean(getLocale(), moderationStatus.isQuestion()), true)
-                        .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationStatus.getAutoKick(), moderationStatus.getAutoKickDays()), getAutoModString(moderationStatus.getAutoBan(), moderationStatus.getAutoBanDays())), false);
+                        .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
+                        .addField(getString("state0_mquestion"), Tools.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
+                        .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
 
             case 1:
                 setOptions(new String[]{getString("state1_options")});
@@ -300,17 +290,17 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
         return 4;
     }
 
-    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws SQLException {
+    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws SQLException, ExecutionException {
         DBServerOld.insertWarning(server, user, requestor, reason);
 
-        ModerationStatus moderationStatus = DBServerOld.getModerationFromServer(server);
+        ModerationBean moderationBean = DBModeration.getInstance().getBean(server.getId());
         UserWarnings userWarnings = DBServerOld.getWarningsForUser(server, user);
 
-        int autoKickDays = moderationStatus.getAutoKickDays();
-        int autoBanDays = moderationStatus.getAutoBanDays();
+        int autoKickDays = moderationBean.getAutoKickDays();
+        int autoBanDays = moderationBean.getAutoBanDays();
 
-        boolean autoKick = moderationStatus.getAutoKick() > 0 && (autoKickDays > 0 ? userWarnings.amountLatestDays(autoKickDays) : userWarnings.amountTotal()) >= moderationStatus.getAutoKick();
-        boolean autoBan = moderationStatus.getAutoBan() > 0 && (autoBanDays > 0 ? userWarnings.amountLatestDays(autoBanDays) : userWarnings.amountTotal()) >= moderationStatus.getAutoBan();
+        boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? userWarnings.amountLatestDays(autoKickDays) : userWarnings.amountTotal()) >= moderationBean.getAutoKick();
+        boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? userWarnings.amountLatestDays(autoBanDays) : userWarnings.amountTotal()) >= moderationBean.getAutoBan();
 
         if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, "mod", server, Permission.BAN_USER)) {
             try {
@@ -321,7 +311,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban_template", user.getDisplayName(server)))
                         .setThumbnail(TN_AUTOMOD);
 
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationStatus);
+                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (IllegalAccessException | InstantiationException | InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -336,19 +326,19 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                         .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick_template", user.getDisplayName(server)))
                         .setThumbnail(TN_AUTOMOD);
 
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationStatus);
+                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (InterruptedException | ExecutionException | IllegalAccessException | InstantiationException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static void postLog(Command command, EmbedBuilder eb, Server server) throws SQLException {
-        postLog(command, eb, DBServerOld.getModerationFromServer(server));
+    public static void postLog(Command command, EmbedBuilder eb, Server server) throws ExecutionException {
+        postLog(command, eb, DBModeration.getInstance().getBean(server.getId()));
     }
 
-    public static void postLog(Command command, EmbedBuilder eb, ModerationStatus moderationStatus) {
-        moderationStatus.getChannel().ifPresent(serverTextChannel -> {
+    public static void postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean) {
+        moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
 
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getTrigger(), serverTextChannel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
                 try {

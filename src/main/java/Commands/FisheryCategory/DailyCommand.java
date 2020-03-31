@@ -12,6 +12,8 @@ import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Optional;
+
 @CommandProperties(
     trigger = "daily",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
@@ -42,7 +44,7 @@ public class DailyCommand extends Command implements onRecievedListener {
                     }
                 }
 
-                if (DBDonators.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).isValid()) {
+                if (DBDonators.getInstance().getBean().getMap().containsKey(event.getMessage().getUserAuthor().get().getId())) {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 

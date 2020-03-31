@@ -9,6 +9,7 @@ import MySQL.AutoChannel.AutoChannelBean;
 import MySQL.AutoChannel.DBAutoChannel;
 import MySQL.AutoQuote.AutoQuoteBean;
 import MySQL.AutoQuote.DBAutoQuote;
+import MySQL.Donators.DBDonators;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;

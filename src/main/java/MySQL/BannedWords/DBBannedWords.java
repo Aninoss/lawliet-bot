@@ -1,6 +1,6 @@
 package MySQL.BannedWords;
 
-import MySQL.DBArrayListLoad;
+import MySQL.DBDataLoad;
 import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
 import MySQL.Server.DBServer;
@@ -68,9 +68,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     private ArrayList<Long> getIgnoredUsers(long serverId) throws SQLException {
-        DBArrayListLoad<Long> dbArrayListLoad = new DBArrayListLoad<>("BannedWordsIgnoredUsers", "userId", "serverId = ?",
+        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("BannedWordsIgnoredUsers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbArrayListLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addIgnoredUser(long serverId, long userId) {
@@ -98,9 +98,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     private ArrayList<Long> getLogReceivers(long serverId) throws SQLException {
-        DBArrayListLoad<Long> dbArrayListLoad = new DBArrayListLoad<>("BannedWordsLogRecievers", "userId", "serverId = ?",
+        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("BannedWordsLogRecievers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbArrayListLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addLogReceiver(long serverId, long userId) {
@@ -128,9 +128,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     private ArrayList<String> getWords(long serverId) throws SQLException {
-        DBArrayListLoad<String> dbArrayListLoad = new DBArrayListLoad<>("BannedWordsWords", "word", "serverId = ?",
+        DBDataLoad<String> dbDataLoad = new DBDataLoad<>("BannedWordsWords", "word", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbArrayListLoad.getArrayList(resultSet -> resultSet.getString(1));
+        return dbDataLoad.getArrayList(resultSet -> resultSet.getString(1));
     }
 
     private void addWord(long serverId, String word) {

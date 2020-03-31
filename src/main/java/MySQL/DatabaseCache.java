@@ -11,7 +11,6 @@ public class DatabaseCache {
     private static DatabaseCache ourInstance = new DatabaseCache();
     private Map<Long, ArrayList<Long>> powerPlantIgnoredChannels = new HashMap<>();
     private Map<Long, ArrayList<Long>> whiteListedChannels = new HashMap<>();
-    private Map<Long, ArrayList<Pair<Long, String>>> memberCountDisplays = new HashMap<>();
     private Map<Long, ArrayList<String>> nsfwFilters = new HashMap<>();
     private Map<Long, Map<Long, FishingProfile>> fishingProfiles = new HashMap<>();
 
@@ -39,42 +38,6 @@ public class DatabaseCache {
 
     public ArrayList<Long> getWhiteListedChannels(Server server) {
         return whiteListedChannels.get(server.getId());
-    }
-
-    public ArrayList<Pair<Long, String>> getMemberCountDisplays(Server server) {
-        return memberCountDisplays.get(server.getId());
-    }
-
-    public void addMemberCountDisplay(Server server, Pair<Long, String> display) {
-        this.memberCountDisplays.computeIfAbsent(server.getId(), key -> new ArrayList<>()).add(display);
-    }
-
-    public void setMemberCountDisplays(Server server, ArrayList<Pair<Long, String>> displays) {
-        this.memberCountDisplays.put(server.getId(), displays);
-    }
-
-    public void removeMemberCountDisplay(Server server, Pair<Long, String> display) {
-        ArrayList<Pair<Long, String>> displayList = this.memberCountDisplays.get(server.getId());
-        if (displayList == null) return;
-
-        for(Pair<Long, String> disCheck: displayList) {
-            if (disCheck.getKey() == display.getKey()) {
-                memberCountDisplays.get(server.getId()).remove(disCheck);
-                break;
-            }
-        }
-    }
-
-    public void removeMemberCountDisplay(long serverId, long vcId) {
-        ArrayList<Pair<Long, String>> displayList = this.memberCountDisplays.get(serverId);
-        if (displayList == null) return;
-
-        for(Pair<Long, String> disCheck: displayList) {
-            if (disCheck.getKey() == vcId) {
-                memberCountDisplays.get(serverId).remove(disCheck);
-                break;
-            }
-        }
     }
 
     public void setNSFWFilter(Server server, ArrayList<String> nsfwFilter) {

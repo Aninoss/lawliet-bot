@@ -1,75 +1,84 @@
 package MySQL.Donators;
 
-import MySQL.AutoQuote.AutoQuoteBean;
 import MySQL.DBBeanGenerator;
+import MySQL.DBCached;
 import MySQL.DBKeySetLoad;
 import MySQL.DBMain;
-import MySQL.Server.DBServer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-public class DBDonators extends DBBeanGenerator<Long, DonatorBean> implements DBBeanGenerator.CompleteLoadOnStartup<Long> {
+public class DBDonators extends DBCached {
 
     private static DBDonators ourInstance = new DBDonators();
     public static DBDonators getInstance() { return ourInstance; }
     private DBDonators() {}
 
-    @Override
-    protected DonatorBean loadBean(Long userId) throws Exception {
-        DonatorBean donatorBean;
+    private DonatorBean donatorBean = null;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT end FROM Donators WHERE userId = ?;");
-        preparedStatement.setLong(1, userId);
-        preparedStatement.execute();
+    public DonatorBean getBean() throws SQLException {
+        if (donatorBean == null) {
+            HashMap<Long, DonatorBeanSlot> slots = new HashMap<>();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            donatorBean = new DonatorBean(
-                    userId,
-                    resultSet.getDate(1).toLocalDate()
-            );
-        } else {
-            donatorBean = new DonatorBean(
-                    userId,
-                    LocalDate.now()
-            );
+            Statement statement = DBMain.getInstance().statement("SELECT userId, end FROM Donators;");
+            ResultSet resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                long userId = resultSet.getLong(1);
+
+                DonatorBeanSlot donatorBeanSlot = new DonatorBeanSlot(
+                        userId,
+                        resultSet.getDate(2).toLocalDate()
+                );
+
+                slots.put(userId, donatorBeanSlot);
+            }
+
+            resultSet.close();
+            statement.close();
+
+            donatorBean = new DonatorBean(slots);
+            donatorBean.getMap().addMapAddListener(this::insertDonation);
+            donatorBean.getMap().addMapUpdateListener(this::insertDonation);
+            donatorBean.getMap().addMapRemoveListener(this::removeDonation);
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         return donatorBean;
     }
 
-    @Override
-    protected void saveBean(DonatorBean donatorBean) throws SQLException {
-        if (donatorBean.getDonationEnd().isAfter(LocalDate.now())) {
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Donators (userId, end) VALUES (?, ?);");
-            preparedStatement.setLong(1, donatorBean.getUserId());
-            preparedStatement.setString(2, DBMain.localDateToDateString(donatorBean.getDonationEnd()));
+    protected void insertDonation(DonatorBeanSlot donatorBean) {
+        try {
+            if (donatorBean.isValid()) {
+                PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("REPLACE INTO Donators (userId, end) VALUES (?, ?);");
+                preparedStatement.setLong(1, donatorBean.getUserId());
+                preparedStatement.setString(2, DBMain.localDateToDateString(donatorBean.getDonationEnd()));
 
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public void removeBean(DonatorBean donatorBean) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Donators WHERE userId = ?;");
-        preparedStatement.setLong(1, donatorBean.getUserId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
+    public void removeDonation(DonatorBeanSlot donatorBean) {
+        try {
+            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Donators WHERE userId = ?;");
+            preparedStatement.setLong(1, donatorBean.getUserId());
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public ArrayList<Long> getKeySet() throws SQLException {
-        return new DBKeySetLoad<Long>("Donators", "userId")
-                .get(resultSet -> resultSet.getLong(1));
+    public void clear() {
+        donatorBean = null;
     }
 
 }

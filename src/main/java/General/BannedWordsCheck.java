@@ -38,7 +38,7 @@ public class BannedWordsCheck {
                 }
 
                 //Poster informieren
-                Locale locale = bannedWordsBean.getBean().getLocale();
+                Locale locale = bannedWordsBean.getServerBean().getLocale();
                 BannedWordsCommand bannedWordsCommand = new BannedWordsCommand();
                 bannedWordsCommand.setLocale(locale);
 

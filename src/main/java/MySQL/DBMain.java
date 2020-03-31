@@ -15,19 +15,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.TimeZone;
 
 public class DBMain implements DriverAction {
 
     private static DBMain ourInstance = new DBMain();
-
-    private Connection connect = null;
-
     public static DBMain getInstance() {
         return ourInstance;
     }
-
     private DBMain() {}
+
+    private Connection connect = null;
+
+    private ArrayList<DBCached> caches = new ArrayList<>();
 
     public void connect() throws IOException, SQLException {
         System.out.println("Connecting with database...");
@@ -57,6 +58,12 @@ public class DBMain implements DriverAction {
             System.exit(-1);
         }
     }
+
+    public void addDBCached(DBCached dbCached) {
+        if (!caches.contains(dbCached)) caches.add(dbCached);
+    }
+
+    public void clearCache() { caches.forEach(DBCached::clear); }
 
     public static String instantToDateTimeString(Instant instant) {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant,ZoneOffset.systemDefault()));

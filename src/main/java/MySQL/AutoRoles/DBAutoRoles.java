@@ -1,6 +1,6 @@
 package MySQL.AutoRoles;
 
-import MySQL.DBArrayListLoad;
+import MySQL.DBDataLoad;
 import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
 import MySQL.Server.DBServer;
@@ -34,9 +34,9 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
     protected void saveBean(AutoRolesBean autoRolesBean) throws SQLException {}
 
     private ArrayList<Long> getRoleIds(long serverId) throws SQLException {
-        DBArrayListLoad<Long> dbArrayListLoad = new DBArrayListLoad<>("BasicRole", "roleId", "serverId = ?",
+        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("BasicRole", "roleId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbArrayListLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addRoleId(long serverId, long roleId) {

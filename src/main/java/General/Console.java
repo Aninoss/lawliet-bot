@@ -3,6 +3,7 @@ package General;
 import CommandSupporters.CommandContainer;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.ActivityUserData;
+import MySQL.DBMain;
 import MySQL.FisheryCache;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
@@ -110,9 +111,14 @@ public class Console {
                                 }
                                 break;
 
-                            case "ss":
+                            case "server":
                                 long serverId = Long.parseLong(arg);
                                 DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMembers().size()));
+                                break;
+
+                            case "clear":
+                                DBMain.getInstance().clearCache();
+                                System.out.println("Cache cleared!");
                                 break;
                         }
                     }

@@ -1,20 +1,18 @@
 package ServerStuff;
 
 import General.DiscordApiCollection;
-import MySQL.DBUser;
 import MySQL.Donators.DBDonators;
-import MySQL.Donators.DonatorBean;
+import MySQL.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class DonationHandler {
 
-    public static void addBonus(long userId, double usDollars) throws ExecutionException {
+    public static void addBonus(long userId, double usDollars) throws SQLException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
         Server server = apiCollection.getServerById(557953262305804308L).get();
@@ -39,7 +37,7 @@ public class DonationHandler {
             return;
         }
 
-        DonatorBean donatorBean = DBDonators.getInstance().getBean(userId);
+        DonatorBeanSlot donatorBean = DBDonators.getInstance().getBean().get(userId);
 
         if (server.isMember(user)) {
             userName = user.getMentionTag();
@@ -62,7 +60,7 @@ public class DonationHandler {
         }
     }
 
-    public static void removeBonus(DonatorBean donatorBean) throws ExecutionException {
+    public static void removeBonus(DonatorBeanSlot donatorBean) throws ExecutionException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         Server server = apiCollection.getServerById(557953262305804308L).get();
         User user = null;
@@ -93,7 +91,7 @@ public class DonationHandler {
         }
 
         try {
-            DBDonators.getInstance().removeBean(donatorBean);
+            DBDonators.getInstance().getBean().getMap().remove(userId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -101,7 +99,7 @@ public class DonationHandler {
 
     public static void checkExpiredDonations() {
         try {
-            DBDonators.getInstance().getAllBeans().stream().filter(donatorBean -> !donatorBean.isValid()).forEach(donatorBean -> {
+            DBDonators.getInstance().getBean().getMap().values().stream().filter(donatorBean -> !donatorBean.isValid()).forEach(donatorBean -> {
                 try {
                     removeBonus(donatorBean);
                 } catch (ExecutionException e) {

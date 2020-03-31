@@ -65,7 +65,6 @@ public class NavigationHelper<T> {
                 if (!srcList.contains(t)) {
                     if (srcList.size() < max) {
                         srcList.add(t);
-                        System.out.println(t);
                         forEachNew.accept(t);
                         n++;
                     }

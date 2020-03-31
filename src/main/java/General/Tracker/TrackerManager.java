@@ -24,7 +24,7 @@ public class TrackerManager {
 
     private static ArrayList<TrackerConnection> trackerConnections = new ArrayList<>();
 
-    public static void manageTracker(TrackerData trackerData) throws SQLException, InstantiationException, IllegalAccessException, InterruptedException, ExecutionException {
+    public static void manageTracker(TrackerData trackerData) throws InstantiationException, IllegalAccessException, InterruptedException, ExecutionException {
         if (trackerData == null) {
             return;
         }
@@ -73,7 +73,7 @@ public class TrackerManager {
         Thread t = new Thread(() -> {
             try {
                 TrackerManager.manageTracker(trackerData);
-            } catch (InstantiationException | SQLException | InterruptedException | IllegalAccessException | ExecutionException e) {
+            } catch (InstantiationException | InterruptedException | IllegalAccessException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
