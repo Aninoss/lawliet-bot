@@ -12,7 +12,10 @@ import General.Survey.SurveyResults;
 import General.Survey.UserMajorityVoteData;
 import General.Survey.UserVoteData;
 import General.Tracker.TrackerData;
+import MySQL.DBBot;
+import MySQL.DBServerOld;
 import MySQL.DBSurvey;
+import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
@@ -131,11 +134,10 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
         lastAccess = System.currentTimeMillis();
 
         //Results Message
-        EmbedBuilder eb = getResultsEmbed();
-        if (eb != null) channel.sendMessage(eb);
+        channel.sendMessage(getResultsEmbed());
 
         //Survey Message
-        eb = getSurveyEmbed(survey);
+        EmbedBuilder eb = getSurveyEmbed(survey);
         if (!tracker) EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         Message message = channel.sendMessage(eb).get();
 
@@ -210,6 +212,10 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
+        while(trackerData.getArg() != null && DBSurvey.getCurrentSurvey().getId() <= Integer.parseInt(trackerData.getArg())) {
+            Thread.sleep(60 * 1000);
+        }
+
         ServerTextChannel channel = trackerData.getChannel().get();
         if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channel, Permission.ADD_REACTIONS)) {
             trackerData.setSaveChanges(false);
@@ -224,6 +230,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
         } while(!TimeTools.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeTools.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
         trackerData.setInstant(nextInstant.plusSeconds(5 * 60));
+        trackerData.setArg(String.valueOf(survey.getId()));
         return trackerData;
     }
 

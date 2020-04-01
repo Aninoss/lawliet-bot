@@ -249,10 +249,15 @@ public abstract class Command {
                 ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
                 throw e;
             }
-        }
-        else {
-            if (navigationMessage.getCurrentCachedInstance().isPresent())
-                navigationMessage.edit(eb);
+        } else {
+            if (navigationMessage.getCurrentCachedInstance().isPresent()) {
+                try {
+                    navigationMessage.edit(eb).get();
+                } catch (Throwable e) {
+                    ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
+                    throw e;
+                }
+            }
         }
     }
 

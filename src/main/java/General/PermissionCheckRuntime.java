@@ -85,7 +85,7 @@ public class PermissionCheckRuntime {
 
     private boolean canPostError(Server server, int permission) {
         Instant instant = errorTimes.computeIfAbsent(server.getId(), k -> new HashMap<>()).get(permission);
-        return instant == null || instant.plusSeconds(15 * 60).isBefore(Instant.now());
+        return instant == null || instant.plusSeconds(60 * 60).isBefore(Instant.now());
     }
 
     private void setErrorInstant(Server server, int permission) {

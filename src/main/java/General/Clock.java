@@ -34,7 +34,7 @@ public class Clock {
     public static void tick() {
         //Start 10 Minutes Event Loop
         Thread t = new Thread(() -> {
-            while(true) {
+            while (true) {
                 try {
                     Thread.sleep(1000 * 60 * 10);
                 } catch (InterruptedException e) {
@@ -47,14 +47,14 @@ public class Clock {
         t.setName("clock_10min");
         t.start();
 
-        try {
-            while (true) {
+        while(true) {
+            try {
                 Duration duration = Duration.between(Instant.now(), TimeTools.setInstantToNextHour(Instant.now()));
                 Thread.sleep(duration.getSeconds() * 1000 + duration.getNano() / 1000000);
                 onHourStart();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -66,19 +66,29 @@ public class Clock {
     }
 
     private static void onDayStart() {
+        ExceptionHandler.showInfoLog("1");
+
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        trafficWarned = false; //Reset Traffic Warning
-        SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
-        RunningCommandManager.getInstance().clear(); //Resets Running Commands
-        PornImageCache.getInstance().clearAll(); //Resets Porn Cache
+        ExceptionHandler.showInfoLog("2");
 
         //Survey Results
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         if (day == Calendar.MONDAY || day == Calendar.THURSDAY) updateSurvey();
 
+        ExceptionHandler.showInfoLog("3");
+
+        trafficWarned = false; //Reset Traffic Warning
+        SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
+        RunningCommandManager.getInstance().clear(); //Resets Running Commands
+        PornImageCache.getInstance().clearAll(); //Resets Porn Cache
+
+        ExceptionHandler.showInfoLog("4");
+
         DonationHandler.checkExpiredDonations(); //Check Expired Donations
+
+        ExceptionHandler.showInfoLog("5");
 
         //Send Bot Stats
         try {
@@ -95,6 +105,84 @@ public class Clock {
             DBBot.addStatUpvotes();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+
+        ExceptionHandler.showInfoLog("6");
+    }
+
+
+    private static void every10Minutes() {
+        if (!DiscordApiCollection.getInstance().allShardsConnected())
+            ExceptionHandler.showErrorLog("At least 1 shard is offline!");
+
+        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
+
+        //Cleans Cooldown List
+        Cooldown.getInstance().clean();
+
+        //Cleans Running Commands
+        RunningCommandManager.getInstance().clean();
+
+        //Analyzes Traffic
+        double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
+        Console.getInstance().setTraffic(trafficGB);
+
+        if (trafficGB >= 50 && (!trafficWarned || trafficGB >= 60)) {
+            try {
+                apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            trafficWarned = true;
+        }
+        if (trafficGB >= 60) {
+            ExceptionHandler.showErrorLog("Too much traffic!");
+            System.exit(-1);
+        }
+
+        //Checks Database Connection
+        if (!DBMain.getInstance().checkConnection()) {
+            try {
+                DBMain.getInstance().connect();
+            } catch (IOException | SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Updates Activity
+        Connector.updateActivity();
+
+        //Updates Discord Bots Server Count
+        if (apiCollection.allShardsConnected()) {
+            int totalServers = apiCollection.getServerTotalSize();
+            TopGG.getInstance().updateServerCount(totalServers);
+            Botsfordiscord.updateServerCount(totalServers);
+            BotsOnDiscord.updateServerCount(totalServers);
+            Discordbotlist.updateServerCount(totalServers);
+            Divinediscordbots.updateServerCount(totalServers);
+            Discordbotsgg.updateServerCount(totalServers);
+        }
+
+        //Updates survey manually
+        File surveyCheckFile = new File("survey_update");
+        if (surveyCheckFile.exists()) {
+            if (surveyCheckFile.delete()) {
+                System.out.println("UPDATE SURVEY");
+                updateSurvey();
+            }
+        }
+
+        //Restart All Shards at 05:15 AM
+        Calendar calendar = Calendar.getInstance();
+        if (calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
+                calendar.get(Calendar.MINUTE) >= 15 &&
+                calendar.get(Calendar.MINUTE) < 25 &&
+                Bot.hasUpdate()
+        ) {
+            ExceptionHandler.showInfoLog("Restart for Update...");
+            for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
+                FisheryCache.getInstance(i).saveData();
+            System.exit(0);
         }
     }
 
@@ -184,81 +272,6 @@ public class Clock {
             }
         } catch (Throwable e) {
             e.printStackTrace();
-        }
-    }
-
-    private static void every10Minutes() {
-        if (!DiscordApiCollection.getInstance().allShardsConnected())
-            ExceptionHandler.showErrorLog("At least 1 shard is offline!");
-
-        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-
-        //Cleans Cooldown List
-        Cooldown.getInstance().clean();
-
-        //Cleans Running Commands
-        RunningCommandManager.getInstance().clean();
-
-        //Analyzes Traffic
-        double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
-        Console.getInstance().setTraffic(trafficGB);
-
-        if (trafficGB >= 50 && (!trafficWarned || trafficGB >= 60)) {
-            try {
-                apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-            trafficWarned = true;
-        }
-        if (trafficGB >= 60) {
-            ExceptionHandler.showErrorLog("Too much traffic!");
-            System.exit(-1);
-        }
-
-        //Checks Database Connection
-        if (!DBMain.getInstance().checkConnection()) {
-            try {
-                DBMain.getInstance().connect();
-            } catch (IOException | SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //Updates Activity
-        Connector.updateActivity();
-
-        //Updates Discord Bots Server Count
-        if (apiCollection.allShardsConnected()) {
-            int totalServers = apiCollection.getServerTotalSize();
-            TopGG.getInstance().updateServerCount(totalServers);
-            Botsfordiscord.updateServerCount(totalServers);
-            BotsOnDiscord.updateServerCount(totalServers);
-            Discordbotlist.updateServerCount(totalServers);
-            Divinediscordbots.updateServerCount(totalServers);
-            Discordbotsgg.updateServerCount(totalServers);
-        }
-
-        //Updates survey manually
-        File surveyCheckFile = new File("survey_update");
-        if (surveyCheckFile.exists()) {
-            if (surveyCheckFile.delete()) {
-                System.out.println("UPDATE SURVEY");
-                updateSurvey();
-            }
-        }
-
-        //Restart All Shards at 05:15 AM
-        Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
-                calendar.get(Calendar.MINUTE) >= 15 &&
-                calendar.get(Calendar.MINUTE) < 25 &&
-                Bot.hasUpdate()
-        ) {
-            ExceptionHandler.showInfoLog("Restart for Update...");
-            for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
-                FisheryCache.getInstance(i).saveData();
-            System.exit(0);
         }
     }
 

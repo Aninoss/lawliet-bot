@@ -443,7 +443,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
                         .addField(getString("state3_mtitle"), Optional.ofNullable(title).orElse(notSet), true)
                         .addField(getString("state3_mdescription"), Optional.ofNullable(description).orElse(notSet), true)
-                        .addField(getString("state3_mshortcuts"), Optional.of(getLinkString()).orElse(notSet), false)
+                        .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
                         .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringTools.getOnOffForBoolean(getLocale(), removeRole), StringTools.getOnOffForBoolean(getLocale(), multipleRoles)), false);
 
 
@@ -507,6 +507,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
             link.append(emojiConnection.getConnection());
             link.append("\n");
         }
+        if (link.length() == 0) return null;
         return link.toString();
     }
 
