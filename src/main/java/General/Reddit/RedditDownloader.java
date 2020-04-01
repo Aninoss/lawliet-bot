@@ -24,7 +24,7 @@ public class RedditDownloader {
             redditPost = getPost(locale, sub);
             i++;
             if (i >= 50) break;
-        } while (redditPost == null || redditPost.getImage() == null || !Tools.UrlContainsImage(redditPost.getImage()));
+        } while (redditPost == null || redditPost.getImage() == null || !InternetTools.urlContainsImage(redditPost.getImage()));
 
         return redditPost;
     }
@@ -122,7 +122,7 @@ public class RedditDownloader {
         post.setComments(data.has("num_comments") ? data.getInt("num_comments") : 0);
         post.setInstant(new Date(data.getLong("created_utc") * 1000L).toInstant());
         post.setNsfw(data.getBoolean("over_18"));
-        post.setTitle(Tools.shortenString(data.getString("title"), 256));
+        post.setTitle(StringTools.shortenString(data.getString("title"), 256));
         post.setAuthor(data.getString("author"));
 
         flair = data.get("link_flair_text");
@@ -148,7 +148,7 @@ public class RedditDownloader {
             if (data.has("preview") && data.getJSONObject("preview").has("images")) {
                 post.setThumbnail(data.getJSONObject("preview").getJSONArray("images").getJSONObject(0).getJSONObject("source").getString("url"));
             } else {
-                if (Tools.UrlContainsImage(url)) {
+                if (InternetTools.urlContainsImage(url)) {
                     post.setImage(url);
                     post.setLink(source);
                     postSource = false;
@@ -159,10 +159,10 @@ public class RedditDownloader {
 
         if (postSource && !source.equals(url)) {
             String linkText = TextManager.getString(locale, TextManager.COMMANDS, "reddit_linktext", source);
-            description = Tools.shortenString(description, 2048-linkText.length());
+            description = StringTools.shortenString(description, 2048-linkText.length());
             if (!description.equals("")) description += "\n\n";
             description += linkText;
-        } else description = Tools.shortenString(description, 2048);
+        } else description = StringTools.shortenString(description, 2048);
 
         post.setDescription(description);
         post.setDomain(domain);

@@ -28,6 +28,10 @@ public class PornImageCache {
         searchKeys.removeIf(searchKey -> searchKey.getSearchKey().equals(searchKeyString));
     }
 
+    public void clearAll() {
+        searchKeys = new ArrayList<>();
+    }
+
     private PornImageCacheSearchKey find(String searchKeyString) {
         for(PornImageCacheSearchKey searchKey: searchKeys) {
             if (searchKey.getSearchKey().equals(searchKeyString)) return searchKey;

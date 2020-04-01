@@ -5,7 +5,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
 import General.PermissionCheck;
 import General.TextManager;
@@ -28,14 +28,14 @@ public class SayCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        MentionList<ServerTextChannel> mentionedChannels = MentionFinder.getTextChannels(event.getMessage(), followedString, true);
+        MentionList<ServerTextChannel> mentionedChannels = MentionTools.getTextChannels(event.getMessage(), followedString, true);
         followedString = mentionedChannels.getResultMessageString();
 
         ServerTextChannel postChannel = event.getServerTextChannel().get();
         if (mentionedChannels.getList().size() > 0) postChannel = mentionedChannels.getList().get(0);
 
-        int permissions = Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS;
-        EmbedBuilder errorEmbed = PermissionCheck.userAndBothavePermissions(getLocale(), event.getServer().get(), postChannel, event.getMessage().getUserAuthor().get(), permissions, permissions);
+        int permissions = Permission.SEND_MESSAGES | Permission.EMBED_LINKS;
+        EmbedBuilder errorEmbed = PermissionCheck.getUserAndBotPermissionMissingEmbed(getLocale(), event.getServer().get(), postChannel, event.getMessage().getUserAuthor().get(), permissions, permissions);
         if (errorEmbed != null) {
             event.getChannel().sendMessage(errorEmbed).get();
             return false;

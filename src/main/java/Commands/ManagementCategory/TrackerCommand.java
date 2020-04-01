@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 @CommandProperties(
     trigger = "tracker",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     userPermissions = Permission.MANAGE_SERVER,
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Favourite-2-icon.png",
     emoji = "\uD83D\uDD16",
@@ -180,7 +180,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     return;
             }
 
-            searchTerm = Tools.cutSpaces(searchTerm.substring(arg.length()));
+            searchTerm = StringTools.trimString(searchTerm.substring(arg.length()));
         }
     }
 

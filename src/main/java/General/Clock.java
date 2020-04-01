@@ -3,6 +3,7 @@ package General;
 import Commands.FisheryCategory.SurveyCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
+import General.Porn.PornImageCache;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.*;
 import MySQL.Server.DBServer;
@@ -48,7 +49,7 @@ public class Clock {
 
         try {
             while (true) {
-                Duration duration = Duration.between(Instant.now(), Tools.setInstantToNextHour(Instant.now()));
+                Duration duration = Duration.between(Instant.now(), TimeTools.setInstantToNextHour(Instant.now()));
                 Thread.sleep(duration.getSeconds() * 1000 + duration.getNano() / 1000000);
                 onHourStart();
             }
@@ -70,6 +71,7 @@ public class Clock {
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
         RunningCommandManager.getInstance().clear(); //Resets Running Commands
+        PornImageCache.getInstance().clearAll(); //Resets Porn Cache
 
         //Survey Results
         Calendar calendar = Calendar.getInstance();
@@ -157,7 +159,7 @@ public class Clock {
                         stringBuilder[type].append("• ").append(server.getName());
 
                         if (gains > 0) {
-                            stringBuilder[type].append(" (**+").append(Settings.COINS).append(" ").append(Tools.numToString(locale, gains)).append("**)");
+                            stringBuilder[type].append(" (**+").append(Settings.COINS).append(" ").append(StringTools.numToString(locale, gains)).append("**)");
                         }
 
                         stringBuilder[type].append("\n");
@@ -175,16 +177,7 @@ public class Clock {
                         }
                     }
 
-                    Thread t = new Thread(() -> {
-                        try {
-                            if (Tools.canSendPrivateMessage(slot.getUser())) slot.getUser().sendMessage(eb).get();
-                        } catch (Throwable e) {
-                            //Ignore
-                        }
-                    });
-                    t.setName("survey_notif_sender");
-                    t.setPriority(5);
-                    t.start();
+                    slot.getUser().sendMessage(eb);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -269,13 +262,4 @@ public class Clock {
         }
     }
 
-    public static boolean instantHasHour(Instant instant, int hour) {
-        Calendar calendar = GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
-        return calendar.get(Calendar.HOUR_OF_DAY) == hour;
-    }
-
-    public static boolean instantHasWeekday(Instant instant, int weekday) {
-        Calendar calendar = GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
-        return calendar.get(Calendar.DAY_OF_WEEK) == weekday;
-    }
 }

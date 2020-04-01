@@ -5,13 +5,16 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
+import Constants.Settings;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
 import com.vdurmont.emoji.EmojiParser;
 import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
+import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
@@ -19,6 +22,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -33,8 +37,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "reactionroles",
-        botPermissions = Permission.MANAGE_ROLES_ON_SERVER | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-        userPermissions = Permission.MANAGE_ROLES_ON_SERVER,
+        botPermissions = Permission.MANAGE_ROLES | Permission.READ_MESSAGE_HISTORY,
+        userPermissions = Permission.MANAGE_ROLES,
         emoji = "\u2611\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png",
         executable = true,
@@ -65,7 +69,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
         switch (state) {
             //Reaction Message hinzufügen
             case 1:
-                ArrayList<ServerTextChannel> serverTextChannel = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> serverTextChannel = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (serverTextChannel.size() > 0) {
                     if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                         channel = serverTextChannel.get(0);
@@ -81,7 +85,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
             //Reaction Message bearbeiten
             case 2:
                 addLoadingReaction();
-                ArrayList<Message> messageArrayList = MentionFinder.getMessagesAll(event.getMessage(), inputString).getList();
+                ArrayList<Message> messageArrayList = MentionTools.getMessagesAll(event.getMessage(), inputString).getList();
                 if (messageArrayList.size() > 0) {
                     for (Message message : messageArrayList) {
                         if (messageIsReactionMessage(message)) {
@@ -131,10 +135,10 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                     boolean updateRole = false, updateEmoji = false;
                     String inputString2 = null;
 
-                    Optional<KnownCustomEmoji> customEmojiOpt = Tools.getCustomEmojiByTag(inputString);
-                    if (customEmojiOpt.isPresent()) {
-                        updateEmoji = calculateEmoji(customEmojiOpt.get());
-                        inputString2 = inputString.replaceFirst(customEmojiOpt.get().getMentionTag(), "");
+                    List<KnownCustomEmoji> customEmojis = MentionTools.getCustomEmojiByTag(inputString);
+                    if (customEmojis.size() > 0) {
+                        updateEmoji = calculateEmoji(customEmojis.get(0));
+                        inputString2 = inputString.replaceFirst(customEmojis.get(0).getMentionTag(), "");
                     } else {
                         try {
                             boolean remove = true;
@@ -160,7 +164,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                                     for (Reaction reaction : getNavigationMessage().getLatestInstance().get().getReactions()) {
                                         if (emojis.get(0).equals(reaction.getEmoji().getMentionTag())) {
                                             if (remove) reaction.remove().get();
-                                            inputString2 = Tools.cutSpaces(inputString.replaceFirst(emojis.get(0), ""));
+                                            inputString2 = StringTools.trimString(inputString.replaceFirst(emojis.get(0), ""));
                                             updateEmoji = calculateEmoji(reaction.getEmoji());
                                             break;
                                         }
@@ -172,8 +176,8 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                         }
                     }
 
-                    MentionList<Role> mentionedRoles = MentionFinder.getRoles(event.getMessage(), inputString);
-                    if (inputString2 != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionFinder.getRoles(event.getMessage(), inputString2);
+                    MentionList<Role> mentionedRoles = MentionTools.getRoles(event.getMessage(), inputString);
+                    if (inputString2 != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionTools.getRoles(event.getMessage(), inputString2);
                     ArrayList<Role> list = mentionedRoles.getList();
                     if (list.size() > 0) {
                         Role roleTest = list.get(0);
@@ -401,7 +405,6 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
             }
         }
 
-        //setLog(LogStatus.SUCCESS, getString("emojiset"));
         emojiTemp = emoji;
         return true;
     }
@@ -416,11 +419,11 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
 
             case 1:
                 if (channel != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Tools.getStringIfNotNull(channel, notSet)),getString("state1_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Optional.ofNullable(channel).map(Mentionable::getMentionTag).orElse(notSet)), getString("state1_title"));
 
             case 2:
                 if (editMessage != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", Tools.getStringIfNotNull(editMessage, notSet)),getString("state2_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", Optional.ofNullable(editMessage).map(DiscordEntity::getIdAsString).orElse(notSet)), getString("state2_title"));
 
             case 3:
                 setOptions(getString("state3_options").split("\n"));
@@ -438,10 +441,10 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                 else add = "new";
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
-                        .addField(getString("state3_mtitle"), Tools.getStringIfNotNull(title, notSet), true)
-                        .addField(getString("state3_mdescription"), Tools.getStringIfNotNull(description, notSet), true)
-                        .addField(getString("state3_mshortcuts"), Tools.getStringIfNotNull(getLinkString(), notSet), false)
-                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", Tools.getOnOffForBoolean(getLocale(), removeRole), Tools.getOnOffForBoolean(getLocale(), multipleRoles)), false);
+                        .addField(getString("state3_mtitle"), Optional.ofNullable(title).orElse(notSet), true)
+                        .addField(getString("state3_mdescription"), Optional.ofNullable(description).orElse(notSet), true)
+                        .addField(getString("state3_mshortcuts"), Optional.of(getLinkString()).orElse(notSet), false)
+                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringTools.getOnOffForBoolean(getLocale(), removeRole), StringTools.getOnOffForBoolean(getLocale(), multipleRoles)), false);
 
 
             case 4:
@@ -452,7 +455,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
 
             case 6:
                 if (roleTemp != null && emojiTemp != null) setOptions(new String[]{getString("state6_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state6_description", Tools.getStringIfNotNull(emojiTemp, notSet), Tools.getStringIfNotNull(roleTemp, notSet)), getString("state6_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Mentionable::getMentionTag).orElse(notSet), Optional.ofNullable(roleTemp).map(Role::getMentionTag).orElse(notSet)), getString("state6_title"));
 
             case 7:
                 ArrayList<String> optionsDelete = new ArrayList<>();
@@ -484,9 +487,9 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
     private EmbedBuilder getMessageEmbed(boolean test) throws IOException {
         String titleAdd = "";
         String identity = "";
-        if (!test) identity = Tools.getEmptyCharacter();
-        if (!removeRole && !test) titleAdd = Tools.getEmptyCharacter();
-        if (!multipleRoles && !test) titleAdd += Tools.getEmptyCharacter() + Tools.getEmptyCharacter();
+        if (!test) identity = Settings.EMPTY_EMOJI;
+        if (!removeRole && !test) titleAdd = Settings.EMPTY_EMOJI;
+        if (!multipleRoles && !test) titleAdd += Settings.EMPTY_EMOJI + Settings.EMPTY_EMOJI;
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setTitle(getEmoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
                 .setDescription(description)
@@ -512,21 +515,21 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
         String title = embed.getTitle().get();
 
         int hiddenNumber = -1;
-        while(title.endsWith(Tools.getEmptyCharacter())) {
+        while(title.endsWith(Settings.EMPTY_EMOJI)) {
             title = title.substring(0, title.length() - 1);
             hiddenNumber++;
         }
         removeRole = (hiddenNumber & 0x1) <= 0;
         multipleRoles = (hiddenNumber & 0x2) <= 0;
-        this.title = Tools.cutSpaces(title.substring(3));
-        if (embed.getDescription().isPresent()) this.description = Tools.cutSpaces(embed.getDescription().get());
+        this.title = StringTools.trimString(title.substring(3));
+        if (embed.getDescription().isPresent()) this.description = StringTools.trimString(embed.getDescription().get());
 
         emojiConnections = new ArrayList<>();
-        checkRolesWithLog(MentionFinder.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);
+        checkRolesWithLog(MentionTools.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
-                Tools.getCustomEmojiByTag(parts[0]).ifPresent(customEmoji -> emojiConnections.add(new EmojiConnection(customEmoji, parts[1])));
+                MentionTools.getCustomEmojiByTag(parts[0]).stream().limit(1).forEach(customEmoji -> emojiConnections.add(new EmojiConnection(customEmoji, parts[1])));
             } else {
                 emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
             }
@@ -538,7 +541,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 String title = embed.getTitle().get();
-                return title.startsWith(getEmoji()) && title.endsWith(Tools.getEmptyCharacter());
+                return title.startsWith(getEmoji()) && title.endsWith(Settings.EMPTY_EMOJI);
             }
         }
         return false;
@@ -550,9 +553,9 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
 
         if (event.getEmoji().isUnicodeEmoji() &&
                 event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
-                PermissionCheck.userhasPermissions(getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getUser(), getUserPermissions()) == null
+                PermissionCheck.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(), event.getUser(), getUserPermissions()).isEmpty()
         ) {
-            if (Tools.canSendPrivateMessage(event.getUser())) event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
+            event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
         }
 
         if (queueFind(message.getId(), user.getId()) == null) {
@@ -564,7 +567,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                     queueAdd(message.getId(), user.getId());
 
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        Optional<Role> rOpt = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+                        Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (rOpt.isPresent()) {
                             Role r = rOpt.get();
                             if (r.getUsers().contains(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r))
@@ -575,7 +578,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
 
                 for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                     if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
-                        Optional<Role> rOpt = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+                        Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (!rOpt.isPresent()) return;
                         Role r = rOpt.get();
                         for (Reaction reaction : message.getReactions()) {
@@ -613,7 +616,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
-                    Optional<Role> rOpt = Tools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+                    Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                     if (!rOpt.isPresent()) return;
                     Role r = rOpt.get();
                     try {

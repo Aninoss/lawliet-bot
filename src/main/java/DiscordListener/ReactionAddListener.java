@@ -3,10 +3,10 @@ package DiscordListener;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
+import Constants.Settings;
 import General.ExceptionHandler;
 import General.RunningCommands.RunningCommandManager;
-import General.Tools;
-import MySQL.DBServerOld;
+import General.StringTools;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
@@ -14,7 +14,6 @@ import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ReactionAddListener {
@@ -69,7 +68,7 @@ public class ReactionAddListener {
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
                     for (onReactionAddStaticListener command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
-                        if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {
+                        if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
                             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
                             ((Command) command).setLocale(serverBean.getLocale());
                             ((Command) command).setPrefix(serverBean.getPrefix());

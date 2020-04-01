@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "salmon",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDC1F",
     thumbnail = "https://pre00.deviantart.net/1e9a/th/pre/i/2017/195/1/b/salmon_run_by_sqwdink-dbgdl3u.png",
@@ -76,13 +76,13 @@ public class SalmonCommand extends Command implements onRecievedListener, onTrac
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setTimestampToNow()
-                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), Tools.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
+                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), TimeTools.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
-            String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + Tools.getInstantString(getLocale(), startTime[i], true) + " - " + Tools.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + TimeTools.getInstantString(getLocale(), startTime[i], true) + " - " + TimeTools.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {
-                if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.valueOf(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {
+                if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {
                     weapons += "**" + languageData.getJSONObject("weapons").getJSONObject(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")).getString("name") + "**, ";
                 } else {
                     weapons += "**?**, ";

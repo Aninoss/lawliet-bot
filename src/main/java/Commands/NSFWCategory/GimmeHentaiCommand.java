@@ -4,7 +4,8 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Tools;
+import General.RandomTools;
+import General.StringTools;
 import General.Internet.Internet;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -24,7 +25,7 @@ public class GimmeHentaiCommand extends Command implements onRecievedListener {
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String hentaiText = null;
-        int n = Tools.pickFullRandom(picked,10);
+        int n = RandomTools.pickFullRandom(picked,10);
 
         switch (n) {
             case 0:
@@ -60,8 +61,8 @@ public class GimmeHentaiCommand extends Command implements onRecievedListener {
         }
 
         String data = Internet.getData(hentaiText.split("\n")[1]).get().getContent().get();
-        String cover = Tools.cutString(data,"<meta property=\"og:image\" content=\"","\">");
-        String desc = Tools.shortenString(Tools.decryptString(Tools.cutString(data,"<meta property=\"og:description\" content=\"","\">")),1024);
+        String cover = StringTools.extractGroups(data,"<meta property=\"og:image\" content=\"","\">")[0];
+        String desc = StringTools.shortenString(StringTools.decryptString(StringTools.extractGroups(data,"<meta property=\"og:description\" content=\"","\">")[0]),1024);
 
         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",hentaiText))

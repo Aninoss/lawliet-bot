@@ -1,20 +1,13 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import General.DiscordApiCollection;
-import General.Tools;
 import MySQL.DBUser;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Optional;
 
 public class OnTopGG implements DataListener<JSONObject> {
 

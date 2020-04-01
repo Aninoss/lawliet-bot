@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.*;
 import General.*;
 import General.BotResources.ResourceManager;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.DatabaseCache;
@@ -17,6 +17,7 @@ import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
@@ -25,7 +26,6 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fishery",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\u2699\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
@@ -68,7 +68,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
 
         switch (state) {
             case 1:
-                ArrayList<Role> roleList = MentionFinder.getRoles(event.getMessage(), inputString).getList();
+                ArrayList<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -99,7 +99,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
                 }
 
             case 3:
-                ArrayList<ServerTextChannel> channelIgnoredList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelIgnoredList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -112,7 +112,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
                 }
 
             case 4:
-                ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -131,8 +131,8 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
             case 5:
                 if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
                     String[] parts = inputString.split("-");
-                    long priceMin = Tools.filterNumberFromString(parts[0]);
-                    long priceMax = Tools.filterNumberFromString(parts[1]);
+                    long priceMin = StringTools.filterNumberFromString(parts[0]);
+                    long priceMax = StringTools.filterNumberFromString(parts[1]);
 
                     if (priceMin >= -1 && priceMax >= -1) {
                         if (priceMin == -1) priceMin = serverBean.getFisheryRoleMin();
@@ -375,7 +375,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
     private String getRoleString(Role role) {
         int n = roles.indexOf(role);
         try {
-            return getString("state0_rolestring", role.getMentionTag(), Tools.numToString(getFisheryRolePrice(role.getServer(), roles, n)));
+            return getString("state0_rolestring", role.getMentionTag(), StringTools.numToString(getFisheryRolePrice(role.getServer(), roles, n)));
         } catch (IOException | ExecutionException e) {
             e.printStackTrace();
             return "";
@@ -408,13 +408,13 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**", true)
-                        .addField(getString("state0_mtreasurechests"), Tools.getOnOffForBoolean(getLocale(), serverBean.isFisheryTreasureChests()), true)
-                        .addField(getString("state0_mreminders"), Tools.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
+                        .addField(getString("state0_mtreasurechests"), StringTools.getOnOffForBoolean(getLocale(), serverBean.isFisheryTreasureChests()), true)
+                        .addField(getString("state0_mreminders"), StringTools.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
                         .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), false)
-                        .addField(getString("state0_msinglerole", Tools.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", Tools.numToString(getLocale(), serverBean.getFisheryRoleMin()), Tools.numToString(getLocale(), serverBean.getFisheryRoleMax())), false);
+                        .addField(getString("state0_msinglerole", StringTools.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
+                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringTools.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringTools.numToString(getLocale(), serverBean.getFisheryRoleMax())), false);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -482,7 +482,7 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
 
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), Tools.numToString(getLocale(), won)))
+                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), StringTools.numToString(getLocale(), won)))
                         .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"))
                         .setFooter(getString("treasure_footer"));
                 message.edit(eb);

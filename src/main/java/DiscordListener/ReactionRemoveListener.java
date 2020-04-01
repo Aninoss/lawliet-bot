@@ -3,14 +3,13 @@ package DiscordListener;
 import CommandListeners.onReactionRemoveStaticListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
-import General.Tools;
-import MySQL.DBServerOld;
+import Constants.Settings;
+import General.StringTools;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ReactionRemoveListener {
@@ -39,7 +38,7 @@ public class ReactionRemoveListener {
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
                     for (onReactionRemoveStaticListener command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
-                        if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Tools.getEmptyCharacter())) {
+                        if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
                             ((Command) command).setLocale(DBServer.getInstance().getBean(event.getServer().get().getId()).getLocale());
                             command.onReactionRemoveStatic(message, event);
                             return;

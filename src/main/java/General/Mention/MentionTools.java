@@ -1,22 +1,24 @@
 package General.Mention;
 
 import General.DiscordApiCollection;
-import General.Tools;
+import General.StringTools;
+import General.TextManager;
 import org.javacord.api.entity.channel.*;
+import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
-public class MentionFinder {
+public class MentionTools {
 
     public static MentionList<User> getUsers(Message message, String string) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
@@ -55,9 +57,7 @@ public class MentionFinder {
         }
 
         Collection<User> members = message.getServer().get().getMembers();
-        for(User user: new ArrayList<>(list)) {
-            if (!members.contains(user)) list.remove(user);
-        }
+        list.removeIf(user -> !members.contains(user));
 
         return new MentionList<>(string, list);
     }
@@ -124,9 +124,7 @@ public class MentionFinder {
         }
 
         Collection<Role> roles = message.getServer().get().getRoles();
-        for(Role role: new ArrayList<>(list)) {
-            if (!roles.contains(role)) list.remove(role);
-        }
+        list.removeIf(role -> !roles.contains(role));
 
         return new MentionList<>(string, list);
     }
@@ -171,9 +169,7 @@ public class MentionFinder {
         }
 
         Collection<ServerTextChannel> channels = message.getServer().get().getTextChannels();
-        for(ServerTextChannel channel: new ArrayList<>(list)) {
-            if (!channels.contains(channel)) list.remove(channel);
-        }
+        list.removeIf(channel -> !channels.contains(channel));
 
         return new MentionList<>(string, list);
     }
@@ -209,9 +205,7 @@ public class MentionFinder {
         }
 
         Collection<ServerVoiceChannel> channels = message.getServer().get().getVoiceChannels();
-        for(ServerVoiceChannel channel: new ArrayList<>(list)) {
-            if (!channels.contains(channel)) list.remove(channel);
-        }
+        list.removeIf(channel -> !channels.contains(channel));
 
         return new MentionList<>(string, list);
     }
@@ -225,7 +219,7 @@ public class MentionFinder {
             for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
                 Message m;
                 try {
-                    if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
+                    if (StringTools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
                             string = removeMentionFromString(string, part, "");
@@ -246,7 +240,7 @@ public class MentionFinder {
             for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
                 Message m;
                 try {
-                    if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
+                    if (StringTools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
                             string = removeMentionFromString(string, part, "");
@@ -268,7 +262,7 @@ public class MentionFinder {
         for (String part : getArgs(string)) {
             Message m;
             try {
-                if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
+                if (StringTools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                     if (m.getChannel() == channel) {
                         if (!list.contains(m)) list.add(m);
                         string = removeMentionFromString(string, part, "");
@@ -305,54 +299,12 @@ public class MentionFinder {
         return new MentionList<>(string,list);
     }
 
-    public static MentionList<Message> getMessagesAll(Message message, String string, ServerTextChannel channel) {
-        ArrayList<Message> list = new ArrayList<>();
-        for(String part: getArgs(string)) {
-            String prefix = "https://discordapp.com/channels/" + message.getServer().get().getId() + "/" + channel + "/";
-            if (part.startsWith(prefix)) {
-                part = part.substring(prefix.length());
-                Message m;
-                try {
-                    if ((m = channel.getMessageById(part).get()) != null) {
-                        if (m.getIdAsString().equals(part)) {
-                            if (!list.contains(m)) list.add(m);
-                            string = removeMentionFromString(string, part, "");
-                        }
-                    }
-                } catch (InterruptedException | ExecutionException ignored) {
-                    //Do nothing
-                }
-            }
-
-            Message m;
-            try {
-                if (Tools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
-                    if (m.getChannel() == channel) {
-                        if (!list.contains(m)) list.add(m);
-                        string = removeMentionFromString(string, part, "");
-                    }
-                }
-            } catch (InterruptedException | ExecutionException ignored) {
-                //Do nothing
-            }
-        }
-        return new MentionList<>(string,list);
-    }
-
     public static Message getMessageSearch(String searchTerm, TextChannel channel, Message messageStarter) throws ExecutionException, InterruptedException {
         if (!channel.canYouReadMessageHistory()) return null;
 
-        searchTerm = Tools.cutSpaces(searchTerm);
+        searchTerm = StringTools.trimString(searchTerm);
         for(Message message: channel.getMessagesBefore(100,messageStarter).get().descendingSet()) {
             if (message.getContent().toLowerCase().contains(searchTerm.toLowerCase())) return message;
-        }
-        return null;
-    }
-
-    public static Message getMessageSearch(String searchTerm, Message messageStarter) throws ExecutionException, InterruptedException {
-        for(ServerTextChannel channel: messageStarter.getServer().get().getTextChannels()) {
-            Message message = getMessageSearch(searchTerm, channel, messageStarter);
-            if (message != null) return message;
         }
         return null;
     }
@@ -368,25 +320,25 @@ public class MentionFinder {
             }
             if (string.contains("\n")) {
                 for (String part : string.split("\n")) {
-                    part = Tools.cutSpaces(part);
+                    part = StringTools.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("@")) {
                 for (String part : string.split("@")) {
-                    part = Tools.cutSpaces(part);
+                    part = StringTools.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains(",")) {
                 for (String part : string.split(",")) {
-                    part = Tools.cutSpaces(part);
+                    part = StringTools.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("|")) {
                 for (String part : string.split("\\|")) {
-                    part = Tools.cutSpaces(part);
+                    part = StringTools.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
@@ -394,9 +346,118 @@ public class MentionFinder {
         return list;
     }
 
+    public static Mention getMentionedString(Locale locale, Message message, String followedString) {
+        int counted = 0;
+        boolean multi = false;
+        Server server = message.getServer().get();
+        List<User> userList = MentionTools.getUsers(message, followedString).getList();
+        List<Role> roleList = MentionTools.getRoles(message, followedString).getList();
+        StringBuilder sb = new StringBuilder();
+
+        for(User user: userList) {
+            sb.append("**").append(user.getDisplayName(server)).append("**, ");
+            counted++;
+        }
+
+        for(Role role: roleList) {
+            sb.append("**").append(role.getName()).append("**, ");
+            counted++;
+            multi = true;
+        }
+
+        if (message.mentionsEveryone() || followedString.contains("everyone")) {
+            if (counted == 0) sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_start")).append("**, ");
+            else sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_end")).append("**, ");
+            counted++;
+            multi = true;
+        }
+
+        if (counted == 0) return null;
+        if (counted > 1) multi = true;
+
+        String string = sb.toString();
+        string = string.substring(0,string.length()-2);
+
+        if (string.contains(", ")) string = StringTools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+
+        return new Mention(string,multi);
+    }
+
+    public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) throws IOException {
+        int counted = 0;
+        boolean multi = false;
+        StringBuilder sb = new StringBuilder();
+
+        for(User user: userList) {
+            sb.append("**").append(user.getDisplayName(server)).append("**, ");
+            counted++;
+        }
+
+        if (counted == 0) throw new IOException();
+        if (counted > 1) multi = true;
+
+        String string = sb.toString();
+        string = string.substring(0,string.length()-2);
+
+        if (string.contains(", ")) string = StringTools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+
+        return new Mention(string, multi);
+    }
+
+    public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) throws IOException {
+        int counted = 0;
+        boolean multi = false;
+        StringBuilder sb = new StringBuilder();
+
+        for(Role role: roleList) {
+            sb.append("**").append(role.getName()).append("**, ");
+            counted++;
+        }
+
+        if (counted == 0) throw new IOException();
+        if (counted > 1) multi = true;
+
+        String string = sb.toString();
+        string = string.substring(0,string.length()-2);
+
+        if (string.contains(", ")) string = StringTools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+
+        return new Mention(string, multi);
+    }
 
     private static String removeMentionFromString(String string, String mention, String prefix) {
         String str = string.replace(prefix+mention,"");
         return str.replace(mention,"");
     }
+
+    public static Optional<Role> getRoleByTag(Server server, String tag) {
+        String id = tag.substring(3, tag.length() -1);
+        return server.getRoleById(id);
+    }
+
+    public static ArrayList<KnownCustomEmoji> getCustomEmojiByTag(String string) {
+        ArrayList<KnownCustomEmoji> knownCustomEmojis = new ArrayList<>();
+
+        if (string.contains("<") && string.contains(">")) {
+            for(String content: StringTools.extractGroups(string, "<", ">")) {
+                String[] tags = content.split(":");
+                if (tags.length == 3) {
+                    String id = tags[2];
+                    DiscordApiCollection.getInstance().getCustomEmojiById(id).ifPresent(knownCustomEmojis::add);
+                }
+            }
+        }
+
+        return knownCustomEmojis;
+    }
+
+    public static long getAmountExt(String str, long available) {
+        if (str.toLowerCase().contains("all")) return available;
+        if (str.toLowerCase().contains("half")) return available / 2;
+
+        long value = StringTools.filterNumberFromString(str);
+        if (value == -1) return -1;
+        return str.contains("%") ? (long)(value / 100.0 * available) : value;
+    }
+
 }

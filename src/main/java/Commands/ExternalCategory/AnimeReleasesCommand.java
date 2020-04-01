@@ -10,7 +10,7 @@ import General.AnimeNews.AnimeReleasePost;
 import General.EmbedFactory;
 import General.PostBundle;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -66,7 +66,7 @@ public class AnimeReleasesCommand extends Command implements onRecievedListener,
             boolean canPost = trackerData.getKey().equalsIgnoreCase("all");
             if (!canPost) {
                 for (String animeName : trackerData.getKey().split(",")) {
-                    if (post.getAnime().toLowerCase().contains(Tools.cutSpaces(animeName.toLowerCase()))) {
+                    if (post.getAnime().toLowerCase().contains(StringTools.trimString(animeName.toLowerCase()))) {
                         canPost = true;
                         break;
                     }

@@ -20,7 +20,7 @@ import java.util.Date;
 
 @CommandProperties(
     trigger = "splatnet",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDED2",
     thumbnail = "https://vignette.wikia.nocookie.net/splatoon/images/1/12/InklingUsingSplatNet.jpg/revision/latest?cb=20160116221000&path-prefix=de",
@@ -88,7 +88,7 @@ public class SplatnetCommand extends Command implements onRecievedListener, onTr
             String effect = getString("nothing");
             if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
 
-            String fieldContent = getString("template", DiscordApiCollection.getInstance().getHomeEmojiById(437239777834827786L).getMentionTag(), String.valueOf(price), Tools.getInstantString(getLocale(), endTime, true), Tools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", DiscordApiCollection.getInstance().getHomeEmojiById(437239777834827786L).getMentionTag(), String.valueOf(price), TimeTools.getInstantString(getLocale(), endTime, true), TimeTools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

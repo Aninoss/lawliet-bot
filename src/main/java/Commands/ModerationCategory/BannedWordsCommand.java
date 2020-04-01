@@ -8,7 +8,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import MySQL.BannedWords.BannedWordsBean;
 import MySQL.BannedWords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
     trigger = "bannedwords",
-    botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL,
-    userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.KICK_USER,
+    botPermissions = Permission.MANAGE_MESSAGES,
+    userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEA7️",
     thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/road-block-icon.png",
     executable = true
@@ -50,7 +50,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
 
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionFinder.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> userIgnoredList = MentionTools.getUsers(event.getMessage(), inputString).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -63,7 +63,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
                 }
 
             case 2:
-                ArrayList<User> logRecieverList = MentionFinder.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> logRecieverList = MentionTools.getUsers(event.getMessage(), inputString).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -163,7 +163,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
+                       .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(bannedWordsBean.getIgnoredUserIds().transform(userId -> bannedWordsBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(bannedWordsBean.getLogReceiverUserIds().transform(userId -> bannedWordsBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mwords"), getWordsString(), true);

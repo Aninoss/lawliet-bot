@@ -4,9 +4,10 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import General.EmbedFactory;
+import General.NSFWTools;
 import General.Porn.PornImage;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
 import MySQL.DBServerOld;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -21,37 +22,45 @@ public abstract class PornAbstract extends Command implements onRecievedListener
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         ArrayList<String> nsfwFilter = DBServerOld.getNSFWFilterFromServer(event.getServer().get());
-        followedString = Tools.defuseMassPing(Tools.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
+        followedString = StringTools.defuseMassPing(NSFWTools.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
         long amount = 1;
-        if (Tools.stringContainsDigits(followedString)) {
-            amount = Tools.filterNumberFromString(followedString);
+        if (StringTools.stringContainsDigits(followedString)) {
+            amount = StringTools.filterNumberFromString(followedString);
             if (amount < 1 || amount > 20) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "20"))).get();
+                if (event.getChannel().canYouEmbedLinks()) {
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "20"))).get();
+                } else {
+                    event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "20")).get();
+                }
                 return false;
             }
         }
-        followedString = Tools.cutSpaces(Tools.filterLettersFromString(followedString));
+        followedString = StringTools.trimString(StringTools.filterLettersFromString(followedString));
 
         boolean first = true;
         do {
             ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount));
 
             if (first && pornImages.size() == 0) {
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
-                event.getChannel().sendMessage(eb).get();
+                if (event.getChannel().canYouEmbedLinks()) {
+                    EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                            .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                            .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+                    event.getChannel().sendMessage(eb).get();
+                } else {
+                    event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString)).get();
+                }
                 return false;
             }
 
-            if (first && pornImages.size() == 1 && !pornImages.get(0).isVideo()) {
+            if (first && pornImages.size() == 1 && !pornImages.get(0).isVideo() && event.getChannel().canYouEmbedLinks()) {
                 PornImage pornImage = pornImages.get(0);
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link", pornImage.getPageUrl()))
                         .setImage(pornImage.getImageUrl())
                         .setTimestamp(pornImage.getInstant())
-                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", Tools.numToString(getLocale(), pornImage.getScore()), Tools.numToString(getLocale(), pornImage.getnComments())));
+                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", StringTools.numToString(getLocale(), pornImage.getScore()), StringTools.numToString(getLocale(), pornImage.getnComments())));
 
                 getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
                 event.getChannel().sendMessage(eb).get();

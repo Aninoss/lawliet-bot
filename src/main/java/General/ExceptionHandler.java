@@ -1,7 +1,6 @@
 package General;
 
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -75,7 +74,7 @@ public class ExceptionHandler {
 
             if (showError) DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
-                    .setDescription(Tools.shortenString(stacktrace, 1000))).get();
+                    .setDescription(StringTools.shortenString(stacktrace, 1000))).get();
         } catch (Throwable e1) {
             e1.printStackTrace();
         }

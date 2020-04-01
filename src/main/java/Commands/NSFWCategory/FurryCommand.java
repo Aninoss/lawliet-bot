@@ -9,6 +9,7 @@ import Commands.Rule34Abstract;
         executable = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
+        requiresEmbeds = false,
         withLoadingBar = true
 )
 public class FurryCommand extends Rule34Abstract {

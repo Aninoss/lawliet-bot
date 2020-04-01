@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fullclear",
-        botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-        userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+        userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83E\uDDF9",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
@@ -63,7 +63,7 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
     private Pair<Integer, Boolean> fullClear(ServerTextChannel channel, String str, Message messageBefore) throws ExecutionException, InterruptedException, IOException {
         int hours = 0;
         if (str.length() > 0) {
-            if (Tools.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
+            if (StringTools.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 hours = Integer.parseInt(str);
             } else {
                 channel.sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -113,7 +113,7 @@ public class FullClearCommand extends Command implements onRecievedListener, onT
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         Optional<ServerTextChannel> channelOptional = trackerData.getChannel();
         if (channelOptional.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channelOptional.get(), Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channelOptional.get(), Permission.MANAGE_MESSAGES)) {
                 Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel().get(), trackerData.getKey(), null);
                 if (pair == null) return null;
             }

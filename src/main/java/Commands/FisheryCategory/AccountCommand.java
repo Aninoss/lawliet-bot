@@ -6,8 +6,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import General.*;
-import General.Mention.MentionFinder;
-import MySQL.DBServerOld;
+import General.Mention.MentionTools;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
@@ -23,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "acc",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
         emoji = "\uD83D\uDE4B",
         executable = true,
@@ -41,7 +40,7 @@ public class AccountCommand extends Command implements onRecievedListener {
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
-            ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
+            ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
             if (list.size() > 5) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                         TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();

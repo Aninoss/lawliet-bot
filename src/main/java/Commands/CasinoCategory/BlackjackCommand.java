@@ -5,6 +5,7 @@ import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
+import Constants.Settings;
 import General.*;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -72,7 +73,7 @@ public class BlackjackCommand extends CasinoAbstract implements onRecievedListen
         String key = "tutorial";
         if (finished) key = "data";
 
-        eb.addField(Tools.getEmptyCharacter(), getString(key, server.getDisplayName(player), Tools.numToString(getLocale(), coinsInput)), false);
+        eb.addField(Settings.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringTools.numToString(getLocale(), coinsInput)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

@@ -8,6 +8,7 @@ import Commands.PornSearchAbstract;
         executable = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
+        requiresEmbeds = false,
         withLoadingBar = true,
         aliases = {"rbooru", "realbooru"}
 )

@@ -14,7 +14,7 @@ import General.BannedWordsCheck;
 import General.BotResources.ResourceManager;
 import General.Fishing.FishingProfile;
 import General.Internet.Internet;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.RunningCommands.RunningCommandManager;
 import General.SPBlock.SPCheck;
 import MySQL.AutoQuote.DBAutoQuote;
@@ -47,10 +47,8 @@ public class MessageCreateListener {
         }
 
         //Server protections
-        if (!Tools.serverIsBotListServer(event.getServer().get())) {
-            if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return; //SPBlock
-            if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage())) return; //Banned Words
-        }
+        if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return; //SPBlock
+        if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage())) return; //Banned Words
 
         //Stuff that is only active for my own Aninoss Discord server
         if (event.getServer().get().getId() == 462405241955155979L && Internet.stringIsURL(event.getMessage().getContent())) {
@@ -86,13 +84,13 @@ public class MessageCreateListener {
             }
 
             if (prefixFound > -1) {
-                String newContent = Tools.cutSpaces(content.substring(prefixes[prefixFound].length()));
+                String newContent = StringTools.trimString(content.substring(prefixes[prefixFound].length()));
                 while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
                 String commandTrigger = newContent.split(" ")[0].toLowerCase();
                 if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
                     commandTrigger = newContent.split("<")[0].toLowerCase();
 
-                String followedString = Tools.cutSpaces(newContent.substring(commandTrigger.length()));
+                String followedString = StringTools.trimString(newContent.substring(commandTrigger.length()));
 
                 if (commandTrigger.length() > 0) {
                     Locale locale = serverBean.getLocale();
@@ -113,9 +111,7 @@ public class MessageCreateListener {
 
                 //Add Fisch & Manage 100 Fish Message
                 boolean messageRegistered = false;
-                if (!Tools.serverIsBotListServer(event.getServer().get()) &&
-                        !event.getMessage().getContent().isEmpty()
-                ) {
+                if (!event.getMessage().getContent().isEmpty()) {
                     messageRegistered = FisheryCache.getInstance(event.getApi().getCurrentShard()).addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
                 }
 
@@ -140,7 +136,7 @@ public class MessageCreateListener {
                     if (noSpamChannel) {
                         Locale locale = serverBean.getLocale();
                         EmbedBuilder eb = EmbedFactory.getEmbed()
-                                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Tools.getEmptyCharacter())
+                                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_title") + Settings.EMPTY_EMOJI)
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
                                 .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_closed.png"));
 
@@ -151,11 +147,9 @@ public class MessageCreateListener {
                 }
 
                 //Manage Message Quoting
-                if (!Tools.serverIsBotListServer(event.getServer().get()) &&
-                        event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()
-                ) {
+                if (event.getChannel().canYouEmbedLinks()) {
                     Locale locale = serverBean.getLocale();
-                    ArrayList<Message> messages = MentionFinder.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
+                    ArrayList<Message> messages = MentionTools.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
                     if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {
                         try {
                             for (int i = 0; i < Math.min(3, messages.size()); i++) {

@@ -7,7 +7,6 @@ import Constants.Permission;
 import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
 import MySQL.DBBot;
-import MySQL.DBServerOld;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -44,7 +43,7 @@ public class TrackerManager {
                 if (!channelOptional.isPresent()) return;
 
                 while(true) {
-                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), channelOptional.get(),  Permission.SEE_CHANNEL | Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), channelOptional.get(),  Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                         Thread.sleep(30 * 60 * 1000);
                     } else break;
                 }

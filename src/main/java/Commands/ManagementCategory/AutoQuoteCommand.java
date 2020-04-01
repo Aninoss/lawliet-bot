@@ -6,7 +6,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
-import General.Tools;
+import General.StringTools;
 import MySQL.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -47,10 +47,10 @@ public class AutoQuoteCommand extends Command implements onRecievedListener, onR
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set", active))).get();
             return true;
         } else {
-            String onOffText = Tools.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive());
+            String onOffText = StringTools.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive());
             message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("reaction", onOffText))).get();
             for(int i = 0; i < 2; i++) {
-                message.addReaction(Tools.getEmojiForBoolean(i == 1));
+                message.addReaction(StringTools.getEmojiForBoolean(i == 1));
             }
             return true;
         }
@@ -59,7 +59,7 @@ public class AutoQuoteCommand extends Command implements onRecievedListener, onR
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         for(int i = 0; i < 2; i++) {
-            String str = Tools.getEmojiForBoolean(i == 1);
+            String str = StringTools.getEmojiForBoolean(i == 1);
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 boolean active = i == 1;
                 DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).setActive(active);

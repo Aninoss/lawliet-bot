@@ -74,7 +74,7 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String str = Tools.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
+            String str = StringTools.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
             if (!str.isEmpty())
                 str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 

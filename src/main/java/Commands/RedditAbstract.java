@@ -1,6 +1,5 @@
 package Commands;
 
-import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.*;
@@ -40,7 +39,7 @@ public abstract class RedditAbstract extends Command implements onRecievedListen
                 .setUrl(post.getLink())
                 .setTimestamp(post.getInstant());
 
-        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_footer", Tools.numToString(getLocale(), post.getScore()), Tools.numToString(getLocale(), post.getComments())));
+        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_footer", StringTools.numToString(getLocale(), post.getScore()), StringTools.numToString(getLocale(), post.getComments())));
 
         event.getChannel().sendMessage(eb).get();
         return true;

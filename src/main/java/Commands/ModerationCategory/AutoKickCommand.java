@@ -5,10 +5,12 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.ExceptionHandler;
-import General.Tools;
+import General.PermissionCheck;
+import General.StringTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -21,8 +23,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "autokick",
-    botPermissions = Permission.KICK_USER | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-    userPermissions = Permission.KICK_USER,
+    botPermissions = Permission.KICK_MEMBERS | Permission.READ_MESSAGE_HISTORY,
+    userPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEAA",
     thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png",
     executable = false
@@ -41,12 +43,12 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (!serverBlockList.contains(event.getServer().get())) {
-            if (followedString.length() > 0 && Tools.stringIsInt(followedString) && Integer.parseInt(followedString) >= 1) {
+            if (followedString.length() > 0 && StringTools.stringIsInt(followedString) && Integer.parseInt(followedString) >= 1) {
                 serverBlockList.add(event.getServer().get());
                 int n = Integer.parseInt(followedString);
 
-                message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("deleting", Tools.getLoadingReaction(event.getServerTextChannel().get())))).get();
-                message.addReaction(Tools.getEmojiForBoolean(false)).get();
+                message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("deleting", StringTools.getLoadingReaction(event.getServerTextChannel().get())))).get();
+                message.addReaction(StringTools.getEmojiForBoolean(false)).get();
                 stage = 0;
 
                 final AutoKickCommand thisInstance = this;
@@ -87,15 +89,15 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                         banList = new ArrayList<>();
                         for (User user : server.getMembers()) {
                             Instant instant = map.get(user);
-                            if (Instant.now().minusSeconds(60 * 60 * 24 * n).isAfter(instant) && !user.isBot() && Tools.canYouKickUser(server, user)) {
+                            if (Instant.now().minusSeconds(60 * 60 * 24 * n).isAfter(instant) && !user.isBot() && PermissionCheck.canYouKickUser(server, user)) {
                                 banList.add(user);
                             }
                         }
 
                         if (banList.size() > 0) {
                             stage = 1;
-                            message.edit(EmbedFactory.getCommandEmbedSuccess(thisInstance, getString("finished", banList.size() != 1, Tools.numToString(getLocale(), banList.size())))).get();
-                            message.addReaction(Tools.getEmojiForBoolean(true)).get();
+                            message.edit(EmbedFactory.getCommandEmbedSuccess(thisInstance, getString("finished", banList.size() != 1, StringTools.numToString(getLocale(), banList.size())))).get();
+                            message.addReaction(StringTools.getEmojiForBoolean(true)).get();
                             addReactionListener(message);
                         } else {
                             stage = -1;
@@ -141,7 +143,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
 
         if (event.getEmoji().isUnicodeEmoji()) {
             if (stage == 0) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Tools.getEmojiForBoolean(false))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringTools.getEmojiForBoolean(false))) {
                     stage = -1;
                     removeReactionListener();
                     message.edit(EmbedFactory.getCommandEmbedError(this, getString("abort"), getString("abort_title"))).get();
@@ -150,12 +152,12 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
             }
 
             else if (stage == 1) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Tools.getEmojiForBoolean(false))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringTools.getEmojiForBoolean(false))) {
                     stage = -1;
                     removeReactionListener();
                     message.edit(EmbedFactory.getCommandEmbedError(this, getString("abort"), getString("abort_title"))).get();
                     serverBlockList.remove(event.getServer().get());
-                } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Tools.getEmojiForBoolean(true))) {
+                } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringTools.getEmojiForBoolean(true))) {
                     stage = -1;
                     removeReactionListener();
 
@@ -175,7 +177,7 @@ public class AutoKickCommand extends Command implements onRecievedListener, onRe
                         }
                     }
 
-                    message.edit(EmbedFactory.getCommandEmbedSuccess(this, getString("finished2", kicked != 1, Tools.numToString(getLocale(), kicked), Tools.numToString(getLocale(), banList.size())))).get();
+                    message.edit(EmbedFactory.getCommandEmbedSuccess(this, getString("finished2", kicked != 1, StringTools.numToString(getLocale(), kicked), StringTools.numToString(getLocale(), banList.size())))).get();
                     serverBlockList.remove(event.getServer().get());
                 }
             }

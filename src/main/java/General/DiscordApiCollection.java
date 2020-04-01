@@ -1,16 +1,15 @@
 package General;
 
 import CommandSupporters.CommandContainer;
+import Constants.Permission;
 import Constants.Settings;
 import General.Internet.Internet;
 import General.Internet.InternetProperty;
 import General.Internet.InternetResponse;
 import General.RunningCommands.RunningCommandManager;
 import General.Tracker.TrackerManager;
-import MySQL.DBServerOld;
 import MySQL.FisheryCache;
 import MySQL.Server.DBServer;
-import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -24,7 +23,6 @@ import org.javacord.api.entity.webhook.Webhook;
 import org.javacord.api.entity.webhook.WebhookBuilder;
 import org.json.JSONObject;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -370,7 +368,7 @@ public class DiscordApiCollection {
     }
 
     public Optional<Webhook> getOwnWebhook(Server server) {
-        if (!Tools.userHasServerPermission(server, getYourself(), PermissionType.MANAGE_WEBHOOKS))
+        if (!PermissionCheck.userHasServerPermission(server, getYourself(), PermissionType.MANAGE_WEBHOOKS))
             return Optional.empty();
 
         try {
@@ -388,19 +386,19 @@ public class DiscordApiCollection {
             User yourself = getYourself();
 
             try {
-                if (Tools.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
+                if (PermissionCheck.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
                     return;
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
 
             ServerTextChannel finalChannel = null;
-            if (server.getSystemChannel().isPresent() && Tools.userHasChannelPermission(server.getSystemChannel().get(), yourself, PermissionType.MANAGE_WEBHOOKS))
+            if (server.getSystemChannel().isPresent() && PermissionCheck.userHasChannelPermission(server.getSystemChannel().get(), yourself, PermissionType.MANAGE_WEBHOOKS))
                 finalChannel = server.getSystemChannel().get();
 
             else {
                 for (ServerTextChannel channel: server.getTextChannels()) {
-                    if (Tools.userHasChannelPermission(channel, yourself, PermissionType.MANAGE_WEBHOOKS)) {
+                    if (PermissionCheck.userHasChannelPermission(channel, yourself, PermissionType.MANAGE_WEBHOOKS)) {
                         finalChannel = channel;
                         break;
                     }

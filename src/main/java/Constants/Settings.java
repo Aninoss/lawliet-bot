@@ -18,6 +18,7 @@ public interface Settings {
     int ONE_CURRENCY_TO_COINS = 100;
     long MAX = 9999999999999999L;
     String BACK_EMOJI = "⏪";
+    String EMPTY_EMOJI = "⠀";
     String[] NSFW_FILTERS = {"shota", "loli", "bestiality", "beastiality", "cub", "vore", "gore", "scat", "rape"};
     String[] VERSIONS = {
             "2.0.0",

@@ -8,7 +8,7 @@ import Constants.Permission;
 import Constants.Response;
 import Constants.SPAction;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.SPBlock.SPBlock;
 import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
@@ -24,8 +24,8 @@ import java.util.ArrayList;
 
 @CommandProperties(
     trigger = "spblock",
-    botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.KICK_USER | Permission.BAN_USER,
-    userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.KICK_USER | Permission.BAN_USER,
+    botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+    userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
     emoji = "\uD83D\uDEE1️",
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/ok-shield-icon.png",
     executable = true
@@ -47,7 +47,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
 
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionFinder.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> userIgnoredList = MentionTools.getUsers(event.getMessage(), inputString).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -60,7 +60,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                 }
 
             case 2:
-                ArrayList<ServerTextChannel> channelIgnoredList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelIgnoredList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -73,7 +73,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                 }
 
             case 3:
-                ArrayList<User> logRecieverList = MentionFinder.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> logRecieverList = MentionTools.getUsers(event.getMessage(), inputString).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -189,7 +189,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), spBlock.isActive()), true)
+                       .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), spBlock.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(spBlock.getIgnoredUser(), getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(spBlock.getIgnoredChannels(), getLocale(), Mentionable::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(spBlock.getLogRecievers(), getLocale(), User::getMentionTag), true)

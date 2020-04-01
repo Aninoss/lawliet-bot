@@ -4,9 +4,10 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
+import General.TimeTools;
 import General.Warnings.UserWarnings;
 import General.Warnings.WarningSlot;
 import MySQL.DBServerOld;
@@ -35,7 +36,7 @@ public class WarnLogCommand extends Command implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
-        ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
@@ -54,7 +55,7 @@ public class WarnLogCommand extends Command implements onRecievedListener {
                 Optional<User> requestor = warningSlot.getRequestor();
                 Optional<String> reason = warningSlot.getReason();
                 String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", requestor.get().getName())) : getString("unknown_user");
-                String timeDiffString = Tools.getRemainingTimeString(getLocale(), Instant.now(), warningSlot.getTime(), true);
+                String timeDiffString = TimeTools.getRemainingTimeString(getLocale(), Instant.now(), warningSlot.getTime(), true);
                 latestWarnings.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
             }
 
@@ -66,10 +67,10 @@ public class WarnLogCommand extends Command implements onRecievedListener {
                     .setThumbnail(user.getAvatar().getUrl().toString());
             eb.addField(getString("latest"), latestWarningsString, false);
             eb.addField(getString("amount"), getString("amount_template",
-                    Tools.numToString(userWarnings.amountLatestHours(24)),
-                    Tools.numToString(userWarnings.amountLatestDays(7)),
-                    Tools.numToString(userWarnings.amountLatestDays(30)),
-                    Tools.numToString(userWarnings.amountTotal())
+                    StringTools.numToString(userWarnings.amountLatestHours(24)),
+                    StringTools.numToString(userWarnings.amountLatestDays(7)),
+                    StringTools.numToString(userWarnings.amountLatestDays(30)),
+                    StringTools.numToString(userWarnings.amountTotal())
             ), false);
             if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
             event.getChannel().sendMessage(eb).get();

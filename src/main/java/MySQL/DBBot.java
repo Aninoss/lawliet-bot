@@ -2,9 +2,8 @@ package MySQL;
 
 import General.Bot;
 import General.DiscordApiCollection;
-import General.Fishing.FishingRecords;
 import General.RankingSlot;
-import General.Tools;
+import General.StringTools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
 import ServerStuff.TopGG;
@@ -16,7 +15,6 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
@@ -49,7 +47,7 @@ public class DBBot {
 
         StringBuilder sb = new StringBuilder();
         for(int i=0; i < Math.min(10, versions.length); i++) {
-            if (Tools.stringIsDouble(versions[i].replace(".", ""))) {
+            if (StringTools.stringIsDouble(versions[i].replace(".", ""))) {
                 if (i == 0) sb.append("WHERE version = '").append(versions[i]).append("'");
                 else sb.append(" OR version = '").append(versions[i]).append("'");
             }
@@ -89,9 +87,10 @@ public class DBBot {
     public static synchronized void startTrackers(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
             for (TrackerData trackerData : getTracker(api)) {
+                System.out.printf("Starting tracker %s in server id %d...\n", trackerData.getCommand(), trackerData.getChannelId());
                 TrackerManager.startTracker(trackerData);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -5,6 +5,7 @@ import CommandSupporters.Command;
 import Constants.LetterEmojis;
 import Constants.LogStatus;
 import Constants.Permission;
+import Constants.Settings;
 import General.*;
 import General.Survey.VoteInfo;
 import org.javacord.api.entity.message.Message;
@@ -24,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "vote",
-        botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Hand-thumbs-up-like-2-icon.png",
         emoji = "\uD83D\uDDF3",
         executable = false,
@@ -38,11 +39,11 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        followedString = Tools.cutSpaces(followedString.replace("\n", ""));
+        followedString = StringTools.trimString(followedString.replace("\n", ""));
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String args[] = followedString.split("\\|");
         if (args.length >= 3 && args.length <= 10) {
-            String topic = Tools.cutSpaces(args[0]);
+            String topic = StringTools.trimString(args[0]);
 
             if (topic.length() == 0) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("no_topic")));
@@ -75,10 +76,10 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
         for(int i=0; i < voteInfo.getSize(); i++) {
             answerText.append(LetterEmojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
-            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(Tools.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
+            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringTools.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + (open ? Tools.getEmptyCharacter() : ""))
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + (open ? Settings.EMPTY_EMOJI : ""))
                 .addField(getString("topic"), voteInfo.getTopic(),false)
                 .addField(getString("choices"), answerText.toString(),false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")",resultsText.toString(),false);
@@ -125,7 +126,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
                 String footerString = footerStringOptional.get();
                 if (footerString.contains(" ")) {
                     String creatorIdString = footerString.split(" ")[0];
-                    if (Tools.stringIsLong(creatorIdString)) {
+                    if (StringTools.stringIsLong(creatorIdString)) {
                         creatorId = Long.parseLong(creatorIdString);
                     }
                 }
@@ -151,7 +152,7 @@ public class VoteCommand extends Command implements onRecievedListener, onReacti
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL)) return;
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
         removeEmoteIfNotSupported(message, event);
         if (message.getEmbeds().size() == 0) return;
 

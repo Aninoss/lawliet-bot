@@ -5,7 +5,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "quote",
-        botPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-        userPermissions = Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+        botPermissions = Permission.READ_MESSAGE_HISTORY,
+        userPermissions = Permission.READ_MESSAGE_HISTORY,
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png",
         emoji = "\uD83D\uDCDD",
         executable = false,
@@ -42,7 +42,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
 
     private boolean calculateResults(Message message, String followString) throws IOException, ExecutionException, InterruptedException {
         Server server = message.getServer().get();
-        MentionList<ServerTextChannel> list = MentionFinder.getTextChannels(message, followString);
+        MentionList<ServerTextChannel> list = MentionTools.getTextChannels(message, followString);
         User author = message.getUserAuthor().get();
         if (list.getResultMessageString().replace(" ","").length() > 0) {
             addLoadingReaction();
@@ -55,7 +55,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
             if (channelArrayList.size() == 1) add = channelArrayList.get(0).getMentionTag();
 
             //Sucht nach dem Link der Nachricht
-            ArrayList<Message> directMessage = MentionFinder.getMessagesURL(message, followString).getList();
+            ArrayList<Message> directMessage = MentionTools.getMessagesURL(message, followString).getList();
             if (directMessage.size() > 0) {
                 for(Message message1: directMessage) {
                     if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
@@ -67,7 +67,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
 
             //Sucht nach der Message-ID im dortigen Channel
             if (channelArrayList.contains(ownChannel)) {
-                ArrayList<Message> messageArrayList = MentionFinder.getMessagesId(message, followString, message.getServerTextChannel().get()).getList();
+                ArrayList<Message> messageArrayList = MentionTools.getMessagesId(message, followString, message.getServerTextChannel().get()).getList();
                 if (messageArrayList.size() > 0) {
                     for(Message message1: messageArrayList) {
                         if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
@@ -81,7 +81,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
             //Sucht nach der Message-ID in alle anderen Channels auf dem Server
             for(ServerTextChannel channel: channelArrayList) {
                 if (channel != ownChannel) {
-                    ArrayList<Message> messageArrayList = MentionFinder.getMessagesId(message, followString).getList();
+                    ArrayList<Message> messageArrayList = MentionTools.getMessagesId(message, followString).getList();
                     if (messageArrayList.size() > 0) {
                         for(Message message1: messageArrayList) {
                             if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
@@ -95,7 +95,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
 
             //Sucht anhand dem Inhalt der Nachricht im eigene Channel
             if (channelArrayList.contains(ownChannel)) {
-                Message m = MentionFinder.getMessageSearch(followString, ownChannel, message);
+                Message m = MentionTools.getMessageSearch(followString, ownChannel, message);
                 if (m != null && m.getChannel().canSee(author) && m.getChannel().canReadMessageHistory(author)) {
                     postEmbed(message.getServerTextChannel().get(),m);
                     return true;
@@ -105,7 +105,7 @@ public class QuoteCommand extends Command implements onRecievedListener {
             //Sucht anhand dem Inhalt der Nachricht in den anderen Channels des Servers.
             for(ServerTextChannel channel: channelArrayList) {
                 if (channel != ownChannel) {
-                    Message m = MentionFinder.getMessageSearch(followString, channel, message);
+                    Message m = MentionTools.getMessageSearch(followString, channel, message);
                     if (m != null && m.getChannel().canSee(author) && m.getChannel().canReadMessageHistory(author)) {
                         postEmbed(message.getServerTextChannel().get(), m);
                         return true;

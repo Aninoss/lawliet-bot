@@ -5,97 +5,77 @@ import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.PermissionState;
 import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.permission.Permissions;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class PermissionCheck {
 
-    public static EmbedBuilder userAndBothavePermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) throws IOException {
-        ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
+    public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) {
+        ArrayList<Integer> userPermission = getMissingPermissionListForUser(server, channel, user,userPermissions);
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
 
-        return getEmbedBuilderForPermissions(locale, userPermission,botPermission);
-    }
-
-    public static EmbedBuilder userhasPermissions(Locale locale, Server server, ServerChannel channel, User user, int userPermissions) throws IOException {
-        ArrayList<Integer> userPermission = getMissingPermissionListForUser(server,channel,user,userPermissions);
-
-        return getEmbedBuilderForPermissions(locale, userPermission, new ArrayList<>());
-    }
-
-    public static EmbedBuilder bothasPermissions(Locale locale, Server server, ServerChannel channel, int botPermissions) throws IOException {
-        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
-        return getEmbedBuilderForPermissions(locale, new ArrayList<>(), botPermission);
+        return getUserPermissionMissingEmbed(locale, userPermission,botPermission);
     }
 
     public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {
-        ArrayList<Integer> userPermission = new ArrayList<>();
+        ArrayList<Integer> missingPermissions = new ArrayList<>();
+        if (hasAdminPermissions(server, user)) return missingPermissions;
 
-        if (channel != null) {
-            //Bei Channels allgemein
-            if ((userPermissions & Permission.SEE_CHANNEL) > 0 && !channel.canSee(user)) userPermission.add(4);
-            if ((userPermissions & Permission.MANAGE_CHANNEL) > 0 && !Tools.canManageChannel(channel, user)) userPermission.add(24);
+        for(int permission: permissionsToNumberList(userPermissions)) {
+            PermissionConvertion permissionConvertion = convertPermission(permission);
+            Permissions permissions;
+            if (channel != null && !permissionConvertion.isServerOnly()) permissions = channel.getEffectivePermissions(user);
+            else permissions = server.getPermissions(user);
 
-            //Bei Text-Channels
-            if (channel.getType() == ChannelType.SERVER_TEXT_CHANNEL) {
-                TextChannel textChannel = channel.asTextChannel().get();
-                if ((userPermissions & Permission.ATTACH_FILES_TO_TEXT_CHANNEL) > 0 && !textChannel.canAttachFiles(user))
-                    userPermission.add(1);
-                if ((userPermissions & Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL) > 0 && !textChannel.canRemoveReactionsOfOthers(user))
-                    userPermission.add(6);
-                if ((userPermissions & Permission.EMBED_LINKS_IN_TEXT_CHANNELS) > 0 && !textChannel.canEmbedLinks(user))
-                    userPermission.add(9);
-                if ((userPermissions & Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL) > 0 && !textChannel.canManageMessages(user))
-                    userPermission.add(11);
-                if ((userPermissions & Permission.MENTION_EVERYONE_IN_TEXT_CHANNEL) > 0 && !textChannel.canMentionEveryone(user))
-                    userPermission.add(15);
-                if ((userPermissions & Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL) > 0 && !textChannel.canReadMessageHistory(user))
-                    userPermission.add(18);
-                if ((userPermissions & Permission.WRITE_IN_TEXT_CHANNEL) > 0 && !textChannel.canWrite(user))
-                    userPermission.add(19);
-                if ((userPermissions & Permission.USE_TTS_IN_TEXT_CHANNEL) > 0 && !textChannel.canUseTts(user))
-                    userPermission.add(21);
-                if ((userPermissions & Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL) > 0 && !textChannel.canUseExternalEmojis(user))
-                    userPermission.add(22);
-                if ((userPermissions & Permission.ADD_NEW_REACTIONS) > 0 && !textChannel.canAddNewReactions(user))
-                    userPermission.add(23);
-                if ((userPermissions & Permission.MANAGE_PERMISSIONS_IN_CHANNEL) > 0 && !Tools.canManagePermissions(channel, user))
-                    userPermission.add(25);
-            }
-
-            //Bei Voice-Channels
-            if (channel.getType() == ChannelType.SERVER_VOICE_CHANNEL) {
-                VoiceChannel voiceChannel = channel.asVoiceChannel().get();
-                if ((userPermissions & Permission.MUTE_MEMBERS) > 0 && !voiceChannel.canMuteUsers(user))
-                    userPermission.add(17);
-                if ((userPermissions & Permission.CONNECT) > 0 && !voiceChannel.canConnect(user))
-                    userPermission.add(24);
-            }
+            if (permissions.getState(permissionConvertion.getPermissionType()) != PermissionState.ALLOWED)
+                missingPermissions.add(permission);
         }
 
-        //Beim Server
-        if ((userPermissions & Permission.BAN_USER) > 0 && !server.canBanUsers(user)) userPermission.add(2);
-        if ((userPermissions & Permission.CHANGE_OWN_NICKNAME) > 0 && !server.canChangeOwnNickname(user)) userPermission.add(3);
-        if ((userPermissions & Permission.CREATE_CHANNELS_ON_SERVER) > 0 && !server.canCreateChannels(user)) userPermission.add(5);
-        if ((userPermissions & Permission.DEAFEN_MEMBERS_ON_SERVER) > 0 && !server.canDeafenMembers(user)) userPermission.add(7);
-        if ((userPermissions & Permission.MANAGE_EMOJIS_ON_SERVER) > 0 && !server.canManageEmojis(user)) userPermission.add(8);
-        if ((userPermissions & Permission.KICK_USER) > 0 && !server.canKickUsers(user)) userPermission.add(10);
-        if ((userPermissions & Permission.MANAGE_NICKNAMES_ON_SERVER) > 0 && !server.canManageNicknames(user)) userPermission.add(12);
-        if ((userPermissions & Permission.MANAGE_ROLES_ON_SERVER) > 0 && !server.canManageRoles(user)) userPermission.add(13);
-        if ((userPermissions & Permission.MANAGE_SERVER) > 0 && !server.canManage(user)) userPermission.add(14);
-        if ((userPermissions & Permission.MOVE_MEMBERS_ON_SERVER) > 0 && !server.canMoveMembers(user)) userPermission.add(16);
-        if ((userPermissions & Permission.VIEW_AUDIT_LOG_OF_SERVER) > 0 && !server.canViewAuditLog(user)) userPermission.add(20);
-
-        return userPermission;
+        return missingPermissions;
     }
 
-    public static EmbedBuilder getEmbedBuilderForPermissions(Locale locale, ArrayList<Integer> userPermission, ArrayList<Integer> botPermission) throws IOException {
+    private static PermissionConvertion convertPermission(int permission) {
+        switch (0x1 << (permission - 1)) {
+            case Permission.ADMINISTRATOR: return new PermissionConvertion(PermissionType.ADMINISTRATOR, true);
+            case Permission.ATTACH_FILES: return new PermissionConvertion(PermissionType.ATTACH_FILE, false);
+            case Permission.KICK_MEMBERS: return new PermissionConvertion(PermissionType.KICK_MEMBERS, true);
+            case Permission.BAN_MEMBERS: return new PermissionConvertion(PermissionType.BAN_MEMBERS, true);
+            case Permission.CHANGE_OWN_NICKNAME: return new PermissionConvertion(PermissionType.CHANGE_NICKNAME, true);
+            case Permission.READ_MESSAGES: return new PermissionConvertion(PermissionType.READ_MESSAGES, false);
+            case Permission.MANAGE_CHANNELS_ON_SERVER: return new PermissionConvertion(PermissionType.MANAGE_CHANNELS, true);
+            case Permission.MANAGE_CHANNEL: return new PermissionConvertion(PermissionType.MANAGE_CHANNELS, false);
+            case Permission.DEAFEN_MEMBERS: return new PermissionConvertion(PermissionType.DEAFEN_MEMBERS, true);
+            case Permission.MANAGE_EMOJIS: return new PermissionConvertion(PermissionType.MANAGE_EMOJIS, true);
+            case Permission.EMBED_LINKS: return new PermissionConvertion(PermissionType.EMBED_LINKS, false);
+            case Permission.MANAGE_MESSAGES: return new PermissionConvertion(PermissionType.MANAGE_MESSAGES, false);
+            case Permission.MANAGE_NICKNAMES: return new PermissionConvertion(PermissionType.MANAGE_NICKNAMES, true);
+            case Permission.MANAGE_ROLES: return new PermissionConvertion(PermissionType.MANAGE_ROLES, true);
+            case Permission.MANAGE_CHANNEL_PERMISSIONS: return new PermissionConvertion(PermissionType.MANAGE_ROLES, false);
+            case Permission.MANAGE_SERVER: return new PermissionConvertion(PermissionType.MANAGE_SERVER, true);
+            case Permission.MENTION_EVERYONE: return new PermissionConvertion(PermissionType.MENTION_EVERYONE, false);
+            case Permission.MOVE_MEMBERS: return new PermissionConvertion(PermissionType.MOVE_MEMBERS, true);
+            case Permission.MUTE_MEMBERS: return new PermissionConvertion(PermissionType.MUTE_MEMBERS, true);
+            case Permission.READ_MESSAGE_HISTORY: return new PermissionConvertion(PermissionType.READ_MESSAGE_HISTORY, false);
+            case Permission.SEND_MESSAGES: return new PermissionConvertion(PermissionType.SEND_MESSAGES, false);
+            case Permission.VIEW_AUDIT_LOG: return new PermissionConvertion(PermissionType.VIEW_AUDIT_LOG, true);
+            case Permission.SEND_TTS_MESSAGES: return new PermissionConvertion(PermissionType.SEND_TTS_MESSAGES, false);
+            case Permission.USE_EXTERNAL_EMOJIS: return new PermissionConvertion(PermissionType.USE_EXTERNAL_EMOJIS, false);
+            case Permission.ADD_REACTIONS: return new PermissionConvertion(PermissionType.ADD_REACTIONS, false);
+            case Permission.MANAGE_WEBHOOKS: return new PermissionConvertion(PermissionType.MANAGE_WEBHOOKS, true);
+            case Permission.CREATE_INSTANT_INVITE: return new PermissionConvertion(PermissionType.CREATE_INSTANT_INVITE, false);
+        }
+
+        throw new RuntimeException("Faulty permission!");
+    }
+
+    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, ArrayList<Integer> userPermission, ArrayList<Integer> botPermission) {
         EmbedBuilder eb = null;
         boolean alright = userPermission.size() == 0 && botPermission.size() == 0;
         if (!alright) {
@@ -137,6 +117,74 @@ public class PermissionCheck {
         }
 
         return list;
+    }
+
+    public static boolean canYouManageRole(Role role) {
+        return canManageRole(DiscordApiCollection.getInstance().getYourself(), role);
+    }
+
+    public static boolean canManageRole(User user, Role role) {
+        Server server = role.getServer();
+        if (role.isManaged() || !server.canManageRoles(user)) return false;
+        if (server.getOwner().getId() == user.getId()) return true;
+
+        int highestPosition = -1;
+        for(Role ownRole: server.getRoles(user)) {
+            if (ownRole.getPermissions().getState(PermissionType.MANAGE_ROLES) == PermissionState.ALLOWED || ownRole.getPermissions().getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED) {
+                highestPosition = Math.max(highestPosition, ownRole.getPosition());
+            }
+        }
+
+        return highestPosition > role.getPosition();
+    }
+
+    public static boolean hasAdminPermissions(Server server, User user) {
+        return server.getAllowedPermissions(user).contains(PermissionType.ADMINISTRATOR) || user.getId() == server.getOwner().getId();
+    }
+
+    public static boolean canYouKickUser(Server server, User user) {
+        return server.canYouKickUser(user) && server.getOwner() != user;
+    }
+
+    public static boolean canYouBanUser(Server server, User user) {
+        return server.canYouBanUser(user) && server.getOwner() != user;
+    }
+
+    public static boolean botHasServerPermission(Server server, PermissionType permissionType) {
+        return userHasServerPermission(server, DiscordApiCollection.getInstance().getYourself(), permissionType);
+    }
+
+    public static boolean botHasChannelPermission(ServerChannel channel, PermissionType permissionType) {
+        return userHasChannelPermission(channel, DiscordApiCollection.getInstance().getYourself(), permissionType);
+    }
+
+    public static boolean userHasServerPermission(Server server, User user, PermissionType permissionType) {
+        if (hasAdminPermissions(server, user)) return true;
+        return server.getAllowedPermissions(user).contains(permissionType);
+    }
+
+    public static boolean userHasChannelPermission(ServerChannel channel, User user, PermissionType permissionType) {
+        if (hasAdminPermissions(channel.getServer(), user)) return true;
+        if (channel.getEffectivePermissions(user).getState(permissionType) == PermissionState.ALLOWED) return true;
+        return channel.getEffectivePermissions(user).getState(permissionType) == PermissionState.UNSET && channel.getServer().getAllowedPermissions(user).contains(permissionType);
+    }
+
+    public static class PermissionConvertion {
+        private PermissionType permissionType;
+        private boolean serverOnly;
+
+        public PermissionConvertion(PermissionType permissionType, boolean serverOnly) {
+            this.permissionType = permissionType;
+            this.serverOnly = serverOnly;
+        }
+
+        public PermissionType getPermissionType() {
+            return permissionType;
+        }
+
+        public boolean isServerOnly() {
+            return serverOnly;
+        }
     }
 
 }

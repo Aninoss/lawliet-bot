@@ -1,6 +1,6 @@
 package General.Survey;
 
-import General.Tools;
+import General.StringTools;
 
 import java.util.Optional;
 
@@ -39,12 +39,12 @@ public class VoteInfo {
     }
 
     public void setTopic(String topic) {
-        this.topic = Tools.cutSpaces(topic);
+        this.topic = StringTools.trimString(topic);
     }
 
     public void setChoices(String[] choices) {
         for(int i=0; i<choices.length; i++) {
-            choices[i] = Tools.cutSpaces(choices[i]);
+            choices[i] = StringTools.trimString(choices[i]);
         }
         this.choices = choices;
     }

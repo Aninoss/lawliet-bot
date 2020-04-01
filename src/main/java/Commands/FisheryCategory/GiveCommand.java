@@ -6,9 +6,8 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
-import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "give",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/gift-icon.png",
         emoji = "\uD83C\uDF81",
         executable = false,
@@ -42,7 +41,7 @@ public class GiveCommand extends Command implements onRecievedListener {
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
-            MentionList<User> userMarked = MentionFinder.getUsers(message,followedString);
+            MentionList<User> userMarked = MentionTools.getUsers(message,followedString);
             ArrayList<User> list = userMarked.getList();
             for(User user: new ArrayList<>(list)) {
                 if (user.isBot() || user.equals(event.getMessage().getUserAuthor().get())) list.remove(user);
@@ -64,7 +63,7 @@ public class GiveCommand extends Command implements onRecievedListener {
             }
 
             long coins = DBUser.getFishingProfile(server, user0).getCoins();
-            long value = Tools.getAmountExt(followedString, coins);
+            long value = MentionTools.getAmountExt(followedString, coins);
 
             if (value != -1) {
                 if (value >= 1) {
@@ -75,10 +74,10 @@ public class GiveCommand extends Command implements onRecievedListener {
                         eb = DBUser.addFishingValues(getLocale(), server, user1, 0L, value);
                         if (eb != null) event.getChannel().sendMessage(eb);
 
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", Tools.numToString(getLocale(), value), user1.getMentionTag()))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringTools.numToString(getLocale(), value), user1.getMentionTag()))).get();
                         return true;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", Tools.numToString(getLocale(), coins)))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringTools.numToString(getLocale(), coins)))).get();
                     }
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();

@@ -6,7 +6,6 @@ import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
 import MySQL.AutoChannel.AutoChannelBean;
 import MySQL.AutoChannel.DBAutoChannel;
-import MySQL.DBServerOld;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -15,7 +14,6 @@ import org.javacord.api.entity.permission.*;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelMemberJoinListener {
 
@@ -31,7 +29,7 @@ public class VoiceChannelMemberJoinListener {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
-            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), "autochannel", event.getServer(), Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), "autochannel", event.getServer(), Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS)) {
                 int n = 1;
 
                 for (int i = 0; i < 50; i++) {

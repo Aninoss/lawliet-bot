@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "top",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Cup-champion-icon.png",
         emoji = "\uD83C\uDFC6",
         executable = true,
@@ -67,9 +67,9 @@ public class TopCommand extends ListAbstract implements onRecievedListener {
                         userString),
                 getString("template_descritpion",
                         DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag(),
-                        Tools.numToString(getLocale(), rankingSlot.getGrowth()),
-                        Tools.numToString(getLocale(), rankingSlot.getCoins()),
-                        Tools.numToString(getLocale(), rankingSlot.getJoule()))
+                        StringTools.numToString(getLocale(), rankingSlot.getGrowth()),
+                        StringTools.numToString(getLocale(), rankingSlot.getCoins()),
+                        StringTools.numToString(getLocale(), rankingSlot.getJoule()))
         );
     }
 

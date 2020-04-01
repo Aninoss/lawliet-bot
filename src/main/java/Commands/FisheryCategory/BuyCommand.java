@@ -20,14 +20,13 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "buy",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCE5",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/shopping-icon.png",
         executable = true,
@@ -83,7 +82,7 @@ public class BuyCommand extends Command implements onNavigationListener {
 
                     //Skip role if it shouldn't be bought
                     if (i >= FishingCategoryInterface.ROLE &&
-                            (fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size() || !Tools.canManageRole(roles.get(fishingProfile.find(FishingCategoryInterface.ROLE).getLevel())))
+                            (fishingProfile.find(FishingCategoryInterface.ROLE).getLevel() >= roles.size() || !PermissionCheck.canYouManageRole(roles.get(fishingProfile.find(FishingCategoryInterface.ROLE).getLevel())))
                     ) i++;
                     FishingSlot slot = fishingProfile.find(i);
 
@@ -102,9 +101,9 @@ public class BuyCommand extends Command implements onNavigationListener {
                             roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
 
                             Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
-                            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannelOpt.get(), Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+                            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                                 String announcementText = getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
-                                announcementChannelOpt.get().sendMessage(Tools.defuseMassPing(announcementText)).get();
+                                announcementChannelOpt.get().sendMessage(StringTools.defuseMassPing(announcementText)).get();
                             }
                         }
 
@@ -139,36 +138,36 @@ public class BuyCommand extends Command implements onNavigationListener {
                     if (
                             (slot.getId() != FishingCategoryInterface.ROLE ||
                             (slot.getLevel() < roles.size() &&
-                                    Tools.canManageRole(roles.get(slot.getLevel())))) &&
+                                    PermissionCheck.canYouManageRole(roles.get(slot.getLevel())))) &&
                             (slot.getId() != FishingCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
                     ) {
                         String productDescription = "???";
                         long price = slot.getPrice();
                         if (slot.getId() != FishingCategoryInterface.ROLE)
-                            productDescription = getString("product_des_" + slot.getId(), Tools.numToString(getLocale(), slot.getDeltaEffect()));
+                            productDescription = getString("product_des_" + slot.getId(), StringTools.numToString(getLocale(), slot.getDeltaEffect()));
                         else if (roles.get(slot.getLevel()) != null) {
                             price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getId(), roles.get(slot.getLevel()).getMentionTag());
                         }
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()], getString("product_" + slot.getId() + "_0"), String.valueOf(slot.getLevel()), Tools.numToString(getLocale(), price), productDescription));
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()], getString("product_" + slot.getId() + "_0"), String.valueOf(slot.getLevel()), StringTools.numToString(getLocale(), price), productDescription));
 
                         numberReactions++;
-                        eb.addField(Tools.getEmptyCharacter(), description.toString());
+                        eb.addField(Settings.EMPTY_EMOJI, description.toString());
                         i++;
                     }
                 }
 
                 int roleLvl = fishingProfile.getSlots().get(FishingCategoryInterface.ROLE).getLevel();
-                eb.addField(Tools.getEmptyCharacter(),
+                eb.addField(Settings.EMPTY_EMOJI,
                         getString("status",
-                                Tools.numToString(getLocale(), fishingProfile.getFish()),
-                                Tools.numToString(getLocale(), fishingProfile.getCoins()),
-                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
-                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
-                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
-                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
+                                StringTools.numToString(getLocale(), fishingProfile.getFish()),
+                                StringTools.numToString(getLocale(), fishingProfile.getCoins()),
+                                StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
+                                StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
+                                StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
+                                StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
                                 roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getMentionTag() : "**-**",
-                                Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
+                                StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                         )
                 );
                 return eb;

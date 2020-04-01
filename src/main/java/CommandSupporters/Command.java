@@ -5,6 +5,7 @@ import CommandListeners.CommandProperties;
 import Constants.*;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
+import General.Mention.MentionTools;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -12,6 +13,7 @@ import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -230,7 +232,7 @@ public abstract class Command {
             }
 
             String str = EmojiConnection.getOptionsString(channel, false, newOptions);
-            eb.addField(Tools.getEmptyCharacter(), Tools.getEmptyCharacter());
+            eb.addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI);
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str);
         }
 
@@ -327,7 +329,7 @@ public abstract class Command {
 
     private void setResultReaction(Message message, boolean successful) {
         if (message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
-            message.addReaction(Tools.getEmojiForBoolean(successful));
+            message.addReaction(StringTools.getEmojiForBoolean(successful));
         }
     }
 
@@ -467,13 +469,13 @@ public abstract class Command {
     }
 
     public boolean checkManageChannelWithLog(ServerChannel channel) {
-        if (Tools.canManageChannel(channel, DiscordApiCollection.getInstance().getYourself())) return true;
+        if (PermissionCheck.botHasChannelPermission(channel, PermissionType.MANAGE_CHANNELS)) return true;
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", "#"+channel.getName()));
         return false;
     }
 
     public boolean checkRoleWithLog(Role role) {
-        if (Tools.canManageRole(role)) return true;
+        if (PermissionCheck.canYouManageRole(role)) return true;
         try {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@"+role.getName()));
         } catch (IOException e) {
@@ -486,7 +488,7 @@ public abstract class Command {
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
 
         for(Role role: roles) {
-            if (!Tools.canManageRole(role)) unmanagableRoles.add(role);
+            if (!PermissionCheck.canYouManageRole(role)) unmanagableRoles.add(role);
         }
 
         if (unmanagableRoles.size() == 0) {
@@ -494,19 +496,19 @@ public abstract class Command {
 
             if (requester == null) requester = DiscordApiCollection.getInstance().getYourself();
             for(Role role: roles) {
-                if (!Tools.canManageRole(requester, role)) forbiddenRoles.add(role);
+                if (!PermissionCheck.canManageRole(requester, role)) forbiddenRoles.add(role);
             }
 
             if (forbiddenRoles.size() == 0) return true;
             try {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, Tools.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionTools.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return false;
         }
         try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, Tools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionTools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -542,14 +544,15 @@ public abstract class Command {
     public boolean isNsfw() { return commandProperties.nsfw(); }
     public boolean isPrivate() { return commandProperties.privateUse(); }
     public boolean isExecutable() { return commandProperties.executable(); }
+    public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
     public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStaticListener) {
-            perm |= Permission.ADD_NEW_REACTIONS;
+            perm |= Permission.ADD_REACTIONS;
         }
         if (this instanceof onReactionAddStaticListener) {
-            perm |= Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL;
+            perm |= Permission.READ_MESSAGE_HISTORY;
         }
         return perm;
     }

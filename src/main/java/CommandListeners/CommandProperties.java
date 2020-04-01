@@ -16,4 +16,5 @@ public @interface CommandProperties {
     boolean deleteOnTimeOut() default true;
     int botPermissions() default 0;
     int userPermissions() default 0;
+    boolean requiresEmbeds() default true;
 }

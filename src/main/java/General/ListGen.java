@@ -1,17 +1,7 @@
 package General;
 
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.user.User;
-
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ListGen<T> {
@@ -68,7 +58,7 @@ public class ListGen<T> {
             i++;
         }
         if (sb.toString().isEmpty()) return valueIfEmpty;
-        return Tools.shortenStringLine(sb.toString(), 1024);
+        return StringTools.shortenStringLine(sb.toString(), 1024);
     }
 
 }

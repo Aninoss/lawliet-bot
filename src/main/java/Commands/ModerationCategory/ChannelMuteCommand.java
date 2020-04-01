@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
 import General.Mention.Mention;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mute.MuteData;
 import General.Mute.MuteManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "chmute",
-        userPermissions = Permission.MANAGE_PERMISSIONS_IN_CHANNEL,
-        botPermissions = Permission.MANAGE_PERMISSIONS_IN_CHANNEL,
+        userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS,
+        botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS,
         thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/stop-icon.png",
         emoji = "\uD83D\uDED1",
         executable = false,
@@ -47,17 +47,17 @@ public class ChannelMuteCommand extends Command implements onRecievedListener  {
         Server server = message.getServer().get();
 
         ServerTextChannel channel = message.getServerTextChannel().get();
-        List<ServerTextChannel> channelList = MentionFinder.getTextChannels(message, followedString).getList();
+        List<ServerTextChannel> channelList = MentionTools.getTextChannels(message, followedString).getList();
         if (channelList.size() > 0)
             channel = channelList.get(0);
 
-        EmbedBuilder errorEmbed = PermissionCheck.userAndBothavePermissions(getLocale(), server, channel, message.getUserAuthor().get(), getUserPermissions(), getBotPermissions());
+        EmbedBuilder errorEmbed = PermissionCheck.getUserAndBotPermissionMissingEmbed(getLocale(), server, channel, message.getUserAuthor().get(), getUserPermissions(), getBotPermissions());
         if (errorEmbed != null) {
             message.getChannel().sendMessage(errorEmbed).get();
             return false;
         }
 
-        List<User> userList = MentionFinder.getUsers(message, followedString).getList();
+        List<User> userList = MentionTools.getUsers(message, followedString).getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
@@ -66,7 +66,7 @@ public class ChannelMuteCommand extends Command implements onRecievedListener  {
 
         ArrayList<User> successfulUsers = new ArrayList<>();
         for(User user: userList) {
-            if (!Tools.userHasAdminPermissions(server, user)) successfulUsers.add(user);
+            if (!PermissionCheck.hasAdminPermissions(server, user)) successfulUsers.add(user);
         }
 
         if (successfulUsers.size() == 0) {
@@ -78,7 +78,7 @@ public class ChannelMuteCommand extends Command implements onRecievedListener  {
         MuteData muteData = new MuteData(server, channel, successfulUsers);
         boolean doneSomething = MuteManager.getInstance().executeMute(muteData, mute);
 
-        Mention mention = Tools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
+        Mention mention = MentionTools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getString(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
         for(User user: userList) {
             try {

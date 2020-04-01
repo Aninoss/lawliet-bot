@@ -4,9 +4,9 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.TextManager;
-import General.Tools;
+import General.TimeTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -31,7 +31,7 @@ public class UserInfoCommand extends Command implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
-        ArrayList<User> list = MentionFinder.getUsers(event.getMessage(), followedString).getList();
+        ArrayList<User> list = MentionTools.getUsers(event.getMessage(), followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
@@ -58,9 +58,9 @@ public class UserInfoCommand extends Command implements onRecievedListener {
                     user.getDiscriminator(),
                     user.getIdAsString(),
                     user.getAvatar().getUrl().toString() + "?size=2048",
-                    user.getJoinedAtTimestamp(server).isPresent() ? Tools.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
-                    Tools.getInstantString(getLocale(), user.getCreationTimestamp(), true),
-                    Tools.getStats(getLocale(), user)
+                    user.getJoinedAtTimestamp(server).isPresent() ? TimeTools.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
+                    TimeTools.getInstantString(getLocale(), user.getCreationTimestamp(), true),
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "status_" + user.getStatus().getStatusString())
             };
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args)).

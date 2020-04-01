@@ -324,9 +324,9 @@ public class DBUser {
                             String sign = "";
                             if (progress[j][1] > progress[j][0]) sign = "+";
                             progressString[j] = TextManager.getString(locale, TextManager.GENERAL, key, progress[j][0] != progress[j][1],
-                                    Tools.numToString(locale, progress[j][0]),
-                                    Tools.numToString(locale, progress[j][1]),
-                                    sign + Tools.numToString(locale, progress[j][1] - progress[j][0])
+                                    StringTools.numToString(locale, progress[j][0]),
+                                    StringTools.numToString(locale, progress[j][1]),
+                                    sign + StringTools.numToString(locale, progress[j][1] - progress[j][0])
                             );
                         }
                     } else {

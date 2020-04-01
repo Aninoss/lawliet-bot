@@ -2,6 +2,7 @@ package General;
 
 import CommandSupporters.Command;
 import Constants.LogStatus;
+import Constants.Settings;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
@@ -130,7 +131,7 @@ public class EmbedFactory {
                         break;
                 }
             }
-            eb.addField(Tools.getEmptyCharacter(), "`" + add + log + "`");
+            eb.addField(Settings.EMPTY_EMOJI, "`" + add + log + "`");
         }
 
         return eb;

@@ -15,7 +15,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
         trigger = "stats",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCCA",
         thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Graph-Magnifier-icon.png",
         executable = true,
@@ -31,12 +31,12 @@ public class StatsCommand extends Command implements onRecievedListener {
                 getString("template",
                 DiscordApiCollection.getInstance().getOwner().getMentionTag(),
                 Settings.BOT_INVITE_URL,
-                Tools.getCurrentVersion(),
-                Tools.getInstantString(getLocale(), DBBot.getCurrentVersionDate(), true),
-                Tools.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
-                Tools.numToString(getLocale(), TrackerManager.getSize()),
+                StringTools.getCurrentVersion(),
+                TimeTools.getInstantString(getLocale(), DBBot.getCurrentVersionDate(), true),
+                StringTools.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
+                StringTools.numToString(getLocale(), TrackerManager.getSize()),
                 DiscordApiCollection.getInstance().getOwner().getDiscriminatedName(),
-                Tools.numToString(getLocale(), DBSurvey.getCurrentVotesNumber())
+                StringTools.numToString(getLocale(), DBSurvey.getCurrentVotesNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));

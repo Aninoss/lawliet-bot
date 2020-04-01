@@ -1,10 +1,10 @@
 package General.Survey;
 
 import Constants.Language;
-import General.Tools;
+import General.StringTools;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class SurveyCollectorSlot {
 
     public void add(Server server, long gains, Locale locale) {
         servers.put(server, gains);
-        Language language = Tools.getLanguage(locale);
+        Language language = StringTools.getLanguage(locale);
         addLanguage(language);
         locales.put(language, locale);
     }

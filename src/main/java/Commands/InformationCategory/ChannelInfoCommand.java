@@ -4,9 +4,10 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
+import General.TimeTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -34,7 +35,7 @@ public class ChannelInfoCommand extends Command implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
-        ArrayList<ServerTextChannel> list = MentionFinder.getTextChannels(event.getMessage(), followedString).getList();
+        ArrayList<ServerTextChannel> list = MentionTools.getTextChannels(event.getMessage(), followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_channels"))).get();
@@ -50,10 +51,10 @@ public class ChannelInfoCommand extends Command implements onRecievedListener {
             String[] args = {
                     channel.getName(),
                     channel.getIdAsString(),
-                    Tools.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
-                    Tools.numToString(getLocale(), members.size()),
-                    Tools.numToString(getLocale(), members.stream().filter(member -> !member.isBot()).count()),
-                    Tools.numToString(getLocale(), members.stream().filter(User::isBot).count())
+                    TimeTools.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
+                    StringTools.numToString(getLocale(), members.size()),
+                    StringTools.numToString(getLocale(), members.stream().filter(member -> !member.isBot()).count()),
+                    StringTools.numToString(getLocale(), members.stream().filter(User::isBot).count())
             };
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));

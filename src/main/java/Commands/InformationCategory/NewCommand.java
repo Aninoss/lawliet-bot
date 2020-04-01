@@ -34,7 +34,7 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
             return true;
         } else {
             //Anzahl
-            if (Tools.stringIsLong(followedString)) {
+            if (StringTools.stringIsLong(followedString)) {
                 long i = Long.parseLong(followedString);
                 if (i >= 1) {
                     if (i <= 10) {
@@ -88,9 +88,9 @@ public class NewCommand extends Command implements onRecievedListener, onTracker
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (trackerData.getArg() == null || !trackerData.getArg().equals(Tools.getCurrentVersion())) {
-            trackerData.getChannel().get().sendMessage(getVersionsEmbed(Tools.getCurrentVersion())).get();
-            trackerData.setArg(Tools.getCurrentVersion());
+        if (trackerData.getArg() == null || !trackerData.getArg().equals(StringTools.getCurrentVersion())) {
+            trackerData.getChannel().get().sendMessage(getVersionsEmbed(StringTools.getCurrentVersion())).get();
+            trackerData.setArg(StringTools.getCurrentVersion());
         } else {
             TrackerManager.interruptTracker(trackerData);
         }

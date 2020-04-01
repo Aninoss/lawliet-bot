@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -16,8 +16,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "clear",
-    botPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
-    userPermissions = Permission.MANAGE_MASSAGES_IN_TEXT_CHANNEL | Permission.READ_MESSAGE_HISTORY_OF_TEXT_CHANNEL,
+    botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+    userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
     withLoadingBar = true,
     emoji = "\uD83D\uDDD1\uFE0F",
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
@@ -31,7 +31,7 @@ public class ClearCommand extends Command implements onRecievedListener {
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        if (followedString.length() > 0 && Tools.stringIsLong(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
+        if (followedString.length() > 0 && StringTools.stringIsLong(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
             int count = Integer.parseInt(followedString);
             int deleted = 0;
             boolean skipped = false;

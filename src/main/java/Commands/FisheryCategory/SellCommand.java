@@ -7,7 +7,7 @@ import Constants.FisheryStatus;
 import Constants.Response;
 import General.*;
 import General.Fishing.FishingProfile;
-import MySQL.DBServerOld;
+import General.Mention.MentionTools;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "sell",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-rotation-icon.png",
     emoji = "\uD83D\uDCE4",
     executable = true
@@ -46,9 +46,9 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
                 FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
                 message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                         getString("status",
-                                Tools.numToString(getLocale(), fishingProfile.getFish()),
-                                Tools.numToString(getLocale(), fishingProfile.getCoins()),
-                                Tools.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
+                                StringTools.numToString(getLocale(), fishingProfile.getFish()),
+                                StringTools.numToString(getLocale(), fishingProfile.getCoins()),
+                                StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
                                 getChangeEmoji()
                         ))).get();
                 message.addReaction("❌");
@@ -64,7 +64,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
         removeReactionListener(message);
         removeMessageForwarder();
         FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
-        long value = Tools.getAmountExt(argString, fishingProfile.getFish());
+        long value = MentionTools.getAmountExt(argString, fishingProfile.getFish());
 
         if (argString.equalsIgnoreCase("no")) {
             markNoInterest(event.getServerTextChannel().get());
@@ -83,7 +83,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", fishingProfile.getFish() != 1, Tools.numToString(getLocale(), fishingProfile.getFish()))));
+                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", fishingProfile.getFish() != 1, StringTools.numToString(getLocale(), fishingProfile.getFish()))));
         } else if (value == 0)
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
         else if (value == -1)
@@ -137,7 +137,7 @@ public class SellCommand extends Command implements onRecievedListener, onReacti
     private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         removeMessageForwarder();
         removeReactionListener();
-        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", Tools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()), getString("nointerest_title")));
+        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()), getString("nointerest_title")));
     }
 
     @Override

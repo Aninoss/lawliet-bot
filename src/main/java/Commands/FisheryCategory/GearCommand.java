@@ -9,9 +9,9 @@ import Constants.FisheryStatus;
 import General.EmbedFactory;
 import General.Fishing.FishingProfile;
 import General.Fishing.FishingSlot;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "gear",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         emoji = "\uD83C\uDFA3",
         executable = true,
@@ -43,7 +43,7 @@ public class GearCommand extends Command implements onRecievedListener {
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
-            ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
+            ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
             if (list.size() > 5) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                         TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
@@ -65,7 +65,7 @@ public class GearCommand extends Command implements onRecievedListener {
             ArrayList<Role> buyableRoles = DBServerOld.getPowerPlantRolesFromServer(server);
             for(User user: list) {
                 FishingProfile fishingProfile = DBUser.getFishingProfile(server, user);
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", Tools.numToString(getLocale(), fishingProfile.getFish()), Tools.numToString(getLocale(), fishingProfile.getCoins())));
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", StringTools.numToString(getLocale(), fishingProfile.getFish()), StringTools.numToString(getLocale(), fishingProfile.getCoins())));
                 if (eb != null) {
                     eb.setTitle("");
                     eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
@@ -84,12 +84,12 @@ public class GearCommand extends Command implements onRecievedListener {
 
                     int roleLvl = fishingProfile.getSlots().get(FishingCategoryInterface.ROLE).getLevel();
                     eb.addField(getString("stats_title"), getString("stats_content",
-                            Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
-                            Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
-                            Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
-                            Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
+                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
+                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
+                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
+                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
                             buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? buyableRoles.get(roleLvl - 1).getMentionTag() : "**-**",
-                            Tools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
+                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
                     ), false);
 
                     if (!userMentioned)

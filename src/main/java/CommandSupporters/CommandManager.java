@@ -6,7 +6,6 @@ import General.*;
 import General.Cooldown.Cooldown;
 import General.RunningCommands.RunningCommandManager;
 import MySQL.CommandUsages.DBCommandUsages;
-import MySQL.DBBot;
 import MySQL.DBServerOld;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -25,12 +24,12 @@ public class CommandManager {
     public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
         Locale locale = command.getLocale();
         String commandTrigger = command.getTrigger();
-        if (event.getChannel().canYouWrite() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands")) && Tools.canSendPrivateMessage(event.getMessage().getUserAuthor().get()))) {
+        if (event.getChannel().canYouWrite() || ((commandTrigger.equalsIgnoreCase("help") || commandTrigger.equalsIgnoreCase("commands")))) {
             if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServerOld.isChannelWhitelisted(event.getServerTextChannel().get())) {
                 if (!command.isPrivate() || event.getMessage().getAuthor().isBotOwner()) {
                     if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
-                        if (event.getChannel().canYouEmbedLinks() || command.getTrigger().equalsIgnoreCase("help")) {
-                            EmbedBuilder errEmbed = PermissionCheck.userAndBothavePermissions(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
+                        if (event.getChannel().canYouEmbedLinks() || !command.requiresEmbeds()) {
+                            EmbedBuilder errEmbed = PermissionCheck.getUserAndBotPermissionMissingEmbed(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
 
                             if (command instanceof WarnCommand && event.getServer().get().getId() == 660212849817288704L) {
                                 Role modRole = event.getServer().get().getRoleById(661931103166398465L).get();
@@ -98,9 +97,7 @@ public class CommandManager {
             if (event.getChannel().canYouAddNewReactions()) {
                 event.addReactionsToMessage("✏");
                 event.addReactionsToMessage("❌");
-                User user = event.getMessage().getUserAuthor().get();
-                if (Tools.canSendPrivateMessage(user))
-                    user.sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName())).get();
+                event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
             }
         }
     }

@@ -5,6 +5,7 @@ import CommandListeners.onReactionAddListener;
 import CommandListeners.onRecievedListener;
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
+import Constants.Settings;
 import General.*;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -45,7 +46,7 @@ public class CoinFlipCommand extends CasinoAbstract implements onRecievedListene
             useCalculatedMultiplicator = false;
             winMultiplicator = 1;
 
-            String filteredString = Tools.cutSpaces(Tools.filterLettersFromString(followedString.toLowerCase()));
+            String filteredString = StringTools.trimString(StringTools.filterLettersFromString(followedString.toLowerCase()));
             if (filteredString.contains("h")) selection[0] = 0;
             else if (filteredString.contains("t")) selection[0] = 1;
 
@@ -59,7 +60,7 @@ public class CoinFlipCommand extends CasinoAbstract implements onRecievedListene
     }
 
     private String getChoiceString(ServerTextChannel channel, int pos) {
-        if (pos == 1 && selection[0] == -1) return Tools.getEmptyCharacter();
+        if (pos == 1 && selection[0] == -1) return Settings.EMPTY_EMOJI;
 
         switch (selection[pos]) {
             case 0:
@@ -67,7 +68,7 @@ public class CoinFlipCommand extends CasinoAbstract implements onRecievedListene
             case 1:
                 return EMOJIS[1];
             default:
-                return Tools.getLoadingReaction(channel);
+                return StringTools.getLoadingReaction(channel);
         }
     }
 
@@ -79,9 +80,9 @@ public class CoinFlipCommand extends CasinoAbstract implements onRecievedListene
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
         eb.addField(getString("yourbet"), getChoiceString(channel, 0), true);
         eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
-        eb.addField(Tools.getEmptyCharacter(), getString("template", user.getDisplayName(server), Tools.numToString(coinsInput)));
+        eb.addField(Settings.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringTools.numToString(coinsInput)));
 
-        if (selection[0] == -1) eb.addField(Tools.getEmptyCharacter(), getString("expl", EMOJIS[0], EMOJIS[1]));
+        if (selection[0] == -1) eb.addField(Settings.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
 
         if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
 

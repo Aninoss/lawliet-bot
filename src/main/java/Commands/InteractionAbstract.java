@@ -4,6 +4,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.*;
 import General.Mention.Mention;
+import General.Mention.MentionTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -23,7 +24,7 @@ public abstract class InteractionAbstract extends Command implements onRecievedL
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        Mention mention = Tools.getMentionedString(getLocale(), message, followedString);
+        Mention mention = MentionTools.getMentionedString(getLocale(), message, followedString);
         if (mention == null) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"no_mentions"))).get();
@@ -37,7 +38,7 @@ public abstract class InteractionAbstract extends Command implements onRecievedL
         }
 
         ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
-        String gifUrl = gifs[Tools.pickFullRandom(pickedCommand, gifs.length)];
+        String gifUrl = gifs[RandomTools.pickFullRandom(pickedCommand, gifs.length)];
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.getString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**"))
                 .setImage(gifUrl);
 

@@ -8,7 +8,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
@@ -48,7 +48,7 @@ public class WhiteListCommand extends Command implements onNavigationListener {
         }
 
         if (state == 1) {
-            ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+            ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
             return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0, channel -> {
                 try {
                     DBServerOld.addWhiteListedChannel(event.getServer().get(), channel);

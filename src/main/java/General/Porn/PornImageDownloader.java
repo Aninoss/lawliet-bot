@@ -1,10 +1,9 @@
 package General.Porn;
 
-import General.Comment;
-import General.ExceptionHandler;
+import General.*;
+import General.Internet.Internet;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
-import General.Tools;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +38,7 @@ public class PornImageDownloader {
 
         int count;
         try {
-            count = Math.min(200 * 100, Integer.parseInt(Tools.cutString(data, "count=\"", "\"")));
+            count = Math.min(200 * 100, Integer.parseInt(StringTools.extractGroups(data, "count=\"", "\"")[0]));
         } catch (NumberFormatException e) {
             ExceptionHandler.showErrorLog("Error for search key " + searchTerm);
             throw e;
@@ -88,7 +87,7 @@ public class PornImageDownloader {
             String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
 
             long score = 0;
-            boolean postIsImage = Tools.UrlContainsImage(fileUrl);
+            boolean postIsImage = InternetTools.urlContainsImage(fileUrl);
             boolean postIsGif = fileUrl.endsWith("gif");
 
             long scoreTmp = 1;
@@ -98,7 +97,7 @@ public class PornImageDownloader {
                 //Ignore
             }
 
-            if ((postIsImage || canBeVideo) && (!animatedOnly || postIsGif || !postIsImage) && scoreTmp >= 0 && !Tools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
+            if ((postIsImage || canBeVideo) && (!animatedOnly || postIsGif || !postIsImage) && scoreTmp >= 0 && !NSFWTools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
                 count2++;
                 if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
                     score = scoreTmp;
@@ -137,8 +136,8 @@ public class PornImageDownloader {
 
         ArrayList<Comment> comments = new ArrayList<>();
         while(commentsDataString.contains("creator=\"")) {
-            String author = Tools.decryptString(Tools.cutString(commentsDataString, "creator=\"", "\""));
-            String content = Tools.decryptString(Tools.cutString(commentsDataString, "body=\"", "\"")).replace("[spoiler]", "||").replace("[/spoiler]", "||");
+            String author = StringTools.decryptString(StringTools.extractGroups(commentsDataString, "creator=\"", "\"")[0]);
+            String content = StringTools.decryptString(StringTools.extractGroups(commentsDataString, "body=\"", "\"")[0]).replace("[spoiler]", "||").replace("[/spoiler]", "||");
             commentsDataString = commentsDataString.replaceFirst("creator=\"", "").replaceFirst("body=\"", "");
             comments.add(new Comment(author, content));
         }
@@ -146,7 +145,7 @@ public class PornImageDownloader {
         Instant instant;
 
         if (postData.has("created_at")) {
-            instant = Tools.parseDateString(postData.getString("created_at"));
+            instant = TimeTools.parseDateString(postData.getString("created_at"));
         } else instant = Instant.now();
 
         String fileURL;
@@ -155,7 +154,6 @@ public class PornImageDownloader {
 
         if (fileURL.contains("?")) fileURL = fileURL.split("\\?")[0];
 
-
         int score = 0;
         try {
             score = postData.getInt("score");
@@ -163,6 +161,6 @@ public class PornImageDownloader {
             //Ignore
         }
 
-        return new PornImage(fileURL, postURL, comments, score, comments.size(), instant, !Tools.UrlContainsImage(fileURL) && !fileURL.endsWith("gif"));
+        return new PornImage(fileURL, postURL, comments, score, comments.size(), instant, !InternetTools.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
 }

@@ -5,18 +5,16 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.*;
 import General.*;
-import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Donators.DBDonators;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.Optional;
 
 @CommandProperties(
     trigger = "daily",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/calendar-icon.png",
     emoji = "\uD83D\uDDD3",
     withLoadingBar = true,
@@ -48,9 +46,9 @@ public class DailyCommand extends Command implements onRecievedListener {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 
-                StringBuilder sb = new StringBuilder(getString("point_default", Tools.numToString(getLocale(), fishes)));
-                if (bonusCombo > 0) sb.append("\n").append(getString("point_combo", Tools.numToString(getLocale(), bonusCombo)));
-                if (bonusDonation > 0) sb.append("\n").append(getString("point_donation", Tools.numToString(getLocale(), bonusDonation)));
+                StringBuilder sb = new StringBuilder(getString("point_default", StringTools.numToString(getLocale(), fishes)));
+                if (bonusCombo > 0) sb.append("\n").append(getString("point_combo", StringTools.numToString(getLocale(), bonusCombo)));
+                if (bonusDonation > 0) sb.append("\n").append(getString("point_donation", StringTools.numToString(getLocale(), bonusDonation)));
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("codeblock", sb.toString()));
                 eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", Settings.UPVOTE_URL), false);

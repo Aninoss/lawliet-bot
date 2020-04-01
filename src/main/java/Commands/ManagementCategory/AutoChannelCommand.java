@@ -7,7 +7,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import MySQL.AutoChannel.AutoChannelBean;
 import MySQL.AutoChannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
@@ -15,6 +15,7 @@ import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
@@ -24,8 +25,8 @@ import java.util.regex.Pattern;
 
 @CommandProperties(
     trigger = "autochannel",
-    botPermissions = Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER | Permission.MANAGE_CHANNEL,
-    userPermissions = Permission.CREATE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS_ON_SERVER,
+    botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
+    userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
     emoji = "\uD83D\uDD0A",
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Sound-icon.png",
     executable = true
@@ -43,7 +44,7 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
 
         switch (state) {
             case 1:
-                ArrayList<ServerVoiceChannel> channelList = MentionFinder.getVoiceChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerVoiceChannel> channelList = MentionTools.getVoiceChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -120,13 +121,13 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), Tools.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
+                        .addField(getString("state0_mactive"), StringTools.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
                         .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet), true)
                         .addField(getString("state0_mchannelname"), replaceVariables(autoChannelBean.getNameMask(),
                                 "`%VCNAME`",
                                 "`%INDEX`",
                                 "`%CREATOR`").replace("``", "` `"), true)
-                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", Tools.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
+                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringTools.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

@@ -6,10 +6,9 @@ import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Internet.Internet;
 import General.Internet.InternetProperty;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.SecretManager;
 import General.TextManager;
-import javafx.util.Pair;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -44,7 +43,7 @@ public class IncreaseResolutionCommand extends Command implements onRecievedList
             MessageAttachment messageAttachment = attachmentList.get(0);
             url = messageAttachment.getProxyUrl();
         } else {
-            ArrayList<URL> imageList = MentionFinder.getImages(followedString).getList();
+            ArrayList<URL> imageList = MentionTools.getImages(followedString).getList();
             if (imageList.size() > 0) {
                 url = imageList.get(0);
             }

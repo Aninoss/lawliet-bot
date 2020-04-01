@@ -22,7 +22,7 @@ public abstract class PornSearchAbstract extends PornAbstract implements onRecie
 
     @Override
     public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable {
-        String searchAdd = Tools.getNSFWTagRemoveList(nsfwFilter);
+        String searchAdd = NSFWTools.getNSFWTagRemoveList(nsfwFilter);
         ArrayList<PornImage> pornImages = new ArrayList<>();
 
         String domain = getDomain();

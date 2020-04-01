@@ -6,9 +6,9 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
+import Constants.Settings;
 import General.*;
-import General.Mention.MentionFinder;
-import MySQL.DBMain;
+import General.Mention.MentionTools;
 import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 @CommandProperties(
     trigger = "welcome",
-    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+    botPermissions = Permission.ATTACH_FILES,
     userPermissions = Permission.MANAGE_SERVER,
     emoji = "\uD83D\uDE4B",
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
@@ -88,7 +88,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 return Response.FALSE;
 
             case 3:
-                ArrayList<ServerTextChannel> channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -151,7 +151,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                 return Response.FALSE;
 
             case 7:
-                channelList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -235,8 +235,8 @@ public class WelcomeCommand extends Command implements onNavigationListener {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(Tools.getEmptyCharacter(), Tools.getEmptyCharacter(), false)
-                        .addField(getString("state0_menabled"), Tools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isActivated()), true)
+                        .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
+                        .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isActivated()), true)
                        .addField(getString("state0_mtitle"), welcomeMessageSetting.getTitle(), true)
                        .addField(getString("state0_mdescription"),
                                replaceVariables(welcomeMessageSetting.getDescription(),
@@ -247,8 +247,8 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                                       "`%MEMBERS`"),
                                true)
                        .addField(getString("state0_mchannel"),welcomeMessageSetting.getWelcomeChannel().getMentionTag(), true)
-                        .addField(Tools.getEmptyCharacter(), Tools.getEmptyCharacter(), false)
-                        .addField(getString("state0_mgoodbye"), Tools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isGoodbye()), true)
+                        .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
+                        .addField(getString("state0_mgoodbye"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isGoodbye()), true)
                        .addField(getString("state0_mgoodbyeText"),
                                replaceVariables(welcomeMessageSetting.getGoodbyeText(),
                                        "`%SERVER`",
@@ -284,9 +284,9 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         user.getMentionTag(),
                         user.getName(),
                         user.getDiscriminatedName(),
-                        Tools.numToString(getLocale(), server.getMembers().size())));
+                        StringTools.numToString(getLocale(), server.getMembers().size())));
 
-        eb.setImage(Tools.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
+        eb.setImage(InternetTools.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
         return eb;
     }
 

@@ -3,7 +3,6 @@ package General;
 import CommandSupporters.CommandManager;
 import Commands.ModerationCategory.BannedWordsCommand;
 import Commands.ModerationCategory.ModSettingsCommand;
-import General.*;
 import MySQL.BannedWords.BannedWordsBean;
 import MySQL.BannedWords.DBBannedWords;
 import org.javacord.api.entity.message.Message;
@@ -24,7 +23,7 @@ public class BannedWordsCheck {
 
         try {
             BannedWordsBean bannedWordsBean = DBBannedWords.getInstance().getBean(server.getId());
-            if (bannedWordsBean.isActive() && stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords())) && !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
+            if (bannedWordsBean.isActive() && stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords())) && !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) && !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get())) {
                 boolean successful = true;
                 User author = message.getUserAuthor().get();
 

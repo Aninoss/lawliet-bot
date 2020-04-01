@@ -38,7 +38,7 @@ public class AnimeNewsCommand extends Command implements onRecievedListener, onT
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())
                 .setUrl(post.getLink())
-                .setFooter(getString("footer", Tools.numToString(getLocale(), post.getComments()), post.getDate(), post.getCategory()));
+                .setFooter(getString("footer", StringTools.numToString(getLocale(), post.getComments()), post.getDate(), post.getCategory()));
 
         return eb;
     }

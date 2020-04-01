@@ -5,6 +5,7 @@ import CommandSupporters.Command;
 import Constants.LetterEmojis;
 import Constants.LogStatus;
 import Constants.Permission;
+import Constants.Settings;
 import General.*;
 import General.Survey.Survey;
 import General.Survey.SurveyResults;
@@ -32,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "survey",
-    botPermissions = Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.MANAGE_MESSAGES,
     thumbnail = "http://icons.iconarchive.com/icons/iconarchive/blue-election/128/Election-Polling-Box-icon.png",
     emoji = "✅",
     executable = true
@@ -54,7 +55,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.REMOVE_REACTIONS_OF_OTHERS_IN_TEXT_CHANNEL)) return;
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
         event.removeReaction().get();
 
         for(Reaction reaction: message.getReactions()) {
@@ -88,7 +89,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
                         else {
                             if (!DBSurvey.updateMajorityVote(event.getServer().get(), event.getUser(), i)) {
                                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                                if (Tools.canSendPrivateMessage(event.getUser())) event.getUser().sendMessage(eb).get();
+                                event.getUser().sendMessage(eb);
                                 return;
                             }
                         }
@@ -110,10 +111,11 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
                             voteStrings[1] += "• " + surveyData[userMajorityVoteData.getVote() + 1] + " (" + userMajorityVoteData.getServer().getName() + ")\n";
                         }
 
-                        EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("vote_description") + "\n" + Tools.getEmptyCharacter())
+                        EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("vote_description") + "\n" + Settings.EMPTY_EMOJI)
                                 .addField(surveyData[0], voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
-                        if (Tools.canSendPrivateMessage(event.getUser())) event.getUser().sendMessage(eb);
+
+                        event.getUser().sendMessage(eb);
                     }
                     break;
                 }
@@ -167,21 +169,21 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
             resultString.append(
                     getString("results_template",
                             LetterEmojis.LETTERS[i],
-                            Tools.getBar(surveyResults.getUserVoteRelative(i), 12),
+                            StringTools.getBar(surveyResults.getUserVoteRelative(i), 12),
                             String.valueOf(surveyResults.getUserVote(i)),
                             String.valueOf((int) Math.round(surveyResults.getUserVoteRelative(i)*100))
                     )
             ).append("\n");
         }
         eb.addField(getString("results_results", surveyResults.getTotalUserVotes() != 1, String.valueOf(surveyResults.getTotalUserVotes())), resultString.toString(), false);
-        eb.addField(Tools.getEmptyCharacter(), getString("results_won", surveyResults.getWinner(), surveyData[1], surveyData[2]).toUpperCase());
+        eb.addField(Settings.EMPTY_EMOJI, getString("results_won", surveyResults.getWinner(), surveyData[1], surveyData[2]).toUpperCase());
 
         return eb;
     }
 
     private EmbedBuilder getSurveyEmbed(Survey survey) throws IOException {
         String[] surveyData = getSurveyData(survey.getId(), getLocale());
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Tools.getEmptyCharacter());
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Settings.EMPTY_EMOJI);
 
         StringBuilder personalString = new StringBuilder();
         StringBuilder majorityString = new StringBuilder();
@@ -209,7 +211,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         ServerTextChannel channel = trackerData.getChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channel, Permission.ADD_NEW_REACTIONS)) {
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channel, Permission.ADD_REACTIONS)) {
             trackerData.setSaveChanges(false);
             return trackerData;
         }
@@ -218,8 +220,8 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
         trackerData.setMessageDelete(sendMessages(channel, survey, true));
         Instant nextInstant = trackerData.getInstant();
         do {
-            nextInstant = Tools.setInstantToNextDay(nextInstant);
-        } while(!Clock.instantHasWeekday(nextInstant, Calendar.MONDAY) && !Clock.instantHasWeekday(nextInstant, Calendar.THURSDAY));
+            nextInstant = TimeTools.setInstantToNextDay(nextInstant);
+        } while(!TimeTools.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeTools.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
         trackerData.setInstant(nextInstant.plusSeconds(5 * 60));
         return trackerData;

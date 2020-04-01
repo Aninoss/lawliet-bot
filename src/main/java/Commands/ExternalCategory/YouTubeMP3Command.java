@@ -15,8 +15,8 @@ import java.util.Optional;
         trigger = "ytmp3",
         withLoadingBar = true,
         emoji = "\uD83C\uDFB5",
-        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
-        userPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+        botPermissions = Permission.ATTACH_FILES,
+        userPermissions = Permission.ATTACH_FILES,
         thumbnail = "http://icons.iconarchive.com/icons/martz90/circle/128/youtube-icon.png",
         executable = false,
         aliases = {"youtubemp3", "yt"}
@@ -45,7 +45,7 @@ public class YouTubeMP3Command extends Command implements onRecievedListener {
                     return false;
                 }
 
-                String loadingEmoji = Tools.getLoadingReaction(event.getServerTextChannel().get());
+                String loadingEmoji = StringTools.getLoadingReaction(event.getServerTextChannel().get());
                 Message message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("loading", loadingEmoji))).get();
 
                 try {

@@ -1,9 +1,7 @@
 package General;
 
 import Constants.Permission;
-import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerChannel;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -39,15 +37,13 @@ public class PermissionCheckRuntime {
 
         if (canPostError(server, permissions) && canContactOwner(server)) {
             try {
-                String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> {
-                    return "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**";
-                });
+                String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**");
                 EmbedBuilder eb = EmbedFactory.getEmbedError();
                 eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
                 eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, commandTrigger, channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
 
-                if (Tools.canSendPrivateMessage(server.getOwner())) server.getOwner().sendMessage(eb).get();
-            } catch (IOException | InterruptedException | ExecutionException e) {
+                server.getOwner().sendMessage(eb);
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             setErrorInstant(server, permissions);
@@ -64,23 +60,19 @@ public class PermissionCheckRuntime {
         ArrayList<Role> unreachableRoles = new ArrayList<>();
 
         for(Role role: roles) {
-            if (!Tools.canManageRole(role)) unreachableRoles.add(role);
+            if (!PermissionCheck.canYouManageRole(role)) unreachableRoles.add(role);
         }
 
         if (unreachableRoles.size() == 0) return true;
 
         Server server = roles[0].getServer();
-        if (botHasPermission(locale, commandTrigger, server, Permission.MANAGE_ROLES_ON_SERVER) && canPostError(server, PERMISSION_ROLE_POS) && canContactOwner(server)) {
-            try {
-                String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> "**@"+role.getName()+"**");
-                EmbedBuilder eb = EmbedFactory.getEmbedError();
-                eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
-                eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", commandTrigger, rolesList));
+        if (botHasPermission(locale, commandTrigger, server, Permission.MANAGE_ROLES) && canPostError(server, PERMISSION_ROLE_POS) && canContactOwner(server)) {
+            String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> "**@"+role.getName()+"**");
+            EmbedBuilder eb = EmbedFactory.getEmbedError();
+            eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
+            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", commandTrigger, rolesList));
 
-                if (Tools.canSendPrivateMessage(server.getOwner())) server.getOwner().sendMessage(eb).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            server.getOwner().sendMessage(eb);
             setErrorInstant(server, PERMISSION_ROLE_POS);
         }
 
@@ -88,7 +80,7 @@ public class PermissionCheckRuntime {
     }
 
     private boolean canContactOwner(Server server) {
-        return canPostError(server, Permission.MANAGE_ROLES_ON_SERVER) && server.getOwner() != null && Tools.canSendPrivateMessage(server.getOwner());
+        return canPostError(server, Permission.MANAGE_ROLES) && server.getOwner() != null;
     }
 
     private boolean canPostError(Server server, int permission) {

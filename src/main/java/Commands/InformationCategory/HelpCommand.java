@@ -24,6 +24,7 @@ import java.util.ArrayList;
         emoji = "❕",
         executable = true,
         deleteOnTimeOut = false,
+        requiresEmbeds = false,
         aliases = {"commands"}
 )
 public class HelpCommand extends Command implements onNavigationListener {
@@ -78,7 +79,7 @@ public class HelpCommand extends Command implements onNavigationListener {
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
-        String arg = Tools.cutSpaces(searchTerm);
+        String arg = StringTools.trimString(searchTerm);
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1,arg.length()-1);
 
         ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
@@ -118,7 +119,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
                 for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_examples").split("\n")) {
-                    line = Tools.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
+                    line = StringTools.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
                     examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
                 }
@@ -220,9 +221,9 @@ public class HelpCommand extends Command implements onNavigationListener {
                                 commands.append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase());
 
                                 if (!canAccess) commands.append("~~");
-                                if (command.getUserPermissions() > 0) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
-                                if (command instanceof onTrackerRequestListener) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
-                                if (command.isNsfw()) commands.append(Tools.getEmptyCharacter()).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
+                                if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                                if (command instanceof onTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
+                                if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
 
                                 commands.append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
                                         .append(" - ")
@@ -260,7 +261,7 @@ public class HelpCommand extends Command implements onNavigationListener {
             i++;
         }
 
-        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Tools.getEmptyCharacter());
+        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Settings.EMPTY_EMOJI);
         eb.setDescription(categoriesSB.toString());
 
         eb

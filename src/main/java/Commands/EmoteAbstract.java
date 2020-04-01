@@ -3,7 +3,8 @@ package Commands;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Tools;
+import General.RandomTools;
+import General.StringTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -24,7 +25,7 @@ public abstract class EmoteAbstract extends Command implements onRecievedListene
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
-        String gifUrl = gifs[Tools.pickFullRandom(pickedCommand, gifs.length)];
+        String gifUrl = gifs[RandomTools.pickFullRandom(pickedCommand, gifs.length)];
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", "**"+event.getMessage().getAuthor().getDisplayName()+"**"))
                 .setImage(gifUrl);
 

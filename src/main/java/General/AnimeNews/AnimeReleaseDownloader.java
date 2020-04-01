@@ -4,7 +4,8 @@ import Constants.Language;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.PostBundle;
-import General.Tools;
+import General.StringTools;
+import General.TimeTools;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -19,7 +20,7 @@ public class AnimeReleaseDownloader {
 
     public static AnimeReleasePost getPost(Locale locale) throws IOException, InterruptedException, ExecutionException {
         String downloadUrl;
-        if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
+        if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
         InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
@@ -32,7 +33,7 @@ public class AnimeReleaseDownloader {
 
     public static PostBundle<AnimeReleasePost> getPostTracker(Locale locale, String newestPostId) throws InterruptedException, ExecutionException {
         String downloadUrl;
-        if (Tools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
+        if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
         InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
@@ -110,7 +111,7 @@ public class AnimeReleaseDownloader {
         String episode = null;
         if (data.has("crunchyroll:episodeNumber")) {
             try {
-                episode = Tools.numToString(locale, data.getInt("crunchyroll:episodeNumber"));
+                episode = StringTools.numToString(locale, data.getInt("crunchyroll:episodeNumber"));
             } catch (Throwable e) {
                 //Ignore
                 episode = data.getString("crunchyroll:episodeNumber");
@@ -129,9 +130,9 @@ public class AnimeReleaseDownloader {
 
         String thumbnail = "";
         if (data.has("media:thumbnail")) thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
-        Instant date = Tools.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
+        Instant date = TimeTools.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link");
-        if (Tools.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");
+        if (StringTools.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");
 
         return new AnimeReleasePost(anime, description, episode, episodeTitle, thumbnail, date, url, id);

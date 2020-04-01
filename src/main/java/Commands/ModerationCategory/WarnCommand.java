@@ -5,9 +5,8 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
 import General.Mention.Mention;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
-import MySQL.DBServerOld;
 import MySQL.Moderation.DBModeration;
 import MySQL.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -25,7 +24,7 @@ import org.javacord.api.entity.server.Server;
 
 @CommandProperties(
     trigger = "warn",
-    userPermissions = Permission.KICK_USER | Permission.BAN_USER,
+    userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Problem-warning-icon.png",
     emoji = "\uD83D\uDEA8",
     executable = false
@@ -42,7 +41,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        MentionList<User> userMentionList = MentionFinder.getUsers(message, followedString);
+        MentionList<User> userMentionList = MentionTools.getUsers(message, followedString);
         userList = userMentionList.getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -51,7 +50,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
         }
 
         reason = userMentionList.getResultMessageString().replace("`", "");
-        reason = Tools.cutSpaces(reason);
+        reason = StringTools.trimString(reason);
         if (reason.length() > CHAR_LIMIT) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
             return false;
@@ -60,11 +59,11 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
         moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
         if (moderationBean.isQuestion()) {
-            Mention mention = Tools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
+            Mention mention = MentionTools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);
-            for(int i = 0; i < 2; i++) this.message.addReaction(Tools.getEmojiForBoolean(i == 0)).get();
+            for(int i = 0; i < 2; i++) this.message.addReaction(StringTools.getEmojiForBoolean(i == 0)).get();
         } else {
             return execute(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get());
         }
@@ -80,12 +79,12 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
             if (!canProcess(channel.getServer(), executer, user)) usersErrorList.add(user);
         }
         if (usersErrorList.size() > 0) {
-            Mention mentionError = Tools.getMentionedStringOfUsers(getLocale(), channel.getServer(), usersErrorList);
+            Mention mentionError = MentionTools.getMentionedStringOfUsers(getLocale(), channel.getServer(), usersErrorList);
             postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getString()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
             return false;
         }
 
-        Mention mention = Tools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
+        Mention mention = MentionTools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getString(), executer.getMentionTag()));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {
@@ -122,7 +121,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji()) {
             for (int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equals(Tools.getEmojiForBoolean(i == 0))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equals(StringTools.getEmojiForBoolean(i == 0))) {
                     if (i == 0) {
                         execute(event.getServerTextChannel().get(), event.getUser());
                     } else {

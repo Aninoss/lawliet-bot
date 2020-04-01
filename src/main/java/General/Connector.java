@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -98,8 +99,8 @@ public class Connector {
     private static void initializeUpdate() {
         try {
             String currentVersionDB = DBBot.getCurrentVersions();
-            if (!Tools.getCurrentVersion().equals(currentVersionDB)) {
-                DBBot.insertVersion(Tools.getCurrentVersion(), Instant.now());
+            if (!StringTools.getCurrentVersion().equals(currentVersionDB)) {
+                DBBot.insertVersion(StringTools.getCurrentVersion(), Instant.now());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -350,7 +351,7 @@ public class Connector {
         if (!isRestartPending) {
             if (DBMain.getInstance().checkConnection()) {
                 api.updateStatus(UserStatus.ONLINE);
-                api.updateActivity(ActivityType.WATCHING, "L.help | " + Tools.numToString(serverNumber) + " | www.lawlietbot.xyz");
+                api.updateActivity(ActivityType.WATCHING, "L.help | " + StringTools.numToString(serverNumber) + " | www.lawlietbot.xyz");
             } else {
                 api.updateStatus(UserStatus.DO_NOT_DISTURB);
                 api.updateActivity(ActivityType.WATCHING, "ERROR - DATABASE DOWN");

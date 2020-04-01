@@ -8,6 +8,7 @@ import Commands.GelbooruAbstract;
         executable = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
+        requiresEmbeds = false,
         withLoadingBar = true
 )
 public class FutaCommand extends GelbooruAbstract {

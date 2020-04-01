@@ -3,10 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.EmbedFactory;
-import General.ExchangeRate;
-import General.TextManager;
-import General.Tools;
+import General.*;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -35,7 +32,7 @@ public class ExchangeRateCommand extends Command implements onRecievedListener, 
     }
 
     private EmbedBuilder getEmbed() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("template", Tools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        return EmbedFactory.getCommandEmbedStandard(this, getString("template", StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
 
     private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
@@ -54,7 +51,7 @@ public class ExchangeRateCommand extends Command implements onRecievedListener, 
         trackerData.deletePreviousMessage();
         Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
         trackerData.setMessageDelete(message);
-        trackerData.setInstant(Tools.setInstantToNextDay(Instant.now()).plusSeconds(10));
+        trackerData.setInstant(TimeTools.setInstantToNextDay(Instant.now()).plusSeconds(10));
         return trackerData;
     }
 

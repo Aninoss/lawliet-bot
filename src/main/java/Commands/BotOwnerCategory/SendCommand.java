@@ -4,7 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -29,7 +29,7 @@ public class SendCommand extends Command implements onRecievedListener {
         if (split.length < 2) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this));
         } else {
-            MentionList<User> userMarked = MentionFinder.getUsers(event.getMessage() ,followedString);
+            MentionList<User> userMarked = MentionTools.getUsers(event.getMessage() ,followedString);
             ArrayList<User> list = userMarked.getList();
             String content = userMarked.getResultMessageString();
 

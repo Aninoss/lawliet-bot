@@ -5,8 +5,8 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
-import General.Tools;
+import General.Mention.MentionTools;
+import General.RandomTools;
 import General.ImageCreator;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
@@ -21,7 +21,7 @@ import java.util.Random;
 
 @CommandProperties(
     trigger = "ship",
-    botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+    botPermissions = Permission.ATTACH_FILES,
     withLoadingBar = true,
     emoji = "\uD83D\uDC6B",
     executable = false
@@ -36,7 +36,7 @@ public class ShipCommand extends Command implements onRecievedListener {
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
         if (list.size() == 1 && list.get(0).getId() != event.getMessage().getUserAuthor().get().getId()) {
             list.add(event.getMessage().getUserAuthor().get());
         }
@@ -50,7 +50,7 @@ public class ShipCommand extends Command implements onRecievedListener {
         int randomNum = String.valueOf(idString.hashCode()).hashCode();
         int percentage = new Random(randomNum).nextInt(101);
 
-        int n = Tools.pickFullRandom(picked,7);
+        int n = RandomTools.pickFullRandom(picked,7);
         if (event.getServer().get().getId() == 580048842020487180L) n = 7;
 
         InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1), n, percentage);

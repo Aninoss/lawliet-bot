@@ -1,10 +1,9 @@
 package DiscordListener;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
-import Constants.Locales;
 import Constants.Permission;
 import General.PermissionCheckRuntime;
-import General.Tools;
+import General.StringTools;
 import General.WelcomeMessageSetting;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
@@ -37,15 +36,15 @@ public class ServerMemberLeaveListener {
             WelcomeMessageSetting welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(locale, server);
             if (welcomeMessageSetting != null && welcomeMessageSetting.isGoodbye()) {
                 ServerTextChannel channel = welcomeMessageSetting.getFarewellChannel();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
                     User user = event.getUser();
                     channel.sendMessage(
-                            Tools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getGoodbyeText(),
+                            StringTools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getGoodbyeText(),
                                     server.getName(),
                                     user.getMentionTag(),
                                     user.getName(),
                                     user.getDiscriminatedName(),
-                                    Tools.numToString(locale, server.getMembers().size())))).get();
+                                    StringTools.numToString(locale, server.getMembers().size())))).get();
                 }
             }
         } catch (ExecutionException | SQLException | InterruptedException e) {

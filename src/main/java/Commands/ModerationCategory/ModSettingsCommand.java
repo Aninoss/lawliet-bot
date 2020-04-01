@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.*;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Warnings.UserWarnings;
 import MySQL.DBServerOld;
 import MySQL.Moderation.DBModeration;
@@ -16,6 +16,7 @@ import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "mod",
-        botPermissions = Permission.KICK_USER | Permission.BAN_USER,
+        botPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\u2699\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/settings-3-icon.png",
@@ -56,7 +57,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
 
         switch (state) {
             case 1:
-                ArrayList<ServerTextChannel> channelsList = MentionFinder.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelsList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelsList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -73,7 +74,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 }
 
             case 2:
-                if (Tools.stringIsInt(inputString)) {
+                if (StringTools.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         autoKickTemp = value;
@@ -89,7 +90,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 }
 
             case 3:
-                if (Tools.stringIsInt(inputString)) {
+                if (StringTools.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         autoBanTemp = value;
@@ -105,7 +106,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 }
 
             case 4:
-                if (Tools.stringIsInt(inputString)) {
+                if (StringTools.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         moderationBean.setAutoKick(autoKickTemp, value);
@@ -122,7 +123,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 }
 
             case 5:
-                if (Tools.stringIsInt(inputString)) {
+                if (StringTools.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         moderationBean.setAutoBan(autoBanTemp, value);
@@ -251,7 +252,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
-                        .addField(getString("state0_mquestion"), Tools.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
+                        .addField(getString("state0_mquestion"), StringTools.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
 
             case 1:
@@ -268,18 +269,18 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
 
             case 4:
                 setOptions(new String[]{getString("state4_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoKickTemp != 1, Tools.numToString(autoKickTemp)), getString("state4_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoKickTemp != 1, StringTools.numToString(autoKickTemp)), getString("state4_title"));
 
             case 5:
                 setOptions(new String[]{getString("state4_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoBanTemp != 1, Tools.numToString(autoBanTemp)), getString("state5_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoBanTemp != 1, StringTools.numToString(autoBanTemp)), getString("state5_title"));
         }
         return null;
     }
 
     private String getAutoModString(int value, int days) throws IOException {
-        if (value <= 0) return Tools.getOnOffForBoolean(getLocale(), false);
-        return getString("state0_mautomod_templ", value > 1, Tools.numToString(value), days > 0 ? getString("days", days > 1, Tools.numToString(days)) : getString("total"));
+        if (value <= 0) return StringTools.getOnOffForBoolean(getLocale(), false);
+        return getString("state0_mautomod_templ", value > 1, StringTools.numToString(value), days > 0 ? getString("days", days > 1, StringTools.numToString(days)) : getString("total"));
     }
 
     @Override
@@ -302,7 +303,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
         boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? userWarnings.amountLatestDays(autoKickDays) : userWarnings.amountTotal()) >= moderationBean.getAutoKick();
         boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? userWarnings.amountLatestDays(autoBanDays) : userWarnings.amountTotal()) >= moderationBean.getAutoBan();
 
-        if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, "mod", server, Permission.BAN_USER)) {
+        if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, "mod", server, Permission.BAN_MEMBERS)) {
             try {
                 server.banUser(user, 7, TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban")).get();
 
@@ -317,7 +318,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
             }
         }
 
-        else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, "mod", server, Permission.KICK_USER)) {
+        else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, "mod", server, Permission.KICK_MEMBERS)) {
             try {
                 server.kickUser(user, TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick")).get();
 
@@ -340,7 +341,7 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     public static void postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean) {
         moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
 
-            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getTrigger(), serverTextChannel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getTrigger(), serverTextChannel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                 try {
                     serverTextChannel.sendMessage(eb).get();
                 } catch (InterruptedException | ExecutionException e) {

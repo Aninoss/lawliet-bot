@@ -6,10 +6,10 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import General.Mention.MentionList;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
 import MySQL.DBServerOld;
 import MySQL.Moderation.DBModeration;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -44,9 +44,9 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
-        MentionList<User> userMentions = MentionFinder.getUsers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionTools.getUsers(event.getMessage(), followedString);
         users = userMentions.getList();
-        followedString = Tools.cutSpaces(userMentions.getResultMessageString());
+        followedString = StringTools.trimString(userMentions.getResultMessageString());
 
         if (users.size() == 0) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -56,7 +56,7 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
 
         boolean removeAll = followedString.equalsIgnoreCase("all");
 
-        if (!removeAll && !Tools.stringIsInt(followedString)) {
+        if (!removeAll && !StringTools.stringIsInt(followedString)) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
             return false;
@@ -69,13 +69,13 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
             return false;
         }
 
-        nString = removeAll ? getString("all") : Tools.numToString(getLocale(), n);
-        userString = Tools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), users).getString();
+        nString = removeAll ? getString("all") : StringTools.numToString(getLocale(), n);
+        userString = MentionTools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), users).getString();
 
         if (DBModeration.getInstance().getBean(channel.getServer().getId()).isQuestion()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmation", n != 1, nString, userString));
             postMessage(eb);
-            for(int i = 0; i < 2; i++) this.message.addReaction(Tools.getEmojiForBoolean(i == 0)).get();
+            for(int i = 0; i < 2; i++) this.message.addReaction(StringTools.getEmojiForBoolean(i == 0)).get();
         } else {
             executeRemoval();
         }
@@ -122,7 +122,7 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji()) {
             for (int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equals(Tools.getEmojiForBoolean(i == 0))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equals(StringTools.getEmojiForBoolean(i == 0))) {
                     if (i == 0) {
                         executeRemoval();
                     } else {

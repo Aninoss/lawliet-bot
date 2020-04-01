@@ -81,14 +81,14 @@ public class QuizCommand extends CasinoAbstract implements onRecievedListener, o
                     break;
             }
 
-            question = Tools.decryptString(data.getString("question"));
+            question = StringTools.decryptString(data.getString("question"));
 
             ArrayList<String> orderedAnswers = new ArrayList<>();
-            orderedAnswers.add(Tools.decryptString(data.getString("correct_answer")));
+            orderedAnswers.add(StringTools.decryptString(data.getString("correct_answer")));
 
             JSONArray answersJSON = data.getJSONArray("incorrect_answers");
             for(int i=0; i<answersJSON.length(); i++) {
-                orderedAnswers.add(Tools.decryptString(answersJSON.getString(i)));
+                orderedAnswers.add(StringTools.decryptString(answersJSON.getString(i)));
             }
 
             answers = new String[orderedAnswers.size()];
@@ -167,7 +167,7 @@ public class QuizCommand extends CasinoAbstract implements onRecievedListener, o
         String label = "tutorial";
         if (active) label = "tutorial_start";
 
-        eb.addField(Tools.getEmptyCharacter(), getString(label, server.getDisplayName(player), Tools.numToString(getLocale(), coinsInput), String.valueOf(COUNTER)), false);
+        eb.addField(Settings.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringTools.numToString(getLocale(), coinsInput), String.valueOf(COUNTER)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

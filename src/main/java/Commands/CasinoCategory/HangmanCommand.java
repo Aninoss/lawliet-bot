@@ -86,7 +86,7 @@ public class HangmanCommand extends CasinoAbstract implements onRecievedListener
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
-                Tools.numToString(getLocale(), coinsInput),
+                StringTools.numToString(getLocale(), coinsInput),
                 getProgress(),
                 String.valueOf(health),
                 String.valueOf(MAX_HEALTH),

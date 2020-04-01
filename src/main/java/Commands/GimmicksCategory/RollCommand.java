@@ -5,7 +5,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.TextManager;
-import General.Tools;
+import General.StringTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -30,7 +30,7 @@ public class RollCommand extends Command implements onRecievedListener {
         double drawn, border;
         boolean userMentioned = true;
 
-        if (followedString.length() == 0 || !Tools.stringIsDouble(followedString)){
+        if (followedString.length() == 0 || !StringTools.stringIsDouble(followedString)){
             border = 6;
             userMentioned = false;
         }

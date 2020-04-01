@@ -5,7 +5,7 @@ import CommandListeners.onRecievedListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "rainbow",
-        botPermissions = Permission.ATTACH_FILES_TO_TEXT_CHANNEL,
+        botPermissions = Permission.ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83C\uDF08",
         executable = true,
@@ -32,7 +32,7 @@ public class RainbowCommand extends Command implements onRecievedListener {
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
-        ArrayList<User> list = MentionFinder.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();

@@ -28,7 +28,7 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
 
     @Override
     public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        followedString = Tools.cutSpaces(followedString);
+        followedString = StringTools.trimString(followedString);
         if (followedString.startsWith("r/")) followedString = followedString.substring(2);
 
         if (followedString.length() == 0) {
@@ -76,7 +76,7 @@ public class RedditCommand extends Command implements onRecievedListener, onTrac
             nsfwString = " " + getString("nsfw");
         }
 
-        eb.setFooter(getString("footer", flairText, Tools.numToString(getLocale(), post.getScore()), Tools.numToString(getLocale(), post.getComments()), post.getDomain()) + nsfwString);
+        eb.setFooter(getString("footer", flairText, StringTools.numToString(getLocale(), post.getScore()), StringTools.numToString(getLocale(), post.getComments()), post.getDomain()) + nsfwString);
 
         return eb;
     }

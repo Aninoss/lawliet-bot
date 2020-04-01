@@ -18,7 +18,7 @@ import java.util.Date;
 
 @CommandProperties(
     trigger = "maps",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS_IN_TEXT_CHANNEL,
+    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDDFA",
     thumbnail = "https://pbs.twimg.com/profile_images/819765217957552132/1WftJJM1.jpg",
@@ -82,7 +82,7 @@ public class MapsCommand extends Command implements onRecievedListener, onTracke
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setTimestampToNow()
-                .setFooter(getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), Tools.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
+                .setFooter(getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeTools.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
 
         if (!isSplatfest) {
             String[] modeIDs = new String[]{"regular", "gachi", "league"};

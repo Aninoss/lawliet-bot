@@ -4,35 +4,27 @@ import CommandListeners.CommandProperties;
 import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import CommandSupporters.NavigationHelper;
-import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import MySQL.AutoRoles.AutoRolesBean;
 import MySQL.AutoRoles.DBAutoRoles;
-import MySQL.DBServerOld;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "autoroles",
-        botPermissions = Permission.MANAGE_ROLES_ON_SERVER,
-        userPermissions = Permission.MANAGE_ROLES_ON_SERVER,
+        botPermissions = Permission.MANAGE_ROLES,
+        userPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDC6A",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/User-group-icon.png",
         executable = true,
@@ -55,7 +47,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
         }
 
         if (state == 1) {
-            List<Role> roleList = MentionFinder.getRoles(event.getMessage(), inputString).getList();
+            List<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
             return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0, role -> autoRolesBean.getRoleIds().add(role.getId()));
         }
 

@@ -18,18 +18,17 @@ public class TextManager {
     public static String getString(Locale locale, String category, String key, int option, String... args) {
         ResourceBundle texts = ResourceBundle.getBundle(category, locale, new UTF8Control());
         if (!texts.containsKey(key)) {
-            ExceptionHandler.showErrorLog("Key " + key + " not found in " + category);
+            ExceptionHandler.showErrorLog("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());
             return "???";
         } else {
             //Get String
             String text = texts.getString(key);
 
             //Calculate References
-            while (text.contains("%<")) {
-                String replaceString = Tools.cutString(text, "%<", ">");
-                String[] argsLink = replaceString.split("\\.");
+            for(String reference: StringTools.extractGroups(text, "%<", ">")) {
+                String[] argsLink = reference.split("\\.");
                 String newString = getString(locale, argsLink[0], argsLink[1]);
-                text = text.replace("%<" + replaceString + ">", newString);
+                text = text.replace("%<" + reference + ">", newString);
             }
 
             //Calculte Multi Option Element

@@ -1,8 +1,7 @@
 package General.Mention;
-import General.Tools;
+import General.StringTools;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MentionList<E> {
 
@@ -19,6 +18,6 @@ public class MentionList<E> {
     }
 
     public String getResultMessageString() {
-        return Tools.cutSpaces(resultMessageString);
+        return StringTools.trimString(resultMessageString);
     }
 }

@@ -3,7 +3,8 @@ package Commands.GimmicksCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.Tools;
+import General.RandomTools;
+import General.StringTools;
 import General.BotResources.ResourceManager;
 import General.TextManager;
 import org.javacord.api.entity.message.Message;
@@ -42,11 +43,11 @@ public class FortuneCommand extends Command implements onRecievedListener {
     }
 
     private EmbedBuilder getEmbed(Message message, String question) throws IOException, ExecutionException, InterruptedException {
-        int n = Tools.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
+        int n = RandomTools.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
         String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
         String answer = answerRaw;
         if (answer.equals("%RandomUpperCase")) {
-            answer = Tools.randomUpperCase(question);
+            answer = RandomTools.randomUpperCase(question);
         } else if (answer.startsWith("%Gif")) answer = "";
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",message.getAuthor().getDisplayName(),question,answer));

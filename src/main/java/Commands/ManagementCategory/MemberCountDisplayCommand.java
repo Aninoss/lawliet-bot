@@ -5,12 +5,12 @@ import CommandListeners.onNavigationListener;
 import CommandSupporters.Command;
 import Constants.*;
 import General.*;
-import General.Mention.MentionFinder;
+import General.Mention.MentionTools;
 import MySQL.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.MemberCountDisplays.MemberCountBean;
 import MySQL.MemberCountDisplays.MemberCountDisplay;
-import MySQL.Server.DBServer;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
 import org.javacord.api.entity.message.Message;
@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 
 @CommandProperties(
         trigger = "mcdisplays",
-        botPermissions = 0,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83E\uDDEE️",
         thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/trends-icon.png",
@@ -53,7 +52,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
         }
 
         if (state == 1) {
-            ArrayList<ServerVoiceChannel> vcList = MentionFinder.getVoiceChannels(event.getMessage(), inputString).getList();
+            ArrayList<ServerVoiceChannel> vcList = MentionTools.getVoiceChannels(event.getMessage(), inputString).getList();
             if (vcList.size() == 0) {
                 String checkString = inputString.toLowerCase();
                 if (checkString.contains("%members") || checkString.contains("%users") || checkString.contains("%bots")) {
@@ -194,7 +193,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
 
             case 1:
                 if (currentName != null && currentVC != null) setOptions(new String[]{getString("state1_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Tools.getStringIfNotNull(currentVC, notSet), highlightVariables(Tools.getStringIfNotNull(currentName, notSet))), getString("state1_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Optional.ofNullable(currentVC).map(Nameable::getName).orElse(notSet), highlightVariables(Optional.ofNullable(currentName).orElse(notSet))), getString("state1_title"));
 
             case 2:
                 ArrayList<MemberCountDisplay> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
@@ -239,9 +238,9 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
         long botMembers = server.getMembers().stream().filter(User::isBot).count();
 
         updater.setName(replaceVariables(name,
-                Tools.numToString(locale, members),
-                Tools.numToString(locale, members - botMembers),
-                Tools.numToString(locale, botMembers)
+                StringTools.numToString(locale, members),
+                StringTools.numToString(locale, members - botMembers),
+                StringTools.numToString(locale, botMembers)
         ));
     }
 

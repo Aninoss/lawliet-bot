@@ -1,16 +1,11 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import CommandListeners.onTrackerRequestListener;
-import CommandSupporters.Command;
-import CommandSupporters.CommandContainer;
-import CommandSupporters.CommandManager;
-import Constants.Category;
 import General.DiscordApiCollection;
-import General.Tools;
+import General.PermissionCheck;
+import General.StringTools;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -18,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 
 public class OnEventServerList implements DataListener<JSONObject> {
@@ -36,7 +30,7 @@ public class OnEventServerList implements DataListener<JSONObject> {
             ArrayList<Server> mutualServers = DiscordApiCollection.getInstance().getMutualServers(user);
             mutualServers.sort((s1, s2) -> s1.getName().compareToIgnoreCase(s2.getName()));
             for(Server server: mutualServers) {
-                if (Tools.userHasAdminPermissions(server, user)) {
+                if (PermissionCheck.hasAdminPermissions(server, user)) {
                     JSONObject serverObject = new JSONObject();
                     serverObject
                             .put("server_id", server.getId())

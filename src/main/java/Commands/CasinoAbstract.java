@@ -4,13 +4,13 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.FisheryStatus;
+import Constants.Settings;
 import General.CasinoBetContainer;
 import General.EmbedFactory;
+import General.Mention.MentionTools;
 import General.RunningCommands.RunningCommandManager;
 import General.TextManager;
-import General.Tools;
-import MySQL.DBBot;
-import MySQL.DBServerOld;
+import General.StringTools;
 import MySQL.DBUser;
 import MySQL.GameStatistics.DBGameStatistics;
 import MySQL.GameStatistics.GameStatisticsBean;
@@ -68,7 +68,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
         }
 
         long coins = DBUser.getFishingProfile(server, player).getCoins();
-        long value = Tools.getAmountExt(followedString, coins);
+        long value = MentionTools.getAmountExt(followedString, coins);
         if (value == -1) {
             coinsInput = (long) Math.ceil(coins * 0.1);
             CasinoBetContainer.getInstance().addBet(player, coinsInput);
@@ -81,7 +81,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
                 CasinoBetContainer.getInstance().addBet(player, coinsInput);
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", Tools.numToString(getLocale(), coins)))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", StringTools.numToString(getLocale(), coins)))).get();
             }
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
@@ -130,7 +130,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
     protected EmbedBuilder addRetryOption(EmbedBuilder eb) throws IOException {
         addReactionListener(getReactionMessage());
         message.addReaction(RETRY_EMOJI);
-        eb.addField(Tools.getEmptyCharacter(), TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));
+        eb.addField(Settings.EMPTY_EMOJI, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));
         return eb;
     }
 

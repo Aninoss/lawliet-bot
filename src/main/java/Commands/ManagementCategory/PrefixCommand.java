@@ -7,10 +7,8 @@ import Constants.Permission;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
-import General.Tools;
-import MySQL.DBServerOld;
+import General.StringTools;
 import MySQL.Server.DBServer;
-import MySQL.Server.ServerBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -35,13 +33,13 @@ public class PrefixCommand extends Command implements onRecievedListener {
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = Tools.cutSpaces(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
+                    String nickname = StringTools.trimString(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
                         server.updateNickname(DiscordApiCollection.getInstance().getYourself(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), Tools.cutSpaces(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), StringTools.trimString(nicknameArray[0]) + " [" + followedString + "]");
                     }
                 }
 

@@ -2,7 +2,6 @@ package DiscordListener;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.FishingCategoryInterface;
-import Constants.Locales;
 import Constants.Permission;
 import General.*;
 import General.Fishing.FishingProfile;
@@ -43,18 +42,18 @@ public class ServerMemberJoinListener {
             WelcomeMessageSetting welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(locale, server);
             if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
                 ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.WRITE_IN_TEXT_CHANNEL | Permission.EMBED_LINKS_IN_TEXT_CHANNELS | Permission.ATTACH_FILES_TO_TEXT_CHANNEL)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
                     InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
                     User user = event.getUser();
 
                     if (image != null) {
                         channel.sendMessage(
-                                Tools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
+                                StringTools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
                                         server.getName(),
                                         user.getMentionTag(),
                                         user.getName(),
                                         user.getDiscriminatedName(),
-                                        Tools.numToString(locale, server.getMembers().size()))),
+                                        StringTools.numToString(locale, server.getMembers().size()))),
                                 image,
                                 "welcome.png").get();
                     } else {
@@ -64,7 +63,7 @@ public class ServerMemberJoinListener {
                                         user.getMentionTag(),
                                         user.getName(),
                                         user.getDiscriminatedName(),
-                                        Tools.numToString(locale, server.getMembers().size()))).get();
+                                        StringTools.numToString(locale, server.getMembers().size()))).get();
                     }
                 }
             }

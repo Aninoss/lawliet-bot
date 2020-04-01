@@ -37,7 +37,7 @@ public class SPCheck {
             if (contentContainsDiscordLink(content)) {
                 try {
                     SPBlock spBlock = DBServerOld.getSPBlockFromServer(server);
-                    if (spBlock.isActive() && !spBlock.getIgnoredUser().contains(message.getUserAuthor().get()) && !spBlock.getIgnoredChannels().contains(message.getServerTextChannel().get()) && !Tools.userHasAdminPermissions(server, message.getUserAuthor().get())) {
+                    if (spBlock.isActive() && !spBlock.getIgnoredUser().contains(message.getUserAuthor().get()) && !spBlock.getIgnoredChannels().contains(message.getServerTextChannel().get()) && !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get())) {
                         boolean successful = true;
                         User author = message.getUserAuthor().get();
 
