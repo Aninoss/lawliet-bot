@@ -89,7 +89,7 @@ public class SellCommand extends Command implements onReactionAddListener, onFor
     }
 
     private void sendMessage(ServerTextChannel channel, EmbedBuilder embedBuilder) throws ExecutionException, InterruptedException {
-        if (message != null) message.edit(embedBuilder).get();
+        if (message != null) message.edit(embedBuilder);
         else channel.sendMessage(embedBuilder).get();
         message = null;
     }

@@ -16,10 +16,9 @@ public class PornImageCacheSearchKey {
         return imageURLs.contains(imageURL);
     }
 
-    public void add(String imageURL, int max) {
+    public synchronized void add(String imageURL, int max) {
         if (!contains(imageURL)) imageURLs.add(imageURL);
-
-        while(imageURLs.size() > max) {
+        while (imageURLs.size() > max) {
             imageURLs.remove(0);
         }
     }

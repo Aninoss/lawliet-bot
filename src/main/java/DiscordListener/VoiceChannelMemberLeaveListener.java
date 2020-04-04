@@ -10,6 +10,7 @@ import MySQL.Server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelMemberLeaveListener {
@@ -18,13 +19,14 @@ public class VoiceChannelMemberLeaveListener {
         if (event.getUser().isYourself()) return;
 
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
-        for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannels())) {
-            if (event.getChannel().getId() == childChannelId) {
+
+        for (Iterator<Long> childChannelIdIt = autoChannelBean.getChildChannels().iterator(); childChannelIdIt.hasNext();) {
+            if (event.getChannel().getId() == childChannelIdIt.next()) {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
                     if (event.getChannel().getConnectedUsers().size() == 0) {
-                        event.getChannel().delete().get();
-                        autoChannelBean.getChildChannels().remove(childChannelId);
+                        event.getChannel().delete();
+                        childChannelIdIt.remove();
                     }
                 }
                 break;

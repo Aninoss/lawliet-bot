@@ -13,7 +13,7 @@ public class ServerChannelDeleteListener {
             DBAutoChannel.getInstance()
                     .getBean(event.getServer().getId())
                     .getChildChannels()
-                    .removeIf(childChannelId -> childChannelId == event.getChannel().getId());
+                    .removeIf(childChannelId -> childChannelId == null || childChannelId == event.getChannel().getId());
         }
     }
 

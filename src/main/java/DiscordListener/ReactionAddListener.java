@@ -21,7 +21,7 @@ public class ReactionAddListener {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
             if (event.getMessageId() == command.getReactionMessageID()) {
                 if (event.getUser().getId() == command.getReactionUserID()) {
-                    RunningCommandManager.getInstance().canUserRunCommand(event.getUser().getId(), event.getApi().getCurrentShard());
+                    //RunningCommandManager.getInstance().canUserRunCommand(event.getUser().getId(), event.getApi().getCurrentShard());
 
                     try {
                         if (command instanceof onReactionAddListener) command.onReactionAddSuper(event);

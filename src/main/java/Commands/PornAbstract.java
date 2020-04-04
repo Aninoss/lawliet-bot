@@ -4,6 +4,7 @@ package Commands;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import General.EmbedFactory;
+import General.Porn.PornImageDownloader;
 import General.Tools.NSFWTools;
 import General.Porn.PornImage;
 import General.TextManager;
@@ -12,8 +13,12 @@ import MySQL.DBServerOld;
 import MySQL.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public abstract class PornAbstract extends Command {
 
@@ -41,8 +46,12 @@ public abstract class PornAbstract extends Command {
         followedString = StringTools.trimString(StringTools.filterLettersFromString(followedString));
 
         boolean first = true;
+        ArrayList<String> usedResults = new ArrayList<>();
         do {
             ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount));
+
+            if (pornImages.stream().anyMatch(porn -> usedResults.contains(porn.getImageUrl()))) break;
+            usedResults.addAll(pornImages.stream().map(PornImage::getImageUrl).collect(Collectors.toList()));
 
             if (first && pornImages.size() == 0) {
                 if (event.getChannel().canYouEmbedLinks()) {
@@ -82,7 +91,48 @@ public abstract class PornAbstract extends Command {
         } while (amount > 0);
 
         return true;
+    }
 
+    protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly) {
+        ArrayList<Thread> threads = new ArrayList<>();
+        ArrayList<PornImage> pornImages = new ArrayList<>();
+
+        for (int i = 0; i < amount; i++) {
+            Thread t = new Thread(() -> {
+                int tries = 5;
+                PornImage pornImage = null;
+                try {
+                    while(tries > 0) {
+                        pornImage = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter);
+                        PornImage finalPornImage = pornImage;
+
+                        synchronized (pornImages) {
+                            if (pornImage == null || pornImages.stream().anyMatch(pi -> pi.getImageUrl().equals(finalPornImage.getImageUrl()))) {
+                                tries--;
+                            } else {
+                                pornImages.add(pornImage);
+                                break;
+                            }
+                        }
+                    }
+                } catch (IOException | InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+            t.setName("porn_downloader_" + i);
+            threads.add(t);
+            t.start();
+        }
+
+        threads.forEach(t -> {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return pornImages;
     }
 
 }

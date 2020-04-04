@@ -322,13 +322,9 @@ public abstract class Command {
             if (message.getCurrentCachedInstance().isPresent()) {
                 try {
                     message = message.getLatestInstance().get();
-                    try {
-                        if (message.getChannel().canYouUseExternalEmojis())
-                            message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L)).get();
-                        else message.removeOwnReactionByEmoji("⏳").get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                    if (message.getChannel().canYouUseExternalEmojis())
+                        message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
+                    else message.removeOwnReactionByEmoji("⏳");
                 } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                 }
