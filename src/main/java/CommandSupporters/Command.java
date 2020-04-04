@@ -559,6 +559,7 @@ public abstract class Command {
     public boolean isExecutable() { return commandProperties.executable(); }
     public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
     public int getUserPermissions() { return commandProperties.userPermissions(); }
+    public int getCooldownTime() { return commandProperties.cooldownTime(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStaticListener) {

@@ -1,7 +1,5 @@
 package CommandListeners;
 
-import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -19,4 +17,5 @@ public @interface CommandProperties {
     int botPermissions() default 0;
     int userPermissions() default 0;
     boolean requiresEmbeds() default true;
+    int cooldownTime() default 10;
 }

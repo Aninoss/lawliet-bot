@@ -62,7 +62,7 @@ public class CommandManager {
     }
 
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId());
+        Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), command.getCooldownTime());
         if (!waitingSec.isPresent()) {
             return true;
         }

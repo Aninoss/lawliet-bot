@@ -92,8 +92,11 @@ public class BuyCommand extends Command implements onNavigationListener {
                         fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getUser());
 
                         if (slot.getId() == FishingCategoryInterface.ROLE) {
-                            if (slot.getLevel() - 1 > 0 && serverBean.isFisherySingleRoles()) {
-                                roles.get(slot.getLevel() - 2).removeUser(event.getUser()).get();
+                            if (slot.getLevel() > 1) {
+                                if (serverBean.isFisherySingleRoles())
+                                    for(int j = 0; j < slot.getLevel() - 1; j++) roles.get(j).removeUser(event.getUser());
+                                else
+                                    for(int j = 0; j < slot.getLevel() - 1; j++) roles.get(j).addUser(event.getUser());
                             }
                             roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
 

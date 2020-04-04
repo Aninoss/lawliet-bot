@@ -146,7 +146,6 @@ public class MessageCreateListener {
                         Message message = event.getChannel().sendMessage(eb).get();
                         message.addReaction(FisheryCommand.keyEmoji);
                     }
-
                 }
 
                 //Manage Message Quoting

@@ -11,13 +11,12 @@ public class Cooldown {
     }
     private Cooldown() {}
 
-    public static final int COOLDOWN_TIME_IN_SECONDS = 10;
     public static final int MAX_ALLOWED = 2;
 
     private HashMap<Long, CooldownData> cooldownDataMap = new HashMap<>();
 
-    public Optional<Integer> getWaitingSec(long userId) {
-        return cooldownDataMap.computeIfAbsent(userId, uid -> new CooldownData()).getWaitingSec();
+    public Optional<Integer> getWaitingSec(long userId, int cooldown) {
+        return cooldownDataMap.computeIfAbsent(userId, uid -> new CooldownData()).getWaitingSec(cooldown);
     }
 
     public boolean isFree(long userId) {

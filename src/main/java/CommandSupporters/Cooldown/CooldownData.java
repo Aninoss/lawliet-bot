@@ -10,15 +10,15 @@ public class CooldownData {
     private Thread thread = null;
     private ArrayList<Instant> commandInstants = new ArrayList<>();
 
-    public Optional<Integer> getWaitingSec() {
+    public Optional<Integer> getWaitingSec(int cooldown) {
         clean();
 
         if (commandInstants.size() >= Cooldown.MAX_ALLOWED) {
-            Duration duration = Duration.between(Instant.now().minusSeconds(Cooldown.COOLDOWN_TIME_IN_SECONDS), commandInstants.get(0));
+            Duration duration = Duration.between(Instant.now(), commandInstants.get(0));
             return Optional.of((int) (duration.getSeconds() + 1));
         }
 
-        commandInstants.add(Instant.now());
+        commandInstants.add(Instant.now().plusSeconds(cooldown));
         return Optional.empty();
     }
 
@@ -31,7 +31,7 @@ public class CooldownData {
     }
 
     private void clean() {
-        while(commandInstants.size() > 0 && commandInstants.get(0).isBefore(Instant.now().minusSeconds(Cooldown.COOLDOWN_TIME_IN_SECONDS)))
+        while(commandInstants.size() > 0 && commandInstants.get(0).isBefore(Instant.now()))
             commandInstants.remove(0);
     }
 
