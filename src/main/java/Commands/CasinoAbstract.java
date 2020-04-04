@@ -8,9 +8,9 @@ import Constants.Settings;
 import General.CasinoBetContainer;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
-import General.RunningCommands.RunningCommandManager;
+import CommandSupporters.RunningCommands.RunningCommandManager;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.GameStatistics.DBGameStatistics;
 import MySQL.GameStatistics.GameStatisticsBean;
@@ -141,8 +141,6 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
             command.setReactionUserID(event.getUser().getId());
             command.blockLoading();
-
-            RunningCommandManager.getInstance().remove(event.getUser(), command.getTrigger());
 
             CommandManager.manage(createEvent, command, String.valueOf(coinsInput));
         }

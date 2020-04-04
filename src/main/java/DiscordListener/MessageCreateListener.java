@@ -15,8 +15,9 @@ import General.BotResources.ResourceManager;
 import General.Fishing.FishingProfile;
 import General.Internet.Internet;
 import General.Mention.MentionTools;
-import General.RunningCommands.RunningCommandManager;
-import General.SPBlock.SPCheck;
+import CommandSupporters.RunningCommands.RunningCommandManager;
+import General.SPCheck;
+import General.Tools.StringTools;
 import MySQL.AutoQuote.DBAutoQuote;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
@@ -76,7 +77,7 @@ public class MessageCreateListener {
             String[] prefixes = {prefix, DiscordApiCollection.getInstance().getYourself().getMentionTag(), "<@!"+DiscordApiCollection.getInstance().getYourself().getIdAsString()+">"};
 
             int prefixFound = -1;
-            for(int i=0; i<prefixes.length; i++) {
+            for(int i=0; i < prefixes.length; i++) {
                 if (prefixes[i] != null && content.toLowerCase().startsWith(prefixes[i].toLowerCase())) {
                     prefixFound = i;
                     break;
@@ -84,6 +85,9 @@ public class MessageCreateListener {
             }
 
             if (prefixFound > -1) {
+                //Forwarded Messages
+                if (prefixFound > 0 && manageForwardedMessages(event)) return;
+
                 String newContent = StringTools.trimString(content.substring(prefixes[prefixFound].length()));
                 while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
                 String commandTrigger = newContent.split(" ")[0].toLowerCase();
@@ -111,9 +115,8 @@ public class MessageCreateListener {
 
                 //Add Fisch & Manage 100 Fish Message
                 boolean messageRegistered = false;
-                if (!event.getMessage().getContent().isEmpty()) {
+                if (!event.getMessage().getContent().isEmpty())
                     messageRegistered = FisheryCache.getInstance(event.getApi().getCurrentShard()).addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
-                }
 
                 //Manage Treasure Chests
                 if (messageRegistered &&
@@ -172,40 +175,27 @@ public class MessageCreateListener {
 
     private boolean manageForwardedMessages(MessageCreateEvent event) {
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
-        for (int i=list.size()-1; i >= 0; i--) {
+        for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
             if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
                 Message message = null;
                 if (command instanceof onForwardedRecievedListener) message = ((onForwardedRecievedListener) command).getForwardedMessage();
                 else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
 
-                boolean canPost = false;
                 try {
-                    canPost = message != null && message.getLatestInstance().get() != null;
-                } catch (InterruptedException | ExecutionException e) {
-                    //Ignore
-                }
+                    RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard());
 
-                try {
-                    if (canPost) {
-                        RunningCommandManager.getInstance().add(event.getMessage().getUserAuthor().get(), command.getTrigger(), event.getApi().getCurrentShard());
-
-                        if (command instanceof onForwardedRecievedListener) {
-                            boolean end = command.onForwardedRecievedSuper(event);
-                            RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
-                            if (end) return true;
-                        }
-                        if (command instanceof onNavigationListener) {
-                            boolean end = command.onNavigationMessageSuper(event, event.getMessage().getContent(), false);
-                            RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
-                            if (end) return true;
-                        }
+                    if (command instanceof onForwardedRecievedListener) {
+                        boolean end = command.onForwardedRecievedSuper(event);
+                        if (end) return true;
+                    }
+                    if (command instanceof onNavigationListener) {
+                        boolean end = command.onNavigationMessageSuper(event, event.getMessage().getContent(), false);
+                        if (end) return true;
                     }
                 } catch (Throwable e) {
                     ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
                 }
-
-                RunningCommandManager.getInstance().remove(event.getMessage().getUserAuthor().get(), command.getTrigger());
             }
         }
 

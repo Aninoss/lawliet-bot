@@ -6,12 +6,14 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
-import Constants.SPAction;
 import General.*;
 import General.Mention.MentionTools;
-import General.SPBlock.SPBlock;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
+import MySQL.SPBlock.DBSPBlock;
+import MySQL.SPBlock.SPBlockBean;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -21,6 +23,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @CommandProperties(
     trigger = "spblock",
@@ -32,19 +35,16 @@ import java.util.ArrayList;
 )
 public class SelfPromotionBlockCommand extends Command implements onNavigationListener {
     
-    private SPBlock spBlock;
+    private SPBlockBean spBlockBean;
 
-    public SelfPromotionBlockCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        spBlockBean = DBSPBlock.getInstance().getBean(event.getServer().get().getId());
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            spBlock = DBServerOld.getSPBlockFromServer(event.getServer().get());
-            return Response.TRUE;
-        }
-
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
                 ArrayList<User> userIgnoredList = MentionTools.getUsers(event.getMessage(), inputString).getList();
@@ -52,8 +52,8 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    spBlock.setIgnoredUser(userIgnoredList);
-                    DBServerOld.saveSPBlock(spBlock);
+                    spBlockBean.getIgnoredUserIds().clear();
+                    spBlockBean.getIgnoredUserIds().addAll(userIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return Response.TRUE;
@@ -65,8 +65,8 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    spBlock.setIgnoredChannels(channelIgnoredList);
-                    DBServerOld.saveSPBlock(spBlock);
+                    spBlockBean.getIgnoredChannelIds().clear();
+                    spBlockBean.getIgnoredChannelIds().addAll(channelIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return Response.TRUE;
@@ -78,8 +78,9 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    spBlock.setLogRecievers(logRecieverList);
-                    DBServerOld.saveSPBlock(spBlock);
+                    spBlockBean.getLogReceiverUserIds().clear();
+                    spBlockBean.getLogReceiverUserIds().addAll(logRecieverList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
                     return Response.TRUE;
@@ -99,9 +100,8 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                         return false;
 
                     case 0:
-                        spBlock.setActive(!spBlock.isActive());
-                        DBServerOld.saveSPBlock(spBlock);
-                        setLog(LogStatus.SUCCESS, getString("onoffset", !spBlock.isActive()));
+                        spBlockBean.toggleActive();
+                        setLog(LogStatus.SUCCESS, getString("onoffset", !spBlockBean.isActive()));
                         return true;
 
                     case 1:
@@ -129,8 +129,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                         return true;
 
                     case 0:
-                        spBlock.resetIgnoredUser();
-                        DBServerOld.saveSPBlock(spBlock);
+                        spBlockBean.getIgnoredUserIds().clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                         return true;
@@ -144,8 +143,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                         return true;
 
                     case 0:
-                        spBlock.resetIgnoredChannels();
-                        DBServerOld.saveSPBlock(spBlock);
+                        spBlockBean.getIgnoredChannelIds().clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;
@@ -159,8 +157,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                         return true;
 
                     case 0:
-                        spBlock.resetLogRecievers();
-                        DBServerOld.saveSPBlock(spBlock);
+                        spBlockBean.getLogReceiverUserIds().clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                         return true;
@@ -172,8 +169,7 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
                     setState(0);
                     return true;
                 } else if (i <= 2) {
-                    spBlock.setAction(SPAction.values()[i]);
-                    DBServerOld.saveSPBlock(spBlock);
+                    spBlockBean.setAction(SPBlockBean.ActionList.values()[i]);
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("actionset"));
                     return true;
@@ -189,11 +185,11 @@ public class SelfPromotionBlockCommand extends Command implements onNavigationLi
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), spBlock.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(spBlock.getIgnoredUser(), getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(spBlock.getIgnoredChannels(), getLocale(), Mentionable::getMentionTag), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(spBlock.getLogRecievers(), getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_maction"),getString("state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true);
+                       .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(spBlockBean.getIgnoredUserIds().transform(userId -> spBlockBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(spBlockBean.getIgnoredChannelIds().transform(userId -> spBlockBean.getServer().get().getTextChannelById(userId)), getLocale(), Mentionable::getMentionTag), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(spBlockBean.getLogReceiverUserIds().transform(userId -> spBlockBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_maction"),getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
 
             case 1:
                 setOptions(new String[]{getString("empty")});

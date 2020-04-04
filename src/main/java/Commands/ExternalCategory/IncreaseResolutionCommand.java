@@ -1,7 +1,7 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Internet.Internet;
@@ -28,14 +28,10 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"waifu4x"}
 )
-public class IncreaseResolutionCommand extends Command implements onRecievedListener {
-
-    public IncreaseResolutionCommand() {
-        super();
-    }
+public class IncreaseResolutionCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         URL url = null;
         List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
 

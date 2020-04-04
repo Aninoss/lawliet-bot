@@ -7,6 +7,7 @@ import General.*;
 import General.Mention.Mention;
 import General.Mention.MentionTools;
 import General.Mention.MentionList;
+import General.Tools.StringTools;
 import MySQL.Moderation.DBModeration;
 import MySQL.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -29,7 +30,7 @@ import org.javacord.api.entity.server.Server;
     emoji = "\uD83D\uDEA8",
     executable = false
 )
-public class WarnCommand extends Command implements onRecievedListener, onReactionAddListener  {
+public class WarnCommand extends Command implements onReactionAddListener  {
 
     private final int CHAR_LIMIT = 300;
 
@@ -39,7 +40,7 @@ public class WarnCommand extends Command implements onRecievedListener, onReacti
     protected String reason;
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         MentionList<User> userMentionList = MentionTools.getUsers(message, followedString);
         userList = userMentionList.getList();

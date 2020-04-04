@@ -1,10 +1,11 @@
 package Commands;
 
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.*;
 import General.Mention.Mention;
 import General.Mention.MentionTools;
+import General.Tools.RandomTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -12,7 +13,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class InteractionAbstract extends Command implements onRecievedListener {
+public abstract class InteractionAbstract extends Command {
 
     private String[] gifs;
     private static HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
@@ -22,7 +23,7 @@ public abstract class InteractionAbstract extends Command implements onRecievedL
     protected abstract String[] getGifs();
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         Mention mention = MentionTools.getMentionedString(getLocale(), message, followedString);
         if (mention == null) {

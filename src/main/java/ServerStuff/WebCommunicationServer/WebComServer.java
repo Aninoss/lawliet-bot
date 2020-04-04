@@ -3,6 +3,7 @@ package ServerStuff.WebCommunicationServer;
 import CommandSupporters.Command;
 import Constants.Locales;
 import General.*;
+import General.Tools.StringTools;
 import ServerStuff.WebCommunicationServer.Events.*;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;

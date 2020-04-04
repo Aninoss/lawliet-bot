@@ -1,12 +1,11 @@
 package General;
 
 import CommandSupporters.CommandContainer;
-import Constants.Permission;
 import Constants.Settings;
 import General.Internet.Internet;
 import General.Internet.InternetProperty;
 import General.Internet.InternetResponse;
-import General.RunningCommands.RunningCommandManager;
+import CommandSupporters.RunningCommands.RunningCommandManager;
 import General.Tracker.TrackerManager;
 import MySQL.FisheryCache;
 import MySQL.Server.DBServer;
@@ -301,7 +300,7 @@ public class DiscordApiCollection {
     public void waitForStartup() {
         while(!allShardsConnected()) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

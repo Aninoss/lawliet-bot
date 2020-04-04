@@ -1,11 +1,12 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
+import General.Tools.StringTools;
 import General.Tracker.TrackerData;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -30,14 +31,10 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"fclear"}
 )
-public class FullClearCommand extends Command implements onRecievedListener, onTrackerRequestListener {
-
-    public FullClearCommand() {
-        super();
-    }
+public class FullClearCommand extends Command implements onTrackerRequestListener {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Pair<Integer, Boolean> pair = fullClear(event.getServerTextChannel().get(), followedString, event.getMessage());
         if (pair == null) return false;
         boolean skipped = pair.getValue();

@@ -37,14 +37,14 @@ public class TrackerManager {
         while (true) {
             try {
                 Duration duration = Duration.between(Instant.now(), trackerData.getInstant());
-                Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
+                Thread.sleep(Math.max(5 * 60 * 1000, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
 
                 Optional<ServerTextChannel> channelOptional = trackerData.getChannel();
                 if (!channelOptional.isPresent()) return;
 
                 while(true) {
                     if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), channelOptional.get(),  Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
-                        Thread.sleep(30 * 60 * 1000);
+                        Thread.sleep(60 * 60 * 1000);
                     } else break;
                 }
 

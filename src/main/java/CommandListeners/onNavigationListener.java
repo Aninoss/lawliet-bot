@@ -8,7 +8,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 public interface onNavigationListener {
-    Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable;
+    Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable;
     boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable;
     EmbedBuilder draw(DiscordApi api, int state) throws Throwable;
     void onNavigationTimeOut(Message message) throws Throwable;

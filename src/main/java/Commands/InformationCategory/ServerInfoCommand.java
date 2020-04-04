@@ -1,11 +1,11 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.StringTools;
-import General.TimeTools;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -18,14 +18,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         executable = true,
         aliases = {"serverinfos"}
 )
-public class ServerInfoCommand extends Command implements onRecievedListener {
-
-    public ServerInfoCommand() {
-        super();
-    }
+public class ServerInfoCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
 
         String[] args = {

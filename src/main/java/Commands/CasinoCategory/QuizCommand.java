@@ -2,13 +2,14 @@ package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
+
 import Commands.CasinoAbstract;
 import Constants.LetterEmojis;
 import Constants.LogStatus;
 import Constants.Settings;
 import General.*;
 import General.Internet.Internet;
+import General.Tools.StringTools;
 import MySQL.DBUser;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -30,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         withLoadingBar = true,
         executable = true
 )
-public class QuizCommand extends CasinoAbstract implements onRecievedListener, onReactionAddListener {
+public class QuizCommand extends CasinoAbstract implements onReactionAddListener {
 
     private String log;
     private LogStatus logStatus;
@@ -48,7 +49,7 @@ public class QuizCommand extends CasinoAbstract implements onRecievedListener, o
     }
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
 
             if (!allowBet) {

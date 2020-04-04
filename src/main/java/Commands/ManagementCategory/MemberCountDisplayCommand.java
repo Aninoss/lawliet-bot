@@ -6,6 +6,7 @@ import CommandSupporters.Command;
 import Constants.*;
 import General.*;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import MySQL.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.MemberCountDisplays.MemberCountBean;
 import MySQL.MemberCountDisplays.MemberCountDisplay;
@@ -43,14 +44,15 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     private MemberCountBean memberCountBean;
     private ServerVoiceChannel currentVC = null;
     private String currentName = null;
-    
-    @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            memberCountBean = DBMemberCountDisplays.getInstance().getBean(event.getServer().get().getId());
-            return Response.TRUE;
-        }
 
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        memberCountBean = DBMemberCountDisplays.getInstance().getBean(event.getServer().get().getId());
+        return true;
+    }
+
+    @Override
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 1) {
             ArrayList<ServerVoiceChannel> vcList = MentionTools.getVoiceChannels(event.getMessage(), inputString).getList();
             if (vcList.size() == 0) {

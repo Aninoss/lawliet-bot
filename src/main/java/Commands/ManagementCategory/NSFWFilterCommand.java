@@ -6,9 +6,11 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
+import General.CustomObservableList;
 import General.EmbedFactory;
 import General.ListGen;
 import MySQL.DBServerOld;
+import MySQL.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -18,6 +20,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "nsfwfilter",
@@ -31,20 +34,17 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
 
     private static final int MAX_FILTERS = 18;
 
-    private ArrayList<String> keywords;
+    private CustomObservableList<String> keywords;
     private final static int MAX_LENGTH = 50;
 
-    public NSFWFilterCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        keywords = DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords();
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws SQLException, IOException {
-        if (firstTime) {
-            keywords = DBServerOld.getNSFWFilterFromServer(event.getServer().get());
-            return Response.TRUE;
-        }
-
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws IOException, ExecutionException {
         if (state == 1) {
             if (!inputString.isEmpty()) {
                 String[] mentionedKeywords = inputString.split(" ");
@@ -71,7 +71,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                 for(String str: mentionedKeywords) {
                     if (!keywords.contains(str)) {
                         if (keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
-                            DBServerOld.addNSFWFilterKeyword(event.getServer().get(), str);
+                            keywords.add(str);
                             n++;
                         }
                     }
@@ -126,7 +126,7 @@ public class NSFWFilterCommand extends Command implements onNavigationListener {
                     setState(0);
                     return true;
                 } else if (i < keywords.size()) {
-                    DBServerOld.removeNSFWFilterKeyword(event.getServer().get(), keywords.remove(i));
+                    keywords.remove(i);
                     setLog(LogStatus.SUCCESS, getString("keywordremove"));
                     if (keywords.size() == 0) setState(0);
                     return true;

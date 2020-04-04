@@ -1,13 +1,13 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
 import General.TextManager;
-import General.StringTools;
-import General.TimeTools;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -25,14 +25,10 @@ import java.util.stream.Collectors;
         executable = true,
         aliases = {"channelinfos"}
 )
-public class ChannelInfoCommand extends Command implements onRecievedListener {
-
-    public ChannelInfoCommand() {
-        super();
-    }
+public class ChannelInfoCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
         ArrayList<ServerTextChannel> list = MentionTools.getTextChannels(event.getMessage(), followedString).getList();

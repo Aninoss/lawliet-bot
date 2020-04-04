@@ -5,8 +5,7 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
 import General.ExceptionHandler;
-import General.RunningCommands.RunningCommandManager;
-import General.StringTools;
+import CommandSupporters.RunningCommands.RunningCommandManager;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
@@ -22,7 +21,7 @@ public class ReactionAddListener {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
             if (event.getMessageId() == command.getReactionMessageID()) {
                 if (event.getUser().getId() == command.getReactionUserID()) {
-                    RunningCommandManager.getInstance().add(event.getUser(), command.getTrigger(), event.getApi().getCurrentShard());
+                    RunningCommandManager.getInstance().canUserRunCommand(event.getUser().getId(), event.getApi().getCurrentShard());
 
                     try {
                         if (command instanceof onReactionAddListener) command.onReactionAddSuper(event);
@@ -30,8 +29,6 @@ public class ReactionAddListener {
                     } catch (Throwable e) {
                         ExceptionHandler.handleException(e, command.getLocale(), event.getMessage().get().getChannel());
                     }
-
-                    RunningCommandManager.getInstance().remove(event.getUser(), command.getTrigger());
                 } else {
                     if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent()) event.getReaction().get().removeUser(event.getUser());
                 }

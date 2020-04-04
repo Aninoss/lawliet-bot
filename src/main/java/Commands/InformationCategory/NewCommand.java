@@ -4,6 +4,7 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import General.*;
+import General.Tools.StringTools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
 import MySQL.DBBot;
@@ -19,14 +20,10 @@ import java.util.ArrayList;
         executable = true,
         aliases = {"changelog"}
 )
-public class NewCommand extends Command implements onRecievedListener, onTrackerRequestListener {
-
-    public NewCommand() {
-        super();
-    }
+public class NewCommand extends Command implements onTrackerRequestListener {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         //Ohne Argumente
         if (followedString.length() == 0) {
             ArrayList<String> versions = DBBot.getCurrentVersions(3);

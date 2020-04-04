@@ -1,13 +1,14 @@
 package Commands.Splatoon2Category;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
 import General.Internet.InternetCache;
+import General.Tools.TimeTools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -26,16 +27,12 @@ import java.util.Date;
     thumbnail = "https://vignette.wikia.nocookie.net/splatoon/images/1/12/InklingUsingSplatNet.jpg/revision/latest?cb=20160116221000&path-prefix=de",
     executable = true
 )
-public class SplatnetCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+public class SplatnetCommand extends Command implements onTrackerRequestListener {
     
     private Instant trackingTime;
 
-    public SplatnetCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
         EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();

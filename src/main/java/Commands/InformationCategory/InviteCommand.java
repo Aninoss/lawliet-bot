@@ -1,7 +1,7 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Settings;
 import General.EmbedFactory;
@@ -14,14 +14,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         executable = true,
         aliases = {"link", "addbot", "inv"}
 )
-public class InviteCommand extends Command implements onRecievedListener {
-
-    public InviteCommand() {
-        super();
-    }
+public class InviteCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.BOT_INVITE_URL))).get();
         return true;
     }

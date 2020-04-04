@@ -1,15 +1,15 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.*;
 import General.*;
+import General.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.Donators.DBDonators;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
@@ -20,10 +20,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
     withLoadingBar = true,
     executable = true
 )
-public class DailyCommand extends Command implements onRecievedListener {
+public class DailyCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());

@@ -1,7 +1,7 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import Commands.ListAbstract;
 import General.*;
 import javafx.util.Pair;
@@ -16,12 +16,12 @@ import java.util.ArrayList;
         emoji = "❔",
         executable = true
 )
-public class FAQCommand extends ListAbstract implements onRecievedListener {
+public class FAQCommand extends ListAbstract {
 
     private ArrayList<Pair<String, String>> slots;
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         slots = new ArrayList<>();
         for(int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
             String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("%PREFIX", getPrefix());

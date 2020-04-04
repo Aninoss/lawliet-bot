@@ -9,7 +9,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 
 public interface onReactionAddListener {
+
     void onReactionAdd(SingleReactionEvent event) throws Throwable;
     Message getReactionMessage();
     void onReactionTimeOut(Message message) throws Throwable;
+
 }

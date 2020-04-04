@@ -1,12 +1,11 @@
-package General.SPBlock;
+package General;
 
 import CommandSupporters.CommandManager;
 import Commands.ModerationCategory.ModSettingsCommand;
 import Commands.ModerationCategory.SelfPromotionBlockCommand;
-import Constants.SPAction;
 import Constants.Settings;
-import General.*;
-import MySQL.DBServerOld;
+import MySQL.SPBlock.DBSPBlock;
+import MySQL.SPBlock.SPBlockBean;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
@@ -14,7 +13,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.entity.user.User;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -23,21 +21,27 @@ import java.util.concurrent.ExecutionException;
 public class SPCheck {
 
     public static boolean checkForSelfPromotion(Server server, Message message) {
-        String content = message.getContent();
-        content = content.replaceAll("(?i)"+ Settings.SERVER_INVITE_URL, "");
-        if (contentContainsDiscordLink(content) && !message.getUserAuthor().get().isBot()) {
-            try {
-                for(RichInvite richInvite: server.getInvites().get()) {
-                    content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                //Ignore
-            }
+        try {
+            SPBlockBean spBlockBean = DBSPBlock.getInstance().getBean(server.getId());
 
-            if (contentContainsDiscordLink(content)) {
-                try {
-                    SPBlock spBlock = DBServerOld.getSPBlockFromServer(server);
-                    if (spBlock.isActive() && !spBlock.getIgnoredUser().contains(message.getUserAuthor().get()) && !spBlock.getIgnoredChannels().contains(message.getServerTextChannel().get()) && !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get())) {
+            if (spBlockBean.isActive() &&
+                    !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
+                    !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
+                    !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get()) &&
+                    !message.getUserAuthor().get().isBot()
+            ) {
+                String content = message.getContent();
+                content = content.replaceAll("(?i)" + Settings.SERVER_INVITE_URL, "");
+                if (contentContainsDiscordLink(content)) {
+                    try {
+                        for(RichInvite richInvite: server.getInvites().get()) {
+                            content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
+                        }
+                    } catch (InterruptedException | ExecutionException e) {
+                        //Ignore
+                    }
+
+                    if (contentContainsDiscordLink(content)) {
                         boolean successful = true;
                         User author = message.getUserAuthor().get();
 
@@ -50,13 +54,13 @@ public class SPCheck {
                         }
 
                         //Poster informieren
-                        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
+                        ServerBean serverBean = spBlockBean.getServerBean();
                         Locale locale = serverBean.getLocale();
                         SelfPromotionBlockCommand selfPromotionBlockCommand = new SelfPromotionBlockCommand();
                         selfPromotionBlockCommand.setLocale(locale);
 
                         EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true)
+                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true)
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));
@@ -67,7 +71,7 @@ public class SPCheck {
                         }
 
                         //User kicken
-                        if (spBlock.getAction() == SPAction.KICK_USER) {
+                        if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
                             try {
                                 server.kickUser(author, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
                             } catch (InterruptedException | ExecutionException e) {
@@ -77,7 +81,7 @@ public class SPCheck {
                         }
 
                         //User bannen
-                        if (spBlock.getAction() == SPAction.BAN_USER) {
+                        if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER) {
                             try {
                                 server.banUser(author, 1, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
                             } catch (InterruptedException | ExecutionException e) {
@@ -87,18 +91,23 @@ public class SPCheck {
                         }
 
                         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true)
+                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true);
                         if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
                         else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
 
-                        for(User user: spBlock.getLogRecievers()) {
-                            user.sendMessage(eb).get();
-                        }
+                        EmbedBuilder finalEb = eb;
+                        spBlockBean.getLogReceiverUserIds().transform(server::getMemberById).forEach(user -> {
+                            try {
+                                user.sendMessage(finalEb).get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                e.printStackTrace();
+                            }
+                        });
 
                         eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlock.getAction().ordinal()], true)
+                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
                         if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
                         else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
@@ -108,11 +117,10 @@ public class SPCheck {
 
                         return true;
                     }
-                } catch (IOException | ExecutionException | SQLException | InterruptedException | IllegalAccessException | InstantiationException e) {
-                    e.printStackTrace();
                 }
-
             }
+        } catch (ExecutionException | IOException | SQLException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
         }
 
         return false;
@@ -121,4 +129,5 @@ public class SPCheck {
     private static boolean contentContainsDiscordLink(String string) {
         return string.toLowerCase().contains("discord.gg/");
     }
+
 }

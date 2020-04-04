@@ -1,4 +1,6 @@
-package General;
+package General.Tools;
+
+import General.TextManager;
 
 import java.io.IOException;
 import java.time.*;

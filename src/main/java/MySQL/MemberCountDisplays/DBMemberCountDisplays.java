@@ -22,8 +22,9 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
                 getMemberCountBeanSlot(serverId)
         );
 
-        memberCountBean.getMemberCountBeanSlots().addMapAddListener(slot -> addMemberCountBeanSlot(serverId, slot));
-        memberCountBean.getMemberCountBeanSlots().addMapRemoveListener(slot -> removeMemberCountBeanSlot(serverId, slot));
+        memberCountBean.getMemberCountBeanSlots()
+                .addMapAddListener(slot -> addMemberCountBeanSlot(serverId, slot))
+                .addMapRemoveListener(slot -> removeMemberCountBeanSlot(serverId, slot));
 
         return memberCountBean;
     }
@@ -32,9 +33,9 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
     protected void saveBean(MemberCountBean memberCountBean) {}
 
     private HashMap<Long, MemberCountDisplay> getMemberCountBeanSlot(long serverId) throws SQLException {
-        DBDataLoad<MemberCountDisplay> dbDataLoad = new DBDataLoad<>("MemberCountDisplays", new String[]{"vcId", "name"}, "serverId = ?",
-                preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbDataLoad.getHashMap(MemberCountDisplay::getVoiceChannelId, resultSet -> new MemberCountDisplay(serverId, resultSet.getLong(1), resultSet.getString(2)));
+        return new DBDataLoad<MemberCountDisplay>("MemberCountDisplays", new String[]{"vcId", "name"}, "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getHashMap(MemberCountDisplay::getVoiceChannelId, resultSet -> new MemberCountDisplay(serverId, resultSet.getLong(1), resultSet.getString(2)));
     }
 
     private void addMemberCountBeanSlot(long serverId, MemberCountDisplay memberCountDisplay) {

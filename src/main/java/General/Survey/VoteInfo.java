@@ -1,6 +1,6 @@
 package General.Survey;
 
-import General.StringTools;
+import General.Tools.StringTools;
 
 import java.util.Optional;
 

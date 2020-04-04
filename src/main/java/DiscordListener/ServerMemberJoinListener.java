@@ -5,17 +5,19 @@ import Constants.FishingCategoryInterface;
 import Constants.Permission;
 import General.*;
 import General.Fishing.FishingProfile;
+import General.Tools.StringTools;
 import MySQL.AutoRoles.DBAutoRoles;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
+import MySQL.WelcomeMessage.DBWelcomeMessage;
+import MySQL.WelcomeMessage.WelcomeMessageBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
-
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,47 +30,55 @@ public class ServerMemberJoinListener {
         if (event.getUser().isYourself()) return;
 
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getBean(event.getServer().getId()).getLocale();
-
-        //Insert User into Database
-        try {
-            DBUser.insertUser(event.getUser());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
         //Willkommensnachricht
         try {
-            WelcomeMessageSetting welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(locale, server);
-            if (welcomeMessageSetting != null && welcomeMessageSetting.isActivated()) {
-                ServerTextChannel channel = welcomeMessageSetting.getWelcomeChannel();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
-                    InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageSetting.getTitle());
-                    User user = event.getUser();
+            WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
+            if (welcomeMessageBean.isWelcomeActive()) {
+                welcomeMessageBean.getWelcomeChannel().ifPresent(channel -> {
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
+                        InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
+                        User user = event.getUser();
 
-                    if (image != null) {
-                        channel.sendMessage(
-                                StringTools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
-                                        server.getName(),
-                                        user.getMentionTag(),
-                                        user.getName(),
-                                        user.getDiscriminatedName(),
-                                        StringTools.numToString(locale, server.getMembers().size()))),
-                                image,
-                                "welcome.png").get();
-                    } else {
-                        channel.sendMessage(
-                                WelcomeCommand.replaceVariables(welcomeMessageSetting.getDescription(),
-                                        server.getName(),
-                                        user.getMentionTag(),
-                                        user.getName(),
-                                        user.getDiscriminatedName(),
-                                        StringTools.numToString(locale, server.getMembers().size()))).get();
+                        try {
+                            if (image != null) {
+                                channel.sendMessage(
+                                        StringTools.defuseMassPing(
+                                                WelcomeCommand.replaceVariables(
+                                                        welcomeMessageBean.getWelcomeText(),
+                                                        server.getName(),
+                                                        user.getMentionTag(),
+                                                        user.getName(),
+                                                        user.getDiscriminatedName(),
+                                                        StringTools.numToString(locale, server.getMembers().size())
+                                                )
+                                        ),
+                                        image,
+                                        "welcome.png"
+                                ).get();
+                            } else {
+                                channel.sendMessage(
+                                        StringTools.defuseMassPing(
+                                                WelcomeCommand.replaceVariables(
+                                                        welcomeMessageBean.getWelcomeText(),
+                                                        server.getName(),
+                                                        user.getMentionTag(),
+                                                        user.getName(),
+                                                        user.getDiscriminatedName(),
+                                                        StringTools.numToString(locale, server.getMembers().size())
+                                                )
+                                        )
+                                ).get();
+                            }
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
+                });
             }
             if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
-        } catch (ExecutionException | InterruptedException | SQLException e) {
+        } catch (ExecutionException | SQLException e) {
             e.printStackTrace();
         }
 
@@ -81,11 +91,11 @@ public class ServerMemberJoinListener {
 
         //Automatische Rollenvergabe bei Fisching
         try {
-            FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer(), event.getUser(), false);
+            FishingProfile fishingProfile = DBUser.getFishingProfile(server, event.getUser(), false);
             int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
             if (level > 0) {
-                ArrayList<Role> roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer());
-                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
+                ArrayList<Role> roles = DBServerOld.getPowerPlantRolesFromServer(server);
+                ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
 
                 if (serverBean.isFisherySingleRoles()) {
                     Role role = roles.get(level - 1);

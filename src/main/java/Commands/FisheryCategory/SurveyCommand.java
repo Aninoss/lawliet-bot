@@ -11,11 +11,10 @@ import General.Survey.Survey;
 import General.Survey.SurveyResults;
 import General.Survey.UserMajorityVoteData;
 import General.Survey.UserVoteData;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import General.Tracker.TrackerData;
-import MySQL.DBBot;
-import MySQL.DBServerOld;
 import MySQL.DBSurvey;
-import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
@@ -41,16 +40,12 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executable = true
 )
-public class SurveyCommand extends Command implements onRecievedListener, onReactionAddStaticListener, onTrackerRequestListener {
+public class SurveyCommand extends Command implements onReactionAddStaticListener, onTrackerRequestListener {
 
     private static long lastAccess = 0;
 
-    public SurveyCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Survey survey = DBSurvey.getCurrentSurvey();
         sendMessages(event.getServerTextChannel().get(), survey, false);
         return true;
@@ -128,7 +123,7 @@ public class SurveyCommand extends Command implements onRecievedListener, onReac
 
     private Message sendMessages(ServerTextChannel channel, Survey survey, boolean tracker) throws InterruptedException, IOException, SQLException, ExecutionException {
         while(lastAccess != 0 && System.currentTimeMillis() <= lastAccess + 1000 * 60) {
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
 
         lastAccess = System.currentTimeMillis();

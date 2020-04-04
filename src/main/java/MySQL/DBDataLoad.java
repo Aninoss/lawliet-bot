@@ -11,14 +11,8 @@ public class DBDataLoad<T> {
 
    private PreparedStatement preparedStatement;
 
-    public DBDataLoad(String mySQLQuery, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {
-        preparedStatement = DBMain.getInstance().preparedStatement(mySQLQuery);
-        preparedStatementConsumer.accept(preparedStatement);
-        preparedStatement.execute();
-    }
-
     public DBDataLoad(String table, String requiredAttribute, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
-        this(table, new String[]{requiredAttribute}, where, wherePreparedStatementConsumer);
+        this(table, requiredAttribute.split(","), where, wherePreparedStatementConsumer);
     }
 
     public DBDataLoad(String table, String[] requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {

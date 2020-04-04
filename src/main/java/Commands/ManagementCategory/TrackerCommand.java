@@ -9,6 +9,7 @@ import Constants.*;
 import General.*;
 import General.EmojiConnection.BackEmojiConnection;
 import General.EmojiConnection.EmojiConnection;
+import General.Tools.StringTools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
 import MySQL.DBBot;
@@ -41,19 +42,18 @@ public class TrackerCommand extends Command implements onNavigationListener {
     private String commandTrigger;
     private boolean override;
 
-    public TrackerCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        server = event.getServer().get();
+        channel = event.getServerTextChannel().get();
+        controll(followedString, 0, true);
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            server = event.getServer().get();
-            channel = event.getServerTextChannel().get();
-        }
-
-        if (firstTime || state == 3) {
-            controll(inputString, state, firstTime);
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+        if (state == 3) {
+            controll(inputString, state, false);
             return Response.TRUE;
         }
         return null;

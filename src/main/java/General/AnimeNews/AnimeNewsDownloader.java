@@ -4,7 +4,7 @@ import Constants.Language;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.PostBundle;
-import General.StringTools;
+import General.Tools.StringTools;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;

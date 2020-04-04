@@ -3,7 +3,7 @@ package MySQL;
 import General.Bot;
 import General.DiscordApiCollection;
 import General.RankingSlot;
-import General.StringTools;
+import General.Tools.StringTools;
 import General.Tracker.TrackerData;
 import General.Tracker.TrackerManager;
 import ServerStuff.TopGG;
@@ -87,7 +87,6 @@ public class DBBot {
     public static synchronized void startTrackers(DiscordApi api) throws SQLException {
         if (!Bot.isDebug()) {
             for (TrackerData trackerData : getTracker(api)) {
-                System.out.printf("Starting tracker %s in server id %d...\n", trackerData.getCommand(), trackerData.getChannelId());
                 TrackerManager.startTracker(trackerData);
                 try {
                     Thread.sleep(500);

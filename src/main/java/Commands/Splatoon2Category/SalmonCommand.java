@@ -1,13 +1,14 @@
 package Commands.Splatoon2Category;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import General.*;
 import General.Internet.InternetCache;
+import General.Tools.TimeTools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -28,16 +29,12 @@ import java.util.concurrent.ExecutionException;
     thumbnail = "https://pre00.deviantart.net/1e9a/th/pre/i/2017/195/1/b/salmon_run_by_sqwdink-dbgdl3u.png",
     executable = true
 )
-public class SalmonCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+public class SalmonCommand extends Command implements onTrackerRequestListener {
     
     private Instant trackingTime;
 
-    public SalmonCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
         EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();

@@ -1,7 +1,6 @@
 package General.BotResources;
 
-import General.RandomTools;
-import General.StringTools;
+import General.Tools.RandomTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;

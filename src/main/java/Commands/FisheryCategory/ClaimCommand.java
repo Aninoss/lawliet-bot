@@ -1,17 +1,16 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.*;
 import General.EmbedFactory;
 import General.TextManager;
-import General.StringTools;
-import General.TimeTools;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
@@ -25,14 +24,10 @@ import java.time.Instant;
     emoji = "\uD83C\uDF80",
     executable = true
 )
-public class ClaimCommand extends Command implements onRecievedListener {
-
-    public ClaimCommand() {
-        super();
-    }
+public class ClaimCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             Instant nextUpvote = null;

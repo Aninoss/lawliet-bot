@@ -7,6 +7,7 @@ import Constants.*;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
@@ -34,10 +35,6 @@ import java.util.concurrent.ExecutionException;
 )
 public class BuyCommand extends Command implements onNavigationListener {
 
-    public BuyCommand() {
-        super();
-    }
-
     private ArrayList<Role> roles;
     private FishingProfile fishingProfile;
     private int numberReactions = 0;
@@ -45,26 +42,26 @@ public class BuyCommand extends Command implements onNavigationListener {
     private ServerBean serverBean;
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
-            if (status == FisheryStatus.ACTIVE) {
-                serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-                server = event.getServer().get();
-                fishingProfile = DBUser.getFishingProfile(server, event.getMessage().getUserAuthor().get());
-                roles = DBServerOld.getPowerPlantRolesFromServer(server);
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
+        if (status == FisheryStatus.ACTIVE) {
+            serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            server = event.getServer().get();
+            fishingProfile = DBUser.getFishingProfile(server, event.getMessage().getUserAuthor().get());
+            roles = DBServerOld.getPowerPlantRolesFromServer(server);
 
-                checkRolesWithLog(roles, null);
+            checkRolesWithLog(roles, null);
 
-                return Response.TRUE;
-            } else {
-                setState(1);
-                removeNavigation();
-                return Response.FALSE;
-            }
+            return true;
+        } else {
+            setState(1);
+            removeNavigation();
+            return false;
         }
-        return null;
     }
+
+    @Override
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable { return null; }
 
     @Override
     public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {

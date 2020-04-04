@@ -2,14 +2,14 @@ package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
 import General.Mention.MentionList;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.Moderation.DBModeration;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         thumbnail = "http://icons.iconarchive.com/icons/martz90/circle/128/trash-icon.png",
         executable = false
 )
-public class WarnRemoveCommand extends Command implements onRecievedListener, onReactionAddListener {
+public class WarnRemoveCommand extends Command implements onReactionAddListener {
 
     private ArrayList<User> users;
     private int n;
@@ -41,7 +41,7 @@ public class WarnRemoveCommand extends Command implements onRecievedListener, on
     private Message message;
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
         MentionList<User> userMentions = MentionTools.getUsers(event.getMessage(), followedString);

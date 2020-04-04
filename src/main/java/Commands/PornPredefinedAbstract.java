@@ -1,6 +1,6 @@
 package Commands;
 
-import CommandListeners.onRecievedListener;
+
 import General.Porn.PornImage;
 import General.Porn.PornImageDownloader;
 import General.TextManager;
@@ -8,7 +8,7 @@ import General.TextManager;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public abstract class PornPredefinedAbstract extends PornAbstract implements onRecievedListener {
+public abstract class PornPredefinedAbstract extends PornAbstract {
 
     private String notice = null;
 

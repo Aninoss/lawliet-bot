@@ -8,6 +8,7 @@ import Constants.Permission;
 import Constants.Response;
 import General.*;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import MySQL.AutoChannel.AutoChannelBean;
 import MySQL.AutoChannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
@@ -15,7 +16,6 @@ import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
@@ -36,12 +36,13 @@ public class AutoChannelCommand extends Command implements onNavigationListener 
     private AutoChannelBean autoChannelBean;
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().get().getId());
-            return Response.TRUE;
-        }
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().get().getId());
+        return true;
+    }
 
+    @Override
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
                 ArrayList<ServerVoiceChannel> channelList = MentionTools.getVoiceChannels(event.getMessage(), inputString).getList();

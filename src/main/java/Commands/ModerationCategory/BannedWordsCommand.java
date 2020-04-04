@@ -9,6 +9,7 @@ import Constants.Permission;
 import Constants.Response;
 import General.*;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import MySQL.BannedWords.BannedWordsBean;
 import MySQL.BannedWords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -41,13 +42,14 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
     private NavigationHelper<String> wordsNavigationHelper;
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            bannedWordsBean = DBBannedWords.getInstance().getBean(event.getServer().get().getId());
-            wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
-            return Response.TRUE;
-        }
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        bannedWordsBean = DBBannedWords.getInstance().getBean(event.getServer().get().getId());
+        wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
+        return true;
+    }
 
+    @Override
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
                 ArrayList<User> userIgnoredList = MentionTools.getUsers(event.getMessage(), inputString).getList();
@@ -190,7 +192,7 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
         return 12;
     }
 
-    private String getWordsString() throws IOException {
+    private String getWordsString() {
         List<String> words = bannedWordsBean.getWords();
         if (words.size() == 0) {
             return TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
@@ -204,4 +206,5 @@ public class BannedWordsCommand extends Command implements onNavigationListener 
             return sb.toString();
         }
     }
+
 }

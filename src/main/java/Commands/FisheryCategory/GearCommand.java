@@ -1,7 +1,7 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.FishingCategoryInterface;
 import Constants.Permission;
@@ -11,7 +11,7 @@ import General.Fishing.FishingProfile;
 import General.Fishing.FishingSlot;
 import General.Mention.MentionTools;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
@@ -35,10 +35,10 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"equip", "equipment", "inventory", "level"}
 )
-public class GearCommand extends Command implements onRecievedListener {
+public class GearCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();

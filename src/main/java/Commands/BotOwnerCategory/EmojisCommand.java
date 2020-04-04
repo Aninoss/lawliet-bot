@@ -1,7 +1,7 @@
 package Commands.BotOwnerCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import org.javacord.api.entity.emoji.CustomEmoji;
@@ -14,14 +14,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
     emoji = "\uD83D\uDE03",
     executable = true
 )
-public class EmojisCommand extends Command implements onRecievedListener {
-
-    public EmojisCommand() {
-        super();
-    }
+public class EmojisCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder sb = new StringBuilder();
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
         int i = 0, j = 0;

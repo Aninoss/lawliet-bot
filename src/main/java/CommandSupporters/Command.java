@@ -6,6 +6,7 @@ import Constants.*;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -49,6 +50,8 @@ public abstract class Command {
         thread = Thread.currentThread();
     }
 
+    protected abstract boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable;
+
     public void onRecievedSuper(MessageCreateEvent event, String followedString) {
         updateThreadName();
 
@@ -58,7 +61,7 @@ public abstract class Command {
 
         boolean successful = false;
         try {
-            successful = ((onRecievedListener) this).onReceived(event, followedString);
+            successful = onMessageReceived(event, followedString);
         } catch (Throwable e) {
             ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
             return;
@@ -135,7 +138,8 @@ public abstract class Command {
 
         try {
             navigationActive = true;
-            success = ((onNavigationListener) this).controllerMessage(event, followedString, state, firstTime);
+            if (firstTime) success = onMessageReceived(event, followedString) ? Response.TRUE : Response.FALSE;
+            else success = ((onNavigationListener) this).controllerMessage(event, followedString, state);
             if (success != null || navigationMessage == null) {
                 if (countdown != null) countdown.reset();
                 drawSuper(event.getApi(), event.getServerTextChannel().get());
@@ -250,13 +254,17 @@ public abstract class Command {
                 throw e;
             }
         } else {
-            if (navigationMessage.getCurrentCachedInstance().isPresent()) {
-                try {
-                    navigationMessage.edit(eb).get();
-                } catch (Throwable e) {
-                    ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
-                    throw e;
+            try {
+                if ((navigationMessage = navigationMessage.getLatestInstance().get()) != null) {
+                    try {
+                        navigationMessage.edit(eb).get();
+                    } catch (Throwable e) {
+                        ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
+                        throw e;
+                    }
                 }
+            } catch (Exception e) {
+                //Ignore
             }
         }
     }

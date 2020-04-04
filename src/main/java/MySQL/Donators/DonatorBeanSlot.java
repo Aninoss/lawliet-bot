@@ -38,14 +38,12 @@ public class DonatorBeanSlot extends Observable {
 
     /* Setters */
 
-    public void setDonationEnd(LocalDate donationEnd) {
-        this.donationEnd = donationEnd;
-        setChanged();
-        notifyObservers();
-    }
-
     public void addWeeks(int weeks) {
-        if (weeks > 0) setDonationEnd(donationEnd.plus(weeks, ChronoUnit.WEEKS));
+        if (weeks > 0) {
+            donationEnd = donationEnd.plus(weeks, ChronoUnit.WEEKS);
+            setChanged();
+            notifyObservers();
+        }
     }
 
 }

@@ -1,12 +1,12 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
 import General.TextManager;
-import General.TimeTools;
+import General.Tools.TimeTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -21,14 +21,10 @@ import java.util.ArrayList;
         executable = true,
         aliases = {"userinfos"}
 )
-public class UserInfoCommand extends Command implements onRecievedListener {
-
-    public UserInfoCommand() {
-        super();
-    }
+public class UserInfoCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
         ArrayList<User> list = MentionTools.getUsers(event.getMessage(), followedString).getList();

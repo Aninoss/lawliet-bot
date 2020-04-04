@@ -55,6 +55,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
         bannedWordsBean.getWords()
                 .addListAddListener(list -> list.forEach(word -> addWord(bannedWordsBean.getServerId(), word )))
                 .addListRemoveListener(list -> list.forEach(word -> removeWord(bannedWordsBean.getServerId(), word)));
+
         return bannedWordsBean;
     }
 
@@ -68,9 +69,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     private ArrayList<Long> getIgnoredUsers(long serverId) throws SQLException {
-        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("BannedWordsIgnoredUsers", "userId", "serverId = ?",
-                preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return new DBDataLoad<Long>("BannedWordsIgnoredUsers", "userId", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addIgnoredUser(long serverId, long userId) {
@@ -98,9 +99,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     private ArrayList<Long> getLogReceivers(long serverId) throws SQLException {
-        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("BannedWordsLogRecievers", "userId", "serverId = ?",
-                preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return new DBDataLoad<Long>("BannedWordsLogRecievers", "userId", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addLogReceiver(long serverId, long userId) {
@@ -128,9 +129,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     private ArrayList<String> getWords(long serverId) throws SQLException {
-        DBDataLoad<String> dbDataLoad = new DBDataLoad<>("BannedWordsWords", "word", "serverId = ?",
-                preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbDataLoad.getArrayList(resultSet -> resultSet.getString(1));
+        return new DBDataLoad<String>("BannedWordsWords", "word", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getArrayList(resultSet -> resultSet.getString(1));
     }
 
     private void addWord(long serverId, String word) {

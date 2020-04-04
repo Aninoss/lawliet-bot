@@ -1,6 +1,6 @@
 package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import Commands.EmoteAbstract;
 
 @CommandProperties(
@@ -9,7 +9,7 @@ import Commands.EmoteAbstract;
         executable = true,
         aliases = {"thumbsup", "thumpsup"}
 )
-public class YesCommand extends EmoteAbstract implements onRecievedListener {
+public class YesCommand extends EmoteAbstract {
 
     protected String[] getGifs() {
         return new String[]{"https://media1.tenor.com/images/ecad438e52beccce29765710049c375a/tenor.gif?itemid=4505671",

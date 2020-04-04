@@ -42,9 +42,10 @@ public class DBDonators extends DBCached {
             statement.close();
 
             donatorBean = new DonatorBean(slots);
-            donatorBean.getMap().addMapAddListener(this::insertDonation);
-            donatorBean.getMap().addMapUpdateListener(this::insertDonation);
-            donatorBean.getMap().addMapRemoveListener(this::removeDonation);
+            donatorBean.getMap()
+                    .addMapAddListener(this::insertDonation)
+                    .addMapUpdateListener(this::insertDonation)
+                    .addMapRemoveListener(this::removeDonation);
         }
 
         return donatorBean;

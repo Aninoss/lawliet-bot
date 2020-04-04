@@ -10,6 +10,7 @@ import General.*;
 import General.EmojiConnection.EmojiConnection;
 import General.Mention.MentionTools;
 import General.Mention.MentionList;
+import General.Tools.StringTools;
 import com.vdurmont.emoji.EmojiParser;
 import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
@@ -22,7 +23,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -58,13 +58,13 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
 
     private static ArrayList<Pair<Long, Long>> queue = new ArrayList<>();
 
-    public ReactionRolesCommandListenerListener() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        return false;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) return Response.TRUE;
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
 
         switch (state) {
             //Reaction Message hinzufügen
@@ -652,4 +652,5 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
     public String getTitleStartIndicator() {
         return getEmoji();
     }
+
 }

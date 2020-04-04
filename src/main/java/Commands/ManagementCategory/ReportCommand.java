@@ -1,7 +1,7 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
@@ -17,14 +17,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
     emoji = "\uD83C\uDFA4",
     executable = false
 )
-public class ReportCommand extends Command implements onRecievedListener {
-
-    public ReportCommand() {
-        super();
-    }
+public class ReportCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 500) {

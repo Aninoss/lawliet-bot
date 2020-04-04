@@ -1,7 +1,7 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
@@ -20,14 +20,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         executable = false,
         aliases = {"repeat"}
 )
-public class SayCommand extends Command implements onRecievedListener {
-
-    public SayCommand() {
-        super();
-    }
+public class SayCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         MentionList<ServerTextChannel> mentionedChannels = MentionTools.getTextChannels(event.getMessage(), followedString, true);
         followedString = mentionedChannels.getResultMessageString();
 

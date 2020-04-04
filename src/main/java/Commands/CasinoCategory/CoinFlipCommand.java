@@ -2,11 +2,12 @@ package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
+
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Settings;
 import General.*;
+import General.Tools.StringTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -28,19 +29,15 @@ import java.util.concurrent.ExecutionException;
         deleteOnTimeOut = false,
         aliases = {"coin", "cf"}
 )
-public class CoinFlipCommand extends CasinoAbstract implements onRecievedListener, onReactionAddListener {
+public class CoinFlipCommand extends CasinoAbstract implements onReactionAddListener {
 
     private String log;
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};
     private int[] selection = {-1, -1};
     private LogStatus logStatus;
 
-    public CoinFlipCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         onlyNumbersAsArg = false;
         if (onGameStart(event, followedString)) {
             useCalculatedMultiplicator = false;

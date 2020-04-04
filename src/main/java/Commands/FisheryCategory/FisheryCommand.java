@@ -6,6 +6,7 @@ import Constants.*;
 import General.*;
 import General.BotResources.ResourceManager;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.DatabaseCache;
@@ -17,7 +18,6 @@ import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
@@ -52,20 +52,19 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
     public static final String treasureEmoji = "\uD83D\uDCB0";
     public static final String keyEmoji = "\uD83D\uDD11";
     private static ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
-    private static ArrayList<Server> busyServers = new ArrayList<>();
+
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer().get());
+        ignoredChannels = DBServerOld.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
+
+        checkRolesWithLog(roles, null);
+        return true;
+    }
     
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-            roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer().get());
-            ignoredChannels = DBServerOld.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
-
-            checkRolesWithLog(roles, null);
-
-            return Response.TRUE;
-        }
-
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
                 ArrayList<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
@@ -201,57 +200,9 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
                         return true;
 
                     case 5:
-                        Server server = event.getServer().get();
-
-                        if (!busyServers.contains(server)) {
-                            serverBean.toggleFisherySingleRoles();
-
-                            Thread t = new Thread(() -> {
-                                busyServers.add(server);
-
-                                if (serverBean.isFisherySingleRoles()) {
-                                    for (int j = roles.size() - 1; j >= 1; j--) {
-                                        Role roleHighest = roles.get(j);
-
-                                        for (User user : new ArrayList<>(roleHighest.getUsers())) {
-                                            for (int k = 0; k < j; k++) {
-                                                try {
-                                                    Role role = roles.get(k);
-                                                    if (role != null) user.removeRole(role).get();
-                                                } catch (InterruptedException | ExecutionException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    for (int j = 1; j < roles.size(); j++) {
-                                        Role roleHighest = roles.get(j);
-
-                                        for (User user : roleHighest.getUsers()) {
-                                            for (int k = 0; k < j; k++) {
-                                                try {
-                                                    Role role = roles.get(k);
-                                                    if (role != null) user.addRole(role).get();
-                                                } catch (InterruptedException | ExecutionException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                busyServers.remove(server);
-                            });
-                            t.setName("fishery_role_updater");
-                            t.start();
-
-                            setLog(LogStatus.SUCCESS, getString("singleroleset", serverBean.isFisherySingleRoles()));
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
-                            return true;
-                        }
+                        serverBean.toggleFisherySingleRoles();
+                        setLog(LogStatus.SUCCESS, getString("singleroleset", serverBean.isFisherySingleRoles()));
+                        return true;
 
                     case 6:
                         setState(4);
@@ -273,42 +224,17 @@ public class FisheryCommand extends Command implements onNavigationListener, onR
 
                     case 9:
                         if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
-                            server = event.getServer().get();
-
                             if (stopLock) {
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, getString("stoplock"));
                                 return true;
                             } else {
-                                if (!busyServers.contains(server)) {
-                                    DBServerOld.removePowerPlant(server);
-                                    FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).stopServer(server);
-                                    DatabaseCache.getInstance().fishingProfileRemoveServer(server);
-                                    Thread t = new Thread(() -> {
-                                        busyServers.add(server);
-
-                                        for (User user : event.getServer().get().getMembers()) {
-                                            for (Role role : roles) {
-                                                if (role.getUsers().contains(user)) {
-                                                    try {
-                                                        role.removeUser(user).get();
-                                                    } catch (InterruptedException | ExecutionException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        busyServers.remove(server);
-                                    });
-                                    t.setName("fishery_role_updater");
-                                    t.start();
-                                    setLog(LogStatus.SUCCESS, getString("setstatus"));
-                                    return true;
-                                } else {
-                                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "role_busy"));
-                                    return true;
-                                }
+                                Server server = getServer();
+                                DBServerOld.removePowerPlant(server);
+                                FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).stopServer(server);
+                                DatabaseCache.getInstance().fishingProfileRemoveServer(server);
+                                setLog(LogStatus.SUCCESS, getString("setstatus"));
+                                return true;
                             }
                         }
                 }

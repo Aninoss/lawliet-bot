@@ -154,7 +154,7 @@ public class FisheryCache {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            nextVCCheck = Instant.now().plusSeconds(2 * 60);
+            nextVCCheck = Instant.now().plusSeconds(5 * 60);
 
             for (Server server : api.getServers()) {
                 try {
@@ -180,7 +180,7 @@ public class FisheryCache {
                                     if (count < 420) {
                                         setUserVCCount(server, user, count + 2);
                                         ActivityUserData activityUserData = getActivities(server, user);
-                                        activityUserData.registerVC(2);
+                                        activityUserData.registerVC(5);
                                         setActivities(server, user, activityUserData);
                                     }
                                 }

@@ -19,7 +19,7 @@ import java.util.Locale;
         emoji = "\uD83C\uDF10",
         executable = true
 )
-public class LanguageCommand extends Command implements onRecievedListener, onReactionAddListener {
+public class LanguageCommand extends Command implements onReactionAddListener {
 
     private Message message;
 
@@ -27,12 +27,8 @@ public class LanguageCommand extends Command implements onRecievedListener, onRe
     private final String[] languageLocales = Locales.LIST;
     private final String[] languageArgs = new String[]{"de", "en"};
 
-    public LanguageCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.length() > 0) {
             int language = -1;
             for(int i=0; i<languageArgs.length; i++) {

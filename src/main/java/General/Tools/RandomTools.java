@@ -1,4 +1,4 @@
-package General;
+package General.Tools;
 
 import java.util.ArrayList;
 import java.util.Random;

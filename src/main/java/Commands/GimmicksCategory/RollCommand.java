@@ -1,11 +1,11 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -18,14 +18,10 @@ import java.util.Random;
         executable = true,
         aliases = {"dice", "diceroll"}
 )
-public class RollCommand extends Command implements onRecievedListener {
-
-    public RollCommand() {
-        super();
-    }
+public class RollCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Random n = new Random();
         double drawn, border;
         boolean userMentioned = true;

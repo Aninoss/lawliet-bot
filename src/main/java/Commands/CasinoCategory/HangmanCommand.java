@@ -5,6 +5,7 @@ import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Response;
 import General.*;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -25,7 +26,8 @@ import java.util.concurrent.ExecutionException;
         deleteOnTimeOut = false,
         executable = true
 )
-public class HangmanCommand extends CasinoAbstract implements onRecievedListener, onForwardedRecievedListener, onReactionAddListener {
+public class HangmanCommand extends CasinoAbstract implements onForwardedRecievedListener, onReactionAddListener {
+
     private String answer, log;
     private int health;
     private final int MAX_HEALTH = 8;
@@ -40,7 +42,7 @@ public class HangmanCommand extends CasinoAbstract implements onRecievedListener
     }
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
             Random r = new Random();
             List<String> wordList = FileManager.readInList(new File("recourses/hangman_" + getLocale().getDisplayName() + ".txt"));

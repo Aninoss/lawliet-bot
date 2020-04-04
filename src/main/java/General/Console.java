@@ -1,7 +1,7 @@
 package General;
 
 import CommandSupporters.CommandContainer;
-import General.RunningCommands.RunningCommandManager;
+import CommandSupporters.RunningCommands.RunningCommandManager;
 import MySQL.ActivityUserData;
 import MySQL.DBMain;
 import MySQL.FisheryCache;
@@ -146,7 +146,7 @@ public class Console {
             double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
             maxMemory = Math.max(maxMemory, memoryUsed);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

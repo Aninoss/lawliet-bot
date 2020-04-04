@@ -78,9 +78,9 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
     }
 
     private ArrayList<Long> getChildChannels(long serverId) throws SQLException {
-        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("AutoChannelChildChannels", "channelId", "serverId = ?",
-                preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return new DBDataLoad<Long>("AutoChannelChildChannels", "channelId", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addChildChannel(long serverId, long channelId) {

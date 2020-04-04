@@ -65,7 +65,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     }
 
     private void insertBean(ServerBean serverBean) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         preparedStatement.setLong(1, serverBean.getServerId());
         preparedStatement.setString(2, serverBean.getPrefix());
         preparedStatement.setString(3, serverBean.getLocale().getDisplayName());

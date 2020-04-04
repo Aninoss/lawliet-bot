@@ -1,6 +1,7 @@
 package General;
 
 import Constants.Settings;
+import General.Tools.StringTools;
 import ServerStuff.CommunicationServer;
 import DiscordListener.*;
 import General.BotResources.ResourceManager;
@@ -16,9 +17,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Connector {
 
@@ -36,12 +40,7 @@ public class Connector {
                 String portsStringFinal = portsString.toString();
                 portsStringFinal = portsStringFinal.substring(0, portsStringFinal.length() - 2);
 
-                ExceptionHandler.showErrorLog(String.format("Error on port/s %s!", portsStringFinal));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                System.err.printf("Error on port/s %s!\n", portsStringFinal);
                 System.exit(1);
                 return;
             }
@@ -131,11 +130,12 @@ public class Connector {
         try {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                     .setToken(SecretManager.getString((Bot.isDebug() && !Settings.TEST_MODE) ? "bot.token.debugger" : "bot.token"))
-                    .setTotalShards(DiscordApiCollection.getInstance().size()).setCurrentShard(shardId);
+                    .setTotalShards(DiscordApiCollection.getInstance().size())
+                    .setCurrentShard(shardId);
 
-            DiscordApi api = apiBuilder.login().join();
+            DiscordApi api = apiBuilder.login().get();
             onApiJoin(api, false);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
             ExceptionHandler.showErrorLog("Exception when reconnect shard " + shardId);
             System.exit(-1);
@@ -143,26 +143,21 @@ public class Connector {
     }
 
     public static void onApiJoin(DiscordApi api, boolean startup) {
-        System.out.printf("Shard %d - Step 1\n", api.getCurrentShard());
         api.setAutomaticMessageCacheCleanupEnabled(true);
         api.setMessageCacheSize(10, Settings.TIME_OUT_TIME / 1000);
 
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);
 
-        api.getReconnectDelay(999999999);
-
         try {
             api.updateStatus(UserStatus.DO_NOT_DISTURB);
             api.updateActivity("Please wait, bot is booting up...");
 
             FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
-            System.out.printf("Shard %d - Step 2\n", api.getCurrentShard());
             if (apiCollection.apiHasHomeServer(api) && startup) {
                 new WebComServer(15744);
                 ResourceManager.setUp(apiCollection.getHomeServer());
             }
-            System.out.printf("Shard %d - Step 3\n", api.getCurrentShard());
             apiCollection.markReady(api);
 
             Thread st = new Thread(() -> DBMain.synchronizeAll(api));

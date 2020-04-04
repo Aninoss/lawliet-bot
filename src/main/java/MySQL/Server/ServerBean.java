@@ -89,34 +89,44 @@ public class ServerBean extends Observable {
     /* Setters */
 
     public void setFisheryRolePrices(long priceMin, long priceMax) {
-        this.fisheryRoleMin = priceMin;
-        this.fisheryRoleMax = priceMax;
-        setChanged();
-        notifyObservers();
+        if (this.fisheryRoleMin != priceMin || this.fisheryRoleMax != priceMax) {
+            this.fisheryRoleMin = priceMin;
+            this.fisheryRoleMax = priceMax;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void setPrefix(String prefix) {
-        this.prefix = prefix;
-        setChanged();
-        notifyObservers();
+        if (this.prefix == null || !this.prefix.equals(prefix)) {
+            this.prefix = prefix;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void setWebhookUrl(String webhookUrl) {
-        this.webhookUrl = webhookUrl;
-        setChanged();
-        notifyObservers();
+        if (this.webhookUrl == null || !this.webhookUrl.equals(webhookUrl)) {
+            this.webhookUrl = webhookUrl;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void setLocale(Locale locale) {
-        this.locale = locale;
-        setChanged();
-        notifyObservers();
+        if (this.locale == null || !this.locale.equals(locale)) {
+            this.locale = locale;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void setFisheryStatus(FisheryStatus fisheryStatus) {
-        this.fisheryStatus = fisheryStatus;
-        setChanged();
-        notifyObservers();
+        if (this.fisheryStatus == null || !this.fisheryStatus.equals(fisheryStatus)) {
+            this.fisheryStatus = fisheryStatus;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void toggleFisherySingleRoles() {
@@ -138,9 +148,11 @@ public class ServerBean extends Observable {
     }
 
     public void setFisheryAnnouncementChannelId(Long fisheryAnnouncementChannelId) {
-        this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId;
-        setChanged();
-        notifyObservers();
+        if (this.fisheryAnnouncementChannelId == null || !this.fisheryAnnouncementChannelId.equals(fisheryAnnouncementChannelId)) {
+            this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId;
+            setChanged();
+            notifyObservers();
+        }
     }
 
 }

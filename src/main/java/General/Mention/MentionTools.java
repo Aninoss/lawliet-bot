@@ -1,7 +1,7 @@
 package General.Mention;
 
 import General.DiscordApiCollection;
-import General.StringTools;
+import General.Tools.StringTools;
 import General.TextManager;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;

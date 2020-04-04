@@ -2,11 +2,11 @@ package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
-import General.StringTools;
+import General.Tools.StringTools;
 import MySQL.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -19,17 +19,14 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
         emoji = "\uD83D\uDCDD",
         executable = true
 )
-public class AutoQuoteCommand extends Command implements onRecievedListener, onReactionAddListener {
+public class AutoQuoteCommand extends Command implements onReactionAddListener {
+
     private Message message;
 
     private final String[] activeArgs = new String[]{"off", "on"};
 
-    public AutoQuoteCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.length() > 0) {
             int option = -1;
             for(int i=0; i < activeArgs.length; i++) {

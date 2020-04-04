@@ -8,6 +8,7 @@ import Constants.Response;
 import General.*;
 import General.Fishing.FishingProfile;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -28,16 +29,12 @@ import java.util.concurrent.ExecutionException;
     emoji = "\uD83D\uDCE4",
     executable = true
 )
-public class SellCommand extends Command implements onRecievedListener, onReactionAddListener, onForwardedRecievedListener {
+public class SellCommand extends Command implements onReactionAddListener, onForwardedRecievedListener {
 
     private Message message;
 
-    public SellCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             if (followedString.length() > 0) {

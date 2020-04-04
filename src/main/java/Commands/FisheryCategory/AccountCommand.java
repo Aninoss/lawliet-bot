@@ -1,7 +1,7 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
@@ -28,14 +28,10 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"profile", "profil", "account"}
 )
-public class AccountCommand extends Command implements onRecievedListener {
-
-    public AccountCommand() {
-        super();
-    }
+public class AccountCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();

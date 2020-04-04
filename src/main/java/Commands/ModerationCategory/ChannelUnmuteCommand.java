@@ -1,7 +1,7 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import Constants.Permission;
 
 @CommandProperties(
@@ -13,7 +13,7 @@ import Constants.Permission;
         executable = false,
         aliases = {"channelunmute", "unmute", "unchmute", "unchannelmute"}
 )
-public class ChannelUnmuteCommand extends ChannelMuteCommand implements onRecievedListener  {
+public class ChannelUnmuteCommand extends ChannelMuteCommand  {
 
     public ChannelUnmuteCommand() {
         super(false);

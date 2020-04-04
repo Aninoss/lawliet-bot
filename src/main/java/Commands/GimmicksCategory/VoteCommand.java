@@ -8,6 +8,7 @@ import Constants.Permission;
 import Constants.Settings;
 import General.*;
 import General.Survey.VoteInfo;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
@@ -31,14 +32,10 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"poll"}
 )
-public class VoteCommand extends Command implements onRecievedListener, onReactionAddStaticListener, onReactionRemoveStaticListener {
-
-    public VoteCommand() {
-        super();
-    }
+public class VoteCommand extends Command implements onReactionAddStaticListener, onReactionRemoveStaticListener {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         followedString = StringTools.trimString(followedString.replace("\n", ""));
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String args[] = followedString.split("\\|");

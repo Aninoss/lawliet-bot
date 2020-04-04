@@ -3,12 +3,11 @@ import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.Permission;
 import General.PermissionCheckRuntime;
-import General.StringTools;
-import General.WelcomeMessageSetting;
-import MySQL.DBServerOld;
+import General.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import MySQL.WelcomeMessage.DBWelcomeMessage;
+import MySQL.WelcomeMessage.WelcomeMessageBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
@@ -22,7 +21,7 @@ public class ServerMemberLeaveListener {
     public void onLeave(ServerMemberLeaveEvent event) throws Exception {
         if (event.getUser().isYourself()) return;
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getBean(event.getServer().getId()).getLocale();
+        Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
         //Update on server status
         try {
@@ -33,21 +32,31 @@ public class ServerMemberLeaveListener {
 
         //Verabschiedungen
         try {
-            WelcomeMessageSetting welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(locale, server);
-            if (welcomeMessageSetting != null && welcomeMessageSetting.isGoodbye()) {
-                ServerTextChannel channel = welcomeMessageSetting.getFarewellChannel();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
-                    User user = event.getUser();
-                    channel.sendMessage(
-                            StringTools.defuseMassPing(WelcomeCommand.replaceVariables(welcomeMessageSetting.getGoodbyeText(),
-                                    server.getName(),
-                                    user.getMentionTag(),
-                                    user.getName(),
-                                    user.getDiscriminatedName(),
-                                    StringTools.numToString(locale, server.getMembers().size())))).get();
-                }
+            WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
+            if (welcomeMessageBean.isGoodbyeActive()) {
+                welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
+                        User user = event.getUser();
+                        try {
+                            channel.sendMessage(
+                                    StringTools.defuseMassPing(
+                                            WelcomeCommand.replaceVariables(
+                                                    welcomeMessageBean.getGoodbyeText(),
+                                                    server.getName(),
+                                                    user.getMentionTag(),
+                                                    user.getName(),
+                                                    user.getDiscriminatedName(),
+                                                    StringTools.numToString(locale, server.getMembers().size())
+                                            )
+                                    )
+                            ).get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
-        } catch (ExecutionException | SQLException | InterruptedException e) {
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
 

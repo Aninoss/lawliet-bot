@@ -1,12 +1,12 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
-import General.RandomTools;
+import General.Tools.RandomTools;
 import General.ImageCreator;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
@@ -26,15 +26,12 @@ import java.util.Random;
     emoji = "\uD83D\uDC6B",
     executable = false
 )
-public class ShipCommand extends Command implements onRecievedListener {
+public class ShipCommand extends Command {
+
     private static ArrayList<Integer> picked = new ArrayList<>();
 
-    public ShipCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
         if (list.size() == 1 && list.get(0).getId() != event.getMessage().getUserAuthor().get().getId()) {

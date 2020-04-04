@@ -3,7 +3,6 @@ package Commands.ModerationCategory;
 import CommandListeners.CommandProperties;
 import Constants.Permission;
 import General.PermissionCheck;
-import General.StringTools;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 

@@ -1,6 +1,6 @@
 package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import Commands.EmoteAbstract;
 
 @CommandProperties(
@@ -9,7 +9,7 @@ import Commands.EmoteAbstract;
         executable = true,
         aliases = {"party"}
 )
-public class DanceCommand extends EmoteAbstract implements onRecievedListener {
+public class DanceCommand extends EmoteAbstract {
 
     protected String[] getGifs() {
         return new String[]{"https://media1.tenor.com/images/9841990160f71767843af6cf08b5502d/tenor.gif?itemid=9251559",

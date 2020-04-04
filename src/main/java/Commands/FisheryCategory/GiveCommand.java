@@ -1,13 +1,14 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import General.*;
 import General.Mention.MentionTools;
 import General.Mention.MentionList;
+import General.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.message.Message;
@@ -27,14 +28,10 @@ import java.util.ArrayList;
         executable = false,
         aliases = {"gift"}
 )
-public class GiveCommand extends Command implements onRecievedListener {
-
-    public GiveCommand() {
-        super();
-    }
+public class GiveCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (event.getMessage().getUserAuthor().get().isBot()) return false;
 
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
@@ -43,9 +40,7 @@ public class GiveCommand extends Command implements onRecievedListener {
             Message message = event.getMessage();
             MentionList<User> userMarked = MentionTools.getUsers(message,followedString);
             ArrayList<User> list = userMarked.getList();
-            for(User user: new ArrayList<>(list)) {
-                if (user.isBot() || user.equals(event.getMessage().getUserAuthor().get())) list.remove(user);
-            }
+            list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
 
             if (list.size() == 0) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,getString( "no_mentions"))).get();

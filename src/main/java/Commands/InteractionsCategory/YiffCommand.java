@@ -1,6 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import Commands.InteractionAbstract;
 import org.javacord.api.event.message.MessageCreateEvent;
 

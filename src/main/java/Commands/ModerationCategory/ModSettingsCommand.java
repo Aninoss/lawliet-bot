@@ -7,6 +7,7 @@ import CommandSupporters.CommandManager;
 import Constants.*;
 import General.*;
 import General.Mention.MentionTools;
+import General.Tools.StringTools;
 import General.Warnings.UserWarnings;
 import MySQL.DBServerOld;
 import MySQL.Moderation.DBModeration;
@@ -16,7 +17,6 @@ import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -44,17 +44,14 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     private static final String EMOJI_AUTOMOD = "\uD83D\uDC77",
             TN_AUTOMOD = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Road-Worker-1-icon.png";
 
-    public ModSettingsCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
-            return Response.TRUE;
-        }
-
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
                 ArrayList<ServerTextChannel> channelsList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();

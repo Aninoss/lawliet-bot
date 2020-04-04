@@ -9,8 +9,13 @@ import Constants.Response;
 import Constants.Settings;
 import General.*;
 import General.Mention.MentionTools;
+import General.Tools.InternetTools;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
+import MySQL.WelcomeMessage.DBWelcomeMessage;
+import MySQL.WelcomeMessage.WelcomeMessageBean;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;
@@ -39,29 +44,25 @@ import java.util.regex.Pattern;
 )
 public class WelcomeCommand extends Command implements onNavigationListener {
     
-    private WelcomeMessageSetting welcomeMessageSetting;
+    private WelcomeMessageBean welcomeMessageBean;
     private User author;
 
-    public WelcomeCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(event.getServer().get().getId());
+        author = event.getMessage().getUserAuthor().get();
+        welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
+        welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            welcomeMessageSetting = DBServerOld.getWelcomeMessageSettingFromServer(getLocale(), event.getServer().get());
-            author = event.getMessage().getUserAuthor().get();
-            checkWriteInChannelWithLog(welcomeMessageSetting.getWelcomeChannel());
-            checkWriteInChannelWithLog(welcomeMessageSetting.getFarewellChannel());
-            return Response.TRUE;
-        }
-
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 20) {
-                        welcomeMessageSetting.setTitle(inputString);
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        welcomeMessageBean.setWelcomeTitle(inputString);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
                         setState(0);
                         return Response.TRUE;
@@ -75,8 +76,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
             case 2:
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 500) {
-                        welcomeMessageSetting.setDescription(inputString);
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        welcomeMessageBean.setWelcomeText(inputString);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
                         setState(0);
                         return Response.TRUE;
@@ -94,8 +94,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     return Response.FALSE;
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
-                        welcomeMessageSetting.setWelcomeChannel(channelList.get(0));
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        welcomeMessageBean.setWelcomeChannelId(channelList.get(0).getId());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
@@ -138,8 +137,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
             case 6:
                 if (inputString.length() > 0) {
                     if (inputString.length() <= 500) {
-                        welcomeMessageSetting.setGoodbyeText(inputString);
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        welcomeMessageBean.setGoodbyeText(inputString);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
                         setState(0);
                         return Response.TRUE;
@@ -157,8 +155,7 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                     return Response.FALSE;
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
-                        welcomeMessageSetting.setFarewellChannel(channelList.get(0));
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
+                        welcomeMessageBean.setGoodbyeChannelId(channelList.get(0).getId());
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));
                         setState(0);
                         return Response.TRUE;
@@ -180,9 +177,8 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         return false;
 
                     case 0:
-                        welcomeMessageSetting.setActivated(!welcomeMessageSetting.isActivated());
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
-                        setLog(LogStatus.SUCCESS, getString("activateset", !welcomeMessageSetting.isActivated()));
+                        welcomeMessageBean.toggleWelcomeActive();
+                        setLog(LogStatus.SUCCESS, getString("activateset", !welcomeMessageBean.isWelcomeActive()));
                         return true;
 
                     case 1:
@@ -202,9 +198,8 @@ public class WelcomeCommand extends Command implements onNavigationListener {
                         return true;
 
                     case 5:
-                        welcomeMessageSetting.setGoodbye(!welcomeMessageSetting.isGoodbye());
-                        DBServerOld.saveWelcomeMessageSetting(welcomeMessageSetting);
-                        setLog(LogStatus.SUCCESS, getString("goodbyeset", !welcomeMessageSetting.isGoodbye()));
+                        welcomeMessageBean.toggleGoodbyeActive();
+                        setLog(LogStatus.SUCCESS, getString("goodbyeset", !welcomeMessageBean.isGoodbyeActive()));
                         return true;
 
                     case 6:
@@ -231,33 +226,35 @@ public class WelcomeCommand extends Command implements onNavigationListener {
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
-                        .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isActivated()), true)
-                       .addField(getString("state0_mtitle"), welcomeMessageSetting.getTitle(), true)
-                       .addField(getString("state0_mdescription"),
-                               replaceVariables(welcomeMessageSetting.getDescription(),
+                        .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
+                        .addField(getString("state0_mtitle"), welcomeMessageBean.getWelcomeTitle(), true)
+                        .addField(getString("state0_mdescription"),
+                               replaceVariables(welcomeMessageBean.getWelcomeText(),
                                        "`%SERVER`",
                                        "`%USER_MENTION`",
                                        "`%USER_NAME`",
                                        "`%USER_DISCRIMINATED`",
                                       "`%MEMBERS`"),
                                true)
-                       .addField(getString("state0_mchannel"),welcomeMessageSetting.getWelcomeChannel().getMentionTag(), true)
+                        .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
-                        .addField(getString("state0_mgoodbye"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageSetting.isGoodbye()), true)
-                       .addField(getString("state0_mgoodbyeText"),
-                               replaceVariables(welcomeMessageSetting.getGoodbyeText(),
+                        .addField(getString("state0_mgoodbye"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
+                        .addField(getString("state0_mgoodbyeText"),
+                               replaceVariables(welcomeMessageBean.getGoodbyeText(),
                                        "`%SERVER`",
                                        "`%USER_MENTION`",
                                        "`%USER_NAME`",
                                        "`%USER_DISCRIMINATED`",
                                        "`%MEMBERS`").replace("``", "` `"),
                                 true)
-                       .addField(getString("state0_mfarewellchannel"), welcomeMessageSetting.getFarewellChannel().getMentionTag(), true);
+                        .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(Mentionable::getMentionTag).orElse(notSet), true);
 
             default:
                 if (state == 5) {
@@ -277,16 +274,16 @@ public class WelcomeCommand extends Command implements onNavigationListener {
     }
 
     public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
-        Server server = welcomeMessageSetting.getServer();
+        Server server = welcomeMessageBean.getServer().get();
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setDescription(replaceVariables(welcomeMessageSetting.getDescription(),
+                .setDescription(replaceVariables(welcomeMessageBean.getWelcomeText(),
                         server.getName(),
                         user.getMentionTag(),
                         user.getName(),
                         user.getDiscriminatedName(),
                         StringTools.numToString(getLocale(), server.getMembers().size())));
 
-        eb.setImage(InternetTools.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageSetting.getTitle())).toString());
+        eb.setImage(InternetTools.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
         return eb;
     }
 

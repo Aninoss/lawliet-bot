@@ -1,7 +1,7 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
@@ -29,14 +29,10 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"qoute"}
 )
-public class QuoteCommand extends Command implements onRecievedListener {
-
-    public QuoteCommand() {
-        super();
-    }
+public class QuoteCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         return calculateResults(event.getMessage(),followedString);
     }
 

@@ -1,7 +1,7 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
@@ -22,14 +22,10 @@ import java.util.ArrayList;
         executable = true,
         aliases = {"triggered"}
 )
-public class TriggerCommand extends Command implements onRecievedListener {
-
-    public TriggerCommand() {
-        super();
-    }
+public class TriggerCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
         ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();

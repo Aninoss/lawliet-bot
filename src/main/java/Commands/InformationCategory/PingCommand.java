@@ -1,7 +1,7 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
@@ -23,10 +23,10 @@ import java.time.Instant;
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/arrow-refresh-4-icon.png",
         executable = false
 )
-public class PingCommand extends Command implements onRecievedListener {
+public class PingCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Instant startTime = event.getMessage().getCreationTimestamp();
         Message message = event.getServerTextChannel().get().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("pong_notime"))).get();
         Instant endTime = Instant.now();

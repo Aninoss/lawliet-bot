@@ -17,7 +17,6 @@ import Commands.Splatoon2Category.*;
 import General.ExceptionHandler;
 import org.javacord.api.DiscordApi;
 
-import java.time.Instant;
 import java.util.*;
 
 public class CommandContainer {
@@ -33,10 +32,8 @@ public class CommandContainer {
     private ArrayList<Command> commandsReaction;
     private ArrayList<Command> commandsMessageForward;
     private ArrayList<Class<? extends Command>> commandList;
-    private Instant lastCommandUsage;
 
     private CommandContainer() {
-        updateLastCommandUsage();
         commands = new HashMap<>();
         staticReactionAddCommands = new ArrayList<>();
         staticReactionRemoveCommands = new ArrayList<>();
@@ -62,7 +59,7 @@ public class CommandContainer {
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
         commandList.add(TrackerCommand.class);
-        commandList.add(ReactionRolesCommandListenerListener.class);
+        commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
@@ -82,7 +79,7 @@ public class CommandContainer {
         commandList.add(ChannelUnmuteCommand.class);
         commandList.add(SelfPromotionBlockCommand.class);
         commandList.add(BannedWordsCommand.class);
-        commandList.add(AutoKickCommand.class);
+        //commandList.add(AutoKickCommand.class);
         commandList.add(ClearCommand.class);
         commandList.add(FullClearCommand.class);
 
@@ -316,14 +313,6 @@ public class CommandContainer {
 
     public ArrayList<Class<? extends Command>> getCommandList() {
         return commandList;
-    }
-
-    public Instant getLastCommandUsage() {
-        return lastCommandUsage;
-    }
-
-    public void updateLastCommandUsage() {
-        lastCommandUsage = Instant.now();
     }
 
 }

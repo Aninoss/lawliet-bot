@@ -1,7 +1,9 @@
-package General;
+package General.Tools;
 
 import Constants.Language;
 import Constants.Settings;
+import General.DiscordApiCollection;
+import General.TextManager;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.message.Message;
 import org.jsoup.Jsoup;
@@ -182,7 +184,7 @@ public class StringTools {
                 .replaceAll("(?i)%ChannelID",message.getServerTextChannel().get().getIdAsString())
                 .replaceAll("(?i)%ServerID",message.getServer().get().getIdAsString())
                 .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
-                .replaceAll("(?i)%@Bot",DiscordApiCollection.getInstance().getYourself().getMentionTag())
+                .replaceAll("(?i)%@Bot", DiscordApiCollection.getInstance().getYourself().getMentionTag())
                 .replaceAll("(?i)%Prefix",prefix);
     }
 

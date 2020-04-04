@@ -1,7 +1,7 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"channelmute", "mute"}
 )
-public class ChannelMuteCommand extends Command implements onRecievedListener  {
+public class ChannelMuteCommand extends Command  {
 
     private boolean mute;
 
@@ -42,7 +42,7 @@ public class ChannelMuteCommand extends Command implements onRecievedListener  {
     }
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         Server server = message.getServer().get();
 

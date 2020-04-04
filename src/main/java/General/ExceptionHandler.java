@@ -1,5 +1,6 @@
 package General;
 
+import General.Tools.StringTools;
 import org.javacord.api.entity.channel.TextChannel;
 
 import java.io.IOException;

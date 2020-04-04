@@ -4,11 +4,13 @@ import Commands.FisheryCategory.SurveyCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
 import General.Porn.PornImageCache;
-import General.RunningCommands.RunningCommandManager;
+import CommandSupporters.RunningCommands.RunningCommandManager;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import MySQL.*;
 import MySQL.Server.DBServer;
 import ServerStuff.*;
-import General.Cooldown.Cooldown;
+import CommandSupporters.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
 import General.Survey.*;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -20,10 +22,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,29 +65,14 @@ public class Clock {
     }
 
     private static void onDayStart() {
-        ExceptionHandler.showInfoLog("1");
-
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-
-        ExceptionHandler.showInfoLog("2");
-
-        //Survey Results
-        Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_WEEK);
-        if (day == Calendar.MONDAY || day == Calendar.THURSDAY) updateSurvey();
-
-        ExceptionHandler.showInfoLog("3");
 
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
         RunningCommandManager.getInstance().clear(); //Resets Running Commands
         PornImageCache.getInstance().clearAll(); //Resets Porn Cache
 
-        ExceptionHandler.showInfoLog("4");
-
         DonationHandler.checkExpiredDonations(); //Check Expired Donations
-
-        ExceptionHandler.showInfoLog("5");
 
         //Send Bot Stats
         try {
@@ -107,7 +91,10 @@ public class Clock {
             e.printStackTrace();
         }
 
-        ExceptionHandler.showInfoLog("6");
+        //Survey Results
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        if (day == Calendar.MONDAY || day == Calendar.THURSDAY) updateSurvey();
     }
 
 
@@ -119,9 +106,6 @@ public class Clock {
 
         //Cleans Cooldown List
         Cooldown.getInstance().clean();
-
-        //Cleans Running Commands
-        RunningCommandManager.getInstance().clean();
 
         //Analyzes Traffic
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
@@ -265,7 +249,7 @@ public class Clock {
                         }
                     }
 
-                    slot.getUser().sendMessage(eb);
+                    slot.getUser().sendMessage(eb).get();
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }

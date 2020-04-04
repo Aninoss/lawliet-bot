@@ -1,11 +1,13 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.Settings;
 import General.*;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import General.Tracker.TrackerManager;
 import MySQL.DBBot;
 import MySQL.DBSurvey;
@@ -21,10 +23,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         executable = true,
         aliases = {"info"}
 )
-public class StatsCommand extends Command implements onRecievedListener {
+public class StatsCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         User dephord = DiscordApiCollection.getInstance().getUserById(303085910784737281L).get();
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,

@@ -1,7 +1,7 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
@@ -21,14 +21,10 @@ import java.util.Random;
     emoji = "\u270D\uFE0F️️",
     executable = true
 )
-public class KiraCommand extends Command implements onRecievedListener {
-
-    public KiraCommand() {
-        super();
-    }
+public class KiraCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
         ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();

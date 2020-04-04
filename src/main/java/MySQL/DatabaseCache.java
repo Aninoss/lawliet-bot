@@ -11,7 +11,6 @@ public class DatabaseCache {
     private static DatabaseCache ourInstance = new DatabaseCache();
     private Map<Long, ArrayList<Long>> powerPlantIgnoredChannels = new HashMap<>();
     private Map<Long, ArrayList<Long>> whiteListedChannels = new HashMap<>();
-    private Map<Long, ArrayList<String>> nsfwFilters = new HashMap<>();
     private Map<Long, Map<Long, FishingProfile>> fishingProfiles = new HashMap<>();
 
     public static DatabaseCache getInstance() {
@@ -38,14 +37,6 @@ public class DatabaseCache {
 
     public ArrayList<Long> getWhiteListedChannels(Server server) {
         return whiteListedChannels.get(server.getId());
-    }
-
-    public void setNSFWFilter(Server server, ArrayList<String> nsfwFilter) {
-        this.nsfwFilters.put(server.getId(), nsfwFilter);
-    }
-
-    public ArrayList<String> getNSFWFilter(Server server) {
-        return nsfwFilters.get(server.getId());
     }
 
     public FishingProfile getFishingProfile(long serverId, long userId) {

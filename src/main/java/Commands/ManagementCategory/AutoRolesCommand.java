@@ -38,14 +38,15 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     private NavigationHelper<Role> roleNavigationHelper;
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws IOException, ExecutionException {
-        if (firstTime) {
-            autoRolesBean = DBAutoRoles.getInstance().getBean(event.getServer().get().getId());
-            roleNavigationHelper = new NavigationHelper<>(this, autoRolesBean.getRoleIds().transform(roleId -> event.getServer().get().getRoleById(roleId)), Role.class, MAX_ROLES);
-            checkRolesWithLog(autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), event.getMessage().getUserAuthor().get());
-            return Response.TRUE;
-        }
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        autoRolesBean = DBAutoRoles.getInstance().getBean(event.getServer().get().getId());
+        roleNavigationHelper = new NavigationHelper<>(this, autoRolesBean.getRoleIds().transform(roleId -> event.getServer().get().getRoleById(roleId)), Role.class, MAX_ROLES);
+        checkRolesWithLog(autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), event.getMessage().getUserAuthor().get());
+        return true;
+    }
 
+    @Override
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws IOException, ExecutionException {
         if (state == 1) {
             List<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
             return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0, role -> autoRolesBean.getRoleIds().add(role.getId()));

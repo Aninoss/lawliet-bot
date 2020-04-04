@@ -9,6 +9,6 @@ public class Bot {
         return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
-    public static boolean hasUpdate() { /*return new File("update/Lawliet.jar").exists();*/ return true; }
+    public static boolean hasUpdate() { return new File("update/Lawliet.jar").exists(); }
 
 }

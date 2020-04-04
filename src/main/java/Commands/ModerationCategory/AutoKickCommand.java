@@ -6,11 +6,10 @@ import Constants.Permission;
 import General.EmbedFactory;
 import General.ExceptionHandler;
 import General.PermissionCheck;
-import General.StringTools;
+import General.Tools.StringTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -29,19 +28,15 @@ import java.util.concurrent.ExecutionException;
     thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png",
     executable = false
 )
-public class AutoKickCommand extends Command implements onRecievedListener, onReactionAddListener {
+public class AutoKickCommand extends Command implements onReactionAddListener {
     
     private int stage = 0;
     private Message message;
     private ArrayList<User> banList;
     private static ArrayList<Server> serverBlockList = new ArrayList<>();
 
-    public AutoKickCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (!serverBlockList.contains(event.getServer().get())) {
             if (followedString.length() > 0 && StringTools.stringIsInt(followedString) && Integer.parseInt(followedString) >= 1) {
                 serverBlockList.add(event.getServer().get());

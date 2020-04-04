@@ -1,6 +1,9 @@
 package General;
 
+import com.google.common.collect.UnmodifiableIterator;
+import com.sun.javafx.UnmodifiableArrayList;
 import com.sun.javafx.collections.ObservableListWrapper;
+import com.sun.javafx.collections.UnmodifiableListSet;
 import javafx.collections.ListChangeListener;
 import org.javacord.api.entity.permission.Role;
 
@@ -13,7 +16,7 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     private ArrayList<ListRemoveListener<T>> listRemoveListeners = new ArrayList<>();
     private ArrayList<ListUpdateListener<T>> listUpdateListeners = new ArrayList<>();
 
-    public CustomObservableList(List<T> list) {
+    public CustomObservableList(ArrayList<T> list) {
         super(list);
         list.forEach(value -> {
             if (value instanceof Observable) ((Observable) value).addObserver(this);

@@ -1,11 +1,11 @@
 package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.RandomTools;
-import General.StringTools;
+import General.Tools.RandomTools;
+import General.Tools.StringTools;
 import General.Internet.Internet;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -18,12 +18,12 @@ import java.util.ArrayList;
     emoji = "\uD83D\uDD1E",
     executable = true
 )
-public class GimmeHentaiCommand extends Command implements onRecievedListener {
+public class GimmeHentaiCommand extends Command {
     
     private static ArrayList<Integer> picked = new ArrayList<>();
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String hentaiText = null;
         int n = RandomTools.pickFullRandom(picked,10);
 

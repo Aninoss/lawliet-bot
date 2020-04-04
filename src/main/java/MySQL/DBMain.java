@@ -50,7 +50,6 @@ public class DBMain implements DriverAction {
         try {
             DBServerOld.synchronize(api);
             DBAutoChannel.getInstance().synchronize(api);
-            DBUser.synchronize(api);
             DBBot.startTrackers(api);
         } catch (Throwable e) {
             e.printStackTrace();

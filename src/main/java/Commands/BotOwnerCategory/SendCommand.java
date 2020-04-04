@@ -1,7 +1,7 @@
 package Commands.BotOwnerCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
@@ -17,14 +17,10 @@ import java.util.ArrayList;
     emoji = "\uD83D\uDDE8️",
     executable = false
 )
-public class SendCommand extends Command implements onRecievedListener {
-
-    public SendCommand() {
-        super();
-    }
+public class SendCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String[] split = followedString.split(" ");
         if (split.length < 2) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this));

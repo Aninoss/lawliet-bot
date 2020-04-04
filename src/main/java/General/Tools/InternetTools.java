@@ -1,5 +1,6 @@
-package General;
+package General.Tools;
 
+import General.DiscordApiCollection;
 import org.javacord.api.entity.message.Message;
 
 import java.io.InputStream;

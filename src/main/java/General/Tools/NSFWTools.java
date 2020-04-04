@@ -1,4 +1,4 @@
-package General;
+package General.Tools;
 
 import Constants.Settings;
 

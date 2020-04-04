@@ -2,6 +2,7 @@ package General;
 
 import Constants.Locales;
 import Constants.Settings;
+import General.Tools.StringTools;
 
 import java.io.IOException;
 import java.util.Locale;

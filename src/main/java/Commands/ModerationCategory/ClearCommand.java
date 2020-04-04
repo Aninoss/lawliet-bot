@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -23,14 +23,10 @@ import java.util.concurrent.ExecutionException;
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
     executable = false
 )
-public class ClearCommand extends Command implements onRecievedListener {
-
-    public ClearCommand() {
-        super();
-    }
+public class ClearCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.length() > 0 && StringTools.stringIsLong(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
             int count = Integer.parseInt(followedString);
             int deleted = 0;

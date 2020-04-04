@@ -1,27 +1,28 @@
 package Commands;
 
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import General.EmbedFactory;
-import General.NSFWTools;
+import General.Tools.NSFWTools;
 import General.Porn.PornImage;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
+import MySQL.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public abstract class PornAbstract extends Command implements onRecievedListener {
+public abstract class PornAbstract extends Command {
 
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        ArrayList<String> nsfwFilter = DBServerOld.getNSFWFilterFromServer(event.getServer().get());
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords());
         followedString = StringTools.defuseMassPing(NSFWTools.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
         long amount = 1;

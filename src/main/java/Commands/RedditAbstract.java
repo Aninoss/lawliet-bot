@@ -1,19 +1,20 @@
 package Commands;
 
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.*;
 import General.Reddit.RedditDownloader;
 import General.Reddit.RedditPost;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-public abstract class RedditAbstract extends Command implements onRecievedListener {
+public abstract class RedditAbstract extends Command {
 
     public abstract String getSubreddit();
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         RedditPost post;
 
         int tries = 5;

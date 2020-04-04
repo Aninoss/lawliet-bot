@@ -1,7 +1,7 @@
 package General.Survey;
 
 import Constants.Language;
-import General.StringTools;
+import General.Tools.StringTools;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
 

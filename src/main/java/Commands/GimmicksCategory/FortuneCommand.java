@@ -3,8 +3,7 @@ package Commands.GimmicksCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import General.EmbedFactory;
-import General.RandomTools;
-import General.StringTools;
+import General.Tools.RandomTools;
 import General.BotResources.ResourceManager;
 import General.TextManager;
 import org.javacord.api.entity.message.Message;
@@ -22,15 +21,12 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"question"}
 )
-public class FortuneCommand extends Command implements onRecievedListener {
+public class FortuneCommand extends Command {
+
     private static ArrayList<Integer> picked = new ArrayList<>();
 
-    public FortuneCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         if (followedString.length() > 0) {
             event.getChannel().sendMessage(getEmbed(message,followedString)).get();

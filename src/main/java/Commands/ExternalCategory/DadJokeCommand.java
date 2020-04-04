@@ -1,11 +1,12 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Language;
 import General.*;
 import General.Internet.Internet;
+import General.Tools.StringTools;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 
@@ -16,10 +17,10 @@ import org.json.JSONObject;
     thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Man-6-icon.png",
     executable = true
 )
-public class DadJokeCommand extends Command implements onRecievedListener {
+public class DadJokeCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String joke;
 
         if (StringTools.getLanguage(getLocale()) == Language.DE) {

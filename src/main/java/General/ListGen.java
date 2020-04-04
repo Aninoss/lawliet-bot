@@ -1,5 +1,7 @@
 package General;
 
+import General.Tools.StringTools;
+
 import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;

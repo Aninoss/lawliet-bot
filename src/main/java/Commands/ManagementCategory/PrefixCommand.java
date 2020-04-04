@@ -1,13 +1,13 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import MySQL.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -19,14 +19,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
     emoji = "\uD83D\uDCDB",
     executable = false
 )
-public class PrefixCommand extends Command implements onRecievedListener {
-
-    public PrefixCommand() {
-        super();
-    }
+public class PrefixCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 5) {

@@ -71,9 +71,11 @@ public class AutoChannelBean extends Observable {
     /* Setters */
 
     public void setParentChannelId(Long parentChannelId) {
-        this.parentChannelId = parentChannelId;
-        setChanged();
-        notifyObservers();
+        if (this.parentChannelId == null || !this.parentChannelId.equals(parentChannelId)) {
+            this.parentChannelId = parentChannelId;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void toggleActive() {
@@ -89,9 +91,11 @@ public class AutoChannelBean extends Observable {
     }
 
     public void setNameMask(String nameMask) {
-        this.nameMask = nameMask;
-        setChanged();
-        notifyObservers();
+        if (this.nameMask == null || !this.nameMask.equals(nameMask)) {
+            this.nameMask = nameMask;
+            setChanged();
+            notifyObservers();
+        }
     }
 
 }

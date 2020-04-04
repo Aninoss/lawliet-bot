@@ -1,7 +1,7 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
@@ -10,7 +10,7 @@ import General.AnimeNews.AnimeReleasePost;
 import General.EmbedFactory;
 import General.PostBundle;
 import General.TextManager;
-import General.StringTools;
+import General.Tools.StringTools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -24,10 +24,10 @@ import java.time.Instant;
     emoji = "\uD83D\uDCFA",
     executable = true
 )
-public class AnimeReleasesCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+public class AnimeReleasesCommand extends Command implements onTrackerRequestListener {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeReleasePost post = AnimeReleaseDownloader.getPost(getLocale());
         EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();

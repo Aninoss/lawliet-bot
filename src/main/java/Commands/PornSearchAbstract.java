@@ -1,14 +1,15 @@
 package Commands;
 
-import CommandListeners.onRecievedListener;
+
 import General.*;
 import General.Porn.PornImage;
 import General.Porn.PornImageDownloader;
+import General.Tools.NSFWTools;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-public abstract class PornSearchAbstract extends PornAbstract implements onRecievedListener {
+public abstract class PornSearchAbstract extends PornAbstract {
 
     private String notice = null;
 

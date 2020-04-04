@@ -1,7 +1,7 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Settings;
 import General.EmbedFactory;
@@ -15,10 +15,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         executable = true,
         aliases = {"giveaway"}
 )
-public class SignUpCommand extends Command implements onRecievedListener {
+public class SignUpCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean success = DBUser.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
         if (success) {

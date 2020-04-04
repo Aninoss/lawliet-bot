@@ -2,11 +2,12 @@ package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.onReactionAddListener;
-import CommandListeners.onRecievedListener;
+
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Settings;
 import General.*;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -26,7 +27,7 @@ import java.util.concurrent.ExecutionException;
         deleteOnTimeOut = false,
         aliases = {"bj"}
 )
-public class BlackjackCommand extends CasinoAbstract implements onRecievedListener, onReactionAddListener {
+public class BlackjackCommand extends CasinoAbstract implements onReactionAddListener {
 
     private String log;
     private LogStatus logStatus;
@@ -37,12 +38,8 @@ public class BlackjackCommand extends CasinoAbstract implements onRecievedListen
     private boolean block;
     private boolean finished;
 
-    public BlackjackCommand() {
-        super();
-    }
-
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
             winMultiplicator = 1;
             block = false;

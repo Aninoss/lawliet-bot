@@ -34,9 +34,9 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
     protected void saveBean(AutoRolesBean autoRolesBean) throws SQLException {}
 
     private ArrayList<Long> getRoleIds(long serverId) throws SQLException {
-        DBDataLoad<Long> dbDataLoad = new DBDataLoad<>("BasicRole", "roleId", "serverId = ?",
-                preparedStatement -> preparedStatement.setLong(1, serverId));
-        return dbDataLoad.getArrayList(resultSet -> resultSet.getLong(1));
+        return new DBDataLoad<Long>("BasicRole", "roleId", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addRoleId(long serverId, long roleId) {

@@ -35,18 +35,15 @@ public class WhiteListCommand extends Command implements onNavigationListener {
     private ArrayList<ServerTextChannel> channels;
     private NavigationHelper<ServerTextChannel> channelNavigationHelper;
 
-    public WhiteListCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        channels = DBServerOld.getWhiteListedChannels(event.getServer().get());
+        channelNavigationHelper = new NavigationHelper<>(this, channels, ServerTextChannel.class, MAX_CHANNELS);
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            channels = DBServerOld.getWhiteListedChannels(event.getServer().get());
-            channelNavigationHelper = new NavigationHelper<>(this, channels, ServerTextChannel.class, MAX_CHANNELS);
-            return Response.TRUE;
-        }
-
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
             return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0, channel -> {

@@ -1,7 +1,7 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Settings;
 import General.DiscordApiCollection;
@@ -20,12 +20,10 @@ import java.util.stream.Collectors;
         emoji = "\uD83D\uDCB8",
         executable = true
 )
-public class DonateCommand extends Command implements onRecievedListener {
-
-    public DonateCommand() { super(); }
+public class DonateCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder donators = new StringBuilder();
 
         for(DonatorBeanSlot donatorBean: DBDonators.getInstance().getBean().getMap().values().stream().filter(DonatorBeanSlot::isValid).collect(Collectors.toList())) {

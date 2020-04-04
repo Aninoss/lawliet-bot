@@ -7,6 +7,7 @@ import General.*;
 import General.PostBundle;
 import General.Reddit.RedditDownloader;
 import General.Reddit.RedditPost;
+import General.Tools.StringTools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -20,14 +21,10 @@ import java.time.Instant;
     emoji = "\uD83E\uDD16",
     executable = false
 )
-public class RedditCommand extends Command implements onRecievedListener, onTrackerRequestListener {
-
-    public RedditCommand() {
-        super();
-    }
+public class RedditCommand extends Command implements onTrackerRequestListener {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         followedString = StringTools.trimString(followedString);
         if (followedString.startsWith("r/")) followedString = followedString.substring(2);
 

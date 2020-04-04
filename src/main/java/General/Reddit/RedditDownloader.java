@@ -4,6 +4,8 @@ import General.*;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.PostBundle;
+import General.Tools.InternetTools;
+import General.Tools.StringTools;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.IOException;

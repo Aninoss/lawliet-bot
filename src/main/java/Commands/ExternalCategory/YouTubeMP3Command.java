@@ -1,10 +1,11 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import Constants.Permission;
 import General.*;
+import General.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -21,14 +22,10 @@ import java.util.Optional;
         executable = false,
         aliases = {"youtubemp3", "yt"}
 )
-public class YouTubeMP3Command extends Command implements onRecievedListener {
-
-    public YouTubeMP3Command() {
-        super();
-    }
+public class YouTubeMP3Command extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
 
         if (!followedString.isEmpty()) {
             Optional<String> videoIdOptional = YouTubeDownloader.getVideoID(followedString);

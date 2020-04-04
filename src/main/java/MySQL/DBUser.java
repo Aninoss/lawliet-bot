@@ -6,6 +6,7 @@ import Constants.Settings;
 import General.*;
 import General.Fishing.FishingSlot;
 import General.Fishing.FishingProfile;
+import General.Tools.StringTools;
 import MySQL.Server.DBServer;
 import MySQL.Server.ServerBean;
 import org.javacord.api.DiscordApi;
@@ -25,86 +26,8 @@ import java.util.concurrent.ExecutionException;
 
 public class DBUser {
 
-    public static void synchronize(DiscordApi api) {
-        if (!Bot.isDebug()) {
-            System.out.printf("Users of shard %d are getting synchronized...\n", api.getCurrentShard());
-
-            Thread t = new Thread(() -> {
-                ArrayList<Long> userList = new ArrayList<>();
-
-                for (Server server : api.getServers()) {
-                    for (User user : server.getMembers()) {
-                        long id = user.getId();
-                        if (!userList.contains(id)) userList.add(id);
-                    }
-                }
-
-                try {
-                    Statement statement = DBMain.getInstance().statement("SELECT userId FROM DUser;");
-                    ResultSet resultSet = statement.getResultSet();
-
-                    while (resultSet.next()) {
-                        long id = resultSet.getLong(1);
-                        userList.remove(id);
-                    }
-
-                    resultSet.close();
-                    statement.close();
-
-                    //Fügt fehlende DB-Einträge hinzu
-                    insertUserIds(userList);
-
-                    System.out.printf("Users synchronization of shard %d finished!\n", api.getCurrentShard());
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            });
-
-            t.setName("synchr_user_" + api.getCurrentShard());
-            t.start();
-        }
-    }
-
-    public static void insertUsers(Collection<User> users) throws SQLException {
-        insertUsers(new ArrayList<>(users));
-    }
-
-    public static void insertUsers(ArrayList<User> users) throws SQLException {
-        if (users.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (User user : users) {
-                sb.append("INSERT IGNORE INTO DUser (userId) VALUES (").append(user.getIdAsString()).append("); ");
-            }
-
-            Statement statement = DBMain.getInstance().statement(sb.toString());
-            statement.close();
-        }
-    }
-
-    public static void insertUserIds(ArrayList<Long> userIds) throws SQLException {
-        if (userIds.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (long id: userIds) {
-                sb.append("INSERT IGNORE INTO DUser (userId) VALUES (").append(id).append("); ");
-            }
-
-            Statement statement = DBMain.getInstance().statement(sb.toString());
-            statement.close();
-        }
-    }
-
-    public static void insertUser(User user) throws SQLException {
-        insertUser(user.getId());
-    }
-
-    public static void insertUser(long userId) throws SQLException {
-        ArrayList<Long> users = new ArrayList<>();
-        users.add(userId);
-        insertUserIds(users);
-    }
-
     public static void addMessageSingle(long serverId, long userId, ActivityUserData activityUserData) throws SQLException {
-        StringBuilder sql = new StringBuilder("INSERT IGNORE INTO DUser (userId) VALUES (%user);\n");
+        StringBuilder sql = new StringBuilder();
 
         if (activityUserData.getAmountMessage() > 0) sql.append("SET @add = (SELECT (getValueForCategory(%category0, %server, %user) * categoryEffect * %multi0) FROM PowerPlantCategories WHERE categoryId = %category0);\n");
         if (activityUserData.getAmountVC() > 0) sql.append("SET @add = (SELECT (getValueForCategory(%category1, %server, %user) * categoryEffect * %multi1) FROM PowerPlantCategories WHERE categoryId = %category1);\n");
@@ -448,7 +371,6 @@ public class DBUser {
     }
 
     public static void increaseUpvotesUnclaimed(long userId, int amount) throws SQLException {
-        insertUser(userId);
         String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';" +
                 "INSERT INTO Upvotes (userId) VALUES (?) ON DUPLICATE KEY UPDATE lastDate = NOW();";
 

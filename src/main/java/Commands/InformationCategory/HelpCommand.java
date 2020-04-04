@@ -8,6 +8,7 @@ import Constants.*;
 import General.*;
 import General.EmojiConnection.BackEmojiConnection;
 import General.EmojiConnection.EmojiConnection;
+import General.Tools.StringTools;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -33,20 +34,15 @@ public class HelpCommand extends Command implements onNavigationListener {
     private String searchTerm;
     private MessageCreateEvent authorEvent;
 
-    public HelpCommand() {
-        super();
+    @Override
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        searchTerm = followedString;
+        authorEvent = event;
+        return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state, boolean firstTime) throws Throwable {
-        if (firstTime) {
-            searchTerm = inputString;
-            authorEvent = event;
-            return Response.TRUE;
-        }
-
-        return null;
-    }
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable { return null; }
 
     @Override
     public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {

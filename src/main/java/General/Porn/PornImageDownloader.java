@@ -1,9 +1,12 @@
 package General.Porn;
 
 import General.*;
-import General.Internet.Internet;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
+import General.Tools.InternetTools;
+import General.Tools.NSFWTools;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

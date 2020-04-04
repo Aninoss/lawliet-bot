@@ -5,6 +5,7 @@ import Commands.ListAbstract;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import General.*;
+import General.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.Server.DBServer;
 import javafx.util.Pair;
@@ -21,12 +22,12 @@ import java.util.ArrayList;
         executable = true,
         aliases = {"rankings", "ranking", "rank", "ranks", "leaderboard"}
 )
-public class TopCommand extends ListAbstract implements onRecievedListener {
+public class TopCommand extends ListAbstract {
 
     private ArrayList<RankingSlot> rankingSlots;
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             rankingSlots = DBServerOld.getPowerPlantRankings(event.getServer().get());

@@ -1,13 +1,13 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onRecievedListener;
+
 import CommandSupporters.Command;
 import General.EmbedFactory;
 import General.Mention.MentionTools;
 import General.TextManager;
-import General.StringTools;
-import General.TimeTools;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import General.Warnings.UserWarnings;
 import General.Warnings.WarningSlot;
 import MySQL.DBServerOld;
@@ -26,14 +26,10 @@ import java.util.Optional;
         emoji = "\uD83D\uDCDD",
         executable = true
 )
-public class WarnLogCommand extends Command implements onRecievedListener {
-
-    public WarnLogCommand() {
-        super();
-    }
+public class WarnLogCommand extends Command {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
         ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();

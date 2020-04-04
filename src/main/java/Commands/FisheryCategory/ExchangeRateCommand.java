@@ -4,6 +4,8 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import General.*;
+import General.Tools.StringTools;
+import General.Tools.TimeTools;
 import General.Tracker.TrackerData;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -21,10 +23,10 @@ import java.time.Instant;
         executable = true,
         aliases = {"exchangerate", "er", "exchr"}
 )
-public class ExchangeRateCommand extends Command implements onRecievedListener, onTrackerRequestListener {
+public class ExchangeRateCommand extends Command implements onTrackerRequestListener {
 
     @Override
-    public boolean onReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
         EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();

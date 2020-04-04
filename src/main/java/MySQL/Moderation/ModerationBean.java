@@ -76,16 +76,12 @@ public class ModerationBean extends Observable {
 
     /* Setters */
 
-    public void setServerBean(ServerBean serverBean) {
-        this.serverBean = serverBean;
-        setChanged();
-        notifyObservers();
-    }
-
     public void setAnnouncementChannelId(Long announcementChannelId) {
-        this.announcementChannelId = announcementChannelId;
-        setChanged();
-        notifyObservers();
+        if (this.announcementChannelId == null || !this.announcementChannelId.equals(announcementChannelId)) {
+            this.announcementChannelId = announcementChannelId;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void toggleQuestion() {
@@ -95,17 +91,21 @@ public class ModerationBean extends Observable {
     }
 
     public void setAutoKick(int autoKick, int autoKickDays) {
-        this.autoKick = autoKick;
-        this.autoKickDays = autoKickDays;
-        setChanged();
-        notifyObservers();
+        if (this.autoKick != autoKick || this.autoKickDays != autoKickDays) {
+            this.autoKick = autoKick;
+            this.autoKickDays = autoKickDays;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void setAutoBan(int autoBan, int autoBanDays) {
-        this.autoBan = autoBan;
-        this.autoBanDays = autoBanDays;
-        setChanged();
-        notifyObservers();
+        if (this.autoBan != autoBan || this.autoBanDays != autoBanDays) {
+            this.autoBan = autoBan;
+            this.autoBanDays = autoBanDays;
+            setChanged();
+            notifyObservers();
+        }
     }
 
 }

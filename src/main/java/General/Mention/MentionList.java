@@ -1,5 +1,5 @@
 package General.Mention;
-import General.StringTools;
+import General.Tools.StringTools;
 
 import java.util.ArrayList;
 
