@@ -149,7 +149,7 @@ public class VoteCommand extends Command implements onReactionAddStaticListener,
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
         removeEmoteIfNotSupported(message, event);
         if (message.getEmbeds().size() == 0) return;
 

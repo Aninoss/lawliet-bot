@@ -4,26 +4,19 @@ import java.util.ArrayList;
 
 public class PornImageCacheSearchKey {
 
-    private String searchKey;
-    private ArrayList<String> imageURLs;
-
-    public PornImageCacheSearchKey(String searchKey) {
-        this.searchKey = searchKey;
-        this.imageURLs = new ArrayList<>();
-    }
+    private ArrayList<String> imageURLs = new ArrayList<>();
 
     public boolean contains(String imageURL) {
         return imageURLs.contains(imageURL);
     }
 
-    public synchronized void add(String imageURL, int max) {
-        if (!contains(imageURL)) imageURLs.add(imageURL);
-        while (imageURLs.size() > max) {
-            imageURLs.remove(0);
-        }
+    public synchronized void trim(int maxSize) {
+        while (imageURLs.size() > maxSize) imageURLs.remove(0);
     }
 
-    public String getSearchKey() {
-        return searchKey;
+    public synchronized void add(String imageURL) {
+        imageURLs.remove(imageURL);
+        imageURLs.add(imageURL);
     }
+
 }

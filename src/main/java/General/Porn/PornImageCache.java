@@ -1,49 +1,34 @@
 package General.Porn;
 
-import java.util.ArrayList;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import java.util.concurrent.ExecutionException;
 
 public class PornImageCache {
 
     private static PornImageCache ourInstance = new PornImageCache();
-    private ArrayList<PornImageCacheSearchKey> searchKeys;
-    private final int MAX = 20;
+    public static PornImageCache getInstance() { return ourInstance; }
+    private PornImageCache() {}
 
-    public static PornImageCache getInstance() {
-        return ourInstance;
+    private LoadingCache<String, PornImageCacheSearchKey> cache = CacheBuilder.newBuilder()
+            .maximumSize(50)
+            .build(
+            new CacheLoader<String, PornImageCacheSearchKey>() {
+                @Override
+                public PornImageCacheSearchKey load(@NonNull String searchKey) {
+                    return new PornImageCacheSearchKey();
+                }
+            }
+    );
+
+    public PornImageCacheSearchKey get(@NonNull String domain, @NonNull String searchKey) throws ExecutionException {
+        return cache.get(domain + "|" + searchKey.toLowerCase());
     }
 
-    private PornImageCache() {
-        searchKeys = new ArrayList<>();
-    }
-
-    public boolean contains(String searchKeyString, String imageURL) {
-        return find(searchKeyString).contains(imageURL);
-    }
-
-    public void add(String searchKeyString, String imageURL, int max) {
-        find(searchKeyString).add(imageURL, max);
-    }
-
-    public void clear(String searchKeyString) {
-        searchKeys.removeIf(searchKey -> searchKey.getSearchKey().equals(searchKeyString));
-    }
-
-    public void clearAll() {
-        searchKeys = new ArrayList<>();
-    }
-
-    private PornImageCacheSearchKey find(String searchKeyString) {
-        for(PornImageCacheSearchKey searchKey: searchKeys) {
-            if (searchKey.getSearchKey().equals(searchKeyString)) return searchKey;
-        }
-
-        PornImageCacheSearchKey searchKey = new PornImageCacheSearchKey(searchKeyString);
-        searchKeys.add(searchKey);
-        while(searchKeys.size() > MAX) {
-            searchKeys.remove(0);
-        }
-
-        return searchKey;
+    public void reset() {
+        cache.invalidateAll();
     }
 
 }

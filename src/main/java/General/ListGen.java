@@ -12,8 +12,6 @@ public class ListGen<T> {
     public static final int SLOT_TYPE_BULLET = 1;
     public static final int SLOT_TYPE_NUMBERED = 2;
 
-    public ListGen() { }
-
     public String getList(Collection<T> objs, Locale locale, Function<T, String> getNames) {
         return getList(objs, locale, SLOT_TYPE_NONE, getNames);
     }

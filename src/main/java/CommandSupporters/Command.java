@@ -2,6 +2,7 @@ package CommandSupporters;
 
 import CommandListeners.*;
 import CommandListeners.CommandProperties;
+import Commands.InformationCategory.HelpCommand;
 import Constants.*;
 import General.*;
 import General.EmojiConnection.EmojiConnection;
@@ -131,7 +132,8 @@ public abstract class Command {
             starterMessage = event.getMessage();
             reactionUserID = starterMessage.getUserAuthor().get().getId();
             ServerTextChannel channel = event.getServerTextChannel().get();
-            if(!channel.canYouWrite() || !channel.canYouAddNewReactions() || !channel.canYouEmbedLinks()) navigationPrivateMessage = true;
+
+            if (this instanceof HelpCommand && (!channel.canYouWrite() || !channel.canYouAddNewReactions() || !channel.canYouEmbedLinks())) navigationPrivateMessage = true;
         }
         lastUserMessage = event.getMessage();
         if (commandProperties.withLoadingBar()) addLoadingReaction();
@@ -479,7 +481,7 @@ public abstract class Command {
 
     public boolean checkManageChannelWithLog(ServerChannel channel) {
         if (PermissionCheck.botHasChannelPermission(channel, PermissionType.MANAGE_CHANNELS)) return true;
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", "#"+channel.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.asTextChannel().isPresent() ? "#" : "") +channel.getName()));
         return false;
     }
 
@@ -559,7 +561,7 @@ public abstract class Command {
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStaticListener) {
-            perm |= Permission.ADD_REACTIONS;
+            perm |= Permission.ADD_REACTIONS | Permission.READ_MESSAGE_HISTORY;
         }
         if (this instanceof onReactionAddStaticListener) {
             perm |= Permission.READ_MESSAGE_HISTORY;
@@ -580,6 +582,15 @@ public abstract class Command {
 
     public Thread getThread() {
         return thread;
+    }
+
+    public static String getTrigger(Class<? extends Command> c) {
+        try {
+            return CommandManager.createCommandByClass(c).getTrigger();
+        } catch (IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+        return "???";
     }
 
 }

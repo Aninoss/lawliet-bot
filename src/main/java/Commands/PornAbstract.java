@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public abstract class PornAbstract extends Command {
 
-    public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable;
+    public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
 
     @Override
@@ -48,21 +48,21 @@ public abstract class PornAbstract extends Command {
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
         do {
-            ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount));
+            ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount), usedResults);
 
-            if (pornImages.stream().anyMatch(porn -> usedResults.contains(porn.getImageUrl()))) break;
-            usedResults.addAll(pornImages.stream().map(PornImage::getImageUrl).collect(Collectors.toList()));
-
-            if (first && pornImages.size() == 0) {
-                if (event.getChannel().canYouEmbedLinks()) {
-                    EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                            .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
-                    event.getChannel().sendMessage(eb).get();
-                } else {
-                    event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString)).get();
-                }
-                return false;
+            if (pornImages.size() == 0) {
+                if (first) {
+                    String key = this instanceof PornSearchAbstract ? "no_results_description" : "no_results_description_unspecific";
+                    if (event.getChannel().canYouEmbedLinks()) {
+                        EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                                .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, key, followedString));
+                        event.getChannel().sendMessage(eb).get();
+                    } else {
+                        event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, key, followedString)).get();
+                    }
+                    return false;
+                } else return true;
             }
 
             if (first && pornImages.size() == 1 && !pornImages.get(0).isVideo() && event.getChannel().canYouEmbedLinks()) {
@@ -70,7 +70,7 @@ public abstract class PornAbstract extends Command {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link", pornImage.getPageUrl()))
                         .setImage(pornImage.getImageUrl())
                         .setTimestamp(pornImage.getInstant())
-                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", StringTools.numToString(getLocale(), pornImage.getScore()), StringTools.numToString(getLocale(), pornImage.getnComments())));
+                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", StringTools.numToString(getLocale(), pornImage.getScore()), StringTools.numToString(getLocale(), pornImage.getComments())));
 
                 getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
                 event.getChannel().sendMessage(eb).get();
@@ -93,28 +93,14 @@ public abstract class PornAbstract extends Command {
         return true;
     }
 
-    protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly) {
+    protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, ArrayList<String> usedResults) {
         ArrayList<Thread> threads = new ArrayList<>();
         ArrayList<PornImage> pornImages = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
             Thread t = new Thread(() -> {
-                int tries = 5;
-                PornImage pornImage = null;
                 try {
-                    while(tries > 0) {
-                        pornImage = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter);
-                        PornImage finalPornImage = pornImage;
-
-                        synchronized (pornImages) {
-                            if (pornImage == null || pornImages.stream().anyMatch(pi -> pi.getImageUrl().equals(finalPornImage.getImageUrl()))) {
-                                tries--;
-                            } else {
-                                pornImages.add(pornImage);
-                                break;
-                            }
-                        }
-                    }
+                    PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter, usedResults).ifPresent(pornImages::add);
                 } catch (IOException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }

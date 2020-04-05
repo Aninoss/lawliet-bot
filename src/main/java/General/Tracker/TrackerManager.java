@@ -3,6 +3,7 @@ package General.Tracker;
 import CommandListeners.onTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
+import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
 import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
@@ -43,7 +44,7 @@ public class TrackerManager {
                 if (!channelOptional.isPresent()) return;
 
                 while(true) {
-                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, trackerData.getCommand(), channelOptional.get(),  Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+                    if (!PermissionCheckRuntime.getInstance().botHasPermission(locale, TrackerCommand.class, channelOptional.get(),  Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                         Thread.sleep(60 * 60 * 1000);
                     } else break;
                 }

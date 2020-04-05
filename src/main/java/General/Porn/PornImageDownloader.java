@@ -14,16 +14,17 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class PornImageDownloader {
 
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
-        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, 2, false, additionalFilters);
+    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
+        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, 2, false, additionalFilters, usedResults);
     }
 
-    public static PornImage getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, int remaining, boolean softMode, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
+    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, int remaining, boolean softMode, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
         while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
@@ -46,107 +47,91 @@ public class PornImageDownloader {
             ExceptionHandler.showErrorLog("Error for search key " + searchTerm);
             throw e;
         }
+
         if (count == 0) {
             if (!softMode) {
-                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining, true, additionalFilters);
+                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining, true, additionalFilters, usedResults);
             } else if (remaining > 0) {
                 if (searchTerm.contains(" "))
-                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining - 1, false, additionalFilters);
+                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining - 1, false, additionalFilters, usedResults);
                 else if (searchTerm.contains("_"))
-                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining - 1, false, additionalFilters);
+                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining - 1, false, additionalFilters, usedResults);
             }
 
-            return null;
+            return Optional.empty();
         }
 
         Random r = new Random();
         int page = r.nextInt(count)/100;
         if (searchTermEncoded.length() == 0) page = 0;
 
-        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, animatedOnly, canBeVideo, additionalFilters);
+        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, animatedOnly, canBeVideo, additionalFilters, usedResults);
     }
 
-    private static PornImage getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters) throws IOException, InterruptedException, ExecutionException {
-        String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&json=1&tags="+searchTerm+"&pid="+page;
+    private static Optional<PornImage> getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws InterruptedException, ExecutionException {
+        String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&json=1&tags=" + searchTerm + "&pid=" + page;
         InternetResponse internetResponse = InternetCache.getData(url, 60 * 60).get();
 
-        if (!internetResponse.getContent().isPresent()) return null;
+        if (!internetResponse.getContent().isPresent()) {
+            return Optional.empty();
+        }
 
         JSONArray data = new JSONArray(internetResponse.getContent().get());
 
         int count = Math.min(data.length(), 100);
-        int count2 = 0;
-
         if (count == 0) {
-            return null;
+            return Optional.empty();
         }
 
-        Random r = new Random();
-        ArrayList<Long> scoreList = new ArrayList<>();
-        ArrayList<Integer> posList = new ArrayList<>();
-        long totalScore = 0;
+        ArrayList<PornImageMeta> pornImages = new ArrayList<>();
+
         for (int i = 0; i < count; i++) {
             JSONObject postData = data.getJSONObject(i);
-            String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
+            String imageUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
 
-            long score = 0;
-            boolean postIsImage = InternetTools.urlContainsImage(fileUrl);
-            boolean postIsGif = fileUrl.endsWith("gif");
+            long score = 1;
+            boolean postIsImage = InternetTools.urlContainsImage(imageUrl);
+            boolean postIsGif = imageUrl.endsWith("gif");
 
-            long scoreTmp = 1;
             try {
-                scoreTmp = (long) Math.pow(postData.getInt("score") + 1, 2.75) * (postIsGif ? 3 : 1);
+                score = postData.getInt("score");
             } catch (JSONException e) {
                 //Ignore
             }
 
-            if ((postIsImage || canBeVideo) && (!animatedOnly || postIsGif || !postIsImage) && scoreTmp >= 0 && !NSFWTools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)) {
-                count2++;
-                if (!PornImageCache.getInstance().contains(searchTerm, fileUrl)) {
-                    score = scoreTmp;
-                }
-            }
-
-            scoreList.add(score);
-            posList.add(i);
-            totalScore += score;
-        }
-
-        if (scoreList.size() == 0) return null;
-
-        long pos = (long) (r.nextDouble() * totalScore);
-        for(int i = 0; i < scoreList.size(); i++) {
-            pos -= scoreList.get(i);
-            if (pos < 0) {
-                JSONObject postData = data.getJSONObject(posList.get(i));
-                String fileUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
-                PornImageCache.getInstance().add(searchTerm, fileUrl, count2 - 1);
-                return getSpecificPictureOnPage(domain, data, posList.get(i), imageTemplate);
+            if ((postIsImage || canBeVideo) &&
+                    (!animatedOnly || postIsGif || !postIsImage) &&
+                    score >= 0 &&
+                    !NSFWTools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)
+            ) {
+                pornImages.add(new PornImageMeta(imageUrl, score, i));
             }
         }
 
-        PornImageCache.getInstance().clear(searchTerm);
-        return null;
+        return Optional.ofNullable(PornFilter.filter(domain, searchTerm, pornImages, usedResults))
+                .map(pornImageMeta -> {
+                    try {
+                        return getSpecificPictureOnPage(domain, data.getJSONObject(pornImageMeta.getIndex()), imageTemplate);
+                    } catch (IOException | InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
     }
 
-    private static PornImage getSpecificPictureOnPage(String domain, JSONArray data, int pos, String imageTemplate) throws IOException, InterruptedException, ExecutionException {
-        JSONObject postData = data.getJSONObject(pos);
-
+    private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) throws IOException, InterruptedException, ExecutionException {
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
         String commentURL = "https://"+domain+"/index.php?page=dapi&s=comment&q=index&post_id=" + postData.getInt("id");
 
         String commentsDataString = InternetCache.getData(commentURL , 60 * 60).get().getContent().get();
 
-        ArrayList<Comment> comments = new ArrayList<>();
+        int comments = 0;
         while(commentsDataString.contains("creator=\"")) {
-            String author = StringTools.decryptString(StringTools.extractGroups(commentsDataString, "creator=\"", "\"")[0]);
-            String content = StringTools.decryptString(StringTools.extractGroups(commentsDataString, "body=\"", "\"")[0]).replace("[spoiler]", "||").replace("[/spoiler]", "||");
             commentsDataString = commentsDataString.replaceFirst("creator=\"", "").replaceFirst("body=\"", "");
-            comments.add(new Comment(author, content));
+            comments++;
         }
 
         Instant instant;
-
         if (postData.has("created_at")) {
             instant = TimeTools.parseDateString(postData.getString("created_at"));
         } else instant = Instant.now();
@@ -164,6 +149,6 @@ public class PornImageDownloader {
             //Ignore
         }
 
-        return new PornImage(fileURL, postURL, comments, score, comments.size(), instant, !InternetTools.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
+        return new PornImage(fileURL, postURL, score, comments, instant, !InternetTools.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
 }

@@ -35,7 +35,7 @@ public class ServerMemberLeaveListener {
             WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
             if (welcomeMessageBean.isGoodbyeActive()) {
                 welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
-                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
                         User user = event.getUser();
                         try {
                             channel.sendMessage(
@@ -63,7 +63,7 @@ public class ServerMemberLeaveListener {
         //Member Count Stats
         try {
             MemberCountDisplayCommand.manage(locale, server);
-        } catch (SQLException | ExecutionException | InterruptedException e) {
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
     }

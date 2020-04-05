@@ -1,5 +1,6 @@
 package General;
 
+import CommandSupporters.Command;
 import Constants.Permission;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -7,6 +8,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -22,15 +24,15 @@ public class PermissionCheckRuntime {
         return instance;
     }
 
-    public boolean botHasPermission(Locale locale, String commandTrigger, Server server, int permissions) {
-        return botHasPermission(locale, commandTrigger, server, null, permissions);
+    public boolean botHasPermission(Locale locale, Class<? extends Command> c, Server server, int permissions) {
+        return botHasPermission(locale, c, server, null, permissions);
     }
 
-    public boolean botHasPermission(Locale locale, String commandTrigger, ServerChannel channel, int permissions) {
-        return botHasPermission(locale, commandTrigger, channel.getServer(), channel, permissions);
+    public boolean botHasPermission(Locale locale, Class<? extends Command> c, ServerChannel channel, int permissions) {
+        return botHasPermission(locale, c, channel.getServer(), channel, permissions);
     }
 
-    private boolean botHasPermission(Locale locale, String commandTrigger, Server server, ServerChannel channel, int permissions) {
+    private boolean botHasPermission(Locale locale, Class<? extends Command> c, Server server, ServerChannel channel, int permissions) {
         ArrayList<Integer> missingPermissions = PermissionCheck.getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), permissions);
 
         if (missingPermissions.size() == 0) return true;
@@ -40,7 +42,7 @@ public class PermissionCheckRuntime {
                 String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**");
                 EmbedBuilder eb = EmbedFactory.getEmbedError();
                 eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
-                eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, commandTrigger, channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
+                eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getTrigger(c), channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
 
                 server.getOwner().sendMessage(eb);
             } catch (IOException e) {
@@ -52,11 +54,11 @@ public class PermissionCheckRuntime {
         return false;
     }
 
-    public boolean botCanManageRoles(Locale locale, String commandTrigger, List<Role> roles) {
-        return botCanManageRoles(locale, commandTrigger, roles.toArray(new Role[0]));
+    public boolean botCanManageRoles(Locale locale, Class<? extends Command> c, List<Role> roles) {
+        return botCanManageRoles(locale, c, roles.toArray(new Role[0]));
     }
 
-    public boolean botCanManageRoles(Locale locale, String commandTrigger, Role... roles) {
+    public boolean botCanManageRoles(Locale locale, Class<? extends Command> c, Role... roles) {
         ArrayList<Role> unreachableRoles = new ArrayList<>();
 
         for(Role role: roles) {
@@ -66,11 +68,11 @@ public class PermissionCheckRuntime {
         if (unreachableRoles.size() == 0) return true;
 
         Server server = roles[0].getServer();
-        if (botHasPermission(locale, commandTrigger, server, Permission.MANAGE_ROLES) && canPostError(server, PERMISSION_ROLE_POS) && canContactOwner(server)) {
+        if (botHasPermission(locale, c, server, Permission.MANAGE_ROLES) && canPostError(server, PERMISSION_ROLE_POS) && canContactOwner(server)) {
             String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> "**@"+role.getName()+"**");
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
-            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", commandTrigger, rolesList));
+            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getTrigger(c), rolesList));
 
             server.getOwner().sendMessage(eb);
             setErrorInstant(server, PERMISSION_ROLE_POS);
@@ -85,7 +87,7 @@ public class PermissionCheckRuntime {
 
     private boolean canPostError(Server server, int permission) {
         Instant instant = errorTimes.computeIfAbsent(server.getId(), k -> new HashMap<>()).get(permission);
-        return instant == null || instant.plusSeconds(60 * 60).isBefore(Instant.now());
+        return instant == null || instant.plus(2, ChronoUnit.HOURS).isBefore(Instant.now());
     }
 
     private void setErrorInstant(Server server, int permission) {

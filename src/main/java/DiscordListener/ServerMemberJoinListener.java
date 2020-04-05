@@ -1,4 +1,6 @@
 package DiscordListener;
+import Commands.FisheryCategory.FisheryCommand;
+import Commands.ManagementCategory.AutoRolesCommand;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.FishingCategoryInterface;
@@ -37,7 +39,7 @@ public class ServerMemberJoinListener {
             WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
             if (welcomeMessageBean.isWelcomeActive()) {
                 welcomeMessageBean.getWelcomeChannel().ifPresent(channel -> {
-                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "welcome", channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
                         InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
                         User user = event.getUser();
 
@@ -85,7 +87,7 @@ public class ServerMemberJoinListener {
         //Member Count Stats
         try {
             MemberCountDisplayCommand.manage(locale, server);
-        } catch (SQLException | ExecutionException | InterruptedException e) {
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
 
@@ -99,11 +101,11 @@ public class ServerMemberJoinListener {
 
                 if (serverBean.isFisherySingleRoles()) {
                     Role role = roles.get(level - 1);
-                    if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "fishery", role)) role.addUser(event.getUser()).get();
+                    if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) role.addUser(event.getUser()).get();
                 } else {
                     for (int i = 0; i <= level - 1; i++) {
                         Role role = roles.get(i);
-                        if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "fishery", role)) role.addUser(event.getUser()).get();
+                        if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) role.addUser(event.getUser()).get();
                     }
                 }
             }
@@ -114,7 +116,7 @@ public class ServerMemberJoinListener {
         //Automatisiere Rollenvergabe
         try {
             for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById)) {
-                if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, "autoroles", role)) event.getUser().addRole(role).get();
+                if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) event.getUser().addRole(role).get();
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

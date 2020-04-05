@@ -25,7 +25,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable {
+    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable {
         if (!search.isEmpty()) notice = TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_keyforbidden");
 
         search = getSearchKey();
@@ -34,7 +34,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
         String domain = getDomain();
         String imageTemplate = getImageTemplate();
 
-        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly);
+        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly, usedResults);
     }
 
 }

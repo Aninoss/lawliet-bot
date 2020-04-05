@@ -255,7 +255,7 @@ public class CommandManager {
 
 
     public static Command createCommandByClass(Class<? extends Command> clazz) throws IllegalAccessException, InstantiationException {
-        return (Command) clazz.newInstance();
+        return clazz.newInstance();
     }
 
     public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale) throws IllegalAccessException, InstantiationException {

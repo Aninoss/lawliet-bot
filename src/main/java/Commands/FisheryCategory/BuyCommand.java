@@ -101,7 +101,7 @@ public class BuyCommand extends Command implements onNavigationListener {
                             roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
 
                             Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
-                            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+                            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                                 String announcementText = getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
                                 announcementChannelOpt.get().sendMessage(StringTools.defuseMassPing(announcementText)).get();
                             }

@@ -29,7 +29,9 @@ public class VoiceChannelMemberJoinListener {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
-            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), "autochannel", event.getServer(), Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS) &&
+                    (!event.getChannel().getCategory().isPresent() || PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), Permission.MANAGE_CHANNELS_ON_SERVER))
+            ) {
                 int n = 1;
 
                 for (int i = 0; i < 50; i++) {
@@ -61,10 +63,14 @@ public class VoiceChannelMemberJoinListener {
                 for (Map.Entry<Role, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
                     vcb.addPermissionOverwrite(entry.getKey(), entry.getValue());
                 }
-                if (botPermission == null)
-                    botPermission = new PermissionsBuilder().setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED).build();
-                else
-                    botPermission.toBuilder().setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED).build();
+
+                PermissionsBuilder botPermsBuilder;
+                if (botPermission == null) botPermsBuilder = new PermissionsBuilder();
+                else botPermsBuilder = botPermission.toBuilder();
+                botPermission = botPermsBuilder
+                        .setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED)
+                        .setState(PermissionType.CONNECT, PermissionState.ALLOWED)
+                        .build();
 
                 PermissionsBuilder pb = new PermissionsBuilder();
                 pb.setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED);

@@ -8,17 +8,15 @@ import java.util.ArrayList;
 public class PornImage {
 
     private String imageUrl, pageUrl;
-    private ArrayList<Comment> comments;
-    private int score, nComments;
+    private int score, comments;
     private Instant instant;
     private boolean video;
 
-    public PornImage(String imageUrl, String pageUrl, ArrayList<Comment> comments, int score, int nComments, Instant instant, boolean video) {
+    public PornImage(String imageUrl, String pageUrl, int score, int comments, Instant instant, boolean video) {
         this.imageUrl = imageUrl;
         this.pageUrl = pageUrl;
-        this.comments = comments;
         this.score = score;
-        this.nComments = nComments;
+        this.comments = comments;
         this.instant = instant;
         this.video = video;
     }
@@ -31,16 +29,14 @@ public class PornImage {
         return pageUrl;
     }
 
-    public ArrayList<Comment> getComments() {
-        return comments;
-    }
-
     public int getScore() {
         return score;
     }
 
-    public int getnComments() {
-        return nComments;
+    public int getComments() { return comments; }
+
+    public long getWeight() {
+        return (long) Math.pow(score + 1, 2.75) * (imageUrl.endsWith("gif") ? 3 : 1);
     }
 
     public Instant getInstant() {

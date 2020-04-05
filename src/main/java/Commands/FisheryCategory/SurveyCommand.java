@@ -53,7 +53,7 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
         event.removeReaction().get();
 
         for(Reaction reaction: message.getReactions()) {
@@ -212,7 +212,7 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
         }
 
         ServerTextChannel channel = trackerData.getChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channel, Permission.ADD_REACTIONS)) {
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.ADD_REACTIONS)) {
             trackerData.setSaveChanges(false);
             return trackerData;
         }

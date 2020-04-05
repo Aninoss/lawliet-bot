@@ -72,7 +72,13 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                 return Response.FALSE;
             } else {
                 ServerVoiceChannel channel = vcList.get(0);
-                if (!checkManageChannelWithLog(channel)) return Response.FALSE;
+
+                ArrayList<Integer> missingPermissions = PermissionCheck.getMissingPermissionListForUser(channel.getServer(), channel, DiscordApiCollection.getInstance().getYourself(), Permission.MANAGE_CHANNEL | Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.CONNECT);
+                if (missingPermissions.size() > 0) {
+                    String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(n)));
+                    setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));
+                    return Response.FALSE;
+                }
 
                 if (memberCountBean.getMemberCountBeanSlots().containsKey(channel.getId())) {
                     setLog(LogStatus.FAILURE, getString("alreadyexists"));
@@ -139,10 +145,15 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                             updater.addPermissionOverwrite(user, permissions.build());
                         }
+
+                        User yourself = DiscordApiCollection.getInstance().getYourself();
+                        Permissions ownPermissions = currentVC.getOverwrittenPermissions(yourself).toBuilder().setState(PermissionType.CONNECT, PermissionState.ALLOWED).build();
+                        updater.addPermissionOverwrite(yourself, ownPermissions);
+
                         renameVC(event.getServer().get(), getLocale(), updater, currentName);
                         updater.update().get();
                     } catch (ExecutionException e) {
-                        //e.printStackTrace();
+                        //Ignore
                         setLog(LogStatus.FAILURE, getString("nopermissions"));
                         return true;
                     }
@@ -221,15 +232,15 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
         return replaceVariables(str, "`%MEMBERS`", "`%USERS`", "`%BOTS`");
     }
 
-    public static void manage(Locale locale, Server server) throws SQLException, ExecutionException, InterruptedException {
+    public static void manage(Locale locale, Server server) throws ExecutionException, InterruptedException {
         ArrayList<MemberCountDisplay> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
         for(MemberCountDisplay display: displays) {
             if (display.getVoiceChannel().isPresent()) {
                 ServerVoiceChannel voiceChannel = display.getVoiceChannel().get();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "mcdisplays", voiceChannel, Permission.MANAGE_CHANNEL)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
                     ServerVoiceChannelUpdater updater = voiceChannel.createUpdater();
                     renameVC(server, locale, updater, display.getMask());
-                    updater.update();
+                    updater.update().get();
                 }
             }
         }

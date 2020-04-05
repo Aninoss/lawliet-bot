@@ -27,7 +27,8 @@ public interface Permission {
             ADD_REACTIONS = 0x800000,
             MANAGE_CHANNEL = 0x1000000,
             MANAGE_WEBHOOKS = 0x2000000,
-            CREATE_INSTANT_INVITE = 0x4000000;
+            CREATE_INSTANT_INVITE = 0x4000000,
+            CONNECT = 0x8000000;
 
-    int MAX = CREATE_INSTANT_INVITE;
+    int MAX = CONNECT;
 }

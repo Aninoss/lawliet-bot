@@ -70,7 +70,7 @@ public class Clock {
         trafficWarned = false; //Reset Traffic Warning
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
         RunningCommandManager.getInstance().clear(); //Resets Running Commands
-        PornImageCache.getInstance().clearAll(); //Resets Porn Cache
+        PornImageCache.getInstance().reset(); //Resets Porn Cache
 
         DonationHandler.checkExpiredDonations(); //Check Expired Donations
 

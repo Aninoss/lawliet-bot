@@ -24,7 +24,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount) throws Throwable {
+    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable {
         String searchAdd = NSFWTools.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();
@@ -44,7 +44,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
                 break;
         }
 
-        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, false);
+        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, false, usedResults);
     }
 
 }

@@ -31,7 +31,7 @@ public class PermissionCheck {
         for(int permission: permissionsToNumberList(userPermissions)) {
             PermissionConvertion permissionConvertion = convertPermission(permission);
             Permissions permissions;
-            if (channel != null && !permissionConvertion.isServerOnly()) permissions = channel.getEffectivePermissions(user);
+            if (channel != null && (channel instanceof ChannelCategory || !permissionConvertion.isServerOnly())) permissions = channel.getEffectivePermissions(user);
             else permissions = server.getPermissions(user);
 
             if (permissions.getState(permissionConvertion.getPermissionType()) != PermissionState.ALLOWED)
@@ -60,7 +60,7 @@ public class PermissionCheck {
             case Permission.MANAGE_CHANNEL_PERMISSIONS: return new PermissionConvertion(PermissionType.MANAGE_ROLES, false);
             case Permission.MANAGE_SERVER: return new PermissionConvertion(PermissionType.MANAGE_SERVER, true);
             case Permission.MENTION_EVERYONE: return new PermissionConvertion(PermissionType.MENTION_EVERYONE, false);
-            case Permission.MOVE_MEMBERS: return new PermissionConvertion(PermissionType.MOVE_MEMBERS, true);
+            case Permission.MOVE_MEMBERS: return new PermissionConvertion(PermissionType.MOVE_MEMBERS, false);
             case Permission.MUTE_MEMBERS: return new PermissionConvertion(PermissionType.MUTE_MEMBERS, true);
             case Permission.READ_MESSAGE_HISTORY: return new PermissionConvertion(PermissionType.READ_MESSAGE_HISTORY, false);
             case Permission.SEND_MESSAGES: return new PermissionConvertion(PermissionType.SEND_MESSAGES, false);
@@ -70,6 +70,7 @@ public class PermissionCheck {
             case Permission.ADD_REACTIONS: return new PermissionConvertion(PermissionType.ADD_REACTIONS, false);
             case Permission.MANAGE_WEBHOOKS: return new PermissionConvertion(PermissionType.MANAGE_WEBHOOKS, true);
             case Permission.CREATE_INSTANT_INVITE: return new PermissionConvertion(PermissionType.CREATE_INSTANT_INVITE, false);
+            case Permission.CONNECT: return new PermissionConvertion(PermissionType.CONNECT, false);
         }
 
         throw new RuntimeException("Faulty permission!");

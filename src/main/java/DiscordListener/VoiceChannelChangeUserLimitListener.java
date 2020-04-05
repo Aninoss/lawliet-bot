@@ -1,5 +1,6 @@
 package DiscordListener;
 
+import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
 import General.PermissionCheckRuntime;
 import MySQL.AutoChannel.AutoChannelBean;
@@ -29,7 +30,7 @@ public class VoiceChannelChangeUserLimitListener {
                                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                                 Locale locale = serverBean.getLocale();
 
-                                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, "autochannel", event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
                                     event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().get();
                                 }
                             } catch (InterruptedException | ExecutionException e) {

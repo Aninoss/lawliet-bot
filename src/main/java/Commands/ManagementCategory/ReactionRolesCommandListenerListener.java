@@ -571,7 +571,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                         Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (rOpt.isPresent()) {
                             Role r = rOpt.get();
-                            if (r.getUsers().contains(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r))
+                            if (r.getUsers().contains(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
                                 r.removeUser(event.getUser());
                         }
                     }
@@ -594,7 +594,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                             }
                         }
 
-                        if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r)) event.getUser().addRole(r).get();
+                        if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) event.getUser().addRole(r).get();
 
                         queueRemove(message.getId(), user.getId());
                         return;
@@ -622,7 +622,7 @@ public class ReactionRolesCommandListenerListener extends Command implements onN
                     Role r = rOpt.get();
                     try {
                         User user = event.getUser();
-                        if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getTrigger(), r)) user.removeRole(r).get();
+                        if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) user.removeRole(r).get();
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }

@@ -110,7 +110,7 @@ public class FullClearCommand extends Command implements onTrackerRequestListene
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
         Optional<ServerTextChannel> channelOptional = trackerData.getChannel();
         if (channelOptional.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getTrigger(), channelOptional.get(), Permission.MANAGE_MESSAGES)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), Permission.MANAGE_MESSAGES)) {
                 Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel().get(), trackerData.getKey(), null);
                 if (pair == null) return null;
             }
