@@ -38,7 +38,7 @@ public class VoteCommand extends Command implements onReactionAddStaticListener,
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         followedString = StringTools.trimString(followedString.replace("\n", ""));
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
-        String args[] = followedString.split("\\|");
+        String[] args = followedString.split("\\|");
         if (args.length >= 3 && args.length <= 10) {
             String topic = StringTools.trimString(args[0]);
 

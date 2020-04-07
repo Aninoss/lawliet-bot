@@ -8,10 +8,12 @@ import Constants.LogStatus;
 import General.AnimeNews.AnimeReleaseDownloader;
 import General.AnimeNews.AnimeReleasePost;
 import General.EmbedFactory;
+import General.ExceptionHandler;
 import General.PostBundle;
 import General.TextManager;
 import General.Tools.StringTools;
 import General.Tracker.TrackerData;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -35,6 +37,9 @@ public class AnimeReleasesCommand extends Command implements onTrackerRequestLis
     }
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) throws IOException {
+        if (post == null) {
+            ExceptionHandler.showErrorLog("Anime Release Post is null");
+        }
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-32x32.png")
                 .setDescription(post.getDescription())

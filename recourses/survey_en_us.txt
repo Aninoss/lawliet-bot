@@ -1,7 +1,9 @@
+Do you want to try skydiving?|Yes|No
+Which type do you want to be considered?|A kind person|A fun person
 Which do you like the least?|Heat|Cold
 Can you see lots of stars from your house?|Yes|Not really
-Do you recall what you ate for dinner two days ago?|Yes|No
-Which are you better at?|Using my brains|Using my brawn
+I tend to be . . .|Shy|An attention seeker
+You live in a . . .|House|Apartment
 Your friend is ten minutes late for a date. You are...|Angry|Indifferent
 Do you wear glasses?|Yes|No
 How many hours do you sleep at night?|Eight or more|Less than eight
@@ -17,11 +19,10 @@ Do you know the birthdays of all of your family members?|Yes|No
 At mealtime, which are you more particular about?|Amount|Taste
 Do you like having your photo taken?|Yes|No
 Do you like horror movies?|Yes|Not really . . .
-Do you take a vitamin supplement every day?|Yes|No
 Can you speak more than two languages?|Yes|No
 How many hours a day do you watch TV?|Less than two hours|More than two hours
-I tend to be . . .|Shy|An attention seeker
-You live in a . . .|House|Apartment
+Do you recall what you ate for dinner two days ago?|Yes|No
+Which are you better at?|Using my brains|Using my brawn
 I take my shoes off when I first enter my home.|Yes|No
 Which do you give priority to?|Hobbies|Work
 I'd rather . . .|Rely on my gut feeling|Think carefully
@@ -94,5 +95,3 @@ Are you an impulse shopper?|Sometimes|Seldom
 If you bought a car, which color would you prefer?|A color that stands out|One that blends in
 Which do you prefer?|Mayonnaise|Ketchup
 Are you good at keeping secrets?|Yes!|Not really
-Do you want to try skydiving?|Yes|No
-Which type do you want to be considered?|A kind person|A fun person

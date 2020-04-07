@@ -21,7 +21,7 @@ public class MessageEditListener {
         if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage().get())) return;
 
         //Stuff that is only active for my own Aninoss Discord server
-        if (event.getServer().get().getId() == 462405241955155979L && Internet.stringIsURL(event.getMessage().get().getContent())) {
+        if (event.getServer().get().getId() == 462405241955155979L && Internet.stringHasURL(event.getMessage().get().getContent())) {
             try {
                 FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().get().getUserAuthor().get(), false);
                 int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();

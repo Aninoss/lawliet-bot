@@ -246,24 +246,14 @@ public abstract class Command {
         if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
         if (navigationMessage == null) {
-            try {
                 if (navigationPrivateMessage) {
                     if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
                     navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
                 } else navigationMessage = channel.sendMessage(eb).get();
-            } catch (Throwable e) {
-                ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
-                throw e;
-            }
         } else {
             try {
                 if ((navigationMessage = navigationMessage.getLatestInstance().get()) != null) {
-                    try {
-                        navigationMessage.edit(eb).get();
-                    } catch (Throwable e) {
-                        ExceptionHandler.showErrorLog("Error in draw method of command " + getTrigger() + " with state " + state);
-                        throw e;
-                    }
+                    navigationMessage.edit(eb).get();
                 }
             } catch (Exception e) {
                 //Ignore
@@ -487,11 +477,7 @@ public abstract class Command {
 
     public boolean checkRoleWithLog(Role role) {
         if (PermissionCheck.canYouManageRole(role)) return true;
-        try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@"+role.getName()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@"+role.getName()));
         return false;
     }
 
@@ -532,7 +518,10 @@ public abstract class Command {
     public void setPrefix(String prefix) { this.prefix = prefix; }
     public String getCategory() { return category; }
     public void setLocale(Locale locale) { this.locale = locale; }
-    public Locale getLocale() { return locale; }
+    public Locale getLocale() {
+        if (locale == null) ExceptionHandler.showErrorLog("Locale is null!");
+        return locale;
+    }
     public long getReactionMessageID() { return reactionMessageID; }
     public long getForwardChannelID() { return forwardChannelID; }
     public long getForwardUserID() { return forwardUserID; }
@@ -553,7 +542,6 @@ public abstract class Command {
     public String getThumbnail() { return commandProperties.thumbnail(); }
     public String getEmoji() { return commandProperties.emoji(); }
     public boolean isNsfw() { return commandProperties.nsfw(); }
-    public boolean isPrivate() { return commandProperties.privateUse(); }
     public boolean isExecutable() { return commandProperties.executable(); }
     public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
     public int getUserPermissions() { return commandProperties.userPermissions(); }

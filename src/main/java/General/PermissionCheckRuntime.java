@@ -38,16 +38,12 @@ public class PermissionCheckRuntime {
         if (missingPermissions.size() == 0) return true;
 
         if (canPostError(server, permissions) && canContactOwner(server)) {
-            try {
-                String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**");
-                EmbedBuilder eb = EmbedFactory.getEmbedError();
-                eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
-                eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getTrigger(c), channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
+            String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**");
+            EmbedBuilder eb = EmbedFactory.getEmbedError();
+            eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
+            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getTrigger(c), channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
 
-                server.getOwner().sendMessage(eb);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            server.getOwner().sendMessage(eb);
             setErrorInstant(server, permissions);
         }
 
@@ -87,7 +83,7 @@ public class PermissionCheckRuntime {
 
     private boolean canPostError(Server server, int permission) {
         Instant instant = errorTimes.computeIfAbsent(server.getId(), k -> new HashMap<>()).get(permission);
-        return instant == null || instant.plus(2, ChronoUnit.HOURS).isBefore(Instant.now());
+        return instant == null || instant.plus(6, ChronoUnit.HOURS).isBefore(Instant.now());
     }
 
     private void setErrorInstant(Server server, int permission) {

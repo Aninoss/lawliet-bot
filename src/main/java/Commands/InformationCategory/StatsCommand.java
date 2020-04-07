@@ -6,11 +6,11 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.Settings;
 import General.*;
+import General.Survey.SurveyManager;
 import General.Tools.StringTools;
 import General.Tools.TimeTools;
 import General.Tracker.TrackerManager;
 import MySQL.DBBot;
-import MySQL.DBSurvey;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -38,7 +38,7 @@ public class StatsCommand extends Command {
                 StringTools.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
                 StringTools.numToString(getLocale(), TrackerManager.getSize()),
                 DiscordApiCollection.getInstance().getOwner().getDiscriminatedName(),
-                StringTools.numToString(getLocale(), DBSurvey.getCurrentVotesNumber())
+                StringTools.numToString(getLocale(), SurveyManager.getCurrentFirstVotesNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));
@@ -46,4 +46,5 @@ public class StatsCommand extends Command {
         event.getServerTextChannel().get().sendMessage(eb).get();
         return true;
     }
+
 }

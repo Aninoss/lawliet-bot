@@ -26,9 +26,6 @@ public class FisheryCache {
     private Map<Long, Map<Long, ActivityUserData>> activities = new HashMap<>(); //serverId, userId, activity
     private int messagePhase;
 
-    private Map<Long, Map<Long, Integer>> userMessageCount = new HashMap<>(); //serverId, userId, counter
-    private Map<Long, Map<Long, Integer>> userVCCount = new HashMap<>(); //serverId, userId, counter
-
     private Instant nextMessageCheck = Instant.now(), nextVCCheck = Instant.now();
 
     private boolean active = true;
@@ -47,27 +44,20 @@ public class FisheryCache {
     }
 
     public boolean addActivity(User user, ServerTextChannel channel) {
-        int count = getUserMessageCount(channel.getServer(), user);
+        try {
+            Server server = channel.getServer();
+            FisheryStatus fisheryStatus = DBServer.getInstance().getBean(server.getId()).getFisheryStatus();
+            ArrayList<Long> powerPlantIgnoredChannelIds = DBServerOld.getPowerPlantIgnoredChannelIdsFromServer(server);
 
-        if (count < 650) {
-            try {
-                Server server = channel.getServer();
-                FisheryStatus fisheryStatus = DBServer.getInstance().getBean(server.getId()).getFisheryStatus();
-                ArrayList<Long> powerPlantIgnoredChannelIds = DBServerOld.getPowerPlantIgnoredChannelIdsFromServer(server);
-
-                boolean whiteListed = DBServerOld.isChannelWhitelisted(channel);
-                if (fisheryStatus == FisheryStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
-                    ActivityUserData activityUserData = getActivities(server, user);
-                    boolean registered = activityUserData.registerMessage(messagePhase, whiteListed ? channel : null);
-                    if (registered) {
-                        setUserMessageCount(server, user, count + 1);
-                    }
-                    setActivities(server, user, activityUserData);
-                    return registered;
-                }
-            } catch (SQLException | ExecutionException e) {
-                e.printStackTrace();
+            boolean whiteListed = DBServerOld.isChannelWhitelisted(channel);
+            if (fisheryStatus == FisheryStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
+                ActivityUserData activityUserData = getActivities(server, user);
+                boolean registered = activityUserData.registerMessage(messagePhase, whiteListed ? channel : null);
+                setActivities(server, user, activityUserData);
+                return registered;
             }
+        } catch (SQLException | ExecutionException e) {
+            e.printStackTrace();
         }
 
         return false;
@@ -176,13 +166,9 @@ public class FisheryCache {
                                     (!server.getAfkChannel().isPresent() || channel.getId() != server.getAfkChannel().get().getId())
                             ) {
                                 for (User user : validUsers) {
-                                    int count = getUserVCCount(server, user);
-                                    if (count < 420) {
-                                        setUserVCCount(server, user, count + 2);
-                                        ActivityUserData activityUserData = getActivities(server, user);
-                                        activityUserData.registerVC(5);
-                                        setActivities(server, user, activityUserData);
-                                    }
+                                    ActivityUserData activityUserData = getActivities(server, user);
+                                    activityUserData.registerVC(5);
+                                    setActivities(server, user, activityUserData);
                                 }
                             }
                         }
@@ -196,9 +182,6 @@ public class FisheryCache {
 
     public void stopServer(Server server) {
         activities.remove(server.getId());
-        userMessageCount.remove(server.getId());
-        userVCCount.remove(server.getId());
-
     }
 
     public void startVCCollector(DiscordApi api) {
@@ -217,39 +200,14 @@ public class FisheryCache {
         return serverMap.computeIfAbsent(userId, k -> new ActivityUserData());
     }
 
-    private int getUserMessageCount(Server server, User user) {
-        Map<Long, Integer> serverMap = userMessageCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-        return serverMap.computeIfAbsent(user.getId(), k -> 0);
-    }
-
-    private int getUserVCCount(Server server, User user) {
-        Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-        return serverMap.computeIfAbsent(user.getId(), k -> 0);
-    }
-
     private void setActivities(Server server, User user, ActivityUserData activityUserData) {
         Map<Long, ActivityUserData> serverMap = activities.computeIfAbsent(server.getId(), k -> new HashMap<>());
         serverMap.putIfAbsent(user.getId(), activityUserData);
     }
 
-    private void setUserMessageCount(Server server, User user, int amount) {
-        Map<Long, Integer> serverMap = userMessageCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-        serverMap.put(user.getId(), amount);
-    }
-
-    private void setUserVCCount(Server server, User user, int amount) {
-        Map<Long, Integer> serverMap = userVCCount.computeIfAbsent(server.getId(), k -> new HashMap<>());
-        serverMap.put(user.getId(), amount);
-    }
-
     public void turnOff() {
         ourInstances.remove(shardId);
         active = false;
-    }
-
-    public void resetLimits() {
-        userMessageCount = new HashMap<>();
-        userVCCount = new HashMap<>();
     }
 
 }

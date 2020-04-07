@@ -62,7 +62,7 @@ public class TextManager {
         }
     }
 
-    public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) throws IOException {
+    public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) {
         if (!secondOption) return getString(locale, category, key, 0, args);
         else return getString(locale, category, key, 1, args);
     }

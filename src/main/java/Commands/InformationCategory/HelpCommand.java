@@ -105,7 +105,7 @@ public class HelpCommand extends Command implements onNavigationListener {
         for (Class clazz : CommandContainer.getInstance().getCommands().values()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger()) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
+            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger())) {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 
@@ -157,7 +157,7 @@ public class HelpCommand extends Command implements onNavigationListener {
     private EmbedBuilder checkCategory(ServerTextChannel channel, String arg) throws Throwable {
         if (arg.length() > 0) {
             for (String string : Category.LIST) {
-                if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase())) && (!string.equals(Category.BOT_OWNER) || getStarterMessage().getUserAuthor().get().isBotOwner())) {
+                if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase()))) {
                     EmbedBuilder eb = EmbedFactory.getEmbed()
                             .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
                             .setTitle(
@@ -175,7 +175,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                         for (Class clazz : CommandContainer.getInstance().getCommandList()) {
                             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
-                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string) && (!command.isPrivate() || getStarterMessage().getUserAuthor().get().isBotOwner())) {
+                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
                                 commands
                                         .append(" `")
                                         .append(command.getEmoji())
@@ -204,7 +204,7 @@ public class HelpCommand extends Command implements onNavigationListener {
                             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
                             User author = getStarterMessage().getUserAuthor().get();
-                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string) && (!command.isPrivate() || author.isBotOwner())) {
+                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
                                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw());
 

@@ -1,7 +1,9 @@
+Würdest du gern mal Fallschirm springen?|Ja|Nein
+Wie sollen dich andere Menschen wahrnehmen?|Als nette Person|Als lustige Person
 Was macht dir mehr zu schaffen?|Hitze|Kälte
 Siehst du von deinem Haus aus viele Sterne?|Ja|Leider nicht
-Weißt du, was du vorgestern zu Abend hattest?|Ja|Nein
-Was liegt dir eher?|Mein Gehirn einsetzen|Meinen Körper einsetzen
+Wenn du im Mittelpunkt stehst, ist dir das eher...|...peinlich|...angenehm
+Wie wohnst du?|In einem Haus.|In einer Wohnung.
 Dein Freund kommt zehn Minuten zu spät. Du bist...|sauer|gelassen
 Bist du Brillenträger?|Ja|Nein
 Wie viele Stunden schläfst du nachts?|Acht oder mehr|Weniger als acht
@@ -17,11 +19,10 @@ Kannst du dir alle Geburtstage deiner Familie merken?|Ja|Nein
 Was ist dir beim Essen wichtiger?|Portionsgröße|Geschmack
 Magst du es, fotografiert zu werden?|Ja|Nein
 Magst du Horrorfilme?|Ja|Nicht so...
-Nimmst du jeden Tag Vitaminpräparate zu dir?|Ja|Nein
 Sprichst du mehr als zwei Sprachen?|Ja|Nein
 Wie viele Stunden am Tag siehst du fern?|Unter zwei Stunden.|Über zwei Stunden.
-Wenn du im Mittelpunkt stehst, ist dir das eher...|...peinlich|...angenehm
-Wie wohnst du?|In einem Haus.|In einer Wohnung.
+Weißt du, was du vorgestern zu Abend hattest?|Ja|Nein
+Was liegt dir eher?|Mein Gehirn einsetzen|Meinen Körper einsetzen
 Ziehst du die Schuhe aus, sobald du dein Zuhause betrittst?|Ja|Nein
 Was geht vor?|Hobbies und Spaß!|Arbeit oder Lernen
 Was machst du eher?|Instinktiv handeln|Wohlüberlegt handeln
@@ -94,5 +95,3 @@ Kaufst du ganz spontan Dinge?|Manchmal|Selten
 Was für eine Farbe magst du bei einem Auto lieber?|Eine auffällige Farbe|Eine unauffällige Farbe
 Was magst du lieber?|Mayonnaise|Ketchup
 Kannst du Geheimnisse gut für dich behalten?|Absolut!|Eher nicht
-Würdest du gern mal Fallschirm springen?|Ja|Nein
-Wie sollen dich andere Menschen wahrnehmen?|Als nette Person|Als lustige Person

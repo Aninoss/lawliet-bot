@@ -5,14 +5,13 @@ import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.PostBundle;
 import General.Tools.StringTools;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Locale;
+
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class AnimeNewsDownloader {
 
-    public static AnimeNewsPost getPost(Locale locale) throws IOException, InterruptedException, ExecutionException {
+    public static AnimeNewsPost getPost(Locale locale) throws InterruptedException, ExecutionException {
         String downloadUrl;
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
@@ -39,6 +38,9 @@ public class AnimeNewsDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) postStrings = getCurrentPostStringDE(dataString);
         else postStrings = getCurrentPostStringEN(dataString);
 
+        List<String> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.asList(newestPostId.split("//|"));
+        ArrayList<String> newUsedIds = new ArrayList<>();
+
         for(int i = 0; i < 5; i++) {
             String postString = postStrings[i];
 
@@ -47,25 +49,22 @@ public class AnimeNewsDownloader {
                 if (StringTools.getLanguage(locale) == Language.DE) post = getPostDE(postString);
                 else post = getPostEN(postString);
             } catch (NullPointerException e) {
-                //Ignore
+                e.printStackTrace();
                 return null;
             }
-            if (post.getId().equals(newestPostId)) break;
 
-            postList.add(post);
+            if (!currentUsedIds.contains(post.getId()) && (i == 0 || newestPostId != null))
+                postList.add(post);
+            newUsedIds.add(post.getId());
         }
 
-        ArrayList<AnimeNewsPost> postSendList = new ArrayList<>();
-        if (newestPostId != null) {
-            for(int i = postList.size()-1; i >= 0; i--) {
-                postSendList.add(postList.get(i));
-            }
-        } else if (postList.size() > 0)  {
-            postSendList.add(postList.get(0));
-        }
+        Collections.reverse(postList);
 
-        if (postList.size() > 0) newestPostId = postList.get(0).getId();
-        return new PostBundle<>(postSendList, newestPostId);
+        StringBuilder sb = new StringBuilder();
+        newUsedIds.forEach(str -> sb.append("|").append(str));
+        if (sb.length() > 0) newestPostId = sb.substring(1);
+
+        return new PostBundle<>(postList, newestPostId);
     }
 
     private static AnimeNewsPost getPostDE(String data) {

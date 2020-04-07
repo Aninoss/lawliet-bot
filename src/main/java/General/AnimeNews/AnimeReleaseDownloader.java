@@ -1,6 +1,7 @@
 package General.AnimeNews;
 
 import Constants.Language;
+import General.ExceptionHandler;
 import General.Internet.InternetCache;
 import General.Internet.InternetResponse;
 import General.PostBundle;
@@ -11,20 +12,18 @@ import org.json.JSONObject;
 import org.json.XML;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class AnimeReleaseDownloader {
 
-    public static AnimeReleasePost getPost(Locale locale) throws IOException, InterruptedException, ExecutionException {
+    public static AnimeReleasePost getPost(Locale locale) throws InterruptedException, ExecutionException {
         String downloadUrl;
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
         InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
-        if (!internetResponse.getContent().isPresent()) return null;
         String dataString = internetResponse.getContent().get();
 
         JSONArray data = XML.toJSONObject(dataString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
@@ -38,28 +37,29 @@ public class AnimeReleaseDownloader {
 
         InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
         if (!internetResponse.getContent().isPresent()) return null;
-        String dataString = internetResponse.getContent().get();
+        String postString = internetResponse.getContent().get();
 
-        JSONArray dataArray = XML.toJSONObject(dataString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
+        JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
         ArrayList<AnimeReleasePost> postList = new ArrayList<>();
-        List<AnimeReleasePost> animeReleasePosts = getAnimeReleasePostList(dataArray, locale);
+        List<AnimeReleasePost> animeReleasePosts = getAnimeReleasePostList(postArray, locale);
+
+        List<Integer> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.stream(newestPostId.split("//|")).map(Integer::parseInt).collect(Collectors.toList());
+        ArrayList<String> newUsedIds = new ArrayList<>();
+
         for(int i = 0; i < Math.min(10, animeReleasePosts.size()); i++) {
             AnimeReleasePost post = animeReleasePosts.get(i);
-            if (String.valueOf(post.getId()).equals(newestPostId)) break;
-            postList.add(post);
+
+            if (!currentUsedIds.contains(post.getId()) && (i == 0 || newestPostId != null)) postList.add(post);
+            newUsedIds.add(String.valueOf(post.getId()));
         }
 
-        ArrayList<AnimeReleasePost> postSendList = new ArrayList<>();
-        if (newestPostId != null) {
-            for(int i = postList.size()-1; i >= 0; i--) {
-                postSendList.add(postList.get(i));
-            }
-        } else if (postList.size() > 0) {
-            postSendList.add(postList.get(0));
-        }
+        Collections.reverse(postList);
 
-        if (postList.size() > 0) newestPostId = String.valueOf(postList.get(0).getId());
-        return new PostBundle<>(postSendList, newestPostId);
+        StringBuilder sb = new StringBuilder();
+        newUsedIds.forEach(str -> sb.append("|").append(str));
+        if (sb.length() > 0) newestPostId = sb.substring(1);
+
+        return new PostBundle<>(postList, newestPostId);
     }
 
     private static List<AnimeReleasePost> getAnimeReleasePostList(JSONArray data, Locale locale) {
@@ -95,6 +95,8 @@ public class AnimeReleaseDownloader {
 
             list.add(post);
         }
+
+        ExceptionHandler.showInfoLog("Anime releases list size: " + list.size());
 
         return list;
     }

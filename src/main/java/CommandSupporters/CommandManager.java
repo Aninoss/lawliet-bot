@@ -24,7 +24,6 @@ public class CommandManager {
     public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
                 isWhiteListed(event) &&
-                isPrivateCommand(event, command) &&
                 isNSFWCompliant(event, command) &&
                 botCanUseEmbeds(event, command) &&
                 checkPermissions(event, command) &&
@@ -71,7 +70,7 @@ public class CommandManager {
         if (Cooldown.getInstance().isFree(user.getId())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
-                    .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", user.getMentionTag(), String.valueOf(waitingSec.get())));
+                    .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, user.getMentionTag(), String.valueOf(waitingSec.get())));
             event.getChannel().sendMessage(eb).get();
         }
 
@@ -106,10 +105,6 @@ public class CommandManager {
         event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(command.getLocale()));
         event.getMessage().addReaction("❌");
         return false;
-    }
-
-    private static boolean isPrivateCommand(MessageCreateEvent event, Command command) {
-        return !command.isPrivate() || event.getMessage().getAuthor().isBotOwner();
     }
 
     private static boolean isWhiteListed(MessageCreateEvent event) throws SQLException {

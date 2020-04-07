@@ -7,7 +7,6 @@ public class CategoryCalculator {
     public static String getCategoryByCommand(Class c) {
         String packageName = c.getPackage().getName();
         if (packageName.equals("Commands.GimmicksCategory")) return Category.GIMMICKS;
-        if (packageName.equals("Commands.BotOwnerCategory")) return Category.BOT_OWNER;
         if (packageName.equals("Commands.NSFWCategory")) return Category.NSFW;
         if (packageName.equals("Commands.ManagementCategory")) return Category.MANAGEMENT;
         if (packageName.equals("Commands.InformationCategory")) return Category.INFORMATION;

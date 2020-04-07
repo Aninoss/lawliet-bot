@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class DBDataLoad<T> {
@@ -43,7 +44,7 @@ public class DBDataLoad<T> {
         return list;
     }
 
-    public <U> HashMap<U, T> getHashMap(Function<T, U> getKeyFuntion, SQLFunction<ResultSet, T> function) throws SQLException {
+    public <U> HashMap<U, T> getHashMap(SQLFunction<T, U> getKeyFuntion, SQLFunction<ResultSet, T> function) throws SQLException {
         ResultSet resultSet = preparedStatement.getResultSet();
         HashMap<U, T> map = new HashMap<>();
 

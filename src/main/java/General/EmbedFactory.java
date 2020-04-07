@@ -82,27 +82,21 @@ public class EmbedFactory {
     }
 
     public static EmbedBuilder getEmbed() {
-        EmbedBuilder eb = new EmbedBuilder()
+        return new EmbedBuilder()
                 .setColor(DEFAULT_EMBED_COLOR)
                 .setTimestampToNow();
-
-        return eb;
     }
 
     public static EmbedBuilder getEmbedSuccessful() {
-        EmbedBuilder eb = new EmbedBuilder()
+        return new EmbedBuilder()
                 .setColor(SUCCESS_EMBED_COLOR)
                 .setTimestampToNow();
-
-        return eb;
     }
 
     public static EmbedBuilder getEmbedError() {
-        EmbedBuilder eb = new EmbedBuilder()
+        return new EmbedBuilder()
                 .setColor(FAILED_EMBED_COLOR)
                 .setTimestampToNow();
-
-        return eb;
     }
 
     public static EmbedBuilder addLog(EmbedBuilder eb, LogStatus logStatus, String log) {

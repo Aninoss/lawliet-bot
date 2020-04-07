@@ -11,7 +11,6 @@ public @interface CommandProperties {
     String emoji();
     boolean nsfw() default false;
     boolean withLoadingBar() default false;
-    boolean privateUse() default false;
     boolean executable();
     boolean deleteOnTimeOut() default true;
     int botPermissions() default 0;

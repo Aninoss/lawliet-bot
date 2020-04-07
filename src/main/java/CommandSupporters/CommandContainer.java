@@ -7,7 +7,6 @@ import Commands.CasinoCategory.*;
 import Commands.EmotesCategory.*;
 import Commands.ExternalCategory.*;
 import Commands.GimmicksCategory.*;
-import Commands.BotOwnerCategory.*;
 import Commands.InteractionsCategory.*;
 import Commands.ModerationCategory.*;
 import Commands.NSFWCategory.*;
@@ -96,11 +95,6 @@ public class CommandContainer {
         commandList.add(InviteCommand.class);
         commandList.add(UpvoteCommand.class);
         commandList.add(DonateCommand.class);
-        //commandList.add(TipsCommand.class);
-
-        //BOT OWNER
-        commandList.add(EmojisCommand.class);
-        commandList.add(SendCommand.class);
 
         //FISHERY
         commandList.add(FisheryCommand.class);

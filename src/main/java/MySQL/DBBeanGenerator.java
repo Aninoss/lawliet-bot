@@ -27,7 +27,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         }
     );
 
-    public DBBeanGenerator() {
+    protected DBBeanGenerator() {
         if (this instanceof IntervalSave) {
             int minutes = ((IntervalSave)this).getIntervalMinutes();
             nextCheck = Instant.now().plusSeconds(minutes * 60);
@@ -108,7 +108,10 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         return new ArrayList<>();
     }
 
-    protected LoadingCache<T, U> getCache() { return cache; }
+    @Override
+    public void clear() {
+        cache.invalidateAll();
+    }
 
     public interface IntervalSave {
         int getIntervalMinutes();
@@ -116,11 +119,6 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     public interface CompleteLoadOnStartup<T> {
         ArrayList<T> getKeySet() throws SQLException;
-    }
-
-    @Override
-    public void clear() {
-        cache.invalidateAll();
     }
 
 }

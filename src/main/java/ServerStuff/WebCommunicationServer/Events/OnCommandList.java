@@ -54,7 +54,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
                 Command command = CommandManager.createCommandByClass(c);
                 String trigger = command.getTrigger();
 
-                if (!command.isPrivate() && !trigger.equals("help")) {
+                if (!trigger.equals("help")) {
                     JSONObject commandJSON = new JSONObject();
                     commandJSON.put("trigger", trigger);
                     commandJSON.put("emoji", command.getEmoji());

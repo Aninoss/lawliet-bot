@@ -33,7 +33,13 @@ public class InternetCache {
             expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
             cache.invalidate(url);
         }
-        return cache.get(url);
+        CompletableFuture<InternetResponse> future = cache.get(url);
+        if (future.isDone() && !future.getNow(null).getContent().isPresent()) {
+            expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
+            cache.invalidate(url);
+            return getData(url, expirationTimeSeconds);
+        }
+        return future;
     }
 
     public static void setExpirationDate(Instant instant, String... urls) {

@@ -3,6 +3,7 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
+import General.Clock;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
 import MySQL.AutoChannel.AutoChannelBean;
@@ -33,6 +34,8 @@ public class PingCommand extends Command {
 
         Duration duration = Duration.between(startTime, endTime);
         message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong", String.valueOf((Math.abs(duration.getSeconds() * 1000000000) + Math.abs(duration.getNano())) / 1000000)))).get();
+
+        Clock.updateSurvey();
 
         return true;
     }
