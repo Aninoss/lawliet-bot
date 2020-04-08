@@ -7,7 +7,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import General.EmbedFactory;
 import General.Tools.StringTools;
-import MySQL.AutoQuote.DBAutoQuote;
+import MySQL.Modules.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;

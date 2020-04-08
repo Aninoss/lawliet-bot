@@ -1,10 +1,8 @@
 package DiscordListener;
 
-import MySQL.AutoChannel.DBAutoChannel;
+import MySQL.Modules.AutoChannel.DBAutoChannel;
 import org.javacord.api.entity.channel.ChannelType;
 import org.javacord.api.event.channel.server.ServerChannelDeleteEvent;
-
-import java.util.concurrent.ExecutionException;
 
 public class ServerChannelDeleteListener {
 

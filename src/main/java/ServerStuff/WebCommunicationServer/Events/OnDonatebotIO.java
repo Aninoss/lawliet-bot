@@ -1,6 +1,6 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import MySQL.Donators.DBDonators;
+import MySQL.Modules.Donators.DBDonators;
 import ServerStuff.DonationHandler;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;

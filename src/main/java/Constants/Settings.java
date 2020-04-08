@@ -11,7 +11,7 @@ public interface Settings {
     String DONATION_URL = "https://donatebot.io/checkout/557953262305804308";
     String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
-    String FEEDBACK_WEBSITE = LAWLIET_WEBSITE + "feedback";
+    String FEEDBACK_WEBSITE = LAWLIET_WEBSITE + "feedback/%d";
     String CURRENCY = "\uD83D\uDC1F";
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";

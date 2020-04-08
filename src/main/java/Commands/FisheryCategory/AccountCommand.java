@@ -8,7 +8,7 @@ import Constants.FisheryStatus;
 import General.*;
 import General.Mention.MentionTools;
 import MySQL.DBUser;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;

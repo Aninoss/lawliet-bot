@@ -7,8 +7,8 @@ import Constants.Settings;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
-import MySQL.Donators.DBDonators;
-import MySQL.Donators.DonatorBeanSlot;
+import MySQL.Modules.Donators.DBDonators;
+import MySQL.Modules.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

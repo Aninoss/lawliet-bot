@@ -3,6 +3,7 @@ package General.Internet;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.sun.xml.internal.ws.util.CompletedFuture;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.IOException;
 import java.time.Instant;
@@ -14,8 +15,8 @@ public class InternetCache {
 
     private static HashMap<String, Instant> expirationDates = new HashMap<>();
     private static LoadingCache<String, CompletableFuture<InternetResponse>> cache = CacheBuilder.newBuilder()
-            .maximumSize(20)
-            .removalListener((removalNotification) -> removeExpirationDate((String) removalNotification.getKey()))
+            .maximumSize(5000)
+            .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))
             .build(
                     new CacheLoader<String, CompletableFuture<InternetResponse>>() {
                         @Override
@@ -24,34 +25,29 @@ public class InternetCache {
                         }
                     });
 
+
     public static CompletableFuture<InternetResponse> getData(String url) throws ExecutionException {
         return getData(url, 60 * 5);
     }
 
     public static CompletableFuture<InternetResponse> getData(String url, int expirationTimeSeconds) throws ExecutionException {
         if (!expirationDates.containsKey(url) || expirationDates.get(url).isBefore(Instant.now())) {
-            expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
             cache.invalidate(url);
+            expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
         }
+
         CompletableFuture<InternetResponse> future = cache.get(url);
-        if (future.isDone() && !future.getNow(null).getContent().isPresent()) {
-            expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
-            cache.invalidate(url);
-            return getData(url, expirationTimeSeconds);
-        }
+        future.thenAccept(internetResponse -> {
+            if (internetResponse.getCode() / 100 != 2 && internetResponse.getCode() != 429) {
+                cache.invalidate(url);
+            }
+        });
+
         return future;
     }
 
     public static void setExpirationDate(Instant instant, String... urls) {
-        for(String url: urls) setExpirationDate(url, instant);
-    }
-
-    public static void setExpirationDate(String url, Instant instant) {
-        expirationDates.put(url, instant);
-    }
-
-    private static void removeExpirationDate(String url) {
-        expirationDates.remove(url);
+        for(String url: urls) expirationDates.put(url, instant);;
     }
 
 }

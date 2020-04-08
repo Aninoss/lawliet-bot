@@ -1,5 +1,7 @@
 package MySQL;
 
+import MySQL.Interfaces.SQLFunction;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,7 +15,7 @@ public class DBKeySetLoad<T> {
         statement = DBMain.getInstance().statement(String.format("SELECT %s FROM %s;", keyColumn, table));
     }
 
-    public ArrayList<T> get(DBDataLoad.SQLFunction<ResultSet, T> function) throws SQLException {
+    public ArrayList<T> get(SQLFunction<ResultSet, T> function) throws SQLException {
         ArrayList<T> list = new ArrayList<>();
 
         ResultSet resultSet = statement.getResultSet();

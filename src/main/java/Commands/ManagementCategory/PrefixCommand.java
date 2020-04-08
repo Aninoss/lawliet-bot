@@ -8,7 +8,7 @@ import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.TextManager;
 import General.Tools.StringTools;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 

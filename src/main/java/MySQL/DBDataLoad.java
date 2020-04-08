@@ -1,5 +1,8 @@
 package MySQL;
 
+import MySQL.Interfaces.SQLConsumer;
+import MySQL.Interfaces.SQLFunction;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,20 +15,10 @@ public class DBDataLoad<T> {
 
    private PreparedStatement preparedStatement;
 
-    public DBDataLoad(String table, String requiredAttribute, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
-        this(table, requiredAttribute.split(","), where, wherePreparedStatementConsumer);
-    }
+    public DBDataLoad(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
+        if (requiredAttributes.isEmpty()) throw new SQLException("No attributes specified!");
 
-    public DBDataLoad(String table, String[] requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
-        if (requiredAttributes.length == 0) throw new SQLException("No attributes specified!");
-
-        StringBuilder attrString = new StringBuilder();
-        for(int i = 0; i < requiredAttributes.length; i++) {
-            if (i > 0) attrString.append(",");
-            attrString.append(requiredAttributes[i]);
-        }
-
-        String sqlString = String.format("SELECT %s FROM %s WHERE %s", attrString.toString(), table, where);
+        String sqlString = String.format("SELECT %s FROM %s WHERE %s", requiredAttributes, table, where);
 
         preparedStatement = DBMain.getInstance().preparedStatement(sqlString);
         wherePreparedStatementConsumer.accept(preparedStatement);
@@ -57,14 +50,6 @@ public class DBDataLoad<T> {
         preparedStatement.close();
 
         return map;
-    }
-
-    public interface SQLConsumer<T> {
-        void accept(T t) throws SQLException;
-    }
-
-    public interface SQLFunction<T, R> {
-        R apply(T t) throws SQLException;
     }
 
 }

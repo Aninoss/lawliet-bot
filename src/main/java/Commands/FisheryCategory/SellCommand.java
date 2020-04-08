@@ -10,7 +10,7 @@ import General.Fishing.FishingProfile;
 import General.Mention.MentionTools;
 import General.Tools.StringTools;
 import MySQL.DBUser;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

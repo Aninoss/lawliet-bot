@@ -6,11 +6,12 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class Internet {
 
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0";
 
     public static CompletableFuture<InternetResponse> getData(String urlString, InternetProperty... properties) throws IOException {
         return getData(urlString, "GET", 0, null, properties);
@@ -71,7 +72,7 @@ public class Internet {
             } else connection.connect();
 
             int code = connection.getResponseCode();
-            if (code != 200) {
+            if (code / 100 != 2) {
                 future.complete(new InternetResponse(code));
                 return;
             }
@@ -81,8 +82,6 @@ public class Internet {
             while ((line = br.readLine()) != null) {
                 text.append(line);
             }
-
-            Map<String, List<String>> s = connection.getHeaderFields();
 
             future.complete(new InternetResponse(text.toString(), connection.getHeaderFields(), code));
         } catch (Throwable e) {
@@ -104,4 +103,5 @@ public class Internet {
 
         return false;
     }
+
 }

@@ -7,8 +7,8 @@ import Constants.*;
 import General.*;
 import General.Tools.StringTools;
 import MySQL.DBUser;
-import MySQL.Donators.DBDonators;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Donators.DBDonators;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

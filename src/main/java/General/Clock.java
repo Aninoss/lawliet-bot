@@ -8,11 +8,11 @@ import CommandSupporters.RunningCommands.RunningCommandManager;
 import General.Tools.StringTools;
 import General.Tools.TimeTools;
 import MySQL.*;
-import MySQL.Server.DBServer;
-import MySQL.Server.ServerBean;
-import MySQL.Survey.DBSurvey;
-import MySQL.Survey.SurveyBean;
-import MySQL.Survey.SurveySecondVote;
+import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.Server.ServerBean;
+import MySQL.Modules.Survey.DBSurvey;
+import MySQL.Modules.Survey.SurveyBean;
+import MySQL.Modules.Survey.SurveySecondVote;
 import ServerStuff.*;
 import CommandSupporters.Cooldown.Cooldown;
 import General.Reddit.SubredditContainer;
@@ -191,13 +191,17 @@ public class Clock {
         int percent = 0;
         if (won != 2) percent = (int) Math.round(SurveyManager.getFirstVoteNumbers(lastSurvey, won) / (double) SurveyManager.getFirstVoteNumbers(lastSurvey) * 100);
 
+        ExceptionHandler.showInfoLog("### Start Survey Giveaways ###\nOld Survey Id: " + lastSurvey.getSurveyId());
+
         /* Group each second vote into a specific group for each user */
         HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
         for (SurveySecondVote surveySecondVote : lastSurvey.getSecondVotes().values()) {
             try {
                 ServerBean serverBean = DBServer.getInstance().getBean(surveySecondVote.getServerId());
-                if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE && serverBean.getServer().isPresent())
+                if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE && serverBean.getServer().isPresent()) {
+                    ExceptionHandler.showInfoLog(String.format("### Enter User ID %d ###", surveySecondVote.getUserId()));
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -206,8 +210,10 @@ public class Clock {
         for (long userId : secondVotesMap.keySet()) {
             try {
                 User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
-                if (user != null)
+                if (user != null) {
+                    ExceptionHandler.showInfoLog(String.format("### Manage User %s ###", user.getDiscriminatedName()));
                     manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             }

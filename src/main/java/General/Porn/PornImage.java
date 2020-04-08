@@ -1,9 +1,6 @@
 package General.Porn;
 
-import General.Comment;
-
 import java.time.Instant;
-import java.util.ArrayList;
 
 public class PornImage {
 

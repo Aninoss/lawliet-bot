@@ -4,7 +4,7 @@ import Constants.FishingCategoryInterface;
 import Constants.FisheryStatus;
 import General.DiscordApiCollection;
 import General.Fishing.FishingProfile;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;

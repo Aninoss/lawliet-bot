@@ -154,10 +154,7 @@ public class Connector {
             api.updateActivity("Please wait, bot is booting up...");
 
             FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
-            if (apiCollection.apiHasHomeServer(api) && startup) {
-                new WebComServer(15744);
-                ResourceManager.setUp(apiCollection.getHomeServer());
-            }
+            if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
             apiCollection.markReady(api);
 
             Thread st = new Thread(() -> DBMain.synchronizeAll(api));
@@ -169,6 +166,7 @@ public class Connector {
                 if (startup) {
                     updateActivity();
                     DBBot.fisheryCleanUp();
+                    new WebComServer(15744);
                 } else {
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }
@@ -176,6 +174,14 @@ public class Connector {
             }
 
             ExceptionHandler.showInfoLog(String.format("Shard %d connection established!", api.getCurrentShard()));
+
+            if (apiCollection.allShardsConnected() && !Bot.isDebug() && startup) {
+                Thread t = new Thread(Clock::tick);
+                t.setPriority(2);
+                addUncaughtException(t);
+                t.setName("clock");
+                t.start();
+            }
 
             api.addMessageCreateListener(event -> {
                 Thread t = new Thread(() -> {
@@ -314,14 +320,6 @@ public class Connector {
                 addUncaughtException(t);
                 t.start();
             });
-
-            if (apiCollection.allShardsConnected() && !Bot.isDebug() && startup) {
-                Thread t = new Thread(Clock::tick);
-                t.setPriority(2);
-                addUncaughtException(t);
-                t.setName("clock");
-                t.start();
-            }
         } catch (Throwable e) {
             e.printStackTrace();
             ExceptionHandler.showErrorLog("Exception in connection method of shard " + api.getCurrentShard());

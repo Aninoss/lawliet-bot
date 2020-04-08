@@ -7,7 +7,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Settings;
 import General.*;
-import General.Survey.VoteInfo;
+import General.VoteInfo;
 import General.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;

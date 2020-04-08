@@ -3,11 +3,10 @@ package DiscordListener;
 import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
 import General.PermissionCheckRuntime;
-import MySQL.AutoChannel.AutoChannelBean;
-import MySQL.AutoChannel.DBAutoChannel;
-import MySQL.DBServerOld;
-import MySQL.Server.DBServer;
-import MySQL.Server.ServerBean;
+import MySQL.Modules.AutoChannel.AutoChannelBean;
+import MySQL.Modules.AutoChannel.DBAutoChannel;
+import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelChangeUserLimitEvent;
 
 import java.util.ArrayList;

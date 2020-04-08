@@ -2,9 +2,9 @@ package General.Survey;
 
 import General.DiscordApiCollection;
 import General.FileManager;
-import MySQL.Survey.DBSurvey;
-import MySQL.Survey.SurveyBean;
-import MySQL.Survey.SurveySecondVote;
+import MySQL.Modules.Survey.DBSurvey;
+import MySQL.Modules.Survey.SurveyBean;
+import MySQL.Modules.Survey.SurveySecondVote;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;

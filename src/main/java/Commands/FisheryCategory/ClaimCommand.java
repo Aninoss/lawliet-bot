@@ -9,7 +9,7 @@ import General.TextManager;
 import General.Tools.StringTools;
 import General.Tools.TimeTools;
 import MySQL.DBUser;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

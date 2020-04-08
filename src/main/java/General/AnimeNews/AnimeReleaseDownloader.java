@@ -7,9 +7,12 @@ import General.Internet.InternetResponse;
 import General.PostBundle;
 import General.Tools.StringTools;
 import General.Tools.TimeTools;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
+
+import java.beans.ExceptionListener;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -23,7 +26,10 @@ public class AnimeReleaseDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
+        if (!internetResponse.getContent().isPresent()) {
+            ExceptionHandler.showErrorLog("Anime Releases error code: " + internetResponse.getCode());
+        }
         String dataString = internetResponse.getContent().get();
 
         JSONArray data = XML.toJSONObject(dataString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
@@ -35,7 +41,7 @@ public class AnimeReleaseDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 4).get();
+        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
         if (!internetResponse.getContent().isPresent()) return null;
         String postString = internetResponse.getContent().get();
 
@@ -43,7 +49,7 @@ public class AnimeReleaseDownloader {
         ArrayList<AnimeReleasePost> postList = new ArrayList<>();
         List<AnimeReleasePost> animeReleasePosts = getAnimeReleasePostList(postArray, locale);
 
-        List<Integer> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.stream(newestPostId.split("//|")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.stream(newestPostId.split("\\|")).map(Integer::parseInt).collect(Collectors.toList());
         ArrayList<String> newUsedIds = new ArrayList<>();
 
         for(int i = 0; i < Math.min(10, animeReleasePosts.size()); i++) {
@@ -95,8 +101,6 @@ public class AnimeReleaseDownloader {
 
             list.add(post);
         }
-
-        ExceptionHandler.showInfoLog("Anime releases list size: " + list.size());
 
         return list;
     }

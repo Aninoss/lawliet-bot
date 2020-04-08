@@ -9,8 +9,7 @@ import General.Tools.NSFWTools;
 import General.Porn.PornImage;
 import General.TextManager;
 import General.Tools.StringTools;
-import MySQL.DBServerOld;
-import MySQL.NSFWFilter.DBNSFWFilters;
+import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public abstract class PornAbstract extends Command {
 
@@ -75,15 +73,13 @@ public abstract class PornAbstract extends Command {
                 getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
                 event.getChannel().sendMessage(eb).get();
             } else {
-                for (int i = 0; i < pornImages.size(); i += 3) {
                     StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), TextManager.COMMANDS, getTrigger() + "_title"), getPrefix(), getTrigger(), followedString));
-                    for (int j = 0; j < Math.min(3, pornImages.size() - i); j++) {
-                        sb.append('\n').append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link_template", pornImages.get(i + j).getImageUrl()));
+                    for (int i = 0; i  < Math.min(3, pornImages.size()); i++) {
+                        sb.append('\n').append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link_template", pornImages.get(i).getImageUrl()));
                     }
 
                     getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_notice", notice)));
                     event.getChannel().sendMessage(sb.toString()).get();
-                }
             }
 
             amount -= pornImages.size();

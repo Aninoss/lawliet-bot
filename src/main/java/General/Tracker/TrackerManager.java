@@ -8,8 +8,8 @@ import Constants.Permission;
 import General.DiscordApiCollection;
 import General.PermissionCheckRuntime;
 import MySQL.DBBot;
-import MySQL.Server.DBServer;
-import MySQL.Server.ServerBean;
+import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
 import java.sql.SQLException;

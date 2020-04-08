@@ -1,11 +1,13 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import CommandSupporters.CommandLogger.CommandLogger;
+import CommandSupporters.CommandLogger.CommandUsage;
 import Commands.InformationCategory.HelpCommand;
 import General.*;
 import CommandSupporters.Cooldown.Cooldown;
 import CommandSupporters.RunningCommands.RunningCommandManager;
-import MySQL.CommandUsages.DBCommandUsages;
+import MySQL.Modules.CommandUsages.DBCommandUsages;
 import MySQL.DBServerOld;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -40,7 +42,10 @@ public class CommandManager {
                     command.onNavigationMessageSuper(event, followedString, true);
                 else
                     command.onRecievedSuper(event, followedString);
+
+                CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.SUCCESS));
             } catch (Throwable e) {
+                CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.EXCEPTION));
                 ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();

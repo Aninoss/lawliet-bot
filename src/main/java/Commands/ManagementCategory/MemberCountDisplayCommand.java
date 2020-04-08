@@ -7,9 +7,9 @@ import Constants.*;
 import General.*;
 import General.Mention.MentionTools;
 import General.Tools.StringTools;
-import MySQL.MemberCountDisplays.DBMemberCountDisplays;
-import MySQL.MemberCountDisplays.MemberCountBean;
-import MySQL.MemberCountDisplays.MemberCountDisplay;
+import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
+import MySQL.Modules.MemberCountDisplays.MemberCountBean;
+import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -23,7 +23,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -48,6 +47,7 @@ public class MemberCountDisplayCommand extends Command implements onNavigationLi
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         memberCountBean = DBMemberCountDisplays.getInstance().getBean(event.getServer().get().getId());
+        memberCountBean.getMemberCountBeanSlots().transform(vcId -> event.getServer().get().getVoiceChannelById(vcId));
         return true;
     }
 

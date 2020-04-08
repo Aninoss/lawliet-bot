@@ -11,7 +11,7 @@ import General.Mention.MentionList;
 import General.TextManager;
 import General.Tools.StringTools;
 import MySQL.DBServerOld;
-import MySQL.Moderation.DBModeration;
+import MySQL.Modules.Moderation.DBModeration;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

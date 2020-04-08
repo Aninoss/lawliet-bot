@@ -1,8 +1,8 @@
 package ServerStuff;
 
 import General.DiscordApiCollection;
-import MySQL.Donators.DBDonators;
-import MySQL.Donators.DonatorBeanSlot;
+import MySQL.Modules.Donators.DBDonators;
+import MySQL.Modules.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 

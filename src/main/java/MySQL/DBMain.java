@@ -3,9 +3,9 @@ package MySQL;
 import General.Bot;
 import General.ExceptionHandler;
 import General.SecretManager;
-import MySQL.AutoChannel.DBAutoChannel;
+import MySQL.Interfaces.SQLConsumer;
+import MySQL.Modules.AutoChannel.DBAutoChannel;
 import com.mysql.cj.jdbc.MysqlDataSource;
-import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
 
 import java.io.IOException;
@@ -17,6 +17,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.TimeZone;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class DBMain implements DriverAction {
 
@@ -82,14 +84,72 @@ public class DBMain implements DriverAction {
         return statement;
     }
 
-    public int statementUpdate(String sql) throws SQLException {
-        int n;
+    public void asyncLoad(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, Consumer<ResultSet> resultSetConsumer) {
+        Thread t = new Thread(() -> {
+            SQLException exception = null;
+            for(int i = 0; i < 3; i++) {
+                try {
+                    PreparedStatement preparedStatement = preparedStatement(sql);
+                    preparedStatementConsumer.accept(preparedStatement);
+                    preparedStatement.execute();
 
-        Statement statement = connect.createStatement();
-        n = statement.executeUpdate(sql);
-        statement.close();
+                    ResultSet resultSet = preparedStatement.getResultSet();
+                    while (resultSet.next()) resultSetConsumer.accept(resultSet);
 
-        return n;
+                    resultSet.close();
+                    preparedStatement.close();
+                    return;
+                } catch (SQLException e) {
+                    //Ignore
+                    exception = e;
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        //Ignore
+                    }
+                }
+            }
+
+            exception.printStackTrace();
+        });
+        t.setPriority(1);
+        t.setName("sql_load");
+        t.start();
+    }
+
+    public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+
+        Thread t = new Thread(() -> {
+            SQLException exception = null;
+            for(int i = 0; i < 3; i++) {
+                try {
+                    PreparedStatement preparedStatement = preparedStatement(sql);
+                    preparedStatementConsumer.accept(preparedStatement);
+                    int n = preparedStatement.executeUpdate();
+                    preparedStatement.close();
+
+                    future.complete(n);
+                    return;
+                } catch (SQLException e) {
+                    //Ignore
+                    exception = e;
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        //Ignore
+                    }
+                }
+            }
+
+            exception.printStackTrace();
+            future.completeExceptionally(exception);
+        });
+        t.setPriority(1);
+        t.setName("sql_update");
+        t.start();
+
+        return future;
     }
 
     public Statement statement() throws SQLException {
@@ -111,10 +171,6 @@ public class DBMain implements DriverAction {
 
         return success;
     }
-
-    /*public static String encryptEmojis(String str) {
-        return EmojiParser.parseToAliases(str);
-    }*/
 
     @Override
     public void deregister() {

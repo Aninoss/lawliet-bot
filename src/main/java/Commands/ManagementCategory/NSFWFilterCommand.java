@@ -9,8 +9,7 @@ import Constants.Response;
 import General.CustomObservableList;
 import General.EmbedFactory;
 import General.ListGen;
-import MySQL.DBServerOld;
-import MySQL.NSFWFilter.DBNSFWFilters;
+import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -18,8 +17,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(

@@ -38,7 +38,7 @@ public class AnimeNewsDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) postStrings = getCurrentPostStringDE(dataString);
         else postStrings = getCurrentPostStringEN(dataString);
 
-        List<String> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.asList(newestPostId.split("//|"));
+        List<String> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.asList(newestPostId.split("\\|"));
         ArrayList<String> newUsedIds = new ArrayList<>();
 
         for(int i = 0; i < 5; i++) {

@@ -1,5 +1,7 @@
 package MySQL;
 
+import MySQL.Interfaces.CompleteLoadOnStartup;
+import MySQL.Interfaces.IntervalSave;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -58,18 +60,12 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     private synchronized void intervalSave() {
         ArrayList<U> tempList = new ArrayList<>(changed);
         changed = new ArrayList<>();
-        tempList.forEach(u -> {
-            try {
-                saveBean(u);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
+        tempList.forEach(this::saveBean);
     }
 
     protected abstract U loadBean(T t) throws Exception;
 
-    protected abstract void saveBean(U u) throws SQLException;
+    protected abstract void saveBean(U u);
 
     public U getBean(T t) throws ExecutionException {
         return cache.get(t);
@@ -81,11 +77,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             U u = (U) o;
             if (!changed.contains(u)) changed.add(u);
         } else {
-            try {
-                saveBean((U) o);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            saveBean((U) o);
         }
     }
 
@@ -111,14 +103,6 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     @Override
     public void clear() {
         cache.invalidateAll();
-    }
-
-    public interface IntervalSave {
-        int getIntervalMinutes();
-    }
-
-    public interface CompleteLoadOnStartup<T> {
-        ArrayList<T> getKeySet() throws SQLException;
     }
 
 }

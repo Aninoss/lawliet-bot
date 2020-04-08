@@ -3,15 +3,11 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
+import CommandSupporters.CommandLogger.CommandLogger;
+import Constants.Settings;
 import General.Clock;
-import General.DiscordApiCollection;
 import General.EmbedFactory;
-import MySQL.AutoChannel.AutoChannelBean;
-import MySQL.AutoChannel.DBAutoChannel;
-import MySQL.AutoQuote.AutoQuoteBean;
-import MySQL.AutoQuote.DBAutoQuote;
-import MySQL.Donators.DBDonators;
-import MySQL.Server.DBServer;
+import General.TextManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -34,8 +30,6 @@ public class PingCommand extends Command {
 
         Duration duration = Duration.between(startTime, endTime);
         message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong", String.valueOf((Math.abs(duration.getSeconds() * 1000000000) + Math.abs(duration.getNano())) / 1000000)))).get();
-
-        Clock.updateSurvey();
 
         return true;
     }

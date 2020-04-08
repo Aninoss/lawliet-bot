@@ -3,14 +3,11 @@ package DiscordListener;
 import Constants.Settings;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
-import MySQL.DBServerOld;
-import MySQL.DBUser;
-import MySQL.Server.DBServer;
+import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.server.ServerJoinEvent;
 
-import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 public class ServerJoinListener {

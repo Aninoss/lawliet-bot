@@ -58,7 +58,7 @@ public class AnimeReleasesCommand extends Command implements onTrackerRequestLis
 
     @Override
     public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.setInstant(Instant.now().plusSeconds(60 * 5));
+        trackerData.setInstant(Instant.now().plusSeconds(60 * 30));
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPostTracker(getLocale(), trackerData.getArg());
 
         if (postBundle == null) {

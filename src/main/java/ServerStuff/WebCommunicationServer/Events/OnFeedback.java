@@ -1,5 +1,6 @@
 package ServerStuff.WebCommunicationServer.Events;
 
+import CommandSupporters.CommandLogger.CommandLogger;
 import General.DiscordApiCollection;
 import General.EmbedFactory;
 import General.ExceptionHandler;
@@ -12,6 +13,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -21,8 +23,11 @@ public class OnFeedback implements DataListener<JSONObject> {
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
         String cause = jsonObject.getString("cause");
         String reason = jsonObject.getString("reason");
-        Optional<String> usernameDiscriminated = Optional.ofNullable(
+        Optional<String> usernameDiscriminatedOpt = Optional.ofNullable(
                 jsonObject.has("username_discriminated") ? jsonObject.getString("username_discriminated") : null
+        );
+        Optional<Long> serverIdOpt = Optional.ofNullable(
+                jsonObject.has("server_id") ? jsonObject.getLong("server_id") : null
         );
 
         ExceptionHandler.showInfoLog("New Feedback! ### " + cause + " ###\n" + reason);
@@ -30,7 +35,15 @@ public class OnFeedback implements DataListener<JSONObject> {
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setTitle(cause)
                 .setDescription(reason);
-        usernameDiscriminated.ifPresent(eb::setAuthor);
+        usernameDiscriminatedOpt.ifPresent(eb::setAuthor);
+        serverIdOpt.ifPresent(serverId -> {
+            try {
+                CommandLogger.getInstance().saveLog(serverId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            eb.setFooter(String.valueOf(serverId));
+        });
 
         DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
 
