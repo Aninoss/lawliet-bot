@@ -1,28 +1,28 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnNavigationListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import Constants.*;
-import General.*;
-import General.EmojiConnection.BackEmojiConnection;
-import General.EmojiConnection.EmojiConnection;
-import General.Tools.StringTools;
-import General.Tracker.TrackerData;
-import General.Tracker.TrackerManager;
-import MySQL.DBBot;
+import Core.*;
+import Core.EmojiConnection.BackEmojiConnection;
+import Core.EmojiConnection.EmojiConnection;
+import Core.Tools.StringTools;
+import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.Tracker.DBTracker;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
+import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @CommandProperties(
     trigger = "tracker",
@@ -32,20 +32,18 @@ import java.util.ArrayList;
     emoji = "\uD83D\uDD16",
     executable = true
 )
-public class TrackerCommand extends Command implements onNavigationListener {
+public class TrackerCommand extends Command implements OnNavigationListener {
 
     private ArrayList<EmojiConnection> emojiConnections;
-    private Server server;
-    private ServerTextChannel channel;
-    private ArrayList<TrackerData> trackers;
-    private onTrackerRequestListener command;
+    private long serverId, channelId;
+    private ArrayList<TrackerBeanSlot> trackerSlots;
     private String commandTrigger;
     private boolean override;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        server = event.getServer().get();
-        channel = event.getServerTextChannel().get();
+        serverId = event.getServer().get().getId();
+        channelId = event.getServerTextChannel().get().getId();
         controll(followedString, 0, true);
         return true;
     }
@@ -99,7 +97,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                 case 0:
                     if (arg.equalsIgnoreCase("add")) {
                         updateTrackerList();
-                        if (trackers.size() < 6) {
+                        if (trackerSlots.size() < 6) {
                             state = 1;
                             setState(1);
                         } else {
@@ -109,7 +107,7 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     }
                     else if (arg.equalsIgnoreCase("remove")) {
                         updateTrackerList();
-                        if (trackers.size() > 0) {
+                        if (trackerSlots.size() > 0) {
                             state = 2;
                             setState(2);
                         } else {
@@ -124,21 +122,20 @@ public class TrackerCommand extends Command implements onNavigationListener {
 
                 case 1:
                     boolean found = false;
-                    for (onTrackerRequestListener command : CommandContainer.getInstance().getTrackerCommands()) {
+                    for (OnTrackerRequestListener command : CommandContainer.getInstance().getTrackerCommands()) {
                         String trigger = ((Command) command).getTrigger();
 
                         if (trigger.equalsIgnoreCase(arg)) {
                             updateTrackerList();
-                            TrackerData trackerRemove = getTracker(arg);
-                            override = trackerRemove != null;
+                            TrackerBeanSlot slot = getTracker(arg);
+                            override = slot != null;
                             if (override) {
                                 if (!command.trackerUsesKey()) {
                                     setLog(LogStatus.FAILURE, getString("state1_alreadytracking"));
                                     return;
                                 }
-                                TrackerManager.stopTracker(trackerRemove, true);
+                                slot.stop();
                             }
-                            this.command = command;
                             this.commandTrigger = trigger;
                             if (!command.trackerUsesKey()) {
                                 addTracker(null);
@@ -159,13 +156,13 @@ public class TrackerCommand extends Command implements onNavigationListener {
                     break;
 
                 case 2:
-                    TrackerData trackerRemove = getTracker(arg);
-                    if (trackerRemove != null) {
-                        DBBot.removeTracker(trackerRemove);
-                        TrackerManager.stopTracker(trackerRemove, true);
+                    TrackerBeanSlot slotRemove = getTracker(arg);
+                    if (slotRemove != null) {
+                        slotRemove.delete();
+                        slotRemove.stop();
                         updateTrackerList();
                         setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
-                        if (trackers.size() == 0) {
+                        if (trackerSlots.size() == 0) {
                             setState(0);
                         }
                         if (first) endNavigation();
@@ -185,12 +182,19 @@ public class TrackerCommand extends Command implements onNavigationListener {
     }
 
     private void addTracker(String key) throws Throwable {
-        if (!Bot.isDebug()) {
-            TrackerData trackerData = new TrackerData(server, channel, 0, commandTrigger, key, Instant.now(), null);
-            TrackerManager.startTracker(trackerData);
-            setState(1);
-            setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
-        }
+        TrackerBeanSlot slot = new TrackerBeanSlot(
+                serverId,
+                DBServer.getInstance().getBean(serverId),
+                channelId,
+                commandTrigger,
+                null,
+                key,
+                Instant.now(),
+                null
+        );
+        DBTracker.getInstance().getBean().getMap().put(new Pair<>(channelId, commandTrigger), slot);
+        setState(1);
+        setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
     }
 
     private void endNavigation() {
@@ -199,22 +203,19 @@ public class TrackerCommand extends Command implements onNavigationListener {
     }
 
     private void updateTrackerList() throws Throwable {
-        ArrayList<TrackerData> newTrackers = new ArrayList<>();
-        for(TrackerData trackerData: DBBot.getTracker(server.getApi())) {
-            if (trackerData.getServerId() == server.getId() && trackerData.getChannelId() == channel.getId()) {
-                newTrackers.add(trackerData);
-            }
-        }
-        trackers = newTrackers;
+        trackerSlots = DBTracker.getInstance().getBean().getMap().values().stream()
+                .filter(slot -> slot.getChannelId() == channelId)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private TrackerData getTracker(String trigger) {
-        for(TrackerData trackerData: trackers) {
-            if (trackerData.getCommand().equalsIgnoreCase(trigger)) {
-                return trackerData;
+    private TrackerBeanSlot getTracker(String trigger) {
+        for(TrackerBeanSlot slot: trackerSlots) {
+            if (slot.getCommandTrigger().equalsIgnoreCase(trigger)) {
+                return slot;
             }
         }
         return null;
+
     }
 
     @Override
@@ -241,12 +242,16 @@ public class TrackerCommand extends Command implements onNavigationListener {
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[trackers.size()]);
+                setOptions(new String[trackerSlots.size()]);
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i=0; i < getOptions().length; i++) {
-                    String trigger = trackers.get(i).getCommand();
-                    getOptions()[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");;
+                    String trigger = trackerSlots.get(i).getCommandTrigger();
+                    getOptions()[i] = getString("slot", trackerSlots.get(i).getCommandKey().isPresent(),
+                            trigger,
+                            TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description"),
+                            trackerSlots.get(i).getCommandKey().orElse("")
+                            );
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));

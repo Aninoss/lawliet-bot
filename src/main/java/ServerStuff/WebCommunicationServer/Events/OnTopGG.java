@@ -1,6 +1,7 @@
 package ServerStuff.WebCommunicationServer.Events;
 
 import MySQL.DBUser;
+import MySQL.Modules.Upvotes.DBUpvotes;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
@@ -23,6 +24,7 @@ public class OnTopGG implements DataListener<JSONObject> {
         if (type.equals("upvote")) {
             try {
                 DBUser.increaseUpvotesUnclaimed(userId, amount);
+                DBUpvotes.getInstance().getBean(userId).updateLastUpvote();
 
                 //Send data
                 socketIOClient.sendEvent(WebComServer.EVENT_TOPGG);

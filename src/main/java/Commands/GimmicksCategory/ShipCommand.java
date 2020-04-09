@@ -4,10 +4,10 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.Mention.MentionTools;
-import General.Tools.RandomTools;
-import General.ImageCreator;
+import Core.EmbedFactory;
+import Core.Mention.MentionTools;
+import Core.Tools.RandomTools;
+import Modules.ImageCreator;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

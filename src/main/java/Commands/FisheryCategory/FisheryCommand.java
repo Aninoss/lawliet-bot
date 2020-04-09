@@ -3,10 +3,10 @@ package Commands.FisheryCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.*;
-import General.*;
-import General.BotResources.ResourceManager;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.BotResources.ResourceManager;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.DatabaseCache;
@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"fishingsetup", "fisherysetup"}
 )
-public class FisheryCommand extends Command implements onNavigationListener, onReactionAddStaticListener {
+public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
     private static final int MAX_ROLES = 50;
 

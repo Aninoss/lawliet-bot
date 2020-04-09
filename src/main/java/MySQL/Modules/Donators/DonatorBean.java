@@ -1,6 +1,6 @@
 package MySQL.Modules.Donators;
 
-import General.CustomObservableMap;
+import Core.CustomObservableMap;
 
 import java.time.LocalDate;
 import java.util.HashMap;

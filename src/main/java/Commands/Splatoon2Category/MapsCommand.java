@@ -4,10 +4,11 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
-import General.*;
-import General.Internet.InternetCache;
-import General.Tools.TimeTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Core.Internet.InternetCache;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -25,7 +26,7 @@ import java.util.Date;
     thumbnail = "https://pbs.twimg.com/profile_images/819765217957552132/1WftJJM1.jpg",
     executable = true
 )
-public class MapsCommand extends Command implements onTrackerRequestListener {
+public class MapsCommand extends Command implements OnTrackerRequestListener {
 
     private Instant trackingTime;
 
@@ -131,12 +132,13 @@ public class MapsCommand extends Command implements onTrackerRequestListener {
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.deletePreviousMessage();
-        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
-        trackerData.setMessageDelete(message);
-        trackerData.setInstant(trackingTime);
-        return trackerData;
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        slot.getMessage().ifPresent(Message::delete);
+        Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
+        slot.setMessageId(message.getId());
+        slot.setNextRequest(trackingTime);
+
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

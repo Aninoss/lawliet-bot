@@ -4,9 +4,9 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Language;
-import General.*;
-import General.Internet.Internet;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Internet.Internet;
+import Core.Tools.StringTools;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 

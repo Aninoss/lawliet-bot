@@ -1,16 +1,17 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Constants.Settings;
-import General.*;
-import General.Mention.MentionTools;
-import General.Tools.InternetTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Mention.MentionTools;
+import Core.Tools.InternetTools;
+import Core.Tools.StringTools;
+import Modules.ImageCreator;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
 import org.javacord.api.DiscordApi;
@@ -41,7 +42,7 @@ import java.util.regex.Pattern;
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
     executable = true
 )
-public class WelcomeCommand extends Command implements onNavigationListener {
+public class WelcomeCommand extends Command implements OnNavigationListener {
     
     private WelcomeMessageBean welcomeMessageBean;
     private User author;

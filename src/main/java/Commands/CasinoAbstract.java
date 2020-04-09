@@ -5,11 +5,11 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.FisheryStatus;
 import Constants.Settings;
-import General.CasinoBetContainer;
-import General.EmbedFactory;
-import General.Mention.MentionTools;
-import General.TextManager;
-import General.Tools.StringTools;
+import Modules.CasinoBetContainer;
+import Core.EmbedFactory;
+import Core.Mention.MentionTools;
+import Core.TextManager;
+import Core.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.Modules.GameStatistics.DBGameStatistics;
 import MySQL.Modules.GameStatistics.GameStatisticsBean;
@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
-public abstract class CasinoAbstract extends Command implements onReactionAddListener {
+public abstract class CasinoAbstract extends Command implements OnReactionAddListener {
 
     protected long coinsInput;
     protected User player;
@@ -95,7 +95,7 @@ public abstract class CasinoAbstract extends Command implements onReactionAddLis
         CasinoBetContainer.getInstance().removeBet(player, coinsInput);
         removeNavigation();
         removeMessageForwarder();
-        removeReactionListener(((onReactionAddListener)this).getReactionMessage());
+        removeReactionListener(((OnReactionAddListener)this).getReactionMessage());
     }
 
     protected void onLose() throws SQLException, IOException, ExecutionException {

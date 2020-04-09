@@ -1,7 +1,7 @@
 package MySQL.Modules.SPBlock;
 
-import General.CustomObservableList;
-import General.DiscordApiCollection;
+import Core.CustomObservableList;
+import Core.DiscordApiCollection;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;

@@ -1,6 +1,6 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import General.TextManager;
+import Core.TextManager;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;

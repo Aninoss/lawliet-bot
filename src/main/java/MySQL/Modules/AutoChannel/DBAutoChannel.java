@@ -1,7 +1,7 @@
 package MySQL.Modules.AutoChannel;
 
-import General.Bot;
-import General.DiscordApiCollection;
+import Core.Bot;
+import Core.DiscordApiCollection;
 import MySQL.DBDataLoad;
 import MySQL.DBKeySetLoad;
 import MySQL.DBMain;

@@ -1,8 +1,8 @@
 package DiscordListener;
 
 import Constants.Settings;
-import General.DiscordApiCollection;
-import General.TextManager;
+import Core.DiscordApiCollection;
+import Core.TextManager;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.server.Server;
@@ -29,5 +29,9 @@ public class ServerLeaveListener {
 
         if (event.getServer().getMembers().size() >= 100)
             DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
+
+        System.out.println("Delete Database Entry");
+
+        DBServer.getInstance().remove(event.getServer().getId());
     }
 }

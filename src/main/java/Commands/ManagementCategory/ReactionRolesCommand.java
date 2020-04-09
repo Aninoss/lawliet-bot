@@ -6,11 +6,11 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Constants.Settings;
-import General.*;
-import General.EmojiConnection.EmojiConnection;
-import General.Mention.MentionTools;
-import General.Mention.MentionList;
-import General.Tools.StringTools;
+import Core.*;
+import Core.EmojiConnection.EmojiConnection;
+import Core.Mention.MentionTools;
+import Core.Mention.MentionList;
+import Core.Tools.StringTools;
 import com.vdurmont.emoji.EmojiParser;
 import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"rmess", "reactionrole", "rroles"}
 )
-public class ReactionRolesCommand extends Command implements onNavigationListener, onReactionAddStaticListener, onReactionRemoveStaticListener {
+public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
     private static final int MAX_LINKS = 18;
 

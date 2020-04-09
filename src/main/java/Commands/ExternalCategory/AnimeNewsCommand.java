@@ -2,20 +2,22 @@ package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
 
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.*;
-import General.AnimeNews.AnimeNewsDownloader;
-import General.AnimeNews.AnimeNewsPost;
-import General.PostBundle;
-import General.Tools.StringTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Modules.AnimeNews.AnimeNewsDownloader;
+import Modules.AnimeNews.AnimeNewsPost;
+import Modules.PostBundle;
+import Core.Tools.StringTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @CommandProperties(
     trigger = "animenews",
@@ -23,7 +25,7 @@ import java.time.Instant;
     emoji = "\uD83D\uDCF0",
     executable = true
 )
-public class AnimeNewsCommand extends Command implements onTrackerRequestListener {
+public class AnimeNewsCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -45,22 +47,20 @@ public class AnimeNewsCommand extends Command implements onTrackerRequestListene
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.setInstant(Instant.now().plusSeconds(60 * 15));
-        PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), trackerData.getArg());
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+        PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), slot.getArgs().orElse(null));
 
-        if (postBundle == null) {
-            trackerData.setSaveChanges(false);
-            return trackerData;
-        }
+        if (postBundle == null)
+            return TrackerResult.CONTINUE;
 
-        ServerTextChannel channel = trackerData.getChannel().get();
+        ServerTextChannel channel = slot.getChannel().get();
         for(AnimeNewsPost post: postBundle.getPosts()) {
             channel.sendMessage(getEmbed(post)).get();
         }
 
-        trackerData.setArg(postBundle.getNewestPost());
-        return trackerData;
+        slot.setArgs(postBundle.getNewestPost());
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

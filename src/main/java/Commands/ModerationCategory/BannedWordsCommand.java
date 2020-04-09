@@ -1,15 +1,15 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import CommandSupporters.NavigationHelper;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
-import General.*;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.Modules.BannedWords.BannedWordsBean;
 import MySQL.Modules.BannedWords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
     thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/road-block-icon.png",
     executable = true
 )
-public class BannedWordsCommand extends Command implements onNavigationListener {
+public class BannedWordsCommand extends Command implements OnNavigationListener {
 
     private static final int MAX_WORDS = 20;
     private static final int MAX_LETTERS = 20;

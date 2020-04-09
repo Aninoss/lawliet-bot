@@ -1,13 +1,13 @@
 package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onReactionAddListener;
+import CommandListeners.OnReactionAddListener;
 
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Settings;
-import General.*;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         deleteOnTimeOut = false,
         aliases = {"coin", "cf"}
 )
-public class CoinFlipCommand extends CasinoAbstract implements onReactionAddListener {
+public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {
 
     private String log;
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};

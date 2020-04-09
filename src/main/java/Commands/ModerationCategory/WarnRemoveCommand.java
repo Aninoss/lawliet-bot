@@ -1,17 +1,20 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onReactionAddListener;
+import CommandListeners.OnReactionAddListener;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.Mention.MentionTools;
-import General.Mention.MentionList;
-import General.TextManager;
-import General.Tools.StringTools;
-import MySQL.DBServerOld;
+import Core.CustomObservableList;
+import Core.EmbedFactory;
+import Core.Mention.MentionTools;
+import Core.Mention.MentionList;
+import Core.TextManager;
+import Core.Tools.StringTools;
 import MySQL.Modules.Moderation.DBModeration;
+import MySQL.Modules.Warning.DBServerWarnings;
+import MySQL.Modules.Warning.ServerWarningsSlot;
+import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -20,7 +23,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -31,7 +33,7 @@ import java.util.concurrent.ExecutionException;
         thumbnail = "http://icons.iconarchive.com/icons/martz90/circle/128/trash-icon.png",
         executable = false
 )
-public class WarnRemoveCommand extends Command implements onReactionAddListener {
+public class WarnRemoveCommand extends Command implements OnReactionAddListener {
 
     private ArrayList<User> users;
     private int n;
@@ -83,11 +85,13 @@ public class WarnRemoveCommand extends Command implements onReactionAddListener 
         return true;
     }
 
-    private void executeRemoval() throws SQLException, IOException, ExecutionException, InterruptedException {
+    private void executeRemoval() throws IOException, ExecutionException, InterruptedException {
         removeReactionListener();
 
-        for(User user: users)
-            DBServerOld.removeWarningsForUser(channel.getServer(), user, n);
+        for(User user: users) {
+            CustomObservableList<ServerWarningsSlot> serverWarningsSlots = DBServerWarnings.getInstance().getBean(new Pair<>(channel.getServer().getId(), user.getId())).getWarnings();
+            serverWarningsSlots.remove(Math.max(0, serverWarningsSlots.size() - n), serverWarningsSlots.size());
+        }
 
         postMessage(EmbedFactory.getCommandEmbedSuccess(this,
                 getString("success", n != 1, nString, userString)

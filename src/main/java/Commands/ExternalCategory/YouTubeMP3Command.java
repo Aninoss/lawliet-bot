@@ -4,8 +4,9 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.*;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Tools.StringTools;
+import Modules.YouTubeDownloader;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 

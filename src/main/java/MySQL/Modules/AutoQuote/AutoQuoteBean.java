@@ -1,6 +1,6 @@
 package MySQL.Modules.AutoQuote;
 
-import General.DiscordApiCollection;
+import Core.DiscordApiCollection;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.server.Server;
 

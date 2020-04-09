@@ -1,8 +1,8 @@
 package MySQL;
 
-import General.Bot;
-import General.ExceptionHandler;
-import General.SecretManager;
+import Core.Bot;
+import Core.ExceptionHandler;
+import Core.SecretManager;
 import MySQL.Interfaces.SQLConsumer;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -52,7 +52,6 @@ public class DBMain implements DriverAction {
         try {
             DBServerOld.synchronize(api);
             DBAutoChannel.getInstance().synchronize(api);
-            DBBot.startTrackers(api);
         } catch (Throwable e) {
             e.printStackTrace();
             ExceptionHandler.showErrorLog("Error in synchronization method!");

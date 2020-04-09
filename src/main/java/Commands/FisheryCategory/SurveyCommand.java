@@ -2,20 +2,12 @@ package Commands.FisheryCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
-import Constants.LetterEmojis;
-import Constants.LogStatus;
-import Constants.Permission;
-import Constants.Settings;
-import General.*;
-import General.Survey.SurveyManager;
-import General.Survey.SurveyQuestion;
-import General.Tools.StringTools;
-import General.Tools.TimeTools;
-import General.Tracker.TrackerData;
-import MySQL.Modules.Survey.DBSurvey;
-import MySQL.Modules.Survey.SurveyBean;
-import MySQL.Modules.Survey.SurveyFirstVote;
-import MySQL.Modules.Survey.SurveySecondVote;
+import Constants.*;
+import Core.*;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Survey.*;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -39,7 +31,7 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executable = true
 )
-public class SurveyCommand extends Command implements onReactionAddStaticListener, onTrackerRequestListener {
+public class SurveyCommand extends Command implements OnReactionAddStaticListener, OnTrackerRequestListener {
 
     private static long lastAccess = 0;
 
@@ -95,12 +87,12 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
                             }
                         }
 
-                        SurveyQuestion surveyQuestion = SurveyManager.getSurveyQuestionAndAnswers(surveyBean.getSurveyId(), getLocale());;
+                        SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
                         String[] voteStrings = new String[2];
 
                         voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUser().getId()).getVote()];
 
-                        List<SurveySecondVote> surveySecondVotes = SurveyManager.getSurveySecondVotesForUserId(surveyBean, event.getUser().getId());
+                        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUser().getId());
 
                         if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                         else voteStrings[1] = "";
@@ -152,7 +144,7 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
     }
 
     private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey) throws IOException {
-        SurveyQuestion surveyQuestion = SurveyManager.getSurveyQuestionAndAnswers(lastSurvey.getSurveyId(), getLocale());
+        SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("results_title"));
         eb.addField(getString("results_question"), surveyQuestion.getQuestion(), false);
@@ -161,9 +153,9 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
         for(int i = 0; i < 2; i++) answerString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         eb.addField(getString("results_answers"), answerString.toString(), false);
 
-        long firstVotesTotal = SurveyManager.getFirstVoteNumbers(lastSurvey);
+        long firstVotesTotal = lastSurvey.getFirstVoteNumber();
         long[] firstVotes = new long[2];
-        for(byte i = 0; i < 2; i++) firstVotes[i] = SurveyManager.getFirstVoteNumbers(lastSurvey, i);
+        for(byte i = 0; i < 2; i++) firstVotes[i] = lastSurvey.getFirstVoteNumbers(i);
         double[] firstVotesRelative = new double[2];
         for(byte i = 0; i < 2; i++) firstVotesRelative[i] = firstVotes[i] / (double)firstVotesTotal;
 
@@ -180,13 +172,13 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
         }
 
         eb.addField(getString("results_results", firstVotesTotal != 1, String.valueOf(firstVotesTotal)), resultString.toString(), false);
-        eb.addField(Settings.EMPTY_EMOJI, getString("results_won", SurveyManager.getWon(lastSurvey), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]).toUpperCase());
+        eb.addField(Settings.EMPTY_EMOJI, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]).toUpperCase());
 
         return eb;
     }
 
     private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean) throws IOException {
-        SurveyQuestion surveyQuestion = SurveyManager.getSurveyQuestionAndAnswers(surveyBean.getSurveyId(), getLocale());
+        SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Settings.EMPTY_EMOJI);
 
         StringBuilder personalString = new StringBuilder();
@@ -207,26 +199,25 @@ public class SurveyCommand extends Command implements onReactionAddStaticListene
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        while(trackerData.getArg() != null && DBSurvey.getInstance().getCurrentSurveyId() <= Integer.parseInt(trackerData.getArg())) {
-            Thread.sleep(60 * 1000);
-        }
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        if(slot.getArgs().isPresent() && DBSurvey.getInstance().getCurrentSurveyId() <= Integer.parseInt(slot.getArgs().get()))
+            return TrackerResult.CONTINUE;
 
-        ServerTextChannel channel = trackerData.getChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.ADD_REACTIONS)) {
-            trackerData.setSaveChanges(false);
-            return trackerData;
-        }
-        trackerData.deletePreviousMessage();
-        trackerData.setMessageDelete(sendMessages(channel, true));
-        Instant nextInstant = trackerData.getInstant();
+        ServerTextChannel channel = slot.getChannel().get();
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.ADD_REACTIONS))
+            return TrackerResult.CONTINUE;
+
+        slot.getMessage().ifPresent(Message::delete);
+        slot.setMessageId(sendMessages(channel, true).getId());
+        Instant nextInstant = slot.getNextRequest();
         do {
             nextInstant = TimeTools.setInstantToNextDay(nextInstant);
         } while(!TimeTools.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeTools.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
-        trackerData.setInstant(nextInstant.plusSeconds(5 * 60));
-        trackerData.setArg(String.valueOf(DBSurvey.getInstance().getCurrentSurvey()));
-        return trackerData;
+        slot.setNextRequest(nextInstant.plusSeconds(5 * 60));
+        slot.setArgs(String.valueOf(DBSurvey.getInstance().getCurrentSurvey().getSurveyId()));
+
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

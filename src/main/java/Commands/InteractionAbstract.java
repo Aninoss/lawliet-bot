@@ -2,10 +2,10 @@ package Commands;
 
 
 import CommandSupporters.Command;
-import General.*;
-import General.Mention.Mention;
-import General.Mention.MentionTools;
-import General.Tools.RandomTools;
+import Core.*;
+import Core.Mention.Mention;
+import Core.Mention.MentionTools;
+import Core.Tools.RandomTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;

@@ -1,7 +1,7 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import General.DiscordApiCollection;
-import General.PermissionCheck;
+import Core.DiscordApiCollection;
+import Core.PermissionCheck;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;

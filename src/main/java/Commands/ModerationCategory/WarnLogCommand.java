@@ -3,22 +3,25 @@ package Commands.ModerationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.Mention.MentionTools;
-import General.TextManager;
-import General.Tools.StringTools;
-import General.Tools.TimeTools;
-import General.Warnings.UserWarnings;
-import General.Warnings.WarningSlot;
-import MySQL.DBServerOld;
+import Core.EmbedFactory;
+import Core.Mention.MentionTools;
+import Core.TextManager;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Warning.DBServerWarnings;
+import MySQL.Modules.Warning.ServerWarningsBean;
+import MySQL.Modules.Warning.ServerWarningsSlot;
+import javafx.util.Pair;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @CommandProperties(
@@ -44,14 +47,17 @@ public class WarnLogCommand extends Command {
             userMentioned = false;
         }
         for (User user: list) {
-            UserWarnings userWarnings = DBServerOld.getWarningsForUser(server, user);
+            ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
 
             StringBuilder latestWarnings = new StringBuilder();
-            for(WarningSlot warningSlot: userWarnings.getLatest(3)) {
-                Optional<User> requestor = warningSlot.getRequestor();
-                Optional<String> reason = warningSlot.getReason();
+
+            List<ServerWarningsSlot> slots = serverWarningsBean.getLatest(3);
+            Collections.reverse(slots);
+            for(ServerWarningsSlot serverWarningsSlot: slots) {
+                Optional<User> requestor = serverWarningsSlot.getRequesterUser();
+                Optional<String> reason = serverWarningsSlot.getReason();
                 String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", requestor.get().getName())) : getString("unknown_user");
-                String timeDiffString = TimeTools.getRemainingTimeString(getLocale(), Instant.now(), warningSlot.getTime(), true);
+                String timeDiffString = TimeTools.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);
                 latestWarnings.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
             }
 
@@ -63,10 +69,10 @@ public class WarnLogCommand extends Command {
                     .setThumbnail(user.getAvatar().getUrl().toString());
             eb.addField(getString("latest"), latestWarningsString, false);
             eb.addField(getString("amount"), getString("amount_template",
-                    StringTools.numToString(userWarnings.amountLatestHours(24)),
-                    StringTools.numToString(userWarnings.amountLatestDays(7)),
-                    StringTools.numToString(userWarnings.amountLatestDays(30)),
-                    StringTools.numToString(userWarnings.amountTotal())
+                    StringTools.numToString(serverWarningsBean.getAmountLatest(24, ChronoUnit.HOURS).size()),
+                    StringTools.numToString(serverWarningsBean.getAmountLatest(7, ChronoUnit.DAYS).size()),
+                    StringTools.numToString(serverWarningsBean.getAmountLatest(30, ChronoUnit.DAYS).size()),
+                    StringTools.numToString(serverWarningsBean.getWarnings().size())
             ), false);
             if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
             event.getChannel().sendMessage(eb).get();

@@ -3,14 +3,15 @@ package Commands.FisheryCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.*;
-import General.Tools.StringTools;
-import General.Tools.TimeTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
+import Modules.ExchangeRate;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -23,7 +24,7 @@ import java.time.Instant;
         executable = true,
         aliases = {"exchangerate", "er", "exchr"}
 )
-public class ExchangeRateCommand extends Command implements onTrackerRequestListener {
+public class ExchangeRateCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -49,12 +50,13 @@ public class ExchangeRateCommand extends Command implements onTrackerRequestList
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.deletePreviousMessage();
-        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
-        trackerData.setMessageDelete(message);
-        trackerData.setInstant(TimeTools.setInstantToNextDay(Instant.now()).plusSeconds(10));
-        return trackerData;
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        slot.getMessage().ifPresent(Message::delete);
+        Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
+        slot.setMessageId(message.getId());
+        slot.setNextRequest(TimeTools.setInstantToNextDay(Instant.now()).plusSeconds(10));
+
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

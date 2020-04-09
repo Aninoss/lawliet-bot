@@ -4,7 +4,7 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Locales;
 import Constants.Permission;
-import General.EmbedFactory;
+import Core.EmbedFactory;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -19,7 +19,7 @@ import java.util.Locale;
         executable = true,
         aliases = {"sprache"}
 )
-public class LanguageCommand extends Command implements onReactionAddListener {
+public class LanguageCommand extends Command implements OnReactionAddListener {
 
     private Message message;
 

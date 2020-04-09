@@ -1,8 +1,8 @@
 package DiscordListener;
 
-import CommandListeners.onForwardedRecievedListener;
-import CommandListeners.onNavigationListener;
-import CommandListeners.onReactionAddListener;
+import CommandListeners.OnForwardedRecievedListener;
+import CommandListeners.OnNavigationListener;
+import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import org.javacord.api.event.message.MessageDeleteEvent;
@@ -20,9 +20,9 @@ public class MessageDeleteListener {
             Command command = list.get(i);
             long messageId = 0;
             if (command != null) {
-                if (command instanceof onForwardedRecievedListener)
-                    messageId = ((onForwardedRecievedListener) command).getForwardedMessage().getId();
-                else if (command instanceof onNavigationListener) messageId = command.getNavigationMessage().getId();
+                if (command instanceof OnForwardedRecievedListener)
+                    messageId = ((OnForwardedRecievedListener) command).getForwardedMessage().getId();
+                else if (command instanceof OnNavigationListener) messageId = command.getNavigationMessage().getId();
 
                 if (event.getMessageId() == messageId) {
                     CommandContainer.getInstance().removeForwarder(command);
@@ -36,9 +36,9 @@ public class MessageDeleteListener {
             Command command = list.get(i);
             long messageId = 0;
             if (command != null) {
-                if (command instanceof onReactionAddListener)
-                    messageId = ((onReactionAddListener) command).getReactionMessage().getId();
-                else if (command instanceof onNavigationListener) messageId = command.getNavigationMessage().getId();
+                if (command instanceof OnReactionAddListener)
+                    messageId = ((OnReactionAddListener) command).getReactionMessage().getId();
+                else if (command instanceof OnNavigationListener) messageId = command.getNavigationMessage().getId();
 
                 if (event.getMessageId() == messageId) {
                     CommandContainer.getInstance().removeReactionListener(command);

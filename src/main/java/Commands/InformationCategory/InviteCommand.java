@@ -4,7 +4,7 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Settings;
-import General.EmbedFactory;
+import Core.EmbedFactory;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(

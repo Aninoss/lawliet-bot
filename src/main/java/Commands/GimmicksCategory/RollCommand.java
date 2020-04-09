@@ -3,9 +3,9 @@ package Commands.GimmicksCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.TextManager;
-import General.Tools.StringTools;
+import Core.EmbedFactory;
+import Core.TextManager;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

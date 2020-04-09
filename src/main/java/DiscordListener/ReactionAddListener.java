@@ -4,7 +4,7 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
-import General.ExceptionHandler;
+import Core.ExceptionHandler;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
@@ -23,8 +23,8 @@ public class ReactionAddListener {
                     //RunningCommandManager.getInstance().canUserRunCommand(event.getUser().getId(), event.getApi().getCurrentShard());
 
                     try {
-                        if (command instanceof onReactionAddListener) command.onReactionAddSuper(event);
-                        if (command instanceof onNavigationListener) command.onNavigationReactionSuper(event);
+                        if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
+                        if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
                     } catch (Throwable e) {
                         ExceptionHandler.handleException(e, command.getLocale(), event.getMessage().get().getChannel());
                     }
@@ -63,7 +63,7 @@ public class ReactionAddListener {
                 Embed embed = message.getEmbeds().get(0);
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
-                    for (onReactionAddStaticListener command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
+                    for (OnReactionAddStaticListener command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
                             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
                             ((Command) command).setLocale(serverBean.getLocale());

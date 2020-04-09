@@ -1,6 +1,6 @@
 package MySQL.Modules.Moderation;
 
-import General.DiscordApiCollection;
+import Core.DiscordApiCollection;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;

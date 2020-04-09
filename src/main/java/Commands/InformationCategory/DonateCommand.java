@@ -4,9 +4,9 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Settings;
-import General.DiscordApiCollection;
-import General.EmbedFactory;
-import General.TextManager;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.TextManager;
 import MySQL.Modules.Donators.DBDonators;
 import MySQL.Modules.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

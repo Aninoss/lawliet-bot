@@ -1,6 +1,6 @@
 package MySQL.Modules.WelcomeMessage;
 
-import General.TextManager;
+import Core.TextManager;
 import MySQL.DBBeanGenerator;
 import MySQL.DBMain;
 import MySQL.Modules.Server.DBServer;
@@ -9,7 +9,6 @@ import org.javacord.api.entity.DiscordEntity;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Optional;
 

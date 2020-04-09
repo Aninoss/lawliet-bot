@@ -1,12 +1,9 @@
 package MySQL.Modules.Donators;
 
 import MySQL.DBCached;
+import MySQL.DBDataLoad;
 import MySQL.DBMain;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 
 public class DBDonators extends DBCached {
@@ -17,25 +14,16 @@ public class DBDonators extends DBCached {
 
     private DonatorBean donatorBean = null;
 
-    public DonatorBean getBean() throws SQLException {
+    public synchronized DonatorBean getBean() throws SQLException {
         if (donatorBean == null) {
-            HashMap<Long, DonatorBeanSlot> slots = new HashMap<>();
-
-            Statement statement = DBMain.getInstance().statement("SELECT userId, end FROM Donators;");
-            ResultSet resultSet = statement.getResultSet();
-            while (resultSet.next()) {
-                long userId = resultSet.getLong(1);
-
-                DonatorBeanSlot donatorBeanSlot = new DonatorBeanSlot(
-                        userId,
-                        resultSet.getDate(2).toLocalDate()
-                );
-
-                slots.put(userId, donatorBeanSlot);
-            }
-
-            resultSet.close();
-            statement.close();
+            HashMap<Long, DonatorBeanSlot> slots = new DBDataLoad<DonatorBeanSlot>("Donators", "userId, end", "1", preparedStatement -> {})
+                    .getHashMap(
+                            DonatorBeanSlot::getUserId,
+                            resultSet -> new DonatorBeanSlot(
+                                    resultSet.getLong(1),
+                                    resultSet.getDate(2).toLocalDate()
+                            )
+                    );
 
             donatorBean = new DonatorBean(slots);
             donatorBean.getMap()
@@ -54,7 +42,7 @@ public class DBDonators extends DBCached {
         });
     }
 
-    public void removeDonation(DonatorBeanSlot donatorBean) {
+    protected void removeDonation(DonatorBeanSlot donatorBean) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Donators WHERE userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, donatorBean.getUserId());
         });

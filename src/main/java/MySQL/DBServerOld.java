@@ -1,18 +1,15 @@
 package MySQL;
 
 import Constants.*;
-import General.*;
-import General.Warnings.UserWarnings;
-import General.Warnings.WarningSlot;
+import Core.*;
+import Modules.RankingSlot;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
 import java.sql.*;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -44,37 +41,6 @@ public class DBServerOld {
         serverStatement.setString(1, server.getIdAsString());
         serverStatement.executeUpdate();
         serverStatement.close();
-    }
-
-    public static UserWarnings getWarningsForUser(Server server, User user) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT time, requestorUserId, reason FROM Warnings WHERE serverId = ? AND userId = ? ORDER BY time DESC;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, user.getId());
-        preparedStatement.execute();
-
-        UserWarnings userWarnings = new UserWarnings();
-        ResultSet resultSet = preparedStatement.getResultSet();
-        while(resultSet.next()) {
-            Instant time = resultSet.getTimestamp(1).toInstant();
-            long requestorUserId = resultSet.getLong(2);
-            Optional<User> requestor = DiscordApiCollection.getInstance().getUserById(requestorUserId);
-            String reason = resultSet.getString(3);
-            if (reason.isEmpty()) reason = null;
-            userWarnings.add(new WarningSlot(time, requestor.orElse(null), reason));
-        }
-
-        resultSet.close();
-        preparedStatement.close();
-        return userWarnings;
-    }
-
-    public static void removeWarningsForUser(Server server, User user, int n) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM Warnings WHERE serverId = ? AND userId = ? ORDER BY time DESC LIMIT ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, user.getId());
-        preparedStatement.setInt(3, n);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
     }
 
     public static ArrayList<Role> getPowerPlantRolesFromServer(Server server) throws SQLException {
@@ -132,73 +98,12 @@ public class DBServerOld {
         return channelIds;
     }
 
-    public static ArrayList<ServerTextChannel> getWhiteListedChannels(Server server) throws SQLException {
-        ArrayList<Long> channels = DatabaseCache.getInstance().getWhiteListedChannels(server);
-        ArrayList<ServerTextChannel> channelObjects = new ArrayList<>();
-
-        if (channels == null) {
-            channels = new ArrayList<>();
-
-            PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM WhiteListedChannels WHERE serverId = ?;");
-            preparedStatement.setLong(1, server.getId());
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                long id = resultSet.getLong(1);
-                if (id != 0 && server.getChannelById(id).isPresent()) {
-                    ServerTextChannel serverTextChannel = server.getTextChannelById(id).get();
-                    channels.add(serverTextChannel.getId());
-                    channelObjects.add(serverTextChannel);
-                }
-            }
-
-            resultSet.close();
-            preparedStatement.close();
-
-            channels.forEach(channel -> DatabaseCache.getInstance().addWhiteListedChannel(server, channel));
-        } else {
-            channels.stream()
-                    .filter(channelId -> server.getTextChannelById(channelId).isPresent())
-                    .map(channelId -> server.getTextChannelById(channelId).get())
-                    .forEach(channelObjects::add);
-        }
-
-        return channelObjects;
-    }
-
-    public static boolean isChannelWhitelisted(ServerTextChannel channel) throws SQLException {
-        ArrayList<ServerTextChannel> channels = getWhiteListedChannels(channel.getServer());
-        if (channels.size() == 0) return true;
-        else return channels.contains(channel);
-    }
-
     public static void addPowerPlantRoles(Server server, Role role) throws SQLException {
         PreparedStatement baseStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO PowerPlantRoles VALUES (?, ?);");
         baseStatement.setLong(1, server.getId());
         baseStatement.setLong(2, role.getId());
         baseStatement.executeUpdate();
         baseStatement.close();
-    }
-
-    public static void removeWhiteListedChannel(Server server, ServerTextChannel channel) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM WhiteListedChannels WHERE serverId = ? AND channelId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, channel.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        DatabaseCache.getInstance().removeWhiteListedChannel(server, channel.getId());
-    }
-
-    public static void addWhiteListedChannel(Server server, ServerTextChannel channel) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO WhiteListedChannels VALUES (?, ?);");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, channel.getId());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        DatabaseCache.getInstance().addWhiteListedChannel(server, channel.getId());
     }
 
     public static void removePowerPlantRoles(Server server, Role role) throws SQLException {
@@ -301,16 +206,6 @@ public class DBServerOld {
         preparedStatement.close();
 
         return rankingSlots;
-    }
-
-    public static void insertWarning(Server server, User user, User requestor, String reason) throws SQLException {
-        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT INTO Warnings (serverId, userId, requestorUserId, reason) VALUES (?, ?, ?, ?);");
-        serverStatement.setLong(1, server.getId());
-        serverStatement.setLong(2, user.getId());
-        serverStatement.setLong(3, requestor.getId());
-        serverStatement.setString(4, reason);
-        serverStatement.executeUpdate();
-        serverStatement.close();
     }
 
 }

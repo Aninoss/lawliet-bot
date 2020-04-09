@@ -2,9 +2,10 @@ package MySQL;
 
 import Constants.FishingCategoryInterface;
 import Constants.FisheryStatus;
-import General.DiscordApiCollection;
-import General.Fishing.FishingProfile;
+import Core.DiscordApiCollection;
+import Modules.Fishing.FishingProfile;
 import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -49,7 +50,7 @@ public class FisheryCache {
             FisheryStatus fisheryStatus = DBServer.getInstance().getBean(server.getId()).getFisheryStatus();
             ArrayList<Long> powerPlantIgnoredChannelIds = DBServerOld.getPowerPlantIgnoredChannelIdsFromServer(server);
 
-            boolean whiteListed = DBServerOld.isChannelWhitelisted(channel);
+            boolean whiteListed = DBWhiteListedChannels.getInstance().getBean(channel.getServer().getId()).isWhiteListed(channel.getId());
             if (fisheryStatus == FisheryStatus.ACTIVE && !powerPlantIgnoredChannelIds.contains(channel.getId())) {
                 ActivityUserData activityUserData = getActivities(server, user);
                 boolean registered = activityUserData.registerMessage(messagePhase, whiteListed ? channel : null);

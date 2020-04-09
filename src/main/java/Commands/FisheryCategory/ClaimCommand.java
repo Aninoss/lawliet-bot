@@ -4,18 +4,19 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.*;
-import General.EmbedFactory;
-import General.TextManager;
-import General.Tools.StringTools;
-import General.Tools.TimeTools;
+import Core.EmbedFactory;
+import Core.TextManager;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
 import MySQL.DBUser;
 import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.Upvotes.DBUpvotes;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @CommandProperties(
     trigger = "claim",
@@ -29,13 +30,9 @@ public class ClaimCommand extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
+
         if (status == FisheryStatus.ACTIVE) {
-            Instant nextUpvote = null;
-            try {
-                nextUpvote = DBUser.getNextUpvote(event.getMessage().getUserAuthor().get());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            Instant nextUpvote = DBUpvotes.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).getLastUpvote().plus(12, ChronoUnit.HOURS);
             int upvotesUnclaimed = DBUser.getUpvotesUnclaimed(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
             if (upvotesUnclaimed == 0) {

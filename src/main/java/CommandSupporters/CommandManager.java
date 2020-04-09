@@ -4,11 +4,11 @@ import CommandListeners.*;
 import CommandSupporters.CommandLogger.CommandLogger;
 import CommandSupporters.CommandLogger.CommandUsage;
 import Commands.InformationCategory.HelpCommand;
-import General.*;
+import Core.*;
 import CommandSupporters.Cooldown.Cooldown;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
-import MySQL.DBServerOld;
+import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -38,7 +38,7 @@ public class CommandManager {
 
             try {
                 sendOverwrittenSignals(event);
-                if (command instanceof onNavigationListener)
+                if (command instanceof OnNavigationListener)
                     command.onNavigationMessageSuper(event, followedString, true);
                 else
                     command.onRecievedSuper(event, followedString);
@@ -112,8 +112,8 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean isWhiteListed(MessageCreateEvent event) throws SQLException {
-        return event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBServerOld.isChannelWhitelisted(event.getServerTextChannel().get());
+    private static boolean isWhiteListed(MessageCreateEvent event) throws ExecutionException {
+        return event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId()).isWhiteListed(event.getServerTextChannel().get().getId());
     }
 
     private static boolean botCanPost(MessageCreateEvent event, Command command) {
@@ -134,8 +134,8 @@ public class CommandManager {
         for (int i=list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
             if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
-                if (command instanceof onForwardedRecievedListener) ((onForwardedRecievedListener)command).onNewActivityOverwrite();
-                else if (command instanceof onNavigationListener) ((onNavigationListener)command).onNewActivityOverwrite();
+                if (command instanceof OnForwardedRecievedListener) ((OnForwardedRecievedListener)command).onNewActivityOverwrite();
+                else if (command instanceof OnNavigationListener) ((OnNavigationListener)command).onNewActivityOverwrite();
                 break;
             }
         }
@@ -150,9 +150,9 @@ public class CommandManager {
             Message message = null;
             long activityUserId = command.getReactionUserID();
 
-            if (command instanceof onForwardedRecievedListener)
-                message = ((onForwardedRecievedListener) command).getForwardedMessage();
-            else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
+            if (command instanceof OnForwardedRecievedListener)
+                message = ((OnForwardedRecievedListener) command).getForwardedMessage();
+            else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
             if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
                 long messageID = message.getId();
@@ -166,9 +166,9 @@ public class CommandManager {
             Message message = null;
             long activityUserId = command.getReactionUserID();
 
-            if (command instanceof onReactionAddListener)
-                message = ((onReactionAddListener) command).getReactionMessage();
-            else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
+            if (command instanceof OnReactionAddListener)
+                message = ((OnReactionAddListener) command).getReactionMessage();
+            else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
             if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
                 long messageID = message.getId();
@@ -185,12 +185,12 @@ public class CommandManager {
             for (Command command : list) {
                 Message message = null;
 
-                if (command instanceof onForwardedRecievedListener)
-                    message = ((onForwardedRecievedListener) command).getForwardedMessage();
-                else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
+                if (command instanceof OnForwardedRecievedListener)
+                    message = ((OnForwardedRecievedListener) command).getForwardedMessage();
+                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
                 if (message != null && removeMessageId == message.getId()) {
-                    if (command instanceof onNavigationListener) command.removeNavigation();
+                    if (command instanceof OnNavigationListener) command.removeNavigation();
                     else command.removeReactionListener(message);
                     break;
                 }
@@ -201,12 +201,12 @@ public class CommandManager {
             for (Command command : list) {
                 Message message = null;
 
-                if (command instanceof onReactionAddListener)
-                    message = ((onReactionAddListener) command).getReactionMessage();
-                else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
+                if (command instanceof OnReactionAddListener)
+                    message = ((OnReactionAddListener) command).getReactionMessage();
+                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
                 if (message != null && removeMessageId == message.getId()) {
-                    if (command instanceof onNavigationListener) command.removeNavigation();
+                    if (command instanceof OnNavigationListener) command.removeNavigation();
                     else command.removeMessageForwarder();
                     break;
                 }

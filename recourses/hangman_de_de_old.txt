@@ -20919,7 +20919,7 @@ Genehmigungspflichtig
 Genehmigungsverfahren
 Genen
 Generaelen
-General
+Core
 Generalagent
 Generalagenten
 Generalagentur

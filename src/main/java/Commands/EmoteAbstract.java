@@ -2,8 +2,8 @@ package Commands;
 
 
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.Tools.RandomTools;
+import Core.EmbedFactory;
+import Core.Tools.RandomTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

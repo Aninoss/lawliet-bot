@@ -1,13 +1,13 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.*;
-import General.*;
-import General.Fishing.FishingSlot;
-import General.Fishing.FishingProfile;
-import General.Tools.StringTools;
+import Core.*;
+import Modules.Fishing.FishingSlot;
+import Modules.Fishing.FishingProfile;
+import Core.Tools.StringTools;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
 import MySQL.Modules.Server.DBServer;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"shop", "upgrade"}
 )
-public class BuyCommand extends Command implements onNavigationListener {
+public class BuyCommand extends Command implements OnNavigationListener {
 
     private ArrayList<Role> roles;
     private FishingProfile fishingProfile;

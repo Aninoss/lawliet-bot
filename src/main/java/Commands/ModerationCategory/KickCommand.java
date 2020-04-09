@@ -2,7 +2,7 @@ package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
 import Constants.Permission;
-import General.PermissionCheck;
+import Core.PermissionCheck;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
 

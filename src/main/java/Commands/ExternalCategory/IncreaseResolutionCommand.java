@@ -3,12 +3,12 @@ package Commands.ExternalCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.Internet.Internet;
-import General.Internet.InternetProperty;
-import General.Mention.MentionTools;
-import General.SecretManager;
-import General.TextManager;
+import Core.EmbedFactory;
+import Core.Internet.Internet;
+import Core.Internet.InternetProperty;
+import Core.Mention.MentionTools;
+import Core.SecretManager;
+import Core.TextManager;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;

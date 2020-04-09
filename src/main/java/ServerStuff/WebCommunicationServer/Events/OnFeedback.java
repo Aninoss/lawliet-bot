@@ -1,20 +1,17 @@
 package ServerStuff.WebCommunicationServer.Events;
 
 import CommandSupporters.CommandLogger.CommandLogger;
-import General.DiscordApiCollection;
-import General.EmbedFactory;
-import General.ExceptionHandler;
-import MySQL.DBUser;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.ExceptionHandler;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Optional;
 
 public class OnFeedback implements DataListener<JSONObject> {

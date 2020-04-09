@@ -2,10 +2,10 @@ package Commands;
 
 
 import CommandSupporters.Command;
-import General.*;
-import General.Reddit.RedditDownloader;
-import General.Reddit.RedditPost;
-import General.Tools.StringTools;
+import Core.*;
+import Modules.Reddit.RedditDownloader;
+import Modules.Reddit.RedditPost;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 

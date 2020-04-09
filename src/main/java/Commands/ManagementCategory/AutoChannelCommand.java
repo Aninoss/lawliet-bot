@@ -1,14 +1,14 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
-import General.*;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Sound-icon.png",
     executable = true
 )
-public class AutoChannelCommand extends Command implements onNavigationListener {
+public class AutoChannelCommand extends Command implements OnNavigationListener {
     
     private AutoChannelBean autoChannelBean;
 

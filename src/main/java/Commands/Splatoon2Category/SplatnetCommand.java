@@ -2,14 +2,15 @@ package Commands.Splatoon2Category;
 
 import CommandListeners.CommandProperties;
 
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
-import General.*;
-import General.Internet.InternetCache;
-import General.Tools.TimeTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Core.Internet.InternetCache;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -27,7 +28,7 @@ import java.util.Date;
     thumbnail = "https://vignette.wikia.nocookie.net/splatoon/images/1/12/InklingUsingSplatNet.jpg/revision/latest?cb=20160116221000&path-prefix=de",
     executable = true
 )
-public class SplatnetCommand extends Command implements onTrackerRequestListener {
+public class SplatnetCommand extends Command implements OnTrackerRequestListener {
     
     private Instant trackingTime;
 
@@ -96,12 +97,13 @@ public class SplatnetCommand extends Command implements onTrackerRequestListener
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.deletePreviousMessage();
-        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
-        trackerData.setMessageDelete(message);
-        trackerData.setInstant(trackingTime);
-        return trackerData;
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        slot.getMessage().ifPresent(Message::delete);
+        Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
+        slot.setMessageId(message.getId());
+        slot.setNextRequest(trackingTime);
+
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

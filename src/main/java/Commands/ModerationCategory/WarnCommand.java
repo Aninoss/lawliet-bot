@@ -3,11 +3,11 @@ package Commands.ModerationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.*;
-import General.Mention.Mention;
-import General.Mention.MentionTools;
-import General.Mention.MentionList;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Mention.Mention;
+import Core.Mention.MentionTools;
+import Core.Mention.MentionList;
+import Core.Tools.StringTools;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -30,7 +30,7 @@ import org.javacord.api.entity.server.Server;
     emoji = "\uD83D\uDEA8",
     executable = false
 )
-public class WarnCommand extends Command implements onReactionAddListener  {
+public class WarnCommand extends Command implements OnReactionAddListener {
 
     private final int CHAR_LIMIT = 300;
 

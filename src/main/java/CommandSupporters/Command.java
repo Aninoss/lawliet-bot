@@ -4,10 +4,10 @@ import CommandListeners.*;
 import CommandListeners.CommandProperties;
 import Commands.InformationCategory.HelpCommand;
 import Constants.*;
-import General.*;
-import General.EmojiConnection.EmojiConnection;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.EmojiConnection.EmojiConnection;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -71,23 +71,23 @@ public abstract class Command {
             setResultReaction(successful);
         }
 
-        if ((this instanceof onReactionAddListener)) {
-            Message reactionMessage = ((onReactionAddListener) this).getReactionMessage();
+        if ((this instanceof OnReactionAddListener)) {
+            Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
             if (reactionMessage != null) {
                 reactionUserID = starterMessage.getUserAuthor().get().getId();
                 addReactionListener(reactionMessage);
             }
         }
 
-        if ((this instanceof onForwardedRecievedListener)) {
-            Message forwardedMessage = ((onForwardedRecievedListener) this).getForwardedMessage();
+        if ((this instanceof OnForwardedRecievedListener)) {
+            Message forwardedMessage = ((OnForwardedRecievedListener) this).getForwardedMessage();
             if (forwardedMessage != null) {
                 reactionUserID = starterMessage.getUserAuthor().get().getId();
                 addForwarder(forwardedMessage, starterMessage.getServerTextChannel().get(), starterMessage.getUserAuthor().get());
             }
         }
 
-        if (this instanceof onNavigationListener) {
+        if (this instanceof OnNavigationListener) {
             addNavigation(navigationMessage, event.getChannel(), event.getMessage().getUserAuthor().get());
         }
     }
@@ -98,7 +98,7 @@ public abstract class Command {
         if (countdown != null) countdown.reset();
 
         try {
-            ((onReactionAddListener) this).onReactionAdd(event);
+            ((OnReactionAddListener) this).onReactionAdd(event);
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
         }
@@ -112,7 +112,7 @@ public abstract class Command {
         if (countdown != null) countdown.reset();
 
         try {
-            success = ((onForwardedRecievedListener) this).onForwardedRecieved(event);
+            success = ((OnForwardedRecievedListener) this).onForwardedRecieved(event);
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
         } finally {
@@ -141,7 +141,7 @@ public abstract class Command {
         try {
             navigationActive = true;
             if (firstTime) success = onMessageReceived(event, followedString) ? Response.TRUE : Response.FALSE;
-            else success = ((onNavigationListener) this).controllerMessage(event, followedString, state);
+            else success = ((OnNavigationListener) this).controllerMessage(event, followedString, state);
             if (success != null || navigationMessage == null) {
                 if (countdown != null) countdown.reset();
                 drawSuper(event.getApi(), event.getServerTextChannel().get());
@@ -158,7 +158,7 @@ public abstract class Command {
 
         if (firstTime) {
             if (success == Response.TRUE && navigationActive) {
-                for (int i = -1; i < ((onNavigationListener) this).getMaxReactionNumber(); i++) {
+                for (int i = -1; i < ((OnNavigationListener) this).getMaxReactionNumber(); i++) {
                     if (i == -1) {
                         if (navigationMessage != null) {
                             if (navigationMessage.getChannel().canYouUseExternalEmojis())
@@ -189,7 +189,7 @@ public abstract class Command {
         if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Settings.BACK_EMOJI)) || (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(DiscordApiCollection.getInstance().getBackEmojiCustom().getMentionTag())))
             index = -1;
         else {
-            for(int i = 0; i < ((onNavigationListener) this).getMaxReactionNumber(); i++) {
+            for(int i = 0; i < ((OnNavigationListener) this).getMaxReactionNumber(); i++) {
                 if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals(LetterEmojis.LETTERS[i])) {
                     index = i;
                     break;
@@ -210,7 +210,7 @@ public abstract class Command {
             } else {
                 if (options != null && options.length > 10 && index >= 0) index += 10 * page;
                 resetNavigation();
-                changed = ((onNavigationListener) this).controllerReaction(event, index, state);
+                changed = ((OnNavigationListener) this).controllerReaction(event, index, state);
             }
 
             if (changed) drawSuper(event.getApi(), event.getChannel());
@@ -220,7 +220,7 @@ public abstract class Command {
     }
 
     public void drawSuper(DiscordApi api, TextChannel channel) throws Throwable {
-        EmbedBuilder eb = ((onNavigationListener) this).draw(api, state)
+        EmbedBuilder eb = ((OnNavigationListener) this).draw(api, state)
                 .setTimestampToNow();
 
         if (options != null && options.length > 0) {
@@ -358,19 +358,19 @@ public abstract class Command {
 
     private void onTimeOut(Message message) {
         if (CommandContainer.getInstance().reactionListenerContains(this)) {
-            if (this instanceof onNavigationListener) {
+            if (this instanceof OnNavigationListener) {
                 try {
-                    ((onNavigationListener) this).onNavigationTimeOut(message);
+                    ((OnNavigationListener) this).onNavigationTimeOut(message);
                     if (commandProperties.deleteOnTimeOut()) deleteNavigationMessage();
                     else removeNavigation();
                 } catch (Throwable throwable) {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
-            } else if (this instanceof onReactionAddListener) {
+            } else if (this instanceof OnReactionAddListener) {
                 try {
                     if (commandProperties.deleteOnTimeOut()) deleteReactionMessage();
                     else removeReactionListener();
-                    ((onReactionAddListener) this).onReactionTimeOut(message);
+                    ((OnReactionAddListener) this).onReactionTimeOut(message);
                 } catch (Throwable throwable) {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
@@ -379,9 +379,9 @@ public abstract class Command {
 
         else if (CommandContainer.getInstance().forwarderContains(this)) {
             removeMessageForwarder();
-            if (this instanceof onForwardedRecievedListener) {
+            if (this instanceof OnForwardedRecievedListener) {
                 try {
-                    ((onForwardedRecievedListener) this).onForwardedTimeOut();
+                    ((OnForwardedRecievedListener) this).onForwardedTimeOut();
                 } catch (Throwable throwable) {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
@@ -401,7 +401,7 @@ public abstract class Command {
     }
 
     public void deleteReactionMessage() throws ExecutionException, InterruptedException {
-        Message reactionMessage = ((onReactionAddListener) this).getReactionMessage();
+        Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
         try {
             if (starterMessage.getChannel().canYouManageMessages())
@@ -418,7 +418,7 @@ public abstract class Command {
     }
 
     public void removeReactionListener() {
-        Message message = ((onReactionAddListener) this).getReactionMessage();
+        Message message = ((OnReactionAddListener) this).getReactionMessage();
         removeReactionListener(message);
     }
 
@@ -548,10 +548,10 @@ public abstract class Command {
     public int getCooldownTime() { return commandProperties.cooldownTime(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
-        if (this instanceof onReactionAddListener || this instanceof onNavigationListener || this instanceof onReactionAddStaticListener) {
+        if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {
             perm |= Permission.ADD_REACTIONS | Permission.READ_MESSAGE_HISTORY;
         }
-        if (this instanceof onReactionAddStaticListener) {
+        if (this instanceof OnReactionAddStaticListener) {
             perm |= Permission.READ_MESSAGE_HISTORY;
         }
         return perm;

@@ -1,11 +1,11 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Constants.Category;
-import General.TextManager;
+import Core.TextManager;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
@@ -66,7 +66,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
                     commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
                     commandJSON.put("nsfw", command.isNsfw());
                     commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);
-                    commandJSON.put("can_be_tracked", command instanceof onTrackerRequestListener);
+                    commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
 
                     categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                 }

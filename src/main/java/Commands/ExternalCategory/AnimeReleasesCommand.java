@@ -2,23 +2,23 @@ package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
 
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.AnimeNews.AnimeReleaseDownloader;
-import General.AnimeNews.AnimeReleasePost;
-import General.EmbedFactory;
-import General.ExceptionHandler;
-import General.PostBundle;
-import General.TextManager;
-import General.Tools.StringTools;
-import General.Tracker.TrackerData;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import Constants.TrackerResult;
+import Modules.AnimeNews.AnimeReleaseDownloader;
+import Modules.AnimeNews.AnimeReleasePost;
+import Core.EmbedFactory;
+import Core.ExceptionHandler;
+import Modules.PostBundle;
+import Core.TextManager;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @CommandProperties(
     trigger = "animereleases",
@@ -26,14 +26,23 @@ import java.time.Instant;
     emoji = "\uD83D\uDCFA",
     executable = true
 )
-public class AnimeReleasesCommand extends Command implements onTrackerRequestListener {
+public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        AnimeReleasePost post = AnimeReleaseDownloader.getPost(getLocale());
-        EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
-        event.getChannel().sendMessage(eb).get();
-        return true;
+        PostBundle<AnimeReleasePost> posts = AnimeReleaseDownloader.getPosts(getLocale(), null, followedString);
+
+        if (posts.getPosts().size() > 0) {
+            EmbedBuilder eb = EmbedFactory.addLog(getEmbed(posts.getPosts().get(0)), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+            event.getChannel().sendMessage(eb).get();
+            return true;
+        } else {
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+            event.getChannel().sendMessage(eb).get();
+            return false;
+        }
     }
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) throws IOException {
@@ -57,34 +66,26 @@ public class AnimeReleasesCommand extends Command implements onTrackerRequestLis
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.setInstant(Instant.now().plusSeconds(60 * 30));
-        PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPostTracker(getLocale(), trackerData.getArg());
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        slot.setNextRequest(Instant.now().plus(30, ChronoUnit.MINUTES));
+        boolean first = !slot.getArgs().isPresent();
+        PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey().get());
 
-        if (postBundle == null) {
-            trackerData.setSaveChanges(false);
-            return trackerData;
+        ServerTextChannel channel = slot.getChannel().get();
+        for(int i = postBundle.getPosts().size() - 1; i >= Math.max(0, postBundle.getPosts().size() - 10); i--) {
+            AnimeReleasePost post = postBundle.getPosts().get(i);
+            channel.sendMessage(getEmbed(post)).get();
         }
 
-        ServerTextChannel channel = trackerData.getChannel().get();
-        for(AnimeReleasePost post: postBundle.getPosts()) {
-            boolean canPost = trackerData.getKey().equalsIgnoreCase("all");
-            if (!canPost) {
-                for (String animeName : trackerData.getKey().split(",")) {
-                    if (post.getAnime().toLowerCase().contains(StringTools.trimString(animeName.toLowerCase()))) {
-                        canPost = true;
-                        break;
-                    }
-                }
-            }
-
-            if (canPost) {
-                channel.sendMessage(getEmbed(post)).get();
-            }
+        if (first && postBundle.getPosts().size() == 0) {
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                    .setDescription(getString("no_results", slot.getCommandKey().get()));
+            slot.getChannel().get().sendMessage(eb).get();
         }
 
-        if (postBundle.getNewestPost() != null) trackerData.setArg(postBundle.getNewestPost());
-        return trackerData;
+        if (postBundle.getNewestPost() != null) slot.setArgs(postBundle.getNewestPost());
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

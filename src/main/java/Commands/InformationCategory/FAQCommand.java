@@ -3,7 +3,7 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import Commands.ListAbstract;
-import General.*;
+import Core.*;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.event.message.MessageCreateEvent;

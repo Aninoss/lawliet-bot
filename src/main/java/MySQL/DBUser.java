@@ -3,21 +3,21 @@ package MySQL;
 import Constants.CodeBlockColor;
 import Constants.FishingCategoryInterface;
 import Constants.Settings;
-import General.*;
-import General.Fishing.FishingSlot;
-import General.Fishing.FishingProfile;
-import General.Tools.StringTools;
+import Core.*;
+import Modules.CasinoBetContainer;
+import Modules.DailyState;
+import Modules.Fishing.FishingSlot;
+import Modules.Fishing.FishingProfile;
+import Core.Tools.StringTools;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
 import java.awt.*;
 import java.io.IOException;
 import java.sql.*;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -370,13 +370,11 @@ public class DBUser {
     }
 
     public static void increaseUpvotesUnclaimed(long userId, int amount) throws SQLException {
-        String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';" +
-                "INSERT INTO Upvotes (userId) VALUES (?) ON DUPLICATE KEY UPDATE lastDate = NOW();";
+        String sql = "UPDATE PowerPlantUsers a SET upvotesUnclaimed = upvotesUnclaimed + ? WHERE userId = ? AND (SELECT powerPlant FROM DServer WHERE serverId = a.serverId) = 'ACTIVE';";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setInt(1, amount);
         preparedStatement.setLong(2, userId);
-        preparedStatement.setLong(3, userId);
         preparedStatement.execute();
         preparedStatement.close();
 
@@ -404,49 +402,6 @@ public class DBUser {
         preparedStatement.close();
 
         return amount;
-    }
-
-    public static Instant getNextUpvote(User user) throws SQLException {
-        Instant instant = Instant.now();
-
-        String sql = "SELECT DATE_ADD(lastDate, INTERVAL 12 HOUR) FROM Upvotes WHERE userId = ?;";
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
-        preparedStatement.setLong(1, user.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            instant = resultSet.getTimestamp(1).toInstant();
-        }
-        resultSet.close();
-        preparedStatement.close();
-
-        return instant;
-    }
-
-    public static boolean registerGiveaway(Server server, User user) throws SQLException {
-        boolean quit = false;
-
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT * FROM Giveaway WHERE serverId = ? AND userId = ?;");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, user.getId());
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) quit = true;
-
-        resultSet.close();
-        preparedStatement.close();
-
-        if (quit) return false;
-
-        preparedStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO Giveaway (serverId, userId) VALUES (?, ?);");
-        preparedStatement.setLong(1, server.getId());
-        preparedStatement.setLong(2, user.getId());
-        preparedStatement.execute();
-
-        return true;
     }
 
 }

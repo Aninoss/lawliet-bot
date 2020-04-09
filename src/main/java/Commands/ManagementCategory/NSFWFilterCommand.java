@@ -1,14 +1,14 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
-import General.CustomObservableList;
-import General.EmbedFactory;
-import General.ListGen;
+import Core.CustomObservableList;
+import Core.EmbedFactory;
+import Core.ListGen;
 import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
 )
-public class NSFWFilterCommand extends Command implements onNavigationListener {
+public class NSFWFilterCommand extends Command implements OnNavigationListener {
 
     private static final int MAX_FILTERS = 18;
 

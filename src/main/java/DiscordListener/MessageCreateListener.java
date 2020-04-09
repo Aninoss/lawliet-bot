@@ -9,15 +9,15 @@ import Commands.FisheryCategory.FisheryCommand;
 import Constants.FishingCategoryInterface;
 import Constants.FisheryStatus;
 import Constants.Settings;
-import General.*;
-import General.BannedWordsCheck;
-import General.BotResources.ResourceManager;
-import General.Fishing.FishingProfile;
-import General.Internet.Internet;
-import General.Mention.MentionTools;
+import Core.*;
+import Modules.BannedWordsCheck;
+import Core.BotResources.ResourceManager;
+import Modules.Fishing.FishingProfile;
+import Core.Internet.Internet;
+import Core.Mention.MentionTools;
 import CommandSupporters.RunningCommands.RunningCommandManager;
-import General.SPCheck;
-import General.Tools.StringTools;
+import Modules.SPCheck;
+import Core.Tools.StringTools;
 import MySQL.Modules.AutoQuote.DBAutoQuote;
 import MySQL.DBServerOld;
 import MySQL.DBUser;
@@ -178,17 +178,17 @@ public class MessageCreateListener {
             Command command = list.get(i);
             if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
                 Message message = null;
-                if (command instanceof onForwardedRecievedListener) message = ((onForwardedRecievedListener) command).getForwardedMessage();
-                else if (command instanceof onNavigationListener) message = command.getNavigationMessage();
+                if (command instanceof OnForwardedRecievedListener) message = ((OnForwardedRecievedListener) command).getForwardedMessage();
+                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
                 try {
                     RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard());
 
-                    if (command instanceof onForwardedRecievedListener) {
+                    if (command instanceof OnForwardedRecievedListener) {
                         boolean end = command.onForwardedRecievedSuper(event);
                         if (end) return true;
                     }
-                    if (command instanceof onNavigationListener) {
+                    if (command instanceof OnNavigationListener) {
                         boolean end = command.onNavigationMessageSuper(event, event.getMessage().getContent(), false);
                         if (end) return true;
                     }

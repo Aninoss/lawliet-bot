@@ -1,17 +1,19 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.*;
-import General.*;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
-import General.Warnings.UserWarnings;
-import MySQL.DBServerOld;
+import Core.*;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
+import MySQL.Modules.Warning.DBServerWarnings;
+import MySQL.Modules.Warning.ServerWarningsBean;
+import MySQL.Modules.Warning.ServerWarningsSlot;
+import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -21,9 +23,10 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -37,7 +40,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"modsettings"}
 )
-public class ModSettingsCommand extends Command implements onNavigationListener  {
+public class ModSettingsCommand extends Command implements OnNavigationListener {
     
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
@@ -289,16 +292,22 @@ public class ModSettingsCommand extends Command implements onNavigationListener 
     }
 
     public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws SQLException, ExecutionException {
-        DBServerOld.insertWarning(server, user, requestor, reason);
+        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
+        serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
+                server.getId(),
+                user.getId(),
+                Instant.now(),
+                requestor.getId(),
+                reason == null || reason.isEmpty() ? null : reason)
+        );
 
         ModerationBean moderationBean = DBModeration.getInstance().getBean(server.getId());
-        UserWarnings userWarnings = DBServerOld.getWarningsForUser(server, user);
 
         int autoKickDays = moderationBean.getAutoKickDays();
         int autoBanDays = moderationBean.getAutoBanDays();
 
-        boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? userWarnings.amountLatestDays(autoKickDays) : userWarnings.amountTotal()) >= moderationBean.getAutoKick();
-        boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? userWarnings.amountLatestDays(autoBanDays) : userWarnings.amountTotal()) >= moderationBean.getAutoBan();
+        boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
+        boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
 
         if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS)) {
             try {

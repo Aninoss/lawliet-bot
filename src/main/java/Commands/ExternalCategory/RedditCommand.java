@@ -3,17 +3,19 @@ package Commands.ExternalCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.*;
-import General.PostBundle;
-import General.Reddit.RedditDownloader;
-import General.Reddit.RedditPost;
-import General.Tools.StringTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Modules.PostBundle;
+import Modules.Reddit.RedditDownloader;
+import Modules.Reddit.RedditPost;
+import Core.Tools.StringTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @CommandProperties(
     trigger = "reddit",
@@ -21,7 +23,7 @@ import java.time.Instant;
     emoji = "\uD83E\uDD16",
     executable = false
 )
-public class RedditCommand extends Command implements onTrackerRequestListener {
+public class RedditCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -79,43 +81,42 @@ public class RedditCommand extends Command implements onTrackerRequestListener {
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        ServerTextChannel channel = trackerData.getChannel().get();
-        if (trackerData.getKey().length() == 0) {
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        ServerTextChannel channel = slot.getChannel().get();
+        if (!slot.getCommandKey().isPresent() || slot.getCommandKey().get().length() == 0) {
             channel.sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
-            return null;
+            return TrackerResult.STOP_AND_DELETE;
         } else {
-            trackerData.setInstant(Instant.now().plusSeconds(60 * 10));
-            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), trackerData.getKey(), trackerData.getArg());
+            slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
+            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey().get(), slot.getArgs().orElse(null));
 
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
-                for(int i = 0; i < postBundle.getPosts().size(); i++) {
+                for(int i = 0; i < Math.min(10, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNsfw()) {
-                        if (trackerData.getArg() != null || i == 0) channel.sendMessage(getEmbed(post));
+                        if (slot.getArgs().isPresent() || i == 0) channel.sendMessage(getEmbed(post));
                         containsOnlyNsfw = false;
                     }
                 }
 
-                if (containsOnlyNsfw && trackerData.getArg() == null) {
+                if (containsOnlyNsfw && !slot.getArgs().isPresent()) {
                     channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
-                    return null;
+                    return TrackerResult.STOP_AND_DELETE;
                 }
 
-                trackerData.setArg(postBundle.getNewestPost());
-                return trackerData;
+                slot.setArgs(postBundle.getNewestPost());
+                return TrackerResult.CONTINUE_AND_SAVE;
             } else {
-                if (trackerData.getArg() == null) {
+                if (!slot.getArgs().isPresent()) {
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_noresults_tracker", trackerData.getKey()));
+                            .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_noresults_tracker", slot.getCommandKey().get()));
                     channel.sendMessage(eb).get();
-                    return null;
+                    return TrackerResult.STOP_AND_DELETE;
                 } else {
-                    trackerData.setSaveChanges(false);
-                    return trackerData;
+                    return TrackerResult.CONTINUE;
                 }
             }
         }

@@ -1,13 +1,10 @@
 package Commands;
 
-import General.Porn.PornImage;
-import General.Porn.PornImageDownloader;
-import General.TextManager;
+import Modules.Porn.PornImage;
+import Core.TextManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public abstract class PornPredefinedAbstract extends PornAbstract {
 

@@ -4,8 +4,8 @@ import CommandListeners.*;
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Response;
-import General.*;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
         deleteOnTimeOut = false,
         executable = true
 )
-public class HangmanCommand extends CasinoAbstract implements onForwardedRecievedListener, onReactionAddListener {
+public class HangmanCommand extends CasinoAbstract implements OnForwardedRecievedListener, OnReactionAddListener {
 
     private String answer, log;
     private int health;

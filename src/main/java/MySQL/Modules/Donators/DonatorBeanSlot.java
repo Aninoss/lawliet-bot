@@ -1,8 +1,7 @@
 package MySQL.Modules.Donators;
 
-import General.DiscordApiCollection;
+import Core.DiscordApiCollection;
 import org.javacord.api.entity.user.User;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Observable;

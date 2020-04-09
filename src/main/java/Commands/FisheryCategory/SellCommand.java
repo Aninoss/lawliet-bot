@@ -5,10 +5,11 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Constants.Response;
-import General.*;
-import General.Fishing.FishingProfile;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Modules.ExchangeRate;
+import Modules.Fishing.FishingProfile;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.DBUser;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
     emoji = "\uD83D\uDCE4",
     executable = true
 )
-public class SellCommand extends Command implements onReactionAddListener, onForwardedRecievedListener {
+public class SellCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {
 
     private Message message;
 

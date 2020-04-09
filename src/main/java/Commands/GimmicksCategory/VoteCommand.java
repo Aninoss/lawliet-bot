@@ -6,9 +6,9 @@ import Constants.LetterEmojis;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Settings;
-import General.*;
-import General.VoteInfo;
-import General.Tools.StringTools;
+import Core.*;
+import Modules.VoteInfo;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"poll"}
 )
-public class VoteCommand extends Command implements onReactionAddStaticListener, onReactionRemoveStaticListener {
+public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

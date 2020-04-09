@@ -2,8 +2,8 @@ package DiscordListener;
 
 import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
-import General.DiscordApiCollection;
-import General.PermissionCheckRuntime;
+import Core.DiscordApiCollection;
+import Core.PermissionCheckRuntime;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.Server.DBServer;

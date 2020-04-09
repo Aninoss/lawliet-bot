@@ -2,12 +2,13 @@ package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
 
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.*;
-import General.Tools.StringTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Core.Tools.StringTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -31,7 +32,7 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"fclear"}
 )
-public class FullClearCommand extends Command implements onTrackerRequestListener {
+public class FullClearCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -107,16 +108,17 @@ public class FullClearCommand extends Command implements onTrackerRequestListene
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        Optional<ServerTextChannel> channelOptional = trackerData.getChannel();
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        Optional<ServerTextChannel> channelOptional = slot.getChannel();
         if (channelOptional.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), Permission.MANAGE_MESSAGES)) {
-                Pair<Integer, Boolean> pair = fullClear(trackerData.getChannel().get(), trackerData.getKey(), null);
+            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), Permission.READ_MESSAGE_HISTORY | Permission.MANAGE_MESSAGES)) {
+                Pair<Integer, Boolean> pair = fullClear(channelOptional.get(), slot.getCommandKey().get(), null);
                 if (pair == null) return null;
             }
         }
-        trackerData.setInstant(Instant.now().plus(1, ChronoUnit.HOURS));
-        return trackerData;
+
+        slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

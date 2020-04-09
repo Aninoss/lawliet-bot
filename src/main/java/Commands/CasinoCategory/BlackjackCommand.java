@@ -1,13 +1,13 @@
 package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onReactionAddListener;
+import CommandListeners.OnReactionAddListener;
 
 import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Settings;
-import General.*;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
         deleteOnTimeOut = false,
         aliases = {"bj"}
 )
-public class BlackjackCommand extends CasinoAbstract implements onReactionAddListener {
+public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {
 
     private String log;
     private LogStatus logStatus;

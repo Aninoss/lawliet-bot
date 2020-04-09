@@ -4,13 +4,11 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
-import CommandSupporters.RunningCommands.RunningCommand;
-import CommandSupporters.RunningCommands.RunningCommandManager;
 import Constants.*;
-import General.*;
-import General.EmojiConnection.BackEmojiConnection;
-import General.EmojiConnection.EmojiConnection;
-import General.Tools.StringTools;
+import Core.*;
+import Core.EmojiConnection.BackEmojiConnection;
+import Core.EmojiConnection.EmojiConnection;
+import Core.Tools.StringTools;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -30,7 +28,7 @@ import java.util.ArrayList;
         requiresEmbeds = false,
         aliases = {"commands"}
 )
-public class HelpCommand extends Command implements onNavigationListener {
+public class HelpCommand extends Command implements OnNavigationListener {
 
     private ArrayList<EmojiConnection> emojiConnections;
     private String searchTerm;
@@ -220,7 +218,7 @@ public class HelpCommand extends Command implements onNavigationListener {
 
                                 if (!canAccess) commands.append("~~");
                                 if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
-                                if (command instanceof onTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
+                                if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                                 if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
 
                                 commands.append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")

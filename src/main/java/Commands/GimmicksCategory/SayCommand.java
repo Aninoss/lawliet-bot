@@ -4,11 +4,11 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.Mention.MentionTools;
-import General.Mention.MentionList;
-import General.PermissionCheck;
-import General.TextManager;
+import Core.EmbedFactory;
+import Core.Mention.MentionTools;
+import Core.Mention.MentionList;
+import Core.PermissionCheck;
+import Core.TextManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;

@@ -3,15 +3,20 @@ package Commands.InformationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.*;
-import General.Tools.StringTools;
-import General.Tracker.TrackerData;
-import General.Tracker.TrackerManager;
-import MySQL.DBBot;
+import Constants.TrackerResult;
+import Core.*;
+import Core.Tools.StringTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
+import MySQL.Modules.Version.DBVersion;
+import MySQL.Modules.Version.VersionBean;
+import MySQL.Modules.Version.VersionBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "new",
@@ -20,22 +25,26 @@ import java.util.ArrayList;
         executable = true,
         aliases = {"changelog"}
 )
-public class NewCommand extends Command implements onTrackerRequestListener {
+public class NewCommand extends Command implements OnTrackerRequestListener {
+
+    VersionBean versionBean;
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        versionBean = DBVersion.getInstance().getBean();
+
         //Ohne Argumente
         if (followedString.length() == 0) {
-            ArrayList<String> versions = DBBot.getCurrentVersions(3);
+            List<VersionBeanSlot> versions = versionBean.getCurrentVersions(3);
             event.getChannel().sendMessage(getEmbedNormal(versions)).get();
             return true;
         } else {
             //Anzahl
             if (StringTools.stringIsLong(followedString)) {
-                long i = Long.parseLong(followedString);
+                int i = Integer.parseInt(followedString);
                 if (i >= 1) {
                     if (i <= 10) {
-                        ArrayList<String> versions = DBBot.getCurrentVersions(i);
+                        List<VersionBeanSlot> versions = versionBean.getCurrentVersions(i);
                         event.getChannel().sendMessage(getEmbedNormal(versions)).get();
                         return true;
                     } else {
@@ -49,7 +58,8 @@ public class NewCommand extends Command implements onTrackerRequestListener {
                     return false;
                 }
             } else {
-                ArrayList<String> versions = DBBot.getCurrentVersions(followedString.split(" "));
+                List<String> askVersions = Arrays.stream(followedString.split(" ")).filter(str -> !str.isEmpty()).collect(Collectors.toList());
+                List<VersionBeanSlot> versions = versionBean.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
                     event.getChannel().sendMessage(getEmbedNormal(versions)).get();
@@ -63,35 +73,37 @@ public class NewCommand extends Command implements onTrackerRequestListener {
         }
     }
 
-    private EmbedBuilder getEmbedNormal(ArrayList<String> versions) throws Throwable {
+    private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions) throws Throwable {
         EmbedBuilder eb = getVersionsEmbed(versions);
         EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         return eb;
     }
 
-    private EmbedBuilder getVersionsEmbed(String version) throws Throwable {
-        ArrayList<String> versions = new ArrayList<>();
-        versions.add(version);
-        return getVersionsEmbed(new ArrayList<String>(versions));
+    private EmbedBuilder getVersionsEmbed(VersionBeanSlot slot) throws Throwable {
+        ArrayList<VersionBeanSlot> versions = new ArrayList<>();
+        versions.add(slot);
+        return getVersionsEmbed(versions);
     }
 
-    private EmbedBuilder getVersionsEmbed(ArrayList<String> versions) throws Throwable {
+    private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setFooter(getString("footer"));
-        for(String str: versions) {
-            eb.addField(str, ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, str)).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
+        for(VersionBeanSlot slot: versions) {
+            eb.addField(slot.getVersion(), ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
         }
         return eb;
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        if (trackerData.getArg() == null || !trackerData.getArg().equals(StringTools.getCurrentVersion())) {
-            trackerData.getChannel().get().sendMessage(getVersionsEmbed(StringTools.getCurrentVersion())).get();
-            trackerData.setArg(StringTools.getCurrentVersion());
-        } else {
-            TrackerManager.interruptTracker(trackerData);
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(StringTools.getCurrentVersion())) {
+            VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
+
+            slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));
+            slot.setArgs(newestSlot.getVersion());
+            return TrackerResult.STOP_AND_SAVE;
         }
-        return trackerData;
+
+        return TrackerResult.STOP;
     }
 
     @Override

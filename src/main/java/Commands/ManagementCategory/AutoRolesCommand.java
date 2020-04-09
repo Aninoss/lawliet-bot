@@ -1,13 +1,13 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import CommandSupporters.NavigationHelper;
 import Constants.Permission;
 import Constants.Response;
-import General.*;
-import General.Mention.MentionTools;
+import Core.*;
+import Core.Mention.MentionTools;
 import MySQL.Modules.AutoRoles.AutoRolesBean;
 import MySQL.Modules.AutoRoles.DBAutoRoles;
 import org.javacord.api.DiscordApi;
@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"basicroles", "autorole", "aroles"}
 )
-public class AutoRolesCommand extends Command implements onNavigationListener {
+public class AutoRolesCommand extends Command implements OnNavigationListener {
 
     private static final int MAX_ROLES = 12;
 
@@ -40,7 +40,7 @@ public class AutoRolesCommand extends Command implements onNavigationListener {
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         autoRolesBean = DBAutoRoles.getInstance().getBean(event.getServer().get().getId());
-        roleNavigationHelper = new NavigationHelper<>(this, autoRolesBean.getRoleIds().transform(roleId -> event.getServer().get().getRoleById(roleId)), Role.class, MAX_ROLES);
+        roleNavigationHelper = new NavigationHelper<>(this, autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), Role.class, MAX_ROLES);
         checkRolesWithLog(autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), event.getMessage().getUserAuthor().get());
         return true;
     }

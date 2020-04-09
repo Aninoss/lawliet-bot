@@ -1,14 +1,14 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
-import General.*;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.Modules.SPBlock.DBSPBlock;
 import MySQL.Modules.SPBlock.SPBlockBean;
 import org.javacord.api.DiscordApi;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
     thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/ok-shield-icon.png",
     executable = true
 )
-public class SelfPromotionBlockCommand extends Command implements onNavigationListener {
+public class SelfPromotionBlockCommand extends Command implements OnNavigationListener {
     
     private SPBlockBean spBlockBean;
 

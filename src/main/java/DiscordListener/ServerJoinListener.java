@@ -1,8 +1,8 @@
 package DiscordListener;
 
 import Constants.Settings;
-import General.DiscordApiCollection;
-import General.EmbedFactory;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

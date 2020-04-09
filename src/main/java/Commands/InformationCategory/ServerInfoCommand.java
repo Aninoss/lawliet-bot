@@ -3,9 +3,9 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.Tools.StringTools;
-import General.Tools.TimeTools;
+import Core.EmbedFactory;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;

@@ -1,12 +1,15 @@
 package MySQL.Modules.Survey;
 
-import General.CustomObservableMap;
+import Core.CustomObservableMap;
+import Core.DiscordApiCollection;
+import Core.FileManager;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Observable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SurveyBean extends Observable {
 
@@ -35,6 +38,40 @@ public class SurveyBean extends Observable {
 
     public CustomObservableMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes() {
         return secondVotes;
+    }
+
+
+    /* Tools */
+
+    public SurveyQuestion getSurveyQuestionAndAnswers(Locale locale) throws IOException {
+        List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
+        while(surveyId >= surveyList.size()) surveyId -= surveyList.size();
+        String[] parts = surveyList.get(surveyId).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
+        return new SurveyQuestion(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
+    }
+
+    public long getFirstVoteNumber() {
+        return getFirstVotes().size();
+    }
+
+    public long getFirstVoteNumbers(byte vote) {
+        return getFirstVotes().values().stream().filter(secondVote -> secondVote.getVote() == vote).count();
+    }
+
+    public List<SurveySecondVote> getSurveySecondVotesForUserId(long userId) {
+        return getSecondVotes().values().stream()
+                .filter(surveySecondVote -> surveySecondVote.getUserId() == userId && DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).isPresent())
+                .collect(Collectors.toList());
+    }
+
+    public byte getWon() {
+        long votesA = getFirstVoteNumbers((byte)0);
+        long votesTotal = getFirstVoteNumber();
+        long votesB = votesTotal - votesA;
+
+        if (votesA > votesB) return 0;
+        if (votesA < votesB) return 1;
+        return 2;
     }
 
 }

@@ -1,10 +1,10 @@
 package DiscordListener;
 
 import Constants.FishingCategoryInterface;
-import General.BannedWordsCheck;
-import General.Fishing.FishingProfile;
-import General.Internet.Internet;
-import General.SPCheck;
+import Modules.BannedWordsCheck;
+import Modules.Fishing.FishingProfile;
+import Core.Internet.Internet;
+import Modules.SPCheck;
 import MySQL.DBUser;
 import org.javacord.api.event.message.MessageEditEvent;
 

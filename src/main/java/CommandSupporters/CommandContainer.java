@@ -13,7 +13,7 @@ import Commands.NSFWCategory.*;
 import Commands.FisheryCategory.*;
 import Commands.ManagementCategory.*;
 import Commands.Splatoon2Category.*;
-import General.ExceptionHandler;
+import Core.ExceptionHandler;
 import org.javacord.api.DiscordApi;
 
 import java.util.*;
@@ -25,9 +25,9 @@ public class CommandContainer {
     }
 
     private HashMap<String, Class<? extends Command>> commands;
-    private ArrayList<onReactionAddStaticListener> staticReactionAddCommands;
-    private ArrayList<onReactionRemoveStaticListener> staticReactionRemoveCommands;
-    private ArrayList<onTrackerRequestListener> trackerCommands;
+    private ArrayList<OnReactionAddStaticListener> staticReactionAddCommands;
+    private ArrayList<OnReactionRemoveStaticListener> staticReactionRemoveCommands;
+    private ArrayList<OnTrackerRequestListener> trackerCommands;
     private ArrayList<Command> commandsReaction;
     private ArrayList<Command> commandsMessageForward;
     private ArrayList<Class<? extends Command>> commandList;
@@ -206,9 +206,9 @@ public class CommandContainer {
                 Command command = CommandManager.createCommandByClass(clazz);
                 addCommand(command.getTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
-                if (command instanceof onReactionAddStaticListener) staticReactionAddCommands.add((onReactionAddStaticListener)command);
-                if (command instanceof onReactionRemoveStaticListener) staticReactionRemoveCommands.add((onReactionRemoveStaticListener)command);
-                if (command instanceof onTrackerRequestListener) trackerCommands.add((onTrackerRequestListener)command);
+                if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add((OnReactionAddStaticListener)command);
+                if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add((OnReactionRemoveStaticListener)command);
+                if (command instanceof OnTrackerRequestListener) trackerCommands.add((OnTrackerRequestListener)command);
             } catch (IllegalAccessException | InstantiationException e) {
                 e.printStackTrace();
             }
@@ -218,7 +218,7 @@ public class CommandContainer {
     public void clearShard(int shardId) {
         for(Command command: new ArrayList<>(commandsReaction)) {
             DiscordApi api;
-            if (command instanceof onReactionAddListener) api = ((onReactionAddListener)command).getReactionMessage().getApi();
+            if (command instanceof OnReactionAddListener) api = ((OnReactionAddListener)command).getReactionMessage().getApi();
             else api = command.getNavigationMessage().getApi();
             if (api.getCurrentShard() == shardId) {
                 command.stopCountdown();
@@ -227,7 +227,7 @@ public class CommandContainer {
         }
         for(Command command: new ArrayList<>(commandsMessageForward)) {
             DiscordApi api;
-            if (command instanceof onForwardedRecievedListener) api = ((onForwardedRecievedListener)command).getForwardedMessage().getApi();
+            if (command instanceof OnForwardedRecievedListener) api = ((OnForwardedRecievedListener)command).getForwardedMessage().getApi();
             else api = command.getNavigationMessage().getApi();
             if (api.getCurrentShard() == shardId) {
                 command.stopCountdown();
@@ -246,11 +246,11 @@ public class CommandContainer {
         return commands;
     }
 
-    public ArrayList<onReactionAddStaticListener> getStaticReactionAddCommands() {
+    public ArrayList<OnReactionAddStaticListener> getStaticReactionAddCommands() {
         return staticReactionAddCommands;
     }
 
-    public ArrayList<onReactionRemoveStaticListener> getStaticReactionRemoveCommands() {
+    public ArrayList<OnReactionRemoveStaticListener> getStaticReactionRemoveCommands() {
         return staticReactionRemoveCommands;
     }
 
@@ -301,7 +301,7 @@ public class CommandContainer {
         return commandsMessageForward.contains(commandParent);
     }
 
-    public ArrayList<onTrackerRequestListener> getTrackerCommands() {
+    public ArrayList<OnTrackerRequestListener> getTrackerCommands() {
         return trackerCommands;
     }
 

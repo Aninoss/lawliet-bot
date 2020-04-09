@@ -29,7 +29,10 @@ public class DBDataLoad<T> {
         ResultSet resultSet = preparedStatement.getResultSet();
         ArrayList<T> list = new ArrayList<>();
 
-        while (resultSet.next()) list.add(function.apply(resultSet));
+        while (resultSet.next()) {
+            T value = function.apply(resultSet);
+            if (value != null) list.add(function.apply(resultSet));
+        }
 
         resultSet.close();
         preparedStatement.close();
@@ -43,7 +46,7 @@ public class DBDataLoad<T> {
 
         while (resultSet.next()) {
             T value = function.apply(resultSet);
-            map.put(getKeyFuntion.apply(value), value);
+            if (value != null) map.put(getKeyFuntion.apply(value), value);
         }
 
         resultSet.close();

@@ -1,8 +1,8 @@
 package ServerStuff;
 
 import Constants.Settings;
-import General.Bot;
-import General.SecretManager;
+import Core.Bot;
+import Core.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 
 import java.io.IOException;

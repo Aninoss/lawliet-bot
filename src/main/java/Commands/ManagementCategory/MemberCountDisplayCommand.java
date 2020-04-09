@@ -1,12 +1,12 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onNavigationListener;
+import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.*;
-import General.*;
-import General.Mention.MentionTools;
-import General.Tools.StringTools;
+import Core.*;
+import Core.Mention.MentionTools;
+import Core.Tools.StringTools;
 import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
 import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
         executable = true,
         aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
-public class MemberCountDisplayCommand extends Command implements onNavigationListener  {
+public class MemberCountDisplayCommand extends Command implements OnNavigationListener {
 
     private MemberCountBean memberCountBean;
     private ServerVoiceChannel currentVC = null;

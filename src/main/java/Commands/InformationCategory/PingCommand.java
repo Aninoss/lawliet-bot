@@ -3,11 +3,7 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import CommandSupporters.CommandLogger.CommandLogger;
-import Constants.Settings;
-import General.Clock;
-import General.EmbedFactory;
-import General.TextManager;
+import Core.EmbedFactory;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 

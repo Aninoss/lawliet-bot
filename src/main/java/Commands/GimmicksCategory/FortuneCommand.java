@@ -2,10 +2,10 @@ package Commands.GimmicksCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.Tools.RandomTools;
-import General.BotResources.ResourceManager;
-import General.TextManager;
+import Core.EmbedFactory;
+import Core.Tools.RandomTools;
+import Core.BotResources.ResourceManager;
+import Core.TextManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;

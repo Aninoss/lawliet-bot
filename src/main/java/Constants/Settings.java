@@ -1,25 +1,24 @@
 package Constants;
 
 public interface Settings {
-    boolean TEST_MODE = false;
 
     long LAWLIET_ID = 368521195940741122L;
     int TIME_OUT_TIME = 10 * 60000;
     long HOME_SERVER_ID = 368531164861825024L;
-    String BOT_INVITE_URL = "https://discordapp.com/oauth2/authorize?client_id=368521195940741122&scope=bot&permissions=889580630";
+    String BOT_INVITE_URL = "https://lawlietbot.xyz/invite";
     String SERVER_INVITE_URL = "https://discord.gg/qUe8dYt";
     String DONATION_URL = "https://donatebot.io/checkout/557953262305804308";
     String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
-    String FEEDBACK_WEBSITE = LAWLIET_WEBSITE + "feedback/%d";
+    String FEEDBACK_WEBSITE = "https://lawlietbot.xyz/feedback/%d";
     String CURRENCY = "\uD83D\uDC1F";
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";
-    int ONE_CURRENCY_TO_COINS = 100;
     long MAX = 9999999999999999L;
     String BACK_EMOJI = "⏪";
     String EMPTY_EMOJI = "⠀";
     String[] NSFW_FILTERS = {"shota", "loli", "bestiality", "beastiality", "cub", "vore", "gore", "scat", "rape"};
+
     String[] VERSIONS = {
             "2.0.0",
             "2.1.0",
@@ -36,4 +35,5 @@ public interface Settings {
             "2.12.0", "2.12.1", "2.12.2", "2.12.3", "2.12.4", "2.12.5", "2.12.6", "2.12.7", "2.12.8", "2.12.9", "2.12.10", "2.12.11",
             "2.13.1", "2.13.2", "2.13.3", "2.13.4", "2.13.5", "2.13.6", "2.13.7"
     };
+
 }

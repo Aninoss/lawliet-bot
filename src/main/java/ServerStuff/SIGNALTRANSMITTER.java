@@ -1,10 +1,9 @@
 package ServerStuff;
 
-import General.Internet.Internet;
-import General.Internet.InternetProperty;
-import General.Internet.InternetResponse;
-import General.SecretManager;
-import javafx.util.Pair;
+import Core.Internet.Internet;
+import Core.Internet.InternetProperty;
+import Core.Internet.InternetResponse;
+import Core.SecretManager;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Calendar;

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: General.Connector
+Main-Class: Core.Connector
 Class-Path: guava-28.1-jre.jar fastjson-1.2.47.jar nv-websocket-client-2
  .6.jar mysql-connector-java-8.0.17.jar netty-codec-http-4.1.32.Final.ja
  r jsoup-1.12.1.jar netty-transport-native-unix-common-4.1.32.Final.jar 

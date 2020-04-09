@@ -3,10 +3,10 @@ package Commands.NSFWCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import General.EmbedFactory;
-import General.Tools.RandomTools;
-import General.Tools.StringTools;
-import General.Internet.Internet;
+import Core.EmbedFactory;
+import Core.Tools.RandomTools;
+import Core.Tools.StringTools;
+import Core.Internet.Internet;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;

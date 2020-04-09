@@ -1,15 +1,12 @@
 package Commands;
 
 
-import General.*;
-import General.Porn.PornImage;
-import General.Porn.PornImageDownloader;
-import General.Tools.NSFWTools;
+import Core.*;
+import Modules.Porn.PornImage;
+import Core.Tools.NSFWTools;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 

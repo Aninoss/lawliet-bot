@@ -71,6 +71,10 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         return cache.get(t);
     }
 
+    protected LoadingCache<T, U> getCache() {
+        return cache;
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (this instanceof IntervalSave) {

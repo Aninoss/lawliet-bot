@@ -1,15 +1,15 @@
 package Commands;
 
-import CommandListeners.onReactionAddListener;
+import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
-import General.*;
+import Core.*;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
-public abstract class ListAbstract extends Command implements onReactionAddListener {
+public abstract class ListAbstract extends Command implements OnReactionAddListener {
 
     private Message message;
     private int page, entriesPerPage, size;

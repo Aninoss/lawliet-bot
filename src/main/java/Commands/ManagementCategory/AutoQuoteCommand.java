@@ -1,12 +1,12 @@
 package Commands.ManagementCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.onReactionAddListener;
+import CommandListeners.OnReactionAddListener;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.Tools.StringTools;
+import Core.EmbedFactory;
+import Core.Tools.StringTools;
 import MySQL.Modules.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -19,7 +19,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
         emoji = "\uD83D\uDCDD",
         executable = true
 )
-public class AutoQuoteCommand extends Command implements onReactionAddListener {
+public class AutoQuoteCommand extends Command implements OnReactionAddListener {
 
     private Message message;
 

@@ -2,14 +2,15 @@ package Commands.Splatoon2Category;
 
 import CommandListeners.CommandProperties;
 
-import CommandListeners.onTrackerRequestListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
-import General.*;
-import General.Internet.InternetCache;
-import General.Tools.TimeTools;
-import General.Tracker.TrackerData;
+import Constants.TrackerResult;
+import Core.*;
+import Core.Internet.InternetCache;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
     thumbnail = "https://pre00.deviantart.net/1e9a/th/pre/i/2017/195/1/b/salmon_run_by_sqwdink-dbgdl3u.png",
     executable = true
 )
-public class SalmonCommand extends Command implements onTrackerRequestListener {
+public class SalmonCommand extends Command implements OnTrackerRequestListener {
     
     private Instant trackingTime;
 
@@ -95,12 +96,13 @@ public class SalmonCommand extends Command implements onTrackerRequestListener {
     }
 
     @Override
-    public TrackerData onTrackerRequest(TrackerData trackerData) throws Throwable {
-        trackerData.deletePreviousMessage();
-        Message message = trackerData.getChannel().get().sendMessage(getEmbed()).get();
-        trackerData.setMessageDelete(message);
-        trackerData.setInstant(trackingTime);
-        return trackerData;
+    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        slot.getMessage().ifPresent(Message::delete);
+        Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
+        slot.setMessageId(message.getId());
+        slot.setNextRequest(trackingTime);
+
+        return TrackerResult.CONTINUE_AND_SAVE;
     }
 
     @Override

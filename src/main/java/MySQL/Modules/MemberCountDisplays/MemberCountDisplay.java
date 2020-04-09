@@ -1,6 +1,6 @@
 package MySQL.Modules.MemberCountDisplays;
 
-import General.DiscordApiCollection;
+import Core.DiscordApiCollection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 
 import java.util.Optional;

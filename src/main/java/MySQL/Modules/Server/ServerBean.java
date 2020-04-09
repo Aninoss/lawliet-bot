@@ -1,7 +1,7 @@
 package MySQL.Modules.Server;
 
 import Constants.FisheryStatus;
-import General.DiscordApiCollection;
+import Core.DiscordApiCollection;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 

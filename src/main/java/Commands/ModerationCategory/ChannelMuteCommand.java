@@ -4,11 +4,11 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.*;
-import General.Mention.Mention;
-import General.Mention.MentionTools;
-import General.Mute.MuteData;
-import General.Mute.MuteManager;
+import Core.*;
+import Core.Mention.Mention;
+import Core.Mention.MentionTools;
+import Modules.Mute.MuteData;
+import Modules.Mute.MuteManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

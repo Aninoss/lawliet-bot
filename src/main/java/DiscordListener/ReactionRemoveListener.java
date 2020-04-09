@@ -1,6 +1,6 @@
 package DiscordListener;
 
-import CommandListeners.onReactionRemoveStaticListener;
+import CommandListeners.OnReactionRemoveStaticListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
@@ -36,7 +36,7 @@ public class ReactionRemoveListener {
                 Embed embed = message.getEmbeds().get(0);
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
-                    for (onReactionRemoveStaticListener command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
+                    for (OnReactionRemoveStaticListener command : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                         if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
                             ((Command) command).setLocale(DBServer.getInstance().getBean(event.getServer().get().getId()).getLocale());
                             command.onReactionRemoveStatic(message, event);

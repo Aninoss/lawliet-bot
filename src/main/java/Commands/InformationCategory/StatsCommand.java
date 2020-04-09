@@ -5,12 +5,12 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.Settings;
-import General.*;
-import General.Survey.SurveyManager;
-import General.Tools.StringTools;
-import General.Tools.TimeTools;
-import General.Tracker.TrackerManager;
-import MySQL.DBBot;
+import Core.*;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Survey.DBSurvey;
+import MySQL.Modules.Tracker.DBTracker;
+import MySQL.Modules.Version.DBVersion;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -34,11 +34,11 @@ public class StatsCommand extends Command {
                 DiscordApiCollection.getInstance().getOwner().getMentionTag(),
                 Settings.BOT_INVITE_URL,
                 StringTools.getCurrentVersion(),
-                TimeTools.getInstantString(getLocale(), DBBot.getCurrentVersionDate(), true),
+                TimeTools.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
                 StringTools.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
-                StringTools.numToString(getLocale(), TrackerManager.getSize()),
+                StringTools.numToString(getLocale(), DBTracker.getInstance().getBean().getMap().size()),
                 DiscordApiCollection.getInstance().getOwner().getDiscriminatedName(),
-                StringTools.numToString(getLocale(), SurveyManager.getCurrentFirstVotesNumber())
+                StringTools.numToString(getLocale(), DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));

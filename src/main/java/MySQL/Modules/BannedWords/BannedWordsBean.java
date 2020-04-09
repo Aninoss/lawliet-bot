@@ -1,7 +1,7 @@
 package MySQL.Modules.BannedWords;
 
-import General.DiscordApiCollection;
-import General.CustomObservableList;
+import Core.DiscordApiCollection;
+import Core.CustomObservableList;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;

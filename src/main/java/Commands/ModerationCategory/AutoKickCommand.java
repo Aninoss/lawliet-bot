@@ -3,10 +3,10 @@ package Commands.ModerationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.EmbedFactory;
-import General.ExceptionHandler;
-import General.PermissionCheck;
-import General.Tools.StringTools;
+import Core.EmbedFactory;
+import Core.ExceptionHandler;
+import Core.PermissionCheck;
+import Core.Tools.StringTools;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
     thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png",
     executable = false
 )
-public class AutoKickCommand extends Command implements onReactionAddListener {
+public class AutoKickCommand extends Command implements OnReactionAddListener {
     
     private int stage = 0;
     private Message message;

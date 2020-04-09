@@ -2,16 +2,14 @@ package CommandSupporters;
 
 import Constants.LogStatus;
 import Constants.Response;
-import General.EmbedFactory;
-import General.TextManager;
+import Core.EmbedFactory;
+import Core.TextManager;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;

@@ -3,12 +3,12 @@ package Commands;
 
 import CommandSupporters.Command;
 import Constants.LogStatus;
-import General.EmbedFactory;
-import General.Porn.PornImageDownloader;
-import General.Tools.NSFWTools;
-import General.Porn.PornImage;
-import General.TextManager;
-import General.Tools.StringTools;
+import Core.EmbedFactory;
+import Modules.Porn.PornImageDownloader;
+import Core.Tools.NSFWTools;
+import Modules.Porn.PornImage;
+import Core.TextManager;
+import Core.Tools.StringTools;
 import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;

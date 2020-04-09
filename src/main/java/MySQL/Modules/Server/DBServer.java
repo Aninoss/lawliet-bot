@@ -2,8 +2,11 @@ package MySQL.Modules.Server;
 
 import Constants.Locales;
 import Constants.FisheryStatus;
+import Core.DiscordApiCollection;
 import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
+import MySQL.Modules.Tracker.DBTracker;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +23,9 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
     @Override
     protected ServerBean loadBean(Long serverId) throws Exception {
+        if (!DiscordApiCollection.getInstance().getServerById(serverId).isPresent())
+            throw new Exception("Invalid Discord Server");
+
         ServerBean serverBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl FROM DServer WHERE serverId = ?;");
@@ -110,6 +116,18 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
             if (webhookOpt.isPresent()) preparedStatement.setString(10, webhookOpt.get());
             else preparedStatement.setNull(10, Types.VARCHAR);
         });
+    }
+
+    public void remove(long serverId) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
+        try {
+            DBTracker.getInstance().getBean().getMap().values().stream()
+                    .filter(slot -> slot.getServerId() == serverId)
+                    .forEach(TrackerBeanSlot::stop);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        getCache().invalidate(serverId);
     }
 
 }

@@ -4,8 +4,9 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.*;
-import General.Mention.MentionTools;
+import Core.*;
+import Core.Mention.MentionTools;
+import Modules.ImageCreator;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;

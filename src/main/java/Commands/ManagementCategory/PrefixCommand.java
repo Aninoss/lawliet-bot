@@ -4,10 +4,10 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Constants.Permission;
-import General.DiscordApiCollection;
-import General.EmbedFactory;
-import General.TextManager;
-import General.Tools.StringTools;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.TextManager;
+import Core.Tools.StringTools;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;

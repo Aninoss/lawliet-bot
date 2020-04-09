@@ -1,6 +1,6 @@
 package ServerStuff;
 
-import General.ExceptionHandler;
+import Core.ExceptionHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
