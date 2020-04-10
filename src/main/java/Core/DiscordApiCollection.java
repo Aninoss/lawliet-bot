@@ -68,7 +68,7 @@ public class DiscordApiCollection {
 
     public void markReady(DiscordApi api) {
         apiReady[api.getCurrentShard()] = true;
-        if (!Bot.isDebug()) {
+        if (Bot.isProductionMode()) {
             Thread t = new Thread(() -> keepApiAlive(api));
             t.setPriority(1);
             t.setName("keep_alive_shard" + api.getCurrentShard());

@@ -2,6 +2,7 @@ package Core;
 
 import Constants.Settings;
 import Core.Tools.StringTools;
+import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
@@ -29,6 +30,9 @@ public class Connector {
 
     public static void main(String[] args) {
         try {
+            boolean production = args.length >= 1 && args[0].equals("production");
+            Bot.setDebug(production);
+
             Console.getInstance().start(); //Starts Console Listener
 
             //Check for faulty ports
@@ -47,7 +51,7 @@ public class Connector {
             }
 
             //Redirect error outputs to a file
-            if (!Bot.isDebug()) {
+            if (Bot.isProductionMode()) {
                 String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
                 File file = new File("data/error_log/" + fileName + "_err.log");
                 FileOutputStream fos = new FileOutputStream(file);
@@ -69,6 +73,7 @@ public class Connector {
 
             Arrays.stream(new File("temp").listFiles()).forEach(File::delete); //Cleans all temp files
 
+            if (Bot.isProductionMode()) initializeUpdate();
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
             e.printStackTrace();
@@ -110,7 +115,7 @@ public class Connector {
         System.out.println("Bot is logging in...");
 
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
-            .setToken(SecretManager.getString((Bot.isDebug()) ? "bot.token.debugger" : "bot.token"))
+            .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
             .setRecommendedTotalShards().join();
 
         int totalShards = apiBuilder.getTotalShards();
@@ -128,7 +133,7 @@ public class Connector {
 
         try {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
-                    .setToken(SecretManager.getString((Bot.isDebug()) ? "bot.token.debugger" : "bot.token"))
+                    .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                     .setTotalShards(DiscordApiCollection.getInstance().size())
                     .setCurrentShard(shardId);
 
@@ -149,14 +154,11 @@ public class Connector {
         apiCollection.insertApi(api);
 
         try {
-            api.updateStatus(UserStatus.DO_NOT_DISTURB);
-            api.updateActivity("Please wait, bot is booting up...");
-
             FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
             if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
             apiCollection.markReady(api);
 
-            Thread st = new Thread(() -> DBMain.synchronizeAll(api));
+            Thread st = new Thread(() -> DBAutoChannel.getInstance().synchronize(api));
             st.setName("synchro_shard_" + api.getCurrentShard());
             st.setPriority(1);
             st.start();
@@ -174,12 +176,12 @@ public class Connector {
                 ExceptionHandler.showInfoLog("All shards have been connected successfully!");
 
                 Thread t = new Thread(Clock::tick);
-                t.setPriority(2);
+                t.setPriority(1);
                 addUncaughtException(t);
                 t.setName("clock");
                 t.start();
 
-                DBTracker.getInstance().init();
+                if (Bot.isProductionMode()) DBTracker.getInstance().init();
             }
 
             api.addMessageCreateListener(event -> {

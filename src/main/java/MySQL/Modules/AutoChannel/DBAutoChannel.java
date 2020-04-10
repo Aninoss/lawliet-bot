@@ -96,7 +96,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
     }
 
     public void synchronize(DiscordApi api) {
-        if (!Bot.isDebug()) {
+        if (Bot.isProductionMode()) {
             try {
                 getAllChildChannelServerIds().stream()
                         .filter(serverId -> DiscordApiCollection.getInstance().getResponsibleShard(serverId) == api.getCurrentShard())

@@ -6,6 +6,11 @@ import Core.Internet.InternetResponse;
 import Modules.PostBundle;
 import Core.Tools.StringTools;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -24,7 +29,7 @@ public class AnimeNewsDownloader {
         else return getPostEN(getCurrentPostStringEN(dataString)[0]);
     }
 
-    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestPostId) throws InterruptedException, ExecutionException {
+    public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestTimeString) throws InterruptedException, ExecutionException {
         String downloadUrl;
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
@@ -38,8 +43,14 @@ public class AnimeNewsDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) postStrings = getCurrentPostStringDE(dataString);
         else postStrings = getCurrentPostStringEN(dataString);
 
-        List<String> currentUsedIds = newestPostId == null ? new ArrayList<>() : Arrays.asList(newestPostId.split("\\|"));
-        ArrayList<String> newUsedIds = new ArrayList<>();
+        Instant compareTime;
+        try {
+            compareTime = newestTimeString == null || newestTimeString.isEmpty() ? new Date(0).toInstant() : Instant.parse(newestTimeString);
+        } catch (DateTimeParseException e) {
+            e.printStackTrace();
+            compareTime = Instant.now();
+        }
+        Instant newestTime = compareTime;
 
         for(int i = 0; i < 5; i++) {
             String postString = postStrings[i];
@@ -53,18 +64,15 @@ public class AnimeNewsDownloader {
                 return null;
             }
 
-            if (!currentUsedIds.contains(post.getId()) && (i == 0 || newestPostId != null))
-                postList.add(post);
-            newUsedIds.add(post.getId());
+            if (post.getInstant().isAfter(compareTime)) {
+                if (post.getInstant().isAfter(newestTime)) newestTime = post.getInstant();
+                if (i == 0 || newestTimeString != null) postList.add(post);
+            }
         }
 
         Collections.reverse(postList);
 
-        StringBuilder sb = new StringBuilder();
-        newUsedIds.forEach(str -> sb.append("|").append(str));
-        if (sb.length() > 0) newestPostId = sb.substring(1);
-
-        return new PostBundle<>(postList, newestPostId);
+        return new PostBundle<>(postList, newestTime.toString());
     }
 
     private static AnimeNewsPost getPostDE(String data) {
@@ -78,9 +86,12 @@ public class AnimeNewsDownloader {
         if (data.contains("#comments\">")) post.setComments(Integer.parseInt(StringTools.extractGroups(data, "#comments\">", "<")[0]));
         else post.setComments(Integer.parseInt(StringTools.extractGroups(data, "#respond\">", "<")[0]));
 
+        String dateString = StringTools.extractGroups(data, "datetime=\"", "\"")[0];
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'+00:00'").withZone(ZoneOffset.UTC);
+        Instant instant = formatter.parse(dateString, Instant::from);
+        post.setInstant(instant);
+
         post.setAuthor(StringTools.decryptString(StringTools.extractGroups(data, "class=\"td-post-author-name\">", "</a>")[0].split(">")[1]));
-        post.setDate(StringTools.decryptString(StringTools.extractGroups(data, "datetime=\"", "</time>")[0].split(">")[1]));
-        post.setId(StringTools.extractGroups(data, "datetime=\"", "\"")[0]);
         post.setCategory("");
 
         return post;
@@ -97,8 +108,12 @@ public class AnimeNewsDownloader {
         post.setLink("https://www.animenewsnetwork.com" + StringTools.extractGroups(data, "<a href=\"", "\"")[0]);
         post.setComments(Integer.parseInt(StringTools.extractGroups(StringTools.extractGroups(data, "<div class=\"comments\"><a href=\"", "</a></div>")[0], ">", " ")[0]));
         post.setAuthor("");
-        post.setDate(StringTools.decryptString(StringTools.extractGroups(StringTools.extractGroups(data, "<time datetime=\"", "/time>")[0], ">", "<")[0]));
-        post.setId(StringTools.extractGroups(data, "data-track=\"id=", "</a>")[0]);
+
+        String dateString = StringTools.extractGroups(data, "<time datetime=\"", "\"")[0];
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'+00:00'").withZone(ZoneOffset.UTC);
+        Instant instant = formatter.parse(dateString, Instant::from);
+        post.setInstant(instant);
+
         post.setCategory(StringTools.decryptString(StringTools.extractGroups(data, "<span class=\"topics\">", "</div>")[0]));
 
         return post;

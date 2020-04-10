@@ -212,7 +212,7 @@ public class DBUser {
                 }
                 return null;
             } else {
-                long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Combo
+                long[][] progress = new long[5][2]; //Joule, Coins, Growth, Rang, Daily Streak
                 String[] progressString = new String[6];
                 EmbedBuilder eb;
 

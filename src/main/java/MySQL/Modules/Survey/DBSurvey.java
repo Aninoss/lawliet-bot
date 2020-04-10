@@ -63,7 +63,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
     public synchronized int getCurrentSurveyId() throws SQLException {
         if (currentSurveyId == null) {
-            Statement statement = DBMain.getInstance().statement("SELECT surveyId FROM SurveyDates ORDER BY surveyId DESC LIMIT 1;");
+            Statement statement = DBMain.getInstance().statement("SELECT surveyId FROM SurveyDates ORDER BY start DESC LIMIT 1;");
             ResultSet resultSet = statement.getResultSet();
 
             if (resultSet.next())
@@ -76,8 +76,8 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
         return currentSurveyId;
     }
 
-    public int next() throws SQLException {
-        currentSurveyId = getCurrentSurveyId() + 1;
+    public int next() {
+        currentSurveyId++;
 
         DBMain.getInstance().asyncUpdate("INSERT INTO SurveyDates VALUES (?, NOW());", preparedStatement -> {
             preparedStatement.setInt(1, currentSurveyId);

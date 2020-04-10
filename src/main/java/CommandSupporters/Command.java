@@ -561,7 +561,7 @@ public abstract class Command {
     public String[] getOptions() { return options; }
     public void setOptions(String[] options) {
         this.options = options;
-        this.pageMax = Math.max(0, options.length - 1) / 10;
+        if (options != null) this.pageMax = Math.max(0, options.length - 1) / 10;
     }
     public void setLog(LogStatus logStatus, String string) {
         this.log = string;

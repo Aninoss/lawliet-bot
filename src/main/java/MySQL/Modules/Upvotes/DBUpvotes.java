@@ -10,6 +10,7 @@ import MySQL.Modules.Server.DBServer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,6 +54,15 @@ public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
             preparedStatement.setLong(1, upvotesBean.getUserId());
             preparedStatement.setString(2, DBMain.instantToDateTimeString(upvotesBean.getLastUpvote()));
         });
+    }
+
+    public void cleanUp() {
+        try {
+            Statement statement = DBMain.getInstance().statement("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

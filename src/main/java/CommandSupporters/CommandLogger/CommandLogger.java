@@ -1,5 +1,7 @@
 package CommandSupporters.CommandLogger;
 
+import Core.Bot;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,15 +14,17 @@ public class CommandLogger {
     public static CommandLogger getInstance() { return ourInstance; }
     private CommandLogger() {}
 
-    private static final int MAX_SIZE = 100;
+    private static final int MAX_SIZE = 20;
 
     private HashMap<Long, ArrayList<CommandUsage>> servers = new HashMap<>();
 
     public void add(long serverId, CommandUsage commandUsage) {
-        ArrayList<CommandUsage> commandUsages = servers.computeIfAbsent(serverId, k -> new ArrayList<>());
-        commandUsages.add(commandUsage);
+        if (Bot.isProductionMode()) {
+            ArrayList<CommandUsage> commandUsages = servers.computeIfAbsent(serverId, k -> new ArrayList<>());
+            commandUsages.add(commandUsage);
 
-        while(commandUsages.size() > MAX_SIZE) commandUsages.remove(0);
+            while (commandUsages.size() > MAX_SIZE) commandUsages.remove(0);
+        }
     }
 
     public void saveLog(long serverId) throws IOException {

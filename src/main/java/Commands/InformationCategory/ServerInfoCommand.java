@@ -16,7 +16,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
         emoji = "\uD83D\uDC6A",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
         executable = true,
-        aliases = {"serverinfos"}
+        aliases = {"serverinfos", "serverstat", "serverstats"}
 )
 public class ServerInfoCommand extends Command {
 

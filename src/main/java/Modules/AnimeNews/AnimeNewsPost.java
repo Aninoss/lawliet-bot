@@ -1,9 +1,12 @@
 package Modules.AnimeNews;
 
+import java.time.Instant;
+
 public class AnimeNewsPost {
 
-    private String title = "", description = "", image = "", link = "", author = "", date = "", id = "", category;
+    private String title = "", description = "", image = "", link = "", author = "", category = "";
     private int comments;
+    private Instant instant;
 
     public void setTitle(String title) {
         this.title = title;
@@ -53,21 +56,9 @@ public class AnimeNewsPost {
         this.author = author;
     }
 
-    public String getDate() {
-        return date;
-    }
+    public Instant getInstant() { return instant; }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setInstant(Instant instant) { this.instant = instant; }
 
     public String getCategory() {
         return category;

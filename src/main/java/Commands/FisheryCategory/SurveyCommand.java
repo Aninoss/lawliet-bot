@@ -200,7 +200,8 @@ public class SurveyCommand extends Command implements OnReactionAddStaticListene
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        if(slot.getArgs().isPresent() && DBSurvey.getInstance().getCurrentSurveyId() <= Integer.parseInt(slot.getArgs().get()))
+        SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
+        if(slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get()))
             return TrackerResult.CONTINUE;
 
         ServerTextChannel channel = slot.getChannel().get();
@@ -214,8 +215,7 @@ public class SurveyCommand extends Command implements OnReactionAddStaticListene
             nextInstant = TimeTools.setInstantToNextDay(nextInstant);
         } while(!TimeTools.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeTools.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
-        slot.setNextRequest(nextInstant.plusSeconds(5 * 60));
-        slot.setArgs(String.valueOf(DBSurvey.getInstance().getCurrentSurvey().getSurveyId()));
+        slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
         return TrackerResult.CONTINUE_AND_SAVE;
     }

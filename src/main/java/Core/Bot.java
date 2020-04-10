@@ -4,9 +4,18 @@ import java.io.File;
 
 public class Bot {
 
-    public static boolean isDebug() {
-        //The bot is being programmed in Windows and runs on a Linux server, therefore the bot assumes that it runs on debug mode whenever it gets started on a windows device
-        return System.getProperty("os.name").toLowerCase().contains("win");
+    private static boolean production = false;
+    private final boolean DEBUG_IN_PRODUCTION_ENVIRONMENT = true;
+
+    public static void setDebug(boolean newProduction) {
+        production = newProduction;
+        System.out.println("-------------------------------------");
+        System.out.println("Production Mode: " + production);
+        System.out.println("-------------------------------------");
+    }
+
+    public static boolean isProductionMode() {
+        return production;
     }
 
     public static boolean hasUpdate() { return new File("update/Lawliet.jar").exists(); }

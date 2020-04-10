@@ -85,8 +85,8 @@ public class ExceptionHandler {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String text = String.format("[ERROR] %s: %s", dtf.format(now), str);
-        System.err.println(text);
-        if (!Bot.isDebug()) System.out.println(text);
+        if (Bot.isProductionMode()) System.err.println(text);
+        System.out.println(text);
         DiscordApiCollection.getInstance().getOwner().sendMessage(text);
     }
 
@@ -94,8 +94,8 @@ public class ExceptionHandler {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String text = String.format("[INFO] %s: %s", dtf.format(now), str);
-        System.err.println(text);
-        if (!Bot.isDebug()) System.out.println(text);
+        if (Bot.isProductionMode()) System.err.println(text);
+        System.out.println(text);
     }
 
 }

@@ -80,6 +80,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
         ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
 
+        setOptions(null);
+
         EmbedBuilder eb;
         if ((eb = checkCommand(channel, arg)) == null) {
             if ((eb = checkCategory(channel ,arg)) == null) {
@@ -100,7 +102,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
-        for (Class clazz : CommandContainer.getInstance().getCommands().values()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommands().values()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger())) {
@@ -170,7 +172,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                     //Interactions and Emotes Category
                     if (string.equals(Category.INTERACTIONS) || string.equals(Category.EMOTES)) {
-                        for (Class clazz : CommandContainer.getInstance().getCommandList()) {
+                        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
                             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
                             if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
@@ -198,7 +200,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     //All other categories
                     else {
                         int i = 0;
-                        for (Class clazz : CommandContainer.getInstance().getCommandList()) {
+                        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
                             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             String commandTrigger = command.getTrigger();
                             User author = getStarterMessage().getUserAuthor().get();
@@ -221,7 +223,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                                 if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                                 if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
 
-                                commands.append("**\n").append("**").append(getPrefix()).append(commandTrigger).append("**")
+                                commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                                         .append(" - ")
                                         .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
                                         .append("\n\n");

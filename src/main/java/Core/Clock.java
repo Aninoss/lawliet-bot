@@ -13,6 +13,7 @@ import MySQL.Modules.Survey.DBSurvey;
 import MySQL.Modules.Survey.SurveyBean;
 import MySQL.Modules.Survey.SurveyQuestion;
 import MySQL.Modules.Survey.SurveySecondVote;
+import MySQL.Modules.Upvotes.DBUpvotes;
 import ServerStuff.*;
 import CommandSupporters.Cooldown.Cooldown;
 import Modules.Reddit.SubredditContainer;
@@ -72,6 +73,7 @@ public class Clock {
         SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
         RunningCommandManager.getInstance().clear(); //Resets Running Commands
         PornImageCache.getInstance().reset(); //Resets Porn Cache
+        DBUpvotes.getInstance().cleanUp(); //Cleans Up Bot Upvote List
 
         DonationHandler.checkExpiredDonations(); //Check Expired Donations
 
@@ -118,7 +120,7 @@ public class Clock {
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
         Console.getInstance().setTraffic(trafficGB);
 
-        if (trafficGB >= 50 && (!trafficWarned || trafficGB >= 60)) {
+        if (trafficGB >= 60 && (!trafficWarned || trafficGB >= 60)) {
             try {
                 apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
             } catch (Throwable e) {
@@ -126,7 +128,7 @@ public class Clock {
             }
             trafficWarned = true;
         }
-        if (trafficGB >= 60) {
+        if (trafficGB >= 100) {
             ExceptionHandler.showErrorLog("Too much traffic!");
             System.exit(-1);
         }
@@ -144,7 +146,7 @@ public class Clock {
         Connector.updateActivity();
 
         //Updates Discord Bots Server Count
-        if (!Bot.isDebug() && apiCollection.allShardsConnected()) {
+        if (Bot.isProductionMode() && apiCollection.allShardsConnected()) {
             int totalServers = apiCollection.getServerTotalSize();
             TopGG.getInstance().updateServerCount(totalServers);
             Botsfordiscord.updateServerCount(totalServers);
@@ -215,6 +217,11 @@ public class Clock {
                     manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
                 }
             } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
         emoji = "\uD83D\uDCDD",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
         executable = true,
-        aliases = {"channelinfos"}
+        aliases = {"channelinfos", "channelstat", "channelstats"}
 )
 public class ChannelInfoCommand extends Command {
 

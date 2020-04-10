@@ -36,7 +36,7 @@ public class DBMain implements DriverAction {
         System.out.println("Connecting with database...");
 
         final MysqlDataSource rv = new MysqlDataSource();
-        rv.setServerName(Bot.isDebug() ? SecretManager.getString("database.ip") : "127.0.0.1");
+        rv.setServerName(Bot.isProductionMode() ? "127.0.0.1" : SecretManager.getString("database.ip"));
         rv.setPortNumber(3306);
         rv.setDatabaseName(SecretManager.getString("database.database"));
         rv.setAllowMultiQueries(true);
@@ -46,17 +46,6 @@ public class DBMain implements DriverAction {
         rv.setPassword(SecretManager.getString("database.password"));
         rv.setServerTimezone(TimeZone.getDefault().getID());
         connect = rv.getConnection();
-    }
-
-    public static void synchronizeAll(DiscordApi api) {
-        try {
-            DBServerOld.synchronize(api);
-            DBAutoChannel.getInstance().synchronize(api);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            ExceptionHandler.showErrorLog("Error in synchronization method!");
-            System.exit(-1);
-        }
     }
 
     public void addDBCached(DBCached dbCached) {

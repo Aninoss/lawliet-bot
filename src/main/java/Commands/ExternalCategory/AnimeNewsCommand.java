@@ -10,7 +10,6 @@ import Core.*;
 import Modules.AnimeNews.AnimeNewsDownloader;
 import Modules.AnimeNews.AnimeNewsPost;
 import Modules.PostBundle;
-import Core.Tools.StringTools;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -32,6 +31,7 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
         EmbedBuilder eb = EmbedFactory.addLog(getEmbed(post), LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         event.getChannel().sendMessage(eb).get();
+
         return true;
     }
 
@@ -41,7 +41,7 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())
                 .setUrl(post.getLink())
-                .setFooter(getString("footer", StringTools.numToString(getLocale(), post.getComments()), post.getDate(), post.getCategory()));
+                .setTimestamp(post.getInstant());
 
         return eb;
     }

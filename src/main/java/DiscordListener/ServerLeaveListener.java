@@ -30,8 +30,6 @@ public class ServerLeaveListener {
         if (event.getServer().getMembers().size() >= 100)
             DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
 
-        System.out.println("Delete Database Entry");
-
         DBServer.getInstance().remove(event.getServer().getId());
     }
 }

@@ -15,34 +15,6 @@ import java.util.concurrent.ExecutionException;
 
 public class DBServerOld {
 
-    public static void synchronize(DiscordApi api) throws SQLException, ExecutionException, InterruptedException {
-        if (!Bot.isDebug()) {
-            System.out.println("Servers are getting synchronized...");
-            ArrayList<String> dbServerIds = new ArrayList<>();
-            Statement statement = DBMain.getInstance().statement("SELECT serverId FROM DServer;");
-            ResultSet resultSet = statement.getResultSet();
-            while (resultSet.next()) dbServerIds.add(resultSet.getString(1));
-            resultSet.close();
-            statement.close();
-
-            DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-
-            //Inserts missing database entries
-            for (Server server : api.getServers()) {
-                if (!dbServerIds.contains(server.getIdAsString())) {
-                    insertServer(server);
-                }
-            }
-        }
-    }
-
-    public static void insertServer(Server server) throws SQLException {
-        PreparedStatement serverStatement = DBMain.getInstance().preparedStatement("INSERT IGNORE INTO DServer (serverId) VALUES (?);");
-        serverStatement.setString(1, server.getIdAsString());
-        serverStatement.executeUpdate();
-        serverStatement.close();
-    }
-
     public static ArrayList<Role> getPowerPlantRolesFromServer(Server server) throws SQLException {
         ArrayList<Role> roleList = new ArrayList<>();
 

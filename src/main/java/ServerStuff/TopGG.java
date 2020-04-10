@@ -29,7 +29,7 @@ public class TopGG {
     }
 
     public void updateServerCount(int totalServerSize) {
-        if (!Bot.isDebug()) dblApi.setStats(totalServerSize);
+        dblApi.setStats(totalServerSize);
     }
 
     public int getTotalUpvotes() {

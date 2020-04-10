@@ -17,7 +17,7 @@ import java.util.Locale;
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/flag-icon.png",
         emoji = "\uD83C\uDF10",
         executable = true,
-        aliases = {"sprache"}
+        aliases = {"sprache", "lang"}
 )
 public class LanguageCommand extends Command implements OnReactionAddListener {
 

@@ -8,6 +8,7 @@ import MySQL.DBBeanGenerator;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 
+import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -70,7 +71,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         return serverBean;
     }
 
-    private void insertBean(ServerBean serverBean) throws SQLException {
+    private void insertBean(ServerBean serverBean) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverBean.getServerId());
             preparedStatement.setString(2, serverBean.getPrefix());
@@ -128,6 +129,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
             e.printStackTrace();
         }
         getCache().invalidate(serverId);
+        new File(String.format("data/welcome_backgrounds/%d.png", serverId)).delete();
     }
 
 }
