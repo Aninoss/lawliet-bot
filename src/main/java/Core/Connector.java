@@ -148,7 +148,7 @@ public class Connector {
 
     public static void onApiJoin(DiscordApi api, boolean startup) {
         api.setAutomaticMessageCacheCleanupEnabled(true);
-        api.setMessageCacheSize(10, Settings.TIME_OUT_TIME / 1000);
+        api.setMessageCacheSize(30, 30 * 60);
 
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);

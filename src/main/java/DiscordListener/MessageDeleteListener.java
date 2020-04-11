@@ -12,7 +12,11 @@ import java.util.ArrayList;
 public class MessageDeleteListener {
 
     public void onMessageDelete(MessageDeleteEvent event) {
-        if (!event.getMessage().isPresent() || !event.getMessage().get().getUserAuthor().isPresent() || !event.getServer().isPresent() || event.getMessage().get().getUserAuthor().get().isBot()) return;
+        if (!event.getMessage().isPresent() ||
+                !event.getMessage().get().getUserAuthor().isPresent() ||
+                !event.getServer().isPresent() ||
+                event.getMessage().get().getUserAuthor().get().isBot()
+        ) return;
 
         //Entfernt Forwarded Listeners
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();

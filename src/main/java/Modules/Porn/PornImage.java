@@ -32,10 +32,6 @@ public class PornImage {
 
     public int getComments() { return comments; }
 
-    public long getWeight() {
-        return (long) Math.pow(score + 1, 2.75) * (imageUrl.endsWith("gif") ? 3 : 1);
-    }
-
     public Instant getInstant() {
         return instant;
     }

@@ -25,7 +25,10 @@ public class VoiceChannelMemberJoinListener {
     }
 
     public void onJoin(ServerVoiceChannelMemberJoinEvent event) throws Exception {
-        if (event.getUser().isYourself() || !userIsConnected(event.getChannel(), event.getUser())) return;
+        if (event.getUser().isYourself() ||
+                !userIsConnected(event.getChannel(), event.getUser())
+        ) return;
+
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());

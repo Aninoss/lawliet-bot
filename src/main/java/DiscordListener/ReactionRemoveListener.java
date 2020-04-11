@@ -14,14 +14,15 @@ import java.util.concurrent.ExecutionException;
 public class ReactionRemoveListener {
 
     public void onReactionRemove(ReactionRemoveEvent event) {
-        if (event.getUser().isYourself() || event.getUser().isBot()) return;
+        if (!event.getMessage().isPresent() ||
+                event.getUser().isYourself() ||
+                event.getUser().isBot()
+        ) return;
 
         //Commands
-        if (ReactionAddListener.manageReactionCommands(event)) return;
+        if (ReactionAddListener.manageReactionCommands(event) || !event.getServer().isPresent()) return;
 
-        if (!event.getServer().isPresent()) return;
-
-        //Message runterladen
+        //Download Message
         Message message = null;
         try {
             if (event.getMessage().isPresent()) message = event.getMessage().get();

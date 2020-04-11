@@ -40,14 +40,16 @@ public class ReactionAddListener {
     }
 
     public void onReactionAdd(ReactionAddEvent event) {
-        if (event.getUser().isYourself() || event.getUser().isBot()) return;
+        if (event.getUser().isYourself() ||
+                event.getUser().isBot()
+        ) {
+            return;
+        }
 
         //Commands
-        if (manageReactionCommands(event)) return;
+        if (manageReactionCommands(event) || !event.getServer().isPresent()) return;
 
-        if (!event.getServer().isPresent()) return;
-
-        //Message runterladen
+        //Download Message
         Message message = null;
         try {
             if (event.getMessage().isPresent()) message = event.getMessage().get();

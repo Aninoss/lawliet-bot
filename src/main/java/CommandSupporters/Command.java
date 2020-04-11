@@ -252,9 +252,7 @@ public abstract class Command {
                 } else navigationMessage = channel.sendMessage(eb).get();
         } else {
             try {
-                if ((navigationMessage = navigationMessage.getLatestInstance().get()) != null) {
-                    navigationMessage.edit(eb).get();
-                }
+                navigationMessage.edit(eb).get();
             } catch (Exception e) {
                 //Ignore
             }
@@ -312,14 +310,9 @@ public abstract class Command {
 
             loadingStatus = LoadingStatus.OFF;
             if (message.getCurrentCachedInstance().isPresent()) {
-                try {
-                    message = message.getLatestInstance().get();
-                    if (message.getChannel().canYouUseExternalEmojis())
-                        message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
-                    else message.removeOwnReactionByEmoji("⏳");
-                } catch (InterruptedException | ExecutionException e) {
-                    //Ignore
-                }
+                if (message.getChannel().canYouUseExternalEmojis())
+                    message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
+                else message.removeOwnReactionByEmoji("⏳");
             }
         }
     }

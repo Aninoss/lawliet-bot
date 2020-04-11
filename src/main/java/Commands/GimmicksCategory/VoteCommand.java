@@ -158,7 +158,6 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         boolean userFound = false;
 
         //Update VoteInfo
-        message.getLatestInstance().get();
         VoteInfo voteInfo = getValuesFromMessage(message);
         User user = event.getUser();
 

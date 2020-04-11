@@ -160,7 +160,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                                 }
                                 if (success) {
                                     if (remove) Thread.sleep(500);
-                                    for (Reaction reaction : getNavigationMessage().getLatestInstance().get().getReactions()) {
+                                    for (Reaction reaction : getNavigationMessage().getReactions()) {
                                         if (emojis.get(0).equals(reaction.getEmoji().getMentionTag())) {
                                             if (remove) reaction.remove().get();
                                             inputString2 = StringTools.trimString(inputString.replaceFirst(emojis.get(0), ""));

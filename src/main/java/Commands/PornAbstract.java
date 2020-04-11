@@ -4,6 +4,7 @@ package Commands;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Core.EmbedFactory;
+import Core.ExceptionHandler;
 import Modules.Porn.PornImageDownloader;
 import Core.Tools.NSFWTools;
 import Modules.Porn.PornImage;
@@ -47,6 +48,7 @@ public abstract class PornAbstract extends Command {
         ArrayList<String> usedResults = new ArrayList<>();
         do {
             ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount), usedResults);
+            if (pornImages == null) ExceptionHandler.showErrorLog("null pointer porn image list");
 
             if (pornImages.size() == 0) {
                 if (first) {
