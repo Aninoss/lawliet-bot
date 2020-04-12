@@ -1,20 +1,18 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
 import Core.Mention.MentionTools;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,9 +42,7 @@ public class AccountCommand extends Command {
             }
             boolean userMentioned = true;
             boolean userBefore = list.size() > 0;
-            for(User user: new ArrayList<>(list)) {
-                if (user.isBot()) list.remove(user);
-            }
+            list.removeIf(User::isBot);
             if (list.size() == 0) {
                 if (userBefore) {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("nobot"))).get();
@@ -57,7 +53,7 @@ public class AccountCommand extends Command {
                 }
             }
             for(User user: list) {
-                EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, user, 0L, 0L);
+                EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(user.getId()).getAccountEmbed();
                 if (eb != null) {
                     eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
                     if (!userMentioned)

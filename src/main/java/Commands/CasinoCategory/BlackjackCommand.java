@@ -214,7 +214,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                     }
                 }
             }
-        } catch (IOException | InterruptedException | SQLException | ExecutionException e) {
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

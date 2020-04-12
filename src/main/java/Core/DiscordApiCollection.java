@@ -6,7 +6,6 @@ import Core.Internet.Internet;
 import Core.Internet.InternetProperty;
 import Core.Internet.InternetResponse;
 import CommandSupporters.RunningCommands.RunningCommandManager;
-import MySQL.FisheryCache;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -119,7 +118,6 @@ public class DiscordApiCollection {
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-            FisheryCache.getInstance(n).turnOff();
             RunningCommandManager.getInstance().clearShard(n);
             api.disconnect();
             Connector.reconnectApi(api.getCurrentShard());

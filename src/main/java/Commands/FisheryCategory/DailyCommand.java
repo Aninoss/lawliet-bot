@@ -1,24 +1,24 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
 import Core.Tools.StringTools;
-import Modules.DailyState;
-import MySQL.DBUser;
 import MySQL.Modules.Donators.DBDonators;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @CommandProperties(
     trigger = "daily",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/calendar-icon.png",
     emoji = "\uD83D\uDDD3",
-    withLoadingBar = true,
     executable = true
 )
 public class DailyCommand extends Command {
@@ -27,20 +27,18 @@ public class DailyCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
-            DailyState dailyState = DBUser.daily(event.getServer().get(), event.getMessage().getUserAuthor().get());
-            if (dailyState != null && dailyState.isClaimed()) {
-                long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false).getEffect(FishingCategoryInterface.PER_DAY);
+            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
+            if (!userBean.getDailyReceived().equals(LocalDate.now())) {
+                long fishes = userBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect();
+                boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());
+                userBean.updateDailyReceived();
 
                 int bonusCombo = 0;
                 int bonusDonation = 0;
-                int dailyBefore = -1;
-                if (dailyState.isStreakBroken()) {
-                    dailyBefore = dailyState.getStreak();
-                } else {
-                    dailyBefore = dailyState.getStreak() - 1;
-                    if (dailyState.getStreak() >= 5) {
-                        bonusCombo = (int) Math.round(fishes * 0.25);
-                    }
+                int dailyStreakNow = breakStreak ? 1 : userBean.getDailyStreak() + 1;
+
+                if (dailyStreakNow >= 5) {
+                    bonusCombo = (int) Math.round(fishes * 0.25);
                 }
 
                 if (DBDonators.getInstance().getBean().getMap().containsKey(event.getMessage().getUserAuthor().get().getId())) {
@@ -53,10 +51,10 @@ public class DailyCommand extends Command {
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("codeblock", sb.toString()));
                 eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", Settings.UPVOTE_URL), false);
-                if (dailyState.isStreakBroken()) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
+                if (breakStreak) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
                 event.getChannel().sendMessage(eb).get();
-                event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), fishes + bonusCombo + bonusDonation, 0L, dailyBefore, false)).get();
+                event.getChannel().sendMessage(userBean.changeValues(fishes + bonusCombo + bonusDonation, 0, dailyStreakNow)).get();
 
                 return true;
             } else {

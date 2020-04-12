@@ -12,6 +12,7 @@ import Core.Mention.MentionTools;
 import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
 import MySQL.Modules.WhiteListedChannels.WhiteListedChannelsBean;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -35,11 +36,13 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
 
     private WhiteListedChannelsBean whiteListedChannelsBean;
     private NavigationHelper<ServerTextChannel> channelNavigationHelper;
+    private CustomObservableList<ServerTextChannel> whiteListedChannels;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         whiteListedChannelsBean = DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId());
-        channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannelsBean.getChannelIds().transform(channelId -> whiteListedChannelsBean.getServer().get().getTextChannelById(channelId)), ServerTextChannel.class, MAX_CHANNELS);
+        whiteListedChannels = whiteListedChannelsBean.getChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
+        channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;
     }
 
@@ -47,7 +50,7 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
-            return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0, channel -> whiteListedChannelsBean.getChannelIds().add(channel.getId()));
+            return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 
         return null;
@@ -90,7 +93,7 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
                 break;
 
             case 2:
-                return channelNavigationHelper.removeData(i, 0, channel -> whiteListedChannelsBean.getChannelIds().remove(channel.getId()));
+                return channelNavigationHelper.removeData(i, 0);
         }
         return false;
     }
@@ -102,7 +105,7 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_mchannel"), new ListGen<ServerTextChannel>().getList(whiteListedChannelsBean.getChannelIds().transform(channelId -> whiteListedChannelsBean.getServer().get().getTextChannelById(channelId)), everyChannel, Mentionable::getMentionTag), true);
+                       .addField(getString("state0_mchannel"), new ListGen<ServerTextChannel>().getList(whiteListedChannels, everyChannel, Mentionable::getMentionTag), true);
 
             case 1: return channelNavigationHelper.drawDataAdd();
             case 2: return channelNavigationHelper.drawDataRemove();

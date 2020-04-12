@@ -4,7 +4,6 @@ import Commands.ManagementCategory.WelcomeCommand;
 import Constants.Permission;
 import Core.PermissionCheckRuntime;
 import Core.Tools.StringTools;
-import MySQL.DBUser;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
@@ -22,13 +21,6 @@ public class ServerMemberLeaveListener {
         if (event.getUser().isYourself()) return;
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
-
-        //Update on server status
-        try {
-            if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser().getId(), false);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         //Verabschiedungen
         try {

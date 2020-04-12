@@ -41,7 +41,7 @@ public class NavigationHelper<T> {
         }
     }
 
-    public Response addData(List<T> newList, String inputString, User author, int stateBack, Consumer<? super T> forEachNew) throws IOException {
+    public Response addData(List<T> newList, String inputString, User author, int stateBack) throws IOException {
         if (newList.size() == 0) {
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_results_description", inputString));
             return Response.FALSE;
@@ -63,7 +63,6 @@ public class NavigationHelper<T> {
                 if (!srcList.contains(t)) {
                     if (srcList.size() < max) {
                         srcList.add(t);
-                        forEachNew.accept(t);
                         n++;
                     }
                 }
@@ -75,12 +74,11 @@ public class NavigationHelper<T> {
         }
     }
 
-    public boolean removeData(int i, int stateBack, Consumer<? super T> forEach) {
+    public boolean removeData(int i, int stateBack) {
         if (i == -1) {
             command.setState(stateBack);
             return true;
         } else if (i >= 0 && i < srcList.size()) {
-            forEach.accept(srcList.get(i));
             srcList.remove(i);
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_remove" + typeString));
             if (srcList.size() == 0) command.setState(stateBack);

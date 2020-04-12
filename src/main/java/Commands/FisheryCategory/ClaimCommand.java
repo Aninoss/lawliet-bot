@@ -8,12 +8,12 @@ import Core.EmbedFactory;
 import Core.TextManager;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Upvotes.DBUpvotes;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -33,7 +33,9 @@ public class ClaimCommand extends Command {
 
         if (status == FisheryStatus.ACTIVE) {
             Instant nextUpvote = DBUpvotes.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).getLastUpvote().plus(12, ChronoUnit.HOURS);
-            int upvotesUnclaimed = DBUser.getUpvotesUnclaimed(event.getServer().get(), event.getMessage().getUserAuthor().get());
+            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
+            int upvotesUnclaimed = userBean.getUpvoteStack();
+            userBean.clearUpvoteStack();
 
             if (upvotesUnclaimed == 0) {
 
@@ -43,13 +45,13 @@ public class ClaimCommand extends Command {
                 event.getChannel().sendMessage(eb).get();
                 return false;
             } else {
-                long fishes = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false).getEffect(FishingCategoryInterface.PER_DAY);
+                long fishes = userBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect();
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringTools.numToString(getLocale(), upvotesUnclaimed), StringTools.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
                 if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
                 event.getChannel().sendMessage(eb);
-                event.getChannel().sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), Math.round(fishes * 0.25 * upvotesUnclaimed), 0L)).get();
+                event.getChannel().sendMessage(userBean.changeValues(Math.round(fishes * 0.25 * upvotesUnclaimed), 0)).get();
                 return true;
             }
         } else {

@@ -6,11 +6,6 @@ import java.sql.SQLException;
 
 public class DBBotStats {
 
-    public static void fisheryCleanUp() throws SQLException {
-        String sql = "DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;";
-        DBMain.getInstance().statement(sql);
-    }
-
     public static void addStatServers(int serverCount) throws SQLException {
         String sql = "INSERT INTO StatsServerCount VALUES(NOW(), ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);

@@ -35,10 +35,15 @@ import java.util.stream.Collectors;
 public class SelfPromotionBlockCommand extends Command implements OnNavigationListener {
     
     private SPBlockBean spBlockBean;
+    private CustomObservableList<User> ignoredUsers, logReceivers;
+    private CustomObservableList<ServerTextChannel> ignoredChannels;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         spBlockBean = DBSPBlock.getInstance().getBean(event.getServer().get().getId());
+        ignoredUsers = spBlockBean.getIgnoredUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
+        logReceivers = spBlockBean.getLogReceiverUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
+        ignoredChannels = spBlockBean.getIgnoredChannelIds().transform(userId -> event.getServer().get().getTextChannelById(userId), DiscordEntity::getId);
         return true;
     }
 
@@ -185,9 +190,9 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(spBlockBean.getIgnoredUserIds().transform(userId -> spBlockBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(spBlockBean.getIgnoredChannelIds().transform(userId -> spBlockBean.getServer().get().getTextChannelById(userId)), getLocale(), Mentionable::getMentionTag), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(spBlockBean.getLogReceiverUserIds().transform(userId -> spBlockBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_maction"),getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
 
             case 1:

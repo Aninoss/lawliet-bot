@@ -6,23 +6,23 @@ import Commands.ManagementCategory.WelcomeCommand;
 import Constants.FishingCategoryInterface;
 import Constants.Permission;
 import Core.*;
-import Modules.Fishing.FishingProfile;
 import Core.Tools.StringTools;
 import Modules.ImageCreator;
 import MySQL.Modules.AutoRoles.DBAutoRoles;
-import MySQL.DBServerOld;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryServerBean;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -79,8 +79,7 @@ public class ServerMemberJoinListener {
                     }
                 });
             }
-            if (!event.getUser().isBot()) DBUser.updateOnServerStatus(server, event.getUser(), true);
-        } catch (ExecutionException | SQLException e) {
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
 
@@ -93,10 +92,11 @@ public class ServerMemberJoinListener {
 
         //Automatische Rollenvergabe bei Fisching
         try {
-            FishingProfile fishingProfile = DBUser.getFishingProfile(server, event.getUser(), false);
-            int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
+            FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
+            FisheryUserBean fisheryUserBean = fisheryServerBean.getUser(event.getUser().getId());
+            int level = fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel();
             if (level > 0) {
-                ArrayList<Role> roles = DBServerOld.getPowerPlantRolesFromServer(server);
+                List<Role> roles = fisheryServerBean.getRoleIds().transform(server::getRoleById, DiscordEntity::getId);
                 ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
 
                 if (serverBean.isFisherySingleRoles()) {
@@ -109,13 +109,13 @@ public class ServerMemberJoinListener {
                     }
                 }
             }
-        } catch (SQLException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
         //Automatisiere Rollenvergabe
         try {
-            for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById)) {
+            for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) event.getUser().addRole(role).get();
             }
         } catch (InterruptedException | ExecutionException e) {

@@ -40,10 +40,13 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
 
     private BannedWordsBean bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
+    private CustomObservableList<User> ignoredUsers, logReceivers;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         bannedWordsBean = DBBannedWords.getInstance().getBean(event.getServer().get().getId());
+        ignoredUsers = bannedWordsBean.getIgnoredUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
+        logReceivers = bannedWordsBean.getLogReceiverUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
         wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
         return true;
     }
@@ -80,7 +83,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
             case 3:
                 String[] wordArray = inputString.replace("\n", " ").split(" ");
                 List<String> wordList = Arrays.stream(wordArray).map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length()))).collect(Collectors.toList());
-                return wordsNavigationHelper.addData(wordList, inputString, event.getMessage().getUserAuthor().get(), 0, word -> {});
+                return wordsNavigationHelper.addData(wordList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 
         return null;
@@ -154,7 +157,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 return false;
 
             case 4:
-                return wordsNavigationHelper.removeData(i, 0, word -> {});
+                return wordsNavigationHelper.removeData(i, 0);
         }
         return false;
     }
@@ -166,8 +169,8 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(bannedWordsBean.getIgnoredUserIds().transform(userId -> bannedWordsBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(bannedWordsBean.getLogReceiverUserIds().transform(userId -> bannedWordsBean.getServer().get().getMemberById(userId)), getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:

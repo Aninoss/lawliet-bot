@@ -2,7 +2,6 @@ package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
-
 import Commands.CasinoAbstract;
 import Constants.LetterEmojis;
 import Constants.LogStatus;
@@ -10,14 +9,13 @@ import Constants.Settings;
 import Core.*;
 import Core.Internet.Internet;
 import Core.Tools.StringTools;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -64,7 +62,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                 data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
                 diffString = data.getString("difficulty");
             } catch (Throwable e) {
-                DBUser.addFishingValues(getLocale(), server, player, 0, coinsInput);
+                DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
                 throw e;
             }
 

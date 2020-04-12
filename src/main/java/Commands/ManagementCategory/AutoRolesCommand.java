@@ -11,6 +11,7 @@ import Core.Mention.MentionTools;
 import MySQL.Modules.AutoRoles.AutoRolesBean;
 import MySQL.Modules.AutoRoles.DBAutoRoles;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -36,12 +37,14 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
 
     private AutoRolesBean autoRolesBean;
     private NavigationHelper<Role> roleNavigationHelper;
+    private CustomObservableList<Role> roles;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         autoRolesBean = DBAutoRoles.getInstance().getBean(event.getServer().get().getId());
-        roleNavigationHelper = new NavigationHelper<>(this, autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), Role.class, MAX_ROLES);
-        checkRolesWithLog(autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), event.getMessage().getUserAuthor().get());
+        roles = autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId), DiscordEntity::getId);
+        roleNavigationHelper = new NavigationHelper<>(this, roles, Role.class, MAX_ROLES);
+        checkRolesWithLog(roles, event.getMessage().getUserAuthor().get());
         return true;
     }
 
@@ -49,7 +52,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws IOException, ExecutionException {
         if (state == 1) {
             List<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
-            return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0, role -> autoRolesBean.getRoleIds().add(role.getId()));
+            return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 
         return null;
@@ -81,7 +84,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
                 }
 
             case 2:
-                return roleNavigationHelper.removeData(i, 0, role -> autoRolesBean.getRoleIds().remove(role.getId()));
+                return roleNavigationHelper.removeData(i, 0);
         }
         return false;
     }
@@ -92,7 +95,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_mroles"), new ListGen<Role>().getList(autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getServer().get().getRoleById(roleId)), getLocale(), Role::getMentionTag), true);
+                       .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), true);
 
             case 1:
                 return roleNavigationHelper.drawDataAdd();

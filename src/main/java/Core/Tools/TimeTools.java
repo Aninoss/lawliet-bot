@@ -49,6 +49,12 @@ public class TimeTools {
         return roundCeiling.toInstant(ZoneOffset.UTC);
     }
 
+    public static Instant instantRoundDownToHour(Instant instant) {
+        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+        LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.HOURS);
+        return roundCeiling.toInstant(ZoneOffset.UTC);
+    }
+
     public static Instant setInstantToNextDay(Instant instant) {
         LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault());
         LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.DAYS).plusDays(1);

@@ -2,13 +2,11 @@ package DiscordListener;
 
 import Constants.FishingCategoryInterface;
 import Modules.BannedWordsCheck;
-import Modules.Fishing.FishingProfile;
 import Core.Internet.Internet;
 import Modules.SPCheck;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
 import org.javacord.api.event.message.MessageEditEvent;
 
-import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
 
 public class MessageEditListener {
@@ -28,9 +26,7 @@ public class MessageEditListener {
         //Stuff that is only active for my own Aninoss Discord server
         if (event.getServer().get().getId() == 462405241955155979L && Internet.stringHasURL(event.getMessage().get().getContent())) {
             try {
-                FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().get().getUserAuthor().get(), false);
-                int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
-
+                int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().get().getId()).getPowerUp(FishingCategoryInterface.ROLE).getLevel();
                 if (level == 0) {
                     event.getMessage().get().getUserAuthor().get().sendMessage("Bevor du Links posten darfst, musst du erstmal den ersten Server-Rang erwerben!\nMehr Infos hier: <#608455541978824739>");
                     event.getServer().get().getOwner().sendMessage(event.getMessage().get().getUserAuthor().get().getMentionTag() + " hat Links gepostet!");
@@ -38,7 +34,7 @@ public class MessageEditListener {
 
                     return;
                 }
-            } catch (InterruptedException | ExecutionException | SQLException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }

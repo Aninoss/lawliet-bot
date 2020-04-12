@@ -8,6 +8,8 @@ import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
 import MySQL.*;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Survey.DBSurvey;
 import MySQL.Modules.Survey.SurveyBean;
@@ -177,8 +179,6 @@ public class Clock {
                 Bot.hasUpdate()
         ) {
             ExceptionHandler.showInfoLog("Restart for Update...");
-            for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++)
-                FisheryCache.getInstance(i).saveData();
             System.exit(0);
         }
     }
@@ -236,10 +236,11 @@ public class Clock {
                 .forEach(secondVote -> {
                     try {
                         Server server = DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get();
-                        long price = DBUser.getFishingProfile(server, user, false).getEffect(FishingCategoryInterface.PER_SURVEY);
-                        DBUser.addFishingValues(null, server, user, 0, price, -1, true);
+                        FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUser(user.getId());
+                        long price = userBean.getPowerUp(FishingCategoryInterface.PER_SURVEY).getEffect();
+                        userBean.changeValues(0, price);
                         coinsWinMap.put(secondVote.getServerId(), price);
-                    } catch (SQLException | IOException e) {
+                    } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
                 });

@@ -7,13 +7,13 @@ import Core.*;
 import Core.BotResources.ResourceManager;
 import Core.Mention.MentionTools;
 import Core.Tools.StringTools;
-import MySQL.DBServerOld;
-import MySQL.DBUser;
-import MySQL.DatabaseCache;
-import MySQL.FisheryCache;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryServerBean;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -23,12 +23,13 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "fishery",
@@ -44,9 +45,10 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     private static final int MAX_ROLES = 50;
 
     private ServerBean serverBean;
-    private ArrayList<Role> roles;
-    private ArrayList<ServerTextChannel> ignoredChannels;
+    private FisheryServerBean fisheryServerBean;
     private boolean stopLock = true;
+    private CustomObservableList<Role> roles;
+    private CustomObservableList<ServerTextChannel> ignoredChannels;
 
     public static final String treasureEmoji = "\uD83D\uDCB0";
     public static final String keyEmoji = "\uD83D\uDD11";
@@ -55,8 +57,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-        roles = DBServerOld.getPowerPlantRolesFromServer(event.getServer().get());
-        ignoredChannels = DBServerOld.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
+        fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
+        roles = fisheryServerBean.getRoles();
+        ignoredChannels = fisheryServerBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), channel -> channel.getId());
 
         checkRolesWithLog(roles, null);
         return true;
@@ -75,7 +78,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                     int existingRoles = 0;
                     for (Role role : roleList) {
-                        if (roles.contains(role)) existingRoles++;
+                        if (fisheryServerBean.getRoleIds().contains(role.getId())) existingRoles++;
                     }
 
                     if (existingRoles >= roleList.size()) {
@@ -84,10 +87,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     }
 
                     for (Role role : roleList) {
-                        if (!roles.contains(role)) {
+                        if (!fisheryServerBean.getRoleIds().contains(role.getId())) {
                             roles.add(role);
                             roles.sort(Comparator.comparingInt(Role::getPosition));
-                            DBServerOld.addPowerPlantRoles(event.getServer().get(), role);
                         }
                     }
 
@@ -102,8 +104,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    ignoredChannels = channelIgnoredList;
-                    DBServerOld.savePowerPlantIgnoredChannels(event.getServer().get(), ignoredChannels);
+                    fisheryServerBean.getIgnoredChannelIds().clear();
+                    fisheryServerBean.getIgnoredChannelIds().addAll(channelIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return Response.TRUE;
@@ -128,7 +130,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
             case 5:
                 if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
-                    String[] parts = inputString.split("-");
+                    String[] parts = (inputString + " ").split("-");
                     long priceMin = StringTools.filterNumberFromString(parts[0]);
                     long priceMax = StringTools.filterNumberFromString(parts[1]);
 
@@ -172,7 +174,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 2:
-                        if (roles.size() < MAX_ROLES) {
+                        if (fisheryServerBean.getRoleIds().size() < MAX_ROLES) {
                             setState(1);
                             return true;
                         } else {
@@ -182,7 +184,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                     case 3:
                         if (serverBean.getFisheryStatus() == FisheryStatus.STOPPED) {
-                            if (roles.size() > 0) {
+                            if (fisheryServerBean.getRoleIds().size() > 0) {
                                 setState(2);
                                 return true;
                             } else {
@@ -228,10 +230,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                                 setLog(LogStatus.WARNING, getString("stoplock"));
                                 return true;
                             } else {
-                                Server server = getServer();
-                                DBServerOld.removePowerPlant(server);
-                                FisheryCache.getInstance(DiscordApiCollection.getInstance().getResponsibleShard(server.getId())).stopServer(server);
-                                DatabaseCache.getInstance().fishingProfileRemoveServer(server);
+                                DBFishery.getInstance().removePowerPlant(event.getServer().get().getId());
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                                 return true;
                             }
@@ -250,10 +249,10 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < roles.size()) {
-                    DBServerOld.removePowerPlantRoles(event.getServer().get(), roles.remove(i));
+                } else if (i < fisheryServerBean.getRoleIds().size()) {
+                    fisheryServerBean.getRoleIds().remove(i);
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    if (roles.size() == 0) setState(0);
+                    if (fisheryServerBean.getRoleIds().size() == 0) setState(0);
                     return true;
                 }
                 break;
@@ -265,8 +264,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 0:
-                        ignoredChannels = new ArrayList<>();
-                        DBServerOld.savePowerPlantIgnoredChannels(event.getServer().get(), ignoredChannels);
+                        fisheryServerBean.getIgnoredChannelIds().clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;
@@ -300,25 +298,25 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     private String getRoleString(Role role) {
         int n = roles.indexOf(role);
         try {
-            return getString("state0_rolestring", role.getMentionTag(), StringTools.numToString(getFisheryRolePrice(role.getServer(), roles, n)));
+            return getString("state0_rolestring", role.getMentionTag(), StringTools.numToString(getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
         } catch (IOException | ExecutionException e) {
             e.printStackTrace();
             return "";
         }
     }
 
-    public static long getFisheryRolePrice(Server server, ArrayList<Role> roles, int n) throws ExecutionException {
+    public static long getFisheryRolePrice(Server server, List<Long> roleIds, int n) throws ExecutionException {
         ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
 
         double priceIdealMin = serverBean.getFisheryRoleMin();
         double priceIdealMax = serverBean.getFisheryRoleMax();
 
-        if (roles.size() == 1) return (long) priceIdealMin;
+        if (roleIds.size() == 1) return (long) priceIdealMin;
 
-        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double)(roles.size() - 1));
+        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double)(roleIds.size() - 1));
 
         double price = Math.pow(power, n);
-        double priceMax = Math.pow(power, roles.size() - 1);
+        double priceMax = Math.pow(power, roleIds.size() - 1);
 
         return Math.round(price * (priceIdealMax / priceMax));
     }
@@ -403,7 +401,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 int resultInt = r.nextInt(2);
                 String result = winLose[resultInt];
 
-                long won = Math.round(DBUser.getFishingProfile(event.getServer().get(), event.getUser()).getEffect(FishingCategoryInterface.PER_TREASURE) * (0.7 + r.nextDouble() * 0.6));
+                FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getUser().getId());
+                long won = Math.round(userBean.getPowerUp(FishingCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
@@ -414,7 +413,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 
                 ServerTextChannel channel = event.getServerTextChannel().get();
-                if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getUser(), 0L, won)).get();
+                if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(userBean.changeValues(0, won)).get();
 
                 Thread t = new Thread(() -> {
                     try {

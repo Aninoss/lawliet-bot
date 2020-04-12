@@ -2,9 +2,7 @@ package Core;
 
 import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
-import MySQL.ActivityUserData;
 import MySQL.DBMain;
-import MySQL.FisheryCache;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
@@ -85,19 +83,6 @@ public class Console {
                                     e.printStackTrace();
                                 }
 
-                                break;
-
-                            case "fishery":
-                                try {
-                                    String serverId = arg.split(" ")[0];
-                                    String userId = arg.split(" ")[1];
-                                    ActivityUserData activityUserData = FisheryCache.getInstance(0).getActivities(Long.parseLong(serverId), Long.parseLong(userId));
-                                    System.out.println("\nMessage: " + activityUserData.getAmountMessage());
-                                    System.out.println("VC: " + activityUserData.getAmountVC() + "\n");
-                                } catch (Throwable e) {
-                                    System.out.println("\nERROR\n");
-                                    e.printStackTrace();
-                                }
                                 break;
 
                             case "donation":

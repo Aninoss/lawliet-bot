@@ -1,8 +1,8 @@
 package Core;
 
-import Constants.Settings;
 import Core.Tools.StringTools;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
+import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
@@ -154,7 +154,7 @@ public class Connector {
         apiCollection.insertApi(api);
 
         try {
-            FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api);
+            //FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api); //TODO Start VC Collector
             if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
             apiCollection.markReady(api);
 
@@ -168,8 +168,13 @@ public class Connector {
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
                     updateActivity();
-                    DBBotStats.fisheryCleanUp();
+                    DBFishery.getInstance().cleanUp();
                     new WebComServer(15744);
+
+                    Thread vcObserver = new Thread(() -> DBFishery.getInstance().startVCObserver());
+                    vcObserver.setName("vc_observer");
+                    vcObserver.setPriority(1);
+                    vcObserver.start();
                 } else {
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }

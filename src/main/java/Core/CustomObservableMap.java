@@ -52,19 +52,13 @@ public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implem
     public interface MapRemoveListener<T, U> { void onMapRemove(U value); }
     public interface MapUpdateListener<T, U> { void onMapUpdate(U value); }
 
-    public <V> Map<T, V> transform(Function<T, Optional<V>> function) {
-        HashMap<T, V> newMap = new HashMap<>();
-
+    public <V> void trim(Function<T, Optional<V>> function) {
         for(T key: new HashMap<>(this).keySet()) {
             Optional<V> opt = function.apply(key);
-            if (opt.isPresent()) {
-                newMap.put(key, opt.get());
-            } else {
+            if (!opt.isPresent()) {
                 remove(key);
             }
         }
-
-        return newMap;
     }
 
 }

@@ -1,0 +1,341 @@
+package MySQL.Modules.FisheryUsers;
+
+import Constants.CodeBlockColor;
+import Constants.FishingCategoryInterface;
+import Constants.Settings;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.TextManager;
+import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
+import MySQL.Modules.Server.ServerBean;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
+
+import java.awt.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+public class FisheryUserBean extends Observable {
+
+    private long serverId, userId;
+    private ServerBean serverBean;
+    private FisheryServerBean fisheryServerBean = null;
+    private HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
+    private HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
+    private long fish, coins;
+    private LocalDate dailyReceived;
+    private int dailyStreak, upvoteStack;
+    private boolean reminderSent, changed = false;
+    private Instant lastMessage = Instant.MIN;
+    private Long fishIncome = null;
+    private Instant fishIncomeUpdateTime = null;
+    private long hiddenCoins = 0;
+
+    FisheryUserBean(long serverId, ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+        this.serverId = serverId;
+        this.userId = userId;
+        this.serverBean = serverBean;
+        this.fish = fish;
+        this.coins = coins;
+        this.dailyReceived = dailyReceived;
+        this.dailyStreak = dailyStreak;
+        this.reminderSent = reminderSent;
+        this.upvoteStack = upvoteStack;
+        this.fisheryHourlyIncomeMap = fisheryHourlyIncomeMap;
+        this.powerUpMap = powerUpMap;
+
+        for(int i = 0; i < 6; i++) this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverId, userId, i, 0));
+    }
+
+    public FisheryUserBean(long serverId, ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+        this(serverId, serverBean, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, fisheryHourlyIncomeMap, powerUpMap);
+        setFisheryServerBean(fisheryServerBean);
+    }
+
+
+    /* Getters */
+
+    public long getServerId() {
+        return serverId;
+    }
+
+    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
+
+    public ServerBean getServerBean() {
+        return serverBean;
+    }
+
+    public long getUserId() { return userId; }
+
+    public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
+
+    public FisheryServerBean getFisheryServerBean() { return fisheryServerBean; }
+
+    public HashMap<Integer, FisheryUserPowerUpBean> getPowerUpMap() { return powerUpMap; }
+
+    public FisheryUserPowerUpBean getPowerUp(int powerUpId) { return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryUserPowerUpBean(serverId, userId, powerUpId, 0)); }
+
+    public List<FisheryHourlyIncomeBean> getAllFishHourlyIncomeChanged() {
+        return fisheryHourlyIncomeMap.values().stream()
+                .filter(FisheryHourlyIncomeBean::checkChanged)
+                .collect(Collectors.toList());
+    }
+
+    public long getFish() { return fish; }
+
+    public long getCoins() { return coins - hiddenCoins; }
+
+    public long getCoinsRaw() { return coins; }
+
+    public int getRank() {
+        return (int) (fisheryServerBean.getUsers().values().stream()
+                        .filter(user -> (user.getFishIncome() > getFishIncome()) ||
+                                (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
+                                (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins())
+                        ).count() + 1);
+    }
+
+    public long getFishIncome() {
+        Instant currentHourInstance = TimeTools.instantRoundDownToHour(Instant.now());
+        if (fishIncome == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
+            long n = 0;
+
+            Instant effectiveInstant = currentHourInstance.minus(2 * 7, ChronoUnit.DAYS);
+            for (Iterator<FisheryHourlyIncomeBean> iterator = fisheryHourlyIncomeMap.values().iterator(); iterator.hasNext(); ) {
+                FisheryHourlyIncomeBean fisheryHourlyIncomeBean = iterator.next();
+                if (fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant)) iterator.remove();
+                else n += fisheryHourlyIncomeBean.getFishIncome();
+            }
+
+            fishIncome = n;
+            fishIncomeUpdateTime = currentHourInstance;
+            checkValuesBound();
+        }
+
+        return fishIncome;
+    }
+
+    private FisheryHourlyIncomeBean getCurrentFisheryHourlyIncome() {
+        Instant currentTimeHour = TimeTools.instantRoundDownToHour(Instant.now());
+        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(serverId, userId, currentTimeHour, 0));
+    }
+
+    public LocalDate getDailyReceived() { return dailyReceived; }
+
+    public int getDailyStreak() { return dailyStreak; }
+
+    public int getUpvoteStack() { return upvoteStack; }
+
+    public boolean isReminderSent() { return reminderSent; }
+
+
+    /* Setters */
+
+    void setFisheryServerBean(FisheryServerBean fisheryServerBean) {
+        if (this.fisheryServerBean == null) {
+            this.fisheryServerBean = fisheryServerBean;
+            addObserver(fisheryServerBean);
+        }
+    }
+
+    public boolean registerMessage(ServerTextChannel channel) throws ExecutionException, InterruptedException {
+        if (lastMessage.plusSeconds(20).isBefore(Instant.now())) {
+            lastMessage = Instant.now();
+            long effect = getPowerUp(FishingCategoryInterface.PER_MESSAGE).getEffect();
+
+            fish += effect;
+            if (fishIncome != null) fishIncome += effect;
+            getCurrentFisheryHourlyIncome().add(effect);
+            checkValuesBound();
+            setChangedCustom();
+
+            Optional<User> userOpt = getUser();
+            if (fish >= 100 &&
+                    !reminderSent &&
+                    serverBean.isFisheryReminders() &&
+                    channel.canYouEmbedLinks() &&
+                    userOpt.isPresent()
+            ) {
+                reminderSent = true;
+                User user = userOpt.get();
+                Locale locale = serverBean.getLocale();
+                String prefix = serverBean.getPrefix();
+
+                channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
+                        .setAuthor(user)
+                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                        .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
+                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix))).get();
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public void registerVC(int minutes) {
+        long effect = getPowerUp(FishingCategoryInterface.PER_VC).getEffect() * minutes;
+
+        fish += effect;
+        if (fishIncome != null) fishIncome += effect;
+        getCurrentFisheryHourlyIncome().add(effect);
+
+        checkValuesBound();
+        setChangedCustom();
+    }
+
+    public EmbedBuilder getAccountEmbed() {
+        return changeValues(0, 0);
+    }
+
+    public EmbedBuilder changeValues(long fishAdd, long coinsAdd) {
+        return changeValues(fishAdd, coinsAdd, null);
+    }
+
+    public synchronized EmbedBuilder changeValues(long fishAdd, long coinsAdd, Integer newDailyStreak) {
+        /* Collect Current Data */
+        long fishIncomePrevious = getFishIncome();
+        long fishPrevious = getFish();
+        long coinsPrevious = getCoins();
+        long rankPrevious = getRank();
+        int dailyStreakPrevious = getDailyStreak();
+
+        /* Update Changes */
+        if (fishAdd != 0) {
+            fish += fishAdd;
+            if (fishAdd > 0) {
+                if (fishIncome != null) fishIncome += fishAdd;
+                getCurrentFisheryHourlyIncome().add(fishAdd);
+            }
+        }
+        if (coinsAdd != 0) coins += coinsAdd;
+        if (newDailyStreak != null) dailyStreak = newDailyStreak;
+        checkValuesBound();
+        setChangedCustom();
+
+        long rank = getRank();
+        long fishIncome = getFishIncome();
+
+        /* Generate Account Embed */
+        Server server = getServer().get();
+        User user = server.getMemberById(userId).get();
+        Locale locale = serverBean.getLocale();
+
+        EmbedBuilder eb = EmbedFactory.getEmbed()
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())
+                .setThumbnail(user.getAvatar());
+
+        if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0))
+            eb.setColor(Color.GREEN);
+        else if (coinsAdd <= 0 && (fishAdd < 0 || coinsAdd < 0))
+            eb.setColor(Color.RED);
+
+        String codeBlock = CodeBlockColor.WHITE;
+        if (rank < rankPrevious)
+            codeBlock = CodeBlockColor.GREEN;
+        else if (rank > rankPrevious)
+            codeBlock = CodeBlockColor.RED;
+
+        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, coins != 0 ? "rankingprogress_desription" : "rankingprogress_desription_nocoins",
+                getEmbedSlot(locale, fishIncome, fishIncomePrevious, false),
+                getEmbedSlot(locale, getFish(), fishPrevious, false),
+                getEmbedSlot(locale, getCoins(), coinsPrevious, false),
+                getEmbedSlot(locale, getDailyStreak(), newDailyStreak != null ? dailyStreakPrevious : getDailyStreak(), false),
+                getEmbedSlot(locale, rank, rankPrevious, true),
+                codeBlock
+        ));
+
+        return eb;
+    }
+
+    private String getEmbedSlot(Locale locale, long numberNow, long numberPrevious, boolean rankSlot) {
+        long diff = numberNow - numberPrevious;
+        String diffSign = diff >= 0 ? "+" : "";
+        return TextManager.getString(locale, TextManager.GENERAL, rankSlot ? "rankingprogress_update2" : "rankingprogress_update", diff != 0,
+                StringTools.numToString(locale, numberPrevious),
+                StringTools.numToString(locale, numberNow),
+                diffSign + StringTools.numToString(locale, diff)
+        );
+    }
+
+    private void checkValuesBound() {
+        if (fish > Settings.MAX) fish = Settings.MAX;
+        else if (fish < 0) fish = 0;
+
+        if (coins > Settings.MAX) coins = Settings.MAX;
+        else if (coins < 0) coins = 0;
+
+        if (fishIncome != null && fishIncome > Settings.MAX) fishIncome = Settings.MAX;
+    }
+
+    public void levelUp(int powerUpId) {
+        getPowerUp(powerUpId).levelUp();
+        setChangedCustom();
+    }
+
+    public void updateDailyReceived() {
+        if (!LocalDate.now().equals(dailyReceived)) {
+            dailyReceived = LocalDate.now();
+            setChangedCustom();
+        }
+    }
+
+    public void increaseDailyStreak() {
+        dailyStreak++;
+        setChangedCustom();
+    }
+
+    public void resetDailyStreak() {
+        dailyStreak = 0;
+        setChangedCustom();
+    }
+
+    public void addUpvote(int upvotes) {
+        if (upvotes > 0) {
+            upvoteStack += upvotes;
+            setChangedCustom();
+        }
+    }
+
+    public void addHiddenCoins(long amount) {
+        hiddenCoins = Math.min(coins, hiddenCoins + amount);
+    }
+
+    public int clearUpvoteStack() {
+        int upvoteStackTemp = upvoteStack;
+        if (upvoteStack > 0) {
+            upvoteStack = 0;
+            setChangedCustom();
+        }
+        return upvoteStackTemp;
+    }
+
+    public void setReminderSent() {
+        if (!reminderSent) {
+            reminderSent = true;
+            setChangedCustom();
+        }
+    }
+
+    public boolean checkChanged() {
+        boolean changedTemp = changed;
+        changed = false;
+        return changedTemp;
+    }
+
+    private void setChangedCustom() {
+        setChanged();
+        notifyObservers();
+        changed = true;
+    }
+
+}

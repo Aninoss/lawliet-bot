@@ -9,7 +9,8 @@ import Core.*;
 import Core.Mention.MentionTools;
 import Core.Mention.MentionList;
 import Core.Tools.StringTools;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -57,22 +58,23 @@ public class GiveCommand extends Command {
                 if (!role.getUsers().contains(user0)) return false;
             }
 
-            long coins = DBUser.getFishingProfile(server, user0).getCoins();
-            long value = MentionTools.getAmountExt(followedString, coins);
+            FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(user0.getId());
+            FisheryUserBean fisheryUser1 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(user1.getId());
+            long value = MentionTools.getAmountExt(followedString, fisheryUser0.getCoins());
 
             if (value != -1) {
                 if (value >= 1) {
-                    if (value <= coins) {
-                        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, user0, 0L, -value);
-                        if (eb != null) event.getChannel().sendMessage(eb);
+                    if (value <= fisheryUser0.getCoins()) {
+                        EmbedBuilder eb = fisheryUser0.changeValues(0, -value);
+                        event.getChannel().sendMessage(eb);
 
-                        eb = DBUser.addFishingValues(getLocale(), server, user1, 0L, value);
-                        if (eb != null) event.getChannel().sendMessage(eb);
+                        eb = fisheryUser1.changeValues(0, value);
+                        event.getChannel().sendMessage(eb);
 
                         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringTools.numToString(getLocale(), value), user1.getMentionTag()))).get();
                         return true;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringTools.numToString(getLocale(), coins)))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringTools.numToString(getLocale(), fisheryUser0.getCoins())))).get();
                     }
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();

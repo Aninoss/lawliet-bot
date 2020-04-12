@@ -46,6 +46,8 @@ public class ShipCommand extends Command {
         String idString = String.valueOf(list.get(0).getId() + list.get(1).getId());
         int randomNum = String.valueOf(idString.hashCode()).hashCode();
         int percentage = new Random(randomNum).nextInt(101);
+        if (list.get(0).getId() == 272037078919938058L && list.get(1).getId() == 326714012022865930L)
+            percentage = 100;
 
         int n = RandomTools.pickFullRandom(picked,7);
         if (event.getServer().get().getId() == 580048842020487180L) n = 7;

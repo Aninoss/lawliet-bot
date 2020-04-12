@@ -12,24 +12,20 @@ import Constants.Settings;
 import Core.*;
 import Modules.BannedWordsCheck;
 import Core.BotResources.ResourceManager;
-import Modules.Fishing.FishingProfile;
 import Core.Internet.Internet;
 import Core.Mention.MentionTools;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Modules.SPCheck;
 import Core.Tools.StringTools;
 import MySQL.Modules.AutoQuote.DBAutoQuote;
-import MySQL.DBServerOld;
-import MySQL.DBUser;
-import MySQL.FisheryCache;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -54,9 +50,7 @@ public class MessageCreateListener {
         //Stuff that is only active for my own Aninoss Discord server
         if (event.getServer().get().getId() == 462405241955155979L && Internet.stringHasURL(event.getMessage().getContent())) {
             try {
-                FishingProfile  fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get(), false);
-                int level = fishingProfile.find(FishingCategoryInterface.ROLE).getLevel();
-
+                int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId()).getPowerUp(FishingCategoryInterface.ROLE).getLevel();
                 if (level == 0) {
                     event.getMessage().getUserAuthor().get().sendMessage("Bevor du Links posten darfst, musst du erstmal den ersten Server-Rang erwerben!\nMehr Infos hier: <#608455541978824739>");
                     event.getServer().get().getOwner().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag() + " hat Links gepostet!");
@@ -64,7 +58,7 @@ public class MessageCreateListener {
 
                     return;
                 }
-            } catch (InterruptedException | ExecutionException | SQLException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
@@ -115,8 +109,11 @@ public class MessageCreateListener {
 
                 //Add Fisch & Manage 100 Fish Message
                 boolean messageRegistered = false;
-                if (!event.getMessage().getContent().isEmpty())
-                    messageRegistered = FisheryCache.getInstance(event.getApi().getCurrentShard()).addActivity(event.getMessage().getUserAuthor().get(), event.getServerTextChannel().get());
+                FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
+                if (!event.getMessage().getContent().isEmpty()
+                        && !fisheryServerBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
+                )
+                    messageRegistered = fisheryServerBean.getUser(event.getMessageAuthor().getId()).registerMessage(event.getServerTextChannel().get());
 
                 //Manage Treasure Chests
                 if (messageRegistered &&
@@ -128,9 +125,9 @@ public class MessageCreateListener {
                         event.getChannel().canYouAddNewReactions()
                 ) {
                     boolean noSpamChannel = true;
-                    ArrayList<ServerTextChannel> channels = DBServerOld.getPowerPlantIgnoredChannelsFromServer(event.getServer().get());
-                    for (ServerTextChannel channel : channels) {
-                        if (channel.getId() == event.getChannel().getId()) {
+                    CustomObservableList<Long> ignoredChannelIds = DBFishery.getInstance().getBean(event.getServer().get().getId()).getIgnoredChannelIds();
+                    for (long channelId : ignoredChannelIds) {
+                        if (channelId == event.getChannel().getId()) {
                             noSpamChannel = false;
                             break;
                         }
@@ -167,7 +164,7 @@ public class MessageCreateListener {
                     }
                 }
             }
-        } catch (ExecutionException | SQLException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
     }

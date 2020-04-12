@@ -108,7 +108,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                     log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
                     logStatus = LogStatus.WIN;
                     onWin();
-                } catch (IOException | SQLException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
                 }
             } else {
@@ -116,7 +116,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                     log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
                     logStatus = LogStatus.LOSE;
                     onLose();
-                } catch (IOException | SQLException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
                 }
             }

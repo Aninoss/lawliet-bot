@@ -51,9 +51,7 @@ public class SPBlockBean extends Observable {
         return logReceiverUserIds;
     }
 
-    public CustomObservableList<Long> getIgnoredChannelIds() {
-        return ignoredChannelIds;
-    }
+    public CustomObservableList<Long> getIgnoredChannelIds() { return ignoredChannelIds; }
 
     public boolean isActive() {
         return active;

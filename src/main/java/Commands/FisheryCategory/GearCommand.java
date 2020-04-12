@@ -7,13 +7,12 @@ import Constants.FishingCategoryInterface;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.EmbedFactory;
-import Modules.Fishing.FishingProfile;
-import Modules.Fishing.FishingSlot;
 import Core.Mention.MentionTools;
 import Core.TextManager;
 import Core.Tools.StringTools;
-import MySQL.DBServerOld;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
+import MySQL.Modules.FisheryUsers.FisheryUserPowerUpBean;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -21,10 +20,10 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -62,10 +61,10 @@ public class GearCommand extends Command {
                 }
             }
 
-            ArrayList<Role> buyableRoles = DBServerOld.getPowerPlantRolesFromServer(server);
+            List<Role> buyableRoles = DBFishery.getInstance().getBean(server.getId()).getRoles();
             for(User user: list) {
-                FishingProfile fishingProfile = DBUser.getFishingProfile(server, user);
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", StringTools.numToString(getLocale(), fishingProfile.getFish()), StringTools.numToString(getLocale(), fishingProfile.getCoins())));
+                FisheryUserBean fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(user.getId());
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", StringTools.numToString(getLocale(), fisheryUserBean.getFish()), StringTools.numToString(getLocale(), fisheryUserBean.getCoins())));
                 if (eb != null) {
                     eb.setTitle("");
                     eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
@@ -73,23 +72,23 @@ public class GearCommand extends Command {
 
                     //Gear
                     StringBuilder gearString = new StringBuilder();
-                    for(FishingSlot slot: fishingProfile.getSlots()) {
+                    for(FisheryUserPowerUpBean slot: fisheryUserBean.getPowerUpMap().values()) {
                         gearString.append(getString("gear_slot",
-                                FishingCategoryInterface.PRODUCT_EMOJIS[slot.getId()],
-                                TextManager.getString(getLocale(), TextManager.COMMANDS, "buy_product_" + slot.getId() + "_0"),
+                                FishingCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
+                                TextManager.getString(getLocale(), TextManager.COMMANDS, "buy_product_" + slot.getPowerUpId() + "_0"),
                                 String.valueOf(slot.getLevel())
                         )).append("\n");
                     }
                     eb.addField(getString("gear_title"), gearString.toString(), false);
 
-                    int roleLvl = fishingProfile.getSlots().get(FishingCategoryInterface.ROLE).getLevel();
+                    int roleLvl = fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel();
                     eb.addField(getString("stats_title"), getString("stats_content",
-                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_MESSAGE)),
-                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_DAY)),
-                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_VC)),
-                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_TREASURE)),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_MESSAGE).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_VC).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_TREASURE).getEffect()),
                             buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? buyableRoles.get(roleLvl - 1).getMentionTag() : "**-**",
-                            StringTools.numToString(getLocale(), fishingProfile.getEffect(FishingCategoryInterface.PER_SURVEY))
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_SURVEY).getEffect())
                     ), false);
 
                     if (!userMentioned)

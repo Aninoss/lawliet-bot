@@ -5,12 +5,12 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.FisheryStatus;
 import Constants.Settings;
-import Modules.CasinoBetContainer;
 import Core.EmbedFactory;
 import Core.Mention.MentionTools;
 import Core.TextManager;
 import Core.Tools.StringTools;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.GameStatistics.DBGameStatistics;
 import MySQL.Modules.GameStatistics.GameStatisticsBean;
 import MySQL.Modules.Server.DBServer;
@@ -21,7 +21,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
@@ -66,18 +65,19 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             return true;
         }
 
-        long coins = DBUser.getFishingProfile(server, player).getCoins();
+        FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
+        long coins = userBean.getCoins();
         long value = MentionTools.getAmountExt(followedString, coins);
         if (value == -1) {
             coinsInput = (long) Math.ceil(coins * 0.1);
-            CasinoBetContainer.getInstance().addBet(player, coinsInput);
+            userBean.addHiddenCoins(coinsInput);
             return true;
         }
 
         if (value >= 0) {
             if (value <= coins) {
                 coinsInput = value;
-                CasinoBetContainer.getInstance().addBet(player, coinsInput);
+                userBean.addHiddenCoins(coinsInput);
                 return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", StringTools.numToString(getLocale(), coins)))).get();
@@ -89,25 +89,25 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         return false;
     }
 
-    protected void onGameEnd() {
+    protected void onGameEnd() throws ExecutionException {
         won = false;
         active = false;
-        CasinoBetContainer.getInstance().removeBet(player, coinsInput);
+        DBFishery.getInstance().getBean(server.getId()).getUser(player.getId()).addHiddenCoins(-coinsInput);
         removeNavigation();
         removeMessageForwarder();
         removeReactionListener(((OnReactionAddListener)this).getReactionMessage());
     }
 
-    protected void onLose() throws SQLException, IOException, ExecutionException {
+    protected void onLose() throws ExecutionException {
         onGameEnd();
         if (coinsInput > 0 && useCalculatedMultiplicator) {
             DBGameStatistics.getInstance().getBean(compareKey).addValue(false, Math.pow(coinsInput, 0.25));
         }
-        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, -coinsInput);
+        EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUser(player.getId()).changeValues(0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
-    protected void onWin() throws IOException, SQLException, ExecutionException {
+    protected void onWin() throws ExecutionException {
         onGameEnd();
         won = true;
 
@@ -122,7 +122,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             if (won > 0 && lost > 0) multiplicator = lost / won;
         }
 
-        EmbedBuilder eb = DBUser.addFishingValues(getLocale(), server, player, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+        EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUser(player.getId()).changeValues(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 

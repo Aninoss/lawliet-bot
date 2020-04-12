@@ -7,17 +7,16 @@ import Constants.FisheryStatus;
 import Constants.Response;
 import Core.*;
 import Modules.ExchangeRate;
-import Modules.Fishing.FishingProfile;
 import Core.Mention.MentionTools;
 import Core.Tools.StringTools;
-import MySQL.DBUser;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -33,19 +32,20 @@ import java.util.concurrent.ExecutionException;
 public class SellCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {
 
     private Message message;
+    private FisheryUserBean userBean;
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
+            userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {
-                FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
                 message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                         getString("status",
-                                StringTools.numToString(getLocale(), fishingProfile.getFish()),
-                                StringTools.numToString(getLocale(), fishingProfile.getCoins()),
+                                StringTools.numToString(getLocale(), userBean.getFish()),
+                                StringTools.numToString(getLocale(), userBean.getCoins()),
                                 StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
                                 getChangeEmoji()
                         ))).get();
@@ -61,27 +61,26 @@ public class SellCommand extends Command implements OnReactionAddListener, OnFor
     private boolean mainExecution(MessageCreateEvent event, String argString) throws Throwable {
         removeReactionListener(message);
         removeMessageForwarder();
-        FishingProfile fishingProfile = DBUser.getFishingProfile(event.getServer().get(), event.getMessage().getUserAuthor().get());
-        long value = MentionTools.getAmountExt(argString, fishingProfile.getFish());
+        long value = MentionTools.getAmountExt(argString, userBean.getFish());
 
         if (argString.equalsIgnoreCase("no")) {
             markNoInterest(event.getServerTextChannel().get());
             return true;
         }
-        if (fishingProfile.getFish() == 0) {
+        if (userBean.getFish() == 0) {
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
             return false;
         }
         if (value >= 1) {
-            if (value <= fishingProfile.getFish()) {
+            if (value <= userBean.getFish()) {
                 long coins = ExchangeRate.getInstance().get(0) * value;
-                EmbedBuilder eb = DBUser.addFishingValues(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), -value, coins);
+                EmbedBuilder eb = userBean.changeValues(-value, coins);
 
                 sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedSuccess(this, getString("done")));
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", fishingProfile.getFish() != 1, StringTools.numToString(getLocale(), fishingProfile.getFish()))));
+                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", userBean.getFish() != 1, StringTools.numToString(getLocale(), userBean.getFish()))));
         } else if (value == 0)
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
         else if (value == -1)

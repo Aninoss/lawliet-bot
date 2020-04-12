@@ -9,6 +9,7 @@ import Core.PermissionCheck;
 import Core.TextManager;
 import MySQL.Modules.BannedWords.BannedWordsBean;
 import MySQL.Modules.BannedWords.DBBannedWords;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -61,7 +62,7 @@ public class BannedWordsCheck {
                 if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
                 else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
-                for(User user: bannedWordsBean.getLogReceiverUserIds().transform(server::getMemberById)) {
+                for(User user: bannedWordsBean.getLogReceiverUserIds().transform(server::getMemberById, DiscordEntity::getId)) {
                     try {
                         user.sendMessage(eb).get();
                     } catch (InterruptedException | ExecutionException e) {

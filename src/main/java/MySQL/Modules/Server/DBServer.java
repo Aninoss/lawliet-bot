@@ -3,6 +3,7 @@ package MySQL.Modules.Server;
 import Constants.Locales;
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
+import MySQL.DBKeySetLoad;
 import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
 import MySQL.Modules.Tracker.DBTracker;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -130,6 +132,11 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         }
         getCache().invalidate(serverId);
         new File(String.format("data/welcome_backgrounds/%d.png", serverId)).delete();
+    }
+
+    public ArrayList<Long> getAllServerIds() throws SQLException {
+        return new DBKeySetLoad<Long>("DServers", "serverId")
+                .get(resultSet -> resultSet.getLong(1));
     }
 
 }

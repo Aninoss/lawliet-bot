@@ -6,14 +6,16 @@ import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
 import Core.Tools.StringTools;
-import Modules.RankingSlot;
-import MySQL.DBServerOld;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @CommandProperties(
         trigger = "top",
@@ -25,13 +27,20 @@ import java.util.ArrayList;
 )
 public class TopCommand extends ListAbstract {
 
-    private ArrayList<RankingSlot> rankingSlots;
+    private ArrayList<FisheryUserBean> rankingSlots;
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
-            rankingSlots = DBServerOld.getPowerPlantRankings(event.getServer().get());
+            rankingSlots = new ArrayList<>(DBFishery.getInstance().getBean(event.getServer().get().getId()).getUsers().values());
+            rankingSlots.sort((s1, s2) -> {
+                if (s1.getFishIncome() < s2.getFishIncome()) return 1;
+                if (s1.getFishIncome() > s2.getFishIncome()) return -1;
+                if (s1.getFish() < s2.getFish()) return 1;
+                if (s1.getFish() > s2.getFish()) return -1;
+                return Long.compare(s2.getCoins(), s1.getCoins());
+            });
             init(event.getServerTextChannel().get());
             return true;
         } else {
@@ -41,10 +50,12 @@ public class TopCommand extends ListAbstract {
     }
 
     protected Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable {
-        RankingSlot rankingSlot = rankingSlots.get(i);
-        String userString = rankingSlot.getUser().getDisplayName(channel.getServer());
+        FisheryUserBean userBean = rankingSlots.get(i);
+        Optional<User> userOpt = userBean.getUser();
+        String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : getString("nouser", String.valueOf(userBean.getUserId()));
 
-        int rank = rankingSlot.getRank();
+
+        int rank = (int) userBean.getRank();
         String rankString = String.valueOf(rank);
         switch (rank) {
             case 1:
@@ -69,9 +80,9 @@ public class TopCommand extends ListAbstract {
                         userString),
                 getString("template_descritpion",
                         DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag(),
-                        StringTools.numToString(getLocale(), rankingSlot.getGrowth()),
-                        StringTools.numToString(getLocale(), rankingSlot.getCoins()),
-                        StringTools.numToString(getLocale(), rankingSlot.getJoule()))
+                        StringTools.numToString(getLocale(), userBean.getFishIncome()),
+                        StringTools.numToString(getLocale(), userBean.getCoins()),
+                        StringTools.numToString(getLocale(), userBean.getFish()))
         );
     }
 

@@ -246,15 +246,21 @@ public abstract class Command {
         if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
         if (navigationMessage == null) {
+            try {
                 if (navigationPrivateMessage) {
                     if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
                     navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
                 } else navigationMessage = channel.sendMessage(eb).get();
+            } catch (Throwable e) {
+                ExceptionHandler.showErrorLog("Error in draw method of comand " + getTrigger());
+                throw e;
+            }
         } else {
             try {
                 navigationMessage.edit(eb).get();
             } catch (Exception e) {
                 //Ignore
+                ExceptionHandler.showErrorLog("Error in draw method of comand " + getTrigger());
             }
         }
     }

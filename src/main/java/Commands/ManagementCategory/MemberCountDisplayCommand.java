@@ -11,6 +11,7 @@ import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
 import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
@@ -47,7 +48,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         memberCountBean = DBMemberCountDisplays.getInstance().getBean(event.getServer().get().getId());
-        memberCountBean.getMemberCountBeanSlots().transform(vcId -> event.getServer().get().getVoiceChannelById(vcId));
+        memberCountBean.getMemberCountBeanSlots().trim(vcId -> event.getServer().get().getVoiceChannelById(vcId));
         return true;
     }
 
