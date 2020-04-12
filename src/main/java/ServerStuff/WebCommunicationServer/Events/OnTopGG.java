@@ -21,13 +21,11 @@ public class OnTopGG implements DataListener<JSONObject> {
         String type = jsonObject.getString("type");
         boolean isWeekend = jsonObject.getBoolean("isWeekend");
 
-        int amount = 1;
-        if (isWeekend) amount = 2;
-
         if (type.equals("upvote")) {
-            int finalAmount = amount;
             DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
-                user.getMutualServers().stream().filter(
+                System.out.println("UPVOTE | " + user.getName());
+
+                DiscordApiCollection.getInstance().getMutualServers(user).stream().filter(
                         server -> {
                             try {
                                 return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
@@ -38,7 +36,7 @@ public class OnTopGG implements DataListener<JSONObject> {
                         }
                 ).forEach(server -> {
                     try {
-                        DBFishery.getInstance().getBean(server.getId()).getUser(userId).addUpvote(finalAmount);
+                        DBFishery.getInstance().getBean(server.getId()).getUser(userId).addUpvote(isWeekend ? 2 : 1);
                     } catch (ExecutionException e) {
                         e.printStackTrace();
                     }

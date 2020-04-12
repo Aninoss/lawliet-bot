@@ -154,7 +154,6 @@ public class Connector {
         apiCollection.insertApi(api);
 
         try {
-            //FisheryCache.getInstance(api.getCurrentShard()).startVCCollector(api); //TODO Start VC Collector
             if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
             apiCollection.markReady(api);
 

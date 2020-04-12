@@ -2,6 +2,7 @@ package MySQL.Modules.FisheryUsers;
 
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
+import Core.ExceptionHandler;
 import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
@@ -27,7 +28,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     public static DBFishery getInstance() { return ourInstance; }
     private DBFishery() {}
 
-    private final int VC_CHECK_INTERVAL_MIN = 1; //TODO
+    private final int VC_CHECK_INTERVAL_MIN = 5;
 
     @Override
     protected FisheryServerBean loadBean(Long serverId) throws Exception {
@@ -56,11 +57,15 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     protected void saveBean(FisheryServerBean fisheryServerBean) {
-        System.out.println("SAVE START");
         fisheryServerBean.getUsers().values().stream()
                 .filter(FisheryUserBean::checkChanged)
                 .forEach(this::saveFisheryUserBean);
-        System.out.println("SAVE END");
+        System.out.printf("### SAVED SERVER %d ###\n", fisheryServerBean.getServerId());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveFisheryUserBean(FisheryUserBean fisheryUserBean) {
@@ -295,7 +300,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 }
             }
 
-            if (validUsers.size() > 0 && //TODO
+            if (validUsers.size() > 1 &&
                     (!server.getAfkChannel().isPresent() || voiceChannel.getId() != server.getAfkChannel().get().getId())
             ) {
                 validUsers.forEach(user -> serverBean.getUser(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN));
@@ -305,7 +310,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 1;
-    } //TODO
+        return 20;
+    }
 
 }

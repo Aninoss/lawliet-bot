@@ -40,7 +40,6 @@ public class WebComServer {
         webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
 
         webComServer.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(webComServer::stop));
 
         System.out.println("The WebCom server has been started!");
     }

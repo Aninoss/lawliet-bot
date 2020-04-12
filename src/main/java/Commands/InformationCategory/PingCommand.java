@@ -5,8 +5,10 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
 import MySQL.Modules.Survey.DBSurvey;
+import ServerStuff.WebCommunicationServer.Events.OnTopGG;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.json.JSONObject;
 
 import java.time.Duration;
 import java.time.Instant;

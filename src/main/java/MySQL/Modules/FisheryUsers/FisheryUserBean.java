@@ -310,13 +310,11 @@ public class FisheryUserBean extends Observable {
         hiddenCoins = Math.min(coins, hiddenCoins + amount);
     }
 
-    public int clearUpvoteStack() {
-        int upvoteStackTemp = upvoteStack;
+    public void clearUpvoteStack() {
         if (upvoteStack > 0) {
             upvoteStack = 0;
             setChangedCustom();
         }
-        return upvoteStackTemp;
     }
 
     public void setReminderSent() {

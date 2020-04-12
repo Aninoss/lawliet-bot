@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -38,7 +39,7 @@ public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
         } else {
             upvotesBean = new UpvotesBean(
                     userId,
-                    Instant.now()
+                    Instant.now().minus(24, ChronoUnit.HOURS)
             );
         }
 

@@ -17,7 +17,7 @@ public class ServerJoinListener {
 
         DiscordApiCollection.getInstance().getRandomWritableChannel(event.getServer()).ifPresent(this::sendNewMessage);
         DiscordApiCollection.getInstance().insertWebhook(event.getServer());
-        if (event.getServer().getMembers().size() >= 100)
+        if (event.getServer().getMembers().size() >= 500)
             DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** " + event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
     }
 
