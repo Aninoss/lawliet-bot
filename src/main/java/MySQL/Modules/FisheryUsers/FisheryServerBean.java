@@ -51,9 +51,9 @@ public class FisheryServerBean extends Observable implements Observer {
         return roles;
     }
 
-    public CustomObservableMap<Long, FisheryUserBean> getUsers() { return users; }
+    public synchronized CustomObservableMap<Long, FisheryUserBean> getUsers() { return users; }
 
-    public FisheryUserBean getUser(long userId) {
+    public synchronized FisheryUserBean getUser(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryUserBean(
                 serverId,
                 serverBean,

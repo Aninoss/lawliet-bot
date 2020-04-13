@@ -349,11 +349,11 @@ public class DiscordApiCollection {
     }
 
     public Optional<ServerTextChannel> getRandomWritableChannel(Server server) {
-        if (server.getSystemChannel().isPresent() && server.getSystemChannel().get().canYouWrite()) {
+        if (server.getSystemChannel().isPresent() && server.getSystemChannel().get().canYouEmbedLinks()) {
             return server.getSystemChannel();
         } else {
             for(ServerTextChannel channel: server.getTextChannels()) {
-                if (channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                if (channel.canYouEmbedLinks()) {
                     return Optional.of(channel);
                 }
             }

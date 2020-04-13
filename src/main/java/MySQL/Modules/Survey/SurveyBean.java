@@ -45,8 +45,10 @@ public class SurveyBean extends Observable {
 
     public SurveyQuestion getSurveyQuestionAndAnswers(Locale locale) throws IOException {
         List<String> surveyList = FileManager.readInList(new File("recourses/survey_" + locale.getDisplayName() + ".txt"));
-        while(surveyId >= surveyList.size()) surveyId -= surveyList.size();
-        String[] parts = surveyList.get(surveyId).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
+        int serverIdTemp = surveyId;
+
+        while(serverIdTemp >= surveyList.size()) serverIdTemp -= surveyList.size();
+        String[] parts = surveyList.get(serverIdTemp).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
         return new SurveyQuestion(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
     }
 

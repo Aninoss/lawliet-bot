@@ -57,33 +57,37 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     protected void saveBean(FisheryServerBean fisheryServerBean) {
-        fisheryServerBean.getUsers().values().stream()
-                .filter(FisheryUserBean::checkChanged)
-                .forEach(this::saveFisheryUserBean);
-        System.out.printf("### SAVED SERVER %d ###\n", fisheryServerBean.getServerId());
         try {
+            fisheryServerBean.getUsers().values().stream()
+                    .filter(FisheryUserBean::checkChanged)
+                    .forEach(this::saveFisheryUserBean);
+            System.out.printf("### SAVED SERVER %d ###\n", fisheryServerBean.getServerId());
             Thread.sleep(100);
-        } catch (InterruptedException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     private void saveFisheryUserBean(FisheryUserBean fisheryUserBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", preparedStatement -> {
-            preparedStatement.setLong(1, fisheryUserBean.getServerId());
-            preparedStatement.setLong(2, fisheryUserBean.getUserId());
-            preparedStatement.setLong(3, fisheryUserBean.getFish());
-            preparedStatement.setLong(4, fisheryUserBean.getCoinsRaw());
-            preparedStatement.setString(5, DBMain.localDateToDateString(fisheryUserBean.getDailyReceived()));
-            preparedStatement.setInt(6, fisheryUserBean.getDailyStreak());
-            preparedStatement.setBoolean(7, fisheryUserBean.isReminderSent());
-            preparedStatement.setInt(8, fisheryUserBean.getUpvoteStack());
-        });
+        try {
+            DBMain.getInstance().asyncUpdate("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", preparedStatement -> {
+                preparedStatement.setLong(1, fisheryUserBean.getServerId());
+                preparedStatement.setLong(2, fisheryUserBean.getUserId());
+                preparedStatement.setLong(3, fisheryUserBean.getFish());
+                preparedStatement.setLong(4, fisheryUserBean.getCoinsRaw());
+                preparedStatement.setString(5, DBMain.localDateToDateString(fisheryUserBean.getDailyReceived()));
+                preparedStatement.setInt(6, fisheryUserBean.getDailyStreak());
+                preparedStatement.setBoolean(7, fisheryUserBean.isReminderSent());
+                preparedStatement.setInt(8, fisheryUserBean.getUpvoteStack());
+            });
 
-        fisheryUserBean.getAllFishHourlyIncomeChanged().forEach(this::saveFisheryHourlyIncomeBean);
-        fisheryUserBean.getPowerUpMap().values().stream()
-                .filter(FisheryUserPowerUpBean::checkChanged)
-                .forEach(this::saveFisheryUserPowerUpBean);
+            fisheryUserBean.getAllFishHourlyIncomeChanged().forEach(this::saveFisheryHourlyIncomeBean);
+            fisheryUserBean.getPowerUpMap().values().stream()
+                    .filter(FisheryUserPowerUpBean::checkChanged)
+                    .forEach(this::saveFisheryUserPowerUpBean);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveFisheryUserPowerUpBean(FisheryUserPowerUpBean fisheryUserPowerUpBean) {
@@ -236,13 +240,22 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     public void removePowerPlant(long serverId) throws SQLException {
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;" +
-                "DELETE FROM PowerPlantUsers WHERE serverId = ?;" +
-                "DELETE FROM PowerPlantUserGained WHERE serverId = ?;");
+        PreparedStatement preparedStatement;
+
+        preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
-        preparedStatement.setLong(2, serverId);
-        preparedStatement.setLong(3, serverId);
         preparedStatement.executeUpdate();
+        preparedStatement.close();
+
+        preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUsers WHERE serverId = ?;");
+        preparedStatement.setLong(1, serverId);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
+
+        preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserGained WHERE serverId = ?;");
+        preparedStatement.setLong(1, serverId);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
 
         try {
             DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
@@ -310,7 +323,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 20;
+        return 3;
     }
 
 }

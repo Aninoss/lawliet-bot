@@ -16,7 +16,7 @@ import java.util.HashMap;
 public abstract class InteractionAbstract extends Command {
 
     private String[] gifs;
-    private static HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
+    private static final HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
 
     public InteractionAbstract() { this.gifs = getGifs(); }
 

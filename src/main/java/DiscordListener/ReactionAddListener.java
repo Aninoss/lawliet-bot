@@ -40,11 +40,7 @@ public class ReactionAddListener {
     }
 
     public void onReactionAdd(ReactionAddEvent event) {
-        if (event.getUser().isYourself() ||
-                event.getUser().isBot()
-        ) {
-            return;
-        }
+        if (event.getUser().isBot()) return;
 
         //Commands
         if (manageReactionCommands(event) || !event.getServer().isPresent()) return;

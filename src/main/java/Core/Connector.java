@@ -174,18 +174,19 @@ public class Connector {
                     vcObserver.setName("vc_observer");
                     vcObserver.setPriority(1);
                     vcObserver.start();
+
+                    ExceptionHandler.showInfoLog("All shards have been connected successfully!");
+
+                    Thread t = new Thread(Clock::tick);
+                    t.setPriority(1);
+                    addUncaughtException(t);
+                    t.setName("clock");
+                    t.start();
+
+                    if (Bot.isProductionMode()) DBTracker.getInstance().init();
                 } else {
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }
-                ExceptionHandler.showInfoLog("All shards have been connected successfully!");
-
-                Thread t = new Thread(Clock::tick);
-                t.setPriority(1);
-                addUncaughtException(t);
-                t.setName("clock");
-                t.start();
-
-                if (Bot.isProductionMode()) DBTracker.getInstance().init();
             }
 
             api.addMessageCreateListener(event -> {

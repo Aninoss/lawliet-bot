@@ -33,8 +33,6 @@ import java.util.concurrent.ExecutionException;
 )
 public class SurveyCommand extends Command implements OnReactionAddStaticListener, OnTrackerRequestListener {
 
-    private static long lastAccess = 0;
-
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         sendMessages(event.getServerTextChannel().get(), false);
@@ -114,14 +112,8 @@ public class SurveyCommand extends Command implements OnReactionAddStaticListene
     }
 
     private Message sendMessages(ServerTextChannel channel, boolean tracker) throws InterruptedException, IOException, SQLException, ExecutionException {
-        while(lastAccess != 0 && System.currentTimeMillis() <= lastAccess + 1000 * 60) {
-            Thread.sleep(1000);
-        }
-
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyBean lastSurvey = DBSurvey.getInstance().getBean(currentSurvey.getSurveyId() - 1);
-
-        lastAccess = System.currentTimeMillis();
 
         //Results Message
         channel.sendMessage(getResultsEmbed(lastSurvey));
@@ -133,12 +125,10 @@ public class SurveyCommand extends Command implements OnReactionAddStaticListene
 
         for(int i = 0; i < 2; i++) {
             for(int j = 0; j < 2; j++) {
-                if (i == 0) message.addReaction(LetterEmojis.LETTERS[j]).get();
-                else message.addReaction(LetterEmojis.RED_LETTERS[j]).get();
+                if (i == 0) message.addReaction(LetterEmojis.LETTERS[j]);
+                else message.addReaction(LetterEmojis.RED_LETTERS[j]);
             }
         }
-
-        lastAccess = 0;
 
         return message;
     }

@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 public class InternetCache {
 
-    private static HashMap<String, Instant> expirationDates = new HashMap<>();
+    private static final HashMap<String, Instant> expirationDates = new HashMap<>();
     private static LoadingCache<String, CompletableFuture<InternetResponse>> cache = CacheBuilder.newBuilder()
             .maximumSize(100)
             .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))

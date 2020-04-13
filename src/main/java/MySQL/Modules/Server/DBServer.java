@@ -73,8 +73,8 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         return serverBean;
     }
 
-    private void insertBean(ServerBean serverBean) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+    private void insertBean(ServerBean serverBean) throws SQLException {
+        DBMain.getInstance().update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverBean.getServerId());
             preparedStatement.setString(2, serverBean.getPrefix());
             preparedStatement.setString(3, serverBean.getLocale().getDisplayName());

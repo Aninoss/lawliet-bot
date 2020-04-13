@@ -1,5 +1,6 @@
 package MySQL;
 
+import Core.Bot;
 import MySQL.Interfaces.CompleteLoadOnStartup;
 import MySQL.Interfaces.IntervalSave;
 import com.google.common.cache.CacheBuilder;
@@ -58,9 +59,17 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     }
 
     private synchronized void intervalSave() {
-        ArrayList<U> tempList = new ArrayList<>(changed);
-        changed = new ArrayList<>();
-        tempList.forEach(this::saveBean);
+        if (Bot.isProductionMode()) {
+            ArrayList<U> tempList = new ArrayList<>(changed);
+            changed = new ArrayList<>();
+            tempList.forEach(value -> {
+                try {
+                    saveBean(value);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     protected abstract U loadBean(T t) throws Exception;
@@ -106,6 +115,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     @Override
     public void clear() {
+        if ((this instanceof IntervalSave)) intervalSave();
         cache.invalidateAll();
     }
 

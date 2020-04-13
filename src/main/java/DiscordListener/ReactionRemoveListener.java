@@ -14,9 +14,7 @@ import java.util.concurrent.ExecutionException;
 public class ReactionRemoveListener {
 
     public void onReactionRemove(ReactionRemoveEvent event) {
-        if (event.getUser().isYourself() ||
-                event.getUser().isBot()
-        ) return;
+        if (event.getUser().isBot()) return;
 
         //Commands
         if (ReactionAddListener.manageReactionCommands(event) || !event.getServer().isPresent()) return;

@@ -65,7 +65,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                     switch (state) {
                         case 0:
                             deleteNavigationMessage();
-                            return true;
+                            return false;
 
                         case 1:
                             setState(0);
@@ -234,7 +234,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 setOptions(new String[CommandContainer.getInstance().getTrackerCommands().size()]);
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                for (int i=0; i < getOptions().length; i++) {
+                for (int i = 0; i < getOptions().length; i++) {
                     String trigger = ((Command) CommandContainer.getInstance().getTrackerCommands().get(i)).getTrigger();
                     getOptions()[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));

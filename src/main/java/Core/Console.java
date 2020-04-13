@@ -129,7 +129,10 @@ public class Console {
         while(true) {
             double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
             double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
-            maxMemory = Math.max(maxMemory, memoryUsed);
+            if (memoryUsed > maxMemory) {
+                maxMemory = memoryUsed;
+                ExceptionHandler.showInfoLog("Max Memory: " + memoryUsed);
+            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

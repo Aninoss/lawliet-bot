@@ -5,12 +5,15 @@ import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
 import Core.Tools.StringTools;
+import Core.Tools.TimeTools;
 import MySQL.Modules.Donators.DBDonators;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -58,7 +61,10 @@ public class DailyCommand extends Command {
 
                 return true;
             } else {
+                Instant nextDaily = TimeTools.setInstantToNextDay(Instant.now());
+
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("claimed_desription"), getString("claimed_title"));
+                EmbedFactory.addLog(eb, null, getString("next", TimeTools.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
                 event.getChannel().sendMessage(eb).get();
                 return false;
             }

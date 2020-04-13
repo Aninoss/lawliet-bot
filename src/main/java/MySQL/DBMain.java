@@ -39,7 +39,7 @@ public class DBMain implements DriverAction {
         rv.setServerName(Bot.isProductionMode() ? "127.0.0.1" : SecretManager.getString("database.ip"));
         rv.setPortNumber(3306);
         rv.setDatabaseName(SecretManager.getString("database.database"));
-        rv.setAllowMultiQueries(true);
+        rv.setAllowMultiQueries(false);
         rv.setAutoReconnect(true);
         rv.setCharacterEncoding("UTF-8");
         rv.setUser(SecretManager.getString("database.username"));
@@ -72,66 +72,40 @@ public class DBMain implements DriverAction {
         return statement;
     }
 
-    public void asyncLoad(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, Consumer<ResultSet> resultSetConsumer) {
-        Thread t = new Thread(() -> {
-            SQLException exception = null;
-            for(int i = 0; i < 3; i++) {
+    public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {
+        SQLException exception = null;
+        for(int i = 0; i < 3; i++) {
+            try {
+                PreparedStatement preparedStatement = preparedStatement(sql);
+                preparedStatementConsumer.accept(preparedStatement);
+                int n = preparedStatement.executeUpdate();
+                preparedStatement.close();
+
+                return n;
+            } catch (SQLException e) {
+                //Ignore
+                exception = e;
                 try {
-                    PreparedStatement preparedStatement = preparedStatement(sql);
-                    preparedStatementConsumer.accept(preparedStatement);
-                    preparedStatement.execute();
-
-                    ResultSet resultSet = preparedStatement.getResultSet();
-                    while (resultSet.next()) resultSetConsumer.accept(resultSet);
-
-                    resultSet.close();
-                    preparedStatement.close();
-                    return;
-                } catch (SQLException e) {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
                     //Ignore
-                    exception = e;
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ex) {
-                        //Ignore
-                    }
                 }
             }
+        }
 
-            exception.printStackTrace();
-        });
-        t.setPriority(1);
-        t.setName("sql_load");
-        t.start();
+        throw  exception;
     }
 
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
 
         Thread t = new Thread(() -> {
-            SQLException exception = null;
-            for(int i = 0; i < 3; i++) {
-                try {
-                    PreparedStatement preparedStatement = preparedStatement(sql);
-                    preparedStatementConsumer.accept(preparedStatement);
-                    int n = preparedStatement.executeUpdate();
-                    preparedStatement.close();
-
-                    future.complete(n);
-                    return;
-                } catch (SQLException e) {
-                    //Ignore
-                    exception = e;
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ex) {
-                        //Ignore
-                    }
-                }
+            try {
+                future.complete(update(sql, preparedStatementConsumer));
+            } catch (SQLException throwables) {
+                future.completeExceptionally(throwables);
+                throwables.printStackTrace();
             }
-
-            exception.printStackTrace();
-            future.completeExceptionally(exception);
         });
         t.setPriority(1);
         t.setName("sql_update");

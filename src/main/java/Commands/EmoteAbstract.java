@@ -13,7 +13,7 @@ import java.util.HashMap;
 public abstract class EmoteAbstract extends Command {
 
     private String[] gifs;
-    private static HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
+    private static final HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
 
     public EmoteAbstract() {
         this.gifs = getGifs();
