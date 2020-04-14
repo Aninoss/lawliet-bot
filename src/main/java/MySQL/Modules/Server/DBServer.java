@@ -20,14 +20,18 @@ import java.util.Optional;
 
 public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
-    private static DBServer ourInstance = new DBServer();
+    private static final DBServer ourInstance = new DBServer();
     public static DBServer getInstance() { return ourInstance; }
     private DBServer() {}
+
+    private final ArrayList<Long> removedServerIds = new ArrayList<>();
 
     @Override
     protected ServerBean loadBean(Long serverId) throws Exception {
         if (!DiscordApiCollection.getInstance().getServerById(serverId).isPresent())
             throw new Exception("Invalid Discord Server");
+
+        removedServerIds.remove(serverId);
 
         ServerBean serverBean;
 
@@ -71,6 +75,10 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         preparedStatement.close();
 
         return serverBean;
+    }
+
+    public boolean containsServerId(long serverId) {
+        return !removedServerIds.contains(serverId);
     }
 
     private void insertBean(ServerBean serverBean) throws SQLException {
@@ -122,6 +130,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     }
 
     public void remove(long serverId) {
+        removedServerIds.add(serverId);
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         try {
             DBTracker.getInstance().getBean().getMap().values().stream()

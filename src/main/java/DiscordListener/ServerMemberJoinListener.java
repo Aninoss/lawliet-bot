@@ -3,7 +3,7 @@ import Commands.FisheryCategory.FisheryCommand;
 import Commands.ManagementCategory.AutoRolesCommand;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
-import Constants.FishingCategoryInterface;
+import Constants.FisheryCategoryInterface;
 import Constants.Permission;
 import Core.*;
 import Core.Tools.StringTools;
@@ -94,7 +94,7 @@ public class ServerMemberJoinListener {
         try {
             FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
             FisheryUserBean fisheryUserBean = fisheryServerBean.getUser(event.getUser().getId());
-            int level = fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel();
+            int level = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
             if (level > 0) {
                 List<Role> roles = fisheryServerBean.getRoleIds().transform(server::getRoleById, DiscordEntity::getId);
                 ServerBean serverBean = DBServer.getInstance().getBean(server.getId());

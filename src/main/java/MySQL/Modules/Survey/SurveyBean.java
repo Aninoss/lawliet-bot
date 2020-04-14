@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 
 public class SurveyBean extends Observable {
 
-    private int surveyId;
-    private LocalDate startDate;
-    private CustomObservableMap<Long, SurveyFirstVote> firstVotes;
-    private CustomObservableMap<Pair<Long, Long>, SurveySecondVote> secondVotes; /* Pair: serverId, userId */
+    private final int surveyId;
+    private final LocalDate startDate;
+    private final CustomObservableMap<Long, SurveyFirstVote> firstVotes;
+    private final CustomObservableMap<Pair<Long, Long>, SurveySecondVote> secondVotes; /* Pair: serverId, userId */
 
     public SurveyBean(int surveyId, LocalDate startDate, @NonNull HashMap<Long, SurveyFirstVote> firstVotes, @NonNull HashMap<Pair<Long, Long>, SurveySecondVote> secondVotes) {
         this.surveyId = surveyId;

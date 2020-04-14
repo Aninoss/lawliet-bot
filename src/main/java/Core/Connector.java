@@ -1,5 +1,6 @@
 package Core;
 
+import Constants.Settings;
 import Core.Tools.StringTools;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -177,7 +178,7 @@ public class Connector {
 
                     ExceptionHandler.showInfoLog("All shards have been connected successfully!");
 
-                    Thread t = new Thread(Clock::tick);
+                    Thread t = new Thread(Clock::getInstance);
                     t.setPriority(1);
                     addUncaughtException(t);
                     t.setName("clock");
@@ -343,8 +344,7 @@ public class Connector {
 
     public static void updateActivity(DiscordApi api, int serverNumber) {
         Calendar calendar = Calendar.getInstance();
-        boolean isRestartPending = calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
-                calendar.get(Calendar.MINUTE) < 15 &&
+        boolean isRestartPending = calendar.get(Calendar.HOUR_OF_DAY) == Settings.UPDATE_HOUR &&
                 Bot.hasUpdate();
 
         if (!isRestartPending) {

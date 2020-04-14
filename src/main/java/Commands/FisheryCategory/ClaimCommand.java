@@ -45,7 +45,7 @@ public class ClaimCommand extends Command {
                 event.getChannel().sendMessage(eb).get();
                 return false;
             } else {
-                long fishes = userBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect();
+                long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringTools.numToString(getLocale(), upvotesUnclaimed), StringTools.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
                 if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);

@@ -4,6 +4,7 @@ import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
 import MySQL.Modules.Server.DBServer;
+import MySQL.Modules.Server.ServerBean;
 import javafx.util.Pair;
 
 import java.sql.SQLException;
@@ -13,17 +14,18 @@ import java.util.Optional;
 
 public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWarningsBean> {
 
-    private static DBServerWarnings ourInstance = new DBServerWarnings();
+    private static final DBServerWarnings ourInstance = new DBServerWarnings();
     public static DBServerWarnings getInstance() { return ourInstance; }
     private DBServerWarnings() {}
 
     @Override
     protected ServerWarningsBean loadBean(Pair<Long, Long> pair) throws Exception {
+        ServerBean serverBean = DBServer.getInstance().getBean(pair.getKey());
+
         ServerWarningsBean serverWarningsBean = new ServerWarningsBean(
-                pair.getKey(),
+                serverBean,
                 pair.getValue(),
-                DBServer.getInstance().getBean(pair.getKey()),
-                getWarnings(pair.getKey(), pair.getValue())
+                getWarnings(serverBean, pair.getValue())
         );
 
         serverWarningsBean.getWarnings()
@@ -36,14 +38,14 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
     @Override
     protected void saveBean(ServerWarningsBean serverWarningsBean) {}
 
-    private ArrayList<ServerWarningsSlot> getWarnings(long serverId, long userId) throws SQLException {
+    private ArrayList<ServerWarningsSlot> getWarnings(ServerBean serverBean, long userId) throws SQLException {
         return new DBDataLoad<ServerWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
                 preparedStatement -> {
-                    preparedStatement.setLong(1, serverId);
+                    preparedStatement.setLong(1, serverBean.getServerId());
                     preparedStatement.setLong(2, userId);
                 }
         ).getArrayList(resultSet -> new ServerWarningsSlot(
-                serverId,
+                serverBean,
                 resultSet.getLong(1),
                 resultSet.getTimestamp(2).toInstant(),
                 resultSet.getLong(3),

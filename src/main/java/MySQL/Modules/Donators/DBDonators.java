@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class DBDonators extends DBCached {
 
-    private static DBDonators ourInstance = new DBDonators();
+    private static final DBDonators ourInstance = new DBDonators();
     public static DBDonators getInstance() { return ourInstance; }
     private DBDonators() {}
 

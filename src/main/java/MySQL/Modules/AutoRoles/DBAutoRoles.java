@@ -11,14 +11,13 @@ import java.util.ArrayList;
 
 public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
 
-    private static DBAutoRoles ourInstance = new DBAutoRoles();
+    private static final DBAutoRoles ourInstance = new DBAutoRoles();
     public static DBAutoRoles getInstance() { return ourInstance; }
     private DBAutoRoles() {}
 
     @Override
     protected AutoRolesBean loadBean(Long serverId) throws Exception {
         AutoRolesBean autoRolesBean = new AutoRolesBean(
-                serverId,
                 DBServer.getInstance().getBean(serverId),
                 getRoleIds(serverId)
         );

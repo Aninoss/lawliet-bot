@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class DBVersion extends DBCached {
 
-    private static DBVersion ourInstance = new DBVersion();
+    private static final DBVersion ourInstance = new DBVersion();
     public static DBVersion getInstance() { return ourInstance; }
     private DBVersion() {}
 

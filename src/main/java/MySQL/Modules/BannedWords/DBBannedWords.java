@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
 
-    private static DBBannedWords ourInstance = new DBBannedWords();
+    private static final DBBannedWords ourInstance = new DBBannedWords();
     public static DBBannedWords getInstance() { return ourInstance; }
     private DBBannedWords() {}
 
@@ -25,7 +25,6 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             bannedWordsBean = new BannedWordsBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getBoolean(1),
                     getIgnoredUsers(serverId),
@@ -34,7 +33,6 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
             );
         } else {
             bannedWordsBean = new BannedWordsBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     false,
                     getIgnoredUsers(serverId),

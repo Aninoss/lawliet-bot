@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> {
 
-    private static DBWelcomeMessage ourInstance = new DBWelcomeMessage();
+    private static final DBWelcomeMessage ourInstance = new DBWelcomeMessage();
     public static DBWelcomeMessage getInstance() { return ourInstance; }
     private DBWelcomeMessage() {}
 
@@ -29,7 +29,6 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             welcomeMessageBean = new WelcomeMessageBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getBoolean(1),
                     resultSet.getString(2),
@@ -43,14 +42,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
             ServerBean serverBean = DBServer.getInstance().getBean(serverId);
             Locale locale = serverBean.getLocale();
 
-            Optional<Long> channelId = serverBean.getServer().map(
-                    server -> server.getSystemChannel().orElse(
-                            server.getTextChannels().size() > 0 ? server.getTextChannels().get(0) : null
-                    )
-            ).map(DiscordEntity::getId);
-
             welcomeMessageBean = new WelcomeMessageBean(
-                    serverId,
                     serverBean,
                     false,
                     TextManager.getString(locale, TextManager.COMMANDS, "welcome_standard_title"),

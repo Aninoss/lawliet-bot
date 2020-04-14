@@ -70,30 +70,34 @@ public class BuyCommand extends Command implements OnNavigationListener {
             } else if (i >= 0) {
                 synchronized(event.getUser())  {
                     //Skip treasure chests if they aren't active
-                    if (i >= FishingCategoryInterface.PER_TREASURE && !serverBean.isFisheryTreasureChests()) i++;
+                    if (i >= FisheryCategoryInterface.PER_TREASURE && !serverBean.isFisheryTreasureChests()) i++;
 
                     List<Role> roles = fisheryServerBean.getRoles();
 
                     //Skip role if it shouldn't be bought
-                    if (i >= FishingCategoryInterface.ROLE &&
-                            (fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel() >= fisheryServerBean.getRoleIds().size() || !PermissionCheck.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel())))
+                    if (i >= FisheryCategoryInterface.ROLE &&
+                            (fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() >= fisheryServerBean.getRoleIds().size() || !PermissionCheck.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel())))
                     ) i++;
                     FisheryUserPowerUpBean slot = fisheryUserBean.getPowerUp(i);
 
                     long price = slot.getPrice();
-                    if (slot.getPowerUpId() == FishingCategoryInterface.ROLE) price = calculateRolePrice(slot);
+                    if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) price = calculateRolePrice(slot);
                     if (fisheryUserBean.getCoins() >= price) {
                         fisheryUserBean.changeValues(0, -price);
                         fisheryUserBean.levelUp(slot.getPowerUpId());
 
-                        if (slot.getPowerUpId() == FishingCategoryInterface.ROLE) {
+                        if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
+                            roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
                             if (slot.getLevel() > 1) {
                                 if (serverBean.isFisherySingleRoles())
-                                    for(int j = 0; j < slot.getLevel() - 1; j++) roles.get(j).removeUser(event.getUser());
+                                    for(int j = slot.getLevel() - 2; j >= 0; j--) {
+                                        if (roles.get(j).getUsers().contains(event.getUser())) roles.get(j).removeUser(event.getUser());
+                                    }
                                 else
-                                    for(int j = 0; j < slot.getLevel() - 1; j++) roles.get(j).addUser(event.getUser());
+                                    for(int j = slot.getLevel() - 2; j >= 0; j--) {
+                                        if (!roles.get(j).getUsers().contains(event.getUser())) roles.get(j).addUser(event.getUser());
+                                    }
                             }
-                            roles.get(slot.getLevel() - 1).addUser(event.getUser()).get();
 
                             Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
                             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
@@ -132,20 +136,20 @@ public class BuyCommand extends Command implements OnNavigationListener {
                 for(FisheryUserPowerUpBean slot : fisheryUserBean.getPowerUpMap().values()) {
                     description = new StringBuilder();
                     if (
-                            (slot .getPowerUpId() != FishingCategoryInterface.ROLE ||
+                            (slot .getPowerUpId() != FisheryCategoryInterface.ROLE ||
                             (slot.getLevel() < fisheryServerBean.getRoleIds().size() &&
                                     PermissionCheck.canYouManageRole(roles.get(slot.getLevel())))) &&
-                            (slot.getPowerUpId() != FishingCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
+                            (slot.getPowerUpId() != FisheryCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
                     ) {
                         String productDescription = "???";
                         long price = slot.getPrice();
-                        if (slot.getPowerUpId() != FishingCategoryInterface.ROLE)
+                        if (slot.getPowerUpId() != FisheryCategoryInterface.ROLE)
                             productDescription = getString("product_des_" + slot.getPowerUpId(), StringTools.numToString(getLocale(), slot.getDeltaEffect()));
                         else if (roles.get(slot.getLevel()) != null) {
                             price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getPowerUpId(), roles.get(slot.getLevel()).getMentionTag());
                         }
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FishingCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringTools.numToString(getLocale(), price), productDescription));
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringTools.numToString(getLocale(), price), productDescription));
 
                         numberReactions++;
                         eb.addField(Settings.EMPTY_EMOJI, description.toString());
@@ -153,18 +157,18 @@ public class BuyCommand extends Command implements OnNavigationListener {
                     }
                 }
 
-                int roleLvl = fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel();
+                int roleLvl = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
 
                 eb.addField(Settings.EMPTY_EMOJI,
                         getString("status",
                                 StringTools.numToString(getLocale(), fisheryUserBean.getFish()),
                                 StringTools.numToString(getLocale(), fisheryUserBean.getCoins()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_MESSAGE).getEffect()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_VC).getEffect()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_TREASURE).getEffect()),
+                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
+                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
+                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
+                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
                                 roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getMentionTag() : "**-**",
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_SURVEY).getEffect())
+                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect())
                         )
                 );
                 return eb;

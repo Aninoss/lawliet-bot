@@ -1,6 +1,7 @@
 package MySQL.Modules.Moderation;
 
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
@@ -8,18 +9,14 @@ import org.javacord.api.entity.server.Server;
 import java.util.Observable;
 import java.util.Optional;
 
-public class ModerationBean extends Observable {
-
-    private long serverId;
-    private ServerBean serverBean;
+public class ModerationBean extends BeanWithServer {
 
     private Long announcementChannelId;
     private boolean question;
     private int autoKick, autoBan, autoKickDays, autoBanDays;
 
-    public ModerationBean(long serverId, ServerBean serverBean, Long announcementChannelId, boolean question, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+    public ModerationBean(ServerBean serverBean, Long announcementChannelId, boolean question, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
+        super(serverBean);
         this.announcementChannelId = announcementChannelId;
         this.question = question;
         this.autoKick = autoKick;
@@ -30,16 +27,6 @@ public class ModerationBean extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public Optional<Long> getAnnouncementChannelId() {
         return Optional.ofNullable(announcementChannelId);

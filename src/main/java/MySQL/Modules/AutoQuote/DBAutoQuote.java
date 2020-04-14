@@ -10,7 +10,7 @@ import java.sql.SQLException;
 
 public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
 
-    private static DBAutoQuote ourInstance = new DBAutoQuote();
+    private static final DBAutoQuote ourInstance = new DBAutoQuote();
     public static DBAutoQuote getInstance() { return ourInstance; }
     private DBAutoQuote() {}
 
@@ -25,13 +25,11 @@ public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             autoQuoteBean = new AutoQuoteBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getBoolean(1)
             );
         } else {
             autoQuoteBean = new AutoQuoteBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     true
             );

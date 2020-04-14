@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
 
-    private static DBModeration ourInstance = new DBModeration();
+    private static final DBModeration ourInstance = new DBModeration();
     public static DBModeration getInstance() { return ourInstance; }
     private DBModeration() {}
 
@@ -26,7 +26,6 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             moderationBean = new ModerationBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
@@ -37,7 +36,6 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
             );
         } else {
             moderationBean = new ModerationBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     null,
                     true,

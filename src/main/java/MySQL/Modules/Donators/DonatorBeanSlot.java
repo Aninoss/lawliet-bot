@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class DonatorBeanSlot extends Observable {
 
-    private long userId;
+    private final long userId;
     private LocalDate donationEnd;
 
     public DonatorBeanSlot(long userId, LocalDate donationEnd) {

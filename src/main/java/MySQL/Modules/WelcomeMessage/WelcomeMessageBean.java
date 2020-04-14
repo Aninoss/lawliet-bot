@@ -1,6 +1,7 @@
 package MySQL.Modules.WelcomeMessage;
 
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
@@ -10,18 +11,14 @@ import java.util.Observable;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class WelcomeMessageBean extends Observable {
-
-    private long serverId;
-    private ServerBean serverBean;
+public class WelcomeMessageBean extends BeanWithServer {
 
     private String welcomeTitle, welcomeText, goodbyeText;
     private long welcomeChannelId, goodbyeChannelId;
     private boolean welcomeActive, goodbyeActive;
 
-    public WelcomeMessageBean(long serverId, ServerBean serverBean, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+    public WelcomeMessageBean(ServerBean serverBean, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId) {
+        super(serverBean);
         this.welcomeTitle = welcomeTitle;
         this.welcomeText = welcomeText;
         this.goodbyeText = goodbyeText;
@@ -33,16 +30,6 @@ public class WelcomeMessageBean extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public String getWelcomeTitle() {
         return welcomeTitle;

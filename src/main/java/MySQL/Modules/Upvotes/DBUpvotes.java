@@ -18,7 +18,7 @@ import java.util.Date;
 
 public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
 
-    private static DBUpvotes ourInstance = new DBUpvotes();
+    private static final DBUpvotes ourInstance = new DBUpvotes();
     public static DBUpvotes getInstance() { return ourInstance; }
     private DBUpvotes() {}
 

@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
 
-    private static DBAutoChannel ourInstance = new DBAutoChannel();
+    private static final DBAutoChannel ourInstance = new DBAutoChannel();
     public static DBAutoChannel getInstance() { return ourInstance; }
     private DBAutoChannel() {}
 
@@ -30,7 +30,6 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             autoChannelBean = new AutoChannelBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
@@ -40,7 +39,6 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
             );
         } else {
             autoChannelBean = new AutoChannelBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     null,
                     false,

@@ -10,6 +10,7 @@ import Core.Mention.MentionTools;
 import Core.Tools.StringTools;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
+import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Warning.DBServerWarnings;
 import MySQL.Modules.Warning.ServerWarningsBean;
 import MySQL.Modules.Warning.ServerWarningsSlot;
@@ -294,7 +295,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
     public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws SQLException, ExecutionException {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
         serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
-                server.getId(),
+                DBServer.getInstance().getBean(server.getId()),
                 user.getId(),
                 Instant.now(),
                 requestor.getId(),

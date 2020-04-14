@@ -2,21 +2,25 @@ package MySQL.Modules.Server;
 
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Observable;
 import java.util.Optional;
 
 public class ServerBean extends Observable {
 
-    private long serverId, fisheryRoleMin, fisheryRoleMax;
+    private final long serverId;
+    private long fisheryRoleMin, fisheryRoleMax;
     private String prefix, webhookUrl;
     private Locale locale;
     private FisheryStatus fisheryStatus;
     private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders;
     private Long fisheryAnnouncementChannelId;
+    private final ArrayList<BeanWithServer> beans = new ArrayList<>();
 
     public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles, Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, String webhookUrl) {
         this.serverId = serverId;
@@ -83,6 +87,10 @@ public class ServerBean extends Observable {
 
     public Optional<ServerTextChannel> getFisheryAnnouncementChannel() {
         return getServer().flatMap(server -> server.getTextChannelById(fisheryAnnouncementChannelId != null ? fisheryAnnouncementChannelId : 0L));
+    }
+
+    public boolean isCached() {
+        return DBServer.getInstance().containsServerId(serverId);
     }
 
 

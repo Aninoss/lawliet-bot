@@ -2,8 +2,8 @@ package MySQL.Modules.Survey;
 
 public class SurveyQuestion {
 
-    private String question;
-    private String[] answers;
+    private final String question;
+    private final String[] answers;
 
     public SurveyQuestion(String question, String[] answers) {
         this.question = question;

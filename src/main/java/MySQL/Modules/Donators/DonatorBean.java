@@ -8,7 +8,7 @@ import java.util.Observable;
 
 public class DonatorBean extends Observable {
 
-    private CustomObservableMap<Long, DonatorBeanSlot> slots;
+    private final CustomObservableMap<Long, DonatorBeanSlot> slots;
 
     public DonatorBean(HashMap<Long, DonatorBeanSlot> slots) { this.slots = new CustomObservableMap<>(slots); }
 

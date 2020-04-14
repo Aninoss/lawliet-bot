@@ -7,6 +7,7 @@ import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
 import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -20,18 +21,17 @@ import java.util.Observable;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public class TrackerBeanSlot extends Observable {
+public class TrackerBeanSlot extends BeanWithServer {
 
-    private long serverId, channelId;
+    private final long channelId;
     private Long messageId;
-    private ServerBean serverBean;
-    private String commandTrigger, commandKey, args;
+    private final String commandTrigger, commandKey;
+    private String args;
     private Instant nextRequest;
     private Thread thread;
 
-    public TrackerBeanSlot(long serverId, ServerBean serverBean, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+    public TrackerBeanSlot(ServerBean serverBean, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
+        super(serverBean);
         this.channelId = channelId;
         this.messageId = messageId;
         this.commandTrigger = commandTrigger;
@@ -39,19 +39,11 @@ public class TrackerBeanSlot extends Observable {
         this.args = args;
         this.nextRequest = nextRequest;
 
-        if (getServer().isPresent()) start();
+        if (getServer().isPresent()) start(serverBean);
     }
 
 
     /* Getters */
-
-    public long getServerId() { return serverId; }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public long getChannelId() { return channelId; }
 
@@ -107,7 +99,7 @@ public class TrackerBeanSlot extends Observable {
 
     /* Actions */
 
-    private void start() {
+    private void start(ServerBean serverBean) {
         Thread t = new Thread(() -> {
             synchronized (DBTracker.getInstance()) {
                 try {

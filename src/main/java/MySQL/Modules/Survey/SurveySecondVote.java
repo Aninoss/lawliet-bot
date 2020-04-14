@@ -2,8 +2,8 @@ package MySQL.Modules.Survey;
 
 public class SurveySecondVote {
 
-    private long serverId, userId;
-    private byte vote;
+    private final long serverId, userId;
+    private final byte vote;
 
     public SurveySecondVote(long serverId, long userId, byte vote) {
         this.serverId = serverId;

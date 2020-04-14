@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean> {
 
-    private static DBGameStatistics ourInstance = new DBGameStatistics();
+    private static final DBGameStatistics ourInstance = new DBGameStatistics();
     public static DBGameStatistics getInstance() { return ourInstance; }
     private DBGameStatistics() {}
 

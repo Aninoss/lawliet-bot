@@ -1,8 +1,9 @@
 package Core;
 
 import Constants.FisheryStatus;
-import Constants.FishingCategoryInterface;
+import Constants.FisheryCategoryInterface;
 import Constants.Locales;
+import Constants.Settings;
 import Modules.Porn.PornImageCache;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Tools.StringTools;
@@ -32,9 +33,14 @@ import java.util.concurrent.ExecutionException;
 
 public class Clock {
 
-    private static boolean trafficWarned = false;
+    private static final Clock ourInstance = new Clock();
+    public static Clock getInstance() { return ourInstance; }
+    private Clock() { start(); }
 
-    public static void tick() {
+    private boolean trafficWarned = false;
+    private boolean readyForRestart = false;
+
+    private void start() {
         //Start 10 Minutes Event Loop
         Thread t = new Thread(() -> {
             while (true) {
@@ -61,14 +67,14 @@ public class Clock {
         }
     }
 
-    private static void onHourStart() {
+    private void onHourStart() {
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             onDayStart();
         }
     }
 
-    private static void onDayStart() {
+    private void onDayStart() {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
         trafficWarned = false; //Reset Traffic Warning
@@ -109,7 +115,7 @@ public class Clock {
     }
 
 
-    private static void every10Minutes() {
+    private void every10Minutes() {
         if (!DiscordApiCollection.getInstance().allShardsConnected())
             ExceptionHandler.showErrorLog("At least 1 shard is offline!");
 
@@ -122,14 +128,15 @@ public class Clock {
         double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
         Console.getInstance().setTraffic(trafficGB);
 
-        if (trafficGB >= 60 && (!trafficWarned || trafficGB >= 60)) {
+        if (trafficGB >= 60 && !trafficWarned) {
             try {
-                apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!");
+                apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
             } catch (Throwable e) {
                 e.printStackTrace();
             }
             trafficWarned = true;
         }
+
         if (trafficGB >= 100) {
             ExceptionHandler.showErrorLog("Too much traffic!");
             System.exit(-1);
@@ -138,6 +145,7 @@ public class Clock {
         //Checks Database Connection
         if (!DBMain.getInstance().checkConnection()) {
             try {
+                ExceptionHandler.showErrorLog("Reconnecting with database...");
                 DBMain.getInstance().connect();
             } catch (IOException | SQLException e) {
                 e.printStackTrace();
@@ -150,6 +158,7 @@ public class Clock {
         //Updates Discord Bots Server Count
         if (Bot.isProductionMode() && apiCollection.allShardsConnected()) {
             int totalServers = apiCollection.getServerTotalSize();
+
             TopGG.getInstance().updateServerCount(totalServers);
             Botsfordiscord.updateServerCount(totalServers);
             BotsOnDiscord.updateServerCount(totalServers);
@@ -171,19 +180,26 @@ public class Clock {
             }
         }
 
-        //Restart All Shards at 05:15 AM
+        //Restart All Shards at 09:xx AM
         Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.HOUR_OF_DAY) == 5 &&
-                calendar.get(Calendar.MINUTE) >= 15 &&
-                calendar.get(Calendar.MINUTE) < 25 &&
-                Bot.hasUpdate()
-        ) {
-            ExceptionHandler.showInfoLog("Restart for Update...");
-            System.exit(0);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (hour == Settings.UPDATE_HOUR && readyForRestart) {
+            readyForRestart = false;
+
+            if (Bot.hasUpdate()) {
+                ExceptionHandler.showInfoLog("Restart for Update...");
+                System.exit(0);
+            } else {
+                DBMain.getInstance().clearCache();
+                ExceptionHandler.showInfoLog("### CACHE CLEARED ###");
+            }
+        } else if (hour < Settings.UPDATE_HOUR) {
+            readyForRestart = true;
         }
     }
 
-    public static void updateSurvey() throws SQLException, ExecutionException {
+    private void updateSurvey() throws SQLException, ExecutionException {
         DiscordApiCollection.getInstance().waitForStartup();
         SurveyBean lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
         DBSurvey.getInstance().next();
@@ -227,7 +243,7 @@ public class Clock {
         }
     }
 
-    private static void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws Throwable {
+    private void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws Throwable {
         Locale localeGerman = new Locale(Locales.DE);
 
         HashMap<Long, Long> coinsWinMap = new HashMap<>();
@@ -237,7 +253,7 @@ public class Clock {
                     try {
                         Server server = DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get();
                         FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUser(user.getId());
-                        long price = userBean.getPowerUp(FishingCategoryInterface.PER_SURVEY).getEffect();
+                        long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                         userBean.changeValues(0, price);
                         coinsWinMap.put(secondVote.getServerId(), price);
                     } catch (ExecutionException e) {

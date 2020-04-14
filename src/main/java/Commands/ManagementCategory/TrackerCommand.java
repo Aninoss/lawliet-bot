@@ -183,7 +183,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
 
     private void addTracker(String key) throws Throwable {
         TrackerBeanSlot slot = new TrackerBeanSlot(
-                serverId,
                 DBServer.getInstance().getBean(serverId),
                 channelId,
                 commandTrigger,

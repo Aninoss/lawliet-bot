@@ -2,6 +2,7 @@ package MySQL.Modules.BannedWords;
 
 import Core.DiscordApiCollection;
 import Core.CustomObservableList;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
@@ -10,17 +11,14 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Optional;
 
-public class BannedWordsBean extends Observable {
+public class BannedWordsBean extends BeanWithServer {
 
-    private long serverId;
     private boolean active;
-    private ServerBean serverBean;
-    private CustomObservableList<Long> ignoredUserIds, logReceiverUserIds;
-    private CustomObservableList<String> words;
+    private final CustomObservableList<Long> ignoredUserIds, logReceiverUserIds;
+    private final CustomObservableList<String> words;
 
-    public BannedWordsBean(long serverId, ServerBean serverBean, boolean active, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> logReceiverUserIds, @NonNull ArrayList<String> words) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+    public BannedWordsBean(ServerBean serverBean, boolean active, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> logReceiverUserIds, @NonNull ArrayList<String> words) {
+        super(serverBean);
         this.active = active;
         this.ignoredUserIds = new CustomObservableList<>(ignoredUserIds);
         this.logReceiverUserIds = new CustomObservableList<>(logReceiverUserIds);
@@ -29,16 +27,6 @@ public class BannedWordsBean extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public CustomObservableList<Long> getIgnoredUserIds() {
         return ignoredUserIds;

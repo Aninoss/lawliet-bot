@@ -19,7 +19,8 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     private ArrayList<U> changed;
     private Instant nextCheck;
     private boolean allLoaded = false;
-    private LoadingCache<T, U> cache = CacheBuilder.newBuilder().build(
+    private final LoadingCache<T, U> cache = CacheBuilder.newBuilder()
+            .build(
         new CacheLoader<T, U>() {
             @Override
             public U load(@NonNull T t) throws Exception {
@@ -59,17 +60,17 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     }
 
     private synchronized void intervalSave() {
-        if (Bot.isProductionMode()) {
-            ArrayList<U> tempList = new ArrayList<>(changed);
-            changed = new ArrayList<>();
-            tempList.forEach(value -> {
-                try {
-                    saveBean(value);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+        ArrayList<U> tempList = new ArrayList<>(changed);
+        changed = new ArrayList<>();
+        tempList.stream()
+                .filter(value -> !(value instanceof BeanWithServer) || ((BeanWithServer)value).getServerBean().isCached())
+                .forEach(value -> {
+            try {
+                saveBean(value);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     protected abstract U loadBean(T t) throws Exception;

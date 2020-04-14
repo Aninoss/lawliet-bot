@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
-    private static DBSurvey ourInstance = new DBSurvey();
+    private static final DBSurvey ourInstance = new DBSurvey();
     public static DBSurvey getInstance() { return ourInstance; }
     private DBSurvey() {}
 

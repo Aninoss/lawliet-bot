@@ -6,10 +6,10 @@ import java.time.Instant;
 
 public class FisheryHourlyIncomeBean {
 
-    private Instant time;
+    private final Instant time;
     private long fishIncome;
     private boolean changed = false;
-    private long serverId, userId;
+    private final long serverId, userId;
 
     public FisheryHourlyIncomeBean(long serverId, long userId, Instant time, long fishIncome) {
         this.serverId = serverId;

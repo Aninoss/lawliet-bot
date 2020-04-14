@@ -11,14 +11,13 @@ import java.util.ArrayList;
 
 public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChannelsBean> {
 
-    private static DBWhiteListedChannels ourInstance = new DBWhiteListedChannels();
+    private static final DBWhiteListedChannels ourInstance = new DBWhiteListedChannels();
     public static DBWhiteListedChannels getInstance() { return ourInstance; }
     private DBWhiteListedChannels() {}
 
     @Override
     protected WhiteListedChannelsBean loadBean(Long serverId) throws Exception {
         WhiteListedChannelsBean whiteListedChannelsBean = new WhiteListedChannelsBean(
-                serverId,
                 DBServer.getInstance().getBean(serverId),
                 getChannelIds(serverId)
         );

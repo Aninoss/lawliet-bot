@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
 
-    private static DBSPBlock ourInstance = new DBSPBlock();
+    private static final DBSPBlock ourInstance = new DBSPBlock();
     public static DBSPBlock getInstance() { return ourInstance; }
     private DBSPBlock() {}
 
@@ -26,7 +26,6 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             spBlockBean = new SPBlockBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getBoolean(1),
                     SPBlockBean.ActionList.valueOf(resultSet.getString(2)),
@@ -36,7 +35,6 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
             );
         } else {
             spBlockBean = new SPBlockBean(
-                    serverId,
                     DBServer.getInstance().getBean(serverId),
                     false,
                     SPBlockBean.ActionList.DELETE_MESSAGE,

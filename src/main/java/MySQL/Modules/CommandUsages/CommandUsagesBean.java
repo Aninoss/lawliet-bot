@@ -4,7 +4,7 @@ import java.util.Observable;
 
 public class CommandUsagesBean extends Observable {
 
-    private String command;
+    private final String command;
     private long add = 0;
 
     public CommandUsagesBean(String command) {

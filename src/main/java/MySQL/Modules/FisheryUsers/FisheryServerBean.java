@@ -3,6 +3,7 @@ package MySQL.Modules.FisheryUsers;
 import Core.CustomObservableList;
 import Core.CustomObservableMap;
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.DiscordEntity;
@@ -11,16 +12,13 @@ import org.javacord.api.entity.server.Server;
 import java.time.LocalDate;
 import java.util.*;
 
-public class FisheryServerBean extends Observable implements Observer {
+public class FisheryServerBean extends BeanWithServer implements Observer {
 
-    private long serverId;
-    private ServerBean serverBean;
-    private CustomObservableMap<Long, FisheryUserBean> users;
-    private CustomObservableList<Long> ignoredChannelIds, roleIds;
+    private final CustomObservableMap<Long, FisheryUserBean> users;
+    private final CustomObservableList<Long> ignoredChannelIds, roleIds;
 
     public FisheryServerBean(long serverId, ServerBean serverBean, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryUserBean> users) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+        super(serverBean);
         this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
         this.roleIds = new CustomObservableList<>(roleIds);
         this.users = new CustomObservableMap<>(users);
@@ -30,16 +28,6 @@ public class FisheryServerBean extends Observable implements Observer {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public CustomObservableList<Long> getIgnoredChannelIds() { return ignoredChannelIds; }
 
@@ -55,8 +43,8 @@ public class FisheryServerBean extends Observable implements Observer {
 
     public synchronized FisheryUserBean getUser(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryUserBean(
-                serverId,
-                serverBean,
+                getServerId(),
+                getServerBean(),
                 userId,
                 this,
                 0L,

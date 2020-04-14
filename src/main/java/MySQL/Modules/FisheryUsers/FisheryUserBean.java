@@ -1,13 +1,14 @@
 package MySQL.Modules.FisheryUsers;
 
 import Constants.CodeBlockColor;
-import Constants.FishingCategoryInterface;
+import Constants.FisheryCategoryInterface;
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
 import Core.TextManager;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -18,19 +19,17 @@ import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-public class FisheryUserBean extends Observable {
+public class FisheryUserBean extends BeanWithServer {
 
-    private long serverId, userId;
-    private ServerBean serverBean;
+    private final long userId;
     private FisheryServerBean fisheryServerBean = null;
-    private HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
-    private HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
+    private final HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
+    private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
     private long fish, coins;
     private LocalDate dailyReceived;
     private int dailyStreak, upvoteStack;
@@ -41,9 +40,8 @@ public class FisheryUserBean extends Observable {
     private long hiddenCoins = 0;
 
     FisheryUserBean(long serverId, ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        this.serverId = serverId;
+        super(serverBean);
         this.userId = userId;
-        this.serverBean = serverBean;
         this.fish = fish;
         this.coins = coins;
         this.dailyReceived = dailyReceived;
@@ -64,16 +62,6 @@ public class FisheryUserBean extends Observable {
 
     /* Getters */
 
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
-
     public long getUserId() { return userId; }
 
     public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
@@ -82,7 +70,7 @@ public class FisheryUserBean extends Observable {
 
     public HashMap<Integer, FisheryUserPowerUpBean> getPowerUpMap() { return powerUpMap; }
 
-    public FisheryUserPowerUpBean getPowerUp(int powerUpId) { return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryUserPowerUpBean(serverId, userId, powerUpId, 0)); }
+    public FisheryUserPowerUpBean getPowerUp(int powerUpId) { return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryUserPowerUpBean(getServerId(), userId, powerUpId, 0)); }
 
     public List<FisheryHourlyIncomeBean> getAllFishHourlyIncomeChanged() {
         return fisheryHourlyIncomeMap.values().stream()
@@ -126,7 +114,7 @@ public class FisheryUserBean extends Observable {
 
     private FisheryHourlyIncomeBean getCurrentFisheryHourlyIncome() {
         Instant currentTimeHour = TimeTools.instantRoundDownToHour(Instant.now());
-        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(serverId, userId, currentTimeHour, 0));
+        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(getServerId(), userId, currentTimeHour, 0));
     }
 
     public LocalDate getDailyReceived() { return dailyReceived; }
@@ -150,7 +138,7 @@ public class FisheryUserBean extends Observable {
     public boolean registerMessage(ServerTextChannel channel) throws ExecutionException, InterruptedException {
         if (lastMessage.plusSeconds(20).isBefore(Instant.now())) {
             lastMessage = Instant.now();
-            long effect = getPowerUp(FishingCategoryInterface.PER_MESSAGE).getEffect();
+            long effect = getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect();
 
             fish += effect;
             if (fishIncome != null) fishIncome += effect;
@@ -161,14 +149,14 @@ public class FisheryUserBean extends Observable {
             Optional<User> userOpt = getUser();
             if (fish >= 100 &&
                     !reminderSent &&
-                    serverBean.isFisheryReminders() &&
+                    getServerBean().isFisheryReminders() &&
                     channel.canYouEmbedLinks() &&
                     userOpt.isPresent()
             ) {
                 reminderSent = true;
                 User user = userOpt.get();
-                Locale locale = serverBean.getLocale();
-                String prefix = serverBean.getPrefix();
+                Locale locale = getServerBean().getLocale();
+                String prefix = getServerBean().getPrefix();
 
                 channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
                         .setAuthor(user)
@@ -183,7 +171,7 @@ public class FisheryUserBean extends Observable {
     }
 
     public void registerVC(int minutes) {
-        long effect = getPowerUp(FishingCategoryInterface.PER_VC).getEffect() * minutes;
+        long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
 
         fish += effect;
         if (fishIncome != null) fishIncome += effect;
@@ -228,7 +216,7 @@ public class FisheryUserBean extends Observable {
         /* Generate Account Embed */
         Server server = getServer().get();
         User user = server.getMemberById(userId).get();
-        Locale locale = serverBean.getLocale();
+        Locale locale = getServerBean().getLocale();
 
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())

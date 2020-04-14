@@ -1,21 +1,23 @@
 package MySQL.Modules.Warning;
 
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
+import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import java.time.Instant;
 import java.util.Observable;
 import java.util.Optional;
 
-public class ServerWarningsSlot extends Observable {
+public class ServerWarningsSlot extends BeanWithServer {
 
-    private long serverId, userId;
-    private Instant time;
-    private long requesterUserId;
-    private String reason;
+    private final long userId;
+    private final Instant time;
+    private final long requesterUserId;
+    private final String reason;
 
-    public ServerWarningsSlot(long serverId, long userId, Instant time, long requesterUserId, String reason) {
-        this.serverId = serverId;
+    public ServerWarningsSlot(ServerBean serverBean, long userId, Instant time, long requesterUserId, String reason) {
+        super(serverBean);
         this.userId = userId;
         this.time = time;
         this.requesterUserId = requesterUserId;
@@ -24,12 +26,6 @@ public class ServerWarningsSlot extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
 
     public long getUserId() { return userId; }
 

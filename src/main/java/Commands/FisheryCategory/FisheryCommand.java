@@ -402,7 +402,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 String result = winLose[resultInt];
 
                 FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getUser().getId());
-                long won = Math.round(userBean.getPowerUp(FishingCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
+                long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))

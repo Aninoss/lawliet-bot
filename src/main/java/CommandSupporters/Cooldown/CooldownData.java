@@ -8,9 +8,9 @@ import java.util.Optional;
 public class CooldownData {
 
     private Thread thread = null;
-    private ArrayList<Instant> commandInstants = new ArrayList<>();
+    private final ArrayList<Instant> commandInstants = new ArrayList<>();
 
-    public Optional<Integer> getWaitingSec(int cooldown) {
+    public synchronized Optional<Integer> getWaitingSec(int cooldown) {
         clean();
 
         if (commandInstants.size() >= Cooldown.MAX_ALLOWED) {
@@ -22,7 +22,7 @@ public class CooldownData {
         return Optional.empty();
     }
 
-    public boolean isPostingFree() {
+    public synchronized boolean isPostingFree() {
         if (thread == null || !thread.isAlive()) {
             thread = Thread.currentThread();
             return true;
@@ -30,12 +30,12 @@ public class CooldownData {
         return false;
     }
 
-    private void clean() {
+    private synchronized void clean() {
         while(commandInstants.size() > 0 && commandInstants.get(0).isBefore(Instant.now()))
             commandInstants.remove(0);
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         clean();
         return commandInstants.isEmpty();
     }

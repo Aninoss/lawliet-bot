@@ -2,6 +2,7 @@ package MySQL.Modules.Warning;
 
 import Core.CustomObservableList;
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
@@ -15,35 +16,23 @@ import java.util.Observable;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ServerWarningsBean extends Observable {
+public class ServerWarningsBean extends BeanWithServer {
 
-    private long serverId, userId;
-    private ServerBean serverBean;
-    private CustomObservableList<ServerWarningsSlot> warnings;
+    private final long userId;
+    private final CustomObservableList<ServerWarningsSlot> warnings;
 
-    public ServerWarningsBean(long serverId, long userId, ServerBean serverBean, @NonNull ArrayList<ServerWarningsSlot> warnings) {
-        this.serverId = serverId;
+    public ServerWarningsBean(ServerBean serverBean, long userId, @NonNull ArrayList<ServerWarningsSlot> warnings) {
+        super(serverBean);
         this.userId = userId;
-        this.serverBean = serverBean;
         this.warnings = new CustomObservableList<>(warnings);
     }
 
 
     /* Getters */
 
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
     public long getUserId() { return userId; }
 
     public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public CustomObservableList<ServerWarningsSlot> getWarnings() { return warnings; }
 

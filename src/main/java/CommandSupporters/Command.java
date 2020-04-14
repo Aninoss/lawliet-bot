@@ -261,6 +261,7 @@ public abstract class Command {
             } catch (Exception e) {
                 //Ignore
                 ExceptionHandler.showErrorLog("Error in draw method of comand " + getTrigger());
+                throw e;
             }
         }
     }

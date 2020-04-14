@@ -10,14 +10,13 @@ import java.util.HashMap;
 
 public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean> {
 
-    private static DBMemberCountDisplays ourInstance = new DBMemberCountDisplays();
+    private static final DBMemberCountDisplays ourInstance = new DBMemberCountDisplays();
     public static DBMemberCountDisplays getInstance() { return ourInstance; }
     private DBMemberCountDisplays() {}
 
     @Override
     protected MemberCountBean loadBean(Long serverId) throws Exception {
         MemberCountBean memberCountBean = new MemberCountBean(
-                serverId,
                 DBServer.getInstance().getBean(serverId),
                 getMemberCountBeanSlot(serverId)
         );

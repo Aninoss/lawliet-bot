@@ -3,7 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import Constants.FishingCategoryInterface;
+import Constants.FisheryCategoryInterface;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.EmbedFactory;
@@ -74,21 +74,21 @@ public class GearCommand extends Command {
                     StringBuilder gearString = new StringBuilder();
                     for(FisheryUserPowerUpBean slot: fisheryUserBean.getPowerUpMap().values()) {
                         gearString.append(getString("gear_slot",
-                                FishingCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
+                                FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "buy_product_" + slot.getPowerUpId() + "_0"),
                                 String.valueOf(slot.getLevel())
                         )).append("\n");
                     }
                     eb.addField(getString("gear_title"), gearString.toString(), false);
 
-                    int roleLvl = fisheryUserBean.getPowerUp(FishingCategoryInterface.ROLE).getLevel();
+                    int roleLvl = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
                     eb.addField(getString("stats_title"), getString("stats_content",
-                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_MESSAGE).getEffect()),
-                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect()),
-                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_VC).getEffect()),
-                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_TREASURE).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
                             buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? buyableRoles.get(roleLvl - 1).getMentionTag() : "**-**",
-                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FishingCategoryInterface.PER_SURVEY).getEffect())
+                            StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect())
                     ), false);
 
                     if (!userMentioned)

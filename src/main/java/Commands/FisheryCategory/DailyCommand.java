@@ -32,7 +32,7 @@ public class DailyCommand extends Command {
         if (status == FisheryStatus.ACTIVE) {
             FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
             if (!userBean.getDailyReceived().equals(LocalDate.now())) {
-                long fishes = userBean.getPowerUp(FishingCategoryInterface.PER_DAY).getEffect();
+                long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
                 boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());
                 userBean.updateDailyReceived();
 

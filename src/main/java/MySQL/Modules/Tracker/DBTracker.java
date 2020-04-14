@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBTracker extends DBCached {
 
-    private static DBTracker ourInstance = new DBTracker();
+    private static final DBTracker ourInstance = new DBTracker();
     public static DBTracker getInstance() { return ourInstance; }
     private DBTracker() {}
 
@@ -41,7 +41,6 @@ public class DBTracker extends DBCached {
                             resultSet -> {
                                 try {
                                     return new TrackerBeanSlot(
-                                            resultSet.getLong(1),
                                             DBServer.getInstance().getBean(resultSet.getLong(1)),
                                             resultSet.getLong(2),
                                             resultSet.getString(3),
@@ -98,7 +97,11 @@ public class DBTracker extends DBCached {
 
     @Override
     public void clear() {
-        //Ignore
+        if (trackerBean != null) {
+            trackerBean.getMap().values().forEach(TrackerBeanSlot::stop);
+            trackerBean = null;
+            init();
+        }
     }
 
 }

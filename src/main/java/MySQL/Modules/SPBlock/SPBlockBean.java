@@ -2,6 +2,7 @@ package MySQL.Modules.SPBlock;
 
 import Core.CustomObservableList;
 import Core.DiscordApiCollection;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
@@ -10,19 +11,16 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Optional;
 
-public class SPBlockBean extends Observable {
+public class SPBlockBean extends BeanWithServer {
 
     public enum ActionList { DELETE_MESSAGE, KICK_USER, BAN_USER }
 
-    private long serverId;
     private boolean active;
-    private ServerBean serverBean;
     private ActionList action;
-    private CustomObservableList<Long> ignoredUserIds, ignoredChannelIds, logReceiverUserIds;
+    private final CustomObservableList<Long> ignoredUserIds, ignoredChannelIds, logReceiverUserIds;
 
-    public SPBlockBean(long serverId, ServerBean serverBean, boolean active, ActionList action, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> logReceiverUserIds) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+    public SPBlockBean(ServerBean serverBean, boolean active, ActionList action, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> logReceiverUserIds) {
+        super(serverBean);
         this.active = active;
         this.action = action;
         this.ignoredUserIds = new CustomObservableList<>(ignoredUserIds);
@@ -32,16 +30,6 @@ public class SPBlockBean extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public CustomObservableList<Long> getIgnoredUserIds() {
         return ignoredUserIds;

@@ -4,8 +4,8 @@ import java.util.Observable;
 
 public class GameStatisticsBean extends Observable {
 
-    private String command;
-    private double[] values;
+    private final String command;
+    private final double[] values;
 
     public GameStatisticsBean(String command, double[] values) {
         this.command = command;

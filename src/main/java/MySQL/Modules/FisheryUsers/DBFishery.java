@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
 
-    private static DBFishery ourInstance = new DBFishery();
+    private static final DBFishery ourInstance = new DBFishery();
     public static DBFishery getInstance() { return ourInstance; }
     private DBFishery() {}
 
@@ -56,11 +56,12 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     @Override
-    protected void saveBean(FisheryServerBean fisheryServerBean) {
+    protected synchronized void saveBean(FisheryServerBean fisheryServerBean) {
         try {
-            fisheryServerBean.getUsers().values().stream()
+            new ArrayList<>(fisheryServerBean.getUsers().values()).stream()
                     .filter(FisheryUserBean::checkChanged)
                     .forEach(this::saveFisheryUserBean);
+
             System.out.printf("### SAVED SERVER %d ###\n", fisheryServerBean.getServerId());
             Thread.sleep(100);
         } catch (Throwable e) {
@@ -70,7 +71,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private void saveFisheryUserBean(FisheryUserBean fisheryUserBean) {
         try {
-            DBMain.getInstance().asyncUpdate("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", preparedStatement -> {
+            DBMain.getInstance().update("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", preparedStatement -> {
                 preparedStatement.setLong(1, fisheryUserBean.getServerId());
                 preparedStatement.setLong(2, fisheryUserBean.getUserId());
                 preparedStatement.setLong(3, fisheryUserBean.getFish());
@@ -91,21 +92,29 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     private void saveFisheryUserPowerUpBean(FisheryUserPowerUpBean fisheryUserPowerUpBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?)", preparedStatement -> {
-            preparedStatement.setLong(1, fisheryUserPowerUpBean.getServerId());
-            preparedStatement.setLong(2, fisheryUserPowerUpBean.getUserId());
-            preparedStatement.setInt(3, fisheryUserPowerUpBean.getPowerUpId());
-            preparedStatement.setInt(4, fisheryUserPowerUpBean.getLevel());
-        });
+        try {
+            DBMain.getInstance().update("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?)", preparedStatement -> {
+                preparedStatement.setLong(1, fisheryUserPowerUpBean.getServerId());
+                preparedStatement.setLong(2, fisheryUserPowerUpBean.getUserId());
+                preparedStatement.setInt(3, fisheryUserPowerUpBean.getPowerUpId());
+                preparedStatement.setInt(4, fisheryUserPowerUpBean.getLevel());
+            });
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveFisheryHourlyIncomeBean(FisheryHourlyIncomeBean fisheryHourlyIncomeBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (?, ?, ?, ?)", preparedStatement -> {
-            preparedStatement.setLong(1, fisheryHourlyIncomeBean.getServerId());
-            preparedStatement.setLong(2, fisheryHourlyIncomeBean.getUserId());
-            preparedStatement.setString(3, DBMain.instantToDateTimeString(fisheryHourlyIncomeBean.getTime()));
-            preparedStatement.setLong(4, fisheryHourlyIncomeBean.getFishIncome());
-        });
+        try {
+            DBMain.getInstance().update("REPLACE INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (?, ?, ?, ?)", preparedStatement -> {
+                preparedStatement.setLong(1, fisheryHourlyIncomeBean.getServerId());
+                preparedStatement.setLong(2, fisheryHourlyIncomeBean.getUserId());
+                preparedStatement.setString(3, DBMain.instantToDateTimeString(fisheryHourlyIncomeBean.getTime()));
+                preparedStatement.setLong(4, fisheryHourlyIncomeBean.getFishIncome());
+            });
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private HashMap<Long, FisheryUserBean> getFisheryUsers(long serverId, ServerBean serverBean, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap) throws SQLException, ExecutionException {
@@ -323,7 +332,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 3;
+        return 5;
     }
 
 }

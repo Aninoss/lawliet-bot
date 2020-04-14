@@ -11,14 +11,13 @@ import java.util.ArrayList;
 
 public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
 
-    private static DBNSFWFilters ourInstance = new DBNSFWFilters();
+    private static final DBNSFWFilters ourInstance = new DBNSFWFilters();
     public static DBNSFWFilters getInstance() { return ourInstance; }
     private DBNSFWFilters() {}
 
     @Override
     protected NSFWFiltersBean loadBean(Long serverId) throws Exception {
         NSFWFiltersBean nsfwFiltersBean = new NSFWFiltersBean(
-                serverId,
                 DBServer.getInstance().getBean(serverId),
                 getKeywords(serverId)
         );

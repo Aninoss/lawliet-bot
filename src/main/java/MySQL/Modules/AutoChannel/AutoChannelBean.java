@@ -2,6 +2,7 @@ package MySQL.Modules.AutoChannel;
 
 import Core.DiscordApiCollection;
 import Core.CustomObservableList;
+import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -11,18 +12,15 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Optional;
 
-public class AutoChannelBean extends Observable {
+public class AutoChannelBean extends BeanWithServer {
 
-    private long serverId;
     private boolean active, locked;
     private String nameMask;
-    private CustomObservableList<Long> childChannels;
+    private final CustomObservableList<Long> childChannels;
     private Long parentChannelId;
-    private ServerBean serverBean;
 
-    public AutoChannelBean(long serverId, ServerBean serverBean, Long parentChannelId, boolean active, String nameMask, boolean locked, @NonNull ArrayList<Long> childChannels) {
-        this.serverId = serverId;
-        this.serverBean = serverBean;
+    public AutoChannelBean(ServerBean serverBean, Long parentChannelId, boolean active, String nameMask, boolean locked, @NonNull ArrayList<Long> childChannels) {
+        super(serverBean);
         this.parentChannelId = parentChannelId;
         this.active = active;
         this.nameMask = nameMask;
@@ -32,16 +30,6 @@ public class AutoChannelBean extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
-
-    public ServerBean getServerBean() {
-        return serverBean;
-    }
 
     public Optional<Long> getParentChannelId() {
         return Optional.ofNullable(parentChannelId);

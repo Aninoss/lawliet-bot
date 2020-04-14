@@ -1,18 +1,17 @@
 package MySQL.Modules.FisheryUsers;
 
-import Constants.FishingCategoryInterface;
-import Constants.Settings;
+import Constants.FisheryCategoryInterface;
 import Core.DiscordApiCollection;
-import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import java.util.Optional;
 
 public class FisheryUserPowerUpBean {
 
-    private long serverId, userId;
-    private int powerUpId, level;
-    private long startPrice, effect;
+    private final long serverId, userId;
+    private final int powerUpId;
+    private int level;
+    private final long startPrice, effect;
     private boolean changed = false;
 
     public FisheryUserPowerUpBean(long serverId, long userId, int powerUpId, int level) {
@@ -20,8 +19,8 @@ public class FisheryUserPowerUpBean {
         this.userId = userId;
         this.powerUpId = powerUpId;
         this.level = level;
-        this.startPrice = FishingCategoryInterface.START_PRICE[powerUpId];
-        this.effect = FishingCategoryInterface.EFFECT[powerUpId];
+        this.startPrice = FisheryCategoryInterface.START_PRICE[powerUpId];
+        this.effect = FisheryCategoryInterface.EFFECT[powerUpId];
     }
 
 

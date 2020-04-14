@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class MemberCountDisplay {
 
-    private long serverId, voiceChannelId;
-    private String mask;
+    private final long serverId, voiceChannelId;
+    private final String mask;
 
     public MemberCountDisplay(long serverId, long voiceChannelId, String mask) {
         this.serverId = serverId;

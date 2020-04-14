@@ -4,8 +4,8 @@ import java.time.Instant;
 
 public class VersionBeanSlot {
 
-    private String version;
-    private Instant date;
+    private final String version;
+    private final Instant date;
 
     public VersionBeanSlot(String version, Instant date) {
         this.version = version;

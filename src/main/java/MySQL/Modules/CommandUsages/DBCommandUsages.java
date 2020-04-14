@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> implements IntervalSave {
 
-    private static DBCommandUsages ourInstance = new DBCommandUsages();
+    private static final DBCommandUsages ourInstance = new DBCommandUsages();
     public static DBCommandUsages getInstance() { return ourInstance; }
     private DBCommandUsages() {}
 

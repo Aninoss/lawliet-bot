@@ -5,7 +5,7 @@ import java.util.Observable;
 
 public class UpvotesBean extends Observable {
 
-    private long userId;
+    private final long userId;
     private Instant lastUpvote;
 
     public UpvotesBean(long userId, Instant lastUpvote) {
