@@ -13,6 +13,9 @@ import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -22,6 +25,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class TrackerBeanSlot extends BeanWithServer {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(TrackerBeanSlot.class);
 
     private final long channelId;
     private Long messageId;
@@ -123,12 +128,12 @@ public class TrackerBeanSlot extends BeanWithServer {
                         //Ignore
                         return;
                     } catch (Throwable e) {
-                        e.printStackTrace();
+                        LOGGER.error("Could not manage tracker", e);
                     }
                     firstTime = false;
                 } while(cont);
             } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not create command", e);
             }
         });
         t.setName("tracker_" + commandTrigger);
@@ -177,7 +182,7 @@ public class TrackerBeanSlot extends BeanWithServer {
         try {
             DBTracker.getInstance().getBean().getMap().remove(new Pair<>(channelId, commandTrigger));
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not remove tracker", e);
         }
     }
 

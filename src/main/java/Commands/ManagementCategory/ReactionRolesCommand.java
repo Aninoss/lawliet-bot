@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\u2611\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png",
         executable = true,
-        aliases = {"rmess", "reactionrole", "rroles"}
+        aliases = {"rmess", "reactionrole", "rroles", "selfroles", "sroles"}
 )
 public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 

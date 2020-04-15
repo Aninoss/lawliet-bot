@@ -8,6 +8,7 @@ import Core.*;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Mention.MentionTools;
 import Core.Tools.StringTools;
+import ServerStuff.CommunicationServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -21,6 +22,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,6 +31,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public abstract class Command {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
 
     private String category, prefix;
     private CommandProperties commandProperties;
@@ -252,15 +257,12 @@ public abstract class Command {
                     navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
                 } else navigationMessage = channel.sendMessage(eb).get();
             } catch (Throwable e) {
-                ExceptionHandler.showErrorLog("Error in draw method of comand " + getTrigger());
                 throw e;
             }
         } else {
             try {
                 navigationMessage.edit(eb).get();
             } catch (Exception e) {
-                //Ignore
-                ExceptionHandler.showErrorLog("Error in draw method of comand " + getTrigger());
                 throw e;
             }
         }
@@ -311,7 +313,7 @@ public abstract class Command {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Could not remove loading reaction", e);
                 }
             }
 
@@ -500,14 +502,14 @@ public abstract class Command {
             try {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionTools.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
             return false;
         }
         try {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionTools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
         return false;
     }
@@ -519,7 +521,7 @@ public abstract class Command {
     public String getCategory() { return category; }
     public void setLocale(Locale locale) { this.locale = locale; }
     public Locale getLocale() {
-        if (locale == null) ExceptionHandler.showErrorLog("Locale is null!");
+        if (locale == null) LOGGER.error("Locale is null");
         return locale;
     }
     public long getReactionMessageID() { return reactionMessageID; }
@@ -576,7 +578,7 @@ public abstract class Command {
         try {
             return CommandManager.createCommandByClass(c).getTrigger();
         } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not create command", e);
         }
         return "???";
     }

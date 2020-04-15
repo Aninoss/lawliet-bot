@@ -25,6 +25,8 @@ import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -32,6 +34,8 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class MessageCreateListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(MessageCreateListener.class);
 
     public void onMessageCreate(MessageCreateEvent event) {
         if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;
@@ -59,7 +63,7 @@ public class MessageCreateListener {
                     return;
                 }
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not manage unwanted links", e);
             }
         }
 
@@ -113,7 +117,7 @@ public class MessageCreateListener {
                 if (!event.getMessage().getContent().isEmpty()
                         && !fisheryServerBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
                 )
-                    messageRegistered = fisheryServerBean.getUser(event.getMessageAuthor().getId()).registerMessage(event.getServerTextChannel().get());
+                    messageRegistered = fisheryServerBean.getUser(event.getMessageAuthor().getId()).registerMessage(event.getMessage(), event.getServerTextChannel().get());
 
                 //Manage Treasure Chests
                 if (messageRegistered &&

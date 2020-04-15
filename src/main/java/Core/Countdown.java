@@ -1,7 +1,12 @@
 package Core;
 
+import org.omg.PortableInterceptor.LOCATION_FORWARD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Countdown {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(Countdown.class);
     public enum TimePeriod { MILISECONDS, SECONDS, MINUTES }
     private long startTime;
     private boolean active = true;
@@ -21,7 +26,7 @@ public class Countdown {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Interrupted", e);
                 }
             }
             if (active) r.run();

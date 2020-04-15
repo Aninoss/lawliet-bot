@@ -8,10 +8,14 @@ import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
 public class ReactionRemoveListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ReactionRemoveListener.class);
 
     public void onReactionRemove(ReactionRemoveEvent event) {
         if (event.getUser().isBot()) return;
@@ -44,7 +48,7 @@ public class ReactionRemoveListener {
                 }
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
     }
 }

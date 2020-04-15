@@ -7,6 +7,8 @@ import MySQL.Interfaces.SQLConsumer;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.javacord.api.DiscordApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.*;
@@ -23,17 +25,16 @@ import java.util.function.Consumer;
 public class DBMain implements DriverAction {
 
     private static DBMain ourInstance = new DBMain();
-    public static DBMain getInstance() {
-        return ourInstance;
-    }
+    public static DBMain getInstance() { return ourInstance; }
     private DBMain() {}
 
+    final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
 
     private ArrayList<DBCached> caches = new ArrayList<>();
 
     public void connect() throws IOException, SQLException {
-        System.out.println("Connecting with database...");
+        LOGGER.info("Connecting with database");
 
         final MysqlDataSource rv = new MysqlDataSource();
         rv.setServerName(Bot.isProductionMode() ? "127.0.0.1" : SecretManager.getString("database.ip"));
@@ -104,7 +105,7 @@ public class DBMain implements DriverAction {
                 future.complete(update(sql, preparedStatementConsumer));
             } catch (SQLException throwables) {
                 future.completeExceptionally(throwables);
-                throwables.printStackTrace();
+                LOGGER.error("Exception", throwables);
             }
         });
         t.setPriority(1);
@@ -128,7 +129,7 @@ public class DBMain implements DriverAction {
             resultSet.close();
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Database error", e);
         }
 
         return success;
@@ -136,7 +137,7 @@ public class DBMain implements DriverAction {
 
     @Override
     public void deregister() {
-        System.out.println("Driver deregistered");
+        LOGGER.info("Driver deregistered");
     }
 
 }

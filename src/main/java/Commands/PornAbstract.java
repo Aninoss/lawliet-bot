@@ -13,6 +13,8 @@ import Core.Tools.StringTools;
 import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class PornAbstract extends Command {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
 
@@ -48,7 +51,6 @@ public abstract class PornAbstract extends Command {
         ArrayList<String> usedResults = new ArrayList<>();
         do {
             ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount), usedResults);
-            if (pornImages == null) ExceptionHandler.showErrorLog("null pointer porn image list");
 
             if (pornImages.size() == 0) {
                 if (first) {
@@ -100,7 +102,7 @@ public abstract class PornAbstract extends Command {
                 try {
                     PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter, usedResults).ifPresent(pornImages::add);
                 } catch (IOException | InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Could not download porn image", e);
                 }
             });
             t.setName("porn_downloader_" + i);
@@ -112,7 +114,7 @@ public abstract class PornAbstract extends Command {
             try {
                 t.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
         });
 

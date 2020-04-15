@@ -8,6 +8,8 @@ import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -15,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(DBAutoChannel.class);
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
     public static DBAutoChannel getInstance() { return ourInstance; }
     private DBAutoChannel() {}
@@ -106,11 +109,11 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
                                 getBean(server.getId()).getChildChannels()
                                         .removeIf(childChannelId -> !server.getVoiceChannelById(childChannelId).isPresent());
                             } catch (ExecutionException e) {
-                                e.printStackTrace();
+                                LOGGER.error("Could not get bean", e);
                             }
                         });
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.error("Error in auto channel synchronization");
             }
         }
     }

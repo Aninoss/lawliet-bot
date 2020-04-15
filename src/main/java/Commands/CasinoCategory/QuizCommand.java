@@ -16,6 +16,9 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +33,8 @@ import java.util.concurrent.ExecutionException;
         executable = true
 )
 public class QuizCommand extends CasinoAbstract implements OnReactionAddListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(QuizCommand.class);
 
     private String log;
     private LogStatus logStatus;
@@ -121,7 +126,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                 onAnswerSelected(-1);
             }
         } catch (InterruptedException | IOException | SQLException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception on countdown", e);
         }
     }
 
@@ -144,12 +149,12 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             try {
                 Thread.sleep(Settings.TIME_OUT_TIME);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //Ignore
             }
             try {
                 deleteReactionMessage();
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not remove message", e);
             }
         });
         t.setName("quiz_countdown");

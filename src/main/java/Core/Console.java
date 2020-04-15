@@ -6,6 +6,9 @@ import MySQL.DBMain;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,6 +16,7 @@ import java.lang.management.ManagementFactory;
 
 public class Console {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
     private static Console instance = new Console();
     private double maxMemory = 0;
     private double traffic = -1;
@@ -80,7 +84,7 @@ public class Console {
                                     System.out.println("\n--- THREADS (" + Thread.getAllStackTraces().size() + ") ---");
                                     System.out.println(str + "\n");
                                 } catch (Throwable e) {
-                                    e.printStackTrace();
+                                    LOGGER.error("Could not list threads", e);
                                 }
 
                                 break;
@@ -91,8 +95,7 @@ public class Console {
                                     double usDollars = Double.parseDouble(arg.split(" ")[1]);
                                     DonationHandler.addBonus(userId, usDollars);
                                 } catch (Throwable e) {
-                                    System.out.println("\nERROR\n");
-                                    e.printStackTrace();
+                                    LOGGER.error("Could not manage donation", e);
                                 }
                                 break;
 
@@ -109,7 +112,7 @@ public class Console {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Unexpected exception", e);
             }
         }
     }
@@ -119,7 +122,7 @@ public class Console {
             try {
                 Thread.sleep(60 * 1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
             System.out.println(getStats());
         }
@@ -131,12 +134,12 @@ public class Console {
             double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
             if (memoryUsed > maxMemory) {
                 maxMemory = memoryUsed;
-                ExceptionHandler.showInfoLog("Max Memory: " + memoryUsed);
+                LOGGER.debug("Max Memory: {} / {}", memoryUsed, memoryTotal);
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
         }
     }

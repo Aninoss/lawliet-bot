@@ -6,6 +6,8 @@ import MySQL.DBMain;
 import MySQL.Modules.AutoRoles.AutoRolesBean;
 import MySQL.Modules.SPBlock.SPBlockBean;
 import MySQL.Modules.Server.DBServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(DBUpvotes.class);
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
     public static DBUpvotes getInstance() { return ourInstance; }
@@ -62,7 +66,7 @@ public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
             Statement statement = DBMain.getInstance().statement("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not remove Upvote", e);
         }
     }
 

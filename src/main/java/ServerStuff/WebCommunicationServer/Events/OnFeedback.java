@@ -10,11 +10,15 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
 
 public class OnFeedback implements DataListener<JSONObject> {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(DataListener.class);
 
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
@@ -27,7 +31,7 @@ public class OnFeedback implements DataListener<JSONObject> {
                 jsonObject.has("server_id") ? jsonObject.getLong("server_id") : null
         );
 
-        ExceptionHandler.showInfoLog("New Feedback! ### " + cause + " ###\n" + reason);
+        LOGGER.info("New Feedback! ### " + cause + " ###\n" + reason);
 
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setTitle(cause)

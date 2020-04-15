@@ -16,6 +16,9 @@ import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -27,6 +30,8 @@ import java.time.temporal.ChronoUnit;
     executable = true
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(AnimeReleasesCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -47,7 +52,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) throws IOException {
         if (post == null) {
-            ExceptionHandler.showErrorLog("Anime Release Post is null");
+            LOGGER.error("Anime Release Post is null");
         }
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-32x32.png")

@@ -8,10 +8,14 @@ import ServerStuff.WebCommunicationServer.Events.*;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class WebComServer {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(WebComServer.class);
 
     public static final String EVENT_COMMANDLIST = "command_list";
     public static final String EVENT_FAQLIST = "faq_list";
@@ -40,8 +44,6 @@ public class WebComServer {
         webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
 
         webComServer.start();
-
-        System.out.println("The WebCom server has been started!");
     }
 
     public JSONObject getLanguagePack(String category,  String key) {

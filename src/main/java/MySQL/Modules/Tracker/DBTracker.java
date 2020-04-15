@@ -5,6 +5,8 @@ import MySQL.DBDataLoad;
 import MySQL.DBMain;
 import MySQL.Modules.Server.DBServer;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -13,6 +15,8 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class DBTracker extends DBCached {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(DBTracker.class);
 
     private static final DBTracker ourInstance = new DBTracker();
     public static DBTracker getInstance() { return ourInstance; }
@@ -25,7 +29,7 @@ public class DBTracker extends DBCached {
             try {
                 getBean();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not get bean", e);
             }
         });
         t.setName("tracker_init");

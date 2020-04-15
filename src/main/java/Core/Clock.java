@@ -20,9 +20,12 @@ import MySQL.Modules.Upvotes.DBUpvotes;
 import ServerStuff.*;
 import CommandSupporters.Cooldown.Cooldown;
 import Modules.Reddit.SubredditContainer;
+import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -37,6 +40,7 @@ public class Clock {
     public static Clock getInstance() { return ourInstance; }
     private Clock() { start(); }
 
+    final static Logger LOGGER = LoggerFactory.getLogger(Clock.class);
     private boolean trafficWarned = false;
     private boolean readyForRestart = false;
 
@@ -47,8 +51,7 @@ public class Clock {
                 try {
                     Thread.sleep(1000 * 60 * 10);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    break;
+                    LOGGER.error("Interrupted", e);
                 }
                 every10Minutes();
             }
@@ -62,7 +65,7 @@ public class Clock {
                 Thread.sleep(duration.getSeconds() * 1000 + duration.getNano() / 1000000);
                 onHourStart();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
         }
     }
@@ -89,17 +92,17 @@ public class Clock {
         try {
             DBBotStats.addStatCommandUsages();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not post command usages stats", e);
         }
         try {
             DBBotStats.addStatServers(apiCollection.getServerTotalSize());
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not post total server count", e);
         }
         try {
             DBBotStats.addStatUpvotes();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not post upvotes stats", e);
         }
 
         //Survey Results
@@ -109,7 +112,7 @@ public class Clock {
             try {
                 updateSurvey();
             } catch (SQLException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not update survey", e);
             }
         }
     }
@@ -117,7 +120,7 @@ public class Clock {
 
     private void every10Minutes() {
         if (!DiscordApiCollection.getInstance().allShardsConnected())
-            ExceptionHandler.showErrorLog("At least 1 shard is offline!");
+            LOGGER.error("At least 1 shard is offline");
 
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
@@ -132,23 +135,23 @@ public class Clock {
             try {
                 apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Could not send dm", e);
             }
             trafficWarned = true;
         }
 
         if (trafficGB >= 100) {
-            ExceptionHandler.showErrorLog("Too much traffic!");
+            LOGGER.error("Too much traffic");
             System.exit(-1);
         }
 
         //Checks Database Connection
         if (!DBMain.getInstance().checkConnection()) {
             try {
-                ExceptionHandler.showErrorLog("Reconnecting with database...");
+                LOGGER.error("Database disconnected! Trying to reconnect");
                 DBMain.getInstance().connect();
             } catch (IOException | SQLException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not connect with database", e);
             }
         }
 
@@ -171,11 +174,11 @@ public class Clock {
         File surveyCheckFile = new File("survey_update");
         if (surveyCheckFile.exists()) {
             if (surveyCheckFile.delete()) {
-                System.out.println("UPDATE SURVEY");
+                LOGGER.info("Manual survey update");
                 try {
                     updateSurvey();
                 } catch (SQLException | ExecutionException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Could not update survey", e);
                 }
             }
         }
@@ -188,11 +191,11 @@ public class Clock {
             readyForRestart = false;
 
             if (Bot.hasUpdate()) {
-                ExceptionHandler.showInfoLog("Restart for Update...");
+                LOGGER.info("Restarting for update...");
                 System.exit(0);
             } else {
                 DBMain.getInstance().clearCache();
-                ExceptionHandler.showInfoLog("### CACHE CLEARED ###");
+                LOGGER.info("Cache cleaned successfully");
             }
         } else if (hour < Settings.UPDATE_HOUR) {
             readyForRestart = true;
@@ -208,20 +211,18 @@ public class Clock {
         int percent = 0;
         if (won != 2) percent = (int) Math.round(lastSurvey.getFirstVoteNumbers(won) / (double) lastSurvey.getFirstVoteNumber() * 100);
 
-        ExceptionHandler.showInfoLog("### Start Survey Giveaways ###\nOld Survey Id: " + lastSurvey.getSurveyId());
-
         /* Group each second vote into a specific group for each user */
         HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
         for (SurveySecondVote surveySecondVote : lastSurvey.getSecondVotes().values()) {
             try {
                 if (DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).isPresent() &&
                         DBServer.getInstance().getBean(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
-                    ExceptionHandler.showInfoLog(String.format("### Enter User ID %d ###", surveySecondVote.getUserId()));
+                    LOGGER.debug("Enter user ID {}", surveySecondVote.getUserId());
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
                     Thread.sleep(1000);
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
         }
 
@@ -229,16 +230,16 @@ public class Clock {
             try {
                 User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
                 if (user != null) {
-                    ExceptionHandler.showInfoLog(String.format("### Manage User %s ###", user.getDiscriminatedName()));
+                    LOGGER.debug("Manage survey user {}", user.getName());
                     manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
         }
     }
@@ -257,7 +258,7 @@ public class Clock {
                         userBean.changeValues(0, price);
                         coinsWinMap.put(secondVote.getServerId(), price);
                     } catch (ExecutionException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
 
@@ -266,7 +267,7 @@ public class Clock {
                     try {
                         return DBServer.getInstance().getBean(secondVote.getServerId()).getLocale().equals(localeGerman);
                     } catch (ExecutionException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Could not get server bean", e);
                     }
                     return false;
                 })

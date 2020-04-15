@@ -18,6 +18,8 @@ import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.user.UserStatus;
 import org.javacord.api.util.logging.ExceptionLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -28,6 +30,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class Connector {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(Connector.class);
 
     public static void main(String[] args) {
         try {
@@ -51,15 +55,6 @@ public class Connector {
                 return;
             }
 
-            //Redirect error outputs to a file
-            if (Bot.isProductionMode()) {
-                String fileName = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss").format(new Date());
-                File file = new File("data/error_log/" + fileName + "_err.log");
-                FileOutputStream fos = new FileOutputStream(file);
-                PrintStream ps = new PrintStream(fos);
-                System.setErr(ps);
-            }
-
             new CommunicationServer(35555); //Start Communication Server
 
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -77,8 +72,7 @@ public class Connector {
             if (Bot.isProductionMode()) initializeUpdate();
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
-            e.printStackTrace();
-            ExceptionHandler.showErrorLog("Exception in main method");
+            LOGGER.error("Exception in main method", e);
             System.exit(-1);
         }
     }
@@ -91,7 +85,7 @@ public class Connector {
                 ServerSocket serverSocket = new ServerSocket(port);
                 serverSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not create server socket", e);
                 missingPorts.add(port);
             }
         }
@@ -107,13 +101,13 @@ public class Connector {
             if (!StringTools.getCurrentVersion().equals(currentVersionDB))
                 versionBean.getSlots().add(new VersionBeanSlot(StringTools.getCurrentVersion(), Instant.now()));
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not insert new update", e);
             System.exit(-1);
         }
     }
 
     private static void connect() throws IOException {
-        System.out.println("Bot is logging in...");
+        LOGGER.info("Bot is logging in...");
 
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
             .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
@@ -130,7 +124,7 @@ public class Connector {
     }
 
     public static void reconnectApi(int shardId) {
-        System.out.println("Reconnect shard " + shardId);
+        LOGGER.info("Shard {} is getting reconnected...", shardId);
 
         try {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
@@ -141,8 +135,7 @@ public class Connector {
             DiscordApi api = apiBuilder.login().get();
             onApiJoin(api, false);
         } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            ExceptionHandler.showErrorLog("Exception when reconnect shard " + shardId);
+            LOGGER.error("Exception when reconnecting shard {}", shardId, e);
             System.exit(-1);
         }
     }
@@ -163,7 +156,7 @@ public class Connector {
             st.setPriority(1);
             st.start();
 
-            ExceptionHandler.showInfoLog(String.format("Shard %d connection established!", api.getCurrentShard()));
+            LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
@@ -176,7 +169,7 @@ public class Connector {
                     vcObserver.setPriority(1);
                     vcObserver.start();
 
-                    ExceptionHandler.showInfoLog("All shards have been connected successfully!");
+                    LOGGER.info("All shards connected successfully");
 
                     Thread t = new Thread(Clock::getInstance);
                     t.setPriority(1);
@@ -235,7 +228,7 @@ public class Connector {
                     try {
                         new VoiceChannelMemberJoinListener().onJoin(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -247,7 +240,7 @@ public class Connector {
                     try {
                         new VoiceChannelMemberLeaveListener().onLeave(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -259,7 +252,7 @@ public class Connector {
                     try {
                         new ServerMemberJoinListener().onJoin(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -271,7 +264,7 @@ public class Connector {
                     try {
                         new ServerMemberLeaveListener().onLeave(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -283,7 +276,7 @@ public class Connector {
                     try {
                         new ServerChannelDeleteListener().onDelete(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -295,7 +288,7 @@ public class Connector {
                     try {
                         new ServerJoinListener().onServerJoin(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -307,7 +300,7 @@ public class Connector {
                     try {
                         new ServerLeaveListener().onServerLeave(event);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Exception", e);
                     }
                 });
                 addUncaughtException(t);
@@ -328,8 +321,7 @@ public class Connector {
                 t.start();
             });
         } catch (Throwable e) {
-            e.printStackTrace();
-            ExceptionHandler.showErrorLog("Exception in connection method of shard " + api.getCurrentShard());
+            LOGGER.error("Exception in connection method of shard {}", api.getCurrentShard(), e);
             System.exit(-1);
         }
     }
@@ -362,15 +354,12 @@ public class Connector {
     }
 
     private static void onSessionResume(DiscordApi api) {
-        System.out.println("Connection has been reestablished!");
+        LOGGER.debug("Connection has been reestablished!");
         updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
     }
 
     private static void addUncaughtException(Thread t) {
-        t.setUncaughtExceptionHandler((t1, e) -> {
-            ExceptionHandler.showErrorLog(t1.toString() + " has thrown an exception: " + e.getMessage());
-            e.printStackTrace();
-        });
+        t.setUncaughtExceptionHandler((t1, e) -> LOGGER.error("Exception", e));
     }
 
 }

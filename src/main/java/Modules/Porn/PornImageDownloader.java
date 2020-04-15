@@ -10,6 +10,9 @@ import Core.Tools.TimeTools;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.Instant;
@@ -19,6 +22,8 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class PornImageDownloader {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(PornImageDownloader.class);
 
     public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
         return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, 2, false, additionalFilters, usedResults);
@@ -40,13 +45,7 @@ public class PornImageDownloader {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
         String data = InternetCache.getData(url, 60 * 60).get().getContent().get();
 
-        int count;
-        try {
-            count = Math.min(200 * 100, Integer.parseInt(StringTools.extractGroups(data, "count=\"", "\"")[0]));
-        } catch (NumberFormatException e) {
-            ExceptionHandler.showErrorLog("Error for search key " + searchTerm);
-            throw e;
-        }
+        int count = Math.min(200 * 100, Integer.parseInt(StringTools.extractGroups(data, "count=\"", "\"")[0]));
 
         if (count == 0) {
             if (!softMode) {

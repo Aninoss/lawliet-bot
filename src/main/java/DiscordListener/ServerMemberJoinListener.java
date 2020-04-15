@@ -21,12 +21,17 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ServerMemberJoinListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinListener.class);
 
     public void onJoin(ServerMemberJoinEvent event) throws Exception {
         if (event.getUser().isYourself()) return;
@@ -74,20 +79,20 @@ public class ServerMemberJoinListener {
                                 ).get();
                             }
                         } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
+                            LOGGER.error("Exception", e);
                         }
                     }
                 });
             }
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
 
         //Member Count Stats
         try {
             MemberCountDisplayCommand.manage(locale, server);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not manage member count display", e);
         }
 
         //Automatische Rollenvergabe bei Fisching
@@ -110,7 +115,7 @@ public class ServerMemberJoinListener {
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Fishery roles on member rejoin failed", e);
         }
 
         //Automatisiere Rollenvergabe
@@ -119,7 +124,7 @@ public class ServerMemberJoinListener {
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) event.getUser().addRole(role).get();
             }
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Auto roles failed", e);
         }
     }
 }

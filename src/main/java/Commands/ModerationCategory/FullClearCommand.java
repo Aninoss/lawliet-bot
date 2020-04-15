@@ -14,7 +14,8 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -35,6 +36,8 @@ import java.util.concurrent.ExecutionException;
 )
 public class FullClearCommand extends Command implements OnTrackerRequestListener {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(FullClearCommand.class);
+
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Pair<Integer, Boolean> pair = fullClear(event.getServerTextChannel().get(), followedString, event.getMessage());
@@ -49,7 +52,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
             try {
                 Thread.sleep(8000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //Ignore
             }
             Message[] messagesArray = new Message[]{m, event.getMessage()};
             event.getChannel().bulkDelete(messagesArray);
@@ -98,7 +101,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
                     else channel.bulkDelete(messagesDelete).get();
                     deleted += messagesDelete.size();
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Could not remove confirmation message", e);
                 }
             }
 

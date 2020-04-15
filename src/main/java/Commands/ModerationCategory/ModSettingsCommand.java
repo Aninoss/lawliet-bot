@@ -24,6 +24,9 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -42,7 +45,8 @@ import java.util.concurrent.ExecutionException;
         aliases = {"modsettings"}
 )
 public class ModSettingsCommand extends Command implements OnNavigationListener {
-    
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ModSettingsCommand.class);
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
     private static final String EMOJI_AUTOMOD = "\uD83D\uDC77",
@@ -321,7 +325,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (IllegalAccessException | InstantiationException | InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("COuld not ban user", e);
             }
         }
 
@@ -336,7 +340,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (InterruptedException | ExecutionException | IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not kick user", e);
             }
         }
     }
@@ -352,7 +356,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                 try {
                     serverTextChannel.sendMessage(eb).get();
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Could not post warning", e);
                 }
             }
 

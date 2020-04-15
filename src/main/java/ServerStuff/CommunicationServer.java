@@ -1,6 +1,8 @@
 package ServerStuff;
 
 import Core.ExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,6 +15,7 @@ public class CommunicationServer {
     private int port;
     private final byte OUT_HEARTBEAT = 0x1;
     private final byte OUT_CONNECTED = 0x2;
+    final static Logger LOGGER = LoggerFactory.getLogger(CommunicationServer.class);
 
     public CommunicationServer(int port) {
         this.port = port;
@@ -24,7 +27,7 @@ public class CommunicationServer {
     private void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(port, 0, InetAddress.getLoopbackAddress());
-            System.out.println("Communication Server is running!");
+            LOGGER.debug("Communication has been started");
 
             while (true) {
                 try {
@@ -33,12 +36,11 @@ public class CommunicationServer {
                     os.write(OUT_HEARTBEAT | OUT_CONNECTED);
                     os.flush();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Could not send web communication data", e);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            ExceptionHandler.showErrorLog("Exception in communication server");
+            LOGGER.error("Exception in communication server", e);
         }
     }
 }

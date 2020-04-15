@@ -1,6 +1,8 @@
 package Core;
 
 import Core.Tools.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Locale;
@@ -8,6 +10,7 @@ import java.util.function.Function;
 
 public class ListGen<T> {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(ListGen.class);
     public static final int SLOT_TYPE_NONE = 0;
     public static final int SLOT_TYPE_BULLET = 1;
     public static final int SLOT_TYPE_NUMBERED = 2;
@@ -53,7 +56,7 @@ public class ListGen<T> {
                 sb.append(value);
                 sb.append("\n");
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
             i++;
         }

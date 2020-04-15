@@ -21,6 +21,8 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class WarnRemoveCommand extends Command implements OnReactionAddListener {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(WarnRemoveCommand.class);
     private ArrayList<User> users;
     private int n;
     private String nString, userString;
@@ -104,7 +107,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                 );
                 serverTextChannel.sendMessage(eb).get();
             } catch (IOException | InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not send mod log", e);
             }
         });
     }

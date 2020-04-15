@@ -2,6 +2,8 @@ package Core;
 
 import Core.Tools.StringTools;
 import org.javacord.api.entity.channel.TextChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,8 +17,11 @@ import java.util.Locale;
  */
 public class ExceptionHandler {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
+
     public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
         boolean showError = true;
+        LOGGER.error("Command handler", throwable);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -66,8 +71,6 @@ public class ExceptionHandler {
             e.printStackTrace();
         }
 
-        if (showError) throwable.printStackTrace();
-
         try {
             if (channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
@@ -79,23 +82,6 @@ public class ExceptionHandler {
         } catch (Throwable e1) {
             e1.printStackTrace();
         }
-    }
-
-    public static void showErrorLog(String str) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String text = String.format("[ERROR] %s: %s", dtf.format(now), str);
-        if (Bot.isProductionMode()) System.err.println(text);
-        System.out.println(text);
-        DiscordApiCollection.getInstance().getOwner().sendMessage(text);
-    }
-
-    public static void showInfoLog(String str) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String text = String.format("[INFO] %s: %s", dtf.format(now), str);
-        if (Bot.isProductionMode()) System.err.println(text);
-        System.out.println(text);
     }
 
 }

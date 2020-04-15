@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83D\uDC6A",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/User-group-icon.png",
         executable = true,
-        aliases = {"basicroles", "autorole", "aroles"}
+        aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
 )
 public class AutoRolesCommand extends Command implements OnNavigationListener {
 

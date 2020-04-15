@@ -5,6 +5,8 @@ import Core.Internet.InternetCache;
 import Core.Internet.InternetResponse;
 import Modules.PostBundle;
 import Core.Tools.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,6 +17,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class AnimeNewsDownloader {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(AnimeNewsDownloader.class);
 
     public static AnimeNewsPost getPost(Locale locale) throws InterruptedException, ExecutionException {
         String downloadUrl;
@@ -47,7 +51,7 @@ public class AnimeNewsDownloader {
         try {
             compareTime = newestTimeString == null || newestTimeString.isEmpty() ? new Date(0).toInstant() : Instant.parse(newestTimeString);
         } catch (DateTimeParseException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not parse post date", e);
             compareTime = Instant.now();
         }
         Instant newestTime = compareTime;
@@ -60,7 +64,7 @@ public class AnimeNewsDownloader {
                 if (StringTools.getLanguage(locale) == Language.DE) post = getPostDE(postString);
                 else post = getPostEN(postString);
             } catch (NullPointerException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not extract news post", e);
                 return null;
             }
 

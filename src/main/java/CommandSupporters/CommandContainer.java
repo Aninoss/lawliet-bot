@@ -15,14 +15,19 @@ import Commands.ManagementCategory.*;
 import Commands.Splatoon2Category.*;
 import Core.ExceptionHandler;
 import org.javacord.api.DiscordApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class CommandContainer {
+
     private static CommandContainer ourInstance = new CommandContainer();
     public static CommandContainer getInstance() {
         return ourInstance;
     }
+
+    final static Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
 
     private HashMap<String, Class<? extends Command>> commands;
     private ArrayList<OnReactionAddStaticListener> staticReactionAddCommands;
@@ -237,7 +242,7 @@ public class CommandContainer {
     }
 
     private void addCommand(String trigger, Command command) {
-        if (commands.containsKey(trigger)) ExceptionHandler.showErrorLog("Dupicate key for \"" + command.getTrigger() + "\"");
+        if (commands.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getTrigger() + "\"");
         else commands.put(trigger, command.getClass());
     }
 

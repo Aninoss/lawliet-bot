@@ -19,7 +19,11 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.webhook.Webhook;
 import org.javacord.api.entity.webhook.WebhookBuilder;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.lang.management.LockInfo;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +35,7 @@ public class DiscordApiCollection {
     private DiscordApi[] apiList = new DiscordApi[0];
     private boolean[] apiReady;
 
+    final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiCollection.class);
     private int[] errorCounter;
     private boolean[] hasReconnected, isAlive;
 
@@ -39,11 +44,11 @@ public class DiscordApiCollection {
             try {
                 Thread.sleep(8 * 60 * 1000);
                 if (!allShardsConnected()) {
-                    ExceptionHandler.showErrorLog("Could not boot up!");
+                    LOGGER.error("Could not boot up");
                     System.exit(-1);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
         });
         t.setPriority(1);
@@ -87,14 +92,15 @@ public class DiscordApiCollection {
                     hasReconnected[n] = false;
                     isAlive[n] = false;
                 } else {
-                    System.out.println("Disconnect shard " + n);
+                    LOGGER.debug("No data from shard {}", n);
+
                     errorCounter[n]++;
                     if (errorCounter[n] >= 4) {
                         if (hasReconnected[n]) {
-                            ExceptionHandler.showErrorLog(String.format("Shard %d offline for too long. Force complete restart", n));
+                            LOGGER.error("Shard {} offline for too long. Force software restart.", n);
                             System.exit(-1);
                         } else {
-                            ExceptionHandler.showErrorLog(String.format("Shard %d temporary offline", n));
+                            LOGGER.error("Shard {} temporarely offline", n);
                             reconnectShard(n);
                             hasReconnected[n] = true;
                             break;
@@ -102,8 +108,7 @@ public class DiscordApiCollection {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                ExceptionHandler.showErrorLog("Exception in connection observer!");
+                LOGGER.error("Exception in connection observer", e);
                 System.exit(-1);
             }
         }
@@ -116,7 +121,7 @@ public class DiscordApiCollection {
             try {
                 CommandContainer.getInstance().clearShard(n);
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
             RunningCommandManager.getInstance().clearShard(n);
             api.disconnect();
@@ -244,7 +249,7 @@ public class DiscordApiCollection {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
             return getHomeServer();
         }
@@ -298,7 +303,7 @@ public class DiscordApiCollection {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
         }
     }
@@ -370,7 +375,7 @@ public class DiscordApiCollection {
             List<Webhook> webhookList = server.getWebhooks().get().stream().filter(webhook -> webhook.getCreator().isPresent() && webhook.getCreator().get().isYourself()).collect(Collectors.toList());
             if (webhookList.size() > 0) return Optional.of(webhookList.get(0));
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not fetch webhook", e);
         }
 
         return Optional.empty();
@@ -384,7 +389,7 @@ public class DiscordApiCollection {
                 if (PermissionCheck.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
                     return;
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
 
             ServerTextChannel finalChannel = null;
@@ -423,7 +428,7 @@ public class DiscordApiCollection {
                     .filter(webhook -> webhook.getCreator().isPresent() && webhook.getCreator().get().isYourself())
                     .forEach(Webhook::delete);
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not fetch webhooks", e);
         }
     }
 

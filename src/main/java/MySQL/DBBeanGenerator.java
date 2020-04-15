@@ -7,6 +7,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +17,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached implements Observer {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(DBBeanGenerator.class);
 
     private final DBBeanGenerator<T, U> instance = this;
     private ArrayList<U> changed;
@@ -68,7 +73,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             try {
                 saveBean(value);
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOGGER.error("Could not save bean", e);
             }
         });
     }
@@ -102,7 +107,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                     try {
                         cache.get(value);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Could not fetch cache data", e);
                     }
                 });
                 allLoaded = true;

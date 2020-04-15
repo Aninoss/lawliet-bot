@@ -12,6 +12,8 @@ import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,6 +30,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     public static DBFishery getInstance() { return ourInstance; }
     private DBFishery() {}
 
+    final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
     private final int VC_CHECK_INTERVAL_MIN = 5;
 
     @Override
@@ -62,10 +65,10 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .filter(FisheryUserBean::checkChanged)
                     .forEach(this::saveFisheryUserBean);
 
-            System.out.printf("### SAVED SERVER %d ###\n", fisheryServerBean.getServerId());
+            LOGGER.debug("Fishery saved server {}", fisheryServerBean.getServerId());
             Thread.sleep(100);
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("Could not save fishery server", e);
         }
     }
 
@@ -87,7 +90,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .filter(FisheryUserPowerUpBean::checkChanged)
                     .forEach(this::saveFisheryUserPowerUpBean);
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("Could not save fishery user", e);
         }
     }
 
@@ -100,7 +103,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 preparedStatement.setInt(4, fisheryUserPowerUpBean.getLevel());
             });
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("Could not save fishery power up bean", e);
         }
     }
 
@@ -113,7 +116,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 preparedStatement.setLong(4, fisheryHourlyIncomeBean.getFishIncome());
             });
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("Could not save fishery hourly income", e);
         }
     }
 

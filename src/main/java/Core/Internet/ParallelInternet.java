@@ -1,5 +1,8 @@
 package Core.Internet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ParallelInternet {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(ParallelInternet.class);
     private HashMap<String, CompletableFuture<InternetResponse>> responseHashMap = new HashMap<>();
     int size;
 
@@ -21,7 +25,7 @@ public class ParallelInternet {
                     completableFuture.complete(Internet.getData(url).get());
                 }
             } catch (IOException | InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not fetch data", e);
             }
         });
     }

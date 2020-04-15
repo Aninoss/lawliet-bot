@@ -14,7 +14,7 @@ import java.util.Optional;
 public class AttributedStringGenerator {
 
     private Font[] fonts;
-    private final static int MAIN_FONT_POS = 2;
+    private final static int MAIN_FONT_POS = 0;
 
     public AttributedStringGenerator(int size) {
         Font fontMain = new Font("Segoe UI Symbol", Font.PLAIN, size);

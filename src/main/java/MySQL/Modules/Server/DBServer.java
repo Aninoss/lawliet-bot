@@ -8,6 +8,8 @@ import MySQL.DBMain;
 import MySQL.DBBeanGenerator;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.PreparedStatement;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(DBServer.class);
     private static final DBServer ourInstance = new DBServer();
     public static DBServer getInstance() { return ourInstance; }
     private DBServer() {}
@@ -137,7 +140,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
                     .filter(slot -> slot.getServerId() == serverId)
                     .forEach(TrackerBeanSlot::stop);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not fetch tracker bean", e);
         }
         getCache().invalidate(serverId);
         new File(String.format("data/welcome_backgrounds/%d.png", serverId)).delete();

@@ -4,12 +4,15 @@ import Constants.Settings;
 import Core.Bot;
 import Core.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class TopGG {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(TopGG.class);
     private static TopGG ourInstance = new TopGG();
     private DiscordBotListAPI dblApi;
 
@@ -24,7 +27,7 @@ public class TopGG {
                     .botId(String.valueOf(Settings.LAWLIET_ID))
                     .build();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not connect with top.gg", e);
         }
     }
 
@@ -36,7 +39,7 @@ public class TopGG {
         try {
             return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getPoints();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not get total amount of upvotes", e);
         }
 
         return 0;
@@ -46,7 +49,7 @@ public class TopGG {
         try {
             return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getMonthlyPoints();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not get monthly upvotes", e);
         }
 
         return 0;

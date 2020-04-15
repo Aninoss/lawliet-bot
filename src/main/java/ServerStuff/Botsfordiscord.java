@@ -6,11 +6,15 @@ import Core.Internet.InternetProperty;
 import Core.Internet.InternetResponse;
 import Core.SecretManager;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class Botsfordiscord {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(Botsfordiscord.class);
 
     public static boolean updateServerCount(int serverCount) {
         try {
@@ -23,7 +27,7 @@ public class Botsfordiscord {
             InternetResponse internetResponse = Internet.getData("https://botsfordiscord.com/api/bot/" + Settings.LAWLIET_ID, jsonObject.toString(), properties).get();
             return internetResponse.getCode() == 200;
         } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not post Botsfordiscord request", e);
         }
         return false;
     }

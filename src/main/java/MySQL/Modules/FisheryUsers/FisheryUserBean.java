@@ -2,18 +2,23 @@ package MySQL.Modules.FisheryUsers;
 
 import Constants.CodeBlockColor;
 import Constants.FisheryCategoryInterface;
+import Constants.LogStatus;
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
+import Core.ExceptionHandler;
 import Core.TextManager;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
 import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.time.Instant;
@@ -26,18 +31,20 @@ import java.util.stream.Collectors;
 
 public class FisheryUserBean extends BeanWithServer {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(FisheryUserBean.class);
+
     private final long userId;
     private FisheryServerBean fisheryServerBean = null;
     private final HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
     private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
     private long fish, coins;
     private LocalDate dailyReceived;
-    private int dailyStreak, upvoteStack;
-    private boolean reminderSent, changed = false;
-    private Instant lastMessage = Instant.MIN;
+    private int dailyStreak, upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1;
+    private boolean reminderSent, changed = false, banned = false;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
-    private long hiddenCoins = 0;
+    private long hiddenCoins = 0, messagesThisHour = 0;
+    private String lastContent = null;
 
     FisheryUserBean(long serverId, ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
         super(serverBean);
@@ -125,6 +132,8 @@ public class FisheryUserBean extends BeanWithServer {
 
     public boolean isReminderSent() { return reminderSent; }
 
+    public boolean isBanned() { return banned; }
+
 
     /* Setters */
 
@@ -135,50 +144,71 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public boolean registerMessage(ServerTextChannel channel) throws ExecutionException, InterruptedException {
-        if (lastMessage.plusSeconds(20).isBefore(Instant.now())) {
-            lastMessage = Instant.now();
-            long effect = getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect();
+    public boolean registerMessage(Message message, ServerTextChannel channel) throws ExecutionException, InterruptedException {
+        if (banned) return false;
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-            fish += effect;
-            if (fishIncome != null) fishIncome += effect;
-            getCurrentFisheryHourlyIncome().add(effect);
-            checkValuesBound();
-            setChangedCustom();
+        messagesThisHour++;
+        if (messagesThisHour >= 3500) {
+            banned = true;
+            LOGGER.info("User temporarely banned with id " + userId);
+            return false;
+        }
 
-            Optional<User> userOpt = getUser();
-            if (fish >= 100 &&
-                    !reminderSent &&
-                    getServerBean().isFisheryReminders() &&
-                    channel.canYouEmbedLinks() &&
-                    userOpt.isPresent()
-            ) {
-                reminderSent = true;
-                User user = userOpt.get();
-                Locale locale = getServerBean().getLocale();
-                String prefix = getServerBean().getPrefix();
+        if (lastMessageHour != hour) {
+            lastMessageHour = hour;
+            messagesThisHour = 0;
+        }
 
-                channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
-                        .setAuthor(user)
-                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                        .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
-                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix))).get();
+        if (!message.getContent().equalsIgnoreCase(lastContent)) {
+            lastContent = message.getContent();
+            int currentMessagePeriod = (Calendar.getInstance().get(Calendar.SECOND) + Calendar.getInstance().get(Calendar.MINUTE) * 60) / 20;
+            if (currentMessagePeriod != lastMessagePeriod) {
+                lastMessagePeriod = currentMessagePeriod;
+                long effect = getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect();
+
+                fish += effect;
+                if (fishIncome != null) fishIncome += effect;
+                getCurrentFisheryHourlyIncome().add(effect);
+                checkValuesBound();
+                setChangedCustom();
+
+                Optional<User> userOpt = getUser();
+                if (fish >= 100 &&
+                        !reminderSent &&
+                        getServerBean().isFisheryReminders() &&
+                        channel.canYouEmbedLinks() &&
+                        userOpt.isPresent()
+                ) {
+                    reminderSent = true;
+                    User user = userOpt.get();
+                    Locale locale = getServerBean().getLocale();
+                    String prefix = getServerBean().getPrefix();
+
+                    channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
+                            .setAuthor(user)
+                            .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                            .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
+                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix))).get();
+                }
+
+                return true;
             }
-
-            return true;
         }
         return false;
     }
 
     public void registerVC(int minutes) {
-        long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
+        if (!banned) {
+            long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
 
-        fish += effect;
-        if (fishIncome != null) fishIncome += effect;
-        getCurrentFisheryHourlyIncome().add(effect);
+            fish += effect;
+            if (fishIncome != null) fishIncome += effect;
+            getCurrentFisheryHourlyIncome().add(effect);
 
-        checkValuesBound();
-        setChangedCustom();
+            checkValuesBound();
+            setChangedCustom();
+        }
     }
 
     public EmbedBuilder getAccountEmbed() {
@@ -241,6 +271,8 @@ public class FisheryUserBean extends BeanWithServer {
                 getEmbedSlot(locale, rank, rankPrevious, true),
                 codeBlock
         ));
+
+        if (banned) EmbedFactory.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
 
         return eb;
     }

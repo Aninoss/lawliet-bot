@@ -3,12 +3,15 @@ package Core;
 import Constants.Locales;
 import Constants.Settings;
 import Core.Tools.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class TextManager {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(TextManager.class);
     public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions", FAQ = "faq";
 
     public static String getString(Locale locale, String category, String key, String... args) {
@@ -18,7 +21,7 @@ public class TextManager {
     public static String getString(Locale locale, String category, String key, int option, String... args) {
         ResourceBundle texts = ResourceBundle.getBundle(category, locale, new UTF8Control());
         if (!texts.containsKey(key)) {
-            ExceptionHandler.showErrorLog("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());
+            LOGGER.error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());
             return "???";
         } else {
             //Get String

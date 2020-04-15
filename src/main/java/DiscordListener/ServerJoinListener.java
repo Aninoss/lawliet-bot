@@ -7,10 +7,14 @@ import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.server.ServerJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
 public class ServerJoinListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinListener.class);
 
     public void onServerJoin(ServerJoinEvent event) throws Exception {
         DBServer.getInstance().getBean(event.getServer().getId());
@@ -30,7 +34,7 @@ public class ServerJoinListener {
         try {
             channel.sendMessage(eb).get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not send server join message", e);
         }
     }
 

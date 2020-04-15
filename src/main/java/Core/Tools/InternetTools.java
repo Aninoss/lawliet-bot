@@ -2,12 +2,16 @@ package Core.Tools;
 
 import Core.DiscordApiCollection;
 import org.javacord.api.entity.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 public class InternetTools {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(InternetTools.class);
 
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
@@ -17,7 +21,7 @@ public class InternetTools {
                 Thread.sleep(10000);
                 message.delete();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not get url from input stream", e);
             }
         });
         t.setName("message_delete_counter");

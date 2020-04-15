@@ -5,6 +5,9 @@ import Core.Internet.InternetProperty;
 import Core.Internet.InternetResponse;
 import Core.SecretManager;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
@@ -20,6 +23,8 @@ public class SIGNALTRANSMITTER {
     public static SIGNALTRANSMITTER getInstance() {
         return ourInstance;
     }
+
+    final static Logger LOGGER = LoggerFactory.getLogger(SIGNALTRANSMITTER.class);
 
     private SIGNALTRANSMITTER() {
         try {
@@ -53,7 +58,6 @@ public class SIGNALTRANSMITTER {
 
     private double getTrafficGB(int tries) throws IOException, ExecutionException, InterruptedException {
         if (tries <= 0) {
-            System.out.println("Giving up");
             return -1;
         }
 
@@ -70,7 +74,7 @@ public class SIGNALTRANSMITTER {
             if (usages.has(dateString)) return usages.getDouble(dateString) / 1000;
             else return -1;
         } else {
-            System.out.println("Could not connect to SIGNALTRANSMITTER...");
+            LOGGER.error("Could not connect to SIGNALTRANSMITTER");
 
             login();
             return getTrafficGB(tries - 1);
