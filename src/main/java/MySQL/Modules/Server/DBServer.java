@@ -84,7 +84,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         return !removedServerIds.contains(serverId);
     }
 
-    private void insertBean(ServerBean serverBean) throws SQLException {
+    private void insertBean(ServerBean serverBean) throws SQLException, InterruptedException {
         DBMain.getInstance().update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, webhookUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverBean.getServerId());
             preparedStatement.setString(2, serverBean.getPrefix());

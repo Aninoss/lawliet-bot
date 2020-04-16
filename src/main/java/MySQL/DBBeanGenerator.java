@@ -1,6 +1,8 @@
 package MySQL;
 
 import Core.Bot;
+import Core.CustomThread;
+import Core.Tools.TimeTools;
 import MySQL.Interfaces.CompleteLoadOnStartup;
 import MySQL.Interfaces.IntervalSave;
 import com.google.common.cache.CacheBuilder;
@@ -24,42 +26,44 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     private ArrayList<U> changed;
     private Instant nextCheck;
     private boolean allLoaded = false;
-    private final LoadingCache<T, U> cache = CacheBuilder.newBuilder()
-            .build(
-        new CacheLoader<T, U>() {
-            @Override
-            public U load(@NonNull T t) throws Exception {
-                U u = loadBean(t);
-                u.addObserver(instance);
-                return u;
-            }
-        }
-    );
+    private final LoadingCache<T, U> cache;
+
+    protected CacheBuilder<Object, Object> getCacheBuilder() {
+        return CacheBuilder.newBuilder();
+    }
 
     protected DBBeanGenerator() {
+        cache = getCacheBuilder().build(
+                new CacheLoader<T, U>() {
+                    @Override
+                    public U load(@NonNull T t) throws Exception {
+                        U u = loadBean(t);
+                        u.addObserver(instance);
+                        return u;
+                    }
+                }
+        );
+
         if (this instanceof IntervalSave) {
             int minutes = ((IntervalSave)this).getIntervalMinutes();
             nextCheck = Instant.now().plusSeconds(minutes * 60);
             changed = new ArrayList<>();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
                 if (changed.size() > 0) intervalSave();
-            }));
+            }, "shutdown_intervalsave"));
 
-            Thread t = new Thread(() -> {
+            Thread t = new CustomThread(() -> {
                 try {
                     while(true) {
-                        Duration duration = Duration.between(Instant.now(), nextCheck);
-                        Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
+                        Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), nextCheck));
                         nextCheck = Instant.now().plusSeconds(minutes * 60);
                         if (changed.size() > 0) intervalSave();
                     }
                 } catch (InterruptedException e) {
-                    //Ignore
+                    LOGGER.error("Interrupted", e);
                 }
-            });
-            t.setName("dbbean_interval_save");
-            t.setPriority(1);
+            }, "dbbean_interval_save", 1);
             t.start();
         }
     }
@@ -94,9 +98,25 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     public void update(Observable o, Object arg) {
         if (this instanceof IntervalSave) {
             U u = (U) o;
-            if (!changed.contains(u)) changed.add(u);
+            if (!changed.contains(u)) {
+                synchronized (changed) {
+                    changed.add(u);
+                }
+            }
         } else {
             saveBean((U) o);
+        }
+    }
+
+    protected void removeUpdate(U value) {
+        synchronized (changed) {
+            changed.remove(value);
+        }
+    }
+
+    protected boolean isChanged(U value) {
+        synchronized (changed) {
+            return changed.contains(value);
         }
     }
 

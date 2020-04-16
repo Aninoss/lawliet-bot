@@ -5,7 +5,7 @@ import java.io.File;
 public class Bot {
 
     private static boolean production = false;
-    private final boolean DEBUG_IN_PRODUCTION_ENVIRONMENT = true;
+    private static boolean stopped = false;
 
     public static void setDebug(boolean newProduction) {
         production = newProduction;
@@ -14,9 +14,13 @@ public class Bot {
         System.out.println("-------------------------------------");
     }
 
+    public static void stop() { stopped = true; }
+
     public static boolean isProductionMode() {
         return production;
     }
+
+    public static boolean isStopped() { return stopped; }
 
     public static boolean hasUpdate() { return new File("update/Lawliet.jar").exists(); }
 

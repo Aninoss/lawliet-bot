@@ -5,8 +5,10 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
+import Core.CustomThread;
 import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
+import Core.Tools.TimeTools;
 import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import javafx.util.Pair;
@@ -105,12 +107,13 @@ public class TrackerBeanSlot extends BeanWithServer {
     /* Actions */
 
     private void start(ServerBean serverBean) {
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             synchronized (DBTracker.getInstance()) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    //Ignore
+                    LOGGER.error("Interrupted", e);
+                    return;
                 }
             }
 
@@ -125,7 +128,7 @@ public class TrackerBeanSlot extends BeanWithServer {
                     try {
                         cont = manageTracker(command, firstTime);
                     } catch (InterruptedException e) {
-                        //Ignore
+                        LOGGER.error("Interrupted", e);
                         return;
                     } catch (Throwable e) {
                         LOGGER.error("Could not manage tracker", e);
@@ -135,15 +138,12 @@ public class TrackerBeanSlot extends BeanWithServer {
             } catch (IllegalAccessException | InstantiationException e) {
                 LOGGER.error("Could not create command", e);
             }
-        });
-        t.setName("tracker_" + commandTrigger);
-        t.setPriority(1);
+        }, "tracker_" + commandTrigger, 1);
         t.start();
     }
 
     private boolean manageTracker(OnTrackerRequestListener command, boolean firstTime) throws Throwable {
-        Duration duration = Duration.between(Instant.now(), nextRequest);
-        Thread.sleep(Math.max(firstTime ? 0 : 5 * 60 * 1000, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
+        Thread.sleep(Math.max(firstTime ? 0 : 5 * 60 * 1000, TimeTools.getMilisBetweenInstants(Instant.now(), nextRequest)));
 
         Optional<ServerTextChannel> channelOpt = getChannel();
         if (channelOpt.isPresent() &&

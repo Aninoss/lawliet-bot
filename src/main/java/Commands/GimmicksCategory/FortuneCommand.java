@@ -38,7 +38,7 @@ public class FortuneCommand extends Command {
         }
     }
 
-    private EmbedBuilder getEmbed(Message message, String question) throws IOException, ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(Message message, String question) throws IOException {
         int n = RandomTools.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
         String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
         String answer = answerRaw;

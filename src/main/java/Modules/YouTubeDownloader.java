@@ -4,6 +4,8 @@ import com.github.kiulian.downloader.YoutubeDownloader;
 import com.github.kiulian.downloader.YoutubeException;
 import com.github.kiulian.downloader.model.YoutubeVideo;
 import com.github.kiulian.downloader.model.formats.AudioFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,7 +17,8 @@ import java.util.Optional;
 
 public class YouTubeDownloader {
 
-    private static ArrayList<String> videoRequests = new ArrayList<>();
+    final static Logger LOGGER = LoggerFactory.getLogger(YouTubeDownloader.class);
+    private static final ArrayList<String> videoRequests = new ArrayList<>();
 
     public static Optional<String> getVideoID(String str) {
         String[] starters = {"v=", "youtu.be/"};
@@ -39,8 +42,7 @@ public class YouTubeDownloader {
                     if (audioFormat.contentLength() >= 15000000) return Optional.of("%toolong");
                     return Optional.of(str);
                 } catch (IOException | YoutubeException e) {
-                    //Ignore
-                    e.printStackTrace();
+                    LOGGER.error("YouTube Exception", e);
                     return Optional.of("%error");
                 }
             }
@@ -49,13 +51,9 @@ public class YouTubeDownloader {
         return Optional.empty();
     }
 
-    public static File downloadAudio(String videoId) throws IOException, YoutubeException, InterruptedException {
+    public static File downloadAudio(String videoId) throws IOException, InterruptedException {
         while (videoRequests.contains(videoId)) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Thread.sleep(1000);
         }
 
         File file;

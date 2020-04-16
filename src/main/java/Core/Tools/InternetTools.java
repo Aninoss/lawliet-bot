@@ -1,5 +1,6 @@
 package Core.Tools;
 
+import Core.CustomThread;
 import Core.DiscordApiCollection;
 import org.javacord.api.entity.message.Message;
 import org.slf4j.Logger;
@@ -16,15 +17,14 @@ public class InternetTools {
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
-        Thread t =new Thread(() -> {
+        Thread t =new CustomThread(() -> {
             try {
                 Thread.sleep(10000);
                 message.delete();
             } catch (InterruptedException e) {
                 LOGGER.error("Could not get url from input stream", e);
             }
-        });
-        t.setName("message_delete_counter");
+        }, "message_delete_counter", 1);
         t.start();
         return url;
     }

@@ -114,7 +114,7 @@ public class ServerMemberJoinListener {
                     }
                 }
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             LOGGER.error("Fishery roles on member rejoin failed", e);
         }
 
@@ -123,7 +123,7 @@ public class ServerMemberJoinListener {
             for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) event.getUser().addRole(role).get();
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             LOGGER.error("Auto roles failed", e);
         }
     }

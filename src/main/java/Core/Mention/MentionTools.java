@@ -9,6 +9,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -19,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class MentionTools {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(MentionTools.class);
 
     public static MentionList<User> getUsers(Message message, String string) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
@@ -73,7 +77,7 @@ public class MentionTools {
                         if (!list.contains(urlTemp)) list.add(urlTemp);
                         string = removeMentionFromString(string, part, "");
                     } catch (MalformedURLException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Wrong url", e);
                     }
                 }
             }
@@ -226,7 +230,7 @@ public class MentionTools {
                         }
                     }
                 } catch (InterruptedException | ExecutionException ignored) {
-                    //Do nothing
+                    //Ignore
                 }
             }
         }
@@ -247,7 +251,7 @@ public class MentionTools {
                         }
                     }
                 } catch (InterruptedException | ExecutionException ignored) {
-                    //Do nothing
+                    //Ignore
                 }
             }
         }
@@ -269,7 +273,7 @@ public class MentionTools {
                     }
                 }
             } catch (InterruptedException | ExecutionException ignored) {
-                //Do nothing
+                //Ignore
             }
         }
         return new MentionList<>(string, list);
@@ -291,7 +295,7 @@ public class MentionTools {
                             }
                         }
                     } catch (InterruptedException | ExecutionException ignored) {
-                        //Do nothing
+                        //Ignore
                     }
                 }
             }

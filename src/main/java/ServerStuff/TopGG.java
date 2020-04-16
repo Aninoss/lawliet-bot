@@ -35,23 +35,11 @@ public class TopGG {
         dblApi.setStats(totalServerSize);
     }
 
-    public int getTotalUpvotes() {
-        try {
-            return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getPoints();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not get total amount of upvotes", e);
-        }
-
-        return 0;
+    public int getTotalUpvotes() throws ExecutionException, InterruptedException {
+        return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getPoints();
     }
 
-    public int getMonthlyUpvotes() {
-        try {
-            return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getMonthlyPoints();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not get monthly upvotes", e);
-        }
-
-        return 0;
+    public int getMonthlyUpvotes() throws ExecutionException, InterruptedException {
+        return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getMonthlyPoints();
     }
 }

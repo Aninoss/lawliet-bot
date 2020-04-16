@@ -1,44 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <timestamp key="bySecond" datePattern="yyyy-MM-dd HH_mm_ss"/>
-
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+        <filter class="Core.ExceptionFilter">
+            <exceptionClassName>java.net.SocketTimeoutException</exceptionClassName>
         </filter>
+
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="FileInfo" class="ch.qos.logback.core.FileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <file>data/error_log/${bySecond}_info.log</file>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%-5level] [%thread] %logger{5} --- %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <appender name="FileDebug" class="ch.qos.logback.core.FileAppender">
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>DEBUG</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-
-        <file>data/error_log/${bySecond}_debug.log</file>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%-5level] [%thread] %logger{5} --- %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <root level="DEBUG">
         <appender-ref ref="Console" />
-        <appender-ref ref="FileInfo" />
-        <appender-ref ref="FileDebug" />
     </root>
 
 </configuration>

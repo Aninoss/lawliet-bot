@@ -11,10 +11,14 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
 public class ReactionAddListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ReactionAddListener.class);
 
     public static boolean manageReactionCommands(SingleReactionEvent event) {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
@@ -73,7 +77,7 @@ public class ReactionAddListener {
                 }
             }
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            LOGGER.error("Exception", throwable);
         }
     }
 

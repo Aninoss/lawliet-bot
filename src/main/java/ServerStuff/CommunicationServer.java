@@ -1,5 +1,6 @@
 package ServerStuff;
 
+import Core.CustomThread;
 import Core.ExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,7 @@ public class CommunicationServer {
 
     public CommunicationServer(int port) {
         this.port = port;
-        Thread t = new Thread(this::run);
-        t.setName("communication_server");
+        Thread t = new CustomThread(this::run, "communication_server", 1);
         t.start();
     }
 

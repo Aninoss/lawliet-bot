@@ -15,7 +15,7 @@ public class InternetCache {
 
     private static final HashMap<String, Instant> expirationDates = new HashMap<>();
     private static LoadingCache<String, CompletableFuture<InternetResponse>> cache = CacheBuilder.newBuilder()
-            .maximumSize(100)
+            .maximumSize(300)
             .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))
             .build(
                     new CacheLoader<String, CompletableFuture<InternetResponse>>() {

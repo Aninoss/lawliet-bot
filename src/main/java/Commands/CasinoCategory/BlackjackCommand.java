@@ -12,6 +12,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -28,6 +30,8 @@ import java.util.concurrent.ExecutionException;
         aliases = {"bj"}
 )
 public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(BlackjackCommand.class);
 
     private String log;
     private LogStatus logStatus;
@@ -215,7 +219,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 }
             }
         } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
     }
 

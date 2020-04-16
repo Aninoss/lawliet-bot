@@ -1,6 +1,7 @@
 package MySQL;
 
 import Core.Bot;
+import Core.CustomThread;
 import Core.ExceptionHandler;
 import Core.SecretManager;
 import MySQL.Interfaces.SQLConsumer;
@@ -73,7 +74,7 @@ public class DBMain implements DriverAction {
         return statement;
     }
 
-    public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {
+    public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
         for(int i = 0; i < 3; i++) {
             try {
@@ -86,30 +87,24 @@ public class DBMain implements DriverAction {
             } catch (SQLException e) {
                 //Ignore
                 exception = e;
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex) {
-                    //Ignore
-                }
+                Thread.sleep(5000);
             }
         }
 
-        throw  exception;
+        throw exception;
     }
 
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
 
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 future.complete(update(sql, preparedStatementConsumer));
-            } catch (SQLException throwables) {
+            } catch (SQLException | InterruptedException throwables) {
                 future.completeExceptionally(throwables);
                 LOGGER.error("Exception", throwables);
             }
-        });
-        t.setPriority(1);
-        t.setName("sql_update");
+        }, "sql_update", 1);
         t.start();
 
         return future;

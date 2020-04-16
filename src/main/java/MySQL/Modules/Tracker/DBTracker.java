@@ -1,5 +1,6 @@
 package MySQL.Modules.Tracker;
 
+import Core.CustomThread;
 import MySQL.DBCached;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
@@ -25,15 +26,13 @@ public class DBTracker extends DBCached {
     private TrackerBean trackerBean = null;
 
     public void init() {
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 getBean();
             } catch (SQLException e) {
                 LOGGER.error("Could not get bean", e);
             }
-        });
-        t.setName("tracker_init");
-        t.setPriority(1);
+        }, "tracker_init", 1);
         t.start();
     }
 

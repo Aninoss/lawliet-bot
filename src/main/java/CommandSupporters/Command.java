@@ -251,20 +251,12 @@ public abstract class Command {
         if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
         if (navigationMessage == null) {
-            try {
-                if (navigationPrivateMessage) {
-                    if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
-                    navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
-                } else navigationMessage = channel.sendMessage(eb).get();
-            } catch (Throwable e) {
-                throw e;
-            }
+            if (navigationPrivateMessage) {
+                if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
+                navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
+            } else navigationMessage = channel.sendMessage(eb).get();
         } else {
-            try {
-                navigationMessage.edit(eb).get();
-            } catch (Exception e) {
-                throw e;
-            }
+            navigationMessage.edit(eb).get();
         }
     }
 
@@ -278,28 +270,24 @@ public abstract class Command {
     }
 
     private void addLoadingReaction(Message message) {
-        try {
-            if (
-                    loadingStatus != LoadingStatus.FINISHED &&
-                            message != null &&
-                            message.getCurrentCachedInstance().isPresent() &&
-                            message.getChannel().canYouAddNewReactions() &&
-                            !loadingBlock &&
-                            message.getReactions().stream().map(Reaction::getEmoji)
-                                    .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L))) ||
-                                            emoji.equalsEmoji("⏳"))
-            ) {
-                loadingStatus = LoadingStatus.ONGOING;
+        if (
+                loadingStatus != LoadingStatus.FINISHED &&
+                        message != null &&
+                        message.getCurrentCachedInstance().isPresent() &&
+                        message.getChannel().canYouAddNewReactions() &&
+                        !loadingBlock &&
+                        message.getReactions().stream().map(Reaction::getEmoji)
+                                .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L))) ||
+                                        emoji.equalsEmoji("⏳"))
+        ) {
+            loadingStatus = LoadingStatus.ONGOING;
 
-                CompletableFuture<Void> loadingBarReaction;
-                if (message.getChannel().canYouUseExternalEmojis())
-                    loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
-                else loadingBarReaction = message.addReaction("⏳");
+            CompletableFuture<Void> loadingBarReaction;
+            if (message.getChannel().canYouUseExternalEmojis())
+                loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
+            else loadingBarReaction = message.addReaction("⏳");
 
-                loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
-            }
-        } catch (Throwable e) {
-            //Ignore
+            loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
         }
     }
 
@@ -313,7 +301,8 @@ public abstract class Command {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    LOGGER.error("Could not remove loading reaction", e);
+                    LOGGER.error("Interrupted");
+                    return;
                 }
             }
 
@@ -397,19 +386,21 @@ public abstract class Command {
             if (starterMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == starterMessage.getChannel())
                 starterMessage.getChannel().bulkDelete(navigationMessage, starterMessage).get();
             else navigationMessage.delete().get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             //Ignore
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
         }
     }
 
-    public void deleteReactionMessage() throws ExecutionException, InterruptedException {
+    public void deleteReactionMessage() throws InterruptedException {
         Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
         try {
             if (starterMessage.getChannel().canYouManageMessages())
                 starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).get();
             else if (reactionMessage != null) reactionMessage.delete().get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             //Ignore
             reactionMessage.delete();
         }
@@ -447,19 +438,19 @@ public abstract class Command {
     }
 
 
-    public String getString(String key, String... args) throws IOException {
+    public String getString(String key, String... args) {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
-    public String getString(String key, int option, String... args) throws IOException {
+    public String getString(String key, int option, String... args) {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, option, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;
     }
 
-    public String getString(String key, boolean secondOption, String... args) throws IOException {
+    public String getString(String key, boolean secondOption, String... args) {
         String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, secondOption, args);
         if (prefix != null) text = text.replace("%PREFIX", prefix);
         return text;

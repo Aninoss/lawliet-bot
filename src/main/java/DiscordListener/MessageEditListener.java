@@ -6,12 +6,16 @@ import Core.Internet.Internet;
 import Modules.SPCheck;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import org.javacord.api.event.message.MessageEditEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
 public class MessageEditListener {
 
-    public void onMessageEdit(MessageEditEvent event) {
+    final static Logger LOGGER = LoggerFactory.getLogger(MessageEditListener.class);
+
+    public void onMessageEdit(MessageEditEvent event) throws InterruptedException {
         if (!event.getMessage().isPresent() ||
                 !event.getMessage().get().getUserAuthor().isPresent() ||
                 event.getMessage().get().getAuthor().isYourself() ||
@@ -31,11 +35,9 @@ public class MessageEditListener {
                     event.getMessage().get().getUserAuthor().get().sendMessage("Bevor du Links posten darfst, musst du erstmal den ersten Server-Rang erwerben!\nMehr Infos hier: <#608455541978824739>");
                     event.getServer().get().getOwner().sendMessage(event.getMessage().get().getUserAuthor().get().getMentionTag() + " hat Links gepostet!");
                     event.getMessage().get().delete().get();
-
-                    return;
                 }
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Exception", e);
             }
         }
     }

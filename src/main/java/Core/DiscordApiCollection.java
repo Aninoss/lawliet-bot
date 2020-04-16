@@ -40,7 +40,7 @@ public class DiscordApiCollection {
     private boolean[] hasReconnected, isAlive;
 
     private DiscordApiCollection() {
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(8 * 60 * 1000);
                 if (!allShardsConnected()) {
@@ -50,9 +50,7 @@ public class DiscordApiCollection {
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
             }
-        });
-        t.setPriority(1);
-        t.setName("bootup_timebomb");
+        }, "bootup_timebomb", 1);
         t.start();
     }
 
@@ -73,9 +71,7 @@ public class DiscordApiCollection {
     public void markReady(DiscordApi api) {
         apiReady[api.getCurrentShard()] = true;
         if (Bot.isProductionMode()) {
-            Thread t = new Thread(() -> keepApiAlive(api));
-            t.setPriority(1);
-            t.setName("keep_alive_shard" + api.getCurrentShard());
+            Thread t = new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1);
             t.start();
         }
     }
@@ -83,8 +79,8 @@ public class DiscordApiCollection {
     private void keepApiAlive(DiscordApi api) {
         api.addUserStartTypingListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
         api.addMessageCreateListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
-        while(true) {
-            try {
+        try {
+            while (true) {
                 Thread.sleep(10 * 1000);
                 int n = api.getCurrentShard();
                 if (isAlive[n]) {
@@ -107,20 +103,20 @@ public class DiscordApiCollection {
                         }
                     }
                 }
-            } catch (InterruptedException e) {
-                LOGGER.error("Exception in connection observer", e);
-                System.exit(-1);
             }
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
+            System.exit(-1);
         }
     }
 
     public void reconnectShard(int n) {
-        if (apiReady[n]) {
+        if (!Bot.isStopped() && apiReady[n]) {
             DiscordApi api = apiList[n];
             apiReady[n] = false;
             try {
                 CommandContainer.getInstance().clearShard(n);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOGGER.error("Exception", e);
             }
             RunningCommandManager.getInstance().clearShard(n);

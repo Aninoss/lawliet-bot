@@ -29,7 +29,7 @@ public class ReactionRemoveListener {
             if (event.getMessage().isPresent()) message = event.getMessage().get();
             else message = event.getChannel().getMessageById(event.getMessageId()).get();
         } catch (InterruptedException | ExecutionException e) {
-            //Ignore
+            LOGGER.error("Could not get message", e);
             return;
         }
 

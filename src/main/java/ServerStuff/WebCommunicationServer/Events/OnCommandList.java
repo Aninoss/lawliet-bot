@@ -13,12 +13,15 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 public class OnCommandList implements ConnectListener, DataListener<JSONObject> {
 
-    private WebComServer webComServer;
+    private final WebComServer webComServer;
+    final static Logger LOGGER = LoggerFactory.getLogger(OnCommandList.class);
 
     public OnCommandList(WebComServer webComServer) {
         this.webComServer = webComServer;
@@ -71,7 +74,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
                     categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                 }
             } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not create class", e);
             }
         }
 

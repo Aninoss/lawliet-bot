@@ -3,6 +3,7 @@ package Commands.ModerationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Permission;
+import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.ExceptionHandler;
 import Core.PermissionCheck;
@@ -47,7 +48,7 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
                 stage = 0;
 
                 final AutoKickCommand thisInstance = this;
-                Thread t= new Thread(() -> {
+                Thread t= new CustomThread(() -> {
                     try {
                         Server server = event.getServer().get();
                         HashMap<User, Instant> map = new HashMap<>();
@@ -103,8 +104,7 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
                     } catch (Throwable e) {
                         ExceptionHandler.handleException(e, getLocale(), event.getServerTextChannel().get());
                     }
-                });
-                t.setName("autokick_processor");
+                }, "autokick_processor");
                 t.start();
                 return true;
             } else {

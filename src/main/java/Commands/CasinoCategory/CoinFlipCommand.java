@@ -14,6 +14,8 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -30,6 +32,8 @@ import java.util.concurrent.ExecutionException;
         aliases = {"coin", "cf"}
 )
 public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(CoinFlipCommand.class);
 
     private String log;
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};
@@ -95,11 +99,11 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         if (selection[0] == -1) return;
         removeReactionListener(getReactionMessage());
 
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
 
             selection[1] = new Random().nextInt(2);
@@ -126,9 +130,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             } catch (IOException e) {
                 ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
             }
-        });
-        t.setName("coinflip_cpu");
-        t.setPriority(1);
+        }, "coinflip_cpu", 1);
         t.start();
     }
 

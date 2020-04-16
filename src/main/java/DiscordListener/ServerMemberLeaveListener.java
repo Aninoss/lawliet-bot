@@ -10,12 +10,16 @@ import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class ServerMemberLeaveListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeaveListener.class);
 
     public void onLeave(ServerMemberLeaveEvent event) throws Exception {
         if (event.getUser().isYourself()) return;
@@ -43,20 +47,20 @@ public class ServerMemberLeaveListener {
                                     )
                             ).get();
                         } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
+                            LOGGER.error("Could not send message", e);
                         }
                     }
                 });
             }
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not get welcome bean", e);
         }
 
         //Member Count Stats
         try {
             MemberCountDisplayCommand.manage(locale, server);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
     }
 }

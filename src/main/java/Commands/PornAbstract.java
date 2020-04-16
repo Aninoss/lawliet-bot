@@ -3,6 +3,7 @@ package Commands;
 
 import CommandSupporters.Command;
 import Constants.LogStatus;
+import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.ExceptionHandler;
 import Modules.Porn.PornImageDownloader;
@@ -98,14 +99,13 @@ public abstract class PornAbstract extends Command {
         ArrayList<PornImage> pornImages = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
-            Thread t = new Thread(() -> {
+            Thread t = new CustomThread(() -> {
                 try {
                     PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter, usedResults).ifPresent(pornImages::add);
                 } catch (IOException | InterruptedException | ExecutionException e) {
                     LOGGER.error("Could not download porn image", e);
                 }
-            });
-            t.setName("porn_downloader_" + i);
+            }, "porn_downloader_" + i);
             threads.add(t);
             t.start();
         }

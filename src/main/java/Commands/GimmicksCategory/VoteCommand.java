@@ -18,6 +18,8 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,6 +35,8 @@ import java.util.concurrent.ExecutionException;
         aliases = {"poll"}
 )
 public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(VoteCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -179,8 +183,8 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                         reaction.removeUser(user);
                         block = true;
                     }
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    LOGGER.error("Could not manage multiple reactions", e);
                 }
             } else {
                 for(int i = 0; i < voteInfo.getValues().length; i++) {

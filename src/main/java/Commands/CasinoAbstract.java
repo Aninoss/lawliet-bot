@@ -45,7 +45,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         allowBet = true;
     }
 
-    protected boolean onGameStart(MessageCreateEvent event, String followedString) throws SQLException, IOException, ExecutionException, InterruptedException {
+    protected boolean onGameStart(MessageCreateEvent event, String followedString) throws IOException, ExecutionException, InterruptedException {
         createEvent = event;
         server = event.getServer().get();
         player = event.getMessage().getUserAuthor().get();

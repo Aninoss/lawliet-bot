@@ -14,6 +14,9 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,7 +26,9 @@ import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
 
-    public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
+    final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
+
+    public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException {
         if (botCanPost(event, command) &&
                 isWhiteListed(event) &&
                 isNSFWCompliant(event, command) &&
@@ -45,7 +50,6 @@ public class CommandManager {
 
                 CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.SUCCESS));
             } catch (Throwable e) {
-                CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.EXCEPTION));
                 ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();
@@ -216,15 +220,14 @@ public class CommandManager {
 
     private static void manageSlowCommandLoadingReaction(Command command, Message userMessage) {
         final Thread commandThread = Thread.currentThread();
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(1000);
                 if (RunningCommandManager.getInstance().isActive(userMessage.getUserAuthor().get().getId(), commandThread)) command.addLoadingReaction();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Interrupted", e);
             }
-        });
-        t.setName("command_slow_loading_reaction_countdown");
+        }, "command_slow_loading_reaction_countdown", 1);
         t.start();
     }
 

@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PornImageCache {
 
-    private static PornImageCache ourInstance = new PornImageCache();
+    private static final PornImageCache ourInstance = new PornImageCache();
     public static PornImageCache getInstance() { return ourInstance; }
     private PornImageCache() {}
 

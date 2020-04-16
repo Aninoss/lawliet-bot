@@ -15,11 +15,11 @@ public class ResourceManager {
     public static final int RESOURCES = 0, SPAM = 1;
     private static ArrayList<ResourceFolder> folderList;
 
-    public static String getFile(int folder, String fileName) throws ExecutionException, InterruptedException {
+    public static String getFile(int folder, String fileName) {
         return folderList.get(folder).getFile(fileName).getURL();
     }
 
-    public static ResourceFolder getFolder(int folder) throws ExecutionException, InterruptedException {
+    public static ResourceFolder getFolder(int folder) {
         return folderList.get(folder);
     }
 

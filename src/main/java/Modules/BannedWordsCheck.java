@@ -14,6 +14,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,7 +25,9 @@ import java.util.concurrent.ExecutionException;
 
 public class BannedWordsCheck {
 
-    public static boolean checkForBannedWordUsaqe(Server server, Message message) {
+    final static Logger LOGGER = LoggerFactory.getLogger(BannedWordsCheck.class);
+
+    public static boolean checkForBannedWordUsaqe(Server server, Message message) throws InterruptedException {
         String input = message.getContent();
 
         try {
@@ -35,10 +39,9 @@ public class BannedWordsCheck {
                 //Nachricht löschen
                 try {
                     message.delete().get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    LOGGER.error("Could not delete message", e);
                     successful = false;
-                    //Ignore
                 }
 
                 //Poster informieren
@@ -52,7 +55,7 @@ public class BannedWordsCheck {
                         .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful_user"));
                 try {
                     author.sendMessage(ebUser).get();
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     //Ignore
                 }
 
@@ -65,7 +68,7 @@ public class BannedWordsCheck {
                 for(User user: bannedWordsBean.getLogReceiverUserIds().transform(server::getMemberById, DiscordEntity::getId)) {
                     try {
                         user.sendMessage(eb).get();
-                    } catch (InterruptedException | ExecutionException e) {
+                    } catch (ExecutionException e) {
                         //Ignore
                     }
                 }
@@ -81,8 +84,8 @@ public class BannedWordsCheck {
 
                 return true;
             }
-        } catch (IOException | SQLException | IllegalAccessException | InstantiationException | ExecutionException e) {
-            e.printStackTrace();
+        } catch (IOException | IllegalAccessException | InstantiationException | ExecutionException e) {
+            LOGGER.error("Exception", e);
         }
 
         return false;

@@ -22,6 +22,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ import java.util.regex.Pattern;
         aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
 public class MemberCountDisplayCommand extends Command implements OnNavigationListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(MemberCountDisplayCommand.class);
 
     private MemberCountBean memberCountBean;
     private ServerVoiceChannel currentVC = null;
@@ -193,16 +197,11 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplay>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
-                                    try {
-                                        if (bean.getVoiceChannel().isPresent()) {
-                                            return getString("state0_displays", bean.getVoiceChannel().get().getName(), bean.getMask());
-                                        } else {
-                                            return getString("state0_displays", "???", bean.getMask());
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                                    if (bean.getVoiceChannel().isPresent()) {
+                                        return getString("state0_displays", bean.getVoiceChannel().get().getName(), bean.getMask());
+                                    } else {
+                                        return getString("state0_displays", "???", bean.getMask());
                                     }
-                                    return "";
                                 })), false);
 
             case 1:

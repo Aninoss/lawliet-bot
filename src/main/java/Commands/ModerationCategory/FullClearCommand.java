@@ -48,16 +48,15 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         String key = skipped ? "finished_too_old" : "finished_description";
         Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(key, deleted != 1, String.valueOf(deleted)))
                 .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(8000);
+                Message[] messagesArray = new Message[]{m, event.getMessage()};
+                event.getChannel().bulkDelete(messagesArray);
             } catch (InterruptedException e) {
-                //Ignore
+                LOGGER.error("Interrupted", e);
             }
-            Message[] messagesArray = new Message[]{m, event.getMessage()};
-            event.getChannel().bulkDelete(messagesArray);
-        });
-        t.setName("fullclear_countdown");
+        }, "fullclear_countdown", 1);
         t.start();
         return true;
     }
@@ -100,7 +99,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
                     if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
                     else channel.bulkDelete(messagesDelete).get();
                     deleted += messagesDelete.size();
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     LOGGER.error("Could not remove confirmation message", e);
                 }
             }

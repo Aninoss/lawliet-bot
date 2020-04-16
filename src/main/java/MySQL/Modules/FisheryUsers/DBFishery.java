@@ -3,12 +3,17 @@ package MySQL.Modules.FisheryUsers;
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
 import Core.ExceptionHandler;
+import Core.Tools.TimeTools;
 import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
 import MySQL.Interfaces.IntervalSave;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -32,6 +37,20 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
     private final int VC_CHECK_INTERVAL_MIN = 5;
+
+    @Override
+    protected CacheBuilder<Object, Object> getCacheBuilder() {
+        return CacheBuilder.newBuilder()
+                .maximumSize(200 * DiscordApiCollection.getInstance().size())
+                .removalListener((element) -> onRemoved((FisheryServerBean) element.getValue()));
+    }
+
+    private void onRemoved(FisheryServerBean fisheryServerBean) {
+        if (isChanged(fisheryServerBean)) {
+            removeUpdate(fisheryServerBean);
+            saveBean(fisheryServerBean);
+        }
+    }
 
     @Override
     protected FisheryServerBean loadBean(Long serverId) throws Exception {
@@ -65,8 +84,8 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .filter(FisheryUserBean::checkChanged)
                     .forEach(this::saveFisheryUserBean);
 
-            LOGGER.debug("Fishery saved server {}", fisheryServerBean.getServerId());
-            Thread.sleep(100);
+            LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
+            Thread.sleep(50);
         } catch (Throwable e) {
             LOGGER.error("Could not save fishery server", e);
         }
@@ -272,7 +291,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         try {
             DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not get server bean", e);
         }
 
         getCache().invalidate(serverId);
@@ -281,10 +300,9 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     public void startVCObserver() {
         Instant nextRequest = Instant.now();
 
-        while (true) {
-            try {
-                Duration duration = Duration.between(Instant.now(), nextRequest);
-                Thread.sleep(Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000));
+        try {
+            while (true) {
+                Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), nextRequest));
                 nextRequest = Instant.now().plus(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
 
                 DiscordApiCollection.getInstance().getServers().stream()
@@ -292,7 +310,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                             try {
                                 return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
                             } catch (ExecutionException e) {
-                                e.printStackTrace();
+                                LOGGER.error("Could not get server bean", e);
                             }
                             return false;
                         })
@@ -300,12 +318,12 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                             try {
                                 manageVCFish(server);
                             } catch (ExecutionException e) {
-                                e.printStackTrace();
+                                LOGGER.error("Could not manage vc fish observer", e);
                             }
                         });
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
         }
     }
 

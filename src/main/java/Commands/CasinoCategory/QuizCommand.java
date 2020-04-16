@@ -109,7 +109,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             winMultiplicator = answers.length * (difficulty+1) / 8.0;
 
             message = event.getChannel().sendMessage(getEmbed()).get();
-            Thread t = new Thread(this::countdown);
+            Thread t = new CustomThread(this::countdown, "quiz_countdown", 1);
 
             for(int i=0; i<answers.length; i++) message.addReaction(LetterEmojis.LETTERS[i]);
 
@@ -145,7 +145,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         answerSelected = selected;
         message.edit(getEmbed());
 
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(Settings.TIME_OUT_TIME);
             } catch (InterruptedException e) {
@@ -153,11 +153,10 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             }
             try {
                 deleteReactionMessage();
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException e) {
                 LOGGER.error("Could not remove message", e);
             }
-        });
-        t.setName("quiz_countdown");
+        }, "quiz_countdown", 1);
         t.start();
     }
 

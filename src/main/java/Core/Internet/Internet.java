@@ -1,5 +1,10 @@
 package Core.Internet;
 
+import CommandSupporters.Command;
+import Core.CustomThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.*;
@@ -8,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Internet {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(Internet.class);
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0";
 
     public static CompletableFuture<InternetResponse> getData(String urlString, InternetProperty... properties) throws IOException {
@@ -32,14 +38,15 @@ public class Internet {
 
     public static CompletableFuture<InternetResponse> getData(String urlString, String method, int pauseTimeMilis, String body, InternetProperty... properties) throws IOException {
         CompletableFuture<InternetResponse> future = new CompletableFuture<>();
-        Thread t = new Thread(() -> download(future, urlString, method, pauseTimeMilis, body, properties));
-        t.setName("download_url");
+        Thread t = new CustomThread(() -> download(future, urlString, method, pauseTimeMilis, body, properties), "download_url");
         t.start();
         return future;
     }
 
     private static void download(CompletableFuture<InternetResponse> future, String urlString, String method, int pauseTimeMilis, String body, InternetProperty... properties) {
         try {
+            LOGGER.debug("Downloading from url {}", urlString);
+
             BufferedReader br;
             String line;
             StringBuilder text = new StringBuilder();

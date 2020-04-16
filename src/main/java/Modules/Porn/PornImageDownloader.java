@@ -111,14 +111,14 @@ public class PornImageDownloader {
                 .map(pornImageMeta -> {
                     try {
                         return getSpecificPictureOnPage(domain, data.getJSONObject(pornImageMeta.getIndex()), imageTemplate);
-                    } catch (IOException | InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOGGER.error("Exception", e);
                     }
                     return null;
                 });
     }
 
-    private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) throws IOException, InterruptedException, ExecutionException {
+    private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) throws InterruptedException, ExecutionException {
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
         String commentURL = "https://"+domain+"/index.php?page=dapi&s=comment&q=index&post_id=" + postData.getInt("id");
 

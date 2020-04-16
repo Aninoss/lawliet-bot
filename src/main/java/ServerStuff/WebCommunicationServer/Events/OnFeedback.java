@@ -41,7 +41,7 @@ public class OnFeedback implements DataListener<JSONObject> {
             try {
                 CommandLogger.getInstance().saveLog(serverId);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not save log", e);
             }
             eb.setFooter(String.valueOf(serverId));
         });

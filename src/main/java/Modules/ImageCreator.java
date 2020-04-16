@@ -4,6 +4,9 @@ import Core.AttributedStringGenerator;
 import Core.TextManager;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import javax.imageio.stream.*;
 import java.awt.*;
@@ -21,6 +24,8 @@ import java.util.concurrent.ExecutionException;
 import java.awt.AlphaComposite;
 
 public class ImageCreator {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ImageCreator.class);
 
     public static InputStream createImageTriggered(User user) throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
@@ -158,7 +163,7 @@ public class ImageCreator {
             try {
                 profilePicture = user.getAvatar().asBufferedImage().get();
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not download user avatar", e);
             }
             BufferedImage result = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
@@ -212,7 +217,7 @@ public class ImageCreator {
             ImageIO.write(result, "png", os);
             return new ByteArrayInputStream(os.toByteArray());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
         return null;
     }

@@ -3,12 +3,17 @@ package Commands.ModerationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Permission;
+import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.TextManager;
 import Core.Tools.StringTools;
+import ServerStuff.DonationHandler;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -24,6 +29,8 @@ import java.util.concurrent.ExecutionException;
     executable = false
 )
 public class ClearCommand extends Command {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ClearCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -50,8 +57,8 @@ public class ClearCommand extends Command {
                         if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
                         else event.getChannel().bulkDelete(messagesDelete).get();
                         deleted += messagesDelete.size();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Could not delete message", e);
                     }
                 }
 
@@ -61,16 +68,15 @@ public class ClearCommand extends Command {
             String key = skipped ? "finished_too_old" : "finished_description";
             Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(key, deleted != 1, String.valueOf(deleted)))
                     .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
-            Thread t = new Thread(() -> {
+            Thread t = new CustomThread(() -> {
                 try {
                     Thread.sleep(8000);
+                    Message[] messagesArray = new Message[]{m, event.getMessage()};
+                    event.getChannel().bulkDelete(messagesArray);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Interrupted", e);
                 }
-                Message[] messagesArray = new Message[]{m, event.getMessage()};
-                event.getChannel().bulkDelete(messagesArray);
-            });
-            t.setName("clear_countdown");
+            }, "clear_countdown", 1);
             t.start();
             return true;
         } else {

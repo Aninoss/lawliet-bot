@@ -17,7 +17,7 @@ import java.lang.management.ManagementFactory;
 public class Console {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
-    private static Console instance = new Console();
+    private static final Console instance = new Console();
     private double maxMemory = 0;
     private double traffic = -1;
 
@@ -28,18 +28,9 @@ public class Console {
     }
 
     public void start() {
-        Thread t1 = new Thread(this::manageConsole);
-        t1.setName("console");
-        t1.setPriority(1);
-        t1.start();
-        Thread t2 = new Thread(this::startAutoPrint);
-        t2.setName("console_autostats");
-        t2.setPriority(1);
-        t2.start();
-        Thread t3 = new Thread(this::trackMemory);
-        t3.setName("console_memorytracker");
-        t3.setPriority(1);
-        t3.start();
+        new CustomThread(this::manageConsole, "console", 1).start();
+        new CustomThread(this::startAutoPrint, "console_autostats", 1).start();
+        new CustomThread(this::trackMemory, "console_memorytracker", 1).start();
     }
 
     private void manageConsole() {
@@ -118,29 +109,29 @@ public class Console {
     }
 
     private void startAutoPrint() {
-        while (true) {
-            try {
+        try {
+            while (true) {
                 Thread.sleep(60 * 1000);
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
+                System.out.println(getStats());
             }
-            System.out.println(getStats());
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
         }
     }
 
     private void trackMemory() {
-        while(true) {
-            double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
-            double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
-            if (memoryUsed > maxMemory) {
-                maxMemory = memoryUsed;
-                LOGGER.debug("Max Memory: {} / {}", memoryUsed, memoryTotal);
-            }
-            try {
+        try {
+            while (true) {
+                double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
+                double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
+                if (memoryUsed > maxMemory) {
+                    maxMemory = memoryUsed;
+                    LOGGER.debug("Max Memory: {} / {}", memoryUsed, memoryTotal);
+                }
                 Thread.sleep(500);
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
             }
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
         }
     }
 

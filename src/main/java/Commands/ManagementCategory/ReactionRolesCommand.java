@@ -29,6 +29,9 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +59,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private boolean removeRole = true, editMode = false, multipleRoles = true;
     private Message editMessage;
 
-    private static ArrayList<Pair<Long, Long>> queue = new ArrayList<>();
+    final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
+    private static final ArrayList<Pair<Long, Long>> queue = new ArrayList<>();
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -170,8 +174,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                                     }
                                 }
                             }
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            LOGGER.error("Could not add reactions", e);
                         }
                     }
 
@@ -476,14 +480,14 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
+    public void onNavigationTimeOut(Message message) {}
 
     @Override
     public int getMaxReactionNumber() {
         return 12;
     }
 
-    private EmbedBuilder getMessageEmbed(boolean test) throws IOException {
+    private EmbedBuilder getMessageEmbed(boolean test) {
         String titleAdd = "";
         String identity = "";
         if (!test) identity = Settings.EMPTY_EMOJI;
@@ -611,7 +615,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     @Override
-    public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) {
+    public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) throws InterruptedException {
         updateValuesFromMessage(message);
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
@@ -622,8 +626,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     try {
                         User user = event.getUser();
                         if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) user.removeRole(r).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Could not remove role", e);
                     }
                     break;
                 }

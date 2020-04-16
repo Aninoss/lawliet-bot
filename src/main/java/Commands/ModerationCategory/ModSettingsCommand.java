@@ -296,7 +296,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
         return 4;
     }
 
-    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws SQLException, ExecutionException {
+    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws ExecutionException, InterruptedException {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
         serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
                 DBServer.getInstance().getBean(server.getId()),
@@ -324,8 +324,8 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         .setThumbnail(TN_AUTOMOD);
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
-            } catch (IllegalAccessException | InstantiationException | InterruptedException | ExecutionException e) {
-                LOGGER.error("COuld not ban user", e);
+            } catch (IllegalAccessException | InstantiationException | ExecutionException e) {
+                LOGGER.error("Could not ban user", e);
             }
         }
 
@@ -339,7 +339,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         .setThumbnail(TN_AUTOMOD);
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
-            } catch (InterruptedException | ExecutionException | IllegalAccessException | InstantiationException e) {
+            } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
                 LOGGER.error("Could not kick user", e);
             }
         }
@@ -351,7 +351,6 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
     public static void postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean) {
         moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
-
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), serverTextChannel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                 try {
                     serverTextChannel.sendMessage(eb).get();
@@ -359,7 +358,6 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                     LOGGER.error("Could not post warning", e);
                 }
             }
-
         });
     }
 

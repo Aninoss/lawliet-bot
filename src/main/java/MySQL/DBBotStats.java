@@ -3,6 +3,7 @@ package MySQL;
 import ServerStuff.TopGG;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 public class DBBotStats {
 
@@ -21,7 +22,7 @@ public class DBBotStats {
         preparedStatement.close();
     }
 
-    public static void addStatUpvotes() throws SQLException {
+    public static void addStatUpvotes() throws SQLException, ExecutionException, InterruptedException {
         String sql = "INSERT INTO StatsUpvotes VALUES(NOW(), ?, ?);";
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setInt(1, TopGG.getInstance().getTotalUpvotes());

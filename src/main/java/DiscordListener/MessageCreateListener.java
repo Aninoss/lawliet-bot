@@ -37,7 +37,7 @@ public class MessageCreateListener {
 
     final static Logger LOGGER = LoggerFactory.getLogger(MessageCreateListener.class);
 
-    public void onMessageCreate(MessageCreateEvent event) {
+    public void onMessageCreate(MessageCreateEvent event) throws InterruptedException {
         if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;
 
         if (!event.getServer().isPresent()) {
@@ -62,7 +62,7 @@ public class MessageCreateListener {
 
                     return;
                 }
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (ExecutionException e) {
                 LOGGER.error("Could not manage unwanted links", e);
             }
         }
@@ -168,8 +168,8 @@ public class MessageCreateListener {
                     }
                 }
             }
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (ExecutionException e) {
+            LOGGER.error("Exception", e);
         }
     }
 

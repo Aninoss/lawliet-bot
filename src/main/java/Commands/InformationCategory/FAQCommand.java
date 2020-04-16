@@ -33,7 +33,7 @@ public class FAQCommand extends ListAbstract {
         return true;
     }
 
-    protected Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable {
+    protected Pair<String, String> getEntry(ServerTextChannel channel, int i) {
         Pair<String, String> slot = slots.get(i);
         return new Pair<>(getString("question", slot.getKey()), slot.getValue());
     }

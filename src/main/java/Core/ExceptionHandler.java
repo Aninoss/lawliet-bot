@@ -21,7 +21,7 @@ public class ExceptionHandler {
 
     public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
         boolean showError = true;
-        LOGGER.error("Command handler", throwable);
+        LOGGER.error("Command exception", throwable);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -32,43 +32,26 @@ public class ExceptionHandler {
         if (errorMessage.contains("500: Internal Server Error")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
         } else if (errorMessage.contains("Server returned HTTP response code: 5")) {
-            try {
-                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
-                showError = false;
-            } catch (Throwable throwable1) {
-                throwable1.printStackTrace();
-            }
+            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
         } else if (errorMessage.contains("java.net.SocketTimeoutException: timeout")) {
             showError = false;
-            try {
-                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
-            } catch (Throwable throwable1) {
-                throwable1.printStackTrace();
-            }
+            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else if (errorMessage.contains("MissingPermissions")) {
-            try {
-                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
-            } catch (Throwable throwable1) {
-                throwable1.printStackTrace();
-            }
+            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
         } else if (errorMessage.contains("CONSTRAINT `PowerPlantUserGainedUserBase`")) {
             showError = false;
         } else if (errorMessage.contains("Read timed out")) {
             showError = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else {
-            try {
-                errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
+            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
         }
 
         pw.close();
         try {
             sw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not close String Writer", e);
         }
 
         try {
@@ -80,7 +63,7 @@ public class ExceptionHandler {
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
                     .setDescription(StringTools.shortenString(stacktrace, 1000))).get();
         } catch (Throwable e1) {
-            e1.printStackTrace();
+            LOGGER.error("Could not send error message", e1);
         }
     }
 

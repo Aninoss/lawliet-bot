@@ -8,12 +8,16 @@ import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelChangeUserLimitEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class VoiceChannelChangeUserLimitListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(VoiceChannelChangeUserLimitListener.class);
 
     public void onVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) {
         try {
@@ -33,7 +37,7 @@ public class VoiceChannelChangeUserLimitListener {
                                     event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().get();
                                 }
                             } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
+                                LOGGER.error("Exception", e);
                             }
                         }
                     });
@@ -42,7 +46,7 @@ public class VoiceChannelChangeUserLimitListener {
                 }
             }
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
     }
 }

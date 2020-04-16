@@ -24,7 +24,6 @@ import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -34,27 +33,27 @@ public class Connector {
     final static Logger LOGGER = LoggerFactory.getLogger(Connector.class);
 
     public static void main(String[] args) {
-        try {
-            boolean production = args.length >= 1 && args[0].equals("production");
-            Bot.setDebug(production);
+        boolean production = args.length >= 1 && args[0].equals("production");
+        Bot.setDebug(production);
 
-            Console.getInstance().start(); //Starts Console Listener
+        Console.getInstance().start(); //Starts Console Listener
 
-            //Check for faulty ports
-            ArrayList<Integer> missingPort;
-            if ((missingPort = checkPorts(35555, 15744)).size() > 0) {
-                StringBuilder portsString = new StringBuilder();
-                for(int port: missingPort) {
-                    portsString.append(port).append(", ");
-                }
-                String portsStringFinal = portsString.toString();
-                portsStringFinal = portsStringFinal.substring(0, portsStringFinal.length() - 2);
-
-                System.err.printf("Error on port/s %s!\n", portsStringFinal);
-                System.exit(1);
-                return;
+        //Check for faulty ports
+        ArrayList<Integer> missingPort;
+        if ((missingPort = checkPorts(35555, 15744)).size() > 0) {
+            StringBuilder portsString = new StringBuilder();
+            for (int port : missingPort) {
+                portsString.append(port).append(", ");
             }
+            String portsStringFinal = portsString.toString();
+            portsStringFinal = portsStringFinal.substring(0, portsStringFinal.length() - 2);
 
+            System.err.printf("Error on port/s %s!\n", portsStringFinal);
+            System.exit(1);
+            return;
+        }
+
+        try {
             new CommunicationServer(35555); //Start Communication Server
 
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -85,7 +84,6 @@ public class Connector {
                 ServerSocket serverSocket = new ServerSocket(port);
                 serverSocket.close();
             } catch (IOException e) {
-                LOGGER.error("Could not create server socket", e);
                 missingPorts.add(port);
             }
         }
@@ -151,9 +149,10 @@ public class Connector {
             if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
             apiCollection.markReady(api);
 
-            Thread st = new Thread(() -> DBAutoChannel.getInstance().synchronize(api));
-            st.setName("synchro_shard_" + api.getCurrentShard());
-            st.setPriority(1);
+            Thread st = new CustomThread(() -> DBAutoChannel.getInstance().synchronize(api),
+                    "autochannel_synchro_shard_" + api.getCurrentShard(),
+                    1
+            );
             st.start();
 
             LOGGER.info("Shard {} connection established", api.getCurrentShard());
@@ -164,17 +163,12 @@ public class Connector {
                     DBFishery.getInstance().cleanUp();
                     new WebComServer(15744);
 
-                    Thread vcObserver = new Thread(() -> DBFishery.getInstance().startVCObserver());
-                    vcObserver.setName("vc_observer");
-                    vcObserver.setPriority(1);
+                    Thread vcObserver = new CustomThread(() -> DBFishery.getInstance().startVCObserver(), "vc_observer", 1);
                     vcObserver.start();
 
                     LOGGER.info("All shards connected successfully");
 
-                    Thread t = new Thread(Clock::getInstance);
-                    t.setPriority(1);
-                    addUncaughtException(t);
-                    t.setName("clock");
+                    Thread t = new CustomThread(Clock::getInstance, "clock", 1);
                     t.start();
 
                     if (Bot.isProductionMode()) DBTracker.getInstance().init();
@@ -184,140 +178,121 @@ public class Connector {
             }
 
             api.addMessageCreateListener(event -> {
-                Thread t = new Thread(() -> {
-                    new MessageCreateListener().onMessageCreate(event);
-                });
-                addUncaughtException(t);
-                t.setName("message_create");
+                Thread t = new CustomThread(() -> {
+                    try {
+                        new MessageCreateListener().onMessageCreate(event);
+                    } catch (InterruptedException e) {
+                        LOGGER.error("Interrupted", e);
+                    }
+                }, "message_create");
                 t.start();
             });
             api.addMessageEditListener(event -> {
-                Thread t = new Thread(() -> {
-                    new MessageEditListener().onMessageEdit(event);
-                });
-                addUncaughtException(t);
-                t.setName("message_edit");
+                Thread t = new CustomThread(() -> {
+                    try {
+                        new MessageEditListener().onMessageEdit(event);
+                    } catch (InterruptedException e) {
+                        LOGGER.error("Interrupted", e);
+                    }
+                }, "message_edit");
                 t.start();
             });
             api.addMessageDeleteListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     new MessageDeleteListener().onMessageDelete(event);
-                });
-                addUncaughtException(t);
-                t.setName("message_delete");
+                }, "message_delete");
                 t.start();
             });
             api.addReactionAddListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     new ReactionAddListener().onReactionAdd(event);
-                });
-                addUncaughtException(t);
-                t.setName("reaction_add");
+                }, "reaction_add");
                 t.start();
             });
             api.addReactionRemoveListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     new ReactionRemoveListener().onReactionRemove(event);
-                });
-                addUncaughtException(t);
-                t.setName("reaction_remove");
+                }, "reaction_remove");
                 t.start();
             });
             api.addServerVoiceChannelMemberJoinListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new VoiceChannelMemberJoinListener().onJoin(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("vc_member_join");
+                }, "vc_member_join");
                 t.start();
             });
             api.addServerVoiceChannelMemberLeaveListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new VoiceChannelMemberLeaveListener().onLeave(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("vc_member_leave");
+                }, "vc_member_leave");
                 t.start();
             });
             api.addServerMemberJoinListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new ServerMemberJoinListener().onJoin(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("member_join");
+                }, "member_join");
                 t.start();
             });
             api.addServerMemberLeaveListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new ServerMemberLeaveListener().onLeave(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("member_leave");
+                }, "member_leave");
                 t.start();
             });
             api.addServerChannelDeleteListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new ServerChannelDeleteListener().onDelete(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("channel_delete");
+                }, "channel_delete");
                 t.start();
             });
             api.addServerJoinListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new ServerJoinListener().onServerJoin(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("server_join");
+                }, "server_join");
                 t.start();
             });
             api.addServerLeaveListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         new ServerLeaveListener().onServerLeave(event);
                     } catch (Exception e) {
                         LOGGER.error("Exception", e);
                     }
-                });
-                addUncaughtException(t);
-                t.setName("server_leave");
+                }, "server_leave");
                 t.start();
             });
             api.addServerVoiceChannelChangeUserLimitListener(event -> {
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);
-                });
-                addUncaughtException(t);
-                t.setName("server_change_userlimit");
+                }, "server_change_userlimit");
                 t.start();
             });
             api.addReconnectListener(event -> {
-                Thread t = new Thread(() -> onSessionResume(event.getApi()));
-                addUncaughtException(t);
+                Thread t = new CustomThread(() -> onSessionResume(event.getApi()), "reconnect");
                 t.start();
             });
         } catch (Throwable e) {
@@ -356,10 +331,6 @@ public class Connector {
     private static void onSessionResume(DiscordApi api) {
         LOGGER.debug("Connection has been reestablished!");
         updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
-    }
-
-    private static void addUncaughtException(Thread t) {
-        t.setUncaughtExceptionHandler((t1, e) -> LOGGER.error("Exception", e));
     }
 
 }

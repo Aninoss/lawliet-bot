@@ -46,27 +46,25 @@ public class Clock {
 
     private void start() {
         //Start 10 Minutes Event Loop
-        Thread t = new Thread(() -> {
+        Thread t = new CustomThread(() -> {
             while (true) {
                 try {
                     Thread.sleep(1000 * 60 * 10);
+                    every10Minutes();
                 } catch (InterruptedException e) {
                     LOGGER.error("Interrupted", e);
                 }
-                every10Minutes();
             }
-        });
-        t.setName("clock_10min");
+        }, "clock_10min");
         t.start();
 
-        while(true) {
-            try {
-                Duration duration = Duration.between(Instant.now(), TimeTools.setInstantToNextHour(Instant.now()));
-                Thread.sleep(duration.getSeconds() * 1000 + duration.getNano() / 1000000);
+        try {
+            while (true) {
+                Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), TimeTools.setInstantToNextHour(Instant.now())));
                 onHourStart();
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
             }
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
         }
     }
 
@@ -101,7 +99,7 @@ public class Clock {
         }
         try {
             DBBotStats.addStatUpvotes();
-        } catch (SQLException e) {
+        } catch (SQLException | ExecutionException | InterruptedException e) {
             LOGGER.error("Could not post upvotes stats", e);
         }
 
@@ -118,7 +116,7 @@ public class Clock {
     }
 
 
-    private void every10Minutes() {
+    private void every10Minutes() throws InterruptedException {
         if (!DiscordApiCollection.getInstance().allShardsConnected())
             LOGGER.error("At least 1 shard is offline");
 
@@ -134,8 +132,8 @@ public class Clock {
         if (trafficGB >= 60 && !trafficWarned) {
             try {
                 apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
-            } catch (Throwable e) {
-                LOGGER.error("Could not send dm", e);
+            } catch (ExecutionException e) {
+                LOGGER.error("Could not send message", e);
             }
             trafficWarned = true;
         }
@@ -209,7 +207,8 @@ public class Clock {
 
         byte won = lastSurvey.getWon();
         int percent = 0;
-        if (won != 2) percent = (int) Math.round(lastSurvey.getFirstVoteNumbers(won) / (double) lastSurvey.getFirstVoteNumber() * 100);
+        if (won != 2)
+            percent = (int) Math.round(lastSurvey.getFirstVoteNumbers(won) / (double) lastSurvey.getFirstVoteNumber() * 100);
 
         /* Group each second vote into a specific group for each user */
         HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
@@ -226,21 +225,21 @@ public class Clock {
             }
         }
 
-        for (long userId : secondVotesMap.keySet()) {
-            try {
-                User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
-                if (user != null) {
-                    LOGGER.debug("Manage survey user {}", user.getName());
-                    manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
+        try {
+            for (long userId : secondVotesMap.keySet()) {
+                try {
+                    User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
+                    if (user != null) {
+                        LOGGER.debug("Manage survey user {}", user.getName());
+                        manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
+                    }
+                } catch (Throwable e) {
+                    LOGGER.error("Exception", e);
                 }
-            } catch (Throwable e) {
-                LOGGER.error("Exception", e);
-            }
-            try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
             }
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted", e);
         }
     }
 

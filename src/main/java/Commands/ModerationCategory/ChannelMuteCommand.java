@@ -83,7 +83,7 @@ public class ChannelMuteCommand extends Command  {
         for(User user: userList) {
             try {
                 if (!user.isYourself() && !user.isBot()) user.sendMessage(actionEmbed).get();
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (ExecutionException e) {
                 //Ignore
             }
         }

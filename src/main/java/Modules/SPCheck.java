@@ -17,6 +17,9 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -24,7 +27,9 @@ import java.util.concurrent.ExecutionException;
 
 public class SPCheck {
 
-    public static boolean checkForSelfPromotion(Server server, Message message) {
+    final static Logger LOGGER = LoggerFactory.getLogger(SPCheck.class);
+
+    public static boolean checkForSelfPromotion(Server server, Message message) throws InterruptedException {
         try {
             SPBlockBean spBlockBean = DBSPBlock.getInstance().getBean(server.getId());
 
@@ -41,7 +46,7 @@ public class SPCheck {
                         for(RichInvite richInvite: server.getInvites().get()) {
                             content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
                         }
-                    } catch (InterruptedException | ExecutionException e) {
+                    } catch (ExecutionException e) {
                         //Ignore
                     }
 
@@ -52,7 +57,7 @@ public class SPCheck {
                         //Nachricht löschen
                         try {
                             message.delete().get();
-                        } catch (InterruptedException | ExecutionException e) {
+                        } catch (ExecutionException e) {
                             successful = false;
                             //Ignore
                         }
@@ -70,7 +75,7 @@ public class SPCheck {
                                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));
                         try {
                             author.sendMessage(ebUser).get();
-                        } catch (InterruptedException | ExecutionException e) {
+                        } catch (ExecutionException e) {
                             //Ignore
                         }
 
@@ -78,7 +83,7 @@ public class SPCheck {
                         if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
                             try {
                                 server.kickUser(author, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (InterruptedException | ExecutionException e) {
+                            } catch (ExecutionException e) {
                                 successful = false;
                                 //Ignore
                             }
@@ -88,7 +93,7 @@ public class SPCheck {
                         if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER) {
                             try {
                                 server.banUser(author, 1, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (InterruptedException | ExecutionException e) {
+                            } catch (ExecutionException e) {
                                 successful = false;
                                 //Ignore
                             }
@@ -106,7 +111,7 @@ public class SPCheck {
                             try {
                                 user.sendMessage(finalEb).get();
                             } catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
+                                LOGGER.error("Could not send message to user", e);
                             }
                         });
 
@@ -123,8 +128,8 @@ public class SPCheck {
                     }
                 }
             }
-        } catch (ExecutionException | IOException | SQLException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+        } catch (ExecutionException | IOException | IllegalAccessException | InstantiationException e) {
+            LOGGER.error("Exception", e);
         }
 
         return false;

@@ -21,17 +21,16 @@ public class Countdown {
             case MINUTES: waitTime = value * 1000 * 5; break;
         }
 
-        Thread t = new Thread(() -> {
-            while(System.currentTimeMillis() < (startTime + waitTime) && active) {
-                try {
+        Thread t = new CustomThread(() -> {
+            try {
+                while (System.currentTimeMillis() < (startTime + waitTime) && active) {
                     Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
                 }
+                if (active) r.run();
+            } catch (InterruptedException e) {
+                LOGGER.error("Interrupted", e);
             }
-            if (active) r.run();
-        });
-        t.setName("countdown_processor");
+        }, "countdown_processor", 1);
         t.start();
     }
 

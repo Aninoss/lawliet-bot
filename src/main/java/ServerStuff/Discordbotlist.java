@@ -6,11 +6,15 @@ import Core.Internet.InternetProperty;
 import Core.Internet.InternetResponse;
 import Core.SecretManager;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class Discordbotlist {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(Discordbotlist.class);
 
     public static boolean updateServerCount(int serverCount) {
         try {
@@ -23,7 +27,7 @@ public class Discordbotlist {
             InternetResponse internetResponse = Internet.getData(String.format("https://discordbotlist.com/api/bots/%s/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
             return internetResponse.getCode() == 204;
         } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not send data to Discordbotlist", e);
         }
         return false;
     }

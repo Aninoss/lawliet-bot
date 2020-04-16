@@ -23,6 +23,9 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -43,6 +46,7 @@ import java.util.stream.Collectors;
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
     private static final int MAX_ROLES = 50;
+    final static Logger LOGGER = LoggerFactory.getLogger(FisheryCommand.class);
 
     private ServerBean serverBean;
     private FisheryServerBean fisheryServerBean;
@@ -299,8 +303,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
         int n = roles.indexOf(role);
         try {
             return getString("state0_rolestring", role.getMentionTag(), StringTools.numToString(getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
-        } catch (IOException | ExecutionException e) {
-            e.printStackTrace();
+        } catch (ExecutionException e) {
+            LOGGER.error("Exception", e);
             return "";
         }
     }
@@ -415,15 +419,14 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 ServerTextChannel channel = event.getServerTextChannel().get();
                 if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(userBean.changeValues(0, won)).get();
 
-                Thread t = new Thread(() -> {
+                Thread t = new CustomThread(() -> {
                     try {
                         Thread.sleep(1000 * 60);
+                        blockedTreasureMessages.remove(message);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Interrupted", e);
                     }
-                    blockedTreasureMessages.remove(message);
-                });
-                t.setName("treasure_block_countdown");
+                }, "treasure_block_countdown", 1);
                 t.start();
             }
         } else {

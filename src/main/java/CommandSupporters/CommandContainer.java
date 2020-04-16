@@ -215,7 +215,7 @@ public class CommandContainer {
                 if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add((OnReactionRemoveStaticListener)command);
                 if (command instanceof OnTrackerRequestListener) trackerCommands.add((OnTrackerRequestListener)command);
             } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+                LOGGER.error("Could not create class", e);
             }
         }
     }

@@ -30,7 +30,7 @@ public class SIGNALTRANSMITTER {
         try {
             login();
         } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not log into SIGNALTRANSMITTER", e);
         }
     }
 
@@ -50,7 +50,7 @@ public class SIGNALTRANSMITTER {
         try {
             return getTrafficGB(5);
         } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not get traffic", e);
         }
 
         return -1;
