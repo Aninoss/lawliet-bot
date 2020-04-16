@@ -18,7 +18,7 @@ public interface Settings {
     String BACK_EMOJI = "⏪";
     String EMPTY_EMOJI = "⠀";
     String[] NSFW_FILTERS = {"shota", "loli", "bestiality", "beastiality", "cub", "vore", "gore", "scat", "rape"};
-    int UPDATE_HOUR = 9;
+    int UPDATE_HOUR = 7;
 
     String[] VERSIONS = {
             "2.0.0",

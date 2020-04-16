@@ -20,7 +20,7 @@ public class ExceptionHandler {
     final static Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
 
     public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
-        boolean showError = true;
+        boolean submitToDeveloper = true;
         LOGGER.error("Command exception", throwable);
 
         StringWriter sw = new StringWriter();
@@ -30,18 +30,18 @@ public class ExceptionHandler {
 
         String errorMessage = stacktrace.split("\n")[0];
         if (errorMessage.contains("500: Internal Server Error")) {
+            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
         } else if (errorMessage.contains("Server returned HTTP response code: 5")) {
+            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
-        } else if (errorMessage.contains("java.net.SocketTimeoutException: timeout")) {
-            showError = false;
+        } else if (errorMessage.contains("java.net.SocketTimeoutException")) {
+            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else if (errorMessage.contains("MissingPermissions")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
-        } else if (errorMessage.contains("CONSTRAINT `PowerPlantUserGainedUserBase`")) {
-            showError = false;
         } else if (errorMessage.contains("Read timed out")) {
-            showError = false;
+            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
@@ -57,14 +57,20 @@ public class ExceptionHandler {
         try {
             if (channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
-                    .setDescription(errorMessage+"\n\n"+TextManager.getString(locale,TextManager.GENERAL,"error_submit"))).get();
+                    .setDescription(errorMessage + (submitToDeveloper ? "\n\n"+TextManager.getString(locale,TextManager.GENERAL,"error_submit") : ""))).get();
 
-            if (showError) DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
-                    .setDescription(StringTools.shortenString(stacktrace, 1000))).get();
+            if (submitToDeveloper) {
+                DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
+                        .setDescription(StringTools.shortenString(stacktrace, 1000))).get();
+            }
         } catch (Throwable e1) {
             LOGGER.error("Could not send error message", e1);
         }
+    }
+
+    public static boolean exceptionIsClass(Throwable throwable, Class<?> c) {
+        return c.isInstance(throwable) || throwable.getMessage().equalsIgnoreCase(c.getName());
     }
 
 }

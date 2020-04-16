@@ -250,13 +250,18 @@ public abstract class Command {
         EmbedFactory.addLog(eb, logStatus, log);
         if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
-        if (navigationMessage == null) {
-            if (navigationPrivateMessage) {
-                if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
-                navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
-            } else navigationMessage = channel.sendMessage(eb).get();
-        } else {
-            navigationMessage.edit(eb).get();
+        try {
+            if (navigationMessage == null) {
+                if (navigationPrivateMessage) {
+                    if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
+                    navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
+                } else navigationMessage = channel.sendMessage(eb).get();
+            } else {
+                navigationMessage.edit(eb).get();
+            }
+        } catch (ExecutionException e) {
+            if (!ExceptionHandler.exceptionIsClass(e, org.javacord.api.exception.UnknownMessageException.class))
+                LOGGER.error("Exception in draw event", e);
         }
     }
 

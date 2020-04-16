@@ -181,7 +181,7 @@ public class Clock {
             }
         }
 
-        //Restart All Shards at 09:xx AM
+        //Restart All Shards at 07:xx AM
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
 

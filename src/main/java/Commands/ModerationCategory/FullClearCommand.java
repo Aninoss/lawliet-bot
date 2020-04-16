@@ -84,7 +84,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
             //Check for message date and therefore permissions
             ArrayList<Message> messagesDelete = new ArrayList<>();
             for (Message message : messageSet.descendingSet()) {
-                if (message.getCreationTimestamp().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
+                if (!message.getCreationTimestamp().isAfter(Instant.now().minus(14, ChronoUnit.DAYS))) {
                     skipped = true;
                     break;
                 } else {
@@ -100,7 +100,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
                     else channel.bulkDelete(messagesDelete).get();
                     deleted += messagesDelete.size();
                 } catch (ExecutionException e) {
-                    LOGGER.error("Could not remove confirmation message", e);
+                    LOGGER.error("Could not remove message bulk", e);
                 }
             }
 

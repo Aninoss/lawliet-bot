@@ -41,7 +41,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {
         return CacheBuilder.newBuilder()
-                .maximumSize(200 * DiscordApiCollection.getInstance().size())
+                .maximumSize(250 * DiscordApiCollection.getInstance().size())
                 .removalListener((element) -> onRemoved((FisheryServerBean) element.getValue()));
     }
 
@@ -80,12 +80,14 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     @Override
     protected synchronized void saveBean(FisheryServerBean fisheryServerBean) {
         try {
-            new ArrayList<>(fisheryServerBean.getUsers().values()).stream()
-                    .filter(FisheryUserBean::checkChanged)
-                    .forEach(this::saveFisheryUserBean);
+            if (fisheryServerBean.getServerBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getServerBean().isCached()) {
+                new ArrayList<>(fisheryServerBean.getUsers().values()).stream()
+                        .filter(FisheryUserBean::checkChanged)
+                        .forEach(this::saveFisheryUserBean);
 
-            LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
-            Thread.sleep(50);
+                LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
+                Thread.sleep(50);
+            }
         } catch (Throwable e) {
             LOGGER.error("Could not save fishery server", e);
         }
@@ -270,23 +272,10 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;", preparedStatement -> {});
     }
 
-    public void removePowerPlant(long serverId) throws SQLException {
-        PreparedStatement preparedStatement;
-
-        preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUsers WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-
-        preparedStatement = DBMain.getInstance().preparedStatement("DELETE FROM PowerPlantUserGained WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
+    public void removePowerPlant(long serverId) throws SQLException, InterruptedException {
+        DBMain.getInstance().update("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
+        DBMain.getInstance().update("DELETE FROM PowerPlantUsers WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
+        DBMain.getInstance().update("DELETE FROM PowerPlantUserGained WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
 
         try {
             DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
@@ -353,7 +342,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 5;
+        return 10;
     }
 
 }

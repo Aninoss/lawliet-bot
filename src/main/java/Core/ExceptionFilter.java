@@ -26,7 +26,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         final ThrowableProxy throwableProxyImpl =
                 (ThrowableProxy) throwableProxy;
         final Throwable throwable = throwableProxyImpl.getThrowable();
-        if (exceptionClass.isInstance(throwable)) {
+        if (ExceptionHandler.exceptionIsClass(throwable, exceptionClass)) {
             return FilterReply.DENY;
         }
 
