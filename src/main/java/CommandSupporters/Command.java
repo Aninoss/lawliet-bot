@@ -306,7 +306,7 @@ public abstract class Command {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted");
+                    LOGGER.error("Interrupted", e);
                     return;
                 }
             }

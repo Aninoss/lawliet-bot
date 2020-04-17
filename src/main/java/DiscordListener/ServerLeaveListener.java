@@ -17,19 +17,23 @@ public class ServerLeaveListener {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ServerLeaveListener.class);
 
-    public void onServerLeave(ServerLeaveEvent event) throws Exception {
-        Server server = event.getServer();
-        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
-        String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "kick_message", String.format(Settings.FEEDBACK_WEBSITE, event.getServer().getId()));
+    public void onServerLeave(ServerLeaveEvent event) {
+        try {
+            Server server = event.getServer();
+            ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
+            String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "kick_message", String.format(Settings.FEEDBACK_WEBSITE, event.getServer().getId()));
 
-        serverBean.getWebhookUrl().ifPresent(webhookUrl -> {
-            try {
-                DiscordApiCollection.getInstance().sendToWebhook(server, webhookUrl, text).get();
-                DiscordApiCollection.getInstance().removeWebhook(webhookUrl);
-            } catch (IOException | InterruptedException | ExecutionException e) {
-                LOGGER.error("Could not post on webhook", e);
-            }
-        });
+            serverBean.getWebhookUrl().ifPresent(webhookUrl -> {
+                try {
+                    DiscordApiCollection.getInstance().sendToWebhook(server, webhookUrl, text).get();
+                    DiscordApiCollection.getInstance().removeWebhook(webhookUrl);
+                } catch (IOException | InterruptedException | ExecutionException e) {
+                    LOGGER.error("Could not post on webhook", e);
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.error("Error on server leave", e);
+        }
 
         if (event.getServer().getMembers().size() >= 500)
             DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");

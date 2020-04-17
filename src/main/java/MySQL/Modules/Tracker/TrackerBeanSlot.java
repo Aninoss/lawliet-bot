@@ -128,7 +128,7 @@ public class TrackerBeanSlot extends BeanWithServer {
                     try {
                         cont = manageTracker(command, firstTime);
                     } catch (InterruptedException e) {
-                        LOGGER.error("Interrupted", e);
+                        LOGGER.info("Tracker {} on server {} interrupted", commandTrigger, getServerId());
                         return;
                     } catch (Throwable e) {
                         LOGGER.error("Could not manage tracker", e);

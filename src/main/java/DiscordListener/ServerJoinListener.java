@@ -32,7 +32,7 @@ public class ServerJoinListener {
                 .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
                 .setDescription(text);
         try {
-            channel.sendMessage(eb).get();
+            if (channel.canYouEmbedLinks()) channel.sendMessage(eb).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not send server join message", e);
         }

@@ -70,7 +70,9 @@ public class ExceptionHandler {
     }
 
     public static boolean exceptionIsClass(Throwable throwable, Class<?> c) {
-        return c.isInstance(throwable) || throwable.getMessage().equalsIgnoreCase(c.getName());
+        return c.isInstance(throwable) || (throwable.getMessage() != null && throwable.getMessage().startsWith(c.getName()));
     }
+
+
 
 }

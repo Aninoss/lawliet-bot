@@ -38,7 +38,8 @@ public class MessageCreateListener {
     final static Logger LOGGER = LoggerFactory.getLogger(MessageCreateListener.class);
 
     public void onMessageCreate(MessageCreateEvent event) throws InterruptedException {
-        if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot()) return;
+        if (!event.getMessage().getUserAuthor().isPresent() || event.getMessage().getAuthor().isYourself() || event.getMessage().getUserAuthor().get().isBot())
+            return;
 
         if (!event.getServer().isPresent()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError()
@@ -49,7 +50,8 @@ public class MessageCreateListener {
 
         //Server protections
         if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return; //SPBlock
-        if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage())) return; //Banned Words
+        if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage()))
+            return; //Banned Words
 
         //Stuff that is only active for my own Aninoss Discord server
         if (event.getServer().get().getId() == 462405241955155979L && Internet.stringHasURL(event.getMessage().getContent())) {
@@ -72,10 +74,10 @@ public class MessageCreateListener {
             String prefix = serverBean.getPrefix();
             String content = event.getMessage().getContent();
 
-            String[] prefixes = {prefix, DiscordApiCollection.getInstance().getYourself().getMentionTag(), "<@!"+DiscordApiCollection.getInstance().getYourself().getIdAsString()+">"};
+            String[] prefixes = {prefix, DiscordApiCollection.getInstance().getYourself().getMentionTag(), "<@!" + DiscordApiCollection.getInstance().getYourself().getIdAsString() + ">"};
 
             int prefixFound = -1;
-            for(int i=0; i < prefixes.length; i++) {
+            for (int i = 0; i < prefixes.length; i++) {
                 if (prefixes[i] != null && content.toLowerCase().startsWith(prefixes[i].toLowerCase())) {
                     prefixFound = i;
                     break;
@@ -115,6 +117,7 @@ public class MessageCreateListener {
                 boolean messageRegistered = false;
                 FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
                 if (!event.getMessage().getContent().isEmpty()
+                        && serverBean.getFisheryStatus() == FisheryStatus.ACTIVE
                         && !fisheryServerBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
                 )
                     messageRegistered = fisheryServerBean.getUser(event.getMessageAuthor().getId()).registerMessage(event.getMessage(), event.getServerTextChannel().get());

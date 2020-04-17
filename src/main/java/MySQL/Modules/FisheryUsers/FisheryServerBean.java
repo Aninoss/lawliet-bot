@@ -12,12 +12,12 @@ import org.javacord.api.entity.server.Server;
 import java.time.LocalDate;
 import java.util.*;
 
-public class FisheryServerBean extends BeanWithServer implements Observer {
+public class FisheryServerBean extends BeanWithServer {
 
     private final CustomObservableMap<Long, FisheryUserBean> users;
     private final CustomObservableList<Long> ignoredChannelIds, roleIds;
 
-    public FisheryServerBean(long serverId, ServerBean serverBean, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryUserBean> users) {
+    public FisheryServerBean(ServerBean serverBean, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryUserBean> users) {
         super(serverBean);
         this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
         this.roleIds = new CustomObservableList<>(roleIds);
@@ -43,7 +43,6 @@ public class FisheryServerBean extends BeanWithServer implements Observer {
 
     public synchronized FisheryUserBean getUser(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryUserBean(
-                getServerId(),
                 getServerBean(),
                 userId,
                 this,
@@ -58,8 +57,7 @@ public class FisheryServerBean extends BeanWithServer implements Observer {
         ));
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
+    public void update() {
         setChanged();
         notifyObservers();
     }

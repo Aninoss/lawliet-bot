@@ -47,4 +47,8 @@ public class FisheryHourlyIncomeBean {
         }
     }
 
+    public void setChanged() {
+        changed = true;
+    }
+
 }

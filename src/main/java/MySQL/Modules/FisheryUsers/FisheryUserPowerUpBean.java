@@ -54,6 +54,10 @@ public class FisheryUserPowerUpBean {
         changed = true;
     }
 
+    public void setChanged() {
+        changed = true;
+    }
+
 
     /* Tools */
 

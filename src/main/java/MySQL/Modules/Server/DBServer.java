@@ -31,10 +31,8 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
     @Override
     protected ServerBean loadBean(Long serverId) throws Exception {
-        if (!DiscordApiCollection.getInstance().getServerById(serverId).isPresent())
-            throw new Exception("Invalid Discord Server");
-
-        removedServerIds.remove(serverId);
+        boolean serverPresent = DiscordApiCollection.getInstance().getServerById(serverId).isPresent();
+        if (serverPresent) removedServerIds.remove(serverId);
 
         ServerBean serverBean;
 
@@ -71,7 +69,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
                     800000000,
                     null
             );
-            insertBean(serverBean);
+            if (serverPresent) insertBean(serverBean);
         }
 
         resultSet.close();

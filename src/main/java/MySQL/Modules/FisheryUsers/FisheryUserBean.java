@@ -4,9 +4,7 @@ import Constants.CodeBlockColor;
 import Constants.FisheryCategoryInterface;
 import Constants.LogStatus;
 import Constants.Settings;
-import Core.DiscordApiCollection;
 import Core.EmbedFactory;
-import Core.ExceptionHandler;
 import Core.TextManager;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
@@ -46,7 +44,7 @@ public class FisheryUserBean extends BeanWithServer {
     private long hiddenCoins = 0, messagesThisHour = 0;
     private String lastContent = null;
 
-    FisheryUserBean(long serverId, ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+    FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
         super(serverBean);
         this.userId = userId;
         this.fish = fish;
@@ -58,11 +56,11 @@ public class FisheryUserBean extends BeanWithServer {
         this.fisheryHourlyIncomeMap = fisheryHourlyIncomeMap;
         this.powerUpMap = powerUpMap;
 
-        for(int i = 0; i < 6; i++) this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverId, userId, i, 0));
+        for(int i = 0; i < 6; i++) this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverBean.getServerId(), userId, i, 0));
     }
 
-    public FisheryUserBean(long serverId, ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        this(serverId, serverBean, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, fisheryHourlyIncomeMap, powerUpMap);
+    public FisheryUserBean(ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+        this(serverBean, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, fisheryHourlyIncomeMap, powerUpMap);
         setFisheryServerBean(fisheryServerBean);
     }
 
@@ -140,7 +138,6 @@ public class FisheryUserBean extends BeanWithServer {
     void setFisheryServerBean(FisheryServerBean fisheryServerBean) {
         if (this.fisheryServerBean == null) {
             this.fisheryServerBean = fisheryServerBean;
-            addObserver(fisheryServerBean);
         }
     }
 
@@ -149,7 +146,7 @@ public class FisheryUserBean extends BeanWithServer {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
         messagesThisHour++;
-        if (messagesThisHour >= 3500) {
+        if (messagesThisHour >= 3400) {
             banned = true;
             LOGGER.info("User temporarely banned with id " + userId);
             return false;
@@ -171,7 +168,7 @@ public class FisheryUserBean extends BeanWithServer {
                 if (fishIncome != null) fishIncome += effect;
                 getCurrentFisheryHourlyIncome().add(effect);
                 checkValuesBound();
-                setChangedCustom();
+                setChanged();
 
                 Optional<User> userOpt = getUser();
                 if (fish >= 100 &&
@@ -207,7 +204,7 @@ public class FisheryUserBean extends BeanWithServer {
             getCurrentFisheryHourlyIncome().add(effect);
 
             checkValuesBound();
-            setChangedCustom();
+            setChanged();
         }
     }
 
@@ -238,7 +235,7 @@ public class FisheryUserBean extends BeanWithServer {
         if (coinsAdd != 0) coins += coinsAdd;
         if (newDailyStreak != null) dailyStreak = newDailyStreak;
         checkValuesBound();
-        setChangedCustom();
+        setChanged();
 
         long rank = getRank();
         long fishIncome = getFishIncome();
@@ -299,30 +296,30 @@ public class FisheryUserBean extends BeanWithServer {
 
     public void levelUp(int powerUpId) {
         getPowerUp(powerUpId).levelUp();
-        setChangedCustom();
+        setChanged();
     }
 
     public void updateDailyReceived() {
         if (!LocalDate.now().equals(dailyReceived)) {
             dailyReceived = LocalDate.now();
-            setChangedCustom();
+            setChanged();
         }
     }
 
     public void increaseDailyStreak() {
         dailyStreak++;
-        setChangedCustom();
+        setChanged();
     }
 
     public void resetDailyStreak() {
         dailyStreak = 0;
-        setChangedCustom();
+        setChanged();
     }
 
     public void addUpvote(int upvotes) {
         if (upvotes > 0) {
             upvoteStack += upvotes;
-            setChangedCustom();
+            setChanged();
         }
     }
 
@@ -333,14 +330,14 @@ public class FisheryUserBean extends BeanWithServer {
     public void clearUpvoteStack() {
         if (upvoteStack > 0) {
             upvoteStack = 0;
-            setChangedCustom();
+            setChanged();
         }
     }
 
     public void setReminderSent() {
         if (!reminderSent) {
             reminderSent = true;
-            setChangedCustom();
+            setChanged();
         }
     }
 
@@ -350,9 +347,8 @@ public class FisheryUserBean extends BeanWithServer {
         return changedTemp;
     }
 
-    private void setChangedCustom() {
-        setChanged();
-        notifyObservers();
+    public void setChanged() {
+        fisheryServerBean.update();
         changed = true;
     }
 

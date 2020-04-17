@@ -7,8 +7,11 @@ import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.File;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class SurveyBean extends Observable {
@@ -38,6 +41,15 @@ public class SurveyBean extends Observable {
 
     public CustomObservableMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes() {
         return secondVotes;
+    }
+
+    public LocalDate getNextDate() {
+        LocalDate localDate = getStartDate();
+        do {
+            localDate = localDate.plus(1, ChronoUnit.DAYS);
+        } while(localDate.getDayOfWeek() != DayOfWeek.MONDAY && localDate.getDayOfWeek() != DayOfWeek.THURSDAY);
+
+        return localDate;
     }
 
 

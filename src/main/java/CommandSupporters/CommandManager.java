@@ -223,7 +223,15 @@ public class CommandManager {
         Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(1000);
-                if (RunningCommandManager.getInstance().isActive(userMessage.getUserAuthor().get().getId(), commandThread)) command.addLoadingReaction();
+                if (commandThread.isAlive()) {
+                    command.addLoadingReaction();
+                    for (int i = 0; i < 60; i++) {
+                        if (!commandThread.isAlive()) return;
+                        Thread.sleep(1000);
+                    }
+
+                    commandThread.interrupt();
+                }
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
             }

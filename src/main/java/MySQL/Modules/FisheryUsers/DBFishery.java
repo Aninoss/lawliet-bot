@@ -33,7 +33,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private static final DBFishery ourInstance = new DBFishery();
     public static DBFishery getInstance() { return ourInstance; }
-    private DBFishery() {}
+    private DBFishery() { }
 
     final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
     private final int VC_CHECK_INTERVAL_MIN = 5;
@@ -41,7 +41,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {
         return CacheBuilder.newBuilder()
-                .maximumSize(250 * DiscordApiCollection.getInstance().size())
+                .maximumSize(200 * DiscordApiCollection.getInstance().size())
                 .removalListener((element) -> onRemoved((FisheryServerBean) element.getValue()));
     }
 
@@ -60,7 +60,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap = getFisheryPowerUpMap(serverId);
 
         FisheryServerBean fisheryServerBean = new FisheryServerBean(
-                serverId,
                 serverBean,
                 getIgnoredChannelIds(serverId),
                 getRoleIds(serverId),
@@ -85,10 +84,11 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         .filter(FisheryUserBean::checkChanged)
                         .forEach(this::saveFisheryUserBean);
 
-                LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
-                Thread.sleep(50);
+                LOGGER.info("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
+                Thread.sleep(100);
             }
         } catch (Throwable e) {
+            update(fisheryServerBean, null);
             LOGGER.error("Could not save fishery server", e);
         }
     }
@@ -111,6 +111,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .filter(FisheryUserPowerUpBean::checkChanged)
                     .forEach(this::saveFisheryUserPowerUpBean);
         } catch (Throwable e) {
+            fisheryUserBean.setChanged();
             LOGGER.error("Could not save fishery user", e);
         }
     }
@@ -124,6 +125,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 preparedStatement.setInt(4, fisheryUserPowerUpBean.getLevel());
             });
         } catch (Throwable e) {
+            fisheryUserPowerUpBean.setChanged();
             LOGGER.error("Could not save fishery power up bean", e);
         }
     }
@@ -137,6 +139,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 preparedStatement.setLong(4, fisheryHourlyIncomeBean.getFishIncome());
             });
         } catch (Throwable e) {
+            fisheryHourlyIncomeBean.setChanged();
             LOGGER.error("Could not save fishery hourly income", e);
         }
     }
@@ -152,7 +155,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         while (resultSet.next()) {
             long userId = resultSet.getLong(1);
             FisheryUserBean fisheryUserBean = new FisheryUserBean(
-                    serverId,
                     serverBean,
                     userId,
                     resultSet.getLong(2),
@@ -287,7 +289,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     public void startVCObserver() {
-        Instant nextRequest = Instant.now();
+        Instant nextRequest = Instant.now().plus(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
 
         try {
             while (true) {

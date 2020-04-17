@@ -276,13 +276,7 @@ public class Connector {
                 t.start();
             });
             api.addServerLeaveListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new ServerLeaveListener().onServerLeave(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "server_leave");
+                Thread t = new CustomThread(() -> new ServerLeaveListener().onServerLeave(event), "server_leave");
                 t.start();
             });
             api.addServerVoiceChannelChangeUserLimitListener(event -> {

@@ -8,7 +8,9 @@ import Core.EmbedFactory;
 import Core.ExceptionHandler;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
+import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Survey.DBSurvey;
+import MySQL.Modules.Survey.SurveyBean;
 import ServerStuff.WebCommunicationServer.Events.OnTopGG;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -20,6 +22,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.concurrent.CompletableFuture;
 
 @CommandProperties(

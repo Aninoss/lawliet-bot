@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -47,13 +48,17 @@ public class Clock {
     private void start() {
         //Start 10 Minutes Event Loop
         Thread t = new CustomThread(() -> {
-            while (true) {
-                try {
+            try {
+                while (true) {
                     Thread.sleep(1000 * 60 * 10);
-                    every10Minutes();
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
+                    try {
+                        every10Minutes();
+                    } catch (Exception e) {
+                        LOGGER.error("Error in 10 min clock", e);
+                    }
                 }
+            } catch (InterruptedException e) {
+                LOGGER.error("Interrupted", e);
             }
         }, "clock_10min");
         t.start();
@@ -61,7 +66,11 @@ public class Clock {
         try {
             while (true) {
                 Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), TimeTools.setInstantToNextHour(Instant.now())));
-                onHourStart();
+                try {
+                    onHourStart();
+                } catch (Exception e) {
+                    LOGGER.error("Error in hourly clock", e);
+                }
             }
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted", e);
@@ -72,6 +81,21 @@ public class Clock {
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             onDayStart();
+
+            //Survey Results
+            try {
+                SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
+                LocalDate today = LocalDate.now();
+                if (!today.isBefore(surveyBean.getNextDate())) {
+                    try {
+                        updateSurvey();
+                    } catch (SQLException | ExecutionException e) {
+                        LOGGER.error("Could not update survey", e);
+                    }
+                }
+            } catch (SQLException | ExecutionException throwables) {
+                LOGGER.error("Error while fetching survey bean", throwables);
+            }
         }
     }
 
@@ -101,17 +125,6 @@ public class Clock {
             DBBotStats.addStatUpvotes();
         } catch (SQLException | ExecutionException | InterruptedException e) {
             LOGGER.error("Could not post upvotes stats", e);
-        }
-
-        //Survey Results
-        Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_WEEK);
-        if (day == Calendar.MONDAY || day == Calendar.THURSDAY) {
-            try {
-                updateSurvey();
-            } catch (SQLException | ExecutionException e) {
-                LOGGER.error("Could not update survey", e);
-            }
         }
     }
 
@@ -220,7 +233,7 @@ public class Clock {
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
                     Thread.sleep(1000);
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOGGER.error("Exception", e);
             }
         }
@@ -233,7 +246,7 @@ public class Clock {
                         LOGGER.debug("Manage survey user {}", user.getName());
                         manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
                     }
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     LOGGER.error("Exception", e);
                 }
                 Thread.sleep(1000);
@@ -243,7 +256,7 @@ public class Clock {
         }
     }
 
-    private void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws Throwable {
+    private void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException, InterruptedException, ExecutionException {
         Locale localeGerman = new Locale(Locales.DE);
 
         HashMap<Long, Long> coinsWinMap = new HashMap<>();
@@ -303,6 +316,7 @@ public class Clock {
         }
 
         user.sendMessage(eb).get();
+        Thread.sleep(50);
     }
 
 }

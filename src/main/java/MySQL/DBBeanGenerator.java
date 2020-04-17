@@ -5,6 +5,8 @@ import Core.CustomThread;
 import Core.Tools.TimeTools;
 import MySQL.Interfaces.CompleteLoadOnStartup;
 import MySQL.Interfaces.IntervalSave;
+import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.Survey.DBSurvey;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
