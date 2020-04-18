@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83E\uDDF9",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
         executable = false,
+        maxCalculationTimeSec = 5 * 60,
         aliases = {"fclear"}
 )
 public class FullClearCommand extends Command implements OnTrackerRequestListener {

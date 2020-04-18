@@ -45,7 +45,7 @@ public class Internet {
 
     private static void download(CompletableFuture<InternetResponse> future, String urlString, String method, int pauseTimeMilis, String body, InternetProperty... properties) {
         try {
-            LOGGER.debug("Downloading from url {}", urlString);
+            if (LOGGER.isDebugEnabled()) LOGGER.debug("Downloading from url {}", urlString);
 
             BufferedReader br;
             String line;

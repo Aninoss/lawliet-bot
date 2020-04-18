@@ -168,10 +168,10 @@ public class Connector {
 
                     LOGGER.info("All shards connected successfully");
 
-                    Thread t = new CustomThread(Clock::getInstance, "clock", 1);
-                    t.start();
-
-                    if (Bot.isProductionMode()) DBTracker.getInstance().init();
+                    if (Bot.isProductionMode()) {
+                        new CustomThread(() -> Clock.getInstance().start(), "clock", 1).start();
+                        DBTracker.getInstance().init();
+                    }
                 } else {
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }

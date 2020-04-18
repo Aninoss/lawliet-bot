@@ -39,13 +39,15 @@ public class Clock {
 
     private static final Clock ourInstance = new Clock();
     public static Clock getInstance() { return ourInstance; }
-    private Clock() { start(); }
+    private Clock() { }
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Clock.class);
+    final Logger LOGGER = LoggerFactory.getLogger(Clock.class);
     private boolean trafficWarned = false;
     private boolean readyForRestart = false;
 
-    private void start() {
+    public void start() {
+        LOGGER.info("Starting Clock");
+
         //Start 10 Minutes Event Loop
         Thread t = new CustomThread(() -> {
             try {
@@ -78,82 +80,103 @@ public class Clock {
     }
 
     private void onHourStart() {
+        //Survey Results
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
-            onDayStart();
-
-            //Survey Results
             try {
-                SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
-                LocalDate today = LocalDate.now();
-                if (!today.isBefore(surveyBean.getNextDate())) {
-                    try {
-                        updateSurvey();
-                    } catch (SQLException | ExecutionException e) {
-                        LOGGER.error("Could not update survey", e);
-                    }
-                }
-            } catch (SQLException | ExecutionException throwables) {
-                LOGGER.error("Error while fetching survey bean", throwables);
+                onDayStart();
+            } catch (Exception e) {
+                LOGGER.error("Exception in daily method", e);
             }
+        }
+
+        try {
+            SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
+            LocalDate today = LocalDate.now();
+            if (!today.isBefore(surveyBean.getNextDate())) {
+                try {
+                    LOGGER.info("Calculating survey results...");
+                    updateSurvey();
+                } catch (Exception e) {
+                    LOGGER.error("Could not update survey", e);
+                }
+            }
+        } catch (ExecutionException | SQLException e) {
+            LOGGER.error("Exception while fetching survey bean", e);
         }
     }
 
     private void onDayStart() {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        trafficWarned = false; //Reset Traffic Warning
-        SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
-        RunningCommandManager.getInstance().clear(); //Resets Running Commands
-        PornImageCache.getInstance().reset(); //Resets Porn Cache
-        DBUpvotes.getInstance().cleanUp(); //Cleans Up Bot Upvote List
+        try {
+            trafficWarned = false; //Reset Traffic Warning
+            SubredditContainer.getInstance().reset(); //Resets Subreddit Cache
+            RunningCommandManager.getInstance().clear(); //Resets Running Commands
+            PornImageCache.getInstance().reset(); //Resets Porn Cache
+            DBUpvotes.getInstance().cleanUp(); //Cleans Up Bot Upvote List
+        } catch (Exception e) {
+            LOGGER.error("Exception while resetting bot", e);
+        }
 
-        DonationHandler.checkExpiredDonations(); //Check Expired Donations
+        try {
+            DonationHandler.checkExpiredDonations(); //Check Expired Donations
+        } catch (Exception e) {
+            LOGGER.error("Exception while checking for expired bot donations");
+        }
 
         //Send Bot Stats
         try {
             DBBotStats.addStatCommandUsages();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LOGGER.error("Could not post command usages stats", e);
         }
         try {
             DBBotStats.addStatServers(apiCollection.getServerTotalSize());
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LOGGER.error("Could not post total server count", e);
         }
         try {
             DBBotStats.addStatUpvotes();
-        } catch (SQLException | ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("Could not post upvotes stats", e);
         }
     }
 
 
     private void every10Minutes() throws InterruptedException {
-        if (!DiscordApiCollection.getInstance().allShardsConnected())
-            LOGGER.error("At least 1 shard is offline");
-
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
+        if (!apiCollection.allShardsConnected())
+            LOGGER.error("At least 1 shard is offline");
+
         //Cleans Cooldown List
-        Cooldown.getInstance().clean();
-
-        //Analyzes Traffic
-        double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
-        Console.getInstance().setTraffic(trafficGB);
-
-        if (trafficGB >= 60 && !trafficWarned) {
-            try {
-                apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
-            } catch (ExecutionException e) {
-                LOGGER.error("Could not send message", e);
-            }
-            trafficWarned = true;
+        try {
+            Cooldown.getInstance().clean();
+        } catch (Exception e) {
+            LOGGER.error("Exception while cleaning cooldown list", e);
         }
 
-        if (trafficGB >= 100) {
-            LOGGER.error("Too much traffic");
-            System.exit(-1);
+        //Analyzes Traffic
+        try {
+            double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
+            Console.getInstance().setTraffic(trafficGB);
+
+            if (trafficGB >= 60 && !trafficWarned) {
+                try {
+                    apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
+                } catch (ExecutionException e) {
+                    LOGGER.error("Could not send message", e);
+                }
+                trafficWarned = true;
+            }
+
+            if (trafficGB >= 100) {
+                LOGGER.error("Too much traffic");
+                System.exit(-1);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception while checking traffic", e);
         }
 
         //Checks Database Connection
@@ -167,49 +190,48 @@ public class Clock {
         }
 
         //Updates Activity
-        Connector.updateActivity();
-
-        //Updates Discord Bots Server Count
-        if (Bot.isProductionMode() && apiCollection.allShardsConnected()) {
-            int totalServers = apiCollection.getServerTotalSize();
-
-            TopGG.getInstance().updateServerCount(totalServers);
-            Botsfordiscord.updateServerCount(totalServers);
-            BotsOnDiscord.updateServerCount(totalServers);
-            Discordbotlist.updateServerCount(totalServers);
-            Divinediscordbots.updateServerCount(totalServers);
-            Discordbotsgg.updateServerCount(totalServers);
+        try {
+            Connector.updateActivity();
+        } catch (Exception e) {
+            LOGGER.error("Error while updating activity", e);
         }
 
-        //Updates survey manually
-        File surveyCheckFile = new File("survey_update");
-        if (surveyCheckFile.exists()) {
-            if (surveyCheckFile.delete()) {
-                LOGGER.info("Manual survey update");
-                try {
-                    updateSurvey();
-                } catch (SQLException | ExecutionException e) {
-                    LOGGER.error("Could not update survey", e);
-                }
+        //Updates Discord Bots Server Count
+        try {
+            if (Bot.isProductionMode() && apiCollection.allShardsConnected()) {
+                int totalServers = apiCollection.getServerTotalSize();
+
+                TopGG.getInstance().updateServerCount(totalServers);
+                Botsfordiscord.updateServerCount(totalServers);
+                BotsOnDiscord.updateServerCount(totalServers);
+                Discordbotlist.updateServerCount(totalServers);
+                Divinediscordbots.updateServerCount(totalServers);
+                Discordbotsgg.updateServerCount(totalServers);
             }
+        } catch (Exception e) {
+            LOGGER.error("Error while updating bots server count", e);
         }
 
         //Restart All Shards at 07:xx AM
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        try {
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-        if (hour == Settings.UPDATE_HOUR && readyForRestart) {
-            readyForRestart = false;
+            if (hour == Settings.UPDATE_HOUR && readyForRestart) {
+                readyForRestart = false;
 
-            if (Bot.hasUpdate()) {
-                LOGGER.info("Restarting for update...");
-                System.exit(0);
-            } else {
-                DBMain.getInstance().clearCache();
-                LOGGER.info("Cache cleaned successfully");
+                if (Bot.hasUpdate()) {
+                    LOGGER.info("Restarting for update...");
+                    System.exit(0);
+                } else {
+                    DBMain.getInstance().clearCache();
+                    LOGGER.info("Cache cleaned successfully");
+                }
+            } else if (hour < Settings.UPDATE_HOUR) {
+                readyForRestart = true;
             }
-        } else if (hour < Settings.UPDATE_HOUR) {
-            readyForRestart = true;
+        } catch (Exception e) {
+            LOGGER.error("Error while looking for bot updates", e);
         }
     }
 
@@ -231,29 +253,33 @@ public class Clock {
                         DBServer.getInstance().getBean(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
                     LOGGER.debug("Enter user ID {}", surveySecondVote.getUserId());
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 }
             } catch (Exception e) {
-                LOGGER.error("Exception", e);
+                LOGGER.error("Exception while initializing user list for fishery survey", e);
             }
         }
+
+        LOGGER.info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
 
         try {
             for (long userId : secondVotesMap.keySet()) {
                 try {
                     User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
                     if (user != null) {
-                        LOGGER.debug("Manage survey user {}", user.getName());
+                        LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
                         manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Exception", e);
+                    LOGGER.error("Exception while managing user {}", userId, e);
                 }
-                Thread.sleep(1000);
+                Thread.sleep(500);
             }
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted", e);
         }
+
+        LOGGER.info("Survey results finished");
     }
 
     private void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException, InterruptedException, ExecutionException {
@@ -316,7 +342,6 @@ public class Clock {
         }
 
         user.sendMessage(eb).get();
-        Thread.sleep(50);
     }
 
 }

@@ -40,7 +40,7 @@ public abstract class RedditAbstract extends Command {
                 .setUrl(post.getLink())
                 .setTimestamp(post.getInstant());
 
-        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"porn_footer", StringTools.numToString(getLocale(), post.getScore()), StringTools.numToString(getLocale(), post.getComments())));
+        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringTools.numToString(getLocale(), post.getScore()), StringTools.numToString(getLocale(), post.getComments())));
 
         event.getChannel().sendMessage(eb).get();
         return true;

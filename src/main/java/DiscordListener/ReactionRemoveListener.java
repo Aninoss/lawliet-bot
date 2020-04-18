@@ -18,7 +18,9 @@ public class ReactionRemoveListener {
     final static Logger LOGGER = LoggerFactory.getLogger(ReactionRemoveListener.class);
 
     public void onReactionRemove(ReactionRemoveEvent event) {
-        if (event.getUser().isBot()) return;
+        if (event.getUser().isBot() ||
+                (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
+        ) return;
 
         //Commands
         if (ReactionAddListener.manageReactionCommands(event) || !event.getServer().isPresent()) return;
@@ -29,7 +31,7 @@ public class ReactionRemoveListener {
             if (event.getMessage().isPresent()) message = event.getMessage().get();
             else message = event.getChannel().getMessageById(event.getMessageId()).get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not get message", e);
+            //Ignore
             return;
         }
 

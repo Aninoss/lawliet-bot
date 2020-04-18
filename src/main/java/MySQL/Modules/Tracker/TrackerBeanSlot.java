@@ -138,7 +138,7 @@ public class TrackerBeanSlot extends BeanWithServer {
             } catch (IllegalAccessException | InstantiationException e) {
                 LOGGER.error("Could not create command", e);
             }
-        }, "tracker_" + commandTrigger, 1);
+        }, "tracker_" + serverBean.getServerId() + "_" + commandTrigger, 1);
         t.start();
     }
 

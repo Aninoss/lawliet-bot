@@ -3,27 +3,22 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
+import Core.Clock;
 import Core.CustomThread;
 import Core.EmbedFactory;
-import Core.ExceptionHandler;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
-import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Survey.DBSurvey;
 import MySQL.Modules.Survey.SurveyBean;
-import ServerStuff.WebCommunicationServer.Events.OnTopGG;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.time.Duration;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "ping",

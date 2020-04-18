@@ -225,7 +225,7 @@ public class CommandManager {
                 Thread.sleep(1000);
                 if (commandThread.isAlive()) {
                     command.addLoadingReaction();
-                    for (int i = 0; i < 60; i++) {
+                    for (int i = 0; i < command.getMaxCalculationTimeSec(); i++) {
                         if (!commandThread.isAlive()) return;
                         Thread.sleep(1000);
                     }

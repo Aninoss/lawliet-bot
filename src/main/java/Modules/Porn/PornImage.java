@@ -4,16 +4,15 @@ import java.time.Instant;
 
 public class PornImage {
 
-    private String imageUrl, pageUrl;
-    private int score, comments;
-    private Instant instant;
-    private boolean video;
+    private final String imageUrl, pageUrl;
+    private final int score;
+    private final Instant instant;
+    private final boolean video;
 
-    public PornImage(String imageUrl, String pageUrl, int score, int comments, Instant instant, boolean video) {
+    public PornImage(String imageUrl, String pageUrl, int score, Instant instant, boolean video) {
         this.imageUrl = imageUrl;
         this.pageUrl = pageUrl;
         this.score = score;
-        this.comments = comments;
         this.instant = instant;
         this.video = video;
     }
@@ -29,8 +28,6 @@ public class PornImage {
     public int getScore() {
         return score;
     }
-
-    public int getComments() { return comments; }
 
     public Instant getInstant() {
         return instant;

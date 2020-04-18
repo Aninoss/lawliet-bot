@@ -1,6 +1,5 @@
 package Modules.Porn;
 
-import Core.*;
 import Core.Internet.InternetCache;
 import Core.Internet.InternetResponse;
 import Core.Tools.InternetTools;
@@ -43,7 +42,7 @@ public class PornImageDownloader {
         );
 
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
-        String data = InternetCache.getData(url, 60 * 60).get().getContent().get();
+        String data = InternetCache.getDataShortLived(url).get().getContent().get();
 
         int count = Math.min(200 * 100, Integer.parseInt(StringTools.extractGroups(data, "count=\"", "\"")[0]));
 
@@ -69,7 +68,7 @@ public class PornImageDownloader {
 
     private static Optional<PornImage> getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws InterruptedException, ExecutionException {
         String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&json=1&tags=" + searchTerm + "&pid=" + page;
-        InternetResponse internetResponse = InternetCache.getData(url, 60 * 60).get();
+        InternetResponse internetResponse = InternetCache.getDataShortLived(url).get();
 
         if (!internetResponse.getContent().isPresent()) {
             return Optional.empty();
@@ -120,15 +119,6 @@ public class PornImageDownloader {
 
     private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) throws InterruptedException, ExecutionException {
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
-        String commentURL = "https://"+domain+"/index.php?page=dapi&s=comment&q=index&post_id=" + postData.getInt("id");
-
-        String commentsDataString = InternetCache.getData(commentURL , 60 * 60).get().getContent().get();
-
-        int comments = 0;
-        while(commentsDataString.contains("creator=\"")) {
-            commentsDataString = commentsDataString.replaceFirst("creator=\"", "").replaceFirst("body=\"", "");
-            comments++;
-        }
 
         Instant instant;
         if (postData.has("created_at")) {
@@ -148,6 +138,6 @@ public class PornImageDownloader {
             //Ignore
         }
 
-        return new PornImage(fileURL, postURL, score, comments, instant, !InternetTools.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
+        return new PornImage(fileURL, postURL, score, instant, !InternetTools.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
 }

@@ -242,8 +242,10 @@ public class FisheryUserBean extends BeanWithServer {
 
         /* Generate Account Embed */
         Server server = getServer().get();
-        User user = server.getMemberById(userId).get();
+        User user = server.getMemberById(userId).orElse(null);
         Locale locale = getServerBean().getLocale();
+
+        if (user == null) return null;
 
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())

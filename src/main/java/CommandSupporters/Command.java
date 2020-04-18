@@ -544,13 +544,11 @@ public abstract class Command {
     public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
     public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getCooldownTime() { return commandProperties.cooldownTime(); }
+    public int getMaxCalculationTimeSec() { return commandProperties.maxCalculationTimeSec(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {
             perm |= Permission.ADD_REACTIONS | Permission.READ_MESSAGE_HISTORY;
-        }
-        if (this instanceof OnReactionAddStaticListener) {
-            perm |= Permission.READ_MESSAGE_HISTORY;
         }
         return perm;
     }
