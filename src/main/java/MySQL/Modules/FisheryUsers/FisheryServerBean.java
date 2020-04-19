@@ -41,7 +41,7 @@ public class FisheryServerBean extends BeanWithServer {
 
     public synchronized CustomObservableMap<Long, FisheryUserBean> getUsers() { return users; }
 
-    public synchronized FisheryUserBean getUser(long userId) {
+    public synchronized FisheryUserBean getUserBean(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryUserBean(
                 getServerBean(),
                 userId,

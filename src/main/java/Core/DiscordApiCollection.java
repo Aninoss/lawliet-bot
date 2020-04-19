@@ -2,9 +2,9 @@ package Core;
 
 import CommandSupporters.CommandContainer;
 import Constants.Settings;
-import Core.Internet.Internet;
-import Core.Internet.InternetProperty;
-import Core.Internet.InternetResponse;
+import Core.Internet.HttpRequest;
+import Core.Internet.HttpProperty;
+import Core.Internet.HttpResponse;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.management.LockInfo;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -428,25 +427,25 @@ public class DiscordApiCollection {
         }
     }
 
-    public CompletableFuture<InternetResponse> removeWebhook(String webhookUrl) throws IOException {
+    public CompletableFuture<HttpResponse> removeWebhook(String webhookUrl) throws IOException {
         String[] segments = webhookUrl.split("/");
         String webhookId = segments[segments.length - 2];
         String token = segments[segments.length - 1];
 
-        return Internet.getData(String.format("https://discordapp.com/api/v6/webhooks/%s/%s", webhookId, token), "DELETE", 0, "");
+        return HttpRequest.getData(String.format("https://discordapp.com/api/v6/webhooks/%s/%s", webhookId, token), "DELETE", 0, "");
     }
 
-    public CompletableFuture<InternetResponse> sendToWebhook(Server server, String webhookUrl, String content) throws IOException {
+    public CompletableFuture<HttpResponse> sendToWebhook(Server server, String webhookUrl, String content) throws IOException {
         User yourself = getYourself();
 
-        InternetProperty contentType = new InternetProperty("Content-type", "application/json");
+        HttpProperty contentType = new HttpProperty("Content-type", "application/json");
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("username", server.getDisplayName(yourself));
         jsonObject.put("avatar_url", yourself.getAvatar().getUrl());
         jsonObject.put("content", content);
 
-        return Internet.getData(webhookUrl, "POST", jsonObject.toString(), contentType);
+        return HttpRequest.getData(webhookUrl, "POST", jsonObject.toString(), contentType);
     }
 
 }

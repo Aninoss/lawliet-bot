@@ -22,9 +22,6 @@ public class ReactionRemoveListener {
                 (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
         ) return;
 
-        //Commands
-        if (ReactionAddListener.manageReactionCommands(event) || !event.getServer().isPresent()) return;
-
         //Download Message
         Message message = null;
         try {
@@ -34,6 +31,9 @@ public class ReactionRemoveListener {
             //Ignore
             return;
         }
+
+        //Commands
+        if (ReactionAddListener.manageReactionCommands(event) || !event.getServer().isPresent()) return;
 
         try {
             if (message.getAuthor().isYourself() && message.getEmbeds().size() > 0) {

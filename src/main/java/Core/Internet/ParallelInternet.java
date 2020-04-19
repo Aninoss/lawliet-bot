@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 public class ParallelInternet {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ParallelInternet.class);
-    private HashMap<String, CompletableFuture<InternetResponse>> responseHashMap = new HashMap<>();
+    private HashMap<String, CompletableFuture<HttpResponse>> responseHashMap = new HashMap<>();
     int size;
 
     public ParallelInternet(String... urlArray) {
@@ -20,17 +20,17 @@ public class ParallelInternet {
         Arrays.asList(urlArray).parallelStream().forEach(url -> {
             try {
                 if (!responseHashMap.containsKey(url)) {
-                    CompletableFuture<InternetResponse> completableFuture = new CompletableFuture<>();
+                    CompletableFuture<HttpResponse> completableFuture = new CompletableFuture<>();
                     responseHashMap.put(url, completableFuture);
-                    completableFuture.complete(Internet.getData(url).get());
+                    completableFuture.complete(HttpRequest.getData(url).get());
                 }
-            } catch (IOException | InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Could not fetch data", e);
             }
         });
     }
 
-    public InternetResponse get(String url) throws InterruptedException, ExecutionException {
+    public HttpResponse get(String url) throws InterruptedException, ExecutionException {
         return responseHashMap.get(url).get();
     }
 

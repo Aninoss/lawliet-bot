@@ -40,7 +40,7 @@ public class OnTopGG implements DataListener<JSONObject> {
                         }
                 ).forEach(server -> {
                     try {
-                        DBFishery.getInstance().getBean(server.getId()).getUser(userId).addUpvote(isWeekend ? 2 : 1);
+                        DBFishery.getInstance().getBean(server.getId()).getUserBean(userId).addUpvote(isWeekend ? 2 : 1);
                     } catch (ExecutionException e) {
                         LOGGER.error("Could not get fishery bean", e);
                     }

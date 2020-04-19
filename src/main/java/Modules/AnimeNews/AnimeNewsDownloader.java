@@ -2,14 +2,13 @@ package Modules.AnimeNews;
 
 import Constants.Language;
 import Core.Internet.InternetCache;
-import Core.Internet.InternetResponse;
+import Core.Internet.HttpResponse;
 import Modules.PostBundle;
 import Core.Tools.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,9 +24,9 @@ public class AnimeNewsDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (!internetResponse.getContent().isPresent()) return null;
-        String dataString = internetResponse.getContent().get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
+        if (!httpResponse.getContent().isPresent()) return null;
+        String dataString = httpResponse.getContent().get();
 
         if (StringTools.getLanguage(locale) == Language.DE) return getPostDE(getCurrentPostStringDE(dataString)[0]);
         else return getPostEN(getCurrentPostStringEN(dataString)[0]);
@@ -38,9 +37,9 @@ public class AnimeNewsDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (!internetResponse.getContent().isPresent()) return null;
-        String dataString = internetResponse.getContent().get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
+        if (!httpResponse.getContent().isPresent()) return null;
+        String dataString = httpResponse.getContent().get();
 
         ArrayList<AnimeNewsPost> postList = new ArrayList<>();
         String[] postStrings;

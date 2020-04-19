@@ -2,7 +2,7 @@ package Modules.Reddit;
 
 import Core.*;
 import Core.Internet.InternetCache;
-import Core.Internet.InternetResponse;
+import Core.Internet.HttpResponse;
 import Modules.PostBundle;
 import Core.Tools.InternetTools;
 import Core.Tools.StringTools;
@@ -42,12 +42,12 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
 
-        InternetResponse internetResponse = InternetCache.getDataShortLived(downloadUrl).get();
-        if (!internetResponse.getContent().isPresent()) {
+        HttpResponse httpResponse = InternetCache.getDataShortLived(downloadUrl).get();
+        if (!httpResponse.getContent().isPresent()) {
             return null;
         }
 
-        String dataString = internetResponse.getContent().get();
+        String dataString = httpResponse.getContent().get();
         if (!dataString.startsWith("{")) {
             return null;
         }
@@ -72,10 +72,10 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
-        if (!internetResponse.getContent().isPresent()) return null;
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
+        if (!httpResponse.getContent().isPresent()) return null;
 
-        String dataString = internetResponse.getContent().get();
+        String dataString = httpResponse.getContent().get();
         if (!dataString.startsWith("{")) return null;
 
         JSONArray postData = new JSONObject(dataString).getJSONObject("data").getJSONArray("children");

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
@@ -31,6 +32,21 @@ public class InternetTools {
 
     public static boolean urlContainsImage(String url) {
         return url.endsWith("jpeg") || url.endsWith("jpg") || url.endsWith("png") || url.endsWith("bmp") || url.endsWith("gif");
+    }
+
+    public static boolean stringHasURL(String str) {
+        if (str.contains("http://") || str.contains("https://") || str.contains("www")) return true;
+
+        String [] parts = str.split("\\s+");
+
+        for( String item : parts ) try {
+            new URL(item);
+            return true;
+        } catch (MalformedURLException e) {
+            //Ignore
+        }
+
+        return false;
     }
 
 }

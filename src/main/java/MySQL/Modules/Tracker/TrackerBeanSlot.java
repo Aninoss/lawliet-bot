@@ -35,7 +35,7 @@ public class TrackerBeanSlot extends BeanWithServer {
     private final String commandTrigger, commandKey;
     private String args;
     private Instant nextRequest;
-    private Thread thread;
+    private Thread thread = null;
 
     public TrackerBeanSlot(ServerBean serverBean, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
         super(serverBean);
@@ -108,15 +108,6 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     private void start(ServerBean serverBean) {
         Thread t = new CustomThread(() -> {
-            synchronized (DBTracker.getInstance()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
-                    return;
-                }
-            }
-
             thread = Thread.currentThread();
             Locale locale = serverBean.getLocale();
             String prefix = serverBean.getPrefix();
@@ -175,7 +166,7 @@ public class TrackerBeanSlot extends BeanWithServer {
     }
 
     public void stop() {
-        thread.interrupt();
+        if (thread != null) thread.interrupt();
     }
 
     public void delete() {

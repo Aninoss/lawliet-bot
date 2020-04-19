@@ -98,7 +98,7 @@ public class ServerMemberJoinListener {
         //Automatische Rollenvergabe bei Fisching
         try {
             FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
-            FisheryUserBean fisheryUserBean = fisheryServerBean.getUser(event.getUser().getId());
+            FisheryUserBean fisheryUserBean = fisheryServerBean.getUserBean(event.getUser().getId());
             int level = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
             if (level > 0) {
                 List<Role> roles = fisheryServerBean.getRoleIds().transform(server::getRoleById, DiscordEntity::getId);

@@ -3,6 +3,7 @@ package Core;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import MySQL.DBMain;
+import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
@@ -87,6 +88,42 @@ public class Console {
                                     DonationHandler.addBonus(userId, usDollars);
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage donation", e);
+                                }
+                                break;
+
+                            case "fish":
+                                try {
+                                    long serverId = Long.parseLong(arg.split(" ")[0]);
+                                    long userId = Long.parseLong(arg.split(" ")[1]);
+                                    long value = Long.parseLong(arg.split(" ")[2]);
+                                    DBFishery.getInstance().getBean(serverId).getUserBean(userId).setFish(value);
+                                    LOGGER.info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage user fish", e);
+                                }
+                                break;
+
+                            case "coins":
+                                try {
+                                    long serverId = Long.parseLong(arg.split(" ")[0]);
+                                    long userId = Long.parseLong(arg.split(" ")[1]);
+                                    long value = Long.parseLong(arg.split(" ")[2]);
+                                    DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoins(value);
+                                    LOGGER.info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage user fish", e);
+                                }
+                                break;
+
+                            case "dailystreak":
+                                try {
+                                    long serverId = Long.parseLong(arg.split(" ")[0]);
+                                    long userId = Long.parseLong(arg.split(" ")[1]);
+                                    int value = Integer.parseInt(arg.split(" ")[2]);
+                                    DBFishery.getInstance().getBean(serverId).getUserBean(userId).setDailyStreak(value);
+                                    LOGGER.info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage user fish", e);
                                 }
                                 break;
 

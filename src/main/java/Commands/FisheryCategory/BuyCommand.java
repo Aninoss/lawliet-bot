@@ -46,7 +46,7 @@ public class BuyCommand extends Command implements OnNavigationListener {
         if (status == FisheryStatus.ACTIVE) {
             serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             server = event.getServer().get();
-            fisheryUserBean = DBFishery.getInstance().getBean(server.getId()).getUser(event.getMessageAuthor().getId());
+            fisheryUserBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(event.getMessageAuthor().getId());
             fisheryServerBean = fisheryUserBean.getFisheryServerBean();
 
             checkRolesWithLog(fisheryServerBean.getRoles(), null);

@@ -216,6 +216,30 @@ public class FisheryUserBean extends BeanWithServer {
         return changeValues(fishAdd, coinsAdd, null);
     }
 
+    public void setFish(long fish) {
+        if (this.fish != fish) {
+            this.fish = fish;
+            checkValuesBound();
+            setChanged();
+        }
+    }
+
+    public void setCoins(long coins) {
+        if (this.coins != coins) {
+            this.coins = coins;
+            checkValuesBound();
+            setChanged();
+        }
+    }
+
+    public void setDailyStreak(int dailyStreak) {
+        if (this.dailyStreak != dailyStreak) {
+            this.dailyStreak = dailyStreak;
+            checkValuesBound();
+            setChanged();
+        }
+    }
+
     public synchronized EmbedBuilder changeValues(long fishAdd, long coinsAdd, Integer newDailyStreak) {
         /* Collect Current Data */
         long fishIncomePrevious = getFishIncome();
@@ -293,7 +317,12 @@ public class FisheryUserBean extends BeanWithServer {
         if (coins > Settings.MAX) coins = Settings.MAX;
         else if (coins < 0) coins = 0;
 
-        if (fishIncome != null && fishIncome > Settings.MAX) fishIncome = Settings.MAX;
+        if (fishIncome != null) {
+            if (fishIncome > Settings.MAX) fishIncome = Settings.MAX;
+            else if (fishIncome < 0) fishIncome = 0L;
+        }
+
+        if (dailyStreak < 0) dailyStreak = 0;
     }
 
     public void levelUp(int powerUpId) {
@@ -304,6 +333,7 @@ public class FisheryUserBean extends BeanWithServer {
     public void updateDailyReceived() {
         if (!LocalDate.now().equals(dailyReceived)) {
             dailyReceived = LocalDate.now();
+            checkValuesBound();
             setChanged();
         }
     }

@@ -20,16 +20,14 @@ import MySQL.Modules.Upvotes.DBUpvotes;
 import ServerStuff.*;
 import CommandSupporters.Cooldown.Cooldown;
 import Modules.Reddit.SubredditContainer;
-import io.netty.util.internal.logging.Log4J2LoggerFactory;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
+
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -291,7 +289,7 @@ public class Clock {
                 .forEach(secondVote -> {
                     try {
                         Server server = DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get();
-                        FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUser(user.getId());
+                        FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(user.getId());
                         long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                         userBean.changeValues(0, price);
                         coinsWinMap.put(secondVote.getServerId(), price);

@@ -20,36 +20,10 @@ public class ReactionAddListener {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ReactionAddListener.class);
 
-    public static boolean manageReactionCommands(SingleReactionEvent event) {
-        for (Command command : CommandContainer.getInstance().getReactionInstances()) {
-            if (event.getMessageId() == command.getReactionMessageID()) {
-                if (event.getUser().getId() == command.getReactionUserID()) {
-                    //RunningCommandManager.getInstance().canUserRunCommand(event.getUser().getId(), event.getApi().getCurrentShard());
-
-                    try {
-                        if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
-                        if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
-                    } catch (Throwable e) {
-                        ExceptionHandler.handleException(e, command.getLocale(), event.getMessage().get().getChannel());
-                    }
-                } else {
-                    if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent()) event.getReaction().get().removeUser(event.getUser());
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public void onReactionAdd(ReactionAddEvent event) {
         if (event.getUser().isBot() ||
                 (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
         ) return;
-
-        //Commands
-        if (manageReactionCommands(event) || !event.getServer().isPresent()) return;
 
         //Download Message
         Message message = null;
@@ -60,6 +34,9 @@ public class ReactionAddListener {
             //Ignore
             return;
         }
+
+        //Commands
+        if (manageReactionCommands(event) || !event.getServer().isPresent()) return;
 
         //Static Reactions
         try {
@@ -81,6 +58,29 @@ public class ReactionAddListener {
         } catch (Throwable throwable) {
             LOGGER.error("Exception", throwable);
         }
+    }
+
+    public static boolean manageReactionCommands(SingleReactionEvent event) {
+        for (Command command : CommandContainer.getInstance().getReactionInstances()) {
+            if (event.getMessageId() == command.getReactionMessageID()) {
+                if (event.getUser().getId() == command.getReactionUserID()) {
+                    //RunningCommandManager.getInstance().canUserRunCommand(event.getUser().getId(), event.getApi().getCurrentShard());
+
+                    try {
+                        if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
+                        if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
+                    } catch (Throwable e) {
+                        ExceptionHandler.handleException(e, command.getLocale(), event.getMessage().get().getChannel());
+                    }
+                } else {
+                    if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent()) event.getReaction().get().removeUser(event.getUser());
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

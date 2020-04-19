@@ -1,8 +1,8 @@
 package ServerStuff;
 
-import Core.Internet.Internet;
-import Core.Internet.InternetProperty;
-import Core.Internet.InternetResponse;
+import Core.Internet.HttpRequest;
+import Core.Internet.HttpProperty;
+import Core.Internet.HttpResponse;
 import Core.SecretManager;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -36,13 +36,13 @@ public class SIGNALTRANSMITTER {
 
     private void login() throws IOException, ExecutionException, InterruptedException {
         String body = "username="+ SecretManager.getString("SIGNALTRANSMITTER.username") +"&password=" + SecretManager.getString("SIGNALTRANSMITTER.password") + "&login=1";
-        InternetResponse internetResponse = Internet.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new InternetProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")).get();
-        cookie = internetResponse.getCookies().get().get(0);
-        key = new JSONObject(internetResponse.getContent().get()).getString("redirect").split("/")[1];
+        HttpResponse httpResponse = HttpRequest.getData("https://vps.srv-control.it:4083/index.php?api=json&act=login", body, new HttpProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")).get();
+        cookie = httpResponse.getCookies().get().get(0);
+        key = new JSONObject(httpResponse.getContent().get()).getString("redirect").split("/")[1];
     }
 
     private void logout() throws IOException {
-        Internet.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=logout&api=json", getProperties());
+        HttpRequest.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=logout&api=json", getProperties());
         ourInstance = null;
     }
 
@@ -61,7 +61,7 @@ public class SIGNALTRANSMITTER {
             return -1;
         }
 
-        JSONObject data = new JSONObject(Internet.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", getProperties()).get().getContent().get());
+        JSONObject data = new JSONObject(HttpRequest.getData("https://vps.srv-control.it:4083/" + key + "/index.php?api=json&act=bandwidth&svs=" + VPS_ID + "&show=undefined", getProperties()).get().getContent().get());
         String act = data.getString("act");
         if (act.equals("bandwidth")) {
             Calendar calendar = Calendar.getInstance();
@@ -81,10 +81,10 @@ public class SIGNALTRANSMITTER {
         }
     }
 
-    private InternetProperty[] getProperties() {
-        return new InternetProperty[]{
-                new InternetProperty("Cookie", cookie),
-                new InternetProperty("Content-Type", "application/x-www-form-urlencoded")
+    private HttpProperty[] getProperties() {
+        return new HttpProperty[]{
+                new HttpProperty("Cookie", cookie),
+                new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
         };
     }
 

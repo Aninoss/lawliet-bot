@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class InternetResponse {
+public class HttpResponse {
 
     private String content;
     private int code;
     private Map<String, List<String>> headerFields;
 
-    public InternetResponse(String content, Map<String, List<String>> headerFields, int code) {
+    public HttpResponse(String content, Map<String, List<String>> headerFields, int code) {
         this.content = content;
         this.headerFields = headerFields;
         this.code = code;
     }
 
-    public InternetResponse(int code) {
+    public HttpResponse(int code) {
         this.code = code;
     }
 

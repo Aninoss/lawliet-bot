@@ -2,7 +2,7 @@ package Modules.AnimeNews;
 
 import Constants.Language;
 import Core.Internet.InternetCache;
-import Core.Internet.InternetResponse;
+import Core.Internet.HttpResponse;
 import Modules.PostBundle;
 import Core.Tools.StringTools;
 import Core.Tools.TimeTools;
@@ -24,8 +24,8 @@ public class AnimeReleaseDownloader {
         if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        InternetResponse internetResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
-        String postString = internetResponse.getContent().get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
+        String postString = httpResponse.getContent().get();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
         ArrayList<AnimeReleasePost> postList = new ArrayList<>();

@@ -1,7 +1,7 @@
 package Modules.Porn;
 
 import Core.Internet.InternetCache;
-import Core.Internet.InternetResponse;
+import Core.Internet.HttpResponse;
 import Core.Tools.InternetTools;
 import Core.Tools.NSFWTools;
 import Core.Tools.StringTools;
@@ -68,13 +68,13 @@ public class PornImageDownloader {
 
     private static Optional<PornImage> getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws InterruptedException, ExecutionException {
         String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&json=1&tags=" + searchTerm + "&pid=" + page;
-        InternetResponse internetResponse = InternetCache.getDataShortLived(url).get();
+        HttpResponse httpResponse = InternetCache.getDataShortLived(url).get();
 
-        if (!internetResponse.getContent().isPresent()) {
+        if (!httpResponse.getContent().isPresent()) {
             return Optional.empty();
         }
 
-        JSONArray data = new JSONArray(internetResponse.getContent().get());
+        JSONArray data = new JSONArray(httpResponse.getContent().get());
 
         int count = Math.min(data.length(), 100);
         if (count == 0) {

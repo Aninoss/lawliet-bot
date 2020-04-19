@@ -63,7 +63,7 @@ public class GearCommand extends Command {
 
             List<Role> buyableRoles = DBFishery.getInstance().getBean(server.getId()).getRoles();
             for(User user: list) {
-                FisheryUserBean fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(user.getId());
+                FisheryUserBean fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId());
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", StringTools.numToString(getLocale(), fisheryUserBean.getFish()), StringTools.numToString(getLocale(), fisheryUserBean.getCoins())));
                 if (eb != null) {
                     eb.setTitle("");

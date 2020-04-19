@@ -4,8 +4,8 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Internet.Internet;
-import Core.Internet.InternetProperty;
+import Core.Internet.HttpRequest;
+import Core.Internet.HttpProperty;
 import Core.Mention.MentionTools;
 import Core.SecretManager;
 import Core.TextManager;
@@ -69,12 +69,12 @@ public class IncreaseResolutionCommand extends Command {
 
         //String data = Internet.getDataRequestPropertyPost("https://api.deepai.org/api/waifu2x", "Api-Key", SecretManager.getString("deepai.token"), query);
 
-        InternetProperty[] properties = new InternetProperty[]{
-                new InternetProperty("Api-Key", SecretManager.getString("deepai.token")),
-                new InternetProperty("Content-Type", "application/x-www-form-urlencoded")
+        HttpProperty[] properties = new HttpProperty[]{
+                new HttpProperty("Api-Key", SecretManager.getString("deepai.token")),
+                new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
         };
 
-        String data = Internet.getData("https://api.deepai.org/api/waifu2x", query, properties).get().getContent().get();
+        String data = HttpRequest.getData("https://api.deepai.org/api/waifu2x", query, properties).get().getContent().get();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");
     }

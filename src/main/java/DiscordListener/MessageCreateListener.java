@@ -10,9 +10,9 @@ import Constants.FisheryCategoryInterface;
 import Constants.FisheryStatus;
 import Constants.Settings;
 import Core.*;
+import Core.Tools.InternetTools;
 import Modules.BannedWordsCheck;
 import Core.BotResources.ResourceManager;
-import Core.Internet.Internet;
 import Core.Mention.MentionTools;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Modules.SPCheck;
@@ -54,9 +54,9 @@ public class MessageCreateListener {
             return; //Banned Words
 
         //Stuff that is only active for my own Aninoss Discord server
-        if (event.getServer().get().getId() == 462405241955155979L && Internet.stringHasURL(event.getMessage().getContent())) {
+        if (event.getServer().get().getId() == 462405241955155979L && InternetTools.stringHasURL(event.getMessage().getContent())) {
             try {
-                int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId()).getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
+                int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
                 if (level == 0) {
                     event.getMessage().getUserAuthor().get().sendMessage("Bevor du Links posten darfst, musst du erstmal den ersten Server-Rang erwerben!\nMehr Infos hier: <#608455541978824739>");
                     event.getServer().get().getOwner().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag() + " hat Links gepostet!");
@@ -120,7 +120,7 @@ public class MessageCreateListener {
                         && serverBean.getFisheryStatus() == FisheryStatus.ACTIVE
                         && !fisheryServerBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
                 )
-                    messageRegistered = fisheryServerBean.getUser(event.getMessageAuthor().getId()).registerMessage(event.getMessage(), event.getServerTextChannel().get());
+                    messageRegistered = fisheryServerBean.getUserBean(event.getMessageAuthor().getId()).registerMessage(event.getMessage(), event.getServerTextChannel().get());
 
                 //Manage Treasure Chests
                 if (messageRegistered &&

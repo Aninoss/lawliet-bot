@@ -2,7 +2,6 @@ package MySQL.Modules.FisheryUsers;
 
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
-import Core.ExceptionHandler;
 import Core.Tools.TimeTools;
 import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
@@ -11,9 +10,6 @@ import MySQL.Interfaces.IntervalSave;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -23,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -85,7 +80,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         .forEach(this::saveFisheryUserBean);
 
                 LOGGER.info("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
-                Thread.sleep(100);
+                Thread.sleep(500);
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);
@@ -337,7 +332,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             if (validUsers.size() > 1 &&
                     (!server.getAfkChannel().isPresent() || voiceChannel.getId() != server.getAfkChannel().get().getId())
             ) {
-                validUsers.forEach(user -> serverBean.getUser(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN));
+                validUsers.forEach(user -> serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN));
             }
         }
     }

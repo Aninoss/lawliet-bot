@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Tools.RandomTools;
 import Core.Tools.StringTools;
-import Core.Internet.Internet;
+import Core.Internet.HttpRequest;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class GimmeHentaiCommand extends Command {
                 break;
         }
 
-        String data = Internet.getData(hentaiText.split("\n")[1]).get().getContent().get();
+        String data = HttpRequest.getData(hentaiText.split("\n")[1]).get().getContent().get();
         String cover = StringTools.extractGroups(data,"<meta property=\"og:image\" content=\"","\">")[0];
         String desc = StringTools.shortenString(StringTools.decryptString(StringTools.extractGroups(data,"<meta property=\"og:description\" content=\"","\">")[0]),1024);
 

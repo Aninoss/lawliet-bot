@@ -33,7 +33,7 @@ public class ClaimCommand extends Command {
 
         if (status == FisheryStatus.ACTIVE) {
             Instant nextUpvote = DBUpvotes.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).getLastUpvote().plus(12, ChronoUnit.HOURS);
-            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
+            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
             int upvotesUnclaimed = userBean.getUpvoteStack();
             userBean.clearUpvoteStack();
 

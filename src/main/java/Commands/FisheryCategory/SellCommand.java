@@ -38,7 +38,7 @@ public class SellCommand extends Command implements OnReactionAddListener, OnFor
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
-            userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId());
+            userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {

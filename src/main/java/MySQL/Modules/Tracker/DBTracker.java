@@ -43,6 +43,7 @@ public class DBTracker extends DBCached {
                             slot -> new Pair<>(slot.getChannelId(), slot.getCommandTrigger()),
                             resultSet -> {
                                 try {
+                                    Thread.sleep(500);
                                     return new TrackerBeanSlot(
                                             DBServer.getInstance().getBean(resultSet.getLong(1)),
                                             resultSet.getLong(2),
@@ -52,8 +53,8 @@ public class DBTracker extends DBCached {
                                             resultSet.getTimestamp(6).toInstant(),
                                             resultSet.getString(7)
                                     );
-                                } catch (ExecutionException e) {
-                                    //Ignore
+                                } catch (ExecutionException | InterruptedException e) {
+                                    LOGGER.error("Exception when creating tracker bean", e);
                                 }
                                 return null;
                             }

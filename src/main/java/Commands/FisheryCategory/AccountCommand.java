@@ -53,7 +53,7 @@ public class AccountCommand extends Command {
                 }
             }
             for(User user: list) {
-                EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(user.getId()).getAccountEmbed();
+                EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId()).getAccountEmbed();
                 if (eb != null) {
                     eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
                     if (!userMentioned)

@@ -7,7 +7,7 @@ import Constants.LetterEmojis;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
-import Core.Internet.Internet;
+import Core.Internet.HttpRequest;
 import Core.Tools.StringTools;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import org.javacord.api.entity.message.Message;
@@ -63,11 +63,11 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             String dataString, diffString;
             JSONObject data;
             try {
-                dataString = Internet.getData(url).get().getContent().get();
+                dataString = HttpRequest.getData(url).get().getContent().get();
                 data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
                 diffString = data.getString("difficulty");
             } catch (Throwable e) {
-                DBFishery.getInstance().getBean(event.getServer().get().getId()).getUser(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
+                DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
                 throw e;
             }
 

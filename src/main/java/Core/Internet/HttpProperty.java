@@ -1,10 +1,10 @@
 package Core.Internet;
 
-public class InternetProperty {
+public class HttpProperty {
 
     String key, value;
 
-    public InternetProperty(String key, String value) {
+    public HttpProperty(String key, String value) {
         this.key = key;
         this.value = value;
     }
