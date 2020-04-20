@@ -3,6 +3,7 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
+import CommandSupporters.CommandManager;
 import Core.Clock;
 import Core.CustomThread;
 import Core.EmbedFactory;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -28,8 +30,16 @@ import java.util.concurrent.ExecutionException;
 )
 public class PingCommand extends Command {
 
+    final Logger LOGGER = LoggerFactory.getLogger(PingCommand.class);
+
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        HashMap<Object, Object> hashMap = ((CustomThread)Thread.currentThread()).getHashMap();
+        LOGGER.info("--- PING ---");
+        for(int i = 0; i < 9; i++) {
+            LOGGER.info("{} | {}", i, hashMap.get(i).toString());
+        } /* DEBUG */
+
         Instant creationTime = ((CustomThread)Thread.currentThread()).getCreationTime();
 
         long milisInternal = TimeTools.getMilisBetweenInstants(creationTime, Instant.now());

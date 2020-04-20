@@ -60,6 +60,10 @@ public class Console {
                                 System.out.println(SIGNALTRANSMITTER.getInstance().getTrafficGB() + " GB");
                                 break;
 
+                            case "connected":
+                                System.out.println(DiscordApiCollection.getInstance().allShardsConnected());
+                                break;
+
                             case "threads":
                                 try {
                                     StringBuilder sb = new StringBuilder();
@@ -139,7 +143,7 @@ public class Console {
                         }
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOGGER.error("Unexpected exception", e);
             }
         }

@@ -22,6 +22,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -230,12 +231,13 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
 
             case 1:
-                setOptions(new String[CommandContainer.getInstance().getTrackerCommands().size()]);
+                String[] opt = new String[CommandContainer.getInstance().getTrackerCommands().size()];
+                setOptions(opt);
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                for (int i = 0; i < getOptions().length; i++) {
+                for (int i = 0; i < opt.length; i++) {
                     String trigger = ((Command) CommandContainer.getInstance().getTrackerCommands().get(i)).getTrigger();
-                    getOptions()[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");
+                    opt[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

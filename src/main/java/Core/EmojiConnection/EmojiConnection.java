@@ -84,13 +84,17 @@ public class EmojiConnection {
     }
 
     public static String getOptionsString(TextChannel channel, boolean withBackButton, String... connections) {
+        return getOptionsString(channel, withBackButton, -1, connections);
+    }
+
+    public static String getOptionsString(TextChannel channel, boolean withBackButton, int pageSize, String... connections) {
         EmojiConnection[] emojiConnections = getEmojiConnectionArray(channel, withBackButton, connections);
         StringBuilder sb = new StringBuilder();
 
         for(int i = 0; i < emojiConnections.length; i++) {
             EmojiConnection emojiConnection = emojiConnections[i];
 
-            if (i == 10) sb.append("\n");
+            if (pageSize != -1 && i == pageSize) sb.append("\n");
             sb.append(emojiConnection.getEmojiTag());
             sb.append(" | ");
             sb.append(emojiConnection.getConnection());

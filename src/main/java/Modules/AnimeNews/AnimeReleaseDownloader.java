@@ -34,7 +34,7 @@ public class AnimeReleaseDownloader {
         List<Integer> currentUsedIds = newestPostId == null || newestPostId.isEmpty() ? new ArrayList<>() : Arrays.stream(newestPostId.split("\\|")).map(Integer::parseInt).collect(Collectors.toList());
         ArrayList<String> newUsedIds = new ArrayList<>();
 
-        for(int i = 0; i < animeReleasePosts.size(); i++) {
+        for(int i = 7; i < animeReleasePosts.size(); i++) {
             AnimeReleasePost post = animeReleasePosts.get(i);
 
             if (postPassesFilter(post, filter)) {

@@ -35,6 +35,7 @@ public class Connector {
     public static void main(String[] args) {
         boolean production = args.length >= 1 && args[0].equals("production");
         Bot.setDebug(production);
+        Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::stop, "shutdown_botstop"));
 
         Console.getInstance().start(); //Starts Console Listener
 

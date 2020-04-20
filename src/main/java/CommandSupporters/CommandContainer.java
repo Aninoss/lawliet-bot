@@ -14,6 +14,7 @@ import Commands.FisheryCategory.*;
 import Commands.ManagementCategory.*;
 import Commands.Splatoon2Category.*;
 import Core.ExceptionHandler;
+import MySQL.Modules.CommandManagement.CommandManagementBean;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +30,13 @@ public class CommandContainer {
 
     final static Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
 
-    private HashMap<String, Class<? extends Command>> commands;
-    private ArrayList<OnReactionAddStaticListener> staticReactionAddCommands;
-    private ArrayList<OnReactionRemoveStaticListener> staticReactionRemoveCommands;
-    private ArrayList<OnTrackerRequestListener> trackerCommands;
-    private ArrayList<Command> commandsReaction;
-    private ArrayList<Command> commandsMessageForward;
-    private ArrayList<Class<? extends Command>> commandList;
+    private final HashMap<String, Class<? extends Command>> commands;
+    private final ArrayList<OnReactionAddStaticListener> staticReactionAddCommands;
+    private final ArrayList<OnReactionRemoveStaticListener> staticReactionRemoveCommands;
+    private final ArrayList<OnTrackerRequestListener> trackerCommands;
+    private final ArrayList<Command> commandsReaction;
+    private final ArrayList<Command> commandsMessageForward;
+    private final ArrayList<Class<? extends Command>> commandList;
 
     private CommandContainer() {
         commands = new HashMap<>();
@@ -59,6 +60,7 @@ public class CommandContainer {
         commandList.add(VoteCommand.class);
 
         //MANAGEMENT
+        commandList.add(CommandManagementCommand.class);
         commandList.add(WhiteListCommand.class);
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
@@ -70,7 +72,6 @@ public class CommandContainer {
         commandList.add(AutoQuoteCommand.class);
         commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
-        //commandList.add(ReportCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
@@ -148,7 +149,6 @@ public class CommandContainer {
         commandList.add(StealCommand.class);
         commandList.add(ThrowCommand.class);
         commandList.add(BullyCommand.class);
-        //commandList.add(NotWorkCommand.class);
         commandList.add(EveryoneCommand.class);
         commandList.add(BiteCommand.class);
         commandList.add(NomCommand.class);

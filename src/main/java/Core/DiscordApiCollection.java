@@ -79,7 +79,7 @@ public class DiscordApiCollection {
         api.addUserStartTypingListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
         api.addMessageCreateListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
         try {
-            while (true) {
+            while (Bot.isRunning()) {
                 Thread.sleep(10 * 1000);
                 int n = api.getCurrentShard();
                 if (isAlive[n]) {
@@ -110,7 +110,7 @@ public class DiscordApiCollection {
     }
 
     public void reconnectShard(int n) {
-        if (!Bot.isStopped() && apiReady[n]) {
+        if (Bot.isRunning() && apiReady[n]) {
             DiscordApi api = apiList[n];
             apiReady[n] = false;
             try {
@@ -156,19 +156,8 @@ public class DiscordApiCollection {
         return Optional.empty();
     }
 
-    public ArrayList<Server> getMutualServers(User user) {
-        ArrayList<Server> servers = new ArrayList<>();
-
-        for(DiscordApi api: apiList) {
-            try {
-                User apiUser = api.getUserById(user.getId()).get();
-                apiUser.getMutualServers().stream().filter(server -> !servers.contains(server)).forEach(servers::add);
-            } catch (InterruptedException | ExecutionException e) {
-                //Ignore
-            }
-        }
-
-        return servers;
+    public List<Server> getMutualServers(User user) {
+        return getServers().stream().filter((server) -> server.isMember(user)).collect(Collectors.toList());
     }
 
     public Optional<ServerTextChannel> getServerTextChannelById(long serverId, long channelId) {

@@ -1,6 +1,7 @@
 package MySQL.Modules.FisheryUsers;
 
 import Constants.FisheryStatus;
+import Core.Bot;
 import Core.DiscordApiCollection;
 import Core.Tools.TimeTools;
 import MySQL.DBBeanGenerator;
@@ -80,7 +81,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         .forEach(this::saveFisheryUserBean);
 
                 LOGGER.info("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
-                Thread.sleep(500);
+                if (Bot.isRunning()) Thread.sleep(500);
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);

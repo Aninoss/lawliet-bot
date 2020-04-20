@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -203,17 +204,19 @@ public abstract class Command {
         }
         boolean changed = true;
         try {
-            if (index >= 10 && options != null && options.length > 10) {
-                if (index == 10) {
+            int max = ((OnNavigationListener) this).getMaxReactionNumber();
+
+            if (index >= max - 2 && options != null && options.length > max) {
+                if (index == max - 2) {
                     page--;
                     if (page < 0) page = pageMax;
-                } else if (index == 11) {
+                } else if (index == max - 1) {
                     page++;
                     if (page > pageMax) page = 0;
                 }
                 resetNavigation();
             } else {
-                if (options != null && options.length > 10 && index >= 0) index += 10 * page;
+                if (options != null && options.length > max && index >= 0) index += (max - 2) * page;
                 resetNavigation();
                 changed = ((OnNavigationListener) this).controllerReaction(event, index, state);
             }
@@ -228,27 +231,29 @@ public abstract class Command {
         EmbedBuilder eb = ((OnNavigationListener) this).draw(api, state)
                 .setTimestampToNow();
 
+        int max = ((OnNavigationListener) this).getMaxReactionNumber();
+
         if (options != null && options.length > 0) {
             String[] newOptions;
 
-            if (options.length <= 10) { newOptions = options; }
+            if (options.length <= max) { newOptions = options; }
             else {
-                newOptions = new String[12];
+                newOptions = new String[max];
                 Arrays.fill(newOptions, "");
-                if (Math.min(10, options.length - 10 * page) >= 0)
-                    System.arraycopy(options, page * 10, newOptions, 0, Math.min(10, options.length - 10 * page));
+                if (Math.min(max - 2, options.length - (max - 2) * page) >= 0)
+                    System.arraycopy(options, page * (max - 2), newOptions, 0, Math.min(max - 2, options.length - (max - 2) * page));
 
-                newOptions[10] = TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous");
-                newOptions[11] = TextManager.getString(getLocale(), TextManager.GENERAL, "list_next");
+                newOptions[max - 2] = TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous");
+                newOptions[max - 1] = TextManager.getString(getLocale(), TextManager.GENERAL, "list_next");
             }
 
-            String str = EmojiConnection.getOptionsString(channel, false, newOptions);
+            String str = EmojiConnection.getOptionsString(channel, false, options.length > max ? max - 2 : -1, newOptions);
             eb.addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI);
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str);
         }
 
         EmbedFactory.addLog(eb, logStatus, log);
-        if (options != null && options.length > 10) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
+        if (options != null && options.length > max) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
 
         try {
             if (navigationMessage == null) {
@@ -557,7 +562,7 @@ public abstract class Command {
     public String[] getOptions() { return options; }
     public void setOptions(String[] options) {
         this.options = options;
-        if (options != null) this.pageMax = Math.max(0, options.length - 1) / 10;
+        if (options != null) this.pageMax = Math.max(0, options.length - 1) / (((OnNavigationListener) this).getMaxReactionNumber() - 2);
     }
     public void setLog(LogStatus logStatus, String string) {
         this.log = string;

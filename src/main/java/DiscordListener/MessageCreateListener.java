@@ -28,6 +28,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -50,6 +51,7 @@ public class MessageCreateListener {
 
         //Server protections
         if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return; //SPBlock
+
         if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage()))
             return; //Banned Words
 

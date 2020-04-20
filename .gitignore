@@ -4,7 +4,6 @@
 .mtj.tmp/
 *.jar
 *.war
-*.war
 *.zip
 *.tar.gz
 *.rar
@@ -20,6 +19,5 @@ modules.xml
 .idea/libraries
 *.iml
 *.sql
-*.log
 /temp/
 *.mp3

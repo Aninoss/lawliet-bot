@@ -29,7 +29,6 @@ public class RunCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/b6d6602cec4f3f16870d815fcd320173/tenor.gif?itemid=9352866",
                 "https://media1.tenor.com/images/cc2ba1cad3a9bbd8b3086c1a1542698e/tenor.gif?itemid=14546534",
                 "https://media1.tenor.com/images/498e8acfbae9c79ac7a9180dff83d278/tenor.gif?itemid=15698673",
-                "https://media1.tenor.com/images/ef5a57dd70214b4712b65d3aecc8b037/tenor.gif?itemid=11109847",
                 "https://media1.tenor.com/images/65f82c6732e8b2edf27f424c1fd6cf00/tenor.gif?itemid=3411991",
                 "https://media1.tenor.com/images/b9584605fa97c4d6455ec80a0477eb13/tenor.gif?itemid=14780939",
                 "https://media1.tenor.com/images/44a8d29788a7e898b67ade8a0086f294/tenor.gif?itemid=8540976",

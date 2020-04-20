@@ -55,7 +55,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     public static final String treasureEmoji = "\uD83D\uDCB0";
     public static final String keyEmoji = "\uD83D\uDD11";
-    private static ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
+    private static final ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -89,14 +89,16 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return Response.FALSE;
                     }
 
+                    int rolesAdded = 0;
                     for (Role role : roleList) {
-                        if (!fisheryServerBean.getRoleIds().contains(role.getId())) {
+                        if (!roles.contains(role)) {
                             roles.add(role);
+                            rolesAdded++;
                             roles.sort(Comparator.comparingInt(Role::getPosition));
                         }
                     }
 
-                    setLog(LogStatus.SUCCESS, getString("roleadd", (roleList.size() - existingRoles) != 1));
+                    setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
                     setState(0);
                     return Response.TRUE;
                 }
@@ -186,16 +188,11 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         }
 
                     case 3:
-                        if (serverBean.getFisheryStatus() == FisheryStatus.STOPPED) {
-                            if (fisheryServerBean.getRoleIds().size() > 0) {
-                                setState(2);
-                                return true;
-                            } else {
-                                setLog(LogStatus.FAILURE, getString("norolesset"));
-                                return true;
-                            }
+                        if (fisheryServerBean.getRoleIds().size() > 0) {
+                            setState(2);
+                            return true;
                         } else {
-                            setLog(LogStatus.FAILURE, getString("roleremove_pprunniung"));
+                            setLog(LogStatus.FAILURE, getString("norolesset"));
                             return true;
                         }
 
@@ -253,7 +250,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     setState(0);
                     return true;
                 } else if (i < fisheryServerBean.getRoleIds().size()) {
-                    fisheryServerBean.getRoleIds().remove(i);
+                    roles.remove(i);
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
                     if (fisheryServerBean.getRoleIds().size() == 0) setState(0);
                     return true;

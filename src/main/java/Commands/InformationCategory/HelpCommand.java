@@ -9,6 +9,8 @@ import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Tools.StringTools;
+import MySQL.Modules.CommandManagement.CommandManagementBean;
+import MySQL.Modules.CommandManagement.DBCommandManagement;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -33,11 +35,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
     private ArrayList<EmojiConnection> emojiConnections;
     private String searchTerm;
     private MessageCreateEvent authorEvent;
+    private CommandManagementBean commandManagementBean;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         searchTerm = followedString;
         authorEvent = event;
+        commandManagementBean = DBCommandManagement.getInstance().getBean(event.getServer().get().getId());
         return true;
     }
 
@@ -206,7 +210,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                             User author = getStarterMessage().getUserAuthor().get();
                             if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
                                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
-                                        (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw());
+                                        (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
+                                        commandManagementBean.commandIsTurnedOn(command);
 
                                 commands.append("**")
                                         .append(LetterEmojis.LETTERS[i])

@@ -26,7 +26,7 @@ public class OnEventServerList implements DataListener<JSONObject> {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            ArrayList<Server> mutualServers = DiscordApiCollection.getInstance().getMutualServers(user);
+            ArrayList<Server> mutualServers = new ArrayList<>(DiscordApiCollection.getInstance().getMutualServers(user));
             mutualServers.sort((s1, s2) -> s1.getName().compareToIgnoreCase(s2.getName()));
             for(Server server: mutualServers) {
                 if (PermissionCheck.hasAdminPermissions(server, user)) {

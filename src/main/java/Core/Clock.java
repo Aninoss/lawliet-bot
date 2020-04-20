@@ -203,7 +203,6 @@ public class Clock {
                 Botsfordiscord.updateServerCount(totalServers);
                 BotsOnDiscord.updateServerCount(totalServers);
                 Discordbotlist.updateServerCount(totalServers);
-                Divinediscordbots.updateServerCount(totalServers);
                 Discordbotsgg.updateServerCount(totalServers);
             }
         } catch (Exception e) {
