@@ -7,7 +7,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.TrackerResult;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
         executable = false,
         maxCalculationTimeSec = 5 * 60,
-        aliases = {"fclear"}
+        aliases = {"fclear", "allclear"}
 )
 public class FullClearCommand extends Command implements OnTrackerRequestListener {
 
@@ -65,7 +65,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
     private Pair<Integer, Boolean> fullClear(ServerTextChannel channel, String str, Message messageBefore) throws ExecutionException, InterruptedException, IOException {
         int hours = 0;
         if (str.length() > 0) {
-            if (StringTools.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
+            if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 hours = Integer.parseInt(str);
             } else {
                 channel.sendMessage(EmbedFactory.getCommandEmbedError(this,

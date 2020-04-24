@@ -6,8 +6,7 @@ import Constants.Permission;
 import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.TextManager;
-import Core.Tools.StringTools;
-import ServerStuff.DonationHandler;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -34,7 +33,7 @@ public class ClearCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        if (followedString.length() > 0 && StringTools.stringIsLong(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
+        if (followedString.length() > 0 && StringUtil.stringIsLong(followedString) && Long.parseLong(followedString) >= 2 && Long.parseLong(followedString) <= 500) {
             int count = Integer.parseInt(followedString);
             int deleted = 0;
             boolean skipped = false;

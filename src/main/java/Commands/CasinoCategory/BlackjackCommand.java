@@ -7,7 +7,7 @@ import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -74,7 +73,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         String key = "tutorial";
         if (finished) key = "data";
 
-        eb.addField(Settings.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringTools.numToString(getLocale(), coinsInput)), false);
+        eb.addField(Settings.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

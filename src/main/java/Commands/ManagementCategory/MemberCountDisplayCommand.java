@@ -6,12 +6,11 @@ import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
 import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
@@ -25,7 +24,6 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -251,9 +249,9 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
         long botMembers = server.getMembers().stream().filter(User::isBot).count();
 
         updater.setName(replaceVariables(name,
-                StringTools.numToString(locale, members),
-                StringTools.numToString(locale, members - botMembers),
-                StringTools.numToString(locale, botMembers)
+                StringUtil.numToString(locale, members),
+                StringUtil.numToString(locale, members - botMembers),
+                StringUtil.numToString(locale, botMembers)
         ));
     }
 

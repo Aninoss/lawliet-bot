@@ -7,7 +7,7 @@ import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -47,7 +46,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             useCalculatedMultiplicator = false;
             winMultiplicator = 1;
 
-            String filteredString = StringTools.trimString(StringTools.filterLettersFromString(followedString.toLowerCase()));
+            String filteredString = StringUtil.trimString(StringUtil.filterLettersFromString(followedString.toLowerCase()));
             if (filteredString.contains("h")) selection[0] = 0;
             else if (filteredString.contains("t")) selection[0] = 1;
 
@@ -69,7 +68,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             case 1:
                 return EMOJIS[1];
             default:
-                return StringTools.getLoadingReaction(channel);
+                return StringUtil.getLoadingReaction(channel);
         }
     }
 
@@ -81,7 +80,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
         eb.addField(getString("yourbet"), getChoiceString(channel, 0), true);
         eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
-        eb.addField(Settings.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringTools.numToString(coinsInput)));
+        eb.addField(Settings.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringUtil.numToString(coinsInput)));
 
         if (selection[0] == -1) eb.addField(Settings.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
 

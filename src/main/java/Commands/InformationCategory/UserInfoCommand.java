@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Mention.MentionTools;
 import Core.TextManager;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -54,8 +54,8 @@ public class UserInfoCommand extends Command {
                     user.getDiscriminator(),
                     user.getIdAsString(),
                     user.getAvatar().getUrl().toString() + "?size=2048",
-                    user.getJoinedAtTimestamp(server).isPresent() ? TimeTools.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
-                    TimeTools.getInstantString(getLocale(), user.getCreationTimestamp(), true),
+                    user.getJoinedAtTimestamp(server).isPresent() ? TimeUtil.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
+                    TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true),
                     TextManager.getString(getLocale(), TextManager.GENERAL, "status_" + user.getStatus().getStatusString())
             };
 

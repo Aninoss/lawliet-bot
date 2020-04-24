@@ -9,7 +9,7 @@ import Constants.Permission;
 import Constants.TrackerResult;
 import Core.*;
 import Core.Internet.InternetCache;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -86,7 +86,7 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
             String effect = getString("nothing");
             if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
 
-            String fieldContent = getString("template", DiscordApiCollection.getInstance().getHomeEmojiById(437239777834827786L).getMentionTag(), String.valueOf(price), TimeTools.getInstantString(getLocale(), endTime, true), TimeTools.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", DiscordApiCollection.getInstance().getHomeEmojiById(437239777834827786L).getMentionTag(), String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

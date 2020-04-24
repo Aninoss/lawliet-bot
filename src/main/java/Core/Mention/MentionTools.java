@@ -1,7 +1,7 @@
 package Core.Mention;
 
 import Core.DiscordApiCollection;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import Core.TextManager;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
@@ -223,7 +223,7 @@ public class MentionTools {
             for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
                 Message m;
                 try {
-                    if (StringTools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
+                    if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
                             string = removeMentionFromString(string, part, "");
@@ -244,7 +244,7 @@ public class MentionTools {
             for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
                 Message m;
                 try {
-                    if (StringTools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
+                    if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
                             string = removeMentionFromString(string, part, "");
@@ -266,7 +266,7 @@ public class MentionTools {
         for (String part : getArgs(string)) {
             Message m;
             try {
-                if (StringTools.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
+                if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                     if (m.getChannel() == channel) {
                         if (!list.contains(m)) list.add(m);
                         string = removeMentionFromString(string, part, "");
@@ -306,7 +306,7 @@ public class MentionTools {
     public static Message getMessageSearch(String searchTerm, TextChannel channel, Message messageStarter) throws ExecutionException, InterruptedException {
         if (!channel.canYouReadMessageHistory()) return null;
 
-        searchTerm = StringTools.trimString(searchTerm);
+        searchTerm = StringUtil.trimString(searchTerm);
         for(Message message: channel.getMessagesBefore(100,messageStarter).get().descendingSet()) {
             if (message.getContent().toLowerCase().contains(searchTerm.toLowerCase())) return message;
         }
@@ -324,25 +324,25 @@ public class MentionTools {
             }
             if (string.contains("\n")) {
                 for (String part : string.split("\n")) {
-                    part = StringTools.trimString(part);
+                    part = StringUtil.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("@")) {
                 for (String part : string.split("@")) {
-                    part = StringTools.trimString(part);
+                    part = StringUtil.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains(",")) {
                 for (String part : string.split(",")) {
-                    part = StringTools.trimString(part);
+                    part = StringUtil.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("|")) {
                 for (String part : string.split("\\|")) {
-                    part = StringTools.trimString(part);
+                    part = StringUtil.trimString(part);
                     if (part.length() > 0) list.add(part);
                 }
             }
@@ -382,7 +382,7 @@ public class MentionTools {
         String string = sb.toString();
         string = string.substring(0,string.length()-2);
 
-        if (string.contains(", ")) string = StringTools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
         return new Mention(string,multi);
     }
@@ -403,7 +403,7 @@ public class MentionTools {
         String string = sb.toString();
         string = string.substring(0,string.length()-2);
 
-        if (string.contains(", ")) string = StringTools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
         return new Mention(string, multi);
     }
@@ -424,7 +424,7 @@ public class MentionTools {
         String string = sb.toString();
         string = string.substring(0,string.length()-2);
 
-        if (string.contains(", ")) string = StringTools.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
         return new Mention(string, multi);
     }
@@ -443,7 +443,7 @@ public class MentionTools {
         ArrayList<KnownCustomEmoji> knownCustomEmojis = new ArrayList<>();
 
         if (string.contains("<") && string.contains(">")) {
-            for(String content: StringTools.extractGroups(string, "<", ">")) {
+            for(String content: StringUtil.extractGroups(string, "<", ">")) {
                 String[] tags = content.split(":");
                 if (tags.length == 3) {
                     String id = tags[2];
@@ -456,12 +456,27 @@ public class MentionTools {
     }
 
     public static long getAmountExt(String str, long available) {
-        if (str.toLowerCase().contains("all")) return available;
-        if (str.toLowerCase().contains("half")) return available / 2;
+        str = str.toLowerCase().replace("\n", " ");
 
-        long value = StringTools.filterNumberFromString(str);
-        if (value == -1) return -1;
-        return str.contains("%") ? (long)(value / 100.0 * available) : value;
+        for(String part : str.split(" ")) {
+            if (part.length() > 0) {
+                if (part.equals("all")) return available;
+                if (part.equals("half")) return available / 2;
+
+                long value = StringUtil.filterNumberFromString(part);
+                if (value != -1) {
+                    if (part.endsWith("%")) return (long) Math.abs(value / 100.0 * available);
+
+                    if (part.endsWith("k")) return value * 1000;
+                    if (part.endsWith("m")) return value * 1000000;
+                    if (part.endsWith("b")) return value * 1000000000;
+
+                    return value;
+                }
+            }
+        }
+
+        return -1;
     }
 
 }

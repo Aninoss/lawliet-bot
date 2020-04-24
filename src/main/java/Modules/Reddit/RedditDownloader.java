@@ -3,11 +3,15 @@ package Modules.Reddit;
 import Core.*;
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
+import DiscordListener.ServerLeaveListener;
 import Modules.PostBundle;
-import Core.Tools.InternetTools;
-import Core.Tools.StringTools;
+import Core.Utils.InternetUtil;
+import Core.Utils.StringUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -16,6 +20,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class RedditDownloader {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(RedditDownloader.class);
 
     public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
         sub = URLEncoder.encode(sub, "UTF-8");
@@ -26,7 +32,7 @@ public class RedditDownloader {
             redditPost = getPost(locale, sub);
             i++;
             if (i >= 50) break;
-        } while (redditPost == null || redditPost.getImage() == null || !InternetTools.urlContainsImage(redditPost.getImage()));
+        } while (redditPost == null || redditPost.getImage() == null || !InternetUtil.urlContainsImage(redditPost.getImage()));
 
         return redditPost;
     }
@@ -123,8 +129,9 @@ public class RedditDownloader {
         post.setScore(data.has("score") ? data.getInt("score") : 0);
         post.setComments(data.has("num_comments") ? data.getInt("num_comments") : 0);
         post.setInstant(new Date(data.getLong("created_utc") * 1000L).toInstant());
+        if (!data.has("over_18")) LOGGER.error("No over_18 in '{}'", post.getSubreddit()); //TODO remove after bug fix
         post.setNsfw(data.getBoolean("over_18"));
-        post.setTitle(StringTools.shortenString(data.getString("title"), 256));
+        post.setTitle(StringUtil.shortenString(data.getString("title"), 256));
         post.setAuthor(data.getString("author"));
 
         flair = data.get("link_flair_text");
@@ -150,7 +157,7 @@ public class RedditDownloader {
             if (data.has("preview") && data.getJSONObject("preview").has("images")) {
                 post.setThumbnail(data.getJSONObject("preview").getJSONArray("images").getJSONObject(0).getJSONObject("source").getString("url"));
             } else {
-                if (InternetTools.urlContainsImage(url)) {
+                if (InternetUtil.urlContainsImage(url)) {
                     post.setImage(url);
                     post.setLink(source);
                     postSource = false;
@@ -161,10 +168,10 @@ public class RedditDownloader {
 
         if (postSource && !source.equals(url)) {
             String linkText = TextManager.getString(locale, TextManager.COMMANDS, "reddit_linktext", source);
-            description = StringTools.shortenString(description, 2048-linkText.length());
+            description = StringUtil.shortenString(description, 2048-linkText.length());
             if (!description.equals("")) description += "\n\n";
             description += linkText;
-        } else description = StringTools.shortenString(description, 2048);
+        } else description = StringUtil.shortenString(description, 2048);
 
         post.setDescription(description);
         post.setDomain(domain);

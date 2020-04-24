@@ -6,7 +6,7 @@ import Constants.*;
 import Core.*;
 import Core.BotResources.ResourceManager;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
         emoji = "\u2699\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         executable = true,
-        aliases = {"fishingsetup", "fisherysetup"}
+        aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem"}
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
@@ -136,8 +136,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
             case 5:
                 if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
                     String[] parts = (inputString + " ").split("-");
-                    long priceMin = StringTools.filterNumberFromString(parts[0]);
-                    long priceMax = StringTools.filterNumberFromString(parts[1]);
+                    long priceMin = StringUtil.filterNumberFromString(parts[0]);
+                    long priceMax = StringUtil.filterNumberFromString(parts[1]);
 
                     if (priceMin >= -1 && priceMax >= -1) {
                         if (priceMin == -1) priceMin = serverBean.getFisheryRoleMin();
@@ -298,7 +298,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     private String getRoleString(Role role) {
         int n = roles.indexOf(role);
         try {
-            return getString("state0_rolestring", role.getMentionTag(), StringTools.numToString(getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
+            return getString("state0_rolestring", role.getMentionTag(), StringUtil.numToString(getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
         } catch (ExecutionException e) {
             LOGGER.error("Exception", e);
             return "";
@@ -331,13 +331,13 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**", true)
-                        .addField(getString("state0_mtreasurechests"), StringTools.getOnOffForBoolean(getLocale(), serverBean.isFisheryTreasureChests()), true)
-                        .addField(getString("state0_mreminders"), StringTools.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
+                        .addField(getString("state0_mtreasurechests"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryTreasureChests()), true)
+                        .addField(getString("state0_mreminders"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
                         .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), false)
-                        .addField(getString("state0_msinglerole", StringTools.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringTools.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringTools.numToString(getLocale(), serverBean.getFisheryRoleMax())), false);
+                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
+                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMax())), false);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -406,7 +406,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), StringTools.numToString(getLocale(), won)))
+                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(getLocale(), won)))
                         .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"))
                         .setFooter(getString("treasure_footer"));
                 message.edit(eb);

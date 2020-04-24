@@ -8,7 +8,7 @@ import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
 import Core.Internet.HttpRequest;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -85,14 +85,14 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                     break;
             }
 
-            question = StringTools.decryptString(data.getString("question"));
+            question = StringUtil.decryptString(data.getString("question"));
 
             ArrayList<String> orderedAnswers = new ArrayList<>();
-            orderedAnswers.add(StringTools.decryptString(data.getString("correct_answer")));
+            orderedAnswers.add(StringUtil.decryptString(data.getString("correct_answer")));
 
             JSONArray answersJSON = data.getJSONArray("incorrect_answers");
             for(int i=0; i<answersJSON.length(); i++) {
-                orderedAnswers.add(StringTools.decryptString(answersJSON.getString(i)));
+                orderedAnswers.add(StringUtil.decryptString(answersJSON.getString(i)));
             }
 
             answers = new String[orderedAnswers.size()];
@@ -170,7 +170,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         String label = "tutorial";
         if (active) label = "tutorial_start";
 
-        eb.addField(Settings.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringTools.numToString(getLocale(), coinsInput), String.valueOf(COUNTER)), false);
+        eb.addField(Settings.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput), String.valueOf(COUNTER)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

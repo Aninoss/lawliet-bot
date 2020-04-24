@@ -8,7 +8,7 @@ import Constants.FisheryStatus;
 import Core.*;
 import Core.Mention.MentionTools;
 import Core.Mention.MentionList;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
@@ -71,10 +71,10 @@ public class GiveCommand extends Command {
                         eb = fisheryUser1.changeValues(0, value);
                         event.getChannel().sendMessage(eb);
 
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringTools.numToString(getLocale(), value), user1.getMentionTag()))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringUtil.numToString(getLocale(), value), user1.getMentionTag()))).get();
                         return true;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringTools.numToString(getLocale(), fisheryUser0.getCoins())))).get();
+                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringUtil.numToString(getLocale(), fisheryUser0.getCoins())))).get();
                     }
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();

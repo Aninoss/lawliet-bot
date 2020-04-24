@@ -7,7 +7,7 @@ import CommandSupporters.CommandManager;
 import Constants.*;
 import Core.*;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
 import MySQL.Modules.Server.DBServer;
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -79,7 +78,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                 }
 
             case 2:
-                if (StringTools.stringIsInt(inputString)) {
+                if (StringUtil.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         autoKickTemp = value;
@@ -95,7 +94,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                 }
 
             case 3:
-                if (StringTools.stringIsInt(inputString)) {
+                if (StringUtil.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         autoBanTemp = value;
@@ -111,7 +110,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                 }
 
             case 4:
-                if (StringTools.stringIsInt(inputString)) {
+                if (StringUtil.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         moderationBean.setAutoKick(autoKickTemp, value);
@@ -128,7 +127,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                 }
 
             case 5:
-                if (StringTools.stringIsInt(inputString)) {
+                if (StringUtil.stringIsInt(inputString)) {
                     int value = Integer.parseInt(inputString);
                     if (value >= 1) {
                         moderationBean.setAutoBan(autoBanTemp, value);
@@ -257,7 +256,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
-                        .addField(getString("state0_mquestion"), StringTools.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
+                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
 
             case 1:
@@ -274,18 +273,18 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
             case 4:
                 setOptions(new String[]{getString("state4_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoKickTemp != 1, StringTools.numToString(autoKickTemp)), getString("state4_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoKickTemp != 1, StringUtil.numToString(autoKickTemp)), getString("state4_title"));
 
             case 5:
                 setOptions(new String[]{getString("state4_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoBanTemp != 1, StringTools.numToString(autoBanTemp)), getString("state5_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
         }
         return null;
     }
 
     private String getAutoModString(int value, int days) throws IOException {
-        if (value <= 0) return StringTools.getOnOffForBoolean(getLocale(), false);
-        return getString("state0_mautomod_templ", value > 1, StringTools.numToString(value), days > 0 ? getString("days", days > 1, StringTools.numToString(days)) : getString("total"));
+        if (value <= 0) return StringUtil.getOnOffForBoolean(getLocale(), false);
+        return getString("state0_mautomod_templ", value > 1, StringUtil.numToString(value), days > 0 ? getString("days", days > 1, StringUtil.numToString(days)) : getString("total"));
     }
 
     @Override

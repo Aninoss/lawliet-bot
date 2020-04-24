@@ -5,7 +5,7 @@ import Commands.CasinoAbstract;
 import Constants.LogStatus;
 import Constants.Response;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -88,7 +88,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
-                StringTools.numToString(getLocale(), coinsInput),
+                StringUtil.numToString(getLocale(), coinsInput),
                 getProgress(),
                 String.valueOf(health),
                 String.valueOf(MAX_HEALTH),

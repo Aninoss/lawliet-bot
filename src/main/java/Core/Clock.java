@@ -6,8 +6,8 @@ import Constants.Locales;
 import Constants.Settings;
 import Modules.Porn.PornImageCache;
 import CommandSupporters.RunningCommands.RunningCommandManager;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.*;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
@@ -65,7 +65,7 @@ public class Clock {
 
         try {
             while (true) {
-                Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), TimeTools.setInstantToNextHour(Instant.now())));
+                Thread.sleep(TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextHour(Instant.now())));
                 try {
                     onHourStart();
                 } catch (Exception e) {
@@ -139,10 +139,15 @@ public class Clock {
         } catch (Exception e) {
             LOGGER.error("Could not post upvotes stats", e);
         }
+        try {
+            DBBotStats.addStatUniqueUsers();
+        } catch (Exception e) {
+            LOGGER.error("Could not post unique users stats", e);
+        }
     }
 
 
-    private void every10Minutes() throws InterruptedException {
+    private void every10Minutes() {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
         if (!apiCollection.allShardsConnected())
@@ -216,6 +221,8 @@ public class Clock {
 
             if (hour == Settings.UPDATE_HOUR && readyForRestart) {
                 readyForRestart = false;
+                /*DBMain.getInstance().clearCache();
+                Thread.sleep(1000); */
 
                 if (Bot.hasUpdate()) {
                     LOGGER.info("Restarting for update...");
@@ -330,7 +337,7 @@ public class Clock {
                         sb.append(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_server",
                                 finalI,
                                 DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get().getName(),
-                                StringTools.numToString(locale, coinsWinMap.computeIfAbsent(secondVote.getServerId(), k -> 0L))
+                                StringUtil.numToString(locale, coinsWinMap.computeIfAbsent(secondVote.getServerId(), k -> 0L))
                         )).append("\n");
                     });
 

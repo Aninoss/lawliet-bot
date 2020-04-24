@@ -5,7 +5,7 @@ import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
@@ -102,7 +102,7 @@ public class BuyCommand extends Command implements OnNavigationListener {
                             Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
                             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                                 String announcementText = getString("newrole", event.getUser().getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
-                                announcementChannelOpt.get().sendMessage(StringTools.defuseMassPing(announcementText)).get();
+                                announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).get();
                             }
                         }
 
@@ -144,12 +144,12 @@ public class BuyCommand extends Command implements OnNavigationListener {
                         String productDescription = "???";
                         long price = slot.getPrice();
                         if (slot.getPowerUpId() != FisheryCategoryInterface.ROLE)
-                            productDescription = getString("product_des_" + slot.getPowerUpId(), StringTools.numToString(getLocale(), slot.getDeltaEffect()));
+                            productDescription = getString("product_des_" + slot.getPowerUpId(), StringUtil.numToString(getLocale(), slot.getDeltaEffect()));
                         else if (roles.get(slot.getLevel()) != null) {
                             price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getPowerUpId(), roles.get(slot.getLevel()).getMentionTag());
                         }
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringTools.numToString(getLocale(), price), productDescription));
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(getLocale(), price), productDescription));
 
                         numberReactions++;
                         eb.addField(Settings.EMPTY_EMOJI, description.toString());
@@ -161,14 +161,14 @@ public class BuyCommand extends Command implements OnNavigationListener {
 
                 eb.addField(Settings.EMPTY_EMOJI,
                         getString("status",
-                                StringTools.numToString(getLocale(), fisheryUserBean.getFish()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getCoins()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getFish()),
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getCoins()),
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
                                 roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getMentionTag() : "**-**",
-                                StringTools.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect())
+                                StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect())
                         )
                 );
                 return eb;

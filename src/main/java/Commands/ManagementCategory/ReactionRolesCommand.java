@@ -10,7 +10,7 @@ import Core.*;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Mention.MentionTools;
 import Core.Mention.MentionList;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import com.vdurmont.emoji.EmojiParser;
 import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
@@ -167,7 +167,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                                     for (Reaction reaction : getNavigationMessage().getReactions()) {
                                         if (emojis.get(0).equals(reaction.getEmoji().getMentionTag())) {
                                             if (remove) reaction.remove().get();
-                                            inputString2 = StringTools.trimString(inputString.replaceFirst(emojis.get(0), ""));
+                                            inputString2 = StringUtil.trimString(inputString.replaceFirst(emojis.get(0), ""));
                                             updateEmoji = calculateEmoji(reaction.getEmoji());
                                             break;
                                         }
@@ -447,7 +447,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         .addField(getString("state3_mtitle"), Optional.ofNullable(title).orElse(notSet), true)
                         .addField(getString("state3_mdescription"), Optional.ofNullable(description).orElse(notSet), true)
                         .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
-                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringTools.getOnOffForBoolean(getLocale(), removeRole), StringTools.getOnOffForBoolean(getLocale(), multipleRoles)), false);
+                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
 
 
             case 4:
@@ -525,8 +525,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
         removeRole = (hiddenNumber & 0x1) <= 0;
         multipleRoles = (hiddenNumber & 0x2) <= 0;
-        this.title = StringTools.trimString(title.substring(3));
-        if (embed.getDescription().isPresent()) this.description = StringTools.trimString(embed.getDescription().get());
+        this.title = StringUtil.trimString(title.substring(3));
+        if (embed.getDescription().isPresent()) this.description = StringUtil.trimString(embed.getDescription().get());
 
         emojiConnections = new ArrayList<>();
         checkRolesWithLog(MentionTools.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);

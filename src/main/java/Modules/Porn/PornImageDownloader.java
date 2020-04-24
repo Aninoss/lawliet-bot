@@ -2,10 +2,10 @@ package Modules.Porn;
 
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
-import Core.Tools.InternetTools;
-import Core.Tools.NSFWTools;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.InternetUtil;
+import Core.Utils.NSFWUtil;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +44,7 @@ public class PornImageDownloader {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
         String data = InternetCache.getDataShortLived(url).get().getContent().get();
 
-        int count = Math.min(200 * 100, Integer.parseInt(StringTools.extractGroups(data, "count=\"", "\"")[0]));
+        int count = Math.min(200 * 100, Integer.parseInt(StringUtil.extractGroups(data, "count=\"", "\"")[0]));
 
         if (count == 0) {
             if (!softMode) {
@@ -88,7 +88,7 @@ public class PornImageDownloader {
             String imageUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
 
             long score = 1;
-            boolean postIsImage = InternetTools.urlContainsImage(imageUrl);
+            boolean postIsImage = InternetUtil.urlContainsImage(imageUrl);
             boolean postIsGif = imageUrl.endsWith("gif");
 
             try {
@@ -100,7 +100,7 @@ public class PornImageDownloader {
             if ((postIsImage || canBeVideo) &&
                     (!animatedOnly || postIsGif || !postIsImage) &&
                     score >= 0 &&
-                    !NSFWTools.stringContainsBannedTags(postData.getString("tags"), additionalFilters)
+                    !NSFWUtil.stringContainsBannedTags(postData.getString("tags"), additionalFilters)
             ) {
                 pornImages.add(new PornImageMeta(imageUrl, score, i));
             }
@@ -122,7 +122,7 @@ public class PornImageDownloader {
 
         Instant instant;
         if (postData.has("created_at")) {
-            instant = TimeTools.parseDateString(postData.getString("created_at"));
+            instant = TimeUtil.parseDateString(postData.getString("created_at"));
         } else instant = Instant.now();
 
         String fileURL;
@@ -138,6 +138,6 @@ public class PornImageDownloader {
             //Ignore
         }
 
-        return new PornImage(fileURL, postURL, score, instant, !InternetTools.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
+        return new PornImage(fileURL, postURL, score, instant, !InternetUtil.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
 }

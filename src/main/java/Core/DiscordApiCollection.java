@@ -6,6 +6,7 @@ import Core.Internet.HttpRequest;
 import Core.Internet.HttpProperty;
 import Core.Internet.HttpResponse;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Core.Utils.InternetUtil;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -90,15 +91,18 @@ public class DiscordApiCollection {
                     LOGGER.debug("No data from shard {}", n);
 
                     errorCounter[n]++;
-                    if (errorCounter[n] >= 4) {
+                    if (errorCounter[n] >= 8) {
                         if (hasReconnected[n]) {
-                            LOGGER.error("Shard {} offline for too long. Force software restart.", n);
+                            LOGGER.error("Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
                             System.exit(-1);
                         } else {
-                            LOGGER.error("Shard {} temporarely offline", n);
+                            /*LOGGER.error("Shard {} temporarely offline", n);
                             reconnectShard(n);
                             hasReconnected[n] = true;
-                            break;
+                            break;*/
+                            LOGGER.error("Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
+                            LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
+                            System.exit(-1);
                         }
                     }
                 }

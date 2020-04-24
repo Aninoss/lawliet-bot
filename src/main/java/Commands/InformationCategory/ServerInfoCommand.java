@@ -4,8 +4,8 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -29,15 +29,15 @@ public class ServerInfoCommand extends Command {
                 server.getIdAsString(),
                 server.getOwner() == null ? "-" : server.getOwner().getDiscriminatedName(),
                 server.getRegion().getName(),
-                TimeTools.getInstantString(getLocale(), server.getCreationTimestamp(), true),
+                TimeUtil.getInstantString(getLocale(), server.getCreationTimestamp(), true),
                 server.getIcon().isPresent() ? server.getIcon().get().getUrl().toString() : "-",
-                StringTools.numToString(getLocale(), server.getMembers().size()),
-                StringTools.numToString(getLocale(), server.getMembers().stream().filter(member -> !member.isBot()).count()),
-                StringTools.numToString(getLocale(), server.getMembers().stream().filter(User::isBot).count()),
-                StringTools.numToString(getLocale(), server.getRoles().size()),
-                StringTools.numToString(getLocale(), server.getChannels().size()),
-                StringTools.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerTextChannel().isPresent()).count()),
-                StringTools.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerVoiceChannel().isPresent()).count())
+                StringUtil.numToString(getLocale(), server.getMembers().size()),
+                StringUtil.numToString(getLocale(), server.getMembers().stream().filter(member -> !member.isBot()).count()),
+                StringUtil.numToString(getLocale(), server.getMembers().stream().filter(User::isBot).count()),
+                StringUtil.numToString(getLocale(), server.getRoles().size()),
+                StringUtil.numToString(getLocale(), server.getChannels().size()),
+                StringUtil.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerTextChannel().isPresent()).count()),
+                StringUtil.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerVoiceChannel().isPresent()).count())
         };
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));

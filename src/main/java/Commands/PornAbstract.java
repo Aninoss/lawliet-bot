@@ -5,12 +5,11 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Core.CustomThread;
 import Core.EmbedFactory;
-import Core.ExceptionHandler;
 import Modules.Porn.PornImageDownloader;
-import Core.Tools.NSFWTools;
+import Core.Utils.NSFWUtil;
 import Modules.Porn.PornImage;
 import Core.TextManager;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -31,11 +30,11 @@ public abstract class PornAbstract extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords());
-        followedString = StringTools.defuseMassPing(NSFWTools.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
+        followedString = StringUtil.defuseMassPing(NSFWUtil.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
         long amount = 1;
-        if (StringTools.stringContainsDigits(followedString)) {
-            amount = StringTools.filterNumberFromString(followedString);
+        if (StringUtil.stringContainsDigits(followedString)) {
+            amount = StringUtil.filterNumberFromString(followedString);
             if (amount < 1 || amount > 20) {
                 if (event.getChannel().canYouEmbedLinks()) {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -46,7 +45,7 @@ public abstract class PornAbstract extends Command {
                 return false;
             }
         }
-        followedString = StringTools.trimString(StringTools.filterLettersFromString(followedString));
+        followedString = StringUtil.trimString(StringUtil.filterLettersFromString(followedString));
 
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
@@ -73,7 +72,7 @@ public abstract class PornAbstract extends Command {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_link", pornImage.getPageUrl()))
                         .setImage(pornImage.getImageUrl())
                         .setTimestamp(pornImage.getInstant())
-                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", StringTools.numToString(getLocale(), pornImage.getScore())));
+                        .setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_footer", StringUtil.numToString(getLocale(), pornImage.getScore())));
 
                 getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
                 event.getChannel().sendMessage(eb).get();

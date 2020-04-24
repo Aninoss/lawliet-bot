@@ -6,7 +6,7 @@ import Commands.ManagementCategory.WelcomeCommand;
 import Constants.FisheryCategoryInterface;
 import Constants.Permission;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import Modules.ImageCreator;
 import MySQL.Modules.AutoRoles.DBAutoRoles;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -51,14 +51,14 @@ public class ServerMemberJoinListener {
                         try {
                             if (image != null) {
                                 channel.sendMessage(
-                                        StringTools.defuseMassPing(
+                                        StringUtil.defuseMassPing(
                                                 WelcomeCommand.replaceVariables(
                                                         welcomeMessageBean.getWelcomeText(),
                                                         server.getName(),
                                                         user.getMentionTag(),
                                                         user.getName(),
                                                         user.getDiscriminatedName(),
-                                                        StringTools.numToString(locale, server.getMembers().size())
+                                                        StringUtil.numToString(locale, server.getMembers().size())
                                                 )
                                         ),
                                         image,
@@ -66,14 +66,14 @@ public class ServerMemberJoinListener {
                                 ).get();
                             } else {
                                 channel.sendMessage(
-                                        StringTools.defuseMassPing(
+                                        StringUtil.defuseMassPing(
                                                 WelcomeCommand.replaceVariables(
                                                         welcomeMessageBean.getWelcomeText(),
                                                         server.getName(),
                                                         user.getMentionTag(),
                                                         user.getName(),
                                                         user.getDiscriminatedName(),
-                                                        StringTools.numToString(locale, server.getMembers().size())
+                                                        StringUtil.numToString(locale, server.getMembers().size())
                                                 )
                                         )
                                 ).get();

@@ -5,7 +5,7 @@ import Commands.ListAbstract;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
@@ -80,9 +80,9 @@ public class TopCommand extends ListAbstract {
                         userString),
                 getString("template_descritpion",
                         DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag(),
-                        StringTools.numToString(getLocale(), userBean.getFishIncome()),
-                        StringTools.numToString(getLocale(), userBean.getCoins()),
-                        StringTools.numToString(getLocale(), userBean.getFish()))
+                        StringUtil.numToString(getLocale(), userBean.getFishIncome()),
+                        StringUtil.numToString(getLocale(), userBean.getCoins()),
+                        StringUtil.numToString(getLocale(), userBean.getFish()))
         );
     }
 

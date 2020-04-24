@@ -1,7 +1,7 @@
 package Core;
 
 import Constants.Settings;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
@@ -97,8 +97,8 @@ public class Connector {
             VersionBean versionBean = DBVersion.getInstance().getBean();
 
             String currentVersionDB = versionBean.getCurrentVersion().getVersion();
-            if (!StringTools.getCurrentVersion().equals(currentVersionDB))
-                versionBean.getSlots().add(new VersionBeanSlot(StringTools.getCurrentVersion(), Instant.now()));
+            if (!StringUtil.getCurrentVersion().equals(currentVersionDB))
+                versionBean.getSlots().add(new VersionBeanSlot(StringUtil.getCurrentVersion(), Instant.now()));
         } catch (SQLException e) {
             LOGGER.error("Could not insert new update", e);
             System.exit(-1);
@@ -312,7 +312,7 @@ public class Connector {
         if (!isRestartPending) {
             if (DBMain.getInstance().checkConnection()) {
                 api.updateStatus(UserStatus.ONLINE);
-                api.updateActivity(ActivityType.WATCHING, "L.help | " + StringTools.numToString(serverNumber) + " | www.lawlietbot.xyz");
+                api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
             } else {
                 api.updateStatus(UserStatus.DO_NOT_DISTURB);
                 api.updateActivity(ActivityType.WATCHING, "ERROR - DATABASE DOWN");

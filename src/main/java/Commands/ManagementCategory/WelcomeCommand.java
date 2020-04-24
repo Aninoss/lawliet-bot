@@ -9,8 +9,8 @@ import Constants.Response;
 import Constants.Settings;
 import Core.*;
 import Core.Mention.MentionTools;
-import Core.Tools.InternetTools;
-import Core.Tools.StringTools;
+import Core.Utils.InternetUtil;
+import Core.Utils.StringUtil;
 import Modules.ImageCreator;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
@@ -233,7 +233,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
-                        .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
                         .addField(getString("state0_mtitle"), welcomeMessageBean.getWelcomeTitle(), true)
                         .addField(getString("state0_mdescription"),
                                replaceVariables(welcomeMessageBean.getWelcomeText(),
@@ -245,7 +245,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                                true)
                         .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
-                        .addField(getString("state0_mgoodbye"), StringTools.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
+                        .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
                         .addField(getString("state0_mgoodbyeText"),
                                replaceVariables(welcomeMessageBean.getGoodbyeText(),
                                        "`%SERVER`",
@@ -281,9 +281,9 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         user.getMentionTag(),
                         user.getName(),
                         user.getDiscriminatedName(),
-                        StringTools.numToString(getLocale(), server.getMembers().size())));
+                        StringUtil.numToString(getLocale(), server.getMembers().size())));
 
-        eb.setImage(InternetTools.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
+        eb.setImage(InternetUtil.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
         return eb;
     }
 

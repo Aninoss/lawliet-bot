@@ -8,7 +8,7 @@ import Constants.Permission;
 import Constants.Response;
 import Core.*;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.SPBlock.DBSPBlock;
 import MySQL.Modules.SPBlock.SPBlockBean;
 import org.javacord.api.DiscordApi;
@@ -189,7 +189,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
+                       .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)

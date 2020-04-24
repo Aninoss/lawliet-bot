@@ -1,6 +1,6 @@
 package Core;
 
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
@@ -62,7 +60,7 @@ public class ExceptionHandler {
             if (submitToDeveloper) {
                 DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
-                        .setDescription(StringTools.shortenString(stacktrace, 1000))).get();
+                        .setDescription(StringUtil.shortenString(stacktrace, 1000))).get();
             }
         } catch (Throwable e1) {
             LOGGER.error("Could not send error message", e1);

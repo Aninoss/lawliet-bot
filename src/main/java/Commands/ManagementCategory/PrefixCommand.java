@@ -7,7 +7,7 @@ import Constants.Permission;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
 import Core.TextManager;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -29,13 +29,13 @@ public class PrefixCommand extends Command {
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = StringTools.trimString(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
+                    String nickname = StringUtil.trimString(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
                         server.updateNickname(DiscordApiCollection.getInstance().getYourself(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), StringTools.trimString(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
                     }
                 }
 

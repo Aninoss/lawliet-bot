@@ -3,24 +3,17 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import CommandSupporters.CommandManager;
-import Core.Clock;
 import Core.CustomThread;
 import Core.EmbedFactory;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
-import MySQL.Modules.Survey.DBSurvey;
-import MySQL.Modules.Survey.SurveyBean;
+import Core.Utils.InternetUtil;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.sql.SQLException;
+
 import java.time.Instant;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "ping",
@@ -34,22 +27,16 @@ public class PingCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        HashMap<Object, Object> hashMap = ((CustomThread)Thread.currentThread()).getHashMap();
-        LOGGER.info("--- PING ---");
-        for(int i = 0; i < 9; i++) {
-            LOGGER.info("{} | {}", i, hashMap.get(i).toString());
-        } /* DEBUG */
-
         Instant creationTime = ((CustomThread)Thread.currentThread()).getCreationTime();
 
-        long milisInternal = TimeTools.getMilisBetweenInstants(creationTime, Instant.now());
+        long milisInternal = TimeUtil.getMilisBetweenInstants(creationTime, Instant.now());
 
         Instant startTime = Instant.now();
-        Message message = event.getServerTextChannel().get().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("pong_start", StringTools.numToString(getLocale(), milisInternal)))).get();
+        Message message = event.getServerTextChannel().get().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("pong_start", StringUtil.numToString(getLocale(), milisInternal)))).get();
         Instant endTime = Instant.now();
 
-        long milisDiscordServers = TimeTools.getMilisBetweenInstants(startTime, endTime);
-        message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong_end", StringTools.numToString(getLocale(), milisInternal), StringTools.numToString(getLocale(), milisDiscordServers)))).get();
+        long milisDiscordServers = TimeUtil.getMilisBetweenInstants(startTime, endTime);
+        message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong_end", StringUtil.numToString(getLocale(), milisInternal), StringUtil.numToString(getLocale(), milisDiscordServers)))).get();
 
         return true;
     }

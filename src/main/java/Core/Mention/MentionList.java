@@ -1,5 +1,5 @@
 package Core.Mention;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 
 import java.util.ArrayList;
 
@@ -18,6 +18,6 @@ public class MentionList<E> {
     }
 
     public String getResultMessageString() {
-        return StringTools.trimString(resultMessageString);
+        return StringUtil.trimString(resultMessageString);
     }
 }

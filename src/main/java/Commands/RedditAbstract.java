@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Core.*;
 import Modules.Reddit.RedditDownloader;
 import Modules.Reddit.RedditPost;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -40,7 +40,7 @@ public abstract class RedditAbstract extends Command {
                 .setUrl(post.getLink())
                 .setTimestamp(post.getInstant());
 
-        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringTools.numToString(getLocale(), post.getScore()), StringTools.numToString(getLocale(), post.getComments())));
+        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(getLocale(), post.getScore()), StringUtil.numToString(getLocale(), post.getComments())));
 
         event.getChannel().sendMessage(eb).get();
         return true;

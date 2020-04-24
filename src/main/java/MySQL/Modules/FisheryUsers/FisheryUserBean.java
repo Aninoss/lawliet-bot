@@ -6,8 +6,8 @@ import Constants.LogStatus;
 import Constants.Settings;
 import Core.EmbedFactory;
 import Core.TextManager;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -98,7 +98,7 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     public long getFishIncome() {
-        Instant currentHourInstance = TimeTools.instantRoundDownToHour(Instant.now());
+        Instant currentHourInstance = TimeUtil.instantRoundDownToHour(Instant.now());
         if (fishIncome == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
             long n = 0;
 
@@ -118,7 +118,7 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     private FisheryHourlyIncomeBean getCurrentFisheryHourlyIncome() {
-        Instant currentTimeHour = TimeTools.instantRoundDownToHour(Instant.now());
+        Instant currentTimeHour = TimeUtil.instantRoundDownToHour(Instant.now());
         return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(getServerId(), userId, currentTimeHour, 0));
     }
 
@@ -148,7 +148,7 @@ public class FisheryUserBean extends BeanWithServer {
         messagesThisHour++;
         if (messagesThisHour >= 3400) {
             banned = true;
-            LOGGER.info("User temporarely banned with id " + userId);
+            LOGGER.warn("### User temporarely banned with id " + userId);
             return false;
         }
 
@@ -304,9 +304,9 @@ public class FisheryUserBean extends BeanWithServer {
         long diff = numberNow - numberPrevious;
         String diffSign = diff >= 0 ? "+" : "";
         return TextManager.getString(locale, TextManager.GENERAL, rankSlot ? "rankingprogress_update2" : "rankingprogress_update", diff != 0,
-                StringTools.numToString(locale, numberPrevious),
-                StringTools.numToString(locale, numberNow),
-                diffSign + StringTools.numToString(locale, diff)
+                StringUtil.numToString(locale, numberPrevious),
+                StringUtil.numToString(locale, numberNow),
+                diffSign + StringUtil.numToString(locale, diff)
         );
     }
 

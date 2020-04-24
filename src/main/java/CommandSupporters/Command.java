@@ -7,8 +7,7 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
-import ServerStuff.CommunicationServer;
+import Core.Utils.StringUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -331,7 +329,7 @@ public abstract class Command {
 
     private void setResultReaction(Message message, boolean successful) {
         if (message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
-            message.addReaction(StringTools.getEmojiForBoolean(successful));
+            message.addReaction(StringUtil.getEmojiForBoolean(successful));
         }
     }
 

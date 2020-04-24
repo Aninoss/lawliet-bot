@@ -1,10 +1,12 @@
-package Core.Tools;
+package Core.Utils;
 
 import Constants.Settings;
 
 import java.util.ArrayList;
 
-public class NSFWTools {
+public final class NSFWUtil {
+
+    private NSFWUtil() {}
 
     public static String filterPornSearchKey(String str, ArrayList<String> additionalFilter) {
         for(String filter: Settings.NSFW_FILTERS) {

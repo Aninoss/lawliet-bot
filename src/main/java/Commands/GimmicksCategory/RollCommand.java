@@ -5,7 +5,7 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.TextManager;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -26,7 +26,7 @@ public class RollCommand extends Command {
         double drawn, border;
         boolean userMentioned = true;
 
-        if (followedString.length() == 0 || !StringTools.stringIsDouble(followedString)){
+        if (followedString.length() == 0 || !StringUtil.stringIsDouble(followedString)){
             border = 6;
             userMentioned = false;
         }

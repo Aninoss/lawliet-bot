@@ -8,11 +8,13 @@ import Core.*;
 import Modules.PostBundle;
 import Modules.Reddit.RedditDownloader;
 import Modules.Reddit.RedditPost;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -25,16 +27,24 @@ import java.time.temporal.ChronoUnit;
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(RedditCommand.class);
+
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        followedString = StringTools.trimString(followedString);
+        followedString = StringUtil.trimString(followedString);
         if (followedString.startsWith("r/")) followedString = followedString.substring(2);
 
         if (followedString.length() == 0) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
             return false;
         } else {
-            RedditPost post = RedditDownloader.getPost(getLocale(), followedString);
+            RedditPost post;
+            try {
+                post = RedditDownloader.getPost(getLocale(), followedString);
+            } catch (Throwable e) {
+                LOGGER.error("Error in subreddit '{}'", followedString, e);
+                throw e;
+            }
 
             if (post != null) {
                 if (post.isNsfw() && !event.getServerTextChannel().get().isNsfw()) {
@@ -75,7 +85,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
             nsfwString = " " + getString("nsfw");
         }
 
-        eb.setFooter(getString("footer", flairText, StringTools.numToString(getLocale(), post.getScore()), StringTools.numToString(getLocale(), post.getComments()), post.getDomain()) + nsfwString);
+        eb.setFooter(getString("footer", flairText, StringUtil.numToString(getLocale(), post.getScore()), StringUtil.numToString(getLocale(), post.getComments()), post.getDomain()) + nsfwString);
 
         return eb;
     }

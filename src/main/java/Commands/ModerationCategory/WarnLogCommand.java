@@ -6,8 +6,8 @@ import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Mention.MentionTools;
 import Core.TextManager;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Warning.DBServerWarnings;
 import MySQL.Modules.Warning.ServerWarningsBean;
 import MySQL.Modules.Warning.ServerWarningsSlot;
@@ -57,7 +57,7 @@ public class WarnLogCommand extends Command {
                 Optional<User> requestor = serverWarningsSlot.getRequesterUser();
                 Optional<String> reason = serverWarningsSlot.getReason();
                 String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", requestor.get().getName())) : getString("unknown_user");
-                String timeDiffString = TimeTools.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);
+                String timeDiffString = TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);
                 latestWarnings.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
             }
 
@@ -69,10 +69,10 @@ public class WarnLogCommand extends Command {
                     .setThumbnail(user.getAvatar().getUrl().toString());
             eb.addField(getString("latest"), latestWarningsString, false);
             eb.addField(getString("amount"), getString("amount_template",
-                    StringTools.numToString(serverWarningsBean.getAmountLatest(24, ChronoUnit.HOURS).size()),
-                    StringTools.numToString(serverWarningsBean.getAmountLatest(7, ChronoUnit.DAYS).size()),
-                    StringTools.numToString(serverWarningsBean.getAmountLatest(30, ChronoUnit.DAYS).size()),
-                    StringTools.numToString(serverWarningsBean.getWarnings().size())
+                    StringUtil.numToString(serverWarningsBean.getAmountLatest(24, ChronoUnit.HOURS).size()),
+                    StringUtil.numToString(serverWarningsBean.getAmountLatest(7, ChronoUnit.DAYS).size()),
+                    StringUtil.numToString(serverWarningsBean.getAmountLatest(30, ChronoUnit.DAYS).size()),
+                    StringUtil.numToString(serverWarningsBean.getWarnings().size())
             ), false);
             if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
             event.getChannel().sendMessage(eb).get();

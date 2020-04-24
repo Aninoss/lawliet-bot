@@ -1,6 +1,6 @@
 package Core.BotResources;
 
-import Core.Tools.RandomTools;
+import Core.Utils.RandomUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;
@@ -27,7 +27,7 @@ public class ResourceFolder {
     }
 
     public ResourceFile getRandomFile() {
-        int n = RandomTools.pickFullRandom(picked, fileNumber);
+        int n = RandomUtil.pickFullRandom(picked, fileNumber);
         return fileList.get(n);
     }
 

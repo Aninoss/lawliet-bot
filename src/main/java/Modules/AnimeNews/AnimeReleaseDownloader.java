@@ -4,8 +4,8 @@ import Constants.Language;
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
 import Modules.PostBundle;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 public class AnimeReleaseDownloader {
 
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filter) throws InterruptedException, ExecutionException {
-        filter = StringTools.trimString(filter);
+        filter = StringUtil.trimString(filter);
 
         String downloadUrl;
-        if (StringTools.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
+        if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
@@ -106,7 +106,7 @@ public class AnimeReleaseDownloader {
         String episode = null;
         if (data.has("crunchyroll:episodeNumber")) {
             try {
-                episode = StringTools.numToString(locale, data.getInt("crunchyroll:episodeNumber"));
+                episode = StringUtil.numToString(locale, data.getInt("crunchyroll:episodeNumber"));
             } catch (Exception e) {
                 //Ignore
                 episode = data.getString("crunchyroll:episodeNumber");
@@ -125,9 +125,9 @@ public class AnimeReleaseDownloader {
 
         String thumbnail = "";
         if (data.has("media:thumbnail")) thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
-        Instant date = TimeTools.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
+        Instant date = TimeUtil.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link");
-        if (StringTools.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");
+        if (StringUtil.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");
 
         return new AnimeReleasePost(anime, description, episode, episodeTitle, thumbnail, date, url, id);

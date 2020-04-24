@@ -19,7 +19,7 @@ public class PermissionCheck {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server, channel, user,userPermissions);
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
 
-        return getUserPermissionMissingEmbed(locale, userPermission,botPermission);
+        return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
     }
 
     public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {

@@ -8,7 +8,7 @@ import Constants.Permission;
 import Constants.Response;
 import Core.*;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
@@ -122,13 +122,13 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringTools.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
+                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
                         .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet), true)
                         .addField(getString("state0_mchannelname"), replaceVariables(autoChannelBean.getNameMask(),
                                 "`%VCNAME`",
                                 "`%INDEX`",
                                 "`%CREATOR`").replace("``", "` `"), true)
-                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringTools.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
+                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

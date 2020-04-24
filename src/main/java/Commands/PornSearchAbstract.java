@@ -3,7 +3,7 @@ package Commands;
 
 import Core.*;
 import Modules.Porn.PornImage;
-import Core.Tools.NSFWTools;
+import Core.Utils.NSFWUtil;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -22,7 +22,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
 
     @Override
     public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable {
-        String searchAdd = NSFWTools.getNSFWTagRemoveList(nsfwFilter);
+        String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();
         String imageTemplate = getImageTemplate();

@@ -1,4 +1,4 @@
-package Core.Tools;
+package Core.Utils;
 
 import Constants.Language;
 import Constants.Settings;
@@ -13,7 +13,9 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-public class StringTools {
+public final class StringUtil {
+
+    private StringUtil() {}
 
     public static boolean stringIsDouble(String string) {
         try {

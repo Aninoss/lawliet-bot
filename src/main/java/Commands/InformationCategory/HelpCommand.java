@@ -8,7 +8,7 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
 import Core.EmojiConnection.EmojiConnection;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.CommandManagement.CommandManagementBean;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import org.javacord.api.DiscordApi;
@@ -79,7 +79,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
-        String arg = StringTools.trimString(searchTerm);
+        String arg = StringUtil.trimString(searchTerm);
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1,arg.length()-1);
 
         ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
@@ -121,7 +121,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
                 for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_examples").split("\n")) {
-                    line = StringTools.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
+                    line = StringUtil.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
                     examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
                 }

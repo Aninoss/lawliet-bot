@@ -10,7 +10,7 @@ import Core.EmbedFactory;
 import Core.Mention.MentionTools;
 import Core.Mention.MentionList;
 import Core.TextManager;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Warning.DBServerWarnings;
 import MySQL.Modules.Warning.ServerWarningsSlot;
@@ -51,7 +51,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         requestor = event.getMessage().getUserAuthor().get();
         MentionList<User> userMentions = MentionTools.getUsers(event.getMessage(), followedString);
         users = userMentions.getList();
-        followedString = StringTools.trimString(userMentions.getResultMessageString());
+        followedString = StringUtil.trimString(userMentions.getResultMessageString());
 
         if (users.size() == 0) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -61,7 +61,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
 
         boolean removeAll = followedString.equalsIgnoreCase("all");
 
-        if (!removeAll && !StringTools.stringIsInt(followedString)) {
+        if (!removeAll && !StringUtil.stringIsInt(followedString)) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
             return false;
@@ -74,13 +74,13 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
             return false;
         }
 
-        nString = removeAll ? getString("all") : StringTools.numToString(getLocale(), n);
+        nString = removeAll ? getString("all") : StringUtil.numToString(getLocale(), n);
         userString = MentionTools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), users).getString();
 
         if (DBModeration.getInstance().getBean(channel.getServer().getId()).isQuestion()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmation", n != 1, nString, userString));
             postMessage(eb);
-            for(int i = 0; i < 2; i++) this.message.addReaction(StringTools.getEmojiForBoolean(i == 0)).get();
+            for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
         } else {
             executeRemoval();
         }
@@ -129,7 +129,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji()) {
             for (int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equals(StringTools.getEmojiForBoolean(i == 0))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equals(StringUtil.getEmojiForBoolean(i == 0))) {
                     if (i == 0) {
                         executeRemoval();
                     } else {

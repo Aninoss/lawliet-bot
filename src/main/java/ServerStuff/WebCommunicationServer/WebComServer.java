@@ -3,7 +3,7 @@ package ServerStuff.WebCommunicationServer;
 import CommandSupporters.Command;
 import Constants.Locales;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import ServerStuff.WebCommunicationServer.Events.*;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -76,7 +76,7 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String str = StringTools.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
+            String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
             if (!str.isEmpty())
                 str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 

@@ -40,9 +40,8 @@ public class CommandManager {
                 checkCooldown(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            ((CustomThread)Thread.currentThread()).getHashMap().put(8, Instant.now().toString());
-
             DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
+            CommandUsers.getInstance().addUsage(event.getMessageAuthor().getId());
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
             manageSlowCommandLoadingReaction(command, event.getMessage());
 
@@ -63,7 +62,6 @@ public class CommandManager {
     }
 
     private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(7, Instant.now().toString());
         if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard())) {
             return true;
         }
@@ -77,7 +75,6 @@ public class CommandManager {
     }
 
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(6, Instant.now().toString());
         Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), command.getCooldownTime());
         if (!waitingSec.isPresent()) {
             return true;
@@ -95,7 +92,6 @@ public class CommandManager {
     }
 
     private static boolean checkPermissions(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(5, Instant.now().toString());
         EmbedBuilder errEmbed = PermissionCheck.getUserAndBotPermissionMissingEmbed(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
         if (errEmbed == null || command instanceof HelpCommand) {
             return true;
@@ -106,7 +102,6 @@ public class CommandManager {
     }
 
     private static boolean checkTurnedOn(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(4, Instant.now().toString());
         Server server = event.getServer().get();
         User user = event.getMessage().getUserAuthor().get();
 
@@ -124,7 +119,6 @@ public class CommandManager {
     }
 
     private static boolean botCanUseEmbeds(MessageCreateEvent event, Command command) {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(3, Instant.now().toString());
         if (event.getChannel().canYouEmbedLinks() || !command.requiresEmbeds()) {
             return true;
         }
@@ -135,7 +129,6 @@ public class CommandManager {
     }
 
     private static boolean isNSFWCompliant(MessageCreateEvent event, Command command) throws IOException {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(2, Instant.now().toString());
         if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
             return true;
         }
@@ -146,12 +139,10 @@ public class CommandManager {
     }
 
     private static boolean isWhiteListed(MessageCreateEvent event) throws ExecutionException {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(1, Instant.now().toString());
         return event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId()).isWhiteListed(event.getServerTextChannel().get().getId());
     }
 
     private static boolean botCanPost(MessageCreateEvent event, Command command) {
-        ((CustomThread)Thread.currentThread()).getHashMap().put(0, Instant.now().toString());
         if (event.getChannel().canYouWrite() || command instanceof HelpCommand) {
             return true;
         }

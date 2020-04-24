@@ -8,7 +8,7 @@ import Constants.Response;
 import Core.*;
 import Modules.ExchangeRate;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
@@ -44,9 +44,9 @@ public class SellCommand extends Command implements OnReactionAddListener, OnFor
             } else {
                 message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                         getString("status",
-                                StringTools.numToString(getLocale(), userBean.getFish()),
-                                StringTools.numToString(getLocale(), userBean.getCoins()),
-                                StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
+                                StringUtil.numToString(getLocale(), userBean.getFish()),
+                                StringUtil.numToString(getLocale(), userBean.getCoins()),
+                                StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
                                 getChangeEmoji()
                         ))).get();
                 message.addReaction("❌");
@@ -80,7 +80,7 @@ public class SellCommand extends Command implements OnReactionAddListener, OnFor
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", userBean.getFish() != 1, StringTools.numToString(getLocale(), userBean.getFish()))));
+                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", userBean.getFish() != 1, StringUtil.numToString(getLocale(), userBean.getFish()))));
         } else if (value == 0)
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
         else if (value == -1)
@@ -134,7 +134,7 @@ public class SellCommand extends Command implements OnReactionAddListener, OnFor
     private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         removeMessageForwarder();
         removeReactionListener();
-        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()), getString("nointerest_title")));
+        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()), getString("nointerest_title")));
     }
 
     @Override

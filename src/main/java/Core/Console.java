@@ -2,6 +2,7 @@ package Core;
 
 import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Core.Utils.SystemUtil;
 import MySQL.DBMain;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
@@ -140,6 +141,11 @@ public class Console {
                                 DBMain.getInstance().clearCache();
                                 System.out.println("Cache cleared!");
                                 break;
+
+                            case "backup":
+                                int code = SystemUtil.executeProcess("./backupdb.sh");
+                                LOGGER.info("Script ended with exit code {}", code);
+                                break;
                         }
                     }
                 }
@@ -217,5 +223,7 @@ public class Console {
     public void setTraffic(double traffic) {
         this.traffic = traffic;
     }
+
+    public double getMaxMemory() { return maxMemory; }
 
 }

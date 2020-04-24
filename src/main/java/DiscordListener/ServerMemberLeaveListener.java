@@ -3,7 +3,7 @@ import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.Permission;
 import Core.PermissionCheckRuntime;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
@@ -13,7 +13,6 @@ import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -35,14 +34,14 @@ public class ServerMemberLeaveListener {
                         User user = event.getUser();
                         try {
                             channel.sendMessage(
-                                    StringTools.defuseMassPing(
+                                    StringUtil.defuseMassPing(
                                             WelcomeCommand.replaceVariables(
                                                     welcomeMessageBean.getGoodbyeText(),
                                                     server.getName(),
                                                     user.getMentionTag(),
                                                     user.getName(),
                                                     user.getDiscriminatedName(),
-                                                    StringTools.numToString(locale, server.getMembers().size())
+                                                    StringUtil.numToString(locale, server.getMembers().size())
                                             )
                                     )
                             ).get();

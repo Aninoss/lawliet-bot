@@ -7,7 +7,7 @@ import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.ExceptionHandler;
 import Core.PermissionCheck;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
@@ -39,12 +39,12 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (!serverBlockList.contains(event.getServer().get())) {
-            if (followedString.length() > 0 && StringTools.stringIsInt(followedString) && Integer.parseInt(followedString) >= 1) {
+            if (followedString.length() > 0 && StringUtil.stringIsInt(followedString) && Integer.parseInt(followedString) >= 1) {
                 serverBlockList.add(event.getServer().get());
                 int n = Integer.parseInt(followedString);
 
-                message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("deleting", StringTools.getLoadingReaction(event.getServerTextChannel().get())))).get();
-                message.addReaction(StringTools.getEmojiForBoolean(false)).get();
+                message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("deleting", StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
+                message.addReaction(StringUtil.getEmojiForBoolean(false)).get();
                 stage = 0;
 
                 final AutoKickCommand thisInstance = this;
@@ -92,8 +92,8 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
 
                         if (banList.size() > 0) {
                             stage = 1;
-                            message.edit(EmbedFactory.getCommandEmbedSuccess(thisInstance, getString("finished", banList.size() != 1, StringTools.numToString(getLocale(), banList.size())))).get();
-                            message.addReaction(StringTools.getEmojiForBoolean(true)).get();
+                            message.edit(EmbedFactory.getCommandEmbedSuccess(thisInstance, getString("finished", banList.size() != 1, StringUtil.numToString(getLocale(), banList.size())))).get();
+                            message.addReaction(StringUtil.getEmojiForBoolean(true)).get();
                             addReactionListener(message);
                         } else {
                             stage = -1;
@@ -138,7 +138,7 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
 
         if (event.getEmoji().isUnicodeEmoji()) {
             if (stage == 0) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringTools.getEmojiForBoolean(false))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringUtil.getEmojiForBoolean(false))) {
                     stage = -1;
                     removeReactionListener();
                     message.edit(EmbedFactory.getCommandEmbedError(this, getString("abort"), getString("abort_title"))).get();
@@ -147,12 +147,12 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
             }
 
             else if (stage == 1) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringTools.getEmojiForBoolean(false))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringUtil.getEmojiForBoolean(false))) {
                     stage = -1;
                     removeReactionListener();
                     message.edit(EmbedFactory.getCommandEmbedError(this, getString("abort"), getString("abort_title"))).get();
                     serverBlockList.remove(event.getServer().get());
-                } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringTools.getEmojiForBoolean(true))) {
+                } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(StringUtil.getEmojiForBoolean(true))) {
                     stage = -1;
                     removeReactionListener();
 
@@ -172,7 +172,7 @@ public class AutoKickCommand extends Command implements OnReactionAddListener {
                         }
                     }
 
-                    message.edit(EmbedFactory.getCommandEmbedSuccess(this, getString("finished2", kicked != 1, StringTools.numToString(getLocale(), kicked), StringTools.numToString(getLocale(), banList.size())))).get();
+                    message.edit(EmbedFactory.getCommandEmbedSuccess(this, getString("finished2", kicked != 1, StringUtil.numToString(getLocale(), kicked), StringUtil.numToString(getLocale(), banList.size())))).get();
                     serverBlockList.remove(event.getServer().get());
                 }
             }

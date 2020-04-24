@@ -6,23 +6,19 @@ import CommandSupporters.CommandManager;
 import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
 import Core.CustomThread;
-import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
-import java.util.Observable;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -134,7 +130,7 @@ public class TrackerBeanSlot extends BeanWithServer {
     }
 
     private boolean manageTracker(OnTrackerRequestListener command, boolean firstTime) throws Throwable {
-        Thread.sleep(Math.max(firstTime ? 0 : 5 * 60 * 1000, TimeTools.getMilisBetweenInstants(Instant.now(), nextRequest)));
+        Thread.sleep(Math.max(firstTime ? 0 : 5 * 60 * 1000, TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest)));
 
         Optional<ServerTextChannel> channelOpt = getChannel();
         if (channelOpt.isPresent() &&
@@ -150,6 +146,8 @@ public class TrackerBeanSlot extends BeanWithServer {
                     return false;
 
                 case STOP_AND_SAVE:
+                    while (countObservers() == 0) Thread.sleep(100);
+                    setChanged();
                     notifyObservers();
                     return false;
 
@@ -157,6 +155,8 @@ public class TrackerBeanSlot extends BeanWithServer {
                     return true;
 
                 case CONTINUE_AND_SAVE:
+                    while (countObservers() == 0) Thread.sleep(100);
+                    setChanged();
                     notifyObservers();
                     return true;
             }

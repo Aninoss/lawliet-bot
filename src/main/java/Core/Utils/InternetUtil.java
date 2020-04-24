@@ -1,4 +1,4 @@
-package Core.Tools;
+package Core.Utils;
 
 import Core.CustomThread;
 import Core.DiscordApiCollection;
@@ -9,11 +9,14 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.ExecutionException;
 
-public class InternetTools {
+public final class InternetUtil {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(InternetTools.class);
+    private InternetUtil() {}
+
+    final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
 
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
@@ -46,6 +49,20 @@ public class InternetTools {
             //Ignore
         }
 
+        return false;
+    }
+
+    public static boolean checkConnection() {
+        try {
+            URL url = new URL("https://www.google.com/");
+            URLConnection connection = url.openConnection();
+            connection.connect();
+
+            return true;
+        }
+        catch (Exception e) {
+            LOGGER.error("Could not create connection to google", e);
+        }
         return false;
     }
 

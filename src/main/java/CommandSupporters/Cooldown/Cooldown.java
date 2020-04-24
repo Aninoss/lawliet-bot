@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class Cooldown {
 
-    private static Cooldown ourInstance = new Cooldown();
+    private static final Cooldown ourInstance = new Cooldown();
     public static Cooldown getInstance() {
         return ourInstance;
     }
@@ -13,7 +13,7 @@ public class Cooldown {
 
     public static final int MAX_ALLOWED = 2;
 
-    private HashMap<Long, CooldownData> cooldownDataMap = new HashMap<>();
+    private final HashMap<Long, CooldownData> cooldownDataMap = new HashMap<>();
 
     public Optional<Integer> getWaitingSec(long userId, int cooldown) {
         return cooldownDataMap.computeIfAbsent(userId, uid -> new CooldownData()).getWaitingSec(cooldown);
@@ -26,7 +26,7 @@ public class Cooldown {
     }
 
     public synchronized void clean() {
-        cooldownDataMap.entrySet().removeIf(set -> !set.getValue().isEmpty());
+        cooldownDataMap.entrySet().removeIf(set -> set == null || !set.getValue().isEmpty());
     }
 
 }

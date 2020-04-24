@@ -4,8 +4,8 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Survey.*;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import javafx.util.Pair;
@@ -154,7 +154,7 @@ public class SurveyCommand extends Command implements OnReactionAddStaticListene
             resultString.append(
                     getString("results_template",
                             LetterEmojis.LETTERS[i],
-                            StringTools.getBar(firstVotesRelative[i], 12),
+                            StringUtil.getBar(firstVotesRelative[i], 12),
                             String.valueOf(firstVotes[i]),
                             String.valueOf(Math.round(firstVotesRelative[i] * 100))
                     )
@@ -202,8 +202,8 @@ public class SurveyCommand extends Command implements OnReactionAddStaticListene
         slot.setMessageId(sendMessages(channel, true).getId());
         Instant nextInstant = slot.getNextRequest();
         do {
-            nextInstant = TimeTools.setInstantToNextDay(nextInstant);
-        } while(!TimeTools.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeTools.instantHasWeekday(nextInstant, Calendar.THURSDAY));
+            nextInstant = TimeUtil.setInstantToNextDay(nextInstant);
+        } while(!TimeUtil.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeUtil.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 

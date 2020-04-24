@@ -1,5 +1,6 @@
 package MySQL.Modules.Tracker;
 
+import Core.Bot;
 import Core.CustomThread;
 import MySQL.DBCached;
 import MySQL.DBDataLoad;
@@ -43,7 +44,7 @@ public class DBTracker extends DBCached {
                             slot -> new Pair<>(slot.getChannelId(), slot.getCommandTrigger()),
                             resultSet -> {
                                 try {
-                                    Thread.sleep(500);
+                                    if (Bot.isProductionMode()) Thread.sleep(500);
                                     return new TrackerBeanSlot(
                                             DBServer.getInstance().getBean(resultSet.getLong(1)),
                                             resultSet.getLong(2),

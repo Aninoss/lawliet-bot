@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Constants.Language;
 import Core.*;
 import Core.Internet.HttpRequest;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 
@@ -23,7 +23,7 @@ public class DadJokeCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String joke;
 
-        if (StringTools.getLanguage(getLocale()) == Language.DE) {
+        if (StringUtil.getLanguage(getLocale()) == Language.DE) {
             joke = HttpRequest.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").get().getContent().get().split("\\|")[0];
         } else {
             joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");

@@ -9,7 +9,7 @@ import Constants.Permission;
 import Constants.Response;
 import Core.*;
 import Core.Mention.MentionTools;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.BannedWords.BannedWordsBean;
 import MySQL.Modules.BannedWords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -168,7 +168,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), StringTools.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
+                       .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mwords"), getWordsString(), true);

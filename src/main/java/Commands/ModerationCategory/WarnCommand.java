@@ -7,7 +7,7 @@ import Core.*;
 import Core.Mention.Mention;
 import Core.Mention.MentionTools;
 import Core.Mention.MentionList;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -51,7 +51,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         }
 
         reason = userMentionList.getResultMessageString().replace("`", "");
-        reason = StringTools.trimString(reason);
+        reason = StringUtil.trimString(reason);
         if (reason.length() > CHAR_LIMIT) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
             return false;
@@ -64,7 +64,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);
-            for(int i = 0; i < 2; i++) this.message.addReaction(StringTools.getEmojiForBoolean(i == 0)).get();
+            for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
         } else {
             return execute(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get());
         }
@@ -122,7 +122,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji()) {
             for (int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equals(StringTools.getEmojiForBoolean(i == 0))) {
+                if (event.getEmoji().asUnicodeEmoji().get().equals(StringUtil.getEmojiForBoolean(i == 0))) {
                     if (i == 0) {
                         execute(event.getServerTextChannel().get(), event.getUser());
                     } else {

@@ -1,9 +1,11 @@
-package Core.Tools;
+package Core.Utils;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class RandomTools {
+public final class RandomUtil {
+
+    private RandomUtil() {}
 
     public static int pickFullRandom(ArrayList<Integer> usedSlots, int size) {
         Random n = new Random();

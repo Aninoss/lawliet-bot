@@ -1,5 +1,6 @@
 package MySQL;
 
+import CommandSupporters.CommandUsers;
 import ServerStuff.TopGG;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,6 +28,14 @@ public class DBBotStats {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setInt(1, TopGG.getInstance().getTotalUpvotes());
         preparedStatement.setInt(2, TopGG.getInstance().getMonthlyUpvotes());
+        preparedStatement.execute();
+        preparedStatement.close();
+    }
+
+    public static void addStatUniqueUsers() throws SQLException {
+        String sql = "INSERT INTO StatsUniqueUsers VALUES(NOW(), ?);";
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
+        preparedStatement.setInt(1, CommandUsers.getInstance().checkDailyUniqueUsers());
         preparedStatement.execute();
         preparedStatement.close();
     }

@@ -1,6 +1,6 @@
 package Modules;
 
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 
 import java.util.Optional;
 
@@ -39,12 +39,12 @@ public class VoteInfo {
     }
 
     public void setTopic(String topic) {
-        this.topic = StringTools.trimString(topic);
+        this.topic = StringUtil.trimString(topic);
     }
 
     public void setChoices(String[] choices) {
         for(int i=0; i<choices.length; i++) {
-            choices[i] = StringTools.trimString(choices[i]);
+            choices[i] = StringUtil.trimString(choices[i]);
         }
         this.choices = choices;
     }

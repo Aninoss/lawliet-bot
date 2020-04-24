@@ -7,7 +7,7 @@ import Constants.Permission;
 import Constants.TrackerResult;
 import Core.*;
 import Core.Internet.InternetCache;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -80,7 +80,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setTimestampToNow()
-                .setFooter(getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeTools.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
+                .setFooter(getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
 
         if (!isSplatfest) {
             String[] modeIDs = new String[]{"regular", "gachi", "league"};

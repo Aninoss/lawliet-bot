@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.TrackerResult;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
@@ -36,16 +36,16 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         //Ohne Argumente
         if (followedString.length() == 0) {
             List<VersionBeanSlot> versions = versionBean.getCurrentVersions(3);
-            event.getChannel().sendMessage(getEmbedNormal(versions)).get();
+            event.getChannel().sendMessage(getEmbedNormal(versions, true)).get();
             return true;
         } else {
             //Anzahl
-            if (StringTools.stringIsLong(followedString)) {
+            if (StringUtil.stringIsLong(followedString)) {
                 int i = Integer.parseInt(followedString);
                 if (i >= 1) {
                     if (i <= 10) {
                         List<VersionBeanSlot> versions = versionBean.getCurrentVersions(i);
-                        event.getChannel().sendMessage(getEmbedNormal(versions)).get();
+                        event.getChannel().sendMessage(getEmbedNormal(versions, false)).get();
                         return true;
                     } else {
                         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -62,7 +62,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                 List<VersionBeanSlot> versions = versionBean.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
-                    event.getChannel().sendMessage(getEmbedNormal(versions)).get();
+                    event.getChannel().sendMessage(getEmbedNormal(versions, false)).get();
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -73,8 +73,8 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         }
     }
 
-    private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions) throws Throwable {
-        EmbedBuilder eb = getVersionsEmbed(versions);
+    private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions, boolean showEmptyFooter) throws Throwable {
+        EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
         EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         return eb;
     }
@@ -82,11 +82,12 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     private EmbedBuilder getVersionsEmbed(VersionBeanSlot slot) throws Throwable {
         ArrayList<VersionBeanSlot> versions = new ArrayList<>();
         versions.add(slot);
-        return getVersionsEmbed(versions);
+        return getVersionsEmbed(versions, false);
     }
 
-    private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this).setFooter(getString("footer"));
+    private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) throws Throwable {
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
+        if (showEmptyFooter) eb.setFooter(getString("footer"));
         for(VersionBeanSlot slot: versions) {
             eb.addField(slot.getVersion(), ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
         }
@@ -95,7 +96,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(StringTools.getCurrentVersion())) {
+        if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(StringUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
 
             slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));

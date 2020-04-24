@@ -3,7 +3,7 @@ package MySQL.Modules.FisheryUsers;
 import Constants.FisheryStatus;
 import Core.Bot;
 import Core.DiscordApiCollection;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
@@ -289,7 +289,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
         try {
             while (true) {
-                Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), nextRequest));
+                Thread.sleep(TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest));
                 nextRequest = Instant.now().plus(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
 
                 DiscordApiCollection.getInstance().getServers().stream()
@@ -340,7 +340,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 10;
+        return 5;
     }
 
 }

@@ -1,4 +1,4 @@
-package Core.Tools;
+package Core.Utils;
 
 import Core.TextManager;
 
@@ -10,8 +10,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
-public class TimeTools {
+public final class TimeUtil {
+
+    private TimeUtil() {}
 
     public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) throws IOException {
         String str = DateTimeFormatter.ofPattern(TextManager.getString(locale, TextManager.GENERAL, "time_code", withClockTime)).format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
@@ -39,7 +42,7 @@ public class TimeTools {
         if (minutes > 0) remaining += minutes + " " + TextManager.getString(locale, TextManager.GENERAL, "minutes" + addString, minutes != 1) + ", ";
 
         remaining = remaining.substring(0, remaining.length() - 2);
-        remaining = StringTools.replaceLast(remaining, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
+        remaining = StringUtil.replaceLast(remaining, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
         return remaining;
     }
 

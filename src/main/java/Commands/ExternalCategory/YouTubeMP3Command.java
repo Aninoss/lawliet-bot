@@ -5,7 +5,7 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Core.*;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import Modules.YouTubeDownloader;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -43,7 +43,7 @@ public class YouTubeMP3Command extends Command {
                     return false;
                 }
 
-                String loadingEmoji = StringTools.getLoadingReaction(event.getServerTextChannel().get());
+                String loadingEmoji = StringUtil.getLoadingReaction(event.getServerTextChannel().get());
                 Message message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("loading", loadingEmoji))).get();
 
                 try {

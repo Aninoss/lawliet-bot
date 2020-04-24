@@ -1,6 +1,6 @@
 package Core;
 
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class ListGen<T> {
             i++;
         }
         if (sb.toString().isEmpty()) return valueIfEmpty;
-        return StringTools.shortenStringLine(sb.toString(), 1024);
+        return StringUtil.shortenStringLine(sb.toString(), 1024);
     }
 
 }

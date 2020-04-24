@@ -6,8 +6,8 @@ import CommandSupporters.Command;
 import Constants.*;
 import Core.EmbedFactory;
 import Core.TextManager;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
@@ -47,7 +47,7 @@ public class ClaimCommand extends Command {
             } else {
                 long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
 
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringTools.numToString(getLocale(), upvotesUnclaimed), StringTools.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
                 if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
                 event.getChannel().sendMessage(eb);
@@ -62,7 +62,7 @@ public class ClaimCommand extends Command {
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) throws IOException {
         if (nextUpvote.isAfter(Instant.now()))
-            EmbedFactory.addLog(eb, null, getString("next", TimeTools.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
+            EmbedFactory.addLog(eb, null, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
         else
             EmbedFactory.addLog(eb, null, getString("next_now"));
     }

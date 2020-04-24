@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Core.*;
 import Core.Mention.Mention;
 import Core.Mention.MentionTools;
-import Core.Tools.RandomTools;
+import Core.Utils.RandomUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -39,7 +39,7 @@ public abstract class InteractionAbstract extends Command {
         }
 
         ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
-        String gifUrl = gifs[RandomTools.pickFullRandom(pickedCommand, gifs.length)];
+        String gifUrl = gifs[RandomUtil.pickFullRandom(pickedCommand, gifs.length)];
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.getString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**"))
                 .setImage(gifUrl);
 

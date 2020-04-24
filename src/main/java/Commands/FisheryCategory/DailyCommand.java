@@ -4,8 +4,8 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Donators.DBDonators;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
@@ -48,9 +48,9 @@ public class DailyCommand extends Command {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 
-                StringBuilder sb = new StringBuilder(getString("point_default", StringTools.numToString(getLocale(), fishes)));
-                if (bonusCombo > 0) sb.append("\n").append(getString("point_combo", StringTools.numToString(getLocale(), bonusCombo)));
-                if (bonusDonation > 0) sb.append("\n").append(getString("point_donation", StringTools.numToString(getLocale(), bonusDonation)));
+                StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(getLocale(), fishes)));
+                if (bonusCombo > 0) sb.append("\n").append(getString("point_combo", StringUtil.numToString(getLocale(), bonusCombo)));
+                if (bonusDonation > 0) sb.append("\n").append(getString("point_donation", StringUtil.numToString(getLocale(), bonusDonation)));
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("codeblock", sb.toString()));
                 eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", Settings.UPVOTE_URL), false);
@@ -61,10 +61,10 @@ public class DailyCommand extends Command {
 
                 return true;
             } else {
-                Instant nextDaily = TimeTools.setInstantToNextDay(Instant.now());
+                Instant nextDaily = TimeUtil.setInstantToNextDay(Instant.now());
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("claimed_desription"), getString("claimed_title"));
-                EmbedFactory.addLog(eb, null, getString("next", TimeTools.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
+                EmbedFactory.addLog(eb, null, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
                 event.getChannel().sendMessage(eb).get();
                 return false;
             }

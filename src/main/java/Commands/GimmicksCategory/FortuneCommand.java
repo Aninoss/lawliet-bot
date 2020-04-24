@@ -3,7 +3,7 @@ package Commands.GimmicksCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Tools.RandomTools;
+import Core.Utils.RandomUtil;
 import Core.BotResources.ResourceManager;
 import Core.TextManager;
 import org.javacord.api.entity.message.Message;
@@ -12,7 +12,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fortune",
@@ -39,11 +38,11 @@ public class FortuneCommand extends Command {
     }
 
     private EmbedBuilder getEmbed(Message message, String question) throws IOException {
-        int n = RandomTools.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
+        int n = RandomUtil.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
         String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
         String answer = answerRaw;
         if (answer.equals("%RandomUpperCase")) {
-            answer = RandomTools.randomUpperCase(question);
+            answer = RandomUtil.randomUpperCase(question);
         } else if (answer.startsWith("%Gif")) answer = "";
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",message.getAuthor().getDisplayName(),question,answer));

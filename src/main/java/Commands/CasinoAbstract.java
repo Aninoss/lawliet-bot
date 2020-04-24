@@ -8,7 +8,7 @@ import Constants.Settings;
 import Core.EmbedFactory;
 import Core.Mention.MentionTools;
 import Core.TextManager;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.GameStatistics.DBGameStatistics;
@@ -80,7 +80,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
                 userBean.addHiddenCoins(coinsInput);
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", StringTools.numToString(getLocale(), coins)))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", StringUtil.numToString(getLocale(), coins)))).get();
             }
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
@@ -126,7 +126,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         if (coinsInput > 0) channel.sendMessage(eb);
     }
 
-    protected EmbedBuilder addRetryOption(EmbedBuilder eb) throws IOException {
+    protected EmbedBuilder addRetryOption(EmbedBuilder eb) {
         addReactionListener(getReactionMessage());
         message.addReaction(RETRY_EMOJI);
         eb.addField(Settings.EMPTY_EMOJI, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));

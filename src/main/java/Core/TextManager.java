@@ -2,7 +2,7 @@ package Core;
 
 import Constants.Locales;
 import Constants.Settings;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class TextManager {
             String text = texts.getString(key);
 
             //Calculate References
-            for(String reference: StringTools.extractGroups(text, "%<", ">")) {
+            for(String reference: StringUtil.extractGroups(text, "%<", ">")) {
                 String[] argsLink = reference.split("\\.");
                 String newString = getString(locale, argsLink[0], argsLink[1]);
                 text = text.replace("%<" + reference + ">", newString);

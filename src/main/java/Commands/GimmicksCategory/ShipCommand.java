@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Core.EmbedFactory;
 import Core.Mention.MentionTools;
-import Core.Tools.RandomTools;
+import Core.Utils.RandomUtil;
 import Modules.ImageCreator;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
@@ -49,7 +49,7 @@ public class ShipCommand extends Command {
         if (list.get(0).getId() == 272037078919938058L && list.get(1).getId() == 326714012022865930L)
             percentage = 100;
 
-        int n = RandomTools.pickFullRandom(picked,7);
+        int n = RandomUtil.pickFullRandom(picked,7);
         if (event.getServer().get().getId() == 580048842020487180L) n = 7;
 
         InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1), n, percentage);

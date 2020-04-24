@@ -7,15 +7,16 @@ import java.util.function.Function;
 
 public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implements Observer {
 
-    private ArrayList<MapAddListener<T, U>> mapAddListeners = new ArrayList<>();
-    private ArrayList<MapRemoveListener<T, U>> mapRemoveListeners = new ArrayList<>();
-    private ArrayList<MapUpdateListener<T, U>> mapUpdateListeners = new ArrayList<>();
+    private final ArrayList<MapAddListener<T, U>> mapAddListeners = new ArrayList<>();
+    private final ArrayList<MapRemoveListener<T, U>> mapRemoveListeners = new ArrayList<>();
+    private final ArrayList<MapUpdateListener<T, U>> mapUpdateListeners = new ArrayList<>();
 
     public CustomObservableMap(HashMap<T, U> map) {
         super(map);
         map.values().forEach(value -> {
             if (value instanceof Observable) ((Observable) value).addObserver(this);
         });
+
         addListener((MapChangeListener<? super T, ? super U>) this::onChange);
     }
 

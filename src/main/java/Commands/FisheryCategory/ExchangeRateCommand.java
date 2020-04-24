@@ -5,8 +5,8 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.TrackerResult;
 import Core.*;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import Modules.ExchangeRate;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
@@ -35,7 +35,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     }
 
     private EmbedBuilder getEmbed() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("template", StringTools.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        return EmbedFactory.getCommandEmbedStandard(this, getString("template", StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
 
     private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
@@ -54,7 +54,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
         slot.getMessage().ifPresent(Message::delete);
         Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
         slot.setMessageId(message.getId());
-        slot.setNextRequest(TimeTools.setInstantToNextDay(Instant.now()).plusSeconds(10));
+        slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 
         return TrackerResult.CONTINUE_AND_SAVE;
     }

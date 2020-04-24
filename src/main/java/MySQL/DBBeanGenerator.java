@@ -1,21 +1,16 @@
 package MySQL;
 
-import Core.Bot;
 import Core.CustomThread;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import MySQL.Interfaces.CompleteLoadOnStartup;
 import MySQL.Interfaces.IntervalSave;
-import MySQL.Modules.FisheryUsers.DBFishery;
-import MySQL.Modules.Survey.DBSurvey;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +53,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             Thread t = new CustomThread(() -> {
                 try {
                     while(true) {
-                        Thread.sleep(TimeTools.getMilisBetweenInstants(Instant.now(), nextCheck));
+                        Thread.sleep(TimeUtil.getMilisBetweenInstants(Instant.now(), nextCheck));
                         nextCheck = Instant.now().plusSeconds(minutes * 60);
                         if (changed.size() > 0) intervalSave();
                     }

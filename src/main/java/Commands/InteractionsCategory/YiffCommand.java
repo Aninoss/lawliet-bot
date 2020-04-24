@@ -34,7 +34,6 @@ public class YiffCommand extends InteractionAbstract {
                 "https://static1.e621.net/data/af/f0/aff0e9194acbc64cf225ab4ac0a2692a.gif",
                 "https://static1.e621.net/data/06/b8/06b8c71a06d75ef53335b96ad8e59ac8.gif",
                 "https://static1.e621.net/data/73/71/737169dbede48be095a14229c3686d31.gif",
-                "https://static1.e621.net/data/6b/44/6b44fba8bed61ef6b943e368b1cf0162.gif",
                 "https://static1.e621.net/data/e7/8b/e78b1b80314665d22dfad68e390e84ee.gif",
                 "https://static1.e621.net/data/da/05/da05e0c4687980126c8d3811d1af8ddc.gif",
                 "https://static1.e621.net/data/f8/03/f80364e3e447f3a9de6fca9faadcb0d6.gif",

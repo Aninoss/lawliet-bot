@@ -6,8 +6,8 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.Settings;
 import Core.*;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Survey.DBSurvey;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Version.DBVersion;
@@ -33,12 +33,12 @@ public class StatsCommand extends Command {
                 getString("template",
                 DiscordApiCollection.getInstance().getOwner().getMentionTag(),
                 Settings.BOT_INVITE_URL,
-                StringTools.getCurrentVersion(),
-                TimeTools.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
-                StringTools.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
-                StringTools.numToString(getLocale(), DBTracker.getInstance().getBean().getMap().size()),
+                StringUtil.getCurrentVersion(),
+                TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
+                StringUtil.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
+                StringUtil.numToString(getLocale(), DBTracker.getInstance().getBean().getMap().size()),
                 DiscordApiCollection.getInstance().getOwner().getDiscriminatedName(),
-                StringTools.numToString(getLocale(), DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
+                StringUtil.numToString(getLocale(), DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));

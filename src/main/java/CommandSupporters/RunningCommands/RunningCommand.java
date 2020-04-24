@@ -6,10 +6,10 @@ import java.time.Instant;
 
 public class RunningCommand {
 
-    private long userId;
-    private Thread thread;
-    private int shardId;
-    private Instant instant;
+    private final long userId;
+    private final Thread thread;
+    private final int shardId;
+    private final Instant instant;
 
     public RunningCommand(long userId, int shardId) {
         this.userId = userId;

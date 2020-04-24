@@ -10,13 +10,13 @@ import Constants.FisheryCategoryInterface;
 import Constants.FisheryStatus;
 import Constants.Settings;
 import Core.*;
-import Core.Tools.InternetTools;
+import Core.Utils.InternetUtil;
 import Modules.BannedWordsCheck;
 import Core.BotResources.ResourceManager;
 import Core.Mention.MentionTools;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Modules.SPCheck;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.AutoQuote.DBAutoQuote;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
@@ -28,7 +28,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -56,7 +55,7 @@ public class MessageCreateListener {
             return; //Banned Words
 
         //Stuff that is only active for my own Aninoss Discord server
-        if (event.getServer().get().getId() == 462405241955155979L && InternetTools.stringHasURL(event.getMessage().getContent())) {
+        if (event.getServer().get().getId() == 462405241955155979L && InternetUtil.stringHasURL(event.getMessage().getContent())) {
             try {
                 int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
                 if (level == 0) {
@@ -90,13 +89,13 @@ public class MessageCreateListener {
                 //Forwarded Messages
                 if (prefixFound > 0 && manageForwardedMessages(event)) return;
 
-                String newContent = StringTools.trimString(content.substring(prefixes[prefixFound].length()));
+                String newContent = StringUtil.trimString(content.substring(prefixes[prefixFound].length()));
                 while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
                 String commandTrigger = newContent.split(" ")[0].toLowerCase();
                 if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
                     commandTrigger = newContent.split("<")[0].toLowerCase();
 
-                String followedString = StringTools.trimString(newContent.substring(commandTrigger.length()));
+                String followedString = StringUtil.trimString(newContent.substring(commandTrigger.length()));
 
                 if (commandTrigger.length() > 0) {
                     Locale locale = serverBean.getLocale();

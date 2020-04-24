@@ -6,8 +6,8 @@ import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Mention.MentionTools;
 import Core.TextManager;
-import Core.Tools.StringTools;
-import Core.Tools.TimeTools;
+import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -47,10 +47,10 @@ public class ChannelInfoCommand extends Command {
             String[] args = {
                     channel.getName(),
                     channel.getIdAsString(),
-                    TimeTools.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
-                    StringTools.numToString(getLocale(), members.size()),
-                    StringTools.numToString(getLocale(), members.stream().filter(member -> !member.isBot()).count()),
-                    StringTools.numToString(getLocale(), members.stream().filter(User::isBot).count())
+                    TimeUtil.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
+                    StringUtil.numToString(getLocale(), members.size()),
+                    StringUtil.numToString(getLocale(), members.stream().filter(member -> !member.isBot()).count()),
+                    StringUtil.numToString(getLocale(), members.stream().filter(User::isBot).count())
             };
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));

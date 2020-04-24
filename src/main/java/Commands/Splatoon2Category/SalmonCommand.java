@@ -9,7 +9,7 @@ import Constants.Permission;
 import Constants.TrackerResult;
 import Core.*;
 import Core.Internet.InternetCache;
-import Core.Tools.TimeTools;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -74,10 +74,10 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setTimestampToNow()
-                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), TimeTools.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
+                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
-            String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + TimeTools.getInstantString(getLocale(), startTime[i], true) + " - " + TimeTools.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {

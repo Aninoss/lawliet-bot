@@ -9,7 +9,7 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
 import Core.EmojiConnection.EmojiConnection;
-import Core.Tools.StringTools;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
@@ -22,7 +22,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -178,7 +177,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                     return;
             }
 
-            searchTerm = StringTools.trimString(searchTerm.substring(arg.length()));
+            searchTerm = StringUtil.trimString(searchTerm.substring(arg.length()));
         }
     }
 
