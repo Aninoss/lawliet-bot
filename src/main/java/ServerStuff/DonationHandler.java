@@ -1,5 +1,6 @@
 package ServerStuff;
 
+import Constants.Settings;
 import Core.Connector;
 import Core.DiscordApiCollection;
 import MySQL.Modules.Donators.DBDonators;
@@ -20,7 +21,7 @@ public class DonationHandler {
     public static void addBonus(long userId, double usDollars) throws SQLException, InterruptedException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        Server server = apiCollection.getServerById(557953262305804308L).get();
+        Server server = apiCollection.getServerById(Settings.SUPPORT_SERVER_ID).get();
         User user = null;
         String userName;
 
@@ -69,7 +70,7 @@ public class DonationHandler {
 
     public static void removeBonus(DonatorBeanSlot donatorBean) throws InterruptedException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-        Server server = apiCollection.getServerById(557953262305804308L).get();
+        Server server = apiCollection.getServerById(Settings.SUPPORT_SERVER_ID).get();
         User user = null;
         String userName;
         long userId = donatorBean.getUserId();

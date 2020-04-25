@@ -5,10 +5,11 @@ import java.util.Observable;
 public class CommandUsagesBean extends Observable {
 
     private final String command;
-    private long add = 0;
+    private long value;
 
-    public CommandUsagesBean(String command) {
+    public CommandUsagesBean(String command, long value) {
         this.command = command;
+        this.value = value;
     }
 
 
@@ -18,21 +19,17 @@ public class CommandUsagesBean extends Observable {
         return command;
     }
 
-    public long getAdd() {
-        return add;
+    public long getValue() {
+        return value;
     }
 
 
     /* Setters */
 
     public void increase() {
-        this.add++;
+        this.value++;
         setChanged();
         notifyObservers();
-    }
-
-    public void reset() {
-        this.add = 0;
     }
 
 }

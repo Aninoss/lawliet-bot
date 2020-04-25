@@ -5,36 +5,24 @@ import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
-import CommandSupporters.NavigationHelper;
 import Constants.Category;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
-import Core.CustomObservableList;
 import Core.EmbedFactory;
-import Core.ListGen;
-import Core.Mention.MentionTools;
 import Core.TextManager;
-import MySQL.Modules.AutoRoles.AutoRolesBean;
-import MySQL.Modules.AutoRoles.DBAutoRoles;
 import MySQL.Modules.CommandManagement.CommandManagementBean;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -43,7 +31,7 @@ import java.util.stream.Collectors;
         emoji = "\uD83D\uDEA6",
         thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/traffic-icon.png",
         executable = true,
-        aliases = {"cmanagement", "cm", "commandmanagements"}
+        aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm"}
 )
 public class CommandManagementCommand extends Command implements OnNavigationListener {
 

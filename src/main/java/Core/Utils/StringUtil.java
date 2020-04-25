@@ -198,7 +198,7 @@ public final class StringUtil {
                 .replaceAll("(?i)%#Channel", "#welcome")
                 .replaceAll("(?i)%MessageID", "557961653975515168")
                 .replaceAll("(?i)%ChannelID", "557953262305804310")
-                .replaceAll("(?i)%ServerID", "557953262305804308")
+                .replaceAll("(?i)%ServerID", String.valueOf(Settings.SUPPORT_SERVER_ID))
                 .replaceAll("(?i)%@User", "@" + apiCollection.getOwner().getDiscriminatedName())
                 .replaceAll("(?i)%@Bot", "@" + apiCollection.getYourself().getDiscriminatedName())
                 .replaceAll("(?i)%Prefix", "L.");

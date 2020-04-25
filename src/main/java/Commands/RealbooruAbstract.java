@@ -17,4 +17,7 @@ public abstract class RealbooruAbstract extends PornPredefinedAbstract {
         return "https://realbooru.com/images/%d/%f";
     }
 
+    @Override
+    public boolean isExplicit() { return true; }
+
 }

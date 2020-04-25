@@ -56,8 +56,8 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    spBlockBean.getIgnoredUserIds().clear();
-                    spBlockBean.getIgnoredUserIds().addAll(userIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+                    ignoredUsers.clear();
+                    ignoredUsers.addAll(userIgnoredList);
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return Response.TRUE;
@@ -69,8 +69,8 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    spBlockBean.getIgnoredChannelIds().clear();
-                    spBlockBean.getIgnoredChannelIds().addAll(channelIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+                    ignoredChannels.clear();
+                    ignoredChannels.addAll(channelIgnoredList);
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return Response.TRUE;
@@ -82,8 +82,8 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    spBlockBean.getLogReceiverUserIds().clear();
-                    spBlockBean.getLogReceiverUserIds().addAll(logRecieverList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+                    logReceivers.clear();
+                    logReceivers.addAll(logRecieverList);
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
@@ -133,7 +133,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                         return true;
 
                     case 0:
-                        spBlockBean.getIgnoredUserIds().clear();
+                        ignoredUsers.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                         return true;
@@ -147,7 +147,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                         return true;
 
                     case 0:
-                        spBlockBean.getIgnoredChannelIds().clear();
+                        ignoredChannels.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;
@@ -161,7 +161,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                         return true;
 
                     case 0:
-                        spBlockBean.getLogReceiverUserIds().clear();
+                        logReceivers.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                         return true;

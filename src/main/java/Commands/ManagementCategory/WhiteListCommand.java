@@ -34,13 +34,12 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
 
     private static final int MAX_CHANNELS = 50;
 
-    private WhiteListedChannelsBean whiteListedChannelsBean;
     private NavigationHelper<ServerTextChannel> channelNavigationHelper;
     private CustomObservableList<ServerTextChannel> whiteListedChannels;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        whiteListedChannelsBean = DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId());
+        WhiteListedChannelsBean whiteListedChannelsBean = DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId());
         whiteListedChannels = whiteListedChannelsBean.getChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;
@@ -74,8 +73,8 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
                         return true;
 
                     case 2:
-                        if (whiteListedChannelsBean.getChannelIds().size() > 0) {
-                            whiteListedChannelsBean.getChannelIds().clear();
+                        if (whiteListedChannels.size() > 0) {
+                            whiteListedChannels.clear();
                             setLog(LogStatus.SUCCESS, getString("channelcleared"));
                             return true;
                         } else {

@@ -3,8 +3,11 @@ package MySQL.Modules.CommandUsages;
 import MySQL.DBBeanGenerator;
 import MySQL.DBMain;
 import MySQL.Interfaces.IntervalSave;
+import MySQL.Modules.AutoQuote.AutoQuoteBean;
+import MySQL.Modules.Server.DBServer;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> implements IntervalSave {
@@ -15,16 +18,36 @@ public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> 
 
     @Override
     protected CommandUsagesBean loadBean(String command) throws Exception {
-        return new CommandUsagesBean(command);
+        CommandUsagesBean commandUsagesBean;
+
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT usages FROM CommandUsages WHERE command = ?;");
+        preparedStatement.setString(1, command);
+        preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getResultSet();
+        if (resultSet.next()) {
+            commandUsagesBean = new CommandUsagesBean(
+                    command,
+                    resultSet.getLong(1)
+            );
+        } else {
+            commandUsagesBean = new CommandUsagesBean(
+                    command,
+                    0L
+            );
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+
+        return commandUsagesBean;
     }
 
     @Override
     protected void saveBean(CommandUsagesBean commandUsagesBean) {
-        DBMain.getInstance().asyncUpdate("INSERT INTO CommandUsages (command, usages) VALUES (?, ?) ON DUPLICATE KEY UPDATE usages = usages + ?;", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO CommandUsages (command, usages) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setString(1, commandUsagesBean.getCommand());
-            preparedStatement.setLong(2, commandUsagesBean.getAdd());
-            preparedStatement.setLong(3, commandUsagesBean.getAdd());
-            commandUsagesBean.reset();
+            preparedStatement.setLong(2, commandUsagesBean.getValue());
         });
     }
 

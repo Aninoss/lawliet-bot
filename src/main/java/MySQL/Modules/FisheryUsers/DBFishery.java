@@ -289,9 +289,12 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
         try {
             while (true) {
-                Thread.sleep(TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest));
+                long wait = TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest);
+                if (wait == 1L) LOGGER.warn("VC Observer took too long!");
+                Thread.sleep(wait);
                 nextRequest = Instant.now().plus(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
 
+                LOGGER.info("VC Observer - Start");
                 DiscordApiCollection.getInstance().getServers().stream()
                         .filter(server -> {
                             try {
@@ -308,6 +311,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                                 LOGGER.error("Could not manage vc fish observer", e);
                             }
                         });
+                LOGGER.info("VC Observer - End");
             }
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted", e);

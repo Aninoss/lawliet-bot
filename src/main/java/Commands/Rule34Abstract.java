@@ -17,4 +17,7 @@ public abstract class Rule34Abstract extends PornPredefinedAbstract {
         return "https://img.rule34.xxx/images/%d/%f";
     }
 
+    @Override
+    public boolean isExplicit() { return true; }
+
 }

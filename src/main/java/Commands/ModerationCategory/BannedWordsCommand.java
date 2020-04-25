@@ -60,8 +60,8 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    bannedWordsBean.getIgnoredUserIds().clear();
-                    bannedWordsBean.getIgnoredUserIds().addAll(userIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+                    ignoredUsers.clear();
+                    ignoredUsers.addAll(userIgnoredList);
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return Response.TRUE;
@@ -73,8 +73,8 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    bannedWordsBean.getLogReceiverUserIds().clear();
-                    bannedWordsBean.getLogReceiverUserIds().addAll(logRecieverList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+                    logReceivers.clear();
+                    logReceivers.addAll(logRecieverList);
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
                     return Response.TRUE;
@@ -128,7 +128,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                         return true;
 
                     case 0:
-                        bannedWordsBean.getIgnoredUserIds().clear();
+                        ignoredUsers.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                         return true;
@@ -142,7 +142,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                         return true;
 
                     case 0:
-                        bannedWordsBean.getLogReceiverUserIds().clear();
+                        logReceivers.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                         return true;

@@ -24,4 +24,7 @@ public class RealbooruCommand extends PornSearchAbstract {
         return "https://realbooru.com/images/%d/%f";
     }
 
+    @Override
+    public boolean isExplicit() { return true; }
+
 }

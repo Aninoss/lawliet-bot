@@ -1,6 +1,7 @@
 package CommandSupporters;
 
 import CommandListeners.*;
+import CommandSupporters.CommandLogger.CommandUsage;
 import Commands.CasinoCategory.CoinFlipCommand;
 import Commands.InformationCategory.*;
 import Commands.CasinoCategory.*;
@@ -95,6 +96,7 @@ public class CommandContainer {
         commandList.add(ChannelInfoCommand.class);
         commandList.add(UserInfoCommand.class);
         //commandList.add(SignUpCommand.class);
+        commandList.add(CommandUsagesCommand.class);
         commandList.add(PingCommand.class);
         commandList.add(NewCommand.class);
         commandList.add(StatsCommand.class);

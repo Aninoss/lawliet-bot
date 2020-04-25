@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @CommandProperties(
-    trigger = "tracker",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    userPermissions = Permission.MANAGE_SERVER,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Favourite-2-icon.png",
-    emoji = "\uD83D\uDD16",
-    executable = true
+        trigger = "tracker",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        userPermissions = Permission.MANAGE_SERVER,
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Favourite-2-icon.png",
+        emoji = "\uD83D\uDD16",
+        executable = true,
+        aliases = {"track", "tracking"}
 )
 public class TrackerCommand extends Command implements OnNavigationListener {
 

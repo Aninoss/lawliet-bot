@@ -26,6 +26,7 @@ public abstract class PornAbstract extends Command {
     final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
+    public abstract boolean isExplicit();
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -93,14 +94,14 @@ public abstract class PornAbstract extends Command {
         return true;
     }
 
-    protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, ArrayList<String> usedResults) {
+    protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) {
         ArrayList<Thread> threads = new ArrayList<>();
         ArrayList<PornImage> pornImages = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
             Thread t = new CustomThread(() -> {
                 try {
-                    PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, nsfwFilter, usedResults).ifPresent(pornImages::add);
+                    PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults).ifPresent(pornImages::add);
                 } catch (IOException | InterruptedException | ExecutionException e) {
                     LOGGER.error("Could not download porn image", e);
                 }

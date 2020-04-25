@@ -17,4 +17,7 @@ public abstract class GelbooruAbstract extends PornPredefinedAbstract {
         return "http://simg3.gelbooru.com/samples/%d/sample_%f";
     }
 
+    @Override
+    public boolean isExplicit() { return true; }
+
 }

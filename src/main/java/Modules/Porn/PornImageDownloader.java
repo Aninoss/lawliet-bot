@@ -24,11 +24,11 @@ public class PornImageDownloader {
 
     final static Logger LOGGER = LoggerFactory.getLogger(PornImageDownloader.class);
 
-    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
-        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, 2, false, additionalFilters, usedResults);
+    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
+        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit,2, false, additionalFilters, usedResults);
     }
 
-    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, int remaining, boolean softMode, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
+    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, int remaining, boolean softMode, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
         while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
@@ -48,12 +48,12 @@ public class PornImageDownloader {
 
         if (count == 0) {
             if (!softMode) {
-                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining, true, additionalFilters, usedResults);
+                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining, true, additionalFilters, usedResults);
             } else if (remaining > 0) {
                 if (searchTerm.contains(" "))
-                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining - 1, false, additionalFilters, usedResults);
+                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining - 1, false, additionalFilters, usedResults);
                 else if (searchTerm.contains("_"))
-                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, remaining - 1, false, additionalFilters, usedResults);
+                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining - 1, false, additionalFilters, usedResults);
             }
 
             return Optional.empty();
@@ -63,10 +63,10 @@ public class PornImageDownloader {
         int page = r.nextInt(count)/100;
         if (searchTermEncoded.length() == 0) page = 0;
 
-        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, animatedOnly, canBeVideo, additionalFilters, usedResults);
+        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, animatedOnly, canBeVideo, explicit, additionalFilters, usedResults);
     }
 
-    private static Optional<PornImage> getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws InterruptedException, ExecutionException {
+    private static Optional<PornImage> getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws InterruptedException, ExecutionException {
         String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&json=1&tags=" + searchTerm + "&pid=" + page;
         HttpResponse httpResponse = InternetCache.getDataShortLived(url).get();
 
@@ -85,6 +85,7 @@ public class PornImageDownloader {
 
         for (int i = 0; i < count; i++) {
             JSONObject postData = data.getJSONObject(i);
+
             String imageUrl = postData.getString(postData.has("file_url") ? "file_url" : "image");
 
             long score = 1;
@@ -97,27 +98,23 @@ public class PornImageDownloader {
                 //Ignore
             }
 
+            boolean isExplicit = postData.getString("rating").startsWith("e");
+
             if ((postIsImage || canBeVideo) &&
                     (!animatedOnly || postIsGif || !postIsImage) &&
                     score >= 0 &&
-                    !NSFWUtil.stringContainsBannedTags(postData.getString("tags"), additionalFilters)
+                    !NSFWUtil.stringContainsBannedTags(postData.getString("tags"), additionalFilters) &&
+                    isExplicit == explicit
             ) {
                 pornImages.add(new PornImageMeta(imageUrl, score, i));
             }
         }
 
         return Optional.ofNullable(PornFilter.filter(domain, searchTerm, pornImages, usedResults))
-                .map(pornImageMeta -> {
-                    try {
-                        return getSpecificPictureOnPage(domain, data.getJSONObject(pornImageMeta.getIndex()), imageTemplate);
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOGGER.error("Exception", e);
-                    }
-                    return null;
-                });
+                .map(pornImageMeta -> getSpecificPictureOnPage(domain, data.getJSONObject(pornImageMeta.getIndex()), imageTemplate));
     }
 
-    private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) throws InterruptedException, ExecutionException {
+    private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) {
         String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
 
         Instant instant;

@@ -1,12 +1,22 @@
 package Core.Utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class SystemUtil {
 
-    public static int executeProcess(String command) {
+    final static Logger LOGGER = LoggerFactory.getLogger(BotUtil.class);
+
+
+    public static int executeProcess(String... command) {
         ProcessBuilder pb = new ProcessBuilder(command);
         try {
             Process p = pb.start();
@@ -28,6 +38,16 @@ public class SystemUtil {
         }
 
         return -1;
+    }
+
+    public static Optional<File> backupDB() {
+        String filename = LocalDateTime.now().toString();
+        int code = SystemUtil.executeProcess("./backupdb.sh", filename);
+        if (code != 0) {
+            LOGGER.error("Could not backup db! Exit code {}", code);
+            return Optional.empty();
+        }
+        return Optional.of(new File(String.format("backups/%s.sql", filename)));
     }
 
 }

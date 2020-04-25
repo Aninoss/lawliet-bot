@@ -22,4 +22,7 @@ public class SafebooruCommand extends PornSearchAbstract {
         return "https://safebooru.org/images/%d/%f";
     }
 
+    @Override
+    public boolean isExplicit() { return false; }
+
 }

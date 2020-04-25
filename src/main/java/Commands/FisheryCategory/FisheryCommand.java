@@ -81,7 +81,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                     int existingRoles = 0;
                     for (Role role : roleList) {
-                        if (fisheryServerBean.getRoleIds().contains(role.getId())) existingRoles++;
+                        if (roles.contains(role)) existingRoles++;
                     }
 
                     if (existingRoles >= roleList.size()) {
@@ -109,8 +109,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
                 } else {
-                    fisheryServerBean.getIgnoredChannelIds().clear();
-                    fisheryServerBean.getIgnoredChannelIds().addAll(channelIgnoredList.stream().map(DiscordEntity::getId).collect(Collectors.toList()));
+                    ignoredChannels.clear();
+                    ignoredChannels.addAll(channelIgnoredList);
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return Response.TRUE;
@@ -179,7 +179,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 2:
-                        if (fisheryServerBean.getRoleIds().size() < MAX_ROLES) {
+                        if (roles.size() < MAX_ROLES) {
                             setState(1);
                             return true;
                         } else {
@@ -188,7 +188,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         }
 
                     case 3:
-                        if (fisheryServerBean.getRoleIds().size() > 0) {
+                        if (roles.size() > 0) {
                             setState(2);
                             return true;
                         } else {
@@ -249,10 +249,10 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < fisheryServerBean.getRoleIds().size()) {
+                } else if (i < roles.size()) {
                     roles.remove(i);
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    if (fisheryServerBean.getRoleIds().size() == 0) setState(0);
+                    if (roles.size() == 0) setState(0);
                     return true;
                 }
                 break;
@@ -264,7 +264,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 0:
-                        fisheryServerBean.getIgnoredChannelIds().clear();
+                        roles.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;

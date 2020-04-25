@@ -24,4 +24,7 @@ public class GelbooruCommand extends PornSearchAbstract {
         return "https://simg3.gelbooru.com/samples/%d/sample_%f";
     }
 
+    @Override
+    public boolean isExplicit() { return true; }
+
 }

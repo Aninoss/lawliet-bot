@@ -111,7 +111,9 @@ public class RedditDownloader {
                 }
 
                 if (newPost) {
-                    redditPosts.add(getPost(locale, postData.getJSONObject(i).getJSONObject("data")));
+                    RedditPost post = getPost(locale, postData.getJSONObject(i).getJSONObject("data"));
+                    if (post == null) return null;
+                    redditPosts.add(post);
                 }
             }
         }
@@ -119,7 +121,7 @@ public class RedditDownloader {
         return new PostBundle<>(redditPosts, newArg.toString());
     }
 
-    private static RedditPost getPost(Locale locale, JSONObject data) throws IOException {
+    private static RedditPost getPost(Locale locale, JSONObject data) {
         RedditPost post = new RedditPost();
 
         String description = "", url = "", source = "", thumbnail = "", domain = "";
@@ -129,7 +131,9 @@ public class RedditDownloader {
         post.setScore(data.has("score") ? data.getInt("score") : 0);
         post.setComments(data.has("num_comments") ? data.getInt("num_comments") : 0);
         post.setInstant(new Date(data.getLong("created_utc") * 1000L).toInstant());
-        if (!data.has("over_18")) LOGGER.error("No over_18 in '{}'", post.getSubreddit()); //TODO remove after bug fix
+
+        if (!data.has("over_18")) return null;
+
         post.setNsfw(data.getBoolean("over_18"));
         post.setTitle(StringUtil.shortenString(data.getString("title"), 256));
         post.setAuthor(data.getString("author"));

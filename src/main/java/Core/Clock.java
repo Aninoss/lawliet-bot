@@ -4,6 +4,7 @@ import Constants.FisheryStatus;
 import Constants.FisheryCategoryInterface;
 import Constants.Locales;
 import Constants.Settings;
+import Core.Utils.SystemUtil;
 import Modules.Porn.PornImageCache;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Utils.StringUtil;
@@ -26,6 +27,7 @@ import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -221,8 +223,14 @@ public class Clock {
 
             if (hour == Settings.UPDATE_HOUR && readyForRestart) {
                 readyForRestart = false;
-                /*DBMain.getInstance().clearCache();
-                Thread.sleep(1000); */
+                LOGGER.info("Backup database...");
+                SystemUtil.backupDB().ifPresent(file -> {
+                    try {
+                        DiscordApiCollection.getInstance().getOwner().sendMessage("Database Dump", file).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOGGER.error("Exception while sending database backup", e);
+                    }
+                });
 
                 if (Bot.hasUpdate()) {
                     LOGGER.info("Restarting for update...");

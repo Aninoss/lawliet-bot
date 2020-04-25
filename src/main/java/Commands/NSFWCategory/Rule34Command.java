@@ -24,4 +24,7 @@ public class Rule34Command extends PornSearchAbstract {
         return "https://img.rule34.xxx/images/%d/%f";
     }
 
+    @Override
+    public boolean isExplicit() { return true; }
+
 }

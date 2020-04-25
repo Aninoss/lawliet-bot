@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "chmute",
-        userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS,
-        botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS,
+        userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
+        botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
         thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/stop-icon.png",
         emoji = "\uD83D\uDED1",
         executable = false,

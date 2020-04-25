@@ -31,7 +31,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
         String domain = getDomain();
         String imageTemplate = getImageTemplate();
 
-        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly, usedResults);
+        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly, isExplicit(), usedResults);
     }
 
 }

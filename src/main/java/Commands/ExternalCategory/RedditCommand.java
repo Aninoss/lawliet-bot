@@ -39,12 +39,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
             return false;
         } else {
             RedditPost post;
-            try {
-                post = RedditDownloader.getPost(getLocale(), followedString);
-            } catch (Throwable e) {
-                LOGGER.error("Error in subreddit '{}'", followedString, e);
-                throw e;
-            }
+            post = RedditDownloader.getPost(getLocale(), followedString);
 
             if (post != null) {
                 if (post.isNsfw() && !event.getServerTextChannel().get().isNsfw()) {

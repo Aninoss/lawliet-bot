@@ -4,9 +4,9 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
+import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
-import MySQL.Modules.Donators.DBDonators;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
@@ -44,7 +44,7 @@ public class DailyCommand extends Command {
                     bonusCombo = (int) Math.round(fishes * 0.25);
                 }
 
-                if (DBDonators.getInstance().getBean().getMap().containsKey(event.getMessage().getUserAuthor().get().getId())) {
+                if (BotUtil.userIsDonator(event.getMessageAuthor().asUser().get())) {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 

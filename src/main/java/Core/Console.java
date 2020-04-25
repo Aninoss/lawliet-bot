@@ -2,6 +2,7 @@ package Core;
 
 import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Core.Utils.BotUtil;
 import Core.Utils.SystemUtil;
 import MySQL.DBMain;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -15,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.time.LocalDateTime;
 
 public class Console {
 
@@ -40,6 +42,7 @@ public class Console {
         while(true) {
             try {
                 if (br.ready()) {
+
                     String s = br.readLine();
                     String command = s;
                     String arg = "";
@@ -143,8 +146,7 @@ public class Console {
                                 break;
 
                             case "backup":
-                                int code = SystemUtil.executeProcess("./backupdb.sh");
-                                LOGGER.info("Script ended with exit code {}", code);
+                                SystemUtil.backupDB();
                                 break;
                         }
                     }
