@@ -8,6 +8,7 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
 import Core.EmojiConnection.EmojiConnection;
+import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.CommandManagement.CommandManagementBean;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
@@ -102,7 +103,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 13;
+        return 15;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -211,7 +212,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                             if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
                                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
-                                        commandManagementBean.commandIsTurnedOn(command);
+                                        commandManagementBean.commandIsTurnedOn(command) &&
+                                        !command.isPatronOnly() || BotUtil.userIsDonator(author);
 
                                 commands.append("**")
                                         .append(LetterEmojis.LETTERS[i])
@@ -227,6 +229,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                                 if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
                                 if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                                 if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
+                                if (command.isPatronOnly()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
 
                                 commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                                         .append(" - ")
@@ -237,7 +240,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
                             }
                         }
 
-                        commands.append(getString("commandproperties", DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(), DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(), DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag()));
+                        commands.append(getString("commandproperties",
+                                DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(),
+                                DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(),
+                                DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag(),
+                                DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag(),
+                                Settings.PATREON_PAGE
+                        ));
                         eb.setDescription(commands.toString());
                     }
                     return eb;
@@ -268,7 +277,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
         eb.setDescription(categoriesSB.toString());
 
         eb
-                .addField(getString("links_title"), getString("links_content", Settings.LAWLIET_WEBSITE, Settings.SERVER_INVITE_URL, Settings.BOT_INVITE_URL, Settings.UPVOTE_URL), true);
+                .addField(getString("links_title"), getString("links_content",
+                        Settings.LAWLIET_WEBSITE,
+                        Settings.SERVER_INVITE_URL,
+                        Settings.BOT_INVITE_URL,
+                        Settings.UPVOTE_URL,
+                        Settings.PATREON_PAGE
+                ), true);
                 //.addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), false);
         return eb;
     }

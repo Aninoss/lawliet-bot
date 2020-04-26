@@ -44,7 +44,7 @@ public class DailyCommand extends Command {
                     bonusCombo = (int) Math.round(fishes * 0.25);
                 }
 
-                if (BotUtil.userIsDonator(event.getMessageAuthor().asUser().get())) {
+                if (BotUtil.userIsDonator(event.getMessage().getUserAuthor().get())) {
                     bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
                 }
 

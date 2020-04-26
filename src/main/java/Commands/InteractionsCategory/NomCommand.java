@@ -9,7 +9,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "nom",
         emoji = "\uD83E\uDD62",
-        executable = false
+        executable = false,
+        aliases = {"eat"}
 )
 public class NomCommand extends InteractionAbstract {
 

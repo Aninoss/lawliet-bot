@@ -4,9 +4,11 @@ import CommandListeners.*;
 import CommandSupporters.CommandLogger.CommandLogger;
 import CommandSupporters.CommandLogger.CommandUsage;
 import Commands.InformationCategory.HelpCommand;
+import Constants.Settings;
 import Core.*;
 import CommandSupporters.Cooldown.Cooldown;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Core.Utils.BotUtil;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
 import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
@@ -18,6 +20,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -30,13 +33,14 @@ public class CommandManager {
 
     final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
 
-    public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException {
+    public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
                 isWhiteListed(event) &&
                 isNSFWCompliant(event, command) &&
                 botCanUseEmbeds(event, command) &&
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
+                checkPatreon(event, command) &&
                 checkCooldown(event, command) &&
                 checkRunningCommands(event, command)
         ) {
@@ -87,6 +91,20 @@ public class CommandManager {
                     .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, user.getMentionTag(), String.valueOf(waitingSec.get())));
             event.getChannel().sendMessage(eb).get();
         }
+
+        return false;
+    }
+
+    private static boolean checkPatreon(MessageCreateEvent event, Command command) throws SQLException, ExecutionException, InterruptedException {
+        if (!command.isPatronOnly() || BotUtil.userIsDonator(event.getMessageAuthor().asUser().get())) {
+            return true;
+        }
+
+        EmbedBuilder eb = EmbedFactory.getEmbed()
+                .setColor(new Color(249, 104, 84))
+                .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", Settings.PATREON_PAGE));
+        event.getChannel().sendMessage(eb).get();
 
         return false;
     }

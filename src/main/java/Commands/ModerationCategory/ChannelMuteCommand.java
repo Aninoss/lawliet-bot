@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class ChannelMuteCommand extends Command  {
 
-    private boolean mute;
+    private final boolean mute;
 
     public ChannelMuteCommand() {
         this.mute = true;

@@ -29,7 +29,7 @@ public class CommandContainer {
         return ourInstance;
     }
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
+    final Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
 
     private final HashMap<String, Class<? extends Command>> commands;
     private final ArrayList<OnReactionAddStaticListener> staticReactionAddCommands;
