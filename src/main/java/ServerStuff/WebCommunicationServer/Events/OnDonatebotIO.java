@@ -22,7 +22,6 @@ public class OnDonatebotIO implements DataListener<JSONObject> {
         boolean completed = jsonObject.getString("status").equalsIgnoreCase("completed");
 
         if (completed) DonationHandler.addBonus(userId, usDollars);
-        else DonationHandler.removeBonus(DBDonators.getInstance().getBean().get(userId));
 
         //Send data
         socketIOClient.sendEvent(WebComServer.EVENT_DONATEBOT_IO);

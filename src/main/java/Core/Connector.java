@@ -8,7 +8,6 @@ import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
 import MySQL.Modules.Version.VersionBeanSlot;
-import ServerStuff.CommunicationServer;
 import DiscordListener.*;
 import Core.BotResources.ResourceManager;
 import MySQL.*;
@@ -41,7 +40,7 @@ public class Connector {
 
         //Check for faulty ports
         ArrayList<Integer> missingPort;
-        if ((missingPort = checkPorts(35555, 15744)).size() > 0) {
+        if ((missingPort = checkPorts(15744)).size() > 0) {
             StringBuilder portsString = new StringBuilder();
             for (int port : missingPort) {
                 portsString.append(port).append(", ");
@@ -55,8 +54,6 @@ public class Connector {
         }
 
         try {
-            new CommunicationServer(35555); //Start Communication Server
-
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));

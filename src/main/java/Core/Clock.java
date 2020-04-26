@@ -119,12 +119,6 @@ public class Clock {
             LOGGER.error("Exception while resetting bot", e);
         }
 
-        try {
-            DonationHandler.checkExpiredDonations(); //Check Expired Donations
-        } catch (Exception e) {
-            LOGGER.error("Exception while checking for expired bot donations");
-        }
-
         //Send Bot Stats
         try {
             DBBotStats.addStatCommandUsages();

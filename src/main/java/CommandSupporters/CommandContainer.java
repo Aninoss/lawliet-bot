@@ -1,7 +1,6 @@
 package CommandSupporters;
 
 import CommandListeners.*;
-import CommandSupporters.CommandLogger.CommandUsage;
 import Commands.CasinoCategory.CoinFlipCommand;
 import Commands.InformationCategory.*;
 import Commands.CasinoCategory.*;
@@ -14,8 +13,6 @@ import Commands.NSFWCategory.*;
 import Commands.FisheryCategory.*;
 import Commands.ManagementCategory.*;
 import Commands.Splatoon2Category.*;
-import Core.ExceptionHandler;
-import MySQL.Modules.CommandManagement.CommandManagementBean;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,14 +191,17 @@ public class CommandContainer {
         commandList.add(GelbooruCommand.class);
         commandList.add(RealbooruCommand.class);
         commandList.add(RealLifePornCommand.class);
+        commandList.add(RealLifeBoobsCommand.class);
+        commandList.add(RealLifeAssCommand.class);
         commandList.add(HentaiCommand.class);
+        commandList.add(AhegaoCommand.class);
         commandList.add(TrapCommand.class);
         commandList.add(FutaCommand.class);
         commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
         commandList.add(FurryCommand.class);
-        commandList.add(GimmeHentaiCommand.class);
+        //commandList.add(GimmeHentaiCommand.class);
 
         //SPLATOON
         commandList.add(MapsCommand.class);

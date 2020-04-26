@@ -4,6 +4,8 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
+import Commands.PornPredefinedAbstract;
+import Commands.PornSearchAbstract;
 import Constants.*;
 import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
@@ -20,6 +22,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 @CommandProperties(
@@ -99,11 +102,11 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
+    public void onNavigationTimeOut(Message message) {}
 
     @Override
     public int getMaxReactionNumber() {
-        return 15;
+        return 12;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -161,100 +164,139 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     private EmbedBuilder checkCategory(ServerTextChannel channel, String arg) throws Throwable {
         if (arg.length() > 0) {
-            for (String string : Category.LIST) {
-                if ((string.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, string).toLowerCase().contains(arg.toLowerCase()))) {
+            for (String category : Category.LIST) {
+                if ((category.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category).toLowerCase().contains(arg.toLowerCase()))) {
                     EmbedBuilder eb = EmbedFactory.getEmbed()
                             .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
                             .setTitle(
                                     TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
-                                            TextManager.getString(getLocale(), TextManager.COMMANDS, string)
+                                            TextManager.getString(getLocale(), TextManager.COMMANDS, category)
                             );
 
                     emojiConnections = new ArrayList<>();
                     emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
 
-                    StringBuilder commands = new StringBuilder();
-
-                    //Interactions and Emotes Category
-                    if (string.equals(Category.INTERACTIONS) || string.equals(Category.EMOTES)) {
-                        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
-                            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                            String commandTrigger = command.getTrigger();
-                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
-                                commands
-                                        .append(" `")
-                                        .append(command.getEmoji())
-                                        .append("⠀")
-                                        .append(getPrefix())
-                                        .append(commandTrigger);
-
-                                if (command.isNsfw()) commands.append(" ").append(getString("interaction_nsfw"));
-                                commands.append("`⠀⠀");
-                            }
-                        }
-                        commands.append(getString("interaction_nsfw_desc"));
-                        if (string.equals(Category.INTERACTIONS)) {
-                            eb.setDescription(getString("interactions_desc"));
-                            eb.addField(getString("interactions_title"), commands.toString());
-                        } else {
-                            eb.setDescription(getString("emotes_desc"));
-                            eb.addField(getString("emotes_title"), commands.toString());
-                        }
+                    switch (category) {
+                        case Category.INTERACTIONS: categoryInteractionsEmotes(eb, Category.INTERACTIONS); break;
+                        case Category.EMOTES: categoryInteractionsEmotes(eb, Category.EMOTES); break;
+                        case Category.NSFW: categoryNSFW(eb); break;
+                        default: categoryDefault(eb, category);
                     }
 
-                    //All other categories
-                    else {
-                        int i = 0;
-                        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
-                            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                            String commandTrigger = command.getTrigger();
-                            User author = getStarterMessage().getUserAuthor().get();
-                            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(string)) {
-                                boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
-                                        (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
-                                        commandManagementBean.commandIsTurnedOn(command) &&
-                                        !command.isPatronOnly() || BotUtil.userIsDonator(author);
-
-                                commands.append("**")
-                                        .append(LetterEmojis.LETTERS[i])
-                                        .append(" → ")
-                                        .append(command.getEmoji())
-                                        .append(" ");
-
-                                if (!canAccess) commands.append("~~");
-
-                                commands.append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase());
-
-                                if (!canAccess) commands.append("~~");
-                                if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
-                                if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
-                                if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
-                                if (command.isPatronOnly()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
-
-                                commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
-                                        .append(" - ")
-                                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
-                                        .append("\n\n");
-                                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
-                                i++;
-                            }
-                        }
-
-                        commands.append(getString("commandproperties",
-                                DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(),
-                                DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(),
-                                DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag(),
-                                DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag(),
-                                Settings.PATREON_PAGE
-                        ));
-                        eb.setDescription(commands.toString());
-                    }
                     return eb;
                 }
             }
         }
 
         return null;
+    }
+
+    private void categoryInteractionsEmotes(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException {
+        StringBuilder commands = new StringBuilder();
+
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+            String commandTrigger = command.getTrigger();
+            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
+                commands
+                        .append(" `")
+                        .append(command.getEmoji())
+                        .append("⠀")
+                        .append(getPrefix())
+                        .append(commandTrigger);
+
+                if (command.isNsfw()) commands.append(" ").append(getString("interaction_nsfw"));
+                commands.append("`⠀⠀");
+            }
+        }
+        commands.append(getString("interaction_nsfw_desc"));
+        if (category.equals(Category.INTERACTIONS)) {
+            eb.setDescription(getString("interactions_desc"));
+            eb.addField(getString("interactions_title"), commands.toString());
+        } else {
+            eb.setDescription(getString("emotes_desc"));
+            eb.addField(getString("emotes_title"), commands.toString());
+        }
+    }
+
+    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, SQLException {
+        StringBuilder commands = new StringBuilder();
+
+        int i = 0;
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+            String commandTrigger = command.getTrigger();
+            User author = getStarterMessage().getUserAuthor().get();
+            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
+                boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
+                        (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
+                        commandManagementBean.commandIsTurnedOn(command) &&
+                        !command.isPatronOnly() || BotUtil.userIsDonator(author);
+
+                commands.append("**")
+                        .append(LetterEmojis.LETTERS[i])
+                        .append(" → ")
+                        .append(command.getEmoji())
+                        .append(" ");
+
+                if (!canAccess) commands.append("~~");
+
+                commands.append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase());
+
+                if (!canAccess) commands.append("~~");
+                if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
+                if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
+                if (command.isPatronOnly()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+
+                commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
+                        .append(" - ")
+                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
+                        .append("\n\n");
+                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
+                i++;
+            }
+        }
+
+        commands.append(getIconDescriptions());
+        eb.setDescription(commands.toString());
+    }
+
+    private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException {
+        eb.setDescription(getString("nsfw"));
+        String patreonIcon = DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag();
+
+        StringBuilder withSearchKey = new StringBuilder();
+        StringBuilder withoutSearchKey = new StringBuilder();
+
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+
+            if (command.getCategory().equals(Category.NSFW)) {
+                String title = TextManager.getString(getLocale(), TextManager.COMMANDS, command.getTrigger() + "_title");
+
+                if (command instanceof PornSearchAbstract)
+                    withSearchKey.append(getString("nsfw_slot", command.isPatronOnly(), command.getTrigger(), patreonIcon, title)).append("\n");
+                else if (command instanceof PornPredefinedAbstract)
+                    withoutSearchKey.append(getString("nsfw_slot", command.isPatronOnly(), command.getTrigger(), patreonIcon, title)).append("\n");
+            }
+        }
+
+        withSearchKey.append("\n\n").append(getString("nsfw_searchkey_on_eg"));
+
+        eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), true)
+                .addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true)
+                .addField(Settings.EMPTY_EMOJI, getIconDescriptions());
+    }
+
+    private String getIconDescriptions() {
+        return getString("commandproperties",
+                DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag(),
+                Settings.PATREON_PAGE
+        );
     }
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel, String arg) throws Throwable {

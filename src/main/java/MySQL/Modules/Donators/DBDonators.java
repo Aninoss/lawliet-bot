@@ -16,36 +16,33 @@ public class DBDonators extends DBCached {
 
     public synchronized DonatorBean getBean() throws SQLException {
         if (donatorBean == null) {
-            HashMap<Long, DonatorBeanSlot> slots = new DBDataLoad<DonatorBeanSlot>("Donators", "userId, end", "1", preparedStatement -> {})
+            HashMap<Long, DonatorBeanSlot> slots = new DBDataLoad<DonatorBeanSlot>("Donators", "userId, end, totalDollars", "1", preparedStatement -> {})
                     .getHashMap(
                             DonatorBeanSlot::getUserId,
                             resultSet -> new DonatorBeanSlot(
                                     resultSet.getLong(1),
-                                    resultSet.getDate(2).toLocalDate()
+                                    resultSet.getDate(2).toLocalDate(),
+                                    resultSet.getDouble(3)
                             )
                     );
 
             donatorBean = new DonatorBean(slots);
             donatorBean.getMap()
                     .addMapAddListener(this::insertDonation)
-                    .addMapUpdateListener(this::insertDonation)
-                    .addMapRemoveListener(this::removeDonation);
+                    .addMapUpdateListener(this::insertDonation);
         }
 
         return donatorBean;
     }
 
     protected void insertDonation(DonatorBeanSlot donatorBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Donators (userId, end) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, donatorBean.getUserId());
-            preparedStatement.setString(2, DBMain.localDateToDateString(donatorBean.getDonationEnd()));
-        });
-    }
-
-    protected void removeDonation(DonatorBeanSlot donatorBean) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Donators WHERE userId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, donatorBean.getUserId());
-        });
+        if (donatorBean.getTotalDollars() > 0) {
+            DBMain.getInstance().asyncUpdate("REPLACE INTO Donators (userId, end, totalDollars) VALUES (?, ?, ?);", preparedStatement -> {
+                preparedStatement.setLong(1, donatorBean.getUserId());
+                preparedStatement.setString(2, DBMain.localDateToDateString(donatorBean.getDonationEnd()));
+                preparedStatement.setDouble(3, donatorBean.getTotalDollars());
+            });
+        }
     }
 
     @Override

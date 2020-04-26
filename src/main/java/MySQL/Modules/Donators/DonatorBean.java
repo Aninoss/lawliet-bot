@@ -20,7 +20,8 @@ public class DonatorBean extends Observable {
     public DonatorBeanSlot get(long userId) {
         return slots.computeIfAbsent(userId, key -> new DonatorBeanSlot(
                 userId,
-                LocalDate.now()
+                LocalDate.now(),
+                0
         ));
     }
 

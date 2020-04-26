@@ -7,18 +7,23 @@ import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
 import Core.TextManager;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Donators.DBDonators;
 import MySQL.Modules.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "donate",
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png",
         emoji = "\uD83D\uDCB8",
-        executable = true
+        executable = true,
+        aliases = {"patreon", "donation"}
 )
 public class DonateCommand extends Command {
 
@@ -26,14 +31,20 @@ public class DonateCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         StringBuilder donators = new StringBuilder();
 
-        for(DonatorBeanSlot donatorBean: DBDonators.getInstance().getBean().getMap().values().stream().filter(DonatorBeanSlot::isValid).collect(Collectors.toList())) {
+        List<DonatorBeanSlot> donationsList = DBDonators.getInstance().getBean().getMap().values().stream()
+                .filter(slot -> slot.getTotalDollars() > 0)
+                .sorted((s1, s2) -> Double.compare(s2.getTotalDollars(), s1.getTotalDollars()))
+                .collect(Collectors.toList());
+
+        for(DonatorBeanSlot donatorBean: donationsList) {
             DiscordApiCollection.getInstance().getUserById(donatorBean.getUserId()).ifPresent(user ->
-                    donators.append(user.getDiscriminatedName()).append("\n")
+                    donators.append(getString("slot", user.getDiscriminatedName(), StringUtil.doubleToString(donatorBean.getTotalDollars(), 2))).append("\n")
             );
         }
 
         if (donators.length() == 0) donators.append(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"));
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.SERVER_INVITE_URL, Settings.DONATION_URL, donators.toString()));
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.PATREON_PAGE, Settings.DONATION_URL));
+        eb.addField(getString("donators"), donators.toString(), false);
         eb.setImage("https://cdn.discordapp.com/attachments/499629904380297226/589143402851991552/donate.png");
 
         event.getChannel().sendMessage(eb).get();

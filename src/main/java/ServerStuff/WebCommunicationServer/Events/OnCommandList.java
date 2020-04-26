@@ -70,6 +70,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
                     commandJSON.put("nsfw", command.isNsfw());
                     commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);
                     commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
+                    commandJSON.put("patron_only", command.isPatronOnly());
 
                     categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                 }
