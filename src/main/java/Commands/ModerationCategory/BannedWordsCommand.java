@@ -8,7 +8,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.BannedWords.BannedWordsBean;
 import MySQL.Modules.BannedWords.DBBannedWords;
@@ -55,7 +55,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionTools.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> userIgnoredList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -68,7 +68,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 }
 
             case 2:
-                ArrayList<User> logRecieverList = MentionTools.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> logRecieverList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;

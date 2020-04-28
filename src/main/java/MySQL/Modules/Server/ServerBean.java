@@ -2,11 +2,9 @@ package MySQL.Modules.Server;
 
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
-import MySQL.BeanWithServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Observable;
 import java.util.Optional;
@@ -20,9 +18,9 @@ public class ServerBean extends Observable {
     private FisheryStatus fisheryStatus;
     private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders;
     private Long fisheryAnnouncementChannelId;
-    private final ArrayList<BeanWithServer> beans = new ArrayList<>();
+    private Integer fisheryVcHoursCap = null;
 
-    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles, Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, String webhookUrl) {
+    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles, Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, int fisheryVcHoursCap, String webhookUrl) {
         this.serverId = serverId;
         this.fisheryRoleMin = fisheryRoleMin;
         this.fisheryRoleMax = fisheryRoleMax;
@@ -33,6 +31,8 @@ public class ServerBean extends Observable {
         this.fisherySingleRoles = fisherySingleRoles;
         this.fisheryTreasureChests = fisheryTreasureChests;
         this.fisheryReminders = fisheryReminders;
+        if (fisheryVcHoursCap == 0) this.fisheryVcHoursCap = null;
+        else this.fisheryVcHoursCap = fisheryVcHoursCap;
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
     }
 
@@ -87,6 +87,10 @@ public class ServerBean extends Observable {
 
     public Optional<ServerTextChannel> getFisheryAnnouncementChannel() {
         return getServer().flatMap(server -> server.getTextChannelById(fisheryAnnouncementChannelId != null ? fisheryAnnouncementChannelId : 0L));
+    }
+
+    public Optional<Integer> getFisheryVcHoursCap() {
+        return Optional.ofNullable(fisheryVcHoursCap);
     }
 
     public boolean isCached() {
@@ -153,6 +157,14 @@ public class ServerBean extends Observable {
         this.fisheryReminders = !this.fisheryReminders;
         setChanged();
         notifyObservers();
+    }
+
+    public void setFisheryVcHoursCap(Integer fisheryVcHoursCap) {
+        if (this.fisheryVcHoursCap == null || !this.fisheryVcHoursCap.equals(fisheryVcHoursCap)) {
+            this.fisheryVcHoursCap = fisheryVcHoursCap;
+            setChanged();
+            notifyObservers();
+        }
     }
 
     public void setFisheryAnnouncementChannelId(Long fisheryAnnouncementChannelId) {

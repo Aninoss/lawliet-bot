@@ -7,7 +7,7 @@ import CommandSupporters.NavigationHelper;
 import Constants.Permission;
 import Constants.Response;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import MySQL.Modules.AutoRoles.AutoRolesBean;
 import MySQL.Modules.AutoRoles.DBAutoRoles;
 import org.javacord.api.DiscordApi;
@@ -51,7 +51,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws IOException, ExecutionException {
         if (state == 1) {
-            List<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
+            List<Role> roleList = MentionUtil.getRoles(event.getMessage(), inputString).getList();
             return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 

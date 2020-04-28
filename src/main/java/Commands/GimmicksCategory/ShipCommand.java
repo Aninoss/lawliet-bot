@@ -5,7 +5,7 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Core.EmbedFactory;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.RandomUtil;
 import Modules.ImageCreator;
 import org.javacord.api.entity.DiscordEntity;
@@ -33,7 +33,7 @@ public class ShipCommand extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
         if (list.size() == 1 && list.get(0).getId() != event.getMessage().getUserAuthor().get().getId()) {
             list.add(event.getMessage().getUserAuthor().get());
         }

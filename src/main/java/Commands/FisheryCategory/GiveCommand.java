@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -39,7 +39,7 @@ public class GiveCommand extends Command {
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
-            MentionList<User> userMarked = MentionTools.getUsers(message,followedString);
+            MentionList<User> userMarked = MentionUtil.getUsers(message,followedString);
             ArrayList<User> list = userMarked.getList();
             list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
 
@@ -60,7 +60,7 @@ public class GiveCommand extends Command {
 
             FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());
             FisheryUserBean fisheryUser1 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user1.getId());
-            long value = MentionTools.getAmountExt(followedString, fisheryUser0.getCoins());
+            long value = MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins());
 
             if (value != -1) {
                 if (value >= 1) {

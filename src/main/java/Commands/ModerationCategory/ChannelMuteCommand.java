@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Core.*;
 import Core.Mention.Mention;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Modules.Mute.MuteData;
 import Modules.Mute.MuteManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -47,7 +47,7 @@ public class ChannelMuteCommand extends Command  {
         Server server = message.getServer().get();
 
         ServerTextChannel channel = message.getServerTextChannel().get();
-        List<ServerTextChannel> channelList = MentionTools.getTextChannels(message, followedString).getList();
+        List<ServerTextChannel> channelList = MentionUtil.getTextChannels(message, followedString).getList();
         if (channelList.size() > 0)
             channel = channelList.get(0);
 
@@ -57,7 +57,7 @@ public class ChannelMuteCommand extends Command  {
             return false;
         }
 
-        List<User> userList = MentionTools.getUsers(message, followedString).getList();
+        List<User> userList = MentionUtil.getUsers(message, followedString).getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
@@ -78,7 +78,7 @@ public class ChannelMuteCommand extends Command  {
         MuteData muteData = new MuteData(server, channel, successfulUsers);
         boolean doneSomething = MuteManager.getInstance().executeMute(muteData, mute);
 
-        Mention mention = MentionTools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
+        Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getString(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
         for(User user: userList) {
             try {

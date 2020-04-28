@@ -4,7 +4,7 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
@@ -31,7 +31,7 @@ public class ChannelInfoCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
-        ArrayList<ServerTextChannel> list = MentionTools.getTextChannels(event.getMessage(), followedString).getList();
+        ArrayList<ServerTextChannel> list = MentionUtil.getTextChannels(event.getMessage(), followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_channels"))).get();

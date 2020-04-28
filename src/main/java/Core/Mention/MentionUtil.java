@@ -20,9 +20,9 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
-public class MentionTools {
+public class MentionUtil {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(MentionTools.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
 
     public static MentionList<User> getUsers(Message message, String string) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
@@ -354,8 +354,8 @@ public class MentionTools {
         int counted = 0;
         boolean multi = false;
         Server server = message.getServer().get();
-        List<User> userList = MentionTools.getUsers(message, followedString).getList();
-        List<Role> roleList = MentionTools.getRoles(message, followedString).getList();
+        List<User> userList = MentionUtil.getUsers(message, followedString).getList();
+        List<Role> roleList = MentionUtil.getRoles(message, followedString).getList();
         StringBuilder sb = new StringBuilder();
 
         for(User user: userList) {
@@ -468,7 +468,7 @@ public class MentionTools {
                     if (part.endsWith("%")) return (long) Math.abs(value / 100.0 * available);
 
                     if (part.endsWith("k")) return value * 1000;
-                    if (part.endsWith("m")) return value * 1000000;
+                    if (part.endsWith("m") || part.endsWith("mio")) return value * 1000000;
                     if (part.endsWith("b")) return value * 1000000000;
 
                     return value;

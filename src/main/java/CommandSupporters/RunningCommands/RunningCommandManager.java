@@ -1,5 +1,6 @@
 package CommandSupporters.RunningCommands;
 
+import Constants.Settings;
 import Core.CustomThread;
 import javafx.util.Pair;
 import org.javacord.api.entity.user.User;
@@ -22,12 +23,19 @@ public class RunningCommandManager {
 
     private HashMap<Long, RunningCommand> runningCommands = new HashMap<>();
 
-    public synchronized boolean canUserRunCommand(long userId, int shardId) {
+    public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec) {
         RunningCommand runningCommand = runningCommands.get(userId);
 
-        if (runningCommand == null || runningCommand.getInstant().isBefore(Instant.now().minus(5, ChronoUnit.MINUTES))) {
+        if (runningCommand != null) {
+            System.out.println("-------------");
+            System.out.println(maxCalculationTimeSec);
+            System.out.println(Instant.now());
+            System.out.println(runningCommand.getInstant().plusSeconds(runningCommand.getMaxCalculationTimeSec()));
+        }
+
+        if (runningCommand == null || Instant.now().isAfter(runningCommand.getInstant().plusSeconds(runningCommand.getMaxCalculationTimeSec()))) {
             if (runningCommand != null) runningCommand.stop();
-            runningCommands.put(userId, new RunningCommand(userId, shardId));
+            runningCommands.put(userId, new RunningCommand(userId, shardId, maxCalculationTimeSec));
 
             final Thread currentThread = Thread.currentThread();
             Thread t = new CustomThread(() -> {

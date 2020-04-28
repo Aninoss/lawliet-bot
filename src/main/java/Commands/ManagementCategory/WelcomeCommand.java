@@ -8,7 +8,7 @@ import Constants.Permission;
 import Constants.Response;
 import Constants.Settings;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;
 import Modules.ImageCreator;
@@ -88,7 +88,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                 return Response.FALSE;
 
             case 3:
-                ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -149,7 +149,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                 return Response.FALSE;
 
             case 7:
-                channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;

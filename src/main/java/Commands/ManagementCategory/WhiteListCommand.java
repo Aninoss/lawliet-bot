@@ -8,7 +8,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
 import MySQL.Modules.WhiteListedChannels.WhiteListedChannelsBean;
 import org.javacord.api.DiscordApi;
@@ -48,7 +48,7 @@ public class WhiteListCommand extends Command implements OnNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 1) {
-            ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+            ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
             return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 

@@ -7,7 +7,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Core.CustomObservableList;
 import Core.EmbedFactory;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
 import Core.TextManager;
 import Core.Utils.StringUtil;
@@ -49,7 +49,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
-        MentionList<User> userMentions = MentionTools.getUsers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionUtil.getUsers(event.getMessage(), followedString);
         users = userMentions.getList();
         followedString = StringUtil.trimString(userMentions.getResultMessageString());
 
@@ -75,7 +75,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         }
 
         nString = removeAll ? getString("all") : StringUtil.numToString(getLocale(), n);
-        userString = MentionTools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), users).getString();
+        userString = MentionUtil.getMentionedStringOfUsers(getLocale(), event.getServer().get(), users).getString();
 
         if (DBModeration.getInstance().getBean(channel.getServer().getId()).isQuestion()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmation", n != 1, nString, userString));

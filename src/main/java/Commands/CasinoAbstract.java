@@ -6,7 +6,7 @@ import CommandSupporters.CommandManager;
 import Constants.FisheryStatus;
 import Constants.Settings;
 import Core.EmbedFactory;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -67,7 +67,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
 
         FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         long coins = userBean.getCoins();
-        long value = MentionTools.getAmountExt(followedString, coins);
+        long value = MentionUtil.getAmountExt(followedString, coins);
         if (value == -1) {
             coinsInput = (long) Math.ceil(coins * 0.1);
             userBean.addHiddenCoins(coinsInput);

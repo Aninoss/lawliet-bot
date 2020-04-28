@@ -5,7 +5,7 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -38,7 +38,7 @@ public class QuoteCommand extends Command {
 
     private boolean calculateResults(Message message, String followString) throws IOException, ExecutionException, InterruptedException {
         Server server = message.getServer().get();
-        MentionList<ServerTextChannel> list = MentionTools.getTextChannels(message, followString);
+        MentionList<ServerTextChannel> list = MentionUtil.getTextChannels(message, followString);
         User author = message.getUserAuthor().get();
         if (list.getResultMessageString().replace(" ","").length() > 0) {
             addLoadingReaction();
@@ -51,7 +51,7 @@ public class QuoteCommand extends Command {
             if (channelArrayList.size() == 1) add = channelArrayList.get(0).getMentionTag();
 
             //Sucht nach dem Link der Nachricht
-            ArrayList<Message> directMessage = MentionTools.getMessagesURL(message, followString).getList();
+            ArrayList<Message> directMessage = MentionUtil.getMessagesURL(message, followString).getList();
             if (directMessage.size() > 0) {
                 for(Message message1: directMessage) {
                     if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
@@ -63,7 +63,7 @@ public class QuoteCommand extends Command {
 
             //Sucht nach der Message-ID im dortigen Channel
             if (channelArrayList.contains(ownChannel)) {
-                ArrayList<Message> messageArrayList = MentionTools.getMessagesId(message, followString, message.getServerTextChannel().get()).getList();
+                ArrayList<Message> messageArrayList = MentionUtil.getMessagesId(message, followString, message.getServerTextChannel().get()).getList();
                 if (messageArrayList.size() > 0) {
                     for(Message message1: messageArrayList) {
                         if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
@@ -77,7 +77,7 @@ public class QuoteCommand extends Command {
             //Sucht nach der Message-ID in alle anderen Channels auf dem Server
             for(ServerTextChannel channel: channelArrayList) {
                 if (channel != ownChannel) {
-                    ArrayList<Message> messageArrayList = MentionTools.getMessagesId(message, followString).getList();
+                    ArrayList<Message> messageArrayList = MentionUtil.getMessagesId(message, followString).getList();
                     if (messageArrayList.size() > 0) {
                         for(Message message1: messageArrayList) {
                             if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
@@ -91,7 +91,7 @@ public class QuoteCommand extends Command {
 
             //Sucht anhand dem Inhalt der Nachricht im eigene Channel
             if (channelArrayList.contains(ownChannel)) {
-                Message m = MentionTools.getMessageSearch(followString, ownChannel, message);
+                Message m = MentionUtil.getMessageSearch(followString, ownChannel, message);
                 if (m != null && m.getChannel().canSee(author) && m.getChannel().canReadMessageHistory(author)) {
                     postEmbed(message.getServerTextChannel().get(),m);
                     return true;
@@ -101,7 +101,7 @@ public class QuoteCommand extends Command {
             //Sucht anhand dem Inhalt der Nachricht in den anderen Channels des Servers.
             for(ServerTextChannel channel: channelArrayList) {
                 if (channel != ownChannel) {
-                    Message m = MentionTools.getMessageSearch(followString, channel, message);
+                    Message m = MentionUtil.getMessageSearch(followString, channel, message);
                     if (m != null && m.getChannel().canSee(author) && m.getChannel().canReadMessageHistory(author)) {
                         postEmbed(message.getServerTextChannel().get(), m);
                         return true;

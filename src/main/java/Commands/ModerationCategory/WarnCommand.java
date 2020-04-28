@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Core.*;
 import Core.Mention.Mention;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
@@ -42,7 +42,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        MentionList<User> userMentionList = MentionTools.getUsers(message, followedString);
+        MentionList<User> userMentionList = MentionUtil.getUsers(message, followedString);
         userList = userMentionList.getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -60,7 +60,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
         if (moderationBean.isQuestion()) {
-            Mention mention = MentionTools.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
+            Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);
@@ -80,12 +80,12 @@ public class WarnCommand extends Command implements OnReactionAddListener {
             if (!canProcess(channel.getServer(), executer, user)) usersErrorList.add(user);
         }
         if (usersErrorList.size() > 0) {
-            Mention mentionError = MentionTools.getMentionedStringOfUsers(getLocale(), channel.getServer(), usersErrorList);
+            Mention mentionError = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), usersErrorList);
             postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getString()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
             return false;
         }
 
-        Mention mention = MentionTools.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
+        Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getString(), executer.getMentionTag()));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {

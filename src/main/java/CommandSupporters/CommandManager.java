@@ -19,11 +19,9 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -65,8 +63,10 @@ public class CommandManager {
         }
     }
 
-    private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard())) {
+    private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException, SQLException {
+        if (BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) >= 2) return true;
+
+        if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard(), command.getMaxCalculationTimeSec())) {
             return true;
         }
 
@@ -78,7 +78,9 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
+    private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException, SQLException {
+        if (BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) >= 2) return true;
+
         Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), command.getCooldownTime());
         if (!waitingSec.isPresent()) {
             return true;
@@ -96,7 +98,7 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(MessageCreateEvent event, Command command) throws SQLException, ExecutionException, InterruptedException {
-        if (!command.isPatronOnly() || BotUtil.userIsDonator(event.getMessageAuthor().asUser().get())) {
+        if (!command.isPatronOnly() || BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) > 0) {
             return true;
         }
 
@@ -270,7 +272,7 @@ public class CommandManager {
                         Thread.sleep(1000);
                     }
 
-                    commandThread.interrupt();
+                    //commandThread.interrupt();
                 }
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);

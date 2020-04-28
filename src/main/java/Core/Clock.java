@@ -218,13 +218,7 @@ public class Clock {
             if (hour == Settings.UPDATE_HOUR && readyForRestart) {
                 readyForRestart = false;
                 LOGGER.info("Backup database...");
-                SystemUtil.backupDB().ifPresent(file -> {
-                    try {
-                        DiscordApiCollection.getInstance().getOwner().sendMessage("Database Dump", file).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOGGER.error("Exception while sending database backup", e);
-                    }
-                });
+                SystemUtil.backupDB();
 
                 if (Bot.hasUpdate()) {
                     LOGGER.info("Restarting for update...");

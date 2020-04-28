@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Internet.HttpRequest;
 import Core.Internet.HttpProperty;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.SecretManager;
 import Core.TextManager;
 import org.javacord.api.entity.message.MessageAttachment;
@@ -39,7 +39,7 @@ public class IncreaseResolutionCommand extends Command {
             MessageAttachment messageAttachment = attachmentList.get(0);
             url = messageAttachment.getProxyUrl();
         } else {
-            ArrayList<URL> imageList = MentionTools.getImages(followedString).getList();
+            ArrayList<URL> imageList = MentionUtil.getImages(followedString).getList();
             if (imageList.size() > 0) {
                 url = imageList.get(0);
             }

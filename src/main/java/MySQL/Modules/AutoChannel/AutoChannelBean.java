@@ -2,17 +2,22 @@ package MySQL.Modules.AutoChannel;
 
 import Core.DiscordApiCollection;
 import Core.CustomObservableList;
+import Modules.AnimeNews.AnimeNewsDownloader;
 import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Optional;
 
 public class AutoChannelBean extends BeanWithServer {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(AutoChannelBean.class);
 
     private boolean active, locked;
     private String nameMask;
@@ -52,6 +57,7 @@ public class AutoChannelBean extends BeanWithServer {
     }
 
     public CustomObservableList<Long> getChildChannels() {
+        if (childChannels == null) LOGGER.error("Child channels is null");
         return childChannels;
     }
 

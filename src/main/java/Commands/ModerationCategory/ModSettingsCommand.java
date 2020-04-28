@@ -6,7 +6,7 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.*;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
@@ -61,7 +61,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
-                ArrayList<ServerTextChannel> channelsList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelsList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelsList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;

@@ -37,7 +37,7 @@ public class FisheryUserBean extends BeanWithServer {
     private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
     private long fish, coins;
     private LocalDate dailyReceived;
-    private int dailyStreak, upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1;
+    private int dailyStreak, upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1, vcMinutes = 0;
     private boolean reminderSent, changed = false, banned = false;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
@@ -197,14 +197,20 @@ public class FisheryUserBean extends BeanWithServer {
 
     public void registerVC(int minutes) {
         if (!banned) {
-            long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
+            Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
+            if (limitOpt.isPresent()) minutes = Math.min(minutes, limitOpt.get() * 60 - vcMinutes);
 
-            fish += effect;
-            if (fishIncome != null) fishIncome += effect;
-            getCurrentFisheryHourlyIncome().add(effect);
+            if (minutes > 0) {
+                long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
 
-            checkValuesBound();
-            setChanged();
+                fish += effect;
+                if (fishIncome != null) fishIncome += effect;
+                getCurrentFisheryHourlyIncome().add(effect);
+                vcMinutes += minutes;
+
+                checkValuesBound();
+                setChanged();
+            }
         }
     }
 

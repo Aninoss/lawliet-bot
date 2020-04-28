@@ -6,7 +6,7 @@ import Commands.InformationCategory.HelpCommand;
 import Constants.*;
 import Core.*;
 import Core.EmojiConnection.EmojiConnection;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
@@ -499,14 +499,14 @@ public abstract class Command {
 
             if (forbiddenRoles.size() == 0) return true;
             try {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionTools.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
             } catch (IOException e) {
                 LOGGER.error("Exception", e);
             }
             return false;
         }
         try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionTools.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
         } catch (IOException e) {
             LOGGER.error("Exception", e);
         }
@@ -540,7 +540,7 @@ public abstract class Command {
 
     public String getTrigger() { return commandProperties.trigger(); }
     public String[] getAliases() { return commandProperties.aliases(); }
-    public String getThumbnail() { return commandProperties.thumbnail(); }
+    public String getThumbnail() { /*return commandProperties.thumbnail();*/ return ""; } //TODO Just a test to see how the bot works without any thumbnails
     public String getEmoji() { return commandProperties.emoji(); }
     public boolean isNsfw() { return commandProperties.nsfw(); }
     public boolean isExecutable() { return commandProperties.executable(); }

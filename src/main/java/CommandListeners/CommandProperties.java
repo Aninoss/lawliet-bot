@@ -17,6 +17,6 @@ public @interface CommandProperties {
     int userPermissions() default 0;
     boolean requiresEmbeds() default true;
     int cooldownTime() default 10;
-    int maxCalculationTimeSec() default 60;
+    int maxCalculationTimeSec() default 30;
     boolean patronOnly() default false;
 }

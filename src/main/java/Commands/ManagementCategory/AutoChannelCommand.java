@@ -7,7 +7,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
@@ -45,7 +45,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
-                ArrayList<ServerVoiceChannel> channelList = MentionTools.getVoiceChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerVoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;

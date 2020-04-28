@@ -29,7 +29,7 @@ public class FAQCommand extends ListAbstract {
             slots.add(new Pair<>(question, answer));
         }
 
-        init(event.getServerTextChannel().get());
+        init(event.getServerTextChannel().get(), followedString);
         return true;
     }
 

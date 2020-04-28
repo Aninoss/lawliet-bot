@@ -4,7 +4,7 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
@@ -35,7 +35,7 @@ public class WarnLogCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
-        ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();

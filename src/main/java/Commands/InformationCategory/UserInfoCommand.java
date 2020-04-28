@@ -4,7 +4,7 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -27,7 +27,7 @@ public class UserInfoCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         boolean noMention = false;
         Server server = event.getServer().get();
-        ArrayList<User> list = MentionTools.getUsers(event.getMessage(), followedString).getList();
+        ArrayList<User> list = MentionUtil.getUsers(event.getMessage(), followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();

@@ -13,7 +13,7 @@ import Core.*;
 import Core.Utils.InternetUtil;
 import Modules.BannedWordsCheck;
 import Core.BotResources.ResourceManager;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Modules.SPCheck;
 import Core.Utils.StringUtil;
@@ -156,7 +156,7 @@ public class MessageCreateListener {
                 //Manage Message Quoting
                 if (event.getChannel().canYouEmbedLinks()) {
                     Locale locale = serverBean.getLocale();
-                    ArrayList<Message> messages = MentionTools.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
+                    ArrayList<Message> messages = MentionUtil.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
                     if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {
                         try {
                             for (int i = 0; i < Math.min(3, messages.size()); i++) {
@@ -182,12 +182,8 @@ public class MessageCreateListener {
         for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
             if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
-                Message message = null;
-                if (command instanceof OnForwardedRecievedListener) message = ((OnForwardedRecievedListener) command).getForwardedMessage();
-                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
-
                 try {
-                    RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard());
+                    RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard(), command.getMaxCalculationTimeSec());
 
                     if (command instanceof OnForwardedRecievedListener) {
                         boolean end = command.onForwardedRecievedSuper(event);

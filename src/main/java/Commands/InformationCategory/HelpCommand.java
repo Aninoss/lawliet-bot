@@ -231,7 +231,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
-                        !command.isPatronOnly() || BotUtil.userIsDonator(author);
+                        !command.isPatronOnly() || BotUtil.getUserDonationStatus(author) > 0;
 
                 commands.append("**")
                         .append(LetterEmojis.LETTERS[i])

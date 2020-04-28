@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
@@ -34,7 +34,7 @@ public class AccountCommand extends Command {
         if (status == FisheryStatus.ACTIVE) {
             Server server = event.getServer().get();
             Message message = event.getMessage();
-            ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
+            ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
             if (list.size() > 5) {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                         TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();

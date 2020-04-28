@@ -5,7 +5,7 @@ import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
 import Core.BotResources.ResourceManager;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
@@ -13,7 +13,6 @@ import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -31,7 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "fishery",
@@ -72,7 +70,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
-                ArrayList<Role> roleList = MentionTools.getRoles(event.getMessage(), inputString).getList();
+                ArrayList<Role> roleList = MentionUtil.getRoles(event.getMessage(), inputString).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -104,7 +102,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 }
 
             case 3:
-                ArrayList<ServerTextChannel> channelIgnoredList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -117,7 +115,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 }
 
             case 4:
-                ArrayList<ServerTextChannel> channelList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;

@@ -10,12 +10,14 @@ public class RunningCommand {
     private final Thread thread;
     private final int shardId;
     private final Instant instant;
+    private final int maxCalculationTimeSec;
 
-    public RunningCommand(long userId, int shardId) {
+    public RunningCommand(long userId, int shardId, int maxCalculationTimeSec) {
         this.userId = userId;
         this.thread = Thread.currentThread();
         this.shardId = shardId;
         this.instant = Instant.now();
+        this.maxCalculationTimeSec = maxCalculationTimeSec;
     }
 
     public long getUserId() {
@@ -37,4 +39,7 @@ public class RunningCommand {
     public Thread getThread() {
         return thread;
     }
+
+    public int getMaxCalculationTimeSec() { return maxCalculationTimeSec; }
+
 }

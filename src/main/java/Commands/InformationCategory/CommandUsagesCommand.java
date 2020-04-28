@@ -47,7 +47,7 @@ public class CommandUsagesCommand extends ListAbstract {
 
         commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));
 
-        init(event.getServerTextChannel().get());
+        init(event.getServerTextChannel().get(), followedString);
         return true;
     }
 

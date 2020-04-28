@@ -5,7 +5,7 @@ import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
@@ -57,7 +57,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 1) {
-            ArrayList<ServerVoiceChannel> vcList = MentionTools.getVoiceChannels(event.getMessage(), inputString).getList();
+            ArrayList<ServerVoiceChannel> vcList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
             if (vcList.size() == 0) {
                 String checkString = inputString.toLowerCase();
                 if (checkString.contains("%members") || checkString.contains("%users") || checkString.contains("%bots")) {

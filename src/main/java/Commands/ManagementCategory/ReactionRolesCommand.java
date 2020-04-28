@@ -8,7 +8,7 @@ import Constants.Response;
 import Constants.Settings;
 import Core.*;
 import Core.EmojiConnection.EmojiConnection;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
 import Core.Utils.StringUtil;
 import com.vdurmont.emoji.EmojiParser;
@@ -72,7 +72,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         switch (state) {
             //Reaction Message hinzufügen
             case 1:
-                ArrayList<ServerTextChannel> serverTextChannel = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (serverTextChannel.size() > 0) {
                     if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                         channel = serverTextChannel.get(0);
@@ -88,7 +88,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             //Reaction Message bearbeiten
             case 2:
                 addLoadingReaction();
-                ArrayList<Message> messageArrayList = MentionTools.getMessagesAll(event.getMessage(), inputString).getList();
+                ArrayList<Message> messageArrayList = MentionUtil.getMessagesAll(event.getMessage(), inputString).getList();
                 if (messageArrayList.size() > 0) {
                     for (Message message : messageArrayList) {
                         if (messageIsReactionMessage(message)) {
@@ -138,7 +138,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     boolean updateRole = false, updateEmoji = false;
                     String inputString2 = null;
 
-                    List<KnownCustomEmoji> customEmojis = MentionTools.getCustomEmojiByTag(inputString);
+                    List<KnownCustomEmoji> customEmojis = MentionUtil.getCustomEmojiByTag(inputString);
                     if (customEmojis.size() > 0) {
                         updateEmoji = calculateEmoji(customEmojis.get(0));
                         inputString2 = inputString.replaceFirst(customEmojis.get(0).getMentionTag(), "");
@@ -179,8 +179,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         }
                     }
 
-                    MentionList<Role> mentionedRoles = MentionTools.getRoles(event.getMessage(), inputString);
-                    if (inputString2 != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionTools.getRoles(event.getMessage(), inputString2);
+                    MentionList<Role> mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString);
+                    if (inputString2 != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString2);
                     ArrayList<Role> list = mentionedRoles.getList();
                     if (list.size() > 0) {
                         Role roleTest = list.get(0);
@@ -529,11 +529,11 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         if (embed.getDescription().isPresent()) this.description = StringUtil.trimString(embed.getDescription().get());
 
         emojiConnections = new ArrayList<>();
-        checkRolesWithLog(MentionTools.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);
+        checkRolesWithLog(MentionUtil.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
-                MentionTools.getCustomEmojiByTag(parts[0]).stream().limit(1).forEach(customEmoji -> emojiConnections.add(new EmojiConnection(customEmoji, parts[1])));
+                MentionUtil.getCustomEmojiByTag(parts[0]).stream().limit(1).forEach(customEmoji -> emojiConnections.add(new EmojiConnection(customEmoji, parts[1])));
             } else {
                 emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
             }
@@ -571,7 +571,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     queueAdd(message.getId(), user.getId());
 
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+                        Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (rOpt.isPresent()) {
                             Role r = rOpt.get();
                             if (r.getUsers().contains(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
@@ -582,7 +582,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
                 for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                     if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
-                        Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+                        Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (!rOpt.isPresent()) return;
                         Role r = rOpt.get();
                         for (Reaction reaction : message.getReactions()) {
@@ -620,7 +620,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
-                    Optional<Role> rOpt = MentionTools.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+                    Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                     if (!rOpt.isPresent()) return;
                     Role r = rOpt.get();
                     try {

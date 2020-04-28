@@ -7,7 +7,7 @@ import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.SPBlock.DBSPBlock;
 import MySQL.Modules.SPBlock.SPBlockBean;
@@ -22,7 +22,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @CommandProperties(
     trigger = "spblock",
@@ -51,7 +50,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionTools.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> userIgnoredList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -64,7 +63,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                 }
 
             case 2:
-                ArrayList<ServerTextChannel> channelIgnoredList = MentionTools.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<ServerTextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;
@@ -77,7 +76,7 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                 }
 
             case 3:
-                ArrayList<User> logRecieverList = MentionTools.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> logRecieverList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                     return Response.FALSE;

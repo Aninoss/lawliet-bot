@@ -13,9 +13,14 @@ import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
 import org.javacord.api.entity.permission.*;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 
 public class VoiceChannelMemberJoinListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(VoiceChannelMemberJoinListener.class);
 
     private String getNewVCName(AutoChannelBean autoChannelBean, ServerVoiceChannelMemberJoinEvent event, int n) {
         String name = autoChannelBean.getNameMask();
@@ -83,8 +88,9 @@ public class VoiceChannelMemberJoinListener {
                 ServerVoiceChannel vc = vcb.create().get();
 
                 if (userIsConnected(event.getChannel(), event.getUser())) {
-                    autoChannelBean.getChildChannels().add(vc.getId());
+                    if (vc == null) LOGGER.error("VC is null");
                     event.getUser().move(vc).get();
+                    autoChannelBean.getChildChannels().add(vc.getId());
                 } else {
                     vc.delete();
                 }

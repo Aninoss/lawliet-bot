@@ -7,7 +7,7 @@ import Constants.FisheryStatus;
 import Constants.Response;
 import Core.*;
 import Modules.ExchangeRate;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
@@ -61,7 +61,7 @@ public class SellCommand extends Command implements OnReactionAddListener, OnFor
     private boolean mainExecution(MessageCreateEvent event, String argString) throws Throwable {
         removeReactionListener(message);
         removeMessageForwarder();
-        long value = MentionTools.getAmountExt(argString, userBean.getFish());
+        long value = MentionUtil.getAmountExt(argString, userBean.getFish());
 
         if (argString.equalsIgnoreCase("no")) {
             markNoInterest(event.getServerTextChannel().get());

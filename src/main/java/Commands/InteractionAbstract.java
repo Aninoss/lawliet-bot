@@ -4,7 +4,7 @@ package Commands;
 import CommandSupporters.Command;
 import Core.*;
 import Core.Mention.Mention;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Core.Utils.RandomUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -25,7 +25,7 @@ public abstract class InteractionAbstract extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        Mention mention = MentionTools.getMentionedString(getLocale(), message, followedString);
+        Mention mention = MentionUtil.getMentionedString(getLocale(), message, followedString);
         if (mention == null) {
             message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"no_mentions"))).get();

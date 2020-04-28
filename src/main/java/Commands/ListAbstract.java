@@ -3,6 +3,7 @@ package Commands;
 import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
 import Core.*;
+import Core.Utils.StringUtil;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -19,13 +20,18 @@ public abstract class ListAbstract extends Command implements OnReactionAddListe
     protected abstract int getSize();
     protected abstract int getEntriesPerPage();
 
-    protected void init(ServerTextChannel channel) throws Throwable {
+    protected void init(ServerTextChannel channel, String followedString) throws Throwable {
         entriesPerPage = getEntriesPerPage();
         size = getSize();
         page = 0;
+        if (StringUtil.stringIsInt(followedString)) {
+            int pageStart = Integer.parseInt(followedString);
+            if (pageStart >= 1) page = Math.min(getPageSize(), pageStart) - 1;
+        }
         message = channel.sendMessage(getEmbed(channel)).get();
         if (getPageSize() <= 1) message = null;
         else for(String reactionString: SCROLL_EMOJIS) message.addReaction(reactionString);
+
     }
 
     private EmbedBuilder getEmbed(ServerTextChannel channel) throws Throwable {

@@ -5,7 +5,7 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Core.*;
-import Core.Mention.MentionTools;
+import Core.Mention.MentionUtil;
 import Modules.ImageCreator;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -29,7 +29,7 @@ public class RainbowCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
-        ArrayList<User> list = MentionTools.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
