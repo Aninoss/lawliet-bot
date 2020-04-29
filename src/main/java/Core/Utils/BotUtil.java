@@ -1,7 +1,6 @@
 package Core.Utils;
 
 import Constants.Settings;
-import Core.Bot;
 import Core.DiscordApiCollection;
 import MySQL.Modules.Donators.DBDonators;
 import org.javacord.api.entity.server.Server;
@@ -11,7 +10,7 @@ import java.sql.SQLException;
 public class BotUtil {
 
     public static int getUserDonationStatus(User user) throws SQLException {
-        if (!Bot.isProductionMode()) return 3;
+        if (DiscordApiCollection.getInstance().getOwner().getId() == user.getId()) return 3;
         if (DBDonators.getInstance().getBean().get(user.getId()).isValid()) return 1;
 
         Server server = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID).get();
@@ -20,6 +19,10 @@ public class BotUtil {
         }
 
         return 0;
+    }
+
+    public static String getCurrentVersion() {
+        return Settings.VERSIONS[Settings.VERSIONS.length - 1];
     }
 
 }

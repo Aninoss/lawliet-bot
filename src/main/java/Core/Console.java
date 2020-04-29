@@ -9,6 +9,8 @@ import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Console {
 
@@ -147,6 +150,26 @@ public class Console {
 
                             case "backup":
                                 SystemUtil.backupDB();
+                                break;
+
+                            case "servers":
+                                LOGGER.info("--- SERVERS ---");
+                                ArrayList<Server> servers = new ArrayList<>(DiscordApiCollection.getInstance().getServers());
+                                servers.sort((s1, s2) -> Integer.compare(s2.getMemberCount(), s1.getMemberCount()));
+                                int limit = servers.size();
+                                if (!arg.isEmpty()) limit = Math.min(servers.size(), Integer.parseInt(arg));
+
+                                for(int i = 0; i < limit; i++) {
+                                    Server server = servers.get(i);
+                                    int bots = (int) server.getMembers().stream().filter(User::isBot).count();
+                                    LOGGER.info("{} (ID: {}): {} Members & {} Bots",
+                                            server.getName(),
+                                            server.getId(),
+                                            server.getMemberCount() - bots,
+                                            bots
+                                    );
+                                }
+                                LOGGER.info("---------------");
                                 break;
                         }
                     }

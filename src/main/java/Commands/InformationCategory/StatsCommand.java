@@ -6,6 +6,7 @@ import CommandSupporters.Command;
 import Constants.Permission;
 import Constants.Settings;
 import Core.*;
+import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.Modules.Survey.DBSurvey;
@@ -33,7 +34,7 @@ public class StatsCommand extends Command {
                 getString("template",
                 DiscordApiCollection.getInstance().getOwner().getMentionTag(),
                 Settings.BOT_INVITE_URL,
-                StringUtil.getCurrentVersion(),
+                BotUtil.getCurrentVersion(),
                 TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
                 StringUtil.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
                 StringUtil.numToString(getLocale(), DBTracker.getInstance().getBean().getMap().size()),

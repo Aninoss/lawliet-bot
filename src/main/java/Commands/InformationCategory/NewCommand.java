@@ -5,6 +5,7 @@ import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.TrackerResult;
 import Core.*;
+import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import MySQL.Modules.Version.DBVersion;
@@ -96,7 +97,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(StringUtil.getCurrentVersion())) {
+        if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
 
             slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));

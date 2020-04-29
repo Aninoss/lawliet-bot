@@ -87,7 +87,7 @@ public class CommandManager {
         }
 
         User user = event.getMessageAuthor().asUser().get();
-        if (Cooldown.getInstance().isFree(user.getId())) {
+        if (Cooldown.getInstance().isFree(user.getId()) && event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                     .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, user.getMentionTag(), String.valueOf(waitingSec.get())));

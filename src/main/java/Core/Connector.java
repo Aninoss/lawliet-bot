@@ -1,6 +1,7 @@
 package Core;
 
 import Constants.Settings;
+import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -32,12 +33,6 @@ public class Connector {
     final static Logger LOGGER = LoggerFactory.getLogger(Connector.class);
 
     public static void main(String[] args) {
-        boolean production = args.length >= 1 && args[0].equals("production");
-        Bot.setDebug(production);
-        Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::stop, "shutdown_botstop"));
-
-        Console.getInstance().start(); //Starts Console Listener
-
         //Check for faulty ports
         ArrayList<Integer> missingPort;
         if ((missingPort = checkPorts(15744)).size() > 0) {
@@ -52,6 +47,12 @@ public class Connector {
             System.exit(1);
             return;
         }
+
+        boolean production = args.length >= 1 && args[0].equals("production");
+        Bot.setDebug(production);
+        Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::stop, "shutdown_botstop"));
+
+        Console.getInstance().start(); //Starts Console Listener
 
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -94,8 +95,8 @@ public class Connector {
             VersionBean versionBean = DBVersion.getInstance().getBean();
 
             String currentVersionDB = versionBean.getCurrentVersion().getVersion();
-            if (!StringUtil.getCurrentVersion().equals(currentVersionDB))
-                versionBean.getSlots().add(new VersionBeanSlot(StringUtil.getCurrentVersion(), Instant.now()));
+            if (!BotUtil.getCurrentVersion().equals(currentVersionDB))
+                versionBean.getSlots().add(new VersionBeanSlot(BotUtil.getCurrentVersion(), Instant.now()));
         } catch (SQLException e) {
             LOGGER.error("Could not insert new update", e);
             System.exit(-1);

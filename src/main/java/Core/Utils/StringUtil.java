@@ -263,10 +263,6 @@ public final class StringUtil {
         else return "⏳";
     }
 
-    public static String getCurrentVersion() {
-        return Settings.VERSIONS[Settings.VERSIONS.length - 1];
-    }
-
     public static String decryptString(String str) {
         return Jsoup.parse(str.replace("<br />", "\n")).text();
     }
