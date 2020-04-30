@@ -46,7 +46,6 @@ public class YaoiKissCommand extends InteractionAbstract {
                 "https://i.pinimg.com/originals/78/66/08/7866086e00ad06d39708de8f628761c3.gif",
                 "https://img2.gelbooru.com//images/88/f0/88f0e29bb95a4c6d4bb0bce5af1d3884.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/581188913234706460/tumblr_o8m4vc9Lj81vxpanzo1_500.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/581188915503956006/e1208176-91ef-46e6-b8ef-3c9b4d21ba4b.gif",
                 "https://media1.tenor.com/images/3e659c681c779d15d597f84ab5bfc1e3/tenor.gif?itemid=5539915",
                 "https://media1.tenor.com/images/e2dd4e5322906bee8c595c83f36358ba/tenor.gif?itemid=7324668",
                 "https://data.whicdn.com/images/334723021/original.gif"

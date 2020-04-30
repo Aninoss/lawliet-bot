@@ -548,7 +548,7 @@ public abstract class Command {
     public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getCooldownTime() { return commandProperties.cooldownTime(); }
     public int getMaxCalculationTimeSec() { return commandProperties.maxCalculationTimeSec(); }
-    public boolean isPatronOnly() { return commandProperties.patronOnly(); }
+    public PatreonMode getPatreonMode() { return commandProperties.patronMode(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {

@@ -33,21 +33,6 @@ public class Connector {
     final static Logger LOGGER = LoggerFactory.getLogger(Connector.class);
 
     public static void main(String[] args) {
-        //Check for faulty ports
-        ArrayList<Integer> missingPort;
-        if ((missingPort = checkPorts(15744)).size() > 0) {
-            StringBuilder portsString = new StringBuilder();
-            for (int port : missingPort) {
-                portsString.append(port).append(", ");
-            }
-            String portsStringFinal = portsString.toString();
-            portsStringFinal = portsStringFinal.substring(0, portsStringFinal.length() - 2);
-
-            System.err.printf("Error on port/s %s!\n", portsStringFinal);
-            System.exit(1);
-            return;
-        }
-
         boolean production = args.length >= 1 && args[0].equals("production");
         Bot.setDebug(production);
         Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::stop, "shutdown_botstop"));
@@ -73,21 +58,6 @@ public class Connector {
             LOGGER.error("Exception in main method", e);
             System.exit(-1);
         }
-    }
-
-    private static ArrayList<Integer> checkPorts(int... ports) {
-        ArrayList<Integer> missingPorts = new ArrayList<>();
-
-        for(int port: ports) {
-            try {
-                ServerSocket serverSocket = new ServerSocket(port);
-                serverSocket.close();
-            } catch (IOException e) {
-                missingPorts.add(port);
-            }
-        }
-
-        return missingPorts;
     }
 
     private static void initializeUpdate() {
@@ -276,6 +246,10 @@ public class Connector {
             });
             api.addServerLeaveListener(event -> {
                 Thread t = new CustomThread(() -> new ServerLeaveListener().onServerLeave(event), "server_leave");
+                t.start();
+            });
+            api.addUserRoleRemoveListener(event -> {
+                Thread t = new CustomThread(() -> new UserRoleRemoveListener().onUserRoleRemove(event), "user_role_remove");
                 t.start();
             });
             api.addServerVoiceChannelChangeUserLimitListener(event -> {

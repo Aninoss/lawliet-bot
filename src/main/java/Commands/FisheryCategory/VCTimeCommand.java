@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
+import Constants.PatreonMode;
 import Constants.Permission;
 import Constants.Response;
 import Core.EmbedFactory;
@@ -27,7 +28,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\u2699\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         executable = true,
-        patronOnly = true,
+        patronMode = PatreonMode.SERVER_LOCK,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }
 )
 public class VCTimeCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {

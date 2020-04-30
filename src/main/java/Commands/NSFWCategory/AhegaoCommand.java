@@ -2,6 +2,7 @@ package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
 import Commands.GelbooruAbstract;
+import Constants.PatreonMode;
 
 @CommandProperties(
         trigger = "ahegao",
@@ -9,7 +10,7 @@ import Commands.GelbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        patronOnly = true,
+        patronMode = PatreonMode.USER_LOCK,
         withLoadingBar = true
 )
 public class AhegaoCommand extends GelbooruAbstract {

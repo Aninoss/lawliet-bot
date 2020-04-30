@@ -2,6 +2,7 @@ package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
 import Commands.RealbooruAbstract;
+import Constants.PatreonMode;
 
 @CommandProperties(
         trigger = "rlboobs",
@@ -9,7 +10,7 @@ import Commands.RealbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        patronOnly = true,
+        patronMode = PatreonMode.USER_LOCK,
         withLoadingBar = true,
         aliases = {"boobs"}
 )

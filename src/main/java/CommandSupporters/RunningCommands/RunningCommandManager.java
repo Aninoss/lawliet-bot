@@ -26,13 +26,6 @@ public class RunningCommandManager {
     public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec) {
         RunningCommand runningCommand = runningCommands.get(userId);
 
-        if (runningCommand != null) {
-            System.out.println("-------------");
-            System.out.println(maxCalculationTimeSec);
-            System.out.println(Instant.now());
-            System.out.println(runningCommand.getInstant().plusSeconds(runningCommand.getMaxCalculationTimeSec()));
-        }
-
         if (runningCommand == null || Instant.now().isAfter(runningCommand.getInstant().plusSeconds(runningCommand.getMaxCalculationTimeSec()))) {
             if (runningCommand != null) runningCommand.stop();
             runningCommands.put(userId, new RunningCommand(userId, shardId, maxCalculationTimeSec));

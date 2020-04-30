@@ -26,24 +26,39 @@ public class WebComServer {
     public static final String EVENT_FEEDBACK = "feedback";
 
     public WebComServer(int port) {
-        Configuration config = new Configuration();
-        config.setHostname("127.0.0.1");
-        config.setPort(port);
+        new CustomThread(() -> {
+            while(true) {
+                try {
+                    Configuration config = new Configuration();
+                    config.setHostname("127.0.0.1");
+                    config.setPort(port);
 
-        final SocketIOServer webComServer = new SocketIOServer(config);
+                    final SocketIOServer webComServer = new SocketIOServer(config);
 
-        webComServer.addConnectListener(new OnCommandList(this));
-        webComServer.addConnectListener(new OnFAQList(this));
+                    webComServer.addConnectListener(new OnCommandList(this));
+                    webComServer.addConnectListener(new OnFAQList(this));
 
-        webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this));
-        webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this));
-        webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList());
-        webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers());
-        webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG());
-        webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO());
-        webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
+                    webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this));
+                    webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this));
+                    webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList());
+                    webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers());
+                    webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG());
+                    webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO());
+                    webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
 
-        webComServer.start();
+                    webComServer.start();
+                    LOGGER.info("WebCom Server started");
+                    return;
+                } catch (Throwable e) {
+                    LOGGER.error("Exception in WebCom starter", e);
+                    try {
+                        Thread.sleep(10 * 1000);
+                    } catch (InterruptedException interruptedException) {
+                        interruptedException.printStackTrace();
+                    }
+                }
+            }
+        }, "start_server").start();
     }
 
     public JSONObject getLanguagePack(String category,  String key) {

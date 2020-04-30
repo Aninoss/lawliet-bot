@@ -26,7 +26,8 @@ public class YaoiCuddleCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/682569ce53d4aeae22a649fba091eb5d/tenor.gif?itemid=7791282",
                 "https://media1.tenor.com/images/8cf8eafae079be517f61d7f65e3c813f/tenor.gif?itemid=9554711",
                 "https://media1.tenor.com/images/778d789b9c6e8e624c8650f1b988204f/tenor.gif?itemid=14839882",
-                "https://media1.tenor.com/images/8eaecab4e8e5e2b2de7f8ee294079175/tenor.gif?itemid=12669021"
+                "https://media1.tenor.com/images/8eaecab4e8e5e2b2de7f8ee294079175/tenor.gif?itemid=12669021",
+                "https://cdn.discordapp.com/attachments/499629904380297226/581188915503956006/e1208176-91ef-46e6-b8ef-3c9b4d21ba4b.gif"
         };
     }
 

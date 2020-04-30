@@ -1,5 +1,7 @@
 package CommandListeners;
 
+import Constants.PatreonMode;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -18,5 +20,5 @@ public @interface CommandProperties {
     boolean requiresEmbeds() default true;
     int cooldownTime() default 10;
     int maxCalculationTimeSec() default 30;
-    boolean patronOnly() default false;
+    PatreonMode patronMode() default PatreonMode.UNLOCKED;
 }

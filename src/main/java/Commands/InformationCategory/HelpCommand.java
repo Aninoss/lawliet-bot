@@ -192,31 +192,41 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private void categoryInteractionsEmotes(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException {
-        StringBuilder commands = new StringBuilder();
+        eb.setDescription(getString("emotes_desc"));
 
+        StringBuilder stringBuilder = new StringBuilder();
+        int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
-                commands
-                        .append(" `")
+                stringBuilder
+                        .append("• `")
                         .append(command.getEmoji())
                         .append("⠀")
                         .append(getPrefix())
                         .append(commandTrigger);
 
-                if (command.isNsfw()) commands.append(" ").append(getString("interaction_nsfw"));
-                commands.append("`⠀⠀");
+                if (command.isNsfw()) stringBuilder.append(" ").append(getString("interaction_nsfw"));
+                stringBuilder.append("`\n");
+
+                i++;
+                if (i >= 10) {
+                    if (stringBuilder.length() > 0) eb.addField(Settings.EMPTY_EMOJI, stringBuilder.toString(), true);
+                    stringBuilder = new StringBuilder();
+                    i = 0;
+                }
             }
         }
-        commands.append(getString("interaction_nsfw_desc"));
-        if (category.equals(Category.INTERACTIONS)) {
-            eb.setDescription(getString("interactions_desc"));
-            eb.addField(getString("interactions_title"), commands.toString());
-        } else {
+        if (stringBuilder.length() > 0)
+            eb.addField(Settings.EMPTY_EMOJI, stringBuilder.toString(), true);
+
+        if (category.equals(Category.INTERACTIONS))
+            eb.addField(Settings.EMPTY_EMOJI, getString("interaction_nsfw_desc"))
+                    .setDescription(getString("interactions_desc"));
+        else
             eb.setDescription(getString("emotes_desc"));
-            eb.addField(getString("emotes_title"), commands.toString());
-        }
+
     }
 
     private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, SQLException {
@@ -231,7 +241,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
-                        !command.isPatronOnly() || BotUtil.getUserDonationStatus(author) > 0;
+                        command.getPatreonMode() != PatreonMode.UNLOCKED || BotUtil.getUserDonationStatus(author) > 0;
 
                 commands.append("**")
                         .append(LetterEmojis.LETTERS[i])
@@ -247,7 +257,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
                 if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                 if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
-                if (command.isPatronOnly()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+                if (command.getPatreonMode() != PatreonMode.UNLOCKED) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
 
                 commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                         .append(" - ")
@@ -276,9 +286,9 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 String title = TextManager.getString(getLocale(), TextManager.COMMANDS, command.getTrigger() + "_title");
 
                 if (command instanceof PornSearchAbstract)
-                    withSearchKey.append(getString("nsfw_slot", command.isPatronOnly(), command.getTrigger(), patreonIcon, title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot", command.getPatreonMode() != PatreonMode.UNLOCKED, command.getTrigger(), patreonIcon, title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
-                    withoutSearchKey.append(getString("nsfw_slot", command.isPatronOnly(), command.getTrigger(), patreonIcon, title)).append("\n");
+                    withoutSearchKey.append(getString("nsfw_slot", command.getPatreonMode() != PatreonMode.UNLOCKED, command.getTrigger(), patreonIcon, title)).append("\n");
             }
         }
 

@@ -3,8 +3,10 @@ package Commands;
 
 import CommandSupporters.Command;
 import Constants.LogStatus;
+import Constants.Settings;
 import Core.CustomThread;
 import Core.EmbedFactory;
+import Core.Utils.BotUtil;
 import Modules.Porn.PornImageDownloader;
 import Core.Utils.NSFWUtil;
 import Modules.Porn.PornImage;
@@ -36,12 +38,22 @@ public abstract class PornAbstract extends Command {
         long amount = 1;
         if (StringUtil.stringContainsDigits(followedString)) {
             amount = StringUtil.filterNumberFromString(followedString);
-            if (amount < 1 || amount > 20) {
+            int patreonLevel = BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get());
+            if (patreonLevel == 0 && (amount < 1 || amount > 20)) {
                 if (event.getChannel().canYouEmbedLinks()) {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "20"))).get();
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", Settings.PATREON_PAGE, "30"))).get();
                 } else {
-                    event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "20")).get();
+                    event.getChannel().sendMessage("❌ " +TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", Settings.PATREON_PAGE, "30")).get();
+                }
+                return false;
+            }
+            else if (patreonLevel > 0 && (amount < 1 || amount > 30)) {
+                if (event.getChannel().canYouEmbedLinks()) {
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))).get();
+                } else {
+                    event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")).get();
                 }
                 return false;
             }
@@ -85,6 +97,7 @@ public abstract class PornAbstract extends Command {
 
                     getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_notice", notice)));
                     event.getChannel().sendMessage(sb.toString()).get();
+                    Thread.sleep(500);
             }
 
             amount -= pornImages.size();

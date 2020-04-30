@@ -9,6 +9,7 @@ import Core.TextManager;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
+import MySQL.Modules.PatreonServerUnlock.DBPatreonServerUnlock;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -195,10 +196,11 @@ public class FisheryUserBean extends BeanWithServer {
         return false;
     }
 
-    public void registerVC(int minutes) {
+    public void registerVC(int minutes) throws ExecutionException {
         if (!banned) {
             Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
-            if (limitOpt.isPresent()) minutes = Math.min(minutes, limitOpt.get() * 60 - vcMinutes);
+            if (limitOpt.isPresent() && DBPatreonServerUnlock.getInstance().getBean(getServerId()).getUserSlots().size() > 0)
+                minutes = Math.min(minutes, limitOpt.get() * 60 - vcMinutes);
 
             if (minutes > 0) {
                 long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;

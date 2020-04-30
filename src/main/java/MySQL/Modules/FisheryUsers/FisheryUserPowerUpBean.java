@@ -74,12 +74,8 @@ public class FisheryUserPowerUpBean {
     }
 
     public static long getValue(long level) {
-        long value = 0;
-        for(int i = 1; i <= level + 1; i++) {
-            value += i;
-        }
-
-        return value;
+        long n = level + 1;
+        return n*(n + 1) / 2;
     }
 
 }
