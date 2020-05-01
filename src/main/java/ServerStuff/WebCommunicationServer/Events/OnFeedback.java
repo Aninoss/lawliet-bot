@@ -18,7 +18,7 @@ import java.util.Optional;
 
 public class OnFeedback implements DataListener<JSONObject> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DataListener.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(OnFeedback.class);
 
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {

@@ -6,7 +6,7 @@ public interface Settings {
     int TIME_OUT_TIME = 10 * 60000;
     long HOME_SERVER_ID = 368531164861825024L;
     long SUPPORT_SERVER_ID = 557953262305804308L;
-    String BOT_INVITE_URL = "https://lawlietbot.xyz/invite";
+    String BOT_INVITE_URL = "https://lawlietbot.xyz/invite?BOT";
     String SERVER_INVITE_URL = "https://discord.gg/F4FcAbQ";
     String DONATION_URL = "https://donatebot.io/checkout/" + SUPPORT_SERVER_ID;
     String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";

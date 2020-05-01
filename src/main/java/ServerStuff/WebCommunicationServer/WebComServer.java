@@ -24,6 +24,7 @@ public class WebComServer {
     public static final String EVENT_TOPGG = "topgg";
     public static final String EVENT_DONATEBOT_IO = "donatebot.io";
     public static final String EVENT_FEEDBACK = "feedback";
+    public static final String EVENT_INVITE = "invite";
 
     public WebComServer(int port) {
         new CustomThread(() -> {
@@ -45,6 +46,7 @@ public class WebComServer {
                     webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG());
                     webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO());
                     webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
+                    webComServer.addEventListener(EVENT_INVITE, JSONObject.class, new OnInvite());
 
                     webComServer.start();
                     LOGGER.info("WebCom Server started");
