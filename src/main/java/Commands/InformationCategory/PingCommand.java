@@ -5,6 +5,7 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Core.CustomThread;
 import Core.EmbedFactory;
+import Core.ServerPatreonBoost;
 import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
@@ -22,8 +23,6 @@ import java.time.Instant;
         executable = false
 )
 public class PingCommand extends Command {
-
-    final Logger LOGGER = LoggerFactory.getLogger(PingCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -153,7 +153,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
             case 0:
                 switch (i) {
                     case -1:
-                        deleteNavigationMessage();
+                        removeNavigationWithMessage();
                         return false;
 
                     case 0:

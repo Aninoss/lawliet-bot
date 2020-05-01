@@ -106,7 +106,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                         getString("modlog", n != 1, requestor.getMentionTag(), nString, userString)
                 );
                 serverTextChannel.sendMessage(eb).get();
-            } catch (IOException | InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Could not send mod log", e);
             }
         });

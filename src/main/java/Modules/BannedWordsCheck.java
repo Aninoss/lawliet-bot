@@ -84,7 +84,7 @@ public class BannedWordsCheck {
 
                 return true;
             }
-        } catch (IOException | IllegalAccessException | InstantiationException | ExecutionException e) {
+        } catch (IllegalAccessException | InstantiationException | ExecutionException e) {
             LOGGER.error("Exception", e);
         }
 

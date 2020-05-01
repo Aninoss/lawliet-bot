@@ -2,10 +2,8 @@ package DiscordListener;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.Permission;
-import Constants.Settings;
 import Core.PermissionCheckRuntime;
 import Core.Utils.StringUtil;
-import MySQL.Modules.PatreonServerUnlock.DBPatreonServerUnlock;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
@@ -63,8 +61,5 @@ public class ServerMemberLeaveListener {
         } catch (ExecutionException e) {
             LOGGER.error("Exception", e);
         }
-
-        //Remove Server Unlocks
-        if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) DBPatreonServerUnlock.getInstance().removeUser(event.getUser().getId());
     }
 }

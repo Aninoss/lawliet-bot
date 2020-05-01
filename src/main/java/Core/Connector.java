@@ -248,10 +248,6 @@ public class Connector {
                 Thread t = new CustomThread(() -> new ServerLeaveListener().onServerLeave(event), "server_leave");
                 t.start();
             });
-            api.addUserRoleRemoveListener(event -> {
-                Thread t = new CustomThread(() -> new UserRoleRemoveListener().onUserRoleRemove(event), "user_role_remove");
-                t.start();
-            });
             api.addServerVoiceChannelChangeUserLimitListener(event -> {
                 Thread t = new CustomThread(() -> {
                     new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);

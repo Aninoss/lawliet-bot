@@ -59,7 +59,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 searchTerm = emojiConnection.getConnection();
 
                 if (searchTerm.equals("quit")) {
-                    deleteNavigationMessage();
+                    removeNavigationWithMessage();
                     return false;
                 }
 
@@ -241,7 +241,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
-                        command.getPatreonMode() != PatreonMode.UNLOCKED || BotUtil.getUserDonationStatus(author) > 0;
+                        !command.isPatreonRequired() || BotUtil.getUserDonationStatus(author) > 0;
 
                 commands.append("**")
                         .append(LetterEmojis.LETTERS[i])
@@ -257,7 +257,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
                 if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                 if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
-                if (command.getPatreonMode() != PatreonMode.UNLOCKED) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+                if (command.isPatreonRequired()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
 
                 commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                         .append(" - ")
@@ -286,9 +286,9 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 String title = TextManager.getString(getLocale(), TextManager.COMMANDS, command.getTrigger() + "_title");
 
                 if (command instanceof PornSearchAbstract)
-                    withSearchKey.append(getString("nsfw_slot", command.getPatreonMode() != PatreonMode.UNLOCKED, command.getTrigger(), patreonIcon, title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
-                    withoutSearchKey.append(getString("nsfw_slot", command.getPatreonMode() != PatreonMode.UNLOCKED, command.getTrigger(), patreonIcon, title)).append("\n");
+                    withoutSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
             }
         }
 

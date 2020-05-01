@@ -4,7 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
-import Constants.PatreonMode;
+import Commands.CasinoCategory.QuizCommand;
 import Constants.Permission;
 import Constants.Response;
 import Core.EmbedFactory;
@@ -17,7 +17,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -28,12 +27,13 @@ import java.util.concurrent.ExecutionException;
         emoji = "\u2699\uFE0F️",
         thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         executable = true,
-        patronMode = PatreonMode.SERVER_LOCK,
+        patronRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }
 )
 public class VCTimeCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {
 
     private static final String CLEAR_EMOJI = "\uD83D\uDDD1️";
+    private static final String QUIT_EMOJI = "❌";
 
     private Message message;
     private ServerBean serverBean;
@@ -48,9 +48,11 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
                         getString("status",
                                 serverBean.getFisheryVcHoursCap().isPresent(),
                                 serverBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(getLocale(), in)).orElse(getString("unlimited")),
-                                CLEAR_EMOJI
+                                CLEAR_EMOJI,
+                                QUIT_EMOJI
                         ))).get();
                 message.addReaction(CLEAR_EMOJI);
+                message.addReaction(QUIT_EMOJI);
                 return true;
             }
     }
@@ -116,8 +118,13 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
 
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals(CLEAR_EMOJI)) {
-            markUnlimited(event.getServerTextChannel().get());
+        if (event.getEmoji().isUnicodeEmoji()) {
+            if (event.getEmoji().asUnicodeEmoji().get().equals(CLEAR_EMOJI))
+                markUnlimited(event.getServerTextChannel().get());
+            else if (event.getEmoji().asUnicodeEmoji().get().equals(QUIT_EMOJI)) {
+                removeReactionWithMessage();
+                removeNavigation();
+            }
         }
     }
 

@@ -52,7 +52,7 @@ public class TopCommand extends ListAbstract {
     protected Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable {
         FisheryUserBean userBean = rankingSlots.get(i);
         Optional<User> userOpt = userBean.getUser();
-        String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : getString("nouser", String.valueOf(userBean.getUserId()));
+        String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(userBean.getUserId()));
 
 
         int rank = (int) userBean.getRank();

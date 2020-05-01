@@ -41,6 +41,14 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                 }
         );
 
+        if (this instanceof CompleteLoadOnStartup) {
+            try {
+                getAllBeans();
+            } catch (SQLException throwables) {
+                LOGGER.error("Exception when loading all beans", throwables);
+            }
+        }
+
         if (this instanceof IntervalSave) {
             int minutes = ((IntervalSave)this).getIntervalMinutes();
             nextCheck = Instant.now().plusSeconds(minutes * 60);

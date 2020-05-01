@@ -152,7 +152,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                 //Ignore
             }
             try {
-                deleteReactionMessage();
+                removeReactionWithMessage();
             } catch (InterruptedException e) {
                 LOGGER.error("Could not remove message", e);
             }

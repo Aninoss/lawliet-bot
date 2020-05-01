@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public class DBDataLoad<T> {
 
-   private PreparedStatement preparedStatement;
+   private final PreparedStatement preparedStatement;
 
     public DBDataLoad(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
         if (requiredAttributes.isEmpty()) throw new SQLException("No attributes specified!");

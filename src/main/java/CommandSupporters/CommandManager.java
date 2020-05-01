@@ -4,7 +4,7 @@ import CommandListeners.*;
 import CommandSupporters.CommandLogger.CommandLogger;
 import CommandSupporters.CommandLogger.CommandUsage;
 import Commands.InformationCategory.HelpCommand;
-import Constants.PatreonMode;
+import Constants.Permission;
 import Constants.Settings;
 import Core.*;
 import CommandSupporters.Cooldown.Cooldown;
@@ -12,7 +12,6 @@ import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Utils.BotUtil;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
-import MySQL.Modules.PatreonServerUnlock.DBPatreonServerUnlock;
 import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -40,14 +39,17 @@ public class CommandManager {
                 botCanUseEmbeds(event, command) &&
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
-                checkPatreon(event, command) &&
                 checkCooldown(event, command) &&
+                checkPatreon(event, command) &&
                 checkRunningCommands(event, command)
         ) {
             DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
             CommandUsers.getInstance().addUsage(event.getMessageAuthor().getId());
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
             manageSlowCommandLoadingReaction(command, event.getMessage());
+            if (command.isPatreonRequired() && (command.getUserPermissions() & Permission.MANAGE_SERVER) != 0) {
+                ServerPatreonBoost.getInstance().setTrue(event.getServer().get().getId());
+            }
 
             try {
                 sendOverwrittenSignals(event);
@@ -100,27 +102,17 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(MessageCreateEvent event, Command command) throws SQLException, ExecutionException, InterruptedException {
-        if (command.getPatreonMode() == PatreonMode.USER_LOCK && BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) == 0) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
-                    .setColor(new Color(249, 104, 84))
-                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
-                    .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", Settings.PATREON_PAGE));
-            event.getChannel().sendMessage(eb).get();
-
-            return false;
+        if (!command.isPatreonRequired() || BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) > 0) {
+            return true;
         }
 
-        if (command.getPatreonMode() == PatreonMode.SERVER_LOCK && DBPatreonServerUnlock.getInstance().getBean(event.getServer().get().getId()).getUserSlots().isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
-                    .setColor(new Color(249, 104, 84))
-                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_server_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
-                    .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_server_description", Settings.PATREON_PAGE, command.getPrefix()));
-            event.getChannel().sendMessage(eb).get();
+        EmbedBuilder eb = EmbedFactory.getEmbed()
+                .setColor(new Color(249, 104, 84))
+                .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", Settings.PATREON_PAGE));
+        event.getChannel().sendMessage(eb).get();
 
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     private static boolean checkPermissions(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {

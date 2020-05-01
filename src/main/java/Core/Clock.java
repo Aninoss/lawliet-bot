@@ -27,7 +27,6 @@ import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -115,6 +114,7 @@ public class Clock {
             RunningCommandManager.getInstance().clear(); //Resets Running Commands
             PornImageCache.getInstance().reset(); //Resets Porn Cache
             DBUpvotes.getInstance().cleanUp(); //Cleans Up Bot Upvote List
+            ServerPatreonBoost.getInstance().reset(); //Resets server patreon cache
         } catch (Exception e) {
             LOGGER.error("Exception while resetting bot", e);
         }

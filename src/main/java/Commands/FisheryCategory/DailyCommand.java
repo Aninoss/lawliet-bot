@@ -64,7 +64,7 @@ public class DailyCommand extends Command {
                 Instant nextDaily = TimeUtil.setInstantToNextDay(Instant.now());
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("claimed_desription"), getString("claimed_title"));
-                EmbedFactory.addLog(eb, null, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
+                EmbedFactory.addLog(eb, null, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
                 event.getChannel().sendMessage(eb).get();
                 return false;
             }

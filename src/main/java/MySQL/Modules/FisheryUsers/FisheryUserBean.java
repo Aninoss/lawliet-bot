@@ -5,11 +5,11 @@ import Constants.FisheryCategoryInterface;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.EmbedFactory;
+import Core.ServerPatreonBoost;
 import Core.TextManager;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
-import MySQL.Modules.PatreonServerUnlock.DBPatreonServerUnlock;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -18,7 +18,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -199,7 +198,7 @@ public class FisheryUserBean extends BeanWithServer {
     public void registerVC(int minutes) throws ExecutionException {
         if (!banned) {
             Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
-            if (limitOpt.isPresent() && DBPatreonServerUnlock.getInstance().getBean(getServerId()).getUserSlots().size() > 0)
+            if (limitOpt.isPresent() && ServerPatreonBoost.getInstance().get(getServerId()))
                 minutes = Math.min(minutes, limitOpt.get() * 60 - vcMinutes);
 
             if (minutes > 0) {

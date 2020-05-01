@@ -337,7 +337,13 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             if (validUsers.size() > 1 &&
                     (!server.getAfkChannel().isPresent() || voiceChannel.getId() != server.getAfkChannel().get().getId())
             ) {
-                validUsers.forEach(user -> serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN));
+                validUsers.forEach(user -> {
+                    try {
+                        serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Exception when registering vc", e);
+                    }
+                });
             }
         }
     }

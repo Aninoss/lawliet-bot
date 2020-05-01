@@ -65,7 +65,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 if (emojiConnection.getConnection().equalsIgnoreCase("back")) {
                     switch (state) {
                         case 0:
-                            deleteNavigationMessage();
+                            removeNavigationWithMessage();
                             return false;
 
                         case 1:

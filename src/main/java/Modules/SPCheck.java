@@ -128,7 +128,7 @@ public class SPCheck {
                     }
                 }
             }
-        } catch (ExecutionException | IOException | IllegalAccessException | InstantiationException e) {
+        } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
             LOGGER.error("Exception", e);
         }
 

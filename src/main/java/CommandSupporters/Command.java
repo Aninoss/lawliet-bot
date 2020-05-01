@@ -360,14 +360,14 @@ public abstract class Command {
             if (this instanceof OnNavigationListener) {
                 try {
                     ((OnNavigationListener) this).onNavigationTimeOut(message);
-                    if (commandProperties.deleteOnTimeOut()) deleteNavigationMessage();
+                    if (commandProperties.deleteOnTimeOut()) removeNavigationWithMessage();
                     else removeNavigation();
                 } catch (Throwable throwable) {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
             } else if (this instanceof OnReactionAddListener) {
                 try {
-                    if (commandProperties.deleteOnTimeOut()) deleteReactionMessage();
+                    if (commandProperties.deleteOnTimeOut()) removeReactionWithMessage();
                     else removeReactionListener();
                     ((OnReactionAddListener) this).onReactionTimeOut(message);
                 } catch (Throwable throwable) {
@@ -388,7 +388,7 @@ public abstract class Command {
         }
     }
 
-    public void deleteNavigationMessage() {
+    public void removeNavigationWithMessage() {
         removeNavigation();
         try {
             if (starterMessage.getChannel().canYouManageMessages() && navigationMessage.getChannel() == starterMessage.getChannel())
@@ -401,7 +401,7 @@ public abstract class Command {
         }
     }
 
-    public void deleteReactionMessage() throws InterruptedException {
+    public void removeReactionWithMessage() throws InterruptedException {
         Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
         try {
@@ -548,7 +548,7 @@ public abstract class Command {
     public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getCooldownTime() { return commandProperties.cooldownTime(); }
     public int getMaxCalculationTimeSec() { return commandProperties.maxCalculationTimeSec(); }
-    public PatreonMode getPatreonMode() { return commandProperties.patronMode(); }
+    public boolean isPatreonRequired() { return commandProperties.patronRequired(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {

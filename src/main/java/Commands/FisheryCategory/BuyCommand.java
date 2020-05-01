@@ -65,7 +65,7 @@ public class BuyCommand extends Command implements OnNavigationListener {
     public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             if (i == -1) {
-                deleteNavigationMessage();
+                removeNavigationWithMessage();
                 return false;
             } else if (i >= 0) {
                 synchronized(event.getUser())  {

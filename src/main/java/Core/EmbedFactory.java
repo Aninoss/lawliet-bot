@@ -15,11 +15,11 @@ public class EmbedFactory {
     public static final Color SUCCESS_EMBED_COLOR = Color.GREEN;
     public static final Color FAILED_EMBED_COLOR = Color.RED;
 
-    public static EmbedBuilder getCommandEmbedStandard(Command command) throws IOException {
+    public static EmbedBuilder getCommandEmbedStandard(Command command) {
         return getCommandEmbedStandard(command,null);
     }
 
-    public static EmbedBuilder getCommandEmbedStandard(Command command, String description) throws IOException {
+    public static EmbedBuilder getCommandEmbedStandard(Command command, String description) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(DEFAULT_EMBED_COLOR)
                 .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), TextManager.COMMANDS, command.getTrigger()+"_title"))
@@ -30,15 +30,15 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getCommandEmbedStandard(Command command, String description, String title) throws IOException {
+    public static EmbedBuilder getCommandEmbedStandard(Command command, String description, String title) {
         return getCommandEmbedStandard(command, description).setTitle(command.getEmoji()+" "+title);
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command) throws IOException {
+    public static EmbedBuilder getCommandEmbedSuccess(Command command) {
         return getCommandEmbedSuccess(command,null);
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description) throws IOException {
+    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(SUCCESS_EMBED_COLOR)
                 .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "success"))
@@ -49,15 +49,15 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description, String title) throws IOException {
+    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description, String title) {
         return getCommandEmbedSuccess(command, description).setTitle(command.getEmoji()+" "+title);
     }
 
-    public static EmbedBuilder getCommandEmbedError(Command command) throws IOException {
+    public static EmbedBuilder getCommandEmbedError(Command command) {
         return getCommandEmbedError(command,null);
     }
 
-    public static EmbedBuilder getCommandEmbedError(Command command, String description) throws IOException {
+    public static EmbedBuilder getCommandEmbedError(Command command, String description) {
         EmbedBuilder eb =  new EmbedBuilder()
                 .setColor(FAILED_EMBED_COLOR)
                 .setTitle(TextManager.getString(command.getLocale(),TextManager.GENERAL,"wrong_args"))
@@ -71,7 +71,7 @@ public class EmbedFactory {
         return getCommandEmbedError(command, description).setTitle(title);
     }
 
-    public static EmbedBuilder getNSFWBlockEmbed(Locale locale) throws IOException {
+    public static EmbedBuilder getNSFWBlockEmbed(Locale locale) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(FAILED_EMBED_COLOR)
                 .setTitle(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_title"))

@@ -139,6 +139,7 @@ public class CommandContainer {
         commandList.add(SleepCommand.class);
         commandList.add(NoseBleedCommand.class);
         commandList.add(LaughCommand.class);
+        commandList.add(YawnCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);
@@ -163,8 +164,10 @@ public class CommandContainer {
         commandList.add(LoveCommand.class);
         commandList.add(HugCommand.class);
         commandList.add(YaoiHugCommand.class);
+        commandList.add(YuriHugCommand.class);
         commandList.add(CuddleCommand.class);
         commandList.add(YaoiCuddleCommand.class);
+        commandList.add(YuriCuddleCommand.class);
         commandList.add(KissCommand.class);
         commandList.add(YaoiKissCommand.class);
         commandList.add(YuriKissCommand.class);
