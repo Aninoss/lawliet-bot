@@ -55,7 +55,6 @@ public class AccountCommand extends Command {
             for(User user: list) {
                 EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId()).getAccountEmbed();
                 if (eb != null) {
-                    eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
                     if (!userMentioned)
                         eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                     event.getChannel().sendMessage(eb).get();

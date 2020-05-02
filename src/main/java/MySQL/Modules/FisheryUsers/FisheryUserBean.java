@@ -7,6 +7,7 @@ import Constants.Settings;
 import Core.EmbedFactory;
 import Core.ServerPatreonBoost;
 import Core.TextManager;
+import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
@@ -19,6 +20,7 @@ import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.*;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -278,10 +280,22 @@ public class FisheryUserBean extends BeanWithServer {
 
         if (user == null) return null;
 
+        boolean patron = false;
+        try {
+            patron = BotUtil.getUserDonationStatus(user) >= 1;
+        } catch (SQLException throwables) {
+            LOGGER.error("Error in donation check", throwables);
+        }
+
+        String patreonEmoji = "\uD83D\uDC51";
+        String displayName = user.getDisplayName(server);
+        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) displayName = displayName.substring(patreonEmoji.length());
+
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", user.getDisplayName(server)), "", user.getAvatar())
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), "", user.getAvatar())
                 .setThumbnail(user.getAvatar());
 
+        if (patron) eb.setColor(Color.YELLOW);
         if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0))
             eb.setColor(Color.GREEN);
         else if (coinsAdd <= 0 && (fishAdd < 0 || coinsAdd < 0))

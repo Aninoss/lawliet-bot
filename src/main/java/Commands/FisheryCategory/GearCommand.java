@@ -67,7 +67,6 @@ public class GearCommand extends Command {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("desc", StringUtil.numToString(getLocale(), fisheryUserBean.getFish()), StringUtil.numToString(getLocale(), fisheryUserBean.getCoins())));
                 if (eb != null) {
                     eb.setTitle("");
-                    eb.setAuthor(getString("author", user.getDisplayName(server)), "", user.getAvatar());
                     eb.setThumbnail(user.getAvatar());
 
                     //Gear

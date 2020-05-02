@@ -5,6 +5,10 @@ import Constants.Permission;
 import Core.PermissionCheck;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "ban",
@@ -16,9 +20,16 @@ import org.javacord.api.entity.user.User;
 )
 public class BanCommand extends WarnCommand  {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(BanCommand.class);
+
     @Override
     public void process(Server server, User user) throws Throwable {
-        server.banUser(user, 7, reason).get();
+        try {
+            server.banUser(user, 7, reason).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Exception on ban", e);
+            server.banUser(user).get();
+        }
     }
 
     @Override

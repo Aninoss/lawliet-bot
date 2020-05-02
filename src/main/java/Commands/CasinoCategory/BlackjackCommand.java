@@ -143,8 +143,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         }
     }
 
-    private void onCPUTurn() {
-        try {
+    private void onCPUTurn() throws ExecutionException, InterruptedException, IOException {
             while (true) {
                 Thread.sleep(TIME_BETWEEN_EVENTS);
 
@@ -217,9 +216,6 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                     }
                 }
             }
-        } catch (IOException | InterruptedException | ExecutionException e) {
-            LOGGER.error("Exception", e);
-        }
     }
 
     @Override

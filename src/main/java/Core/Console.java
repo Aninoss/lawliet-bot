@@ -92,7 +92,7 @@ public class Console {
 
                                 break;
 
-                            case "donation":
+                            case "donation_insert":
                                 try {
                                     long userId = Long.parseLong(arg.split(" ")[0]);
                                     double usDollars = Double.parseDouble(arg.split(" ")[1]);
@@ -170,6 +170,16 @@ public class Console {
                                     );
                                 }
                                 LOGGER.info("---------------");
+                                break;
+
+                            case "donation":
+                                try {
+                                    long userId = Long.parseLong(arg.split(" ")[0]);
+                                    User user = DiscordApiCollection.getInstance().getUserById(userId).get();
+                                    System.out.println(BotUtil.getUserDonationStatus(user));
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage donation", e);
+                                }
                                 break;
                         }
                     }

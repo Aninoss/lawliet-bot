@@ -125,7 +125,7 @@ public class CommandManager {
 
         if (event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbed()
-                    .setColor(new Color(249, 104, 84))
+                    .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
             event.getChannel().sendMessage(eb).get();

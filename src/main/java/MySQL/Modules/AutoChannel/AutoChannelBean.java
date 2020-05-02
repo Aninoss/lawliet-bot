@@ -56,7 +56,7 @@ public class AutoChannelBean extends BeanWithServer {
         return nameMask;
     }
 
-    public CustomObservableList<Long> getChildChannels() {
+    public synchronized CustomObservableList<Long> getChildChannels() {
         if (childChannels == null) LOGGER.error("Child channels is null");
         return childChannels;
     }
