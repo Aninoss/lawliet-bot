@@ -16,7 +16,6 @@ public @interface CommandProperties {
     int botPermissions() default 0;
     int userPermissions() default 0;
     boolean requiresEmbeds() default true;
-    int cooldownTime() default 10;
     int maxCalculationTimeSec() default 30;
     boolean patronRequired() default false;
 }

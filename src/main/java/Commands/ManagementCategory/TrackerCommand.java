@@ -193,6 +193,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 null
         );
         DBTracker.getInstance().getBean().getMap().put(new Pair<>(channelId, commandTrigger), slot);
+        slot.start();
         setState(1);
         setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
     }

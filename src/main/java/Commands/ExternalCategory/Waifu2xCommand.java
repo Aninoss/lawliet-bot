@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         aliases = {"waifu4x"}
 )
-public class IncreaseResolutionCommand extends Command {
+public class Waifu2xCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -43,7 +43,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     private String[] answers;
     private int correctAnswer;
     private int answerSelected;
-    private final int COUNTER = 15;
+    private final int COUNTER = 10;
     String url;
 
     public QuizCommand() {
@@ -109,7 +109,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             winMultiplicator = answers.length * (difficulty+1) / 8.0;
 
             message = event.getChannel().sendMessage(getEmbed()).get();
-            Thread t = new CustomThread(this::countdown, "quiz_countdown", 1);
+            new CustomThread(this::countdown, "quiz_countdown", 1).start();
 
             for(int i=0; i<answers.length; i++) message.addReaction(LetterEmojis.LETTERS[i]);
 
@@ -119,7 +119,6 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     private void countdown() {
-        Thread.currentThread().setName("activity_countdown");
         try {
             Thread.sleep(COUNTER * 1000);
             if (active) {

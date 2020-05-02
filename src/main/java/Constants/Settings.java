@@ -21,7 +21,8 @@ public interface Settings {
     String EMPTY_EMOJI = "⠀";
     String[] NSFW_FILTERS = {"shota", "loli", "bestiality", "beastiality", "cub", "vore", "gore", "scat", "rape"};
     int UPDATE_HOUR = 7;
-    long[] DONATION_ROLE_IDS = { 703303395867492453L, 704721905453629481L, 704721939968688249L };
+    int COOLDOWN_TIME_SEC = 10;
+    long[] DONATION_ROLE_IDS = { 703303395867492453L, 704721905453629481L, 704721939968688249L, 706143381784494132L, 706143478085582898L };
 
     String[] VERSIONS = {
             "2.0.0",
@@ -40,5 +41,4 @@ public interface Settings {
             "2.13.1", "2.13.2", "2.13.3", "2.13.4", "2.13.5", "2.13.6", "2.13.7", "2.13.8", "2.13.9", "2.13.10", "2.13.11",
             "2.14.1", "2.14.2", "2.14.3"
     };
-
 }

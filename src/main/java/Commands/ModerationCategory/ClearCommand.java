@@ -19,13 +19,14 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-    trigger = "clear",
-    botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
-    userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
-    withLoadingBar = true,
-    emoji = "\uD83D\uDDD1\uFE0F",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
-    executable = false
+        trigger = "clear",
+        botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+        userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+        withLoadingBar = true,
+        emoji = "\uD83D\uDDD1\uFE0F",
+        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
+        maxCalculationTimeSec = 5 * 60,
+        executable = false
 )
 public class ClearCommand extends Command {
 

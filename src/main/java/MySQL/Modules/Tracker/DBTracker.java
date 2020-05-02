@@ -33,7 +33,7 @@ public class DBTracker extends DBCached {
             } catch (SQLException e) {
                 LOGGER.error("Could not get bean", e);
             }
-        }, "tracker_init", 1);
+        }, "tracker_init");
         t.start();
     }
 
@@ -44,7 +44,6 @@ public class DBTracker extends DBCached {
                             slot -> new Pair<>(slot.getChannelId(), slot.getCommandTrigger()),
                             resultSet -> {
                                 try {
-                                    if (Bot.isProductionMode()) Thread.sleep(500);
                                     return new TrackerBeanSlot(
                                             DBServer.getInstance().getBean(resultSet.getLong(1)),
                                             resultSet.getLong(2),
@@ -54,7 +53,7 @@ public class DBTracker extends DBCached {
                                             resultSet.getTimestamp(6).toInstant(),
                                             resultSet.getString(7)
                                     );
-                                } catch (ExecutionException | InterruptedException e) {
+                                } catch (ExecutionException e) {
                                     LOGGER.error("Exception when creating tracker bean", e);
                                 }
                                 return null;

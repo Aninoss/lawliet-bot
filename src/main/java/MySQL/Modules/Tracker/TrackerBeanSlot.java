@@ -32,6 +32,7 @@ public class TrackerBeanSlot extends BeanWithServer {
     private String args;
     private Instant nextRequest;
     private Thread thread = null;
+    private boolean started = false;
 
     public TrackerBeanSlot(ServerBean serverBean, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
         super(serverBean);
@@ -41,8 +42,6 @@ public class TrackerBeanSlot extends BeanWithServer {
         this.commandKey = commandKey;
         this.args = args;
         this.nextRequest = nextRequest;
-
-        if (getServer().isPresent()) start(serverBean);
     }
 
 
@@ -102,7 +101,11 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     /* Actions */
 
-    private void start(ServerBean serverBean) {
+    public void start() {
+        if (started) return;
+        started = true;
+        ServerBean serverBean = getServerBean();
+
         Thread t = new CustomThread(() -> {
             thread = Thread.currentThread();
             Locale locale = serverBean.getLocale();
@@ -146,7 +149,7 @@ public class TrackerBeanSlot extends BeanWithServer {
                     return false;
 
                 case STOP_AND_SAVE:
-                    while (countObservers() == 0) Thread.sleep(100);
+                    waitforObservers();
                     setChanged();
                     notifyObservers();
                     return false;
@@ -155,7 +158,7 @@ public class TrackerBeanSlot extends BeanWithServer {
                     return true;
 
                 case CONTINUE_AND_SAVE:
-                    while (countObservers() == 0) Thread.sleep(100);
+                    waitforObservers();
                     setChanged();
                     notifyObservers();
                     return true;
@@ -163,6 +166,18 @@ public class TrackerBeanSlot extends BeanWithServer {
         }
 
         return false;
+    }
+
+    private void waitforObservers() throws InterruptedException {
+        int i = 0;
+        while (countObservers() == 0) {
+            Thread.sleep(100);
+            if (i >= 10) {
+                LOGGER.error("Tracker no observer added");
+                break;
+            }
+            i++;
+        }
     }
 
     public void stop() {
