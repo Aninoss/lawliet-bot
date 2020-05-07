@@ -9,6 +9,7 @@ import Constants.Settings;
 import Core.*;
 import CommandSupporters.Cooldown.Cooldown;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Core.Mention.MentionUtil;
 import Core.Utils.BotUtil;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
@@ -20,7 +21,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.awt.*;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class CommandManager {
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
             manageSlowCommandLoadingReaction(command, event.getMessage());
             if (command.isPatreonRequired() && (command.getUserPermissions() & Permission.MANAGE_SERVER) != 0) {
-                ServerPatreonBoost.getInstance().setTrue(event.getServer().get().getId());
+                ServerPatreonBoostCache.getInstance().setTrue(event.getServer().get().getId());
             }
 
             try {
@@ -68,8 +69,8 @@ public class CommandManager {
         }
     }
 
-    private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException, SQLException {
-        if (BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) >= 2) return true;
+    private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
+        if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2) return true;
 
         if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard(), command.getMaxCalculationTimeSec())) {
             return true;
@@ -91,7 +92,7 @@ public class CommandManager {
     }
 
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException, SQLException {
-        if (BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) >= 2) return true;
+        if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2) return true;
 
         Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
         if (!waitingSec.isPresent()) {
@@ -110,6 +111,8 @@ public class CommandManager {
             } else if (event.getChannel().canYouWrite()) {
                 event.getChannel().sendMessage(EMOJI_NO_EMBED + desc).get();
             }
+
+            Thread.sleep(5000);
             addErrorEmoji(event);
         }
 
@@ -117,7 +120,7 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(MessageCreateEvent event, Command command) throws SQLException, ExecutionException, InterruptedException {
-        if (!command.isPatreonRequired() || BotUtil.getUserDonationStatus(event.getMessageAuthor().asUser().get()) > 0) {
+        if (!command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 0) {
             return true;
         }
 
@@ -207,8 +210,14 @@ public class CommandManager {
         }
 
         if (event.getChannel().canYouAddNewReactions()) {
-            event.addReactionsToMessage("❌");
-            //event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
+            if (event.getChannel().canYouUseExternalEmojis())
+                event.addReactionsToMessage(DiscordApiCollection.getInstance().getHomeEmojiById(707952533267677204L));
+            else
+                event.addReactionsToMessage("❌");
+            event.addReactionsToMessage("✍️");
+
+            if (PermissionCheck.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
+                event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
         }
 
         return false;

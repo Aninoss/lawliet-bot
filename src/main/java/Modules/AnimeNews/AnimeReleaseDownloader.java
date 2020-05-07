@@ -24,7 +24,7 @@ public class AnimeReleaseDownloader {
         if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
         else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 14 * 60).get();
         String postString = httpResponse.getContent().get();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");

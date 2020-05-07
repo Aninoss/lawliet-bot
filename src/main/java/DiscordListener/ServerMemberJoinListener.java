@@ -58,7 +58,7 @@ public class ServerMemberJoinListener {
                                                         user.getMentionTag(),
                                                         user.getName(),
                                                         user.getDiscriminatedName(),
-                                                        StringUtil.numToString(locale, server.getMembers().size())
+                                                        StringUtil.numToString(locale, server.getMemberCount())
                                                 )
                                         ),
                                         image,
@@ -73,7 +73,7 @@ public class ServerMemberJoinListener {
                                                         user.getMentionTag(),
                                                         user.getName(),
                                                         user.getDiscriminatedName(),
-                                                        StringUtil.numToString(locale, server.getMembers().size())
+                                                        StringUtil.numToString(locale, server.getMemberCount())
                                                 )
                                         )
                                 ).get();

@@ -1,11 +1,19 @@
 package Core;
 
+import Commands.ModerationCategory.ClearCommand;
+import MySQL.Modules.Tracker.TrackerBean;
+import MySQL.Modules.Tracker.TrackerBeanSlot;
 import com.sun.javafx.collections.ObservableMapWrapper;
 import javafx.collections.MapChangeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.function.Function;
 
 public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implements Observer {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(CustomObservableMap.class);
 
     private final ArrayList<MapAddListener<T, U>> mapAddListeners = new ArrayList<>();
     private final ArrayList<MapRemoveListener<T, U>> mapRemoveListeners = new ArrayList<>();

@@ -3,6 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
+import Commands.FisheryAbstract;
 import Constants.*;
 import Core.*;
 import Core.Utils.StringUtil;
@@ -32,7 +33,7 @@ import java.util.concurrent.ExecutionException;
         executable = true,
         aliases = {"shop", "upgrade"}
 )
-public class BuyCommand extends Command implements OnNavigationListener {
+public class BuyCommand extends FisheryAbstract implements OnNavigationListener {
 
     private FisheryUserBean fisheryUserBean;
     private FisheryServerBean fisheryServerBean;
@@ -41,21 +42,14 @@ public class BuyCommand extends Command implements OnNavigationListener {
     private ServerBean serverBean;
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
-        if (status == FisheryStatus.ACTIVE) {
-            serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-            server = event.getServer().get();
-            fisheryUserBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(event.getMessageAuthor().getId());
-            fisheryServerBean = fisheryUserBean.getFisheryServerBean();
+    protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+        serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        server = event.getServer().get();
+        fisheryUserBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(event.getMessageAuthor().getId());
+        fisheryServerBean = fisheryUserBean.getFisheryServerBean();
 
-            checkRolesWithLog(fisheryServerBean.getRoles(), null);
-            return true;
-        } else {
-            setState(1);
-            removeNavigation();
-            return false;
-        }
+        checkRolesWithLog(fisheryServerBean.getRoles(), null);
+        return true;
     }
 
     @Override

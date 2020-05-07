@@ -3,6 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
+import Commands.FisheryAbstract;
 import Constants.*;
 import Core.EmbedFactory;
 import Core.TextManager;
@@ -25,38 +26,31 @@ import java.time.temporal.ChronoUnit;
     emoji = "\uD83C\uDF80",
     executable = true
 )
-public class ClaimCommand extends Command {
+public class ClaimCommand extends FisheryAbstract {
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
+    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+        Instant nextUpvote = DBUpvotes.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).getLastUpvote().plus(12, ChronoUnit.HOURS);
+        FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        int upvotesUnclaimed = userBean.getUpvoteStack();
+        userBean.clearUpvoteStack();
 
-        if (status == FisheryStatus.ACTIVE) {
-            Instant nextUpvote = DBUpvotes.getInstance().getBean(event.getMessage().getUserAuthor().get().getId()).getLastUpvote().plus(12, ChronoUnit.HOURS);
-            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
-            int upvotesUnclaimed = userBean.getUpvoteStack();
-            userBean.clearUpvoteStack();
+        if (upvotesUnclaimed == 0) {
 
-            if (upvotesUnclaimed == 0) {
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("nothing_description", Settings.UPVOTE_URL), getString("nothing_title"));
+            if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("nothing_description", Settings.UPVOTE_URL), getString("nothing_title"));
-                if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-
-                event.getChannel().sendMessage(eb).get();
-                return false;
-            } else {
-                long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
-
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
-                if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-
-                event.getChannel().sendMessage(eb);
-                event.getChannel().sendMessage(userBean.changeValues(Math.round(fishes * 0.25 * upvotesUnclaimed), 0)).get();
-                return true;
-            }
-        } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(eb).get();
             return false;
+        } else {
+            long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
+
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
+            if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
+
+            event.getChannel().sendMessage(eb);
+            event.getChannel().sendMessage(userBean.changeValues(Math.round(fishes * 0.25 * upvotesUnclaimed), 0)).get();
+            return true;
         }
     }
 

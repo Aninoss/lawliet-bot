@@ -5,7 +5,8 @@ import Constants.FisheryCategoryInterface;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.EmbedFactory;
-import Core.ServerPatreonBoost;
+import Core.PatreonCache;
+import Core.ServerPatreonBoostCache;
 import Core.TextManager;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
@@ -200,7 +201,7 @@ public class FisheryUserBean extends BeanWithServer {
     public void registerVC(int minutes) throws ExecutionException {
         if (!banned) {
             Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
-            if (limitOpt.isPresent() && ServerPatreonBoost.getInstance().get(getServerId()))
+            if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getServerId()))
                 minutes = Math.min(minutes, limitOpt.get() * 60 - vcMinutes);
 
             if (minutes > 0) {
@@ -282,8 +283,8 @@ public class FisheryUserBean extends BeanWithServer {
 
         boolean patron = false;
         try {
-            patron = BotUtil.getUserDonationStatus(user) >= 1;
-        } catch (SQLException throwables) {
+            patron = PatreonCache.getInstance().getPatreonLevel(userId) >= 1;
+        } catch (ExecutionException throwables) {
             LOGGER.error("Error in donation check", throwables);
         }
 

@@ -281,7 +281,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         user.getMentionTag(),
                         user.getName(),
                         user.getDiscriminatedName(),
-                        StringUtil.numToString(getLocale(), server.getMembers().size())));
+                        StringUtil.numToString(getLocale(), server.getMemberCount())));
 
         eb.setImage(InternetUtil.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
         return eb;

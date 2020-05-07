@@ -140,7 +140,7 @@ public class Console {
 
                             case "server":
                                 long serverId = Long.parseLong(arg);
-                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMembers().size()));
+                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount()));
                                 break;
 
                             case "clear":
@@ -175,8 +175,7 @@ public class Console {
                             case "donation":
                                 try {
                                     long userId = Long.parseLong(arg.split(" ")[0]);
-                                    User user = DiscordApiCollection.getInstance().getUserById(userId).get();
-                                    System.out.println(BotUtil.getUserDonationStatus(user));
+                                    System.out.println(PatreonCache.getInstance().getPatreonLevel(userId));
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage donation", e);
                                 }

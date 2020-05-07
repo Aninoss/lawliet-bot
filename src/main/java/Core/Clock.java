@@ -114,7 +114,8 @@ public class Clock {
             RunningCommandManager.getInstance().clear(); //Resets Running Commands
             PornImageCache.getInstance().reset(); //Resets Porn Cache
             DBUpvotes.getInstance().cleanUp(); //Cleans Up Bot Upvote List
-            ServerPatreonBoost.getInstance().reset(); //Resets server patreon cache
+            ServerPatreonBoostCache.getInstance().reset(); //Resets server patreon boost cache
+            PatreonCache.getInstance().reset(); //Resets patreon cache
         } catch (Exception e) {
             LOGGER.error("Exception while resetting bot", e);
         }
@@ -218,7 +219,11 @@ public class Clock {
             if (hour == Settings.UPDATE_HOUR && readyForRestart) {
                 readyForRestart = false;
                 LOGGER.info("Backup database...");
-                SystemUtil.backupDB();
+                try {
+                    SystemUtil.backupDB();
+                } catch (Exception e) {
+                    LOGGER.error("Error while creating database backup", e);
+                }
 
                 if (Bot.hasUpdate()) {
                     LOGGER.info("Restarting for update...");

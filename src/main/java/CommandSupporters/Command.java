@@ -328,7 +328,7 @@ public abstract class Command {
     }
 
     private void setResultReaction(Message message, boolean successful) {
-        if (message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
+        if (!successful && message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
             message.addReaction(StringUtil.getEmojiForBoolean(successful));
         }
     }

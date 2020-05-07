@@ -36,7 +36,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
 
     private String log;
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};
-    private int[] selection = {-1, -1};
+    private final int[] selection = {-1, -1};
     private LogStatus logStatus;
 
     @Override

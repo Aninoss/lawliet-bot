@@ -6,6 +6,7 @@ import CommandSupporters.CommandManager;
 import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
 import Core.CustomThread;
+import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
 import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
@@ -80,21 +81,18 @@ public class TrackerBeanSlot extends BeanWithServer {
     public void setMessageId(Long messageId) {
         if (this.messageId == null || !this.messageId.equals(messageId)) {
             this.messageId = messageId;
-            setChanged();
         }
     }
 
     public void setArgs(String args) {
         if (this.args == null || !this.args.equals(args)) {
             this.args = args;
-            setChanged();
         }
     }
 
     public void setNextRequest(Instant nextRequest) {
         if (this.nextRequest == null || !this.nextRequest.equals(nextRequest)) {
             this.nextRequest = nextRequest;
-            setChanged();
         }
     }
 

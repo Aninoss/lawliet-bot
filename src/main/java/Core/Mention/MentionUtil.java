@@ -468,8 +468,8 @@ public class MentionUtil {
                     if (part.endsWith("%")) return (long) Math.abs(value / 100.0 * available);
 
                     if (part.endsWith("k")) return value * 1000;
-                    if (part.endsWith("m") || part.endsWith("mio")) return value * 1000000;
-                    if (part.endsWith("b")) return value * 1000000000;
+                    if (part.endsWith("m") || part.endsWith("mio") || part.endsWith("kk")) return value * 1000000;
+                    if (part.endsWith("b") || part.endsWith("kkk")) return value * 1000000000;
 
                     return value;
                 }

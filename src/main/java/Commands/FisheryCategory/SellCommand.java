@@ -2,6 +2,7 @@ package Commands.FisheryCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
+import Commands.FisheryAbstract;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Constants.Response;
@@ -29,32 +30,26 @@ import java.util.concurrent.ExecutionException;
     emoji = "\uD83D\uDCE4",
     executable = true
 )
-public class SellCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {
+public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnForwardedRecievedListener {
 
     private Message message;
     private FisheryUserBean userBean;
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
-        if (status == FisheryStatus.ACTIVE) {
-            userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
-            if (followedString.length() > 0) {
-                return mainExecution(event, followedString);
-            } else {
-                message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
-                        getString("status",
-                                StringUtil.numToString(getLocale(), userBean.getFish()),
-                                StringUtil.numToString(getLocale(), userBean.getCoins()),
-                                StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
-                                getChangeEmoji()
-                        ))).get();
-                message.addReaction("❌");
-                return true;
-            }
+    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+        userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        if (followedString.length() > 0) {
+            return mainExecution(event, followedString);
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
-            return false;
+            message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
+                    getString("status",
+                            StringUtil.numToString(getLocale(), userBean.getFish()),
+                            StringUtil.numToString(getLocale(), userBean.getCoins()),
+                            StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
+                            getChangeEmoji()
+                    ))).get();
+            message.addReaction("❌");
+            return true;
         }
     }
 

@@ -34,7 +34,6 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     private LogStatus logStatus;
     private boolean first;
     private final String[] FRUITS_CONTAINER = {"\uD83C\uDF47", "\uD83C\uDF48", "\uD83C\uDF49", "\uD83C\uDF4A", "\uD83C\uDF4B", "\uD83C\uDF4C", "\uD83C\uDF4D", "\uD83C\uDF4E", "\uD83C\uDF50", "\uD83C\uDF51", "\uD83C\uDF52", "\uD83C\uDF53", "\uD83C\uDD92"};
-    private final String[] NUMBERS = {"1⃣", "2⃣", "3⃣"};
     private final double[] WIN_POSSABILITIES = {10, 20, 100, 200};
     private final double[] WIN_AMOUNT_ADJUSTMENT = {1.6, 1.2, 0.8, 0.4};
     private int[] fruits;
@@ -63,7 +62,6 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
 
             message = event.getChannel().sendMessage(getEmbed()).get();
             message.addReaction(ALL_EMOJI);
-            for (String str : NUMBERS) message.addReaction(str);
 
             return true;
         }
@@ -109,7 +107,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
         }
     }
 
-    private EmbedBuilder getEmbed() throws IOException {
+    private EmbedBuilder getEmbed() {
         String key = "template";
         if (first) {
             key = "template_start";
@@ -176,20 +174,16 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
 
         if (event.getEmoji().isUnicodeEmoji()) {
             if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(ALL_EMOJI)) {
-                for(int i=0; i<3; i++) progress[i] = true;
+                removeReactionListener();
+                message.edit(getEmbed());
+                for(int i = 0; i < 3; i++) {
+                    Thread.sleep(1000);
+                    progress[i] = true;
+                    message.edit(getEmbed());
+                }
+                Thread.sleep(500);
                 manageEnd();
                 message.edit(getEmbed());
-                return;
-            }
-
-            for(int i=0; i<NUMBERS.length; i++) {
-                String str = NUMBERS[i];
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(str) && !progress[i]) {
-                    progress[i] = true;
-                    manageEnd();
-                    message.edit(getEmbed());
-                    break;
-                }
             }
         }
     }

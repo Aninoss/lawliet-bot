@@ -19,7 +19,10 @@ public class TrackerBean extends Observable {
 
     public TrackerBean(@NonNull HashMap<Pair<Long, String>, TrackerBeanSlot> slots) {
         this.slots = new CustomObservableMap<>(slots);
-        this.slots.values().forEach(slot -> {
+    }
+
+    public void start() {
+        slots.values().forEach(slot -> {
             try {
                 if (slot.getServer().isPresent()) {
                     if (Bot.isProductionMode()) Thread.sleep(500);

@@ -24,6 +24,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "help",
@@ -229,7 +230,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     }
 
-    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, SQLException {
+    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, ExecutionException {
         StringBuilder commands = new StringBuilder();
 
         int i = 0;
@@ -241,7 +242,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
-                        !command.isPatreonRequired() || BotUtil.getUserDonationStatus(author) > 0;
+                        !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 0;
 
                 commands.append("**")
                         .append(LetterEmojis.LETTERS[i])

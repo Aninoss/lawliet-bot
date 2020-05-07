@@ -31,7 +31,7 @@ public class OnEventServerMembers implements DataListener<JSONObject> {
                     JSONObject mainJSON = new JSONObject()
                             .put("user_id", userId)
                             .put("members_online", server.getMembers().stream().filter(userCheck -> userCheck.getStatus() != UserStatus.OFFLINE).count())
-                            .put("members_total", server.getMembers().size());
+                            .put("members_total", server.getMemberCount());
 
                     //Send Data
                     socketIOClient.sendEvent(WebComServer.EVENT_SERVERMEMBERS, mainJSON.toString());

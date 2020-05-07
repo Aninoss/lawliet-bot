@@ -2,6 +2,7 @@ package MySQL.Modules.Tracker;
 
 import Core.Bot;
 import Core.CustomThread;
+import Core.DiscordApiCollection;
 import MySQL.DBCached;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
@@ -65,6 +66,8 @@ public class DBTracker extends DBCached {
                     .addMapAddListener(this::insertTracker)
                     .addMapUpdateListener(this::insertTracker)
                     .addMapRemoveListener(this::removeTracker);
+
+            trackerBean.start();
         }
 
         return trackerBean;

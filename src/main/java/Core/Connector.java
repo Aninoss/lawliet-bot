@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.io.*;
-import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
@@ -252,6 +251,18 @@ public class Connector {
                 Thread t = new CustomThread(() -> {
                     new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);
                 }, "server_change_userlimit");
+                t.start();
+            });
+            api.addUserRoleAddListener(event -> {
+                Thread t = new CustomThread(() -> {
+                    new UserRoleAddListener().onUserRoleAdd(event);
+                }, "user_role_add");
+                t.start();
+            });
+            api.addUserRoleRemoveListener(event -> {
+                Thread t = new CustomThread(() -> {
+                    new UserRoleRemoveListener().onUserRoleRemove(event);
+                }, "user_role_remove");
                 t.start();
             });
             api.addReconnectListener(event -> {

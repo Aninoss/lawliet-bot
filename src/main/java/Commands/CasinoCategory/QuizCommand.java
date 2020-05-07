@@ -50,10 +50,16 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         super();
         url = "https://opentdb.com/api.php?amount=1";
     }
-
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        if (onGameStart(event, followedString)) {
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this,
+                TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down"),
+                TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down_title")
+        );
+        event.getChannel().sendMessage(eb).get();
+        return false;
+
+        /*if (onGameStart(event, followedString)) {
 
             if (!allowBet) {
                 logStatus = LogStatus.WARNING;
@@ -115,7 +121,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
 
             return true;
         }
-        return false;
+        return false;*/
     }
 
     private void countdown() {

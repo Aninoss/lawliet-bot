@@ -3,6 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
+import Commands.FisheryAbstract;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
@@ -29,64 +30,56 @@ import java.util.ArrayList;
         executable = false,
         aliases = {"gift"}
 )
-public class GiveCommand extends Command {
+public class GiveCommand extends FisheryAbstract {
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        if (event.getMessage().getUserAuthor().get().isBot()) return false;
+    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+        Server server = event.getServer().get();
+        Message message = event.getMessage();
+        MentionList<User> userMarked = MentionUtil.getUsers(message, followedString);
+        ArrayList<User> list = userMarked.getList();
+        list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
 
-        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
-        if (status == FisheryStatus.ACTIVE) {
-            Server server = event.getServer().get();
-            Message message = event.getMessage();
-            MentionList<User> userMarked = MentionUtil.getUsers(message,followedString);
-            ArrayList<User> list = userMarked.getList();
-            list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
-
-            if (list.size() == 0) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,getString( "no_mentions"))).get();
-                return false;
-            }
-
-            followedString = userMarked.getResultMessageString();
-
-            User user0 = event.getMessage().getUserAuthor().get();
-            User user1 = list.get(0);
-
-            if (server.getId() == 418223406698332173L) {
-                Role role = server.getRoleById(660459523676438528L).get();
-                if (!role.getUsers().contains(user0)) return false;
-            }
-
-            FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());
-            FisheryUserBean fisheryUser1 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user1.getId());
-            long value = MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins());
-
-            if (value != -1) {
-                if (value >= 1) {
-                    if (value <= fisheryUser0.getCoins()) {
-                        EmbedBuilder eb = fisheryUser0.changeValues(0, -value);
-                        event.getChannel().sendMessage(eb);
-
-                        eb = fisheryUser1.changeValues(0, value);
-                        event.getChannel().sendMessage(eb);
-
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringUtil.numToString(getLocale(), value), user1.getMentionTag()))).get();
-                        return true;
-                    } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringUtil.numToString(getLocale(), fisheryUser0.getCoins())))).get();
-                    }
-                } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
-                }
-            } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
-            }
-
-            return false;
-        } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
+        if (list.size() == 0) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("no_mentions"))).get();
             return false;
         }
+
+        followedString = userMarked.getResultMessageString();
+
+        User user0 = event.getMessage().getUserAuthor().get();
+        User user1 = list.get(0);
+
+        if (server.getId() == 418223406698332173L) {
+            Role role = server.getRoleById(660459523676438528L).get();
+            if (!role.getUsers().contains(user0)) return false;
+        }
+
+        FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());
+        FisheryUserBean fisheryUser1 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user1.getId());
+        long value = MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins());
+
+        if (value != -1) {
+            if (value >= 1) {
+                if (value <= fisheryUser0.getCoins()) {
+                    EmbedBuilder eb = fisheryUser0.changeValues(0, -value);
+                    event.getChannel().sendMessage(eb);
+
+                    eb = fisheryUser1.changeValues(0, value);
+                    event.getChannel().sendMessage(eb);
+
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringUtil.numToString(getLocale(), value), user1.getMentionTag()))).get();
+                    return true;
+                } else {
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringUtil.numToString(getLocale(), fisheryUser0.getCoins())))).get();
+                }
+            } else {
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
+            }
+        } else {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
+        }
+
+        return false;
     }
 }

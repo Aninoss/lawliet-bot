@@ -7,12 +7,15 @@ import Constants.TrackerResult;
 import Core.*;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
+import Modules.SPCheck;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
 import MySQL.Modules.Version.VersionBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +30,8 @@ import java.util.stream.Collectors;
         aliases = {"changelog"}
 )
 public class NewCommand extends Command implements OnTrackerRequestListener {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(NewCommand.class);
 
     VersionBean versionBean;
 
@@ -74,22 +79,23 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         }
     }
 
-    private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions, boolean showEmptyFooter) throws Throwable {
+    private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
         EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
         return eb;
     }
 
-    private EmbedBuilder getVersionsEmbed(VersionBeanSlot slot) throws Throwable {
+    private EmbedBuilder getVersionsEmbed(VersionBeanSlot slot) {
         ArrayList<VersionBeanSlot> versions = new ArrayList<>();
         versions.add(slot);
         return getVersionsEmbed(versions, false);
     }
 
-    private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) throws Throwable {
+    private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
         if (showEmptyFooter) eb.setFooter(getString("footer"));
-        for(VersionBeanSlot slot: versions) {
+        for(int i = versions.size() - 1; i >= 0; i--) {
+            VersionBeanSlot slot = versions.get(i);
             eb.addField(slot.getVersion(), ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
         }
         return eb;
@@ -101,7 +107,8 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
             VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
 
             slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));
-            slot.setArgs(newestSlot.getVersion());
+            slot.setArgs(BotUtil.getCurrentVersion());
+
             return TrackerResult.STOP_AND_SAVE;
         }
 

@@ -31,7 +31,7 @@ public class ServerInfoCommand extends Command {
                 server.getRegion().getName(),
                 TimeUtil.getInstantString(getLocale(), server.getCreationTimestamp(), true),
                 server.getIcon().isPresent() ? server.getIcon().get().getUrl().toString() : "-",
-                StringUtil.numToString(getLocale(), server.getMembers().size()),
+                StringUtil.numToString(getLocale(), server.getMemberCount()),
                 StringUtil.numToString(getLocale(), server.getMembers().stream().filter(member -> !member.isBot()).count()),
                 StringUtil.numToString(getLocale(), server.getMembers().stream().filter(User::isBot).count()),
                 StringUtil.numToString(getLocale(), server.getRoles().size()),

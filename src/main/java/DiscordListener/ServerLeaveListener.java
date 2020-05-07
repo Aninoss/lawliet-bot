@@ -35,10 +35,10 @@ public class ServerLeaveListener {
             LOGGER.error("Error on server leave", e);
         }
 
-        if (event.getServer().getMembers().size() >= 500)
-            DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMembers().size() + ")");
+        if (event.getServer().getMemberCount() >= 500)
+            DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMemberCount() + ")");
 
-        LOGGER.info("--- {} ({})", event.getServer().getName(), event.getServer().getMembers().size());
+        LOGGER.info("--- {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
 
         DBServer.getInstance().remove(event.getServer().getId());
     }

@@ -138,7 +138,12 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 log = getString("stopcard", 0);
                 message.edit(getEmbed());
 
-                onCPUTurn();
+                try {
+                    onCPUTurn();
+                } catch (ExecutionException e) {
+                    onLose();
+                    LOGGER.error("Error in black jack", e);
+                }
             }
         }
     }

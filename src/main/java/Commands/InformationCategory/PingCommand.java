@@ -3,18 +3,12 @@ package Commands.InformationCategory;
 import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
-import Constants.InviteTypes;
 import Core.CustomThread;
 import Core.EmbedFactory;
-import Core.ServerPatreonBoost;
-import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
-import MySQL.Modules.InviteTypeUsages.DBInviteTypeUsages;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 

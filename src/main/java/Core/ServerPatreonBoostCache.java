@@ -1,7 +1,5 @@
 package Core;
 
-import Core.Utils.BotUtil;
-import Modules.ImageCreator;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -10,20 +8,19 @@ import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public class ServerPatreonBoost {
+public class ServerPatreonBoostCache {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerPatreonBoost.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerPatreonBoostCache.class);
 
-    private static final ServerPatreonBoost ourInstance = new ServerPatreonBoost();
+    private static final ServerPatreonBoostCache ourInstance = new ServerPatreonBoostCache();
 
-    private ServerPatreonBoost() {
+    private ServerPatreonBoostCache() {
     }
 
-    public static ServerPatreonBoost getInstance() {
+    public static ServerPatreonBoostCache getInstance() {
         return ourInstance;
     }
 
@@ -40,8 +37,8 @@ public class ServerPatreonBoost {
                                         .filter(user -> !user.isBot() && server.canManage(user))
                                         .anyMatch(user -> {
                                             try {
-                                                return BotUtil.getUserDonationStatus(user) > 0;
-                                            } catch (SQLException throwables) {
+                                                return PatreonCache.getInstance().getPatreonLevel(user.getId()) > 0;
+                                            } catch (ExecutionException throwables) {
                                                 LOGGER.error("Exception when checking donation status of user", throwables);
                                             }
                                             return false;

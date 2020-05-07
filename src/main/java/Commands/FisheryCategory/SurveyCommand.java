@@ -2,6 +2,7 @@ package Commands.FisheryCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
+import Commands.FisheryAbstract;
 import Constants.*;
 import Core.*;
 import Core.Utils.StringUtil;
@@ -31,10 +32,10 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executable = true
 )
-public class SurveyCommand extends Command implements OnReactionAddStaticListener, OnTrackerRequestListener {
+public class SurveyCommand extends FisheryAbstract implements OnReactionAddStaticListener, OnTrackerRequestListener {
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         sendMessages(event.getServerTextChannel().get(), false);
         return true;
     }
