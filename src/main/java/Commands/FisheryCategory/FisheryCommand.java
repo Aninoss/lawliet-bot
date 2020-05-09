@@ -13,6 +13,7 @@ import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -42,13 +43,10 @@ import java.util.concurrent.ExecutionException;
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
-    private static final int MAX_ROLES = 50;
     final static Logger LOGGER = LoggerFactory.getLogger(FisheryCommand.class);
 
     private ServerBean serverBean;
-    private FisheryServerBean fisheryServerBean;
     private boolean stopLock = true;
-    private CustomObservableList<Role> roles;
     private CustomObservableList<ServerTextChannel> ignoredChannels;
 
     public static final String treasureEmoji = "\uD83D\uDCB0";
@@ -58,50 +56,16 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-        fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
-        roles = fisheryServerBean.getRoles();
-        ignoredChannels = fisheryServerBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), channel -> channel.getId());
-
-        checkRolesWithLog(roles, null);
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
+        ignoredChannels = fisheryServerBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
         return true;
     }
     
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
+
             case 1:
-                ArrayList<Role> roleList = MentionUtil.getRoles(event.getMessage(), inputString).getList();
-                if (roleList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                    return Response.FALSE;
-                } else {
-                    if (!checkRolesWithLog(roleList, event.getMessage().getUserAuthor().get())) return Response.FALSE;
-
-                    int existingRoles = 0;
-                    for (Role role : roleList) {
-                        if (roles.contains(role)) existingRoles++;
-                    }
-
-                    if (existingRoles >= roleList.size()) {
-                        setLog(LogStatus.FAILURE, getString("roleexists", roleList.size() != 1));
-                        return Response.FALSE;
-                    }
-
-                    int rolesAdded = 0;
-                    for (Role role : roleList) {
-                        if (!roles.contains(role)) {
-                            roles.add(role);
-                            rolesAdded++;
-                            roles.sort(Comparator.comparingInt(Role::getPosition));
-                        }
-                    }
-
-                    setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
-                    setState(0);
-                    return Response.TRUE;
-                }
-
-            case 3:
                 ArrayList<ServerTextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
@@ -114,44 +78,6 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     return Response.TRUE;
                 }
 
-            case 4:
-                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
-                if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                    return Response.FALSE;
-                } else {
-                    ServerTextChannel channel = channelList.get(0);
-                    if (checkWriteInChannelWithLog(channel)) {
-                        serverBean.setFisheryAnnouncementChannelId(channel.getId());
-                        setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                        setState(0);
-                        return Response.TRUE;
-                    } else {
-                        return Response.FALSE;
-                    }
-                }
-
-            case 5:
-                if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
-                    String[] parts = (inputString + " ").split("-");
-                    long priceMin = StringUtil.filterNumberFromString(parts[0]);
-                    long priceMax = StringUtil.filterNumberFromString(parts[1]);
-
-                    if (priceMin >= -1 && priceMax >= -1) {
-                        if (priceMin == -1) priceMin = serverBean.getFisheryRoleMin();
-                        if (priceMax == -1) priceMax = serverBean.getFisheryRoleMax();
-                        serverBean.setFisheryRolePrices(priceMin, priceMax);
-                        setLog(LogStatus.SUCCESS, getString("pricesset"));
-                        setState(0);
-                        return Response.TRUE;
-                    } else {
-                        setLog(LogStatus.FAILURE, getString("prices_notnegative"));
-                        return Response.FALSE;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, getString("prices_wrongvalues"));
-                    return Response.FALSE;
-                }
         }
 
         return null;
@@ -177,41 +103,10 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 2:
-                        if (roles.size() < MAX_ROLES) {
-                            setState(1);
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(MAX_ROLES)));
-                            return true;
-                        }
+                        setState(1);
+                        return true;
 
                     case 3:
-                        if (roles.size() > 0) {
-                            setState(2);
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("norolesset"));
-                            return true;
-                        }
-
-                    case 4:
-                        setState(3);
-                        return true;
-
-                    case 5:
-                        serverBean.toggleFisherySingleRoles();
-                        setLog(LogStatus.SUCCESS, getString("singleroleset", serverBean.isFisherySingleRoles()));
-                        return true;
-
-                    case 6:
-                        setState(4);
-                        return true;
-
-                    case 7:
-                        setState(5);
-                        return true;
-
-                    case 8:
                         if (serverBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             serverBean.setFisheryStatus(FisheryStatus.ACTIVE);
                             stopLock = true;
@@ -221,7 +116,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         return true;
 
-                    case 9:
+                    case 4:
                         if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
@@ -237,86 +132,20 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 break;
 
             case 1:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
-                break;
-
-            case 2:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                } else if (i < roles.size()) {
-                    roles.remove(i);
-                    setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    if (roles.size() == 0) setState(0);
-                    return true;
-                }
-                break;
-
-            case 3:
                 switch (i) {
                     case -1:
                         setState(0);
                         return true;
 
                     case 0:
-                        roles.clear();
+                        ignoredChannels.clear();
                         setState(0);
                         setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                         return true;
                 }
                 break;
-
-            case 4:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        serverBean.setFisheryAnnouncementChannelId(null);
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                        return true;
-                }
-                break;
-
-            case 5:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
-                break;
         }
         return false;
-    }
-
-    private String getRoleString(Role role) {
-        int n = roles.indexOf(role);
-        try {
-            return getString("state0_rolestring", role.getMentionTag(), StringUtil.numToString(getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
-        } catch (ExecutionException e) {
-            LOGGER.error("Exception", e);
-            return "";
-        }
-    }
-
-    public static long getFisheryRolePrice(Server server, List<Long> roleIds, int n) throws ExecutionException {
-        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
-
-        double priceIdealMin = serverBean.getFisheryRoleMin();
-        double priceIdealMax = serverBean.getFisheryRoleMax();
-
-        if (roleIds.size() == 1) return (long) priceIdealMin;
-
-        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double)(roleIds.size() - 1));
-
-        double price = Math.pow(power, n);
-        double priceMax = Math.pow(power, roleIds.size() - 1);
-
-        return Math.round(price * (priceIdealMax / priceMax));
     }
 
     @Override
@@ -327,39 +156,15 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
             case 0:
                 setOptions(getString("state0_options_"+ serverBean.getFisheryStatus().ordinal()).split("\n"));
 
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**", true)
                         .addField(getString("state0_mtreasurechests"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryTreasureChests()), true)
                         .addField(getString("state0_mreminders"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
-                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
-                        .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false)
-                        .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), false)
-                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMax())), false);
+                        .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false);
 
             case 1:
+                setOptions(new String[]{getString("state1_options")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
-
-            case 2:
-                String[] roleStrings = new String[roles.size()];
-                for(int i = 0; i < roleStrings.length; i++) {
-                    roleStrings[i] = getRoleString(roles.get(i));
-                }
-                setOptions(roleStrings);
-
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
-                return eb;
-
-            case 3:
-                setOptions(new String[]{getString("state3_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title"));
-
-            case 4:
-                setOptions(new String[]{getString("state4_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
-
-            case 5:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state5_description"), getString("state5_title"));
         }
         return null;
     }
@@ -369,7 +174,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     @Override
     public int getMaxReactionNumber() {
-        return 12;
+        return 5;
     }
 
     @Override

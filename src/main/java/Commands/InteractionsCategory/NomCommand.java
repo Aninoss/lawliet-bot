@@ -41,7 +41,28 @@ public class NomCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/f615ab049c0edc4b3579132ea276e3af/tenor.gif?itemid=8870471",
                 "https://media1.tenor.com/images/d6e1ffa70eb553dacdf19d26a6be0500/tenor.gif?itemid=5571354",
                 "https://media1.tenor.com/images/3799ae77c7fcd79eed7881e3e29ede4a/tenor.gif?itemid=6229812",
-                "https://media1.tenor.com/images/17ba890dc4bd5aed76ddb152ff6753a7/tenor.gif?itemid=12700091"
+                "https://media1.tenor.com/images/17ba890dc4bd5aed76ddb152ff6753a7/tenor.gif?itemid=12700091",
+                "https://i.pinimg.com/originals/0b/47/3f/0b473fb8b5fbf66a0a003d25bc937f49.gif",
+                "https://media.giphy.com/media/t7UA6Mg6peVfq/giphy.gif",
+                "https://media.giphy.com/media/eEViNnxHEOLsI/giphy.gif",
+                "https://media.giphy.com/media/eSwGh3YK54JKU/giphy.gif",
+                "https://media.giphy.com/media/hXYlYBixtHEFq/giphy.gif",
+                "https://media.giphy.com/media/PxdjO4EBNuLrW/giphy.gif",
+                "https://media.giphy.com/media/RneIcLEosVuta/giphy.gif",
+                "https://media.giphy.com/media/mAuMfyo78F1vy/giphy.gif",
+                "https://media.giphy.com/media/irBHYSZxbUifTxTgBL/giphy.gif",
+                "https://i.imgur.com/Njfycqc.gif",
+                "https://i.giphy.com/media/2EQ7NCJZhI8iQ/source.gif",
+                "https://i.imgur.com/nI3b0Re.gif",
+                "https://i.imgur.com/tXFyBIF.gif",
+                "https://data.whicdn.com/images/221155408/original.gif",
+                "https://i.giphy.com/media/ViC6liI1iz3TGxb4po/giphy.webp",
+                "https://i.pinimg.com/originals/93/00/e4/9300e4114417a1cfdc83f8d7c7bd79ec.gif",
+                "https://i.pinimg.com/originals/7a/aa/f0/7aaaf009f46db00b60d44dc12a08f967.gif",
+                "https://gifimage.net/wp-content/uploads/2017/11/eating-anime-gif-4.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708661265689739274/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708661268772290560/unnamed.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708661270336897054/GsUMxxu.gif"
         };
     }
 

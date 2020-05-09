@@ -282,7 +282,7 @@ public class MentionUtil {
     public static MentionList<Message> getMessagesURL(Message message, String string) {
         ArrayList<Message> list = new ArrayList<>();
         for(String part: getArgs(string)) {
-            String regex = String.format("https://.*discordapp.com/channels/%d/\\d*/\\d*", message.getServer().get().getId());
+            String regex = String.format("https://.*discord.*.com/channels/%d/\\d*/\\d*", message.getServer().get().getId());
             if (Pattern.matches(regex, part)) {
                 String[] parts = part.split("/");
                 if (parts.length == 7) {

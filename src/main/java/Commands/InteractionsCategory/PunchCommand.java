@@ -10,7 +10,7 @@ import java.util.ArrayList;
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
         executable = false,
-        aliases = {"hit"}
+        aliases = {"hit", "attack"}
 )
 public class PunchCommand extends InteractionAbstract {
 
@@ -34,7 +34,16 @@ public class PunchCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/0dbb53b0f2a8730ea3c8a0e2502b6bac/tenor.gif?itemid=10194762",
                 "https://media1.tenor.com/images/745d16a823805edbfe83aa9363c48a87/tenor.gif?itemid=12003981",
                 "https://media1.tenor.com/images/b2308e16fa5b71c541efdd13dea4f9ba/tenor.gif?itemid=10462739",
-                "https://media1.tenor.com/images/2c96a0f0c2e7f5e446b6771fe1b6fca8/tenor.gif?itemid=14949242"
+                "https://media1.tenor.com/images/2c96a0f0c2e7f5e446b6771fe1b6fca8/tenor.gif?itemid=14949242",
+                "https://i.imgur.com/9wi47g3.gif",
+                "https://data.whicdn.com/images/314492571/original.gif",
+                "https://media1.tenor.com/images/2e36b49b3d26d1e2fe014e5d4c1dbc75/tenor.gif?itemid=15580060",
+                "https://media1.tenor.com/images/16c587440a4f8301c22ed04625e0f868/tenor.gif?itemid=16922805",
+                "https://media1.tenor.com/images/f1294897c63a4e82da1f466dc3764b2d/tenor.gif",
+                "https://media1.tenor.com/images/e72966a32c66380aa288009cb0379b32/tenor.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708657611842650152/anime-punch-gif-3.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708657620017348628/giphy.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708657624320835586/ImperfectFrightenedFoal-size_restricted.gif"
         };
     }
 

@@ -12,7 +12,7 @@ public @interface CommandProperties {
     boolean nsfw() default false;
     boolean withLoadingBar() default false;
     boolean executable();
-    boolean deleteOnTimeOut() default true;
+    boolean deleteOnTimeOut() default false;
     int botPermissions() default 0;
     int userPermissions() default 0;
     boolean requiresEmbeds() default true;

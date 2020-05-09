@@ -37,7 +37,10 @@ public class SlapCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/9d907ed56fa1c8c011791e494b1d6ce0/tenor.gif?itemid=14179587",
                 "https://media1.tenor.com/images/6a2cf4394afc9f60aa302be43a566dd6/tenor.gif?itemid=12342551",
                 "https://media1.tenor.com/images/c1246556aa5726ad6c0ee50f2c3998ce/tenor.gif?itemid=7864657",
-                "https://media1.tenor.com/images/4a5025fef68e651ba91e86bd09bdd911/tenor.gif?itemid=13652760"
+                "https://media1.tenor.com/images/4a5025fef68e651ba91e86bd09bdd911/tenor.gif?itemid=13652760",
+                "https://i.imgur.com/CmcLc0B.gif",
+                "https://i.imgur.com/YvvikHL.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708657609665675304/TerribleLightBagworm-small.gif"
         };
     }
 

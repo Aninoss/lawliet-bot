@@ -29,7 +29,12 @@ public class DanceCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/46605585d5fd5071e61e084005320178/tenor.gif?itemid=9523000",
                 "https://media1.tenor.com/images/e282b8c13fa3758517ac5eb9c8e3c4f1/tenor.gif?itemid=9060211",
                 "https://media1.tenor.com/images/8b47eca66b93d1b29f7df2db3d7eba6b/tenor.gif?itemid=13414394",
-                "https://media1.tenor.com/images/d250c06c34f6961087a83c6fd79d0711/tenor.gif?itemid=4718235"
+                "https://media1.tenor.com/images/d250c06c34f6961087a83c6fd79d0711/tenor.gif?itemid=4718235",
+                "https://thumbs.gfycat.com/MealyAliveGavial-size_restricted.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708660155520122900/59AL.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708660158636621894/tumblr_o6ysbnkcs21vqim31o1_500.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708660161191084122/1494066709_Anime_Dance.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708660162923069440/189798505001201.gif"
         };
     }
 

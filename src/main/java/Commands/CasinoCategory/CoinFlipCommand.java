@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83D\uDCB0",
         thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
         executable = true,
-        deleteOnTimeOut = false,
         aliases = {"coin", "cf"}
 )
 public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {

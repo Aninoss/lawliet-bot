@@ -54,7 +54,15 @@ public class BlushCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/7fddbaa08668ce16a00e5a81d09610d8/tenor.gif?itemid=11034207",
                 "https://media1.tenor.com/images/f4a5b1f67f07256ee5334ae3f8a79132/tenor.gif?itemid=13576400",
                 "https://media1.tenor.com/images/eb0d2648508a0f1ec66a305316944bee/tenor.gif?itemid=13045710",
-                "https://media1.tenor.com/images/0755c3fa29e61807a74e5f875827a6e5/tenor.gif?itemid=11034209"
+                "https://media1.tenor.com/images/0755c3fa29e61807a74e5f875827a6e5/tenor.gif?itemid=11034209",
+                "https://media1.tenor.com/images/f72035e032125a5395883b8d68d9df5d/tenor.gif?itemid=16149781",
+                "https://media1.tenor.com/images/82b0f0a24e1621510b1216317edd4ba0/tenor.gif?itemid=14119517",
+                "https://media1.tenor.com/images/4c531ddd860cf2965be0d49bf03142ff/tenor.gif",
+                "https://media1.tenor.com/images/1eb6c4585f9ad35ef69f07ec80c7ee17/tenor.gif?itemid=15974223",
+                "https://media1.tenor.com/images/a4b397af35d4e1ea21b87726a5717441/tenor.gif",
+                "https://media1.tenor.com/images/8ee8fb8abbfa023bc640d9deda41ebb8/tenor.gif?itemid=15987170",
+                "https://media1.tenor.com/images/bee15af20336f813c0270495d0061835/tenor.gif?itemid=14282456",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708658734758363156/vYRve1s.gif"
         };
     }
 

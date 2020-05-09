@@ -79,7 +79,10 @@ public class Clock {
     }
 
     private void onHourStart() {
-        //Survey Results
+        //Reset Patreon Cache
+        PatreonCache.getInstance().reset();
+
+        //New Day
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             try {
@@ -89,6 +92,7 @@ public class Clock {
             }
         }
 
+        //Survey Results
         try {
             SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
             LocalDate today = LocalDate.now();

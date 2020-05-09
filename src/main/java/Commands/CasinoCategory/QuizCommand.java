@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "❔",
         thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
         withLoadingBar = true,
+        deleteOnTimeOut = true,
         executable = true
 )
 public class QuizCommand extends CasinoAbstract implements OnReactionAddListener {

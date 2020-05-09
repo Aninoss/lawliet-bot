@@ -53,7 +53,8 @@ public class HugCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/cff7e22303e99c24e46e5444a38e8018/tenor.gif?itemid=13135984",
                 "https://media.giphy.com/media/143v0Z4767T15e/giphy.gif",
                 "https://media.giphy.com/media/13YrHUvPzUUmkM/giphy.gif",
-                "https://media.giphy.com/media/BXrwTdoho6hkQ/giphy.gif"
+                "https://media.giphy.com/media/BXrwTdoho6hkQ/giphy.gif",
+                "https://media1.tenor.com/images/78d3f21a608a4ff0c8a09ec12ffe763d/tenor.gif?itemid=16509980"
         };
     }
 

@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutionException;
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
         emoji = "❕",
         executable = true,
-        deleteOnTimeOut = false,
         requiresEmbeds = false,
         aliases = {"commands"}
 )
@@ -107,7 +106,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 12;
+        return 13;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {

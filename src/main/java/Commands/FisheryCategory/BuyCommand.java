@@ -174,7 +174,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
     }
 
     private long calculateRolePrice(FisheryUserPowerUpBean slot) throws ExecutionException {
-        return FisheryCommand.getFisheryRolePrice(server, fisheryServerBean.getRoleIds(), slot.getLevel());
+        return FisheryRolesCommand.getFisheryRolePrice(server, fisheryServerBean.getRoleIds(), slot.getLevel());
     }
 
     @Override

@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83C\uDFB0",
         thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
         executable = true,
-        deleteOnTimeOut = false,
         aliases = {"slots", "slotmachine"}
 )
 public class SlotCommand extends CasinoAbstract implements OnReactionAddListener {

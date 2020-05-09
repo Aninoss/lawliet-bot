@@ -97,17 +97,6 @@ public class BannedWordsCheck {
             if (input.contains(word)) return true;
         }
         return false;
-
-        /*for(int start = 0; start < input.length(); start++) {
-            for(int offset = 1; offset < (input.length()+1 - start) && offset < getLongestWordCount(badWords); offset++)  {
-                String wordToCheck = input.substring(start, start + offset);
-                if(badWords.contains(wordToCheck)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;*/
     }
 
     public static String translateString(String input) {

@@ -26,7 +26,17 @@ public class KillCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/1b189d99ba29bc7b4aa8f24f4827c12e/tenor.gif?itemid=13726342",
                 "https://media1.tenor.com/images/4776a4baa6eb9813ecfde2a16071d96e/tenor.gif?itemid=4775517",
                 "https://media1.tenor.com/images/2706b52a7bf7b34cfe43d7f49381ee85/tenor.gif?itemid=13617665",
-                "https://media.giphy.com/media/eYAYL9QMjZyE0/giphy.gif"
+                "https://media.giphy.com/media/eYAYL9QMjZyE0/giphy.gif",
+                "https://image.ibb.co/grE8d0/608343a4d81191cfd2c620e0adb79a9203dd14b5.gif",
+                "https://media1.tenor.com/images/c56b3226a771460fce710c60bae65723/tenor.gif?itemid=12647658",
+                "https://media1.tenor.com/images/62c6fd1108b5bd5bb457715b7e414939/tenor.gif?itemid=16665054",
+                "https://media1.tenor.com/images/3447f0676529e8a4965569c8d02bd083/tenor.gif?itemid=16950128",
+                "https://cdn.discordapp.com/attachments/686251876391583843/703974097079763004/source.gif",
+                "https://i.pinimg.com/originals/31/c0/77/31c0776b109b76143605887067803464.gif",
+                "https://media1.tenor.com/images/cbc573cc5f8aade501c6b3b461aa7f70/tenor.gif",
+                "https://media1.tenor.com/images/52c4d55c27725df1b0a35178ad7cbc08/tenor.gif",
+                "https://i.pinimg.com/originals/56/22/23/5622238b635ce9b23ff7254130653b05.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708657617295376384/OK6W_koKDTOqqqLDbIoPAmEZWmUcb5kvBmbyOpGHL-s.gif"
         };
     }
 

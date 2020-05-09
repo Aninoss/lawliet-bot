@@ -7,6 +7,7 @@ import CommandListeners.CommandProperties;
         emoji = "❔",
         thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
         withLoadingBar = true,
+        deleteOnTimeOut = true,
         executable = true
 )
 public class AnimeQuizCommand extends QuizCommand {

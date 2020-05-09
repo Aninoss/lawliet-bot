@@ -47,7 +47,7 @@ public class PatreonCache {
     }
 
     public void resetUser(long userId) {
-        cache.invalidate(userId);
+        cache.refresh(userId);
     }
 
     public int getPatreonLevel(long userId) throws ExecutionException {

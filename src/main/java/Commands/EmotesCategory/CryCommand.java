@@ -53,7 +53,14 @@ public class CryCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/0fa6df4ee525e5ee0acedd307d34c334/tenor.gif?itemid=5895906",
                 "https://media1.tenor.com/images/9663e89dcde6a147536aa6ab0bd59083/tenor.gif?itemid=5001399",
                 "https://media1.tenor.com/images/04b0feb0e2e6861d5e57c1cb2cdb4dd9/tenor.gif?itemid=10810456",
-                "https://media1.tenor.com/images/9d216f884c5c44e8e3c4ddb7227caf1b/tenor.gif?itemid=11384663"
+                "https://media1.tenor.com/images/9d216f884c5c44e8e3c4ddb7227caf1b/tenor.gif?itemid=11384663",
+                "https://i.giphy.com/media/nvxNikpDyQFz2/source.gif",
+                "https://thumbs.gfycat.com/ElementaryBriefCero-small.gif",
+                "https://i.imgur.com/Ok2GXkV.gif",
+                "https://data.whicdn.com/images/321260932/original.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708659412734312509/tumblr_owztcdqHyN1w2ulq3o1_500.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708659412838907914/tenor.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/708659419340210226/kaori.gif"
         };
     }
 
