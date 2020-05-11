@@ -3,6 +3,7 @@ package Commands.InformationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.LogStatus;
+import Constants.Settings;
 import Constants.TrackerResult;
 import Core.*;
 import Core.Utils.BotUtil;
@@ -13,6 +14,7 @@ import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
 import MySQL.Modules.Version.VersionBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +108,12 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
 
-            slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));
+            if (slot.getServerId() != Settings.SUPPORT_SERVER_ID)
+                slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));
+            else {
+                Role role = slot.getServer().get().getRoleById(703879430799622155L).get();
+                slot.getChannel().get().sendMessage(role.getMentionTag(), getVersionsEmbed(newestSlot));
+            }
             slot.setArgs(BotUtil.getCurrentVersion());
 
             return TrackerResult.STOP_AND_SAVE;
