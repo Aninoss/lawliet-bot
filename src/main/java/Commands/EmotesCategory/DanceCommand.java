@@ -34,7 +34,9 @@ public class DanceCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/708660155520122900/59AL.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708660158636621894/tumblr_o6ysbnkcs21vqim31o1_500.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708660161191084122/1494066709_Anime_Dance.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708660162923069440/189798505001201.gif"
+                "https://cdn.discordapp.com/attachments/499629904380297226/708660162923069440/189798505001201.gif",
+                "https://tenor.com/view/dancinha-charmy-black-clover-anime-gif-11658866",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440298324852757/dance.gif"
         };
     }
 

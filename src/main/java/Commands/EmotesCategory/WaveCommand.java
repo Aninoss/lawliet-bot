@@ -40,7 +40,8 @@ public class WaveCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/5ba9f79a3e164b1f6dba42965fee7377/tenor.gif?itemid=13783883",
                 "https://media1.tenor.com/images/37aa92ebab4f4657a8f1b913b4ea7da4/tenor.gif?itemid=5970516",
                 "https://media1.tenor.com/images/261ef8fda67d96057a3f5b912e3a7280/tenor.gif?itemid=12912666",
-                "https://media1.tenor.com/images/0a70c873c428032bcbf1354da765e278/tenor.gif?itemid=10965696"
+                "https://media1.tenor.com/images/0a70c873c428032bcbf1354da765e278/tenor.gif?itemid=10965696",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440870788628500/awkward.gif"
         };
     }
 

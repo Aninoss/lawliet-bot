@@ -574,7 +574,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                         if (rOpt.isPresent()) {
                             Role r = rOpt.get();
-                            if (r.getUsers().contains(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
+                            if (r.hasUser(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
                                 r.removeUser(event.getUser());
                         }
                     }

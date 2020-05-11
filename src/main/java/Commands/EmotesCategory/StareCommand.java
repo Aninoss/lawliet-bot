@@ -39,7 +39,8 @@ public class StareCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/98e1dde6d86d67c1404b05e59db3d714/tenor.gif?itemid=9588641",
                 "https://media1.tenor.com/images/0c4661335710fe2a9b94fb6b8f61f2a6/tenor.gif?itemid=5758538",
                 "https://media1.tenor.com/images/4fb5bba925afda35aa16c5d838694165/tenor.gif?itemid=14172299",
-                "https://media1.tenor.com/images/010782907b4ff7f04098a8f47a7dd0e8/tenor.gif?itemid=11701069"
+                "https://media1.tenor.com/images/010782907b4ff7f04098a8f47a7dd0e8/tenor.gif?itemid=11701069",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440292390043708/stare.gif"
         };
     }
 

@@ -16,7 +16,15 @@ public class YuriHugCommand extends InteractionAbstract {
                 "https://media.giphy.com/media/3og0ILx8f9adnoQRos/giphy.gif",
                 "https://media.giphy.com/media/vVA8U5NnXpMXK/giphy.gif",
                 "https://media.giphy.com/media/1434tCcpb5B7EI/giphy.gif",
-                "https://media.giphy.com/media/aD1fI3UUWC4/giphy.gif"
+                "https://media.giphy.com/media/aD1fI3UUWC4/giphy.gif",
+                "https://static.zerochan.net/Neko.Para.full.2841283.gif",
+                "https://static.zerochan.net/Fruits.Basket.full.2657882.gif",
+                "https://static.zerochan.net/Sword.Art.Online%3A.Alicization.-War.Of.Underworld-.full.2725165.gif",
+                "https://static.zerochan.net/Kannazuki.no.Miko.full.2492522.gif",
+                "https://static.zerochan.net/Kannazuki.no.Miko.full.2492729.gif",
+                "https://static.zerochan.net/Kannazuki.no.Miko.full.2492532.gif",
+                "https://static.zerochan.net/Kannazuki.no.Miko.full.2492728.gif",
+                "https://static.zerochan.net/Kannazuki.no.Miko.full.2492720.gif"
         };
     }
 

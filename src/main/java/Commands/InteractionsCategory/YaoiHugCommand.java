@@ -25,7 +25,8 @@ public class YaoiHugCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/9b8e9fa95f4799f8940062c2a879a790/tenor.gif?itemid=12668679",
                 "https://media1.tenor.com/images/0a3cac5657b5e9b82f64d7d4bc5d45db/tenor.gif?itemid=7898031",
                 "https://media1.tenor.com/images/19cf84b7a56e9a64fe7fd5559ad287bf/tenor.gif?itemid=10243168",
-                "https://media1.tenor.com/images/eccacd077d0ac499e1a5cc76c6172ad4/tenor.gif?itemid=4854611"
+                "https://media1.tenor.com/images/eccacd077d0ac499e1a5cc76c6172ad4/tenor.gif?itemid=4854611",
+                "https://static.zerochan.net/Shin.Megami.Tensei%3A.PERSONA.5.full.2149903.gif"
         };
     }
 

@@ -43,7 +43,10 @@ public class PatCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/dadf2f2aa8efc7b0856b6af26e72a8cb/tenor.gif?itemid=6005361",
                 "https://media1.tenor.com/images/d9e575861bb2f6389cec93da6cbdfa1f/tenor.gif?itemid=9720876",
                 "https://media1.tenor.com/images/398c9c832335a13be124914c23e88fdf/tenor.gif?itemid=9939761",
-                "https://tenor.com/view/kitten-kittens-cute-pet-give-me-attention-gif-12816949"
+                "https://tenor.com/view/kitten-kittens-cute-pet-give-me-attention-gif-12816949",
+                "https://i.pinimg.com/originals/be/75/ff/be75ff9f2ba20efb4dbda09c62802b39.gif",
+                "https://i.giphy.com/media/L2z7dnOduqEow/source.gif",
+                "https://static.zerochan.net/Neko.Para.full.2867447.gif"
         };
     }
 

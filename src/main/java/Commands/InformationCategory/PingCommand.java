@@ -8,9 +8,13 @@ import Core.EmbedFactory;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.mention.AllowedMentions;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 @CommandProperties(
         trigger = "ping",
@@ -32,7 +36,6 @@ public class PingCommand extends Command {
 
         long milisDiscordServers = TimeUtil.getMilisBetweenInstants(startTime, endTime);
         message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong_end", StringUtil.numToString(getLocale(), milisInternal), StringUtil.numToString(getLocale(), milisDiscordServers)))).get();
-
         return true;
     }
 

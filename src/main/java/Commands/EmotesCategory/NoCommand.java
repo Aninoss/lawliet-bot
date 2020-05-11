@@ -29,7 +29,8 @@ public class NoCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/b9c243d81cb40b09b38634727b5fb7a5/tenor.gif?itemid=14119537",
                 "https://media1.tenor.com/images/5768f9f99be830649a85dacd2a5809a3/tenor.gif?itemid=9423903",
                 "https://media1.tenor.com/images/01798bf7711b3eaa726fc7708f76ddd1/tenor.gif?itemid=9320140",
-                "https://media1.tenor.com/images/b13fb0dbb71ba21d0c1c8bea1d449340/tenor.gif?itemid=12252534"
+                "https://media1.tenor.com/images/b13fb0dbb71ba21d0c1c8bea1d449340/tenor.gif?itemid=12252534",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440302418755744/no.gif"
         };
     }
 

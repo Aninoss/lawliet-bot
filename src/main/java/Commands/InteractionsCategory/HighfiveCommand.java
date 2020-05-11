@@ -29,7 +29,20 @@ public class HighfiveCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/e96d2396570a2fadd9c83e284a1ca675/tenor.gif?itemid=5390726",
                 "https://media1.tenor.com/images/e2f299d05a7b1832314ec7a331440d4e/tenor.gif?itemid=5374033",
                 "https://media1.tenor.com/images/8cd77aed760dd7a0d5209f183e1fdf4e/tenor.gif?itemid=4318510",
-                "https://media1.tenor.com/images/16267f3a34efb42598bd822effaccd11/tenor.gif?itemid=14137081"
+                "https://media1.tenor.com/images/16267f3a34efb42598bd822effaccd11/tenor.gif?itemid=14137081",
+                "https://i.imgur.com/Pr1rEzX.gif",
+                "https://i.pinimg.com/originals/a2/27/e0/a227e02b4a4f69a97ed71122d5d0e325.gif",
+                "https://gifimage.net/wp-content/uploads/2017/09/anime-high-five-gif-10.gif",
+                "https://i.pinimg.com/originals/fc/b1/44/fcb1446b74166b0860ace50ed8b33686.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433716807827556/lls.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433716769947669/Sewayaki_Kitsune_no_Senko-san_-_Episode_12_END_-_Shiro_Koenji_High_Five.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433710432485436/unnamed.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433710193148005/tumblr_n04birgZxv1rl376ro1_500.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433708704432158/giphy.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433707869634600/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433707467112518/highfive.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433705734602862/tenor.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709433702614171728/tumblr_o0l51tCl4T1tieeldo1_500.gif"
         };
     }
 

@@ -68,7 +68,24 @@ public class SmileCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/0e28ae970b4a55c23b4a4b4c5f17cbe1/tenor.gif?itemid=15735532",
                 "https://media1.tenor.com/images/c4748521d15c2aeb67dc3b11f50ac5cb/tenor.gif?itemid=15792742",
                 "https://media1.tenor.com/images/6ac51389b29aa4392c628080ff6b5545/tenor.gif?itemid=14820877",
-                "https://media1.tenor.com/images/ef35757d49ee947ae255e87ca9e1058f/tenor.gif?itemid=14707996"
+                "https://media1.tenor.com/images/ef35757d49ee947ae255e87ca9e1058f/tenor.gif?itemid=14707996",
+                "https://tenor.com/view/bakaasta-stupidasta-cry-black-bulls-gif-12358014",
+                "https://static.zerochan.net/Toga.Himiko.full.2225768.gif",
+                "https://i.pinimg.com/originals/15/7d/5b/157d5b88c0ed189dfc52e3c65b1c284a.gif",
+                "https://i.pinimg.com/originals/c3/a1/cd/c3a1cd02bb5fd0875e1de50e0d0e0138.gif",
+                "https://i.pinimg.com/originals/98/3c/e3/983ce3238413bab4160d3e7c1a556d16.gif",
+                "https://66.media.tumblr.com/de40e48cbba2ff65c149547b842d6b6d/tumblr_mjkxbjY4Lj1r922azo1_540.gif",
+                "https://66.media.tumblr.com/eeaabbe8c293707a764bfb418377203b/tumblr_mrdu0gS9u71r776buo1_500.gif",
+                "https://66.media.tumblr.com/488e509c31da7ea402ba4f9f455c2dbc/c75c75e3f7203862-c7/s640x960/fc720fe96b77238aa49edb20e4d7a8b71454fac8.gif",
+                "https://pa1.narvii.com/6563/28f60ba8db7c1ac8d02da0412ca40a6d13656d31_hq.gif",
+                "https://pa1.narvii.com/6021/ab900a23344272927d460a9e33a082871a32a111_hq.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709438382060863528/tio.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709438380970213416/steamuserimages-a.akamaihd.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709438377451323423/tenor.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709438376058683392/Y5o48VW.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709438373361746140/image0.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440291748184164/smile.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709443475040501800/1497753943_Chitoge-chan.gif"
         };
     }
 

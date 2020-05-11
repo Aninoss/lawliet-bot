@@ -52,7 +52,7 @@ public class GiveCommand extends FisheryAbstract {
 
         if (server.getId() == 418223406698332173L) {
             Role role = server.getRoleById(660459523676438528L).get();
-            if (!role.getUsers().contains(user0)) return false;
+            if (!role.hasUser(user0)) return false;
         }
 
         FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());

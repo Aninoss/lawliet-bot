@@ -60,7 +60,9 @@ public class CryCommand extends EmoteAbstract {
                 "https://data.whicdn.com/images/321260932/original.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708659412734312509/tumblr_owztcdqHyN1w2ulq3o1_500.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708659412838907914/tenor.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708659419340210226/kaori.gif"
+                "https://cdn.discordapp.com/attachments/499629904380297226/708659419340210226/kaori.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440293736284201/cry.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709443084601262080/giphy.gif"
         };
     }
 

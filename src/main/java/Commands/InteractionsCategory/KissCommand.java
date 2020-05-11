@@ -46,7 +46,14 @@ public class KissCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/0be6297b653edf561c5810ec547a9802/tenor.gif?itemid=6203355",
                 "https://media1.tenor.com/images/af1216d35f8ec076b593401b19ddd0bf/tenor.gif?itemid=13188942",
                 "https://media1.tenor.com/images/ea51c3a083c73bf81a3c5ee6d4165115/tenor.gif?itemid=11794176",
-                "https://media1.tenor.com/images/1306732d3351afe642c9a7f6d46f548e/tenor.gif?itemid=6155670"
+                "https://media1.tenor.com/images/1306732d3351afe642c9a7f6d46f548e/tenor.gif?itemid=6155670",
+                "https://pa1.narvii.com/6802/50c2e4dd354f2957a38f080f5c97b294575a941a_hq.gif",
+                "https://data.whicdn.com/images/311865675/original.gif",
+                "https://i.imgur.com/xH3g4nQ.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709435126697820180/nice.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709435126219669584/hajimexyue.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709435125573746688/1501599674_tumblr_o5zzj8dcT61sfel8wo1_r3_500.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709435121840947260/kiss.gif"
         };
     }
 

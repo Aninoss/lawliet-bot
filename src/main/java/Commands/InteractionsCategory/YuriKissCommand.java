@@ -25,7 +25,8 @@ public class YuriKissCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/579494710247292929/1.gif",
                 "https://media1.tenor.com/images/1f06e53598fb516931da7baee4807e4d/tenor.gif?itemid=9118951",
                 "https://media1.tenor.com/images/69ace17be06147ed8db45af81d1d5485/tenor.gif?itemid=15111552",
-                "https://media1.tenor.com/images/83c1c6749b404d95c05df23a67c0ca41/tenor.gif?itemid=12003885"
+                "https://media1.tenor.com/images/83c1c6749b404d95c05df23a67c0ca41/tenor.gif?itemid=12003885",
+                "https://static.zerochan.net/Magic.Knight.Rayearth.full.2623741.gif"
         };
     }
 

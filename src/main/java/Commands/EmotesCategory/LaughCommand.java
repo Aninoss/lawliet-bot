@@ -47,7 +47,11 @@ public class LaughCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/6ee35e7ad417b6fe567064dddcab4d1d/tenor.gif?itemid=14705797",
                 "https://media1.tenor.com/images/d330b334bee3ae9cf88727fb60a0dc6e/tenor.gif?itemid=15915892",
                 "https://media1.tenor.com/images/e07a36575478d8dbac2a752c3caebbe4/tenor.gif?itemid=12050954",
-                "https://media1.tenor.com/images/d02af95a77338cfa77a9a5c3305b3295/tenor.gif?itemid=15917449"
+                "https://media1.tenor.com/images/d02af95a77338cfa77a9a5c3305b3295/tenor.gif?itemid=15917449",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709435369267134594/TQkHERF.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709435375373779075/Sks8eqV.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440301793542154/laugh.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709442099988398140/ImaginativeTepidDormouse-size_restricted.gif"
         };
     }
 

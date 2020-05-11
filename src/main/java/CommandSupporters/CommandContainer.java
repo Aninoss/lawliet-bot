@@ -141,6 +141,7 @@ public class CommandContainer {
         commandList.add(NoseBleedCommand.class);
         commandList.add(LaughCommand.class);
         commandList.add(YawnCommand.class);
+        commandList.add(FacepalmCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);

@@ -48,7 +48,8 @@ public class AngryCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/0b3ab5fb63983ad6c48346f3a2c8a52c/tenor.gif?itemid=4888832",
                 "https://media1.tenor.com/images/0a44ce38911e1261a1a4e02e2a837496/tenor.gif?itemid=14696228",
                 "https://media1.tenor.com/images/05bcd47e2540b6f055aa6837e70650f5/tenor.gif?itemid=14130191",
-                "https://media1.tenor.com/images/d7ef57a02d1148945c78878011c799f8/tenor.gif?itemid=15641051"
+                "https://media1.tenor.com/images/d7ef57a02d1148945c78878011c799f8/tenor.gif?itemid=15641051",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440300468273162/angry.gif"
         };
     }
 

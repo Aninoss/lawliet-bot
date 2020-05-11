@@ -33,7 +33,9 @@ public class YawnCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/9e931007781592f3041f830c390338aa/tenor.gif?itemid=14356648",
                 "https://media1.tenor.com/images/2927a0bdbb036afd3e6cfed4e776f834/tenor.gif?itemid=14088490",
                 "https://media1.tenor.com/images/8d87fab5f46c83fe3aa02878cc1aa7c3/tenor.gif?itemid=16507581",
-                "https://media1.tenor.com/images/a72c94f07c99762064c45ff74d805286/tenor.gif?itemid=14350734"
+                "https://media1.tenor.com/images/a72c94f07c99762064c45ff74d805286/tenor.gif?itemid=14350734",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709440868339154944/yawn.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709442513080942633/original.gif"
         };
     }
 

@@ -54,7 +54,25 @@ public class HugCommand extends InteractionAbstract {
                 "https://media.giphy.com/media/143v0Z4767T15e/giphy.gif",
                 "https://media.giphy.com/media/13YrHUvPzUUmkM/giphy.gif",
                 "https://media.giphy.com/media/BXrwTdoho6hkQ/giphy.gif",
-                "https://media1.tenor.com/images/78d3f21a608a4ff0c8a09ec12ffe763d/tenor.gif?itemid=16509980"
+                "https://media1.tenor.com/images/78d3f21a608a4ff0c8a09ec12ffe763d/tenor.gif?itemid=16509980",
+                "https://media.giphy.com/media/ShAchOHe38Aak/giphy.gif",
+                "https://media.giphy.com/media/h2FLpIm9NBIkM/giphy.gif",
+                "https://i.pinimg.com/originals/3d/4f/8a/3d4f8a927b7333a98513ea9382a1adbc.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434451406487562/8572a1d1ebaa45fae290e6760b59caac.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434450639061022/rlOJqHL.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434448801824798/tumblr_inline_ph2cccm8ey1ucmb6h_540.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434447505784883/1461001265-bd6ca0c499ca9c6065249953dfcf81c3.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434446549352548/tumblr_n59vn0kIdh1sn5ot7o1_500.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434442522951751/lolsda.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434442992844960/giphy_1.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434442388602941/giphy.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434440480456864/Anime-hug-GIF-Image-Download-4.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/709434435367338004/AlienatedUnawareArcherfish-size_restricted.gif",
+                "https://static.zerochan.net/Mahou.Tsukai.no.Yome.full.2295534.gif",
+                "https://static.zerochan.net/Mahou.Tsukai.no.Yome.full.2230099.gif",
+                "https://static.zerochan.net/Sword.Art.Online%3A.Alicization.-War.Of.Underworld-.full.2805619.gif",
+                "https://static.zerochan.net/Fruits.Basket.full.2700026.gif",
+                "https://static.zerochan.net/Lady.Momona.full.2640371.gif"
         };
     }
 

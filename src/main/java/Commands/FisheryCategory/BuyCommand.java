@@ -17,6 +17,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.message.mention.AllowedMentions;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -49,6 +50,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
         fisheryServerBean = fisheryUserBean.getFisheryServerBean();
 
         checkRolesWithLog(fisheryServerBean.getRoles(), null);
+
         return true;
     }
 
@@ -85,11 +87,11 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                             if (slot.getLevel() > 1) {
                                 if (serverBean.isFisherySingleRoles())
                                     for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                                        if (roles.get(j).getUsers().contains(event.getUser())) roles.get(j).removeUser(event.getUser());
+                                        if (roles.get(j).hasUser(event.getUser())) roles.get(j).removeUser(event.getUser());
                                     }
                                 else
                                     for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                                        if (!roles.get(j).getUsers().contains(event.getUser())) roles.get(j).addUser(event.getUser());
+                                        if (!roles.get(j).hasUser(event.getUser())) roles.get(j).addUser(event.getUser());
                                     }
                             }
 
