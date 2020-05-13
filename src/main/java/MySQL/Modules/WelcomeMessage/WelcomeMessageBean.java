@@ -65,7 +65,7 @@ public class WelcomeMessageBean extends BeanWithServer {
 
     private ServerTextChannel getDefaultChannel(Server server, boolean attachFiles) {
         List<ServerTextChannel> writeableChannels = server.getTextChannels().stream()
-                .filter(channel -> channel.canYouEmbedLinks() && (!attachFiles || channel.canYouAttachFiles()))
+                .filter(channel -> channel.canYouWrite() && channel.canYouEmbedLinks() && (!attachFiles || channel.canYouAttachFiles()))
                 .collect(Collectors.toList());
         return server.getSystemChannel().orElse(writeableChannels.size() > 0 ? writeableChannels.get(0) : null);
     }

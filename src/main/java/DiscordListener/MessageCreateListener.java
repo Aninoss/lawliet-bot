@@ -50,12 +50,10 @@ public class MessageCreateListener {
 
         //Server protections
         if (SPCheck.checkForSelfPromotion(event.getServer().get(), event.getMessage())) return; //SPBlock
-
-        if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage()))
-            return; //Banned Words
+        if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage())) return; //Banned Words
 
         //Stuff that is only active for my own Aninoss Discord server
-        if (event.getServer().get().getId() == 462405241955155979L && InternetUtil.stringHasURL(event.getMessage().getContent())) {
+        if (event.getServer().get().getId() == 462405241955155979L && event.getChannel().getId() != 709477711512600596L && InternetUtil.stringHasURL(event.getMessage().getContent())) {
             try {
                 int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
                 if (level == 0) {
@@ -70,12 +68,31 @@ public class MessageCreateListener {
             }
         }
 
+        /* View help if user just pings the bot */
+        if (StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiCollection.getInstance().getYourself().getMentionTag())) {
+            try {
+                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+                String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_ping_help", serverBean.getPrefix());
+                if (event.getChannel().canYouWrite()) event.getChannel().sendMessage(text).get();
+            } catch (ExecutionException e) {
+                LOGGER.error("Error while fetching server bean");
+            }
+            return;
+        }
+
         try {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             String prefix = serverBean.getPrefix();
             String content = event.getMessage().getContent();
 
-            String[] prefixes = {prefix, DiscordApiCollection.getInstance().getYourself().getMentionTag(), "<@!" + DiscordApiCollection.getInstance().getYourself().getIdAsString() + ">"};
+            if (content.toLowerCase().startsWith("i.") && prefix.equalsIgnoreCase("L."))
+                content = prefix + content.substring(2);
+
+            String[] prefixes = {
+                    prefix,
+                    DiscordApiCollection.getInstance().getYourself().getMentionTag(),
+                    "<@!" + DiscordApiCollection.getInstance().getYourself().getIdAsString() + ">"
+            };
 
             int prefixFound = -1;
             for (int i = 0; i < prefixes.length; i++) {
@@ -154,7 +171,7 @@ public class MessageCreateListener {
                 }
 
                 //Manage Message Quoting
-                if (event.getChannel().canYouEmbedLinks()) {
+                if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
                     Locale locale = serverBean.getLocale();
                     ArrayList<Message> messages = MentionUtil.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
                     if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {

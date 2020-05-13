@@ -28,7 +28,7 @@ public class MessageEditListener {
         if (BannedWordsCheck.checkForBannedWordUsaqe(event.getServer().get(), event.getMessage().get())) return;
 
         //Stuff that is only active for my own Aninoss Discord server
-        if (event.getServer().get().getId() == 462405241955155979L && InternetUtil.stringHasURL(event.getMessage().get().getContent())) {
+        if (event.getServer().get().getId() == 462405241955155979L && event.getChannel().getId() != 709477711512600596L && InternetUtil.stringHasURL(event.getMessage().get().getContent())) {
             try {
                 int level = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().get().getId()).getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
                 if (level == 0) {

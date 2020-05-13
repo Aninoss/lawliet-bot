@@ -44,7 +44,13 @@ public class KiraCommand extends Command {
             int percent = r.nextInt(101);
             eb.addField(user.getDisplayName(server), getString("template",user.getDisplayName(server), String.valueOf(percent)));
         }
-        if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
+
+        if (!userMentioned) {
+            eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+            if (followedString.length() > 0)
+                EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+        }
+
         event.getChannel().sendMessage(eb).get();
         return true;
     }

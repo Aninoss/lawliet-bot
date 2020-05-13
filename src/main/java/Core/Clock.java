@@ -140,11 +140,6 @@ public class Clock {
         } catch (Exception e) {
             LOGGER.error("Could not post upvotes stats", e);
         }
-        try {
-            DBBotStats.addStatUniqueUsers();
-        } catch (Exception e) {
-            LOGGER.error("Could not post unique users stats", e);
-        }
     }
 
 
@@ -227,6 +222,13 @@ public class Clock {
                     SystemUtil.backupDB();
                 } catch (Exception e) {
                     LOGGER.error("Error while creating database backup", e);
+                }
+
+                /* Posting daily unique users stats */
+                try {
+                    DBBotStats.addStatUniqueUsers();
+                } catch (Exception e) {
+                    LOGGER.error("Could not post unique users stats", e);
                 }
 
                 if (Bot.hasUpdate()) {

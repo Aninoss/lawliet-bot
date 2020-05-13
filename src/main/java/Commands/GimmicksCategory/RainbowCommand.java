@@ -43,7 +43,13 @@ public class RainbowCommand extends Command {
         for (User user: list) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template",user.getDisplayName(server)))
                     .setImage(ImageCreator.createImageRainbow(user));
-            if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
+
+            if (!userMentioned) {
+                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                if (followedString.length() > 0)
+                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+            }
+
             Message message1 = event.getChannel().sendMessage(eb).get();
 
             if (message1 != null) {

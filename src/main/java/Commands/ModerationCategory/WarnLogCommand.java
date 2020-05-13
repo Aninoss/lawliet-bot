@@ -74,7 +74,13 @@ public class WarnLogCommand extends Command {
                     StringUtil.numToString(serverWarningsBean.getAmountLatest(30, ChronoUnit.DAYS).size()),
                     StringUtil.numToString(serverWarningsBean.getWarnings().size())
             ), false);
-            if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
+
+            if (!userMentioned) {
+                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                if (followedString.length() > 0)
+                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+            }
+
             event.getChannel().sendMessage(eb).get();
         }
 

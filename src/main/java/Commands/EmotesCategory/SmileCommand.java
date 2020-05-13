@@ -85,7 +85,9 @@ public class SmileCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/709438376058683392/Y5o48VW.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/709438373361746140/image0.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/709440291748184164/smile.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/709443475040501800/1497753943_Chitoge-chan.gif"
+                "https://cdn.discordapp.com/attachments/499629904380297226/709443475040501800/1497753943_Chitoge-chan.gif",
+                "https://tenor.com/view/black-clover-secre-gif-16167453",
+                "https://tenor.com/view/black-clover-secre-gif-16167453"
         };
     }
 

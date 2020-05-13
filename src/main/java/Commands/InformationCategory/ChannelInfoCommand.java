@@ -55,7 +55,12 @@ public class ChannelInfoCommand extends Command {
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));
             if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
-            if (noMention) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
+
+            if (noMention) {
+                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
+                if (followedString.length() > 0)
+                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+            }
 
             event.getServerTextChannel().get().sendMessage(eb).get();
         }

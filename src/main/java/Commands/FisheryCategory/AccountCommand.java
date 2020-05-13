@@ -3,6 +3,7 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Commands.FisheryAbstract;
+import Constants.LogStatus;
 import Constants.Permission;
 import Constants.FisheryStatus;
 import Core.*;
@@ -34,6 +35,7 @@ public class AccountCommand extends FisheryAbstract {
         Server server = event.getServer().get();
         Message message = event.getMessage();
         ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
+
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
@@ -54,8 +56,12 @@ public class AccountCommand extends FisheryAbstract {
         for(User user: list) {
             EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId()).getAccountEmbed();
             if (eb != null) {
-                if (!userMentioned)
+                if (!userMentioned) {
                     eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                    if (followedString.length() > 0)
+                        EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                }
+
                 event.getChannel().sendMessage(eb).get();
             }
         }

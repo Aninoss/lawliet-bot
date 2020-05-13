@@ -156,6 +156,7 @@ public class CommandContainer {
         commandList.add(BiteCommand.class);
         commandList.add(NomCommand.class);
         commandList.add(PokeCommand.class);
+        commandList.add(SpankCommand.class);
         commandList.add(FishCommand.class);
         commandList.add(TickleCommand.class);
         commandList.add(HighfiveCommand.class);

@@ -52,6 +52,7 @@ public class Connector {
             Arrays.stream(new File("temp").listFiles()).forEach(File::delete); //Cleans all temp files
 
             if (Bot.isProductionMode()) initializeUpdate();
+            DBFishery.getInstance().cleanUp();
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
             LOGGER.error("Exception in main method", e);
@@ -128,7 +129,6 @@ public class Connector {
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
                     updateActivity();
-                    DBFishery.getInstance().cleanUp();
                     new WebComServer(15744);
 
                     Thread vcObserver = new CustomThread(() -> DBFishery.getInstance().startVCObserver(), "vc_observer", 1);

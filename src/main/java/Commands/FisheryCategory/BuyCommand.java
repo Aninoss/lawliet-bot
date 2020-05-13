@@ -87,11 +87,11 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                             if (slot.getLevel() > 1) {
                                 if (serverBean.isFisherySingleRoles())
                                     for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                                        if (roles.get(j).hasUser(event.getUser())) roles.get(j).removeUser(event.getUser());
+                                        if (roles.get(j).hasUser(event.getUser())) roles.get(j).removeUser(event.getUser()).get();
                                     }
                                 else
                                     for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                                        if (!roles.get(j).hasUser(event.getUser())) roles.get(j).addUser(event.getUser());
+                                        if (!roles.get(j).hasUser(event.getUser())) roles.get(j).addUser(event.getUser()).get();
                                     }
                             }
 

@@ -28,7 +28,7 @@ import java.util.ArrayList;
         thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/gift-icon.png",
         emoji = "\uD83C\uDF81",
         executable = false,
-        aliases = {"gift"}
+        aliases = {"gift", "pay"}
 )
 public class GiveCommand extends FisheryAbstract {
 

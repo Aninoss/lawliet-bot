@@ -105,7 +105,7 @@ public class FisheryUserBean extends BeanWithServer {
         if (fishIncome == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
             long n = 0;
 
-            Instant effectiveInstant = currentHourInstance.minus(2 * 7, ChronoUnit.DAYS);
+            Instant effectiveInstant = currentHourInstance.minus(7, ChronoUnit.DAYS);
             for (Iterator<FisheryHourlyIncomeBean> iterator = fisheryHourlyIncomeMap.values().iterator(); iterator.hasNext(); ) {
                 FisheryHourlyIncomeBean fisheryHourlyIncomeBean = iterator.next();
                 if (fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant)) iterator.remove();
@@ -177,6 +177,7 @@ public class FisheryUserBean extends BeanWithServer {
                 if (fish >= 100 &&
                         !reminderSent &&
                         getServerBean().isFisheryReminders() &&
+                        channel.canYouWrite() &&
                         channel.canYouEmbedLinks() &&
                         userOpt.isPresent()
                 ) {

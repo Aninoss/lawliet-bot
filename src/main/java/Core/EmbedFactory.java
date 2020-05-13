@@ -99,6 +99,10 @@ public class EmbedFactory {
                 .setTimestampToNow();
     }
 
+    public static EmbedBuilder addNoResultsLog(EmbedBuilder eb, Locale locale, String searchString) {
+        return addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", searchString));
+    }
+
     public static EmbedBuilder addLog(EmbedBuilder eb, LogStatus logStatus, String log) {
         if (log != null && log.length() > 0) {
             String add = "";

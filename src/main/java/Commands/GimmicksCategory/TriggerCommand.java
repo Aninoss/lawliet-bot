@@ -43,7 +43,13 @@ public class TriggerCommand extends Command {
         for (User user: list) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template",user.getDisplayName(server)))
                     .setImage(ImageCreator.createImageTriggered(user), "gif");
-            if (!userMentioned) eb.setFooter(TextManager.getString(getLocale(),TextManager.GENERAL,"mention_optional"));
+
+            if (!userMentioned) {
+                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                if (followedString.length() > 0)
+                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+            }
+
             event.getChannel().sendMessage(eb).get();
         }
         return true;

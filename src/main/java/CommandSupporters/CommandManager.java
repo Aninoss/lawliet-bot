@@ -112,8 +112,8 @@ public class CommandManager {
                 event.getChannel().sendMessage(EMOJI_NO_EMBED + desc).get();
             }
 
-            Thread.sleep(5000);
             addErrorEmoji(event);
+            Thread.sleep(5000);
         }
 
         return false;
@@ -146,7 +146,7 @@ public class CommandManager {
             return true;
         }
 
-        if (event.getChannel().canYouEmbedLinks()) event.getChannel().sendMessage(errEmbed).get();
+        if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) event.getChannel().sendMessage(errEmbed).get();
         addErrorEmoji(event);
         return false;
     }

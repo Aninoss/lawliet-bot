@@ -22,8 +22,7 @@ public class VoiceChannelMemberLeaveListener {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
                     if (event.getChannel().getConnectedUsers().size() == 0) {
-                        event.getChannel().delete().get();
-                        autoChannelBean.getChildChannels().remove(childChannelId);
+                        event.getChannel().delete();
                     }
                 }
                 break;

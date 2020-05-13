@@ -100,7 +100,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                             voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).get().getName() + ")\n";
                         }
 
-                        EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("vote_description") + "\n" + Settings.EMPTY_EMOJI)
+                        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("vote_description") + "\n" + Settings.EMPTY_EMOJI)
                                 .addField(surveyQuestion.getQuestion(), voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
 

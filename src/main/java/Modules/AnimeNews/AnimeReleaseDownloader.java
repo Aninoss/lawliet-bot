@@ -78,7 +78,7 @@ public class AnimeReleaseDownloader {
                         post.getAnime(),
                         "",
                         episode,
-                        "",
+                        null,
                         post.getThumbnail(),
                         post.getDate(),
                         post.getUrl(),
@@ -94,8 +94,8 @@ public class AnimeReleaseDownloader {
 
     private static AnimeReleasePost parseEpisode(JSONObject data, Locale locale) {
         String anime = data.getString("title");
-        if (anime.contains(" - Episode ")) anime = anime.substring(0, anime.indexOf(" - Episode "));
-        else if (anime.contains(" - Folge ")) anime = anime.substring(0, anime.indexOf(" - Folge "));
+        if (anime.contains(" - Folge ")) anime = anime.substring(0, anime.indexOf(" - Folge "));
+        else if (anime.contains(" - Episode ")) anime = anime.substring(0, anime.indexOf(" - Episode "));
         else anime = data.getString("crunchyroll:seriesTitle");
 
         String description = data.getString("description");

@@ -59,9 +59,10 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
                 .setTimestamp(post.getDate());
 
         if (post.getEpisode().isPresent()) {
-            eb.setTitle(getString("template_title", post.getEpisode().get(), post.getEpisodeTitle()));
+            if (post.getEpisodeTitle().isPresent()) eb.setTitle(getString("template_title",post.getEpisode().get(), post.getEpisodeTitle().get()));
+            else eb.setTitle(getString("template_title_bundle", post.getEpisode().get()));
         } else {
-            if (!post.getEpisodeTitle().isEmpty()) eb.setTitle(post.getEpisodeTitle());
+            if (!post.getEpisodeTitle().isPresent()) eb.setTitle(post.getEpisodeTitle().get());
         }
 
         return eb;

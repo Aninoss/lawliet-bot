@@ -61,7 +61,12 @@ public class UserInfoCommand extends Command {
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args)).
                     setThumbnail(user.getAvatar().getUrl().toString());
-            if (noMention) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+
+            if (noMention) {
+                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                if (followedString.length() > 0)
+                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+            }
 
             event.getServerTextChannel().get().sendMessage(eb).get();
         }

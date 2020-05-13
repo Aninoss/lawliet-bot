@@ -101,8 +101,12 @@ public class GearCommand extends FisheryAbstract {
                         StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect())
                 ), false);
 
-                if (!userMentioned)
+                if (!userMentioned) {
                     eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                    if (followedString.length() > 0)
+                        EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                }
+
                 event.getChannel().sendMessage(eb).get();
             }
         }

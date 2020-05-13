@@ -5,9 +5,9 @@ import java.util.Optional;
 
 public class AnimeReleasePost {
 
-    private String anime, description, episodeTitle, thumbnail, url, episode;
-    private int id;
-    private Instant date;
+    private final String anime, description, episodeTitle, thumbnail, url, episode;
+    private final int id;
+    private final Instant date;
 
     public AnimeReleasePost(String anime, String description, String episode, String episodeTitle, String thumbnail, Instant date, String url, int id) {
         this.anime = anime;
@@ -28,8 +28,8 @@ public class AnimeReleasePost {
         return Optional.ofNullable(episode);
     }
 
-    public String getEpisodeTitle() {
-        return episodeTitle;
+    public Optional<String> getEpisodeTitle() {
+        return Optional.ofNullable(episodeTitle);
     }
 
     public String getThumbnail() {

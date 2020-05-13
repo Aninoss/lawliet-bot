@@ -33,7 +33,8 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83D\uDDD1",
         userPermissions = Permission.MANAGE_SERVER,
         thumbnail = "http://icons.iconarchive.com/icons/martz90/circle/128/trash-icon.png",
-        executable = false
+        executable = false,
+        aliases = {"unwarn"}
 )
 public class WarnRemoveCommand extends Command implements OnReactionAddListener {
 
