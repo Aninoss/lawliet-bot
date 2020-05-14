@@ -53,15 +53,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     }
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this,
-                TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down"),
-                TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down_title")
-        );
-        event.getChannel().sendMessage(eb).get();
-        return false;
-
-        /*if (onGameStart(event, followedString)) {
-
+        if (onGameStart(event, followedString)) {
             if (!allowBet) {
                 logStatus = LogStatus.WARNING;
                 log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
@@ -122,7 +114,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
 
             return true;
         }
-        return false;*/
+        return false;
     }
 
     private void countdown() {
@@ -131,12 +123,12 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             if (active) {
                 onAnswerSelected(-1);
             }
-        } catch (InterruptedException | IOException | SQLException | ExecutionException e) {
+        } catch (InterruptedException | IOException | ExecutionException e) {
             LOGGER.error("Exception on countdown", e);
         }
     }
 
-    private void onAnswerSelected(int selected) throws IOException, SQLException, ExecutionException {
+    private void onAnswerSelected(int selected) throws IOException, ExecutionException, InterruptedException {
         if (selected == correctAnswer) {
             onWin();
             logStatus = LogStatus.WIN;

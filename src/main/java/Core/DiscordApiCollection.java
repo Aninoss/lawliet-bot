@@ -32,30 +32,30 @@ import java.util.stream.Collectors;
 public class DiscordApiCollection {
 
     private static final DiscordApiCollection ourInstance = new DiscordApiCollection();
-    private DiscordApi[] apiList = new DiscordApi[0];
-    private boolean[] apiReady;
+    public static DiscordApiCollection getInstance() { return ourInstance; }
 
     final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiCollection.class);
+
+    private DiscordApi[] apiList = new DiscordApi[0];
+    private boolean[] apiReady;
     private int[] errorCounter;
     private boolean[] isAlive;
 
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
             try {
-                Thread.sleep(8 * 60 * 1000);
+                Thread.sleep(12 * 30 * 1000);
                 if (!allShardsConnected()) {
-                    LOGGER.error("Could not boot up");
+                    LOGGER.error("EXIT - Could not boot up");
                     System.exit(-1);
                 }
             } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
+                LOGGER.error("EXIT - Interrupted", e);
                 System.exit(-1);
             }
         }, "bootup_timebomb", 1);
         t.start();
     }
-
-    public static DiscordApiCollection getInstance() { return ourInstance; }
 
     public void init(int shardNumber) {
         apiList = new DiscordApi[shardNumber];
@@ -91,14 +91,14 @@ public class DiscordApiCollection {
 
                     errorCounter[n]++;
                     if (errorCounter[n] >= 8) {
-                        LOGGER.error("Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
+                        LOGGER.error("EXIT - Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
                         LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
                         System.exit(-1);
                     }
                 }
             }
         } catch (InterruptedException e) {
-            LOGGER.error("Interrupted", e);
+            LOGGER.error("EXIT - Interrupted", e);
             System.exit(-1);
         }
     }

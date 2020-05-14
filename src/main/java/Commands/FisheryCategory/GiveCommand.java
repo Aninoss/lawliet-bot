@@ -68,7 +68,7 @@ public class GiveCommand extends FisheryAbstract {
                     eb = fisheryUser1.changeValues(0, value);
                     event.getChannel().sendMessage(eb);
 
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("successful", StringUtil.numToString(getLocale(), value), user1.getMentionTag()))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("successful", StringUtil.numToString(getLocale(), value), user1.getMentionTag()))).get();
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringUtil.numToString(getLocale(), fisheryUser0.getCoins())))).get();

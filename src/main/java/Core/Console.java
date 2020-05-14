@@ -57,6 +57,7 @@ public class Console {
                         }
                         switch (command) {
                             case "quit":
+                                LOGGER.info("EXIT - User commanded exit");
                                 System.exit(0);
                                 break;
 

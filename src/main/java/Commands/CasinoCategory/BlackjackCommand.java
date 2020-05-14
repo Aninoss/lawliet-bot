@@ -36,7 +36,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     private String[] EMOJIS = {"\uD83D\uDCE5", "✋"};
     private ArrayList<GameCard>[] gameCards;
     private final int TIME_BETWEEN_EVENTS = 2500;
-    private final int TIME_BEFORE_END = 2000;
+    private final int TIME_BEFORE_END = 1000;
     private boolean block;
     private boolean finished;
 

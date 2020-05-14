@@ -180,7 +180,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
                     progress[i] = true;
                     message.edit(getEmbed());
                 }
-                Thread.sleep(500);
+                Thread.sleep(1000);
                 manageEnd();
                 message.edit(getEmbed());
             }

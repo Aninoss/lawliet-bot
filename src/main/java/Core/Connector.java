@@ -55,7 +55,7 @@ public class Connector {
             if (Bot.isProductionMode()) initializeUpdate();
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
-            LOGGER.error("Exception in main method", e);
+            LOGGER.error("EXIT - Exception in main method", e);
             System.exit(-1);
         }
     }
@@ -68,7 +68,7 @@ public class Connector {
             if (!BotUtil.getCurrentVersion().equals(currentVersionDB))
                 versionBean.getSlots().add(new VersionBeanSlot(BotUtil.getCurrentVersion(), Instant.now()));
         } catch (SQLException e) {
-            LOGGER.error("Could not insert new update", e);
+            LOGGER.error("EXIT - Could not insert new update", e);
             System.exit(-1);
         }
     }
@@ -88,7 +88,7 @@ public class Connector {
                             if (shardFuture.thenAccept(api -> onApiJoin(api, true))
                                     .isCompletedExceptionally())
                             {
-                                LOGGER.error("Error while connecting to the Discord servers!");
+                                LOGGER.error("EXIT - Error while connecting to the Discord servers!");
                                 System.exit(-1);
                             }
                         }
@@ -107,7 +107,7 @@ public class Connector {
             DiscordApi api = apiBuilder.login().get();
             onApiJoin(api, false);
         } catch (IOException | InterruptedException | ExecutionException e) {
-            LOGGER.error("Exception when reconnecting shard {}", shardId, e);
+            LOGGER.error("EXIT - Exception when reconnecting shard {}", shardId, e);
             System.exit(-1);
         }
     }
@@ -277,7 +277,7 @@ public class Connector {
                 t.start();
             });
         } catch (Throwable e) {
-            LOGGER.error("Exception in connection method of shard {}", api.getCurrentShard(), e);
+            LOGGER.error("EXIT - Exception in connection method of shard {}", api.getCurrentShard(), e);
             System.exit(-1);
         }
     }

@@ -171,7 +171,7 @@ public class Clock {
             }
 
             if (trafficGB >= 100) {
-                LOGGER.error("Too much traffic");
+                LOGGER.error("EXIT - Too much traffic");
                 System.exit(-1);
             }
         } catch (Exception e) {
@@ -232,7 +232,7 @@ public class Clock {
                 }
 
                 if (Bot.hasUpdate()) {
-                    LOGGER.info("Restarting for update...");
+                    LOGGER.info("EXIT - Restarting for update...");
                     System.exit(0);
                 } else {
                     DBMain.getInstance().clearCache();

@@ -71,7 +71,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
                 long coins = ExchangeRate.getInstance().get(0) * value;
                 EmbedBuilder eb = userBean.changeValues(-value, coins);
 
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedSuccess(this, getString("done")));
+                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("done")));
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else

@@ -105,6 +105,14 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             }
 
             selection[1] = new Random().nextInt(2);
+
+            try {
+                message.edit(getEmbed());
+                Thread.sleep(1000);
+            } catch (IOException | InterruptedException e) {
+                ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
+            }
+
             if (selection[0] == selection[1]) {
                 try {
                     log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
