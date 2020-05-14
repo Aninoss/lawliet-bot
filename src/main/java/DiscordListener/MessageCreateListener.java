@@ -142,7 +142,7 @@ public class MessageCreateListener {
 
                 //Manage Treasure Chests
                 if (messageRegistered &&
-                        new Random().nextInt(1) == 0 &&
+                        new Random().nextInt(400) == 0 &&
                         serverBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
                         serverBean.isFisheryTreasureChests() &&
                         event.getChannel().canYouWrite() &&
