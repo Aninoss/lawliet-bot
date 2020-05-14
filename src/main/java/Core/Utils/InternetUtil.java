@@ -59,8 +59,7 @@ public final class InternetUtil {
             connection.connect();
 
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Could not create connection to google", e);
         }
         return false;

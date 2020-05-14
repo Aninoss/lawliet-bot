@@ -3,6 +3,7 @@ package Core;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Utils.BotUtil;
+import Core.Utils.InternetUtil;
 import Core.Utils.SystemUtil;
 import MySQL.DBMain;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -178,6 +179,14 @@ public class Console {
                                     System.out.println(PatreonCache.getInstance().getPatreonLevel(userId));
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage donation", e);
+                                }
+                                break;
+
+                            case "connection":
+                                try {
+                                    LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not check connection", e);
                                 }
                                 break;
                         }

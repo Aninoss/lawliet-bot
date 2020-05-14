@@ -206,6 +206,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
             nextInstant = TimeUtil.setInstantToNextDay(nextInstant);
         } while(!TimeUtil.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeUtil.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
+        slot.setNextRequest(nextInstant);
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
         return TrackerResult.CONTINUE_AND_SAVE;

@@ -3,6 +3,7 @@ package DiscordListener;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
+import CommandSupporters.CommandManager;
 import Constants.Settings;
 import Core.ExceptionHandler;
 import MySQL.Modules.Server.DBServer;
@@ -44,12 +45,13 @@ public class ReactionAddListener {
                 Embed embed = message.getEmbeds().get(0);
                 if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                     String title = embed.getTitle().get();
-                    for (OnReactionAddStaticListener command : CommandContainer.getInstance().getStaticReactionAddCommands()) {
-                        if (title.toLowerCase().startsWith(command.getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
+                    for (Class<? extends OnReactionAddStaticListener> clazz : CommandContainer.getInstance().getStaticReactionAddCommands()) {
+                        Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz);
+                        if (title.toLowerCase().startsWith(((OnReactionAddStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
                             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-                            ((Command) command).setLocale(serverBean.getLocale());
-                            ((Command) command).setPrefix(serverBean.getPrefix());
-                            command.onReactionAddStatic(message, event);
+                            (command).setLocale(serverBean.getLocale());
+                            (command).setPrefix(serverBean.getPrefix());
+                            ((OnReactionAddStaticListener)command).onReactionAddStatic(message, event);
                             return;
                         }
                     }

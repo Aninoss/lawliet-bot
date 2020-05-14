@@ -43,6 +43,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private void onRemoved(FisheryServerBean fisheryServerBean) {
         if (isChanged(fisheryServerBean)) {
+            LOGGER.warn("Fishery cache overflow (size: {})", getCache().size());
             removeUpdate(fisheryServerBean);
             saveBean(fisheryServerBean);
         }
@@ -350,7 +351,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 10;
+        return 20;
     }
 
 }

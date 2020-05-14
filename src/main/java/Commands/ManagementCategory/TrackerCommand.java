@@ -5,6 +5,7 @@ import CommandListeners.OnNavigationListener;
 import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
+import CommandSupporters.CommandManager;
 import Constants.*;
 import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
@@ -123,7 +124,8 @@ public class TrackerCommand extends Command implements OnNavigationListener {
 
                 case 1:
                     boolean found = false;
-                    for (OnTrackerRequestListener command : CommandContainer.getInstance().getTrackerCommands()) {
+                    for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
+                        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByClass((Class<? extends Command>)clazz);
                         String trigger = ((Command) command).getTrigger();
 
                         if (trigger.equalsIgnoreCase(arg)) {
@@ -237,7 +239,8 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i = 0; i < opt.length; i++) {
-                    String trigger = ((Command) CommandContainer.getInstance().getTrackerCommands().get(i)).getTrigger();
+                    Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
+                    String trigger = Command.getTrigger((Class<? extends Command>) clazz);
                     opt[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }

@@ -31,13 +31,13 @@ import java.util.stream.Collectors;
 
 public class DiscordApiCollection {
 
-    private static DiscordApiCollection ourInstance = new DiscordApiCollection();
+    private static final DiscordApiCollection ourInstance = new DiscordApiCollection();
     private DiscordApi[] apiList = new DiscordApi[0];
     private boolean[] apiReady;
 
     final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiCollection.class);
     private int[] errorCounter;
-    private boolean[] hasReconnected, isAlive;
+    private boolean[] isAlive;
 
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
@@ -49,6 +49,7 @@ public class DiscordApiCollection {
                 }
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
+                System.exit(-1);
             }
         }, "bootup_timebomb", 1);
         t.start();
@@ -60,7 +61,6 @@ public class DiscordApiCollection {
         apiList = new DiscordApi[shardNumber];
         apiReady = new boolean[shardNumber];
         errorCounter = new int[shardNumber];
-        hasReconnected = new boolean[shardNumber];
         isAlive = new boolean[shardNumber];
     }
 
@@ -71,8 +71,8 @@ public class DiscordApiCollection {
     public void markReady(DiscordApi api) {
         apiReady[api.getCurrentShard()] = true;
         if (Bot.isProductionMode()) {
-            Thread t = new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1);
-            t.start();
+            new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1)
+                    .start();
         }
     }
 
@@ -85,25 +85,15 @@ public class DiscordApiCollection {
                 int n = api.getCurrentShard();
                 if (isAlive[n]) {
                     errorCounter[n] = 0;
-                    hasReconnected[n] = false;
                     isAlive[n] = false;
                 } else {
                     LOGGER.debug("No data from shard {}", n);
 
                     errorCounter[n]++;
                     if (errorCounter[n] >= 8) {
-                        if (hasReconnected[n]) {
-                            LOGGER.error("Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
-                            System.exit(-1);
-                        } else {
-                            /*LOGGER.error("Shard {} temporarely offline", n);
-                            reconnectShard(n);
-                            hasReconnected[n] = true;
-                            break;*/
-                            LOGGER.error("Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
-                            LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
-                            System.exit(-1);
-                        }
+                        LOGGER.error("Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
+                        LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
+                        System.exit(-1);
                     }
                 }
             }
@@ -113,20 +103,15 @@ public class DiscordApiCollection {
         }
     }
 
-    public void reconnectShard(int n) {
-        if (Bot.isRunning() && apiReady[n]) {
-            DiscordApi api = apiList[n];
-            apiReady[n] = false;
-            try {
-                CommandContainer.getInstance().clearShard(n);
-            } catch (Exception e) {
-                LOGGER.error("Exception", e);
+    public void stop() {
+        for(DiscordApi api: apiList) {
+            if (api != null) {
+                try {
+                    api.disconnect();
+                } catch (Throwable e) {
+                    LOGGER.error("Error while disconnecting api with shard {}", api.getCurrentShard());
+                }
             }
-            RunningCommandManager.getInstance().clearShard(n);
-            api.disconnect();
-            Connector.reconnectApi(api.getCurrentShard());
-            hasReconnected[n] = false;
-            errorCounter[n] = 0;
         }
     }
 

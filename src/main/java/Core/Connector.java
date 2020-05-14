@@ -3,6 +3,7 @@ package Core;
 import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
+import Core.Utils.SystemUtil;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
@@ -52,7 +53,6 @@ public class Connector {
             Arrays.stream(new File("temp").listFiles()).forEach(File::delete); //Cleans all temp files
 
             if (Bot.isProductionMode()) initializeUpdate();
-            DBFishery.getInstance().cleanUp();
             connect();
         } catch (SQLException | IOException | FontFormatException e) {
             LOGGER.error("Exception in main method", e);
@@ -77,17 +77,22 @@ public class Connector {
         LOGGER.info("Bot is logging in...");
 
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
-            .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
-            .setRecommendedTotalShards().join();
+                .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
+                .setRecommendedTotalShards().join();
 
         int totalShards = apiBuilder.getTotalShards();
         DiscordApiCollection.getInstance().init(totalShards);
 
         apiBuilder.loginAllShards()
-            .forEach(shardFuture -> shardFuture
-                    .thenAccept(api -> onApiJoin(api, true))
-                    .exceptionally(ExceptionLogger.get())
-            );
+                .forEach(shardFuture -> {
+                            if (shardFuture.thenAccept(api -> onApiJoin(api, true))
+                                    .isCompletedExceptionally())
+                            {
+                                LOGGER.error("Error while connecting to the Discord servers!");
+                                System.exit(-1);
+                            }
+                        }
+                );
     }
 
     public static void reconnectApi(int shardId) {
@@ -108,6 +113,7 @@ public class Connector {
     }
 
     public static void onApiJoin(DiscordApi api, boolean startup) {
+
         api.setAutomaticMessageCacheCleanupEnabled(true);
         api.setMessageCacheSize(30, 30 * 60);
 
@@ -115,8 +121,8 @@ public class Connector {
         apiCollection.insertApi(api);
 
         try {
-            if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
             apiCollection.markReady(api);
+            if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
 
             Thread st = new CustomThread(() -> DBAutoChannel.getInstance().synchronize(api),
                     "autochannel_synchro_shard_" + api.getCurrentShard(),
@@ -129,6 +135,7 @@ public class Connector {
             if (apiCollection.allShardsConnected()) {
                 if (startup) {
                     updateActivity();
+                    DBFishery.getInstance().cleanUp();
                     new WebComServer(15744);
 
                     Thread vcObserver = new CustomThread(() -> DBFishery.getInstance().startVCObserver(), "vc_observer", 1);

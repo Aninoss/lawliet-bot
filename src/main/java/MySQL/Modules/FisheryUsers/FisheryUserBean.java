@@ -93,11 +93,16 @@ public class FisheryUserBean extends BeanWithServer {
     public long getCoinsRaw() { return coins; }
 
     public int getRank() {
-        return (int) (fisheryServerBean.getUsers().values().stream()
-                        .filter(user -> (user.getFishIncome() > getFishIncome()) ||
-                                (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
-                                (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins())
-                        ).count() + 1);
+        try {
+            return (int) (fisheryServerBean.getUsers().values().stream()
+                    .filter(user -> (user.getFishIncome() > getFishIncome()) ||
+                            (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
+                            (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins())
+                    ).count() + 1);
+        } catch (ConcurrentModificationException e) {
+            LOGGER.error("Concurrent modification exception", e);
+            return 0;
+        }
     }
 
     public long getFishIncome() {

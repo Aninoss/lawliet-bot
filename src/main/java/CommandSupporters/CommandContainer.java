@@ -29,12 +29,12 @@ public class CommandContainer {
     final Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
 
     private final HashMap<String, Class<? extends Command>> commands;
-    private final ArrayList<OnReactionAddStaticListener> staticReactionAddCommands;
-    private final ArrayList<OnReactionRemoveStaticListener> staticReactionRemoveCommands;
-    private final ArrayList<OnTrackerRequestListener> trackerCommands;
+    private final ArrayList<Class<? extends Command>> commandList;
+    private final ArrayList<Class<? extends OnReactionAddStaticListener>> staticReactionAddCommands;
+    private final ArrayList<Class<? extends OnReactionRemoveStaticListener>> staticReactionRemoveCommands;
+    private final ArrayList<Class<? extends OnTrackerRequestListener>> trackerCommands;
     private final ArrayList<Command> commandsReaction;
     private final ArrayList<Command> commandsMessageForward;
-    private final ArrayList<Class<? extends Command>> commandList;
 
     private CommandContainer() {
         commands = new HashMap<>();
@@ -220,9 +220,9 @@ public class CommandContainer {
                 Command command = CommandManager.createCommandByClass(clazz);
                 addCommand(command.getTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
-                if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add((OnReactionAddStaticListener)command);
-                if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add((OnReactionRemoveStaticListener)command);
-                if (command instanceof OnTrackerRequestListener) trackerCommands.add((OnTrackerRequestListener)command);
+                if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add(((OnReactionAddStaticListener)command).getClass());
+                if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add(((OnReactionRemoveStaticListener)command).getClass());
+                if (command instanceof OnTrackerRequestListener) trackerCommands.add(((OnTrackerRequestListener)command).getClass());
             } catch (IllegalAccessException | InstantiationException e) {
                 LOGGER.error("Could not create class", e);
             }
@@ -260,11 +260,11 @@ public class CommandContainer {
         return commands;
     }
 
-    public ArrayList<OnReactionAddStaticListener> getStaticReactionAddCommands() {
+    public ArrayList<Class<? extends OnReactionAddStaticListener>> getStaticReactionAddCommands() {
         return staticReactionAddCommands;
     }
 
-    public ArrayList<OnReactionRemoveStaticListener> getStaticReactionRemoveCommands() {
+    public ArrayList<Class<? extends OnReactionRemoveStaticListener>> getStaticReactionRemoveCommands() {
         return staticReactionRemoveCommands;
     }
 
@@ -315,7 +315,7 @@ public class CommandContainer {
         return commandsMessageForward.contains(commandParent);
     }
 
-    public ArrayList<OnTrackerRequestListener> getTrackerCommands() {
+    public ArrayList<Class<? extends OnTrackerRequestListener>> getTrackerCommands() {
         return trackerCommands;
     }
 
