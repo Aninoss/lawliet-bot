@@ -21,7 +21,7 @@ public class SignUpCommand extends Command {
         boolean success = false;
 
         if (success) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this,
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                     getString("success", Settings.SERVER_INVITE_URL,
                             event.getMessage().getUserAuthor().get().getMentionTag(),
                             event.getServer().get().getName()

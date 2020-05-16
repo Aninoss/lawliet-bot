@@ -33,24 +33,6 @@ public class EmbedFactory {
         return getCommandEmbedStandard(command, description).setTitle(command.getEmoji()+" "+title);
     }
 
-    public static EmbedBuilder getCommandEmbedSuccess(Command command) {
-        return getCommandEmbedSuccess(command,null);
-    }
-
-    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description) {
-        EmbedBuilder eb = new EmbedBuilder()
-                .setColor(SUCCESS_EMBED_COLOR)
-                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "success"))
-                .setTimestampToNow();
-        if (description != null && description.length() > 0) eb.setDescription(description);
-
-        return eb;
-    }
-
-    public static EmbedBuilder getCommandEmbedSuccess(Command command, String description, String title) {
-        return getCommandEmbedSuccess(command, description).setTitle(command.getEmoji()+" "+title);
-    }
-
     public static EmbedBuilder getCommandEmbedError(Command command) {
         return getCommandEmbedError(command,null);
     }

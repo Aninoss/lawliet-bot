@@ -266,7 +266,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 return eb;
 
             case 4:
-                return EmbedFactory.getCommandEmbedSuccess(this, getString("state4_description"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"));
         }
 
         return null;

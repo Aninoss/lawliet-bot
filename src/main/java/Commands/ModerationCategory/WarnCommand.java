@@ -99,7 +99,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
 
         ModSettingsCommand.postLog(this, actionEmbed, moderationBean);
 
-        EmbedBuilder successEb = EmbedFactory.getCommandEmbedSuccess(this, getString("success_description", mention.isMultiple(), mention.getString()));
+        EmbedBuilder successEb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.getString()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
         postMessage(channel, successEb);
 

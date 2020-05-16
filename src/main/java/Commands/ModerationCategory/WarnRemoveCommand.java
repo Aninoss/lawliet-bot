@@ -96,7 +96,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
             serverWarningsSlots.remove(Math.max(0, serverWarningsSlots.size() - n), serverWarningsSlots.size());
         }
 
-        postMessage(EmbedFactory.getCommandEmbedSuccess(this,
+        postMessage(EmbedFactory.getCommandEmbedStandard(this,
                 getString("success", n != 1, nString, userString)
         ));
 

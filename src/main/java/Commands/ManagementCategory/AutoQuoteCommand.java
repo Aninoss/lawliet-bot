@@ -40,7 +40,7 @@ public class AutoQuoteCommand extends Command implements OnReactionAddListener {
 
             boolean active = option == 1;
             DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).setActive(active);
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set", active))).get();
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set", active))).get();
             return true;
         } else {
             String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive());
@@ -59,7 +59,7 @@ public class AutoQuoteCommand extends Command implements OnReactionAddListener {
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 boolean active = i == 1;
                 DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).setActive(active);
-                getReactionMessage().edit(EmbedFactory.getCommandEmbedSuccess(this, getString("set", active))).get();
+                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set", active))).get();
                 removeReactionListener(getReactionMessage());
                 return;
             }

@@ -59,6 +59,7 @@ public class TextManager {
             text = text.replace("%CURRENCY", Settings.CURRENCY);
             text = text.replace("%COINS", Settings.COINS);
             text = text.replace("%GROWTH", Settings.GROWTH);
+            text = text.replace("%DAILYSTREAK", Settings.DAILY_STREAK);
 
             return text;
         }

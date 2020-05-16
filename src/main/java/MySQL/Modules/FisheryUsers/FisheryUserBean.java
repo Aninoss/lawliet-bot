@@ -38,16 +38,16 @@ public class FisheryUserBean extends BeanWithServer {
     private FisheryServerBean fisheryServerBean = null;
     private final HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
     private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
-    private long fish, coins;
+    private long fish, coins, dailyStreak;
     private LocalDate dailyReceived;
-    private int dailyStreak, upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1, vcMinutes = 0;
+    private int upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1, vcMinutes = 0;
     private boolean reminderSent, changed = false, banned = false;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
     private long hiddenCoins = 0, messagesThisHour = 0;
     private String lastContent = null;
 
-    FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+    FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
         super(serverBean);
         this.userId = userId;
         this.fish = fish;
@@ -132,7 +132,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public LocalDate getDailyReceived() { return dailyReceived; }
 
-    public int getDailyStreak() { return dailyStreak; }
+    public long getDailyStreak() { return dailyStreak; }
 
     public int getUpvoteStack() { return upvoteStack; }
 
@@ -248,7 +248,7 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public void setDailyStreak(int dailyStreak) {
+    public void setDailyStreak(long dailyStreak) {
         if (this.dailyStreak != dailyStreak) {
             this.dailyStreak = dailyStreak;
             checkValuesBound();
@@ -256,13 +256,13 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public synchronized EmbedBuilder changeValues(long fishAdd, long coinsAdd, Integer newDailyStreak) {
+    public synchronized EmbedBuilder changeValues(long fishAdd, long coinsAdd, Long newDailyStreak) {
         /* Collect Current Data */
         long fishIncomePrevious = getFishIncome();
         long fishPrevious = getFish();
         long coinsPrevious = getCoins();
         long rankPrevious = getRank();
-        int dailyStreakPrevious = getDailyStreak();
+        long dailyStreakPrevious = getDailyStreak();
 
         /* Update Changes */
         if (fishAdd != 0) {
@@ -350,6 +350,7 @@ public class FisheryUserBean extends BeanWithServer {
             else if (fishIncome < 0) fishIncome = 0L;
         }
 
+        if (dailyStreak > Settings.MAX) dailyStreak = Settings.MAX;
         if (dailyStreak < 0) dailyStreak = 0;
     }
 

@@ -94,7 +94,7 @@ public class ChannelMuteCommand extends Command  {
             EmbedBuilder eb;
 
             if (doneSomething)
-                eb = EmbedFactory.getCommandEmbedSuccess(this, getString("success_description", mention.isMultiple(), mention.getString(), channel.getMentionTag()));
+                eb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.getString(), channel.getMentionTag()));
             else
                 eb = EmbedFactory.getCommandEmbedError(this, getString("nothingdone", mention.isMultiple(), mention.getString(), channel.getMentionTag()));
 

@@ -99,7 +99,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 preparedStatement.setLong(3, fisheryUserBean.getFish());
                 preparedStatement.setLong(4, fisheryUserBean.getCoinsRaw());
                 preparedStatement.setString(5, DBMain.localDateToDateString(fisheryUserBean.getDailyReceived()));
-                preparedStatement.setInt(6, fisheryUserBean.getDailyStreak());
+                preparedStatement.setLong(6, fisheryUserBean.getDailyStreak());
                 preparedStatement.setBoolean(7, fisheryUserBean.isReminderSent());
                 preparedStatement.setInt(8, fisheryUserBean.getUpvoteStack());
             });
@@ -158,7 +158,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     resultSet.getLong(2),
                     resultSet.getLong(3),
                     resultSet.getDate(4).toLocalDate(),
-                    resultSet.getInt(5),
+                    resultSet.getLong(5),
                     resultSet.getBoolean(6),
                     resultSet.getInt(7),
                     fisheryHourlyIncomeMap.getOrDefault(userId, new HashMap<>()),

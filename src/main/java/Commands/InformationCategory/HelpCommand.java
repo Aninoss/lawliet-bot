@@ -105,7 +105,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 13;
+        return 14;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -149,10 +149,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         )
                         .setFooter(getString("command_args"))
                         .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
-                        .addField(getString("command_usage"),usage.toString(),true)
-                        .addField(getString( "command_example", exampleNumber > 1), examples.toString(),true);
+                        .addField(Settings.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
+                        .addField(Settings.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
 
-                if (command.getUserPermissions() > 0) eb.addField(getString("command_userpermissions"), permissionsList,false);
+                if (command.getUserPermissions() > 0) eb.addField(Settings.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
 
                 return eb;
             }

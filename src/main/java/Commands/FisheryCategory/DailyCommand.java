@@ -36,7 +36,7 @@ public class DailyCommand extends FisheryAbstract {
 
             int bonusCombo = 0;
             int bonusDonation = 0;
-            int dailyStreakNow = breakStreak ? 1 : userBean.getDailyStreak() + 1;
+            long dailyStreakNow = breakStreak ? 1 : userBean.getDailyStreak() + 1;
 
             if (dailyStreakNow >= 5) {
                 bonusCombo = (int) Math.round(fishes * 0.25);

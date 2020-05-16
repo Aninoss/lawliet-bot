@@ -46,7 +46,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         int deleted = pair.getKey();
 
         String key = skipped ? "finished_too_old" : "finished_description";
-        Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString(key, deleted != 1, String.valueOf(deleted)))
+        Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString(key, deleted != 1, String.valueOf(deleted)))
                 .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
         Thread t = new CustomThread(() -> {
             try {

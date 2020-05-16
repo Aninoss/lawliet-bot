@@ -38,7 +38,7 @@ public class PrefixCommand extends Command {
                     }
                 }
 
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("changed", followedString))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("changed", followedString))).get();
                 return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,

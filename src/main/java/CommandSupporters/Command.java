@@ -147,7 +147,8 @@ public abstract class Command {
             navigationActive = true;
             if (firstTime) success = onMessageReceived(event, followedString) ? Response.TRUE : Response.FALSE;
             else success = ((OnNavigationListener) this).controllerMessage(event, followedString, state);
-            if ((success != null || navigationMessage == null) && (!firstTime || success == Response.TRUE)) {
+
+            if ((success != null || navigationMessage == null) && (!firstTime || success == Response.TRUE) && navigationActive) {
                 if (countdown != null) countdown.reset();
                 drawSuper(event.getApi(), event.getServerTextChannel().get());
             }

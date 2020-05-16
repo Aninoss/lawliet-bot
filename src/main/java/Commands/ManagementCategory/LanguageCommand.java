@@ -43,7 +43,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
             }
 
             DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set"))).get();
             return true;
         } else {
             message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("reaction"))).get();
@@ -61,7 +61,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 setLocale(new Locale(languageLocales[i]));
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
-                getReactionMessage().edit(EmbedFactory.getCommandEmbedSuccess(this, getString("set"))).get();
+                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;
             }
