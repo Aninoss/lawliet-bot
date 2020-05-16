@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "help",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
         emoji = "❕",
         executable = true,
         requiresEmbeds = false,
@@ -148,7 +147,6 @@ public class HelpCommand extends Command implements OnNavigationListener {
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
                                         command.getEmoji()+" "+TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_title")
                         )
-                        .setThumbnail(command.getThumbnail())
                         .setFooter(getString("command_args"))
                         .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
                         .addField(getString("command_usage"),usage.toString(),true)

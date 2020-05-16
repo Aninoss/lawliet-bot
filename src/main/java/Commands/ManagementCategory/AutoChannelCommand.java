@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
     botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
     userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
     emoji = "\uD83D\uDD0A",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Sound-icon.png",
     executable = true
 )
 public class AutoChannelCommand extends Command implements OnNavigationListener {

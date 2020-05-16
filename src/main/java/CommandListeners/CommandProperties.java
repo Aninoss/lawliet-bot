@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface CommandProperties {
     String trigger();
     String[] aliases() default {};
-    String thumbnail() default "";
     String emoji();
     boolean nsfw() default false;
     boolean withLoadingBar() default false;

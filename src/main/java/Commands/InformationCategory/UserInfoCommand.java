@@ -17,7 +17,6 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "userinfo",
         emoji = "\uD83D\uDC81",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/information-icon.png",
         executable = true,
         aliases = {"userinfos", "userstat", "userstats", "accountinfo"}
 )

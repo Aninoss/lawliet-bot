@@ -29,7 +29,6 @@ import java.util.Optional;
 @CommandProperties(
         trigger = "commandusages",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/note-icon.png",
         emoji = "\uD83D\uDCD3",
         executable = true,
         aliases = {"cu", "commandusage"}

@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
     botPermissions = Permission.MANAGE_MESSAGES,
     userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEA7️",
-    thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/road-block-icon.png",
     executable = true
 )
 public class BannedWordsCommand extends Command implements OnNavigationListener {

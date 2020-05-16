@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
         trigger = "tracker",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Favourite-2-icon.png",
         emoji = "\uD83D\uDD16",
         executable = true,
         aliases = {"track", "tracking"}
@@ -137,7 +136,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                                     setLog(LogStatus.FAILURE, getString("state1_alreadytracking"));
                                     return;
                                 }
-                                slot.stop();
                             }
                             this.commandTrigger = trigger;
                             if (!command.trackerUsesKey()) {
@@ -162,7 +160,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                     TrackerBeanSlot slotRemove = getTracker(arg);
                     if (slotRemove != null) {
                         slotRemove.delete();
-                        slotRemove.stop();
                         updateTrackerList();
                         setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
                         if (trackerSlots.size() == 0) {
@@ -195,7 +192,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 null
         );
         DBTracker.getInstance().getBean().getMap().put(new Pair<>(channelId, commandTrigger), slot);
-        slot.start();
         setState(1);
         setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
     }

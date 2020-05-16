@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "new",
         emoji = "\uD83C\uDD95",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/new-icon.png",
         executable = true,
         aliases = {"changelog"}
 )

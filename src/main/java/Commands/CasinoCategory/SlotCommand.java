@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "slot",
         emoji = "\uD83C\uDFB0",
-        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
         executable = true,
         aliases = {"slots", "slotmachine"}
 )

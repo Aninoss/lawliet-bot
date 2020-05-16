@@ -14,7 +14,6 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "language",
         userPermissions = Permission.MANAGE_SERVER,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/flag-icon.png",
         emoji = "\uD83C\uDF10",
         executable = true,
         aliases = {"sprache", "lang"}

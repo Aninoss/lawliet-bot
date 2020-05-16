@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +40,8 @@ public class DiscordApiCollection {
     private DiscordApi[] apiList = new DiscordApi[0];
     private boolean[] apiReady;
     private int[] errorCounter;
-    private boolean[] isAlive;
+    private boolean[] hasReconnected, isAlive;
+    private Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
@@ -62,6 +64,7 @@ public class DiscordApiCollection {
         apiReady = new boolean[shardNumber];
         errorCounter = new int[shardNumber];
         isAlive = new boolean[shardNumber];
+        hasReconnected = new boolean[shardNumber];
     }
 
     public void insertApi(DiscordApi api) {
@@ -86,20 +89,45 @@ public class DiscordApiCollection {
                 if (isAlive[n]) {
                     errorCounter[n] = 0;
                     isAlive[n] = false;
+                    hasReconnected[n] = false;
                 } else {
                     LOGGER.debug("No data from shard {}", n);
 
                     errorCounter[n]++;
                     if (errorCounter[n] >= 8) {
-                        LOGGER.error("EXIT - Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
-                        LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
-                        System.exit(-1);
+                        if (hasReconnected[n]) {
+                            LOGGER.error("EXIT - Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
+                            LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
+                            System.exit(-1);
+                        } else {
+                            LOGGER.warn("Shard {} temporarely offline", n);
+                            reconnectShard(n);
+                            hasReconnected[n] = true;
+                            break;
+                        }
                     }
                 }
             }
         } catch (InterruptedException e) {
             LOGGER.error("EXIT - Interrupted", e);
             System.exit(-1);
+        }
+    }
+
+    public void reconnectShard(int n) {
+        if (Bot.isRunning() && apiReady[n]) {
+            DiscordApi api = apiList[n];
+            apiReady[n] = false;
+            try {
+                CommandContainer.getInstance().clearShard(n);
+            } catch (Exception e) {
+                LOGGER.error("Exception", e);
+            }
+            RunningCommandManager.getInstance().clearShard(n);
+            api.disconnect();
+            Connector.reconnectApi(api.getCurrentShard());
+            hasReconnected[n] = false;
+            errorCounter[n] = 0;
         }
     }
 
@@ -426,4 +454,7 @@ public class DiscordApiCollection {
         return HttpRequest.getData(webhookUrl, "POST", jsonObject.toString(), contentType);
     }
 
+    public Instant getStartingTime() {
+        return startingTime;
+    }
 }

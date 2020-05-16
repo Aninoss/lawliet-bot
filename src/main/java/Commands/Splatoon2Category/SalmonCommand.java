@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDC1F",
-    thumbnail = "https://pre00.deviantart.net/1e9a/th/pre/i/2017/195/1/b/salmon_run_by_sqwdink-dbgdl3u.png",
     executable = true
 )
 public class SalmonCommand extends Command implements OnTrackerRequestListener {

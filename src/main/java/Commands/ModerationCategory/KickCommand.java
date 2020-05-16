@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutionException;
     trigger = "kick",
     botPermissions = Permission.KICK_MEMBERS,
     userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
-    thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/door-icon.png",
     emoji = "\uD83D\uDEAA",
     executable = false
 )

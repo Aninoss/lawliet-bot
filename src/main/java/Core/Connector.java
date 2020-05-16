@@ -113,7 +113,6 @@ public class Connector {
     }
 
     public static void onApiJoin(DiscordApi api, boolean startup) {
-
         api.setAutomaticMessageCacheCleanupEnabled(true);
         api.setMessageCacheSize(30, 30 * 60);
 
@@ -143,10 +142,9 @@ public class Connector {
 
                     LOGGER.info("All shards connected successfully");
 
-                    if (Bot.isProductionMode()) {
+                    if (Bot.isProductionMode())
                         new CustomThread(() -> Clock.getInstance().start(), "clock", 1).start();
-                        DBTracker.getInstance().init();
-                    }
+                    DBTracker.getInstance().init();
                 } else {
                     updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
                 }

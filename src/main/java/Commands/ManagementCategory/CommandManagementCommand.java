@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
         trigger = "commandmanagement",
         userPermissions = Permission.ADMINISTRATOR,
         emoji = "\uD83D\uDEA6",
-        thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/traffic-icon.png",
         executable = true,
         aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm"}
 )

@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.MANAGE_ROLES | Permission.READ_MESSAGE_HISTORY,
         userPermissions = Permission.MANAGE_ROLES,
         emoji = "\u2611\uFE0F️",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-tick-icon.png",
         executable = true,
         aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
 )

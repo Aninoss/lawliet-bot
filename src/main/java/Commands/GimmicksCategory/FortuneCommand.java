@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "fortune",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/android-settings/128/question-icon.png",
         emoji = "❓",
         executable = false,
         aliases = {"question"}

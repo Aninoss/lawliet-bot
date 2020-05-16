@@ -16,7 +16,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 @CommandProperties(
         trigger = "say",
         emoji = "\uD83D\uDCAC",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/arrow-refresh-4-icon.png",
         executable = false,
         aliases = {"repeat"}
 )

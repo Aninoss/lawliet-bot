@@ -24,7 +24,6 @@ import java.util.concurrent.ExecutionException;
         trigger = "quote",
         botPermissions = Permission.READ_MESSAGE_HISTORY,
         userPermissions = Permission.READ_MESSAGE_HISTORY,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png",
         emoji = "\uD83D\uDCDD",
         executable = false,
         aliases = {"qoute"}

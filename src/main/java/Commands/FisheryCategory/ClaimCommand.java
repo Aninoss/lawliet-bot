@@ -22,7 +22,6 @@ import java.time.temporal.ChronoUnit;
 @CommandProperties(
     trigger = "claim",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/gift-icon.png",
     emoji = "\uD83C\uDF80",
     executable = true
 )
@@ -45,7 +44,7 @@ public class ClaimCommand extends FisheryAbstract {
         } else {
             long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb);

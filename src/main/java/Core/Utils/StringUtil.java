@@ -140,7 +140,7 @@ public final class StringUtil {
                     str = str.substring(0, pos);
                 }
             }
-            while ((str.charAt(str.length()-1) == '.' || str.charAt(str.length()-1) == ' ' || str.charAt(str.length()-1) == '\n') && str.length() > 0) str = str.substring(0,str.length()-1);
+            while (str.length() > 0 && (str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n')) str = str.substring(0, str.length() - 1);
 
             str = str + " (…)";
         }

@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "donate",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-icon.png",
         emoji = "\uD83D\uDCB8",
         executable = true,
         aliases = {"patreon", "donation"}

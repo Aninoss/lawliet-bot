@@ -23,7 +23,6 @@ import java.util.Date;
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDDFA",
-    thumbnail = "https://pbs.twimg.com/profile_images/819765217957552132/1WftJJM1.jpg",
     executable = true
 )
 public class MapsCommand extends Command implements OnTrackerRequestListener {

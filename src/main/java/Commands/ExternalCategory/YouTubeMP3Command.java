@@ -19,7 +19,6 @@ import java.util.Optional;
         emoji = "\uD83C\uDFB5",
         botPermissions = Permission.ATTACH_FILES,
         userPermissions = Permission.ATTACH_FILES,
-        thumbnail = "http://icons.iconarchive.com/icons/martz90/circle/128/youtube-icon.png",
         executable = false,
         aliases = {"youtubemp3", "yt"}
 )

@@ -4,7 +4,7 @@ import Constants.Category;
 
 public class CategoryCalculator {
 
-    public static String getCategoryByCommand(Class c) {
+    public static String getCategoryByCommand(Class<? extends Command> c) {
         String packageName = c.getPackage().getName();
         if (packageName.equals("Commands.GimmicksCategory")) return Category.GIMMICKS;
         if (packageName.equals("Commands.NSFWCategory")) return Category.NSFW;

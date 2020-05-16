@@ -26,7 +26,6 @@ import java.util.ArrayList;
         trigger = "whitelist",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "✅",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/check-1-icon.png",
         executable = true,
         aliases = {"wl"}
 )

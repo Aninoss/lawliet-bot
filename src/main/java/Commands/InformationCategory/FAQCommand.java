@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "faq",
-        thumbnail = "http://icons.iconarchive.com/icons/designbolts/ios8-cirtangle-concept/128/Help-icon.png",
         emoji = "❔",
         executable = true
 )

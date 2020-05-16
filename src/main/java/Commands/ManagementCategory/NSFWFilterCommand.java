@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
         trigger = "nsfwfilter",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "⛔",
-        thumbnail = "http://icons.iconarchive.com/icons/google/noto-emoji-symbols/128/73038-no-one-under-eighteen-icon.png",
         executable = true,
         aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
 )

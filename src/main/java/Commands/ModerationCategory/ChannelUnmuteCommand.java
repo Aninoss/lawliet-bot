@@ -8,7 +8,6 @@ import Constants.Permission;
         trigger = "chunmute",
         userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
         botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
-        thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/stop-icon.png",
         emoji = "\uD83D\uDED1",
         executable = false,
         aliases = {"channelunmute", "unmute", "unchmute", "unchannelmute"}

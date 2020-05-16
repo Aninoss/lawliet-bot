@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\u2699\uFE0F️",
-        thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         executable = true,
         patronRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }

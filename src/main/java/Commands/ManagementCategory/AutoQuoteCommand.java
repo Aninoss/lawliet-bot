@@ -15,7 +15,6 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 @CommandProperties(
         trigger = "autoquote",
         userPermissions = Permission.MANAGE_SERVER,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Book-icon.png",
         emoji = "\uD83D\uDCDD",
         executable = true
 )

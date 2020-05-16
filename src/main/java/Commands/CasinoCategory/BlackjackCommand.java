@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "blackjack",
         emoji = "\uD83C\uDCCF",
-        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Coins-icon.png",
         executable = true,
         aliases = {"bj"}
 )

@@ -25,7 +25,6 @@ import java.util.Date;
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDED2",
-    thumbnail = "https://vignette.wikia.nocookie.net/splatoon/images/1/12/InklingUsingSplatNet.jpg/revision/latest?cb=20160116221000&path-prefix=de",
     executable = true
 )
 public class SplatnetCommand extends Command implements OnTrackerRequestListener {

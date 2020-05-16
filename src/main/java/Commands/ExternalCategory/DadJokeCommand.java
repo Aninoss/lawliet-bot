@@ -14,7 +14,6 @@ import org.json.JSONObject;
     trigger = "dadjoke",
     withLoadingBar = true,
     emoji = "\uD83D\uDE44",
-    thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Man-6-icon.png",
     executable = true
 )
 public class DadJokeCommand extends Command {

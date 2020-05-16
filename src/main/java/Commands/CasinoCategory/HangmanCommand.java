@@ -22,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "hangman",
         emoji = "\uD83D\uDD21",
-        thumbnail = "http://icons.iconarchive.com/icons/flat-icons.com/flat/128/Pencil-icon.png",
         executable = true
 )
 public class HangmanCommand extends CasinoAbstract implements OnForwardedRecievedListener, OnReactionAddListener {

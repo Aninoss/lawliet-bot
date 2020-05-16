@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.MANAGE_ROLES,
         userPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDC6A",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/User-group-icon.png",
         executable = true,
         aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
 )

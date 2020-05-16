@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
     trigger = "ban",
     botPermissions = Permission.BAN_MEMBERS,
     userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/close-2-icon.png",
     emoji = "\uD83D\uDEAB",
     executable = false
 )

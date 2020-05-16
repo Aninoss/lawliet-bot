@@ -9,7 +9,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
         trigger = "signup",
-        thumbnail = "http://icons.iconarchive.com/icons/custom-icon-design/flatastic-3/128/signup-icon.png",
         emoji = "✏️",
         executable = true,
         aliases = {"giveaway"}

@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "gear",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        thumbnail = "http://icons.iconarchive.com/icons/thegirltyler/brand-camp/128/Fishing-Worm-icon.png",
         emoji = "\uD83C\uDFA3",
         executable = true,
         aliases = {"equip", "equipment", "inventory", "level"}

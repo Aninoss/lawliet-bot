@@ -1,6 +1,7 @@
 package MySQL;
 
 import Core.CustomThread;
+import Core.IntervalBlock;
 import Core.Utils.TimeUtil;
 import MySQL.Interfaces.CompleteLoadOnStartup;
 import MySQL.Interfaces.IntervalSave;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +23,6 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     private final DBBeanGenerator<T, U> instance = this;
     private ArrayList<U> changed;
-    private Instant nextCheck;
     private boolean allLoaded = false;
     private final LoadingCache<T, U> cache;
 
@@ -51,7 +52,6 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
         if (this instanceof IntervalSave) {
             int minutes = ((IntervalSave)this).getIntervalMinutes();
-            nextCheck = Instant.now().plusSeconds(minutes * 60);
             changed = new ArrayList<>();
 
             Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
@@ -59,14 +59,9 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             }, "shutdown_intervalsave"));
 
             Thread t = new CustomThread(() -> {
-                try {
-                    while(true) {
-                        Thread.sleep(TimeUtil.getMilisBetweenInstants(Instant.now(), nextCheck));
-                        nextCheck = Instant.now().plusSeconds(minutes * 60);
-                        if (changed.size() > 0) intervalSave();
-                    }
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
+                IntervalBlock intervalBlock = new IntervalBlock(minutes, ChronoUnit.MINUTES);
+                while(intervalBlock.block()) {
+                    if (changed.size() > 0) intervalSave();
                 }
             }, "dbbean_interval_save", 1);
             t.start();

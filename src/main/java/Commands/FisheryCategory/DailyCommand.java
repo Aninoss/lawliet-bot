@@ -21,7 +21,6 @@ import java.time.temporal.ChronoUnit;
 @CommandProperties(
     trigger = "daily",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    thumbnail = "http://icons.iconarchive.com/icons/fps.hu/free-christmas-flat-circle/128/calendar-icon.png",
     emoji = "\uD83D\uDDD3",
     executable = true
 )
@@ -53,7 +52,7 @@ public class DailyCommand extends FisheryAbstract {
             if (bonusDonation > 0)
                 sb.append("\n").append(getString("point_donation", StringUtil.numToString(getLocale(), bonusDonation)));
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedSuccess(this, getString("codeblock", sb.toString()));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("codeblock", sb.toString()));
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", Settings.PATREON_PAGE, Settings.UPVOTE_URL), false);
             if (breakStreak) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 

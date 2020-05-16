@@ -15,7 +15,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 @CommandProperties(
     trigger = "prefix",
     userPermissions = Permission.MANAGE_SERVER,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/name-card-icon.png",
     emoji = "\uD83D\uDCDB",
     executable = false
 )

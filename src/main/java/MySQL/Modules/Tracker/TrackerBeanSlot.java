@@ -32,8 +32,7 @@ public class TrackerBeanSlot extends BeanWithServer {
     private final String commandTrigger, commandKey;
     private String args;
     private Instant nextRequest;
-    private Thread thread = null;
-    private boolean started = false;
+    private boolean active = true;
 
     public TrackerBeanSlot(ServerBean serverBean, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
         super(serverBean);
@@ -73,8 +72,6 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     public Instant getNextRequest() { return nextRequest; }
 
-    public Thread getThread() { return thread; }
-
 
     /* Setters */
 
@@ -99,95 +96,23 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     /* Actions */
 
-    public void start() {
-        if (started) return;
-        started = true;
-        ServerBean serverBean = getServerBean();
-
-        Thread t = new CustomThread(() -> {
-            thread = Thread.currentThread();
-            Locale locale = serverBean.getLocale();
-            String prefix = serverBean.getPrefix();
-            boolean firstTime = true;
-            try {
-                OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(commandTrigger, locale, prefix);
-                boolean cont = true;
-                do {
-                    try {
-                        cont = manageTracker(command, firstTime);
-                    } catch (InterruptedException e) {
-                        LOGGER.info("Tracker {} on server {} interrupted", commandTrigger, getServerId());
-                        return;
-                    } catch (Throwable e) {
-                        LOGGER.error("Could not manage tracker", e);
-                    }
-                    firstTime = false;
-                } while(cont);
-            } catch (IllegalAccessException | InstantiationException e) {
-                LOGGER.error("Could not create command", e);
-            }
-        }, "tracker_" + serverBean.getServerId() + "_" + commandTrigger, 1);
-        t.start();
-    }
-
-    private boolean manageTracker(OnTrackerRequestListener command, boolean firstTime) throws Throwable {
-        Thread.sleep(Math.max(firstTime ? 0 : 5 * 60 * 1000, TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest)));
-
-        Optional<ServerTextChannel> channelOpt = getChannel();
-        if (channelOpt.isPresent() &&
-                PermissionCheckRuntime.getInstance().botHasPermission(((Command)command).getLocale(), TrackerCommand.class, channelOpt.get(),  Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)
-        ) {
-            switch (command.onTrackerRequest(this)) {
-                case STOP:
-                    return false;
-
-                case STOP_AND_DELETE:
-                    delete();
-                    stop();
-                    return false;
-
-                case STOP_AND_SAVE:
-                    waitforObservers();
-                    setChanged();
-                    notifyObservers();
-                    return false;
-
-                case CONTINUE:
-                    return true;
-
-                case CONTINUE_AND_SAVE:
-                    waitforObservers();
-                    setChanged();
-                    notifyObservers();
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void waitforObservers() throws InterruptedException {
-        int i = 0;
-        while (countObservers() == 0) {
-            Thread.sleep(100);
-            if (i >= 10) {
-                LOGGER.error("Tracker no observer added");
-                break;
-            }
-            i++;
-        }
-    }
-
-    public void stop() {
-        if (thread != null) thread.interrupt();
-    }
-
     public void delete() {
         try {
             DBTracker.getInstance().getBean().getMap().remove(new Pair<>(channelId, commandTrigger));
         } catch (SQLException e) {
             LOGGER.error("Could not remove tracker", e);
         }
+    }
+
+    public void stop() {
+        active = false;
+    }
+
+    public boolean isActive() { return active; }
+
+    public void save() {
+        setChanged();
+        notifyObservers();
     }
 
 }

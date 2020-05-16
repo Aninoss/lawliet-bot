@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "acc",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
         emoji = "\uD83D\uDE4B",
         executable = true,
         aliases = {"profile", "profil", "account"}

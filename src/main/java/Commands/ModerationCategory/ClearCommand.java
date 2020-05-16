@@ -24,7 +24,6 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83D\uDDD1\uFE0F",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Recyclebin-icon.png",
         maxCalculationTimeSec = 5 * 60,
         executable = false
 )

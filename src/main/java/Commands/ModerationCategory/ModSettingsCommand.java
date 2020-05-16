@@ -39,17 +39,16 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\u2699\uFE0F️",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/settings-3-icon.png",
         executable = true,
         aliases = {"modsettings"}
 )
 public class ModSettingsCommand extends Command implements OnNavigationListener {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ModSettingsCommand.class);
+
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
-    private static final String EMOJI_AUTOMOD = "\uD83D\uDC77",
-            TN_AUTOMOD = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Road-Worker-1-icon.png";
+    private static final String EMOJI_AUTOMOD = "\uD83D\uDC77";
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -319,8 +318,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban"))
-                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban_template", user.getDisplayName(server)))
-                        .setThumbnail(TN_AUTOMOD);
+                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban_template", user.getDisplayName(server)));
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (IllegalAccessException | InstantiationException | ExecutionException e) {
@@ -334,8 +332,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick_template", user.getDisplayName(server)))
-                        .setThumbnail(TN_AUTOMOD);
+                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick_template", user.getDisplayName(server)));
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (ExecutionException | IllegalAccessException | InstantiationException e) {

@@ -25,7 +25,6 @@ public class EmbedFactory {
                 .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), TextManager.COMMANDS, command.getTrigger()+"_title"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
-        if (command.getThumbnail() != null && command.getThumbnail().length() > 0) eb.setThumbnail(command.getThumbnail());
 
         return eb;
     }
@@ -44,7 +43,6 @@ public class EmbedFactory {
                 .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "success"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
-        if (command.getThumbnail() != null && command.getThumbnail().length() > 0) eb.setThumbnail(command.getThumbnail());
 
         return eb;
     }
@@ -63,7 +61,6 @@ public class EmbedFactory {
                 .setTitle(TextManager.getString(command.getLocale(),TextManager.GENERAL,"wrong_args"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
-        if (command.getThumbnail() != null && command.getThumbnail().length() > 0) eb.setThumbnail(command.getThumbnail());
         return eb;
     }
 

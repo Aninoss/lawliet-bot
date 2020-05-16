@@ -20,7 +20,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
         trigger = "stats",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCCA",
-        thumbnail = "http://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Graph-Magnifier-icon.png",
         executable = true,
         aliases = {"info"}
 )

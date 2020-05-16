@@ -60,6 +60,7 @@ public class DBTracker extends DBCached {
                                 return null;
                             }
                     );
+            slots.entrySet().removeIf(set -> !set.getValue().getServer().isPresent());
 
             trackerBean = new TrackerBean(slots);
             trackerBean.getMap()
@@ -68,6 +69,7 @@ public class DBTracker extends DBCached {
                     .addMapRemoveListener(this::removeTracker);
 
             trackerBean.start();
+            LOGGER.info("Tracker started");
         }
 
         return trackerBean;
@@ -105,7 +107,7 @@ public class DBTracker extends DBCached {
     @Override
     public void clear() {
         if (trackerBean != null) {
-            trackerBean.getMap().values().forEach(TrackerBeanSlot::stop);
+            trackerBean.stop();
             trackerBean = null;
             init();
         }

@@ -20,7 +20,6 @@ import java.util.Optional;
 @CommandProperties(
         trigger = "top",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Cup-champion-icon.png",
         emoji = "\uD83C\uDFC6",
         executable = true,
         aliases = {"rankings", "ranking", "rank", "ranks", "leaderboard"}

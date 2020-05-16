@@ -21,7 +21,7 @@ import java.util.*;
 
 public class CommandContainer {
 
-    private static CommandContainer ourInstance = new CommandContainer();
+    private static final CommandContainer ourInstance = new CommandContainer();
     public static CommandContainer getInstance() {
         return ourInstance;
     }
@@ -82,7 +82,6 @@ public class CommandContainer {
         commandList.add(ChannelUnmuteCommand.class);
         commandList.add(SelfPromotionBlockCommand.class);
         commandList.add(BannedWordsCommand.class);
-        //commandList.add(AutoKickCommand.class);
         commandList.add(ClearCommand.class);
         commandList.add(FullClearCommand.class);
 
@@ -208,7 +207,6 @@ public class CommandContainer {
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
         commandList.add(FurryCommand.class);
-        //commandList.add(GimmeHentaiCommand.class);
 
         //SPLATOON
         commandList.add(MapsCommand.class);

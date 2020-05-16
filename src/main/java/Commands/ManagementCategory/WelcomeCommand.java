@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
     botPermissions = Permission.ATTACH_FILES,
     userPermissions = Permission.MANAGE_SERVER,
     emoji = "\uD83D\uDE4B",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/person-icon.png",
     executable = true
 )
 public class WelcomeCommand extends Command implements OnNavigationListener {

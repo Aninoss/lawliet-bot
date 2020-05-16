@@ -144,13 +144,6 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     public void remove(long serverId) {
         removedServerIds.add(serverId);
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
-        try {
-            DBTracker.getInstance().getBean().getMap().values().stream()
-                    .filter(slot -> slot.getServerId() == serverId)
-                    .forEach(TrackerBeanSlot::stop);
-        } catch (SQLException e) {
-            LOGGER.error("Could not fetch tracker bean", e);
-        }
         getCache().invalidate(serverId);
         new File(String.format("data/welcome_backgrounds/%d.png", serverId)).delete();
     }

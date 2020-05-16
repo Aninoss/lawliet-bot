@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutionException;
         trigger = "buy",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCE5",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat/128/shopping-icon.png",
         executable = true,
         aliases = {"shop", "upgrade"}
 )

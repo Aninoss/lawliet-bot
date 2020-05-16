@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
     trigger = "sell",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-rotation-icon.png",
     emoji = "\uD83D\uDCE4",
     executable = true
 )

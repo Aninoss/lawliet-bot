@@ -19,7 +19,6 @@ import java.util.Optional;
 @CommandProperties(
         trigger = "ping",
         emoji = "\uD83C\uDFD3",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/arrow-refresh-4-icon.png",
         executable = false
 )
 public class PingCommand extends Command {

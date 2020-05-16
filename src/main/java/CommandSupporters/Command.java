@@ -33,8 +33,9 @@ public abstract class Command {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
 
-    private String category, prefix;
-    private CommandProperties commandProperties;
+    private final String category;
+    private String prefix;
+    private final CommandProperties commandProperties;
     private Message starterMessage, navigationMessage, lastUserMessage;
     private Locale locale;
     private LoadingStatus loadingStatus = LoadingStatus.OFF;
@@ -45,7 +46,7 @@ public abstract class Command {
     private String[] options;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
     private int state = 0, page = 0, pageMax = 0;
-    private Thread thread;
+    private final Thread thread;
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
 
@@ -540,7 +541,6 @@ public abstract class Command {
 
     public String getTrigger() { return commandProperties.trigger(); }
     public String[] getAliases() { return commandProperties.aliases(); }
-    public String getThumbnail() { /*return commandProperties.thumbnail();*/ return ""; } //TODO Just a test to see how the bot works without any thumbnails
     public String getEmoji() { return commandProperties.emoji(); }
     public boolean isNsfw() { return commandProperties.nsfw(); }
     public boolean isExecutable() { return commandProperties.executable(); }

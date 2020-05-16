@@ -54,7 +54,7 @@ public class ExceptionHandler {
 
         try {
             if (channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
+                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error"))
                     .setDescription(errorMessage + (submitToDeveloper ? "\n\n"+TextManager.getString(locale,TextManager.GENERAL,"error_submit") : ""))).get();
 
             if (submitToDeveloper) {

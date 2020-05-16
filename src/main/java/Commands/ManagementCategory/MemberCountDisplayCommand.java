@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
         trigger = "mcdisplays",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83E\uDDEE️",
-        thumbnail = "http://icons.iconarchive.com/icons/elegantthemes/beautiful-flat/128/trends-icon.png",
         executable = true,
         aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )

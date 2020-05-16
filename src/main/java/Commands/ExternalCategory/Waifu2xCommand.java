@@ -24,7 +24,6 @@ import java.util.concurrent.ExecutionException;
         trigger = "waifu2x",
         withLoadingBar = true,
         emoji = "\uD83D\uDCC8",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/long-shadow-documents/128/document-arrow-upload-icon.png",
         executable = false,
         aliases = {"waifu4x"}
 )

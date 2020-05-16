@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
     trigger = "survey",
     botPermissions = Permission.MANAGE_MESSAGES,
-    thumbnail = "http://icons.iconarchive.com/icons/iconarchive/blue-election/128/Election-Polling-Box-icon.png",
     emoji = "✅",
     executable = true
 )
@@ -200,16 +199,19 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
             return TrackerResult.CONTINUE;
 
         slot.getMessage().ifPresent(Message::delete);
-        slot.setMessageId(sendMessages(channel, true).getId());
-        Instant nextInstant = slot.getNextRequest();
-        do {
-            nextInstant = TimeUtil.setInstantToNextDay(nextInstant);
-        } while(!TimeUtil.instantHasWeekday(nextInstant, Calendar.MONDAY) && !TimeUtil.instantHasWeekday(nextInstant, Calendar.THURSDAY));
 
-        slot.setNextRequest(nextInstant);
+        slot.setMessageId(sendMessages(channel, true).getId());
+        slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
         return TrackerResult.CONTINUE_AND_SAVE;
+    }
+
+    private Instant getNextSurveyInstant(Instant start) {
+        do {
+            start = TimeUtil.setInstantToNextDay(start);
+        } while(!TimeUtil.instantHasWeekday(start, Calendar.MONDAY) && !TimeUtil.instantHasWeekday(start, Calendar.THURSDAY));
+        return start;
     }
 
     @Override

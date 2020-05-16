@@ -37,7 +37,8 @@ public class KillCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/52c4d55c27725df1b0a35178ad7cbc08/tenor.gif",
                 "https://i.pinimg.com/originals/56/22/23/5622238b635ce9b23ff7254130653b05.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708657617295376384/OK6W_koKDTOqqqLDbIoPAmEZWmUcb5kvBmbyOpGHL-s.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/709429751072161822/Black_Clover_Demon_Kill.gif"
+                "https://cdn.discordapp.com/attachments/499629904380297226/709429751072161822/Black_Clover_Demon_Kill.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/710877980536340530/unnamed.gif"
         };
     }
 

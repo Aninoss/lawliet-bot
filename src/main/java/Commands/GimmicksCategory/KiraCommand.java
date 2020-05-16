@@ -17,7 +17,6 @@ import java.util.Random;
 
 @CommandProperties(
     trigger = "kira",
-    thumbnail = "http://images4.fanpop.com/image/photos/18000000/Kira-death-note-18041689-200-200.jpg",
     emoji = "\u270D\uFE0F️️",
     executable = true
 )
@@ -38,7 +37,10 @@ public class KiraCommand extends Command {
             list.add(message.getUserAuthor().get());
             userMentioned = false;
         }
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
+                .setThumbnail("http://images4.fanpop.com/image/photos/18000000/Kira-death-note-18041689-200-200.jpg");
+
+
         for(User user: list) {
             Random r = new Random(user.hashCode());
             int percent = r.nextInt(101);

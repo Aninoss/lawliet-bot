@@ -5,7 +5,6 @@ import CommandListeners.CommandProperties;
 @CommandProperties(
         trigger = "animequiz",
         emoji = "❔",
-        thumbnail = "http://icons.iconarchive.com/icons/paomedia/small-n-flat/128/sign-question-icon.png",
         withLoadingBar = true,
         deleteOnTimeOut = true,
         executable = true

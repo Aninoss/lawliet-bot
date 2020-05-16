@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -38,7 +39,7 @@ public class Clock {
 
     private static final Clock ourInstance = new Clock();
     public static Clock getInstance() { return ourInstance; }
-    private Clock() { }
+    private Clock() {}
 
     final Logger LOGGER = LoggerFactory.getLogger(Clock.class);
     private boolean trafficWarned = false;
@@ -225,10 +226,12 @@ public class Clock {
                 }
 
                 /* Posting daily unique users stats */
-                try {
-                    DBBotStats.addStatUniqueUsers();
-                } catch (Exception e) {
-                    LOGGER.error("Could not post unique users stats", e);
+                if (DiscordApiCollection.getInstance().getStartingTime().isBefore(Instant.now().minus(23, ChronoUnit.HOURS))) {
+                    try {
+                        DBBotStats.addStatUniqueUsers();
+                    } catch (Exception e) {
+                        LOGGER.error("Could not post unique users stats", e);
+                    }
                 }
 
                 if (Bot.hasUpdate()) {

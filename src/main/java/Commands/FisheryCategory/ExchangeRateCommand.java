@@ -19,7 +19,6 @@ import java.time.Instant;
 
 @CommandProperties(
         trigger = "exch",
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/flat-finance/128/dollar-rotation-icon.png",
         emoji = "\uD83D\uDD01",
         executable = true,
         aliases = {"exchangerate", "er", "exchr"}

@@ -9,7 +9,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
         trigger = "invite",
-        thumbnail = "http://icons.iconarchive.com/icons/thehoth/seo/128/seo-chain-link-icon.png",
         emoji = "\uD83D\uDD17",
         executable = true,
         aliases = {"link", "addbot", "inv"}

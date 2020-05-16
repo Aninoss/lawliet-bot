@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "vote",
         botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
-        thumbnail = "http://icons.iconarchive.com/icons/graphicloads/colorful-long-shadow/128/Hand-thumbs-up-like-2-icon.png",
         emoji = "\uD83D\uDDF3",
         executable = false,
         aliases = {"poll"}

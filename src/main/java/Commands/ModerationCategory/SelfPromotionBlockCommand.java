@@ -28,7 +28,6 @@ import java.util.ArrayList;
     botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
     userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
     emoji = "\uD83D\uDEE1️",
-    thumbnail = "http://icons.iconarchive.com/icons/graphicloads/100-flat-2/128/ok-shield-icon.png",
     executable = true
 )
 public class SelfPromotionBlockCommand extends Command implements OnNavigationListener {

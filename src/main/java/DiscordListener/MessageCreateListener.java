@@ -69,7 +69,7 @@ public class MessageCreateListener {
         }
 
         /* View help if user just pings the bot */
-        /*if (StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiCollection.getInstance().getYourself().getMentionTag())) {
+        if (StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiCollection.getInstance().getYourself().getMentionTag())) {
             try {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
                 String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_ping_help", serverBean.getPrefix());
@@ -78,7 +78,7 @@ public class MessageCreateListener {
                 LOGGER.error("Error while fetching server bean");
             }
             return;
-        }*/ //TODO DEBUG
+        }
 
         try {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
