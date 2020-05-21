@@ -9,7 +9,7 @@ import Commands.GelbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        patronRequired = true,
+        patreonRequired = true,
         withLoadingBar = true
 )
 public class AhegaoCommand extends GelbooruAbstract {

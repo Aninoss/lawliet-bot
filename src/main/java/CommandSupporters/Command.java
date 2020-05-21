@@ -548,7 +548,7 @@ public abstract class Command {
     public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
     public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getMaxCalculationTimeSec() { return commandProperties.maxCalculationTimeSec(); }
-    public boolean isPatreonRequired() { return commandProperties.patronRequired(); }
+    public boolean isPatreonRequired() { return commandProperties.patreonRequired(); }
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {

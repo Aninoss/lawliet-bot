@@ -39,7 +39,7 @@ public class OnFeedback implements DataListener<JSONObject> {
         usernameDiscriminatedOpt.ifPresent(eb::setAuthor);
         serverIdOpt.ifPresent(serverId -> {
             try {
-                CommandLogger.getInstance().saveLog(serverId);
+                CommandLogger.getInstance().saveLog(serverId, false);
             } catch (IOException e) {
                 LOGGER.error("Could not save log", e);
             }

@@ -4,7 +4,6 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
-import Core.BotResources.ResourceManager;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -18,19 +17,13 @@ import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fishery",
@@ -206,10 +199,14 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUser().getId());
                 long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
+                String treasureImage;
+                if (resultInt == 0) treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
+                else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
+
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(getLocale(), won)))
-                        .setImage(ResourceManager.getFile(ResourceManager.RESOURCES, "treasure_opened_" + result + ".png"))
+                        .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();

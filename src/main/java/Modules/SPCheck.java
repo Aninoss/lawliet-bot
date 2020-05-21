@@ -17,6 +17,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.entity.user.User;
+import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,109 +28,120 @@ import java.util.concurrent.ExecutionException;
 
 public class SPCheck {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(SPCheck.class);
+    public static boolean check(Message message) throws ExecutionException, InstantiationException, IllegalAccessException, InterruptedException {
+        Server server = message.getServer().get();
+        User author = message.getUserAuthor().get();
+        SPBlockBean spBlockBean = DBSPBlock.getInstance().getBean(server.getId());
+        Locale locale = spBlockBean.getServerBean().getLocale();
 
-    public static boolean checkForSelfPromotion(Server server, Message message) throws InterruptedException {
-        try {
-            SPBlockBean spBlockBean = DBSPBlock.getInstance().getBean(server.getId());
+        if (hasPostedSP(server, message, spBlockBean)) {
+            SelfPromotionBlockCommand selfPromotionBlockCommand = (SelfPromotionBlockCommand) CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, locale, spBlockBean.getServerBean().getPrefix());
 
-            if (spBlockBean.isActive() &&
-                    !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
-                    !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
-                    !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get()) &&
-                    !message.getUserAuthor().get().isBot()
-            ) {
-                String content = message.getContent();
-                content = content.replaceAll("(?i)" + Settings.SERVER_INVITE_URL, "");
-                if (contentContainsDiscordLink(content)) {
-                    try {
-                        for(RichInvite richInvite: server.getInvites().get()) {
-                            content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
-                        }
-                    } catch (ExecutionException e) {
-                        //Ignore
-                    }
+            informMessageAuthor(spBlockBean, selfPromotionBlockCommand, locale, message, author);
 
-                    if (contentContainsDiscordLink(content)) {
-                        boolean successful = true;
-                        User author = message.getUserAuthor().get();
+            boolean successful = safeDeleteMessage(message);
+            successful = successful && safeKick(spBlockBean, server, author);
+            successful = successful && safeBan(spBlockBean, server, author);
 
-                        //Nachricht löschen
-                        try {
-                            message.delete().get();
-                        } catch (ExecutionException e) {
-                            successful = false;
-                            //Ignore
-                        }
+            informLogReceivers(spBlockBean, selfPromotionBlockCommand, locale, message, author, successful);
 
-                        //Poster informieren
-                        ServerBean serverBean = spBlockBean.getServerBean();
-                        Locale locale = serverBean.getLocale();
-                        SelfPromotionBlockCommand selfPromotionBlockCommand = new SelfPromotionBlockCommand();
-                        selfPromotionBlockCommand.setLocale(locale);
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
+                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
+            if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
+            else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
 
-                        EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true)
-                                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));
-                        try {
-                            author.sendMessage(ebUser).get();
-                        } catch (ExecutionException e) {
-                            //Ignore
-                        }
+            ModSettingsCommand.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale()), eb, server);
+            ModSettingsCommand.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), TextManager.COMMANDS, "spblock_title"));
 
-                        //User kicken
-                        if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
-                            try {
-                                server.kickUser(author, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (ExecutionException e) {
-                                successful = false;
-                                //Ignore
-                            }
-                        }
+            return false;
+        }
 
-                        //User bannen
-                        if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER) {
-                            try {
-                                server.banUser(author, 1, TextManager.getString(locale, TextManager.COMMANDS, "spblock_auditlog_sp")).get();
-                            } catch (ExecutionException e) {
-                                successful = false;
-                                //Ignore
-                            }
-                        }
+        return true;
+    }
 
-                        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true);
-                        if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
-                        else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
+    private static void informLogReceivers(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author, boolean successful) {
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true);
+        if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
+        else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
 
-                        EmbedBuilder finalEb = eb;
-                        spBlockBean.getLogReceiverUserIds().transform(server::getMemberById, DiscordEntity::getId).forEach(user -> {
-                            try {
-                                user.sendMessage(finalEb).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                LOGGER.error("Could not send message to user", e);
-                            }
-                        });
-
-                        eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
-                        if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
-                        else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
-
-                        ModSettingsCommand.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, locale), eb, server);
-                        ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "spblock_title"));
-
-                        return true;
-                    }
-                }
+        spBlockBean.getLogReceiverUserIds().transform(message.getServer().get()::getMemberById, DiscordEntity::getId).forEach(user -> {
+            try {
+                user.sendMessage(eb).get();
+            } catch (ExecutionException | InterruptedException e) {
+                //Ignore
             }
-        } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
-            LOGGER.error("Exception", e);
+        });
+    }
+
+    private static boolean safeBan(SPBlockBean spBlockBean, Server server, User author) throws InterruptedException {
+        if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
+            try {
+                server.kickUser(author, TextManager.getString(spBlockBean.getServerBean().getLocale(), TextManager.COMMANDS, "spblock_auditlog_sp")).get();
+            } catch (ExecutionException e) {
+                return false;
+                //Ignore
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean safeKick(SPBlockBean spBlockBean, Server server, User author) throws InterruptedException {
+        if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
+            try {
+                server.kickUser(author, TextManager.getString(spBlockBean.getServerBean().getLocale(), TextManager.COMMANDS, "spblock_auditlog_sp")).get();
+            } catch (ExecutionException e) {
+                return false;
+                //Ignore
+            }
+        }
+
+        return true;
+    }
+
+    private static void informMessageAuthor(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author) throws InterruptedException {
+        EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true)
+                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));
+        try {
+            author.sendMessage(ebUser).get();
+        } catch (ExecutionException e) {
+            //Ignore
+        }
+    }
+
+    private static boolean safeDeleteMessage(Message message) throws InterruptedException {
+        try {
+            message.delete().get();
+        } catch (ExecutionException e) {
+            return false;
+            //Ignore
+        }
+        return true;
+    }
+
+    private static boolean hasPostedSP(Server server, Message message, SPBlockBean spBlockBean) throws ExecutionException, InterruptedException {
+        if (spBlockBean.isActive() &&
+                !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
+                !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
+                !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get()) &&
+                !message.getUserAuthor().get().isBot()
+        ) {
+            String content = message.getContent();
+            content = content.replaceAll("(?i)" + Settings.SERVER_INVITE_URL, "");
+            if (contentContainsDiscordLink(content)) {
+                for(RichInvite richInvite: server.getInvites().get()) {
+                    content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
+                }
+
+                return contentContainsDiscordLink(content);
+            }
         }
 
         return false;

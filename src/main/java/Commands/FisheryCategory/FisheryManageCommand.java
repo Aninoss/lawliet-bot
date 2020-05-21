@@ -2,36 +2,25 @@ package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;
-import CommandListeners.OnReactionAddStaticListener;
 import CommandSupporters.Command;
 import Constants.*;
-import Core.BotResources.ResourceManager;
 import Core.*;
 import Core.Mention.MentionList;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
-import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.Mentionable;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -40,8 +29,8 @@ import java.util.stream.Collectors;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83D\uDCB0",
         executable = false,
-        patronRequired = true,
-        aliases = {"fishingmanage", "fishmanage", "fisheryusermanage"}
+        patreonRequired = true,
+        aliases = {"fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager"}
 )
 public class FisheryManageCommand extends Command implements OnNavigationListener {
 

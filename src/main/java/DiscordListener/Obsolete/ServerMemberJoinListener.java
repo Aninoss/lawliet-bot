@@ -1,4 +1,4 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 import Commands.FisheryCategory.FisheryCommand;
 import Commands.ManagementCategory.AutoRolesCommand;
 import Commands.ManagementCategory.MemberCountDisplayCommand;

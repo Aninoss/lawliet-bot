@@ -4,7 +4,6 @@ import CommandListeners.*;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Utils.RandomUtil;
-import Core.BotResources.ResourceManager;
 import Core.TextManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -46,8 +45,8 @@ public class FortuneCommand extends Command {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",message.getAuthor().getDisplayName(),question,answer));
 
-        if (answerRaw.equals("%GifNo")) eb.setImage(ResourceManager.getFile(ResourceManager.RESOURCES,"godno.jpg"));
-        if (answerRaw.equals("%GifYes")) eb.setImage(ResourceManager.getFile(ResourceManager.RESOURCES,"yes.gif"));
+        if (answerRaw.equals("%GifNo")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665289359786014/godno.jpg");
+        if (answerRaw.equals("%GifYes")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665290601037904/yes.gif");
 
         return eb;
     }

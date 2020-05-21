@@ -3,22 +3,20 @@ package Core;
 import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
-import Core.Utils.SystemUtil;
+import DiscordListener.DiscordListenerManager;
+import DiscordListener.Obsolete.*;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
 import MySQL.Modules.Version.VersionBeanSlot;
-import DiscordListener.*;
-import Core.BotResources.ResourceManager;
 import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.user.UserStatus;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.*;
@@ -26,7 +24,6 @@ import java.io.*;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class Connector {
 
@@ -35,29 +32,35 @@ public class Connector {
     public static void main(String[] args) {
         boolean production = args.length >= 1 && args[0].equals("production");
         Bot.setDebug(production);
-        Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::stop, "shutdown_botstop"));
+        Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
 
-        Console.getInstance().start(); //Starts Console Listener
+        Console.getInstance().start();
 
         try {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/l_10646.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/seguisym.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/MS-UIGothic.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/NotoEmoji.ttf")));
+            initFonts();
             DBMain.getInstance().connect();
-
-            Arrays.stream(new File("temp").listFiles()).forEach(File::delete); //Cleans all temp files
-
+            cleanAllTempFiles();
             if (Bot.isProductionMode()) initializeUpdate();
             connect();
-        } catch (SQLException | IOException | FontFormatException e) {
+        } catch (Throwable e) {
             LOGGER.error("EXIT - Exception in main method", e);
             System.exit(-1);
         }
+    }
+
+    private static void initFonts() throws IOException, FontFormatException {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/l_10646.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/seguisym.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/MS-UIGothic.ttf")));
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/NotoEmoji.ttf")));
+    }
+
+    private static void cleanAllTempFiles() {
+        Arrays.stream(new File("temp").listFiles()).forEach(File::delete);
     }
 
     private static void initializeUpdate() {
@@ -106,7 +109,7 @@ public class Connector {
 
             DiscordApi api = apiBuilder.login().get();
             onApiJoin(api, false);
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (Throwable e) {
             LOGGER.error("EXIT - Exception when reconnecting shard {}", shardId, e);
             System.exit(-1);
         }
@@ -119,165 +122,134 @@ public class Connector {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
         apiCollection.insertApi(api);
 
-        try {
-            apiCollection.markReady(api);
-            if (apiCollection.apiHasHomeServer(api) && startup) ResourceManager.setUp(apiCollection.getHomeServer());
+        new CustomThread(() -> DBAutoChannel.getInstance().synchronize(api),
+                "autochannel_synchro_shard_" + api.getCurrentShard(),
+                1
+        ).start();
 
-            Thread st = new CustomThread(() -> DBAutoChannel.getInstance().synchronize(api),
-                    "autochannel_synchro_shard_" + api.getCurrentShard(),
-                    1
-            );
-            st.start();
+        LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
-            LOGGER.info("Shard {} connection established", api.getCurrentShard());
+        if (apiCollection.allShardsConnected()) {
+            if (startup) {
+                updateActivity();
+                DBFishery.getInstance().cleanUp();
+                new WebComServer(15744);
 
-            if (apiCollection.allShardsConnected()) {
-                if (startup) {
-                    updateActivity();
-                    DBFishery.getInstance().cleanUp();
-                    new WebComServer(15744);
+                new CustomThread(() -> DBFishery.getInstance().startVCObserver(), "vc_observer", 1).start();
 
-                    Thread vcObserver = new CustomThread(() -> DBFishery.getInstance().startVCObserver(), "vc_observer", 1);
-                    vcObserver.start();
+                LOGGER.info("All shards connected successfully");
 
-                    LOGGER.info("All shards connected successfully");
-
-                    if (Bot.isProductionMode())
-                        new CustomThread(() -> Clock.getInstance().start(), "clock", 1).start();
-                    DBTracker.getInstance().init();
-                } else {
-                    updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
-                }
+                if (Bot.isProductionMode())
+                    new CustomThread(() -> Clock.getInstance().start(), "clock", 1).start();
+                DBTracker.getInstance().init();
+            } else {
+                updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
             }
-
-            api.addMessageCreateListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new MessageCreateListener().onMessageCreate(event);
-                    } catch (InterruptedException e) {
-                        LOGGER.error("Interrupted", e);
-                    }
-                }, "message_create");
-                t.start();
-            });
-            api.addMessageEditListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new MessageEditListener().onMessageEdit(event);
-                    } catch (InterruptedException e) {
-                        LOGGER.error("Interrupted", e);
-                    }
-                }, "message_edit");
-                t.start();
-            });
-            api.addMessageDeleteListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    new MessageDeleteListener().onMessageDelete(event);
-                }, "message_delete");
-                t.start();
-            });
-            api.addReactionAddListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    new ReactionAddListener().onReactionAdd(event);
-                }, "reaction_add");
-                t.start();
-            });
-            api.addReactionRemoveListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    new ReactionRemoveListener().onReactionRemove(event);
-                }, "reaction_remove");
-                t.start();
-            });
-            api.addServerVoiceChannelMemberJoinListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new VoiceChannelMemberJoinListener().onJoin(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "vc_member_join");
-                t.start();
-            });
-            api.addServerVoiceChannelMemberLeaveListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new VoiceChannelMemberLeaveListener().onLeave(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "vc_member_leave");
-                t.start();
-            });
-            api.addServerMemberJoinListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new ServerMemberJoinListener().onJoin(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "member_join");
-                t.start();
-            });
-            api.addServerMemberLeaveListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new ServerMemberLeaveListener().onLeave(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "member_leave");
-                t.start();
-            });
-            api.addServerChannelDeleteListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new ServerChannelDeleteListener().onDelete(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "channel_delete");
-                t.start();
-            });
-            api.addServerJoinListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    try {
-                        new ServerJoinListener().onServerJoin(event);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception", e);
-                    }
-                }, "server_join");
-                t.start();
-            });
-            api.addServerLeaveListener(event -> {
-                Thread t = new CustomThread(() -> new ServerLeaveListener().onServerLeave(event), "server_leave");
-                t.start();
-            });
-            api.addServerVoiceChannelChangeUserLimitListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);
-                }, "server_change_userlimit");
-                t.start();
-            });
-            api.addUserRoleAddListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    new UserRoleAddListener().onUserRoleAdd(event);
-                }, "user_role_add");
-                t.start();
-            });
-            api.addUserRoleRemoveListener(event -> {
-                Thread t = new CustomThread(() -> {
-                    new UserRoleRemoveListener().onUserRoleRemove(event);
-                }, "user_role_remove");
-                t.start();
-            });
-            api.addReconnectListener(event -> {
-                Thread t = new CustomThread(() -> onSessionResume(event.getApi()), "reconnect");
-                t.start();
-            });
-        } catch (Throwable e) {
-            LOGGER.error("EXIT - Exception in connection method of shard {}", api.getCurrentShard(), e);
-            System.exit(-1);
         }
+
+        DiscordListenerManager.getInstance().addApi(api);
+        api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
+
+        api.addMessageDeleteListener(event -> {
+            Thread t = new CustomThread(() -> {
+                new MessageDeleteListener().onMessageDelete(event);
+            }, "message_delete");
+            t.start();
+        });
+        api.addReactionAddListener(event -> {
+            Thread t = new CustomThread(() -> {
+                new ReactionAddListener().onReactionAdd(event);
+            }, "reaction_add");
+            t.start();
+        });
+        api.addReactionRemoveListener(event -> {
+            Thread t = new CustomThread(() -> {
+                new ReactionRemoveListener().onReactionRemove(event);
+            }, "reaction_remove");
+            t.start();
+        });
+        api.addServerVoiceChannelMemberJoinListener(event -> {
+            Thread t = new CustomThread(() -> {
+                try {
+                    new VoiceChannelMemberJoinListener().onJoin(event);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+            }, "vc_member_join");
+            t.start();
+        });
+        api.addServerVoiceChannelMemberLeaveListener(event -> {
+            Thread t = new CustomThread(() -> {
+                try {
+                    new VoiceChannelMemberLeaveListener().onLeave(event);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+            }, "vc_member_leave");
+            t.start();
+        });
+        api.addServerMemberJoinListener(event -> {
+            Thread t = new CustomThread(() -> {
+                try {
+                    new ServerMemberJoinListener().onJoin(event);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+            }, "member_join");
+            t.start();
+        });
+        api.addServerMemberLeaveListener(event -> {
+            Thread t = new CustomThread(() -> {
+                try {
+                    new ServerMemberLeaveListener().onLeave(event);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+            }, "member_leave");
+            t.start();
+        });
+        api.addServerChannelDeleteListener(event -> {
+            Thread t = new CustomThread(() -> {
+                try {
+                    new ServerChannelDeleteListener().onDelete(event);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+            }, "channel_delete");
+            t.start();
+        });
+        api.addServerJoinListener(event -> {
+            Thread t = new CustomThread(() -> {
+                try {
+                    new ServerJoinListener().onServerJoin(event);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+            }, "server_join");
+            t.start();
+        });
+        api.addServerLeaveListener(event -> {
+            Thread t = new CustomThread(() -> new ServerLeaveListener().onServerLeave(event), "server_leave");
+            t.start();
+        });
+        api.addServerVoiceChannelChangeUserLimitListener(event -> {
+            Thread t = new CustomThread(() -> {
+                new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);
+            }, "server_change_userlimit");
+            t.start();
+        });
+        api.addUserRoleAddListener(event -> {
+            Thread t = new CustomThread(() -> {
+                new UserRoleAddListener().onUserRoleAdd(event);
+            }, "user_role_add");
+            t.start();
+        });
+        api.addUserRoleRemoveListener(event -> {
+            Thread t = new CustomThread(() -> {
+                new UserRoleRemoveListener().onUserRoleRemove(event);
+            }, "user_role_remove");
+            t.start();
+        });
     }
 
     public static void updateActivity() {

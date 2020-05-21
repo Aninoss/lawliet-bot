@@ -1,5 +1,6 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
+import CommandSupporters.CommandLogger.CommandLogger;
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.TextManager;
@@ -39,6 +40,14 @@ public class ServerLeaveListener {
             DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMemberCount() + ")");
 
         LOGGER.info("--- {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
+
+        if (event.getServer().getMemberCount() >= 100) {
+            try {
+                CommandLogger.getInstance().saveLog(event.getServer().getId(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         DBServer.getInstance().remove(event.getServer().getId());
     }

@@ -9,7 +9,7 @@ import Commands.RealbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        patronRequired = true,
+        patreonRequired = true,
         withLoadingBar = true,
         aliases = {"ass"}
 )

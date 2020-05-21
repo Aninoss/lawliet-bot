@@ -1,4 +1,4 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 import Commands.ManagementCategory.MemberCountDisplayCommand;
 import Commands.ManagementCategory.WelcomeCommand;
 import Constants.Permission;

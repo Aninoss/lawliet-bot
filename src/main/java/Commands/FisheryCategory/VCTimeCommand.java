@@ -4,7 +4,6 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
-import Commands.CasinoCategory.QuizCommand;
 import Constants.Permission;
 import Constants.Response;
 import Core.EmbedFactory;
@@ -26,7 +25,7 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\u2699\uFE0F️",
         executable = true,
-        patronRequired = true,
+        patreonRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }
 )
 public class VCTimeCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {

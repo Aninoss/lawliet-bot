@@ -1,4 +1,4 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
 import Constants.Settings;
 import Core.DiscordApiCollection;

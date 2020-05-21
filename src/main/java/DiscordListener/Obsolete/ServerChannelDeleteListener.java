@@ -1,4 +1,4 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import org.javacord.api.entity.channel.ChannelType;

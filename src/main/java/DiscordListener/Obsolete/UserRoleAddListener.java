@@ -1,8 +1,7 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
 import Constants.Settings;
 import Core.PatreonCache;
-import Modules.BannedWordsCheck;
 import org.javacord.api.event.server.role.UserRoleAddEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

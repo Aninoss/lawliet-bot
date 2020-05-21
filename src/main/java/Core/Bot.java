@@ -19,7 +19,7 @@ public class Bot {
         System.out.println("-------------------------------------");
     }
 
-    public static void stop() {
+    public static void onStop() {
         LOGGER.info("### STOPPING BOT ###");
         stopped = true;
         DiscordApiCollection.getInstance().stop();

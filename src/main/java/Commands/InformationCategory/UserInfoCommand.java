@@ -18,7 +18,7 @@ import java.util.ArrayList;
         trigger = "userinfo",
         emoji = "\uD83D\uDC81",
         executable = true,
-        aliases = {"userinfos", "userstat", "userstats", "accountinfo"}
+        aliases = {"userinfos", "userstat", "userstats", "accountinfo", "whois"}
 )
 public class UserInfoCommand extends Command {
 

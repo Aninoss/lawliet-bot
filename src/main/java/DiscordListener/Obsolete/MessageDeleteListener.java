@@ -1,4 +1,4 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnNavigationListener;

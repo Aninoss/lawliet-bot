@@ -38,10 +38,9 @@ public class DiscordApiCollection {
     final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiCollection.class);
 
     private DiscordApi[] apiList = new DiscordApi[0];
-    private boolean[] apiReady;
     private int[] errorCounter;
     private boolean[] hasReconnected, isAlive;
-    private Instant startingTime = Instant.now();
+    private final Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
@@ -61,7 +60,6 @@ public class DiscordApiCollection {
 
     public void init(int shardNumber) {
         apiList = new DiscordApi[shardNumber];
-        apiReady = new boolean[shardNumber];
         errorCounter = new int[shardNumber];
         isAlive = new boolean[shardNumber];
         hasReconnected = new boolean[shardNumber];
@@ -69,10 +67,6 @@ public class DiscordApiCollection {
 
     public void insertApi(DiscordApi api) {
         apiList[api.getCurrentShard()] = api;
-    }
-
-    public void markReady(DiscordApi api) {
-        apiReady[api.getCurrentShard()] = true;
         if (Bot.isProductionMode()) {
             new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1)
                     .start();
@@ -115,9 +109,9 @@ public class DiscordApiCollection {
     }
 
     public void reconnectShard(int n) {
-        if (Bot.isRunning() && apiReady[n]) {
+        if (Bot.isRunning() && apiList[n] != null) {
             DiscordApi api = apiList[n];
-            apiReady[n] = false;
+            apiList[n] = null;
             try {
                 CommandContainer.getInstance().clearShard(n);
             } catch (Exception e) {
@@ -271,9 +265,8 @@ public class DiscordApiCollection {
     }
 
     public boolean allShardsConnected() {
-        for (boolean connected : apiReady) {
-            if (!connected) return false;
-        }
+        for (DiscordApi discordApi : apiList)
+            if (discordApi == null) return false;
         return true;
     }
 

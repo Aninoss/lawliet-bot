@@ -1,10 +1,14 @@
 package CommandSupporters.CommandLogger;
 
 import Core.Bot;
+import Core.Security;
+import sun.plugin2.applet.SecurityManagerHelper;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,12 +31,20 @@ public class CommandLogger {
         }
     }
 
-    public void saveLog(long serverId) throws IOException {
-        if (!servers.containsKey(serverId)) return;
+    public void saveLog(long serverId, boolean encrypted) throws IOException {
+        //if (!servers.containsKey(serverId)) return;
 
         String content = getLogString(serverId);
 
-        FileWriter fw = new FileWriter(String.format("data/server_usage_statistics/%d.log", serverId), false);
+        FileWriter fw = null;
+        try {
+            String serverIdString = String.valueOf(serverId);
+            if (encrypted) serverIdString = Security.getHashForString("SERVER_LOG", String.valueOf(serverId));
+
+            fw = new FileWriter(String.format("data/server_usage_statistics/%s.log", serverIdString), false);
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         BufferedWriter bw = new BufferedWriter(fw);
 
         bw.write(content);
@@ -42,7 +54,7 @@ public class CommandLogger {
 
     private String getLogString(long serverId) {
         StringBuilder sb = new StringBuilder();
-        for(CommandUsage commandUsage : servers.get(serverId)) {
+        for(CommandUsage commandUsage : servers.computeIfAbsent(serverId, k -> new ArrayList<>())) {
             sb.append(String.format("[%s] %s | %s\n", commandUsage.getResult().toString(), commandUsage.getInstantString(), commandUsage.getMessageContent()));
         }
 

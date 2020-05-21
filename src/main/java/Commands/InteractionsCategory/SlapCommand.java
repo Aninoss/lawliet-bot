@@ -32,7 +32,6 @@ public class SlapCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/b6d8a83eb652a30b95e87cf96a21e007/tenor.gif?itemid=10426943",
                 "https://media1.tenor.com/images/fb17a25b86d80e55ceb5153f08e79385/tenor.gif?itemid=7919028",
                 "https://media1.tenor.com/images/5e5f33fd48aaaa0a116df3bd8ebb7a53/tenor.gif?itemid=12858541",
-                "https://media1.tenor.com/images/6f5c1f380b4cb313f412f57f4508c7e9/tenor.gif?itemid=12409765",
                 "https://media1.tenor.com/images/358986720d4b533a49bdb67cbc4fe3e5/tenor.gif?itemid=14179582",
                 "https://media1.tenor.com/images/9d907ed56fa1c8c011791e494b1d6ce0/tenor.gif?itemid=14179587",
                 "https://media1.tenor.com/images/6a2cf4394afc9f60aa302be43a566dd6/tenor.gif?itemid=12342551",

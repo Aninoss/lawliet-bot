@@ -3,7 +3,6 @@ package Modules.Reddit;
 import Core.*;
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
-import DiscordListener.ServerLeaveListener;
 import Modules.PostBundle;
 import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;

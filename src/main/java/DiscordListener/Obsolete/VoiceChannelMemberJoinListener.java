@@ -1,4 +1,4 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
 import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;

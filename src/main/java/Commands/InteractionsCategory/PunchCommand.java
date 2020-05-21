@@ -43,7 +43,8 @@ public class PunchCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/e72966a32c66380aa288009cb0379b32/tenor.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708657611842650152/anime-punch-gif-3.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708657620017348628/giphy.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708657624320835586/ImperfectFrightenedFoal-size_restricted.gif"
+                "https://cdn.discordapp.com/attachments/499629904380297226/708657624320835586/ImperfectFrightenedFoal-size_restricted.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/711608276105691196/Black_Clover_Lumiere_Punch.gif"
         };
     }
 

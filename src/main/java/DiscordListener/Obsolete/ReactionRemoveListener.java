@@ -1,6 +1,5 @@
-package DiscordListener;
+package DiscordListener.Obsolete;
 
-import CommandListeners.OnReactionAddStaticListener;
 import CommandListeners.OnReactionRemoveStaticListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;

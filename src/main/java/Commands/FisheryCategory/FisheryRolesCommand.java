@@ -2,16 +2,13 @@ package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;
-import CommandListeners.OnReactionAddStaticListener;
 import CommandSupporters.Command;
 import Constants.*;
-import Core.BotResources.ResourceManager;
 import Core.*;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
-import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.DiscordApi;
@@ -22,15 +19,12 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
