@@ -2,6 +2,9 @@ package CommandSupporters.CommandLogger;
 
 import Core.Bot;
 import Core.Security;
+import Core.Utils.BotUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.plugin2.applet.SecurityManagerHelper;
 
 import java.io.BufferedWriter;
@@ -13,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CommandLogger {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(CommandLogger.class);
 
     private static CommandLogger ourInstance = new CommandLogger();
     public static CommandLogger getInstance() { return ourInstance; }
@@ -32,7 +37,7 @@ public class CommandLogger {
     }
 
     public void saveLog(long serverId, boolean encrypted) throws IOException {
-        //if (!servers.containsKey(serverId)) return;
+        if (!servers.containsKey(serverId)) return;
 
         String content = getLogString(serverId);
 
@@ -43,7 +48,7 @@ public class CommandLogger {
 
             fw = new FileWriter(String.format("data/server_usage_statistics/%s.log", serverIdString), false);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.error("Error while saving server statistics", e);
         }
         BufferedWriter bw = new BufferedWriter(fw);
 

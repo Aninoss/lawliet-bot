@@ -1,12 +1,13 @@
 package DiscordListener.MessageEdit;
 
 import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerPriority;
 import DiscordListener.ListenerTypeAbstracts.MessageEditAbstract;
 import Modules.BannedWordsCheck;
 import Modules.SPCheck;
 import org.javacord.api.event.message.MessageEditEvent;
 
-@DiscordListenerAnnotation(highPriority = true)
+@DiscordListenerAnnotation(priority = ListenerPriority.HIGH)
 public class MessageEditSPBlock extends MessageEditAbstract {
 
     @Override

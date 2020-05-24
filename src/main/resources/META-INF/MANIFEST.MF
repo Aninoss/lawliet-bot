@@ -1,20 +1,21 @@
 Manifest-Version: 1.0
 Main-Class: Core.Connector
-Class-Path: gson-2.8.5.jar j2objc-annotations-1.3.jar log4j-api-2.13.1.j
- ar fastjson-1.2.47.jar slf4j-api-1.7.25.jar failureaccess-1.0.1.jar com
- mons-io-2.6.jar javacord-core-3.0.6.jar jackson-annotations-2.9.0.jar n
- v-websocket-client-2.6.jar mysql-connector-java-8.0.17.jar listenablefu
- ture-9999.0-empty-to-avoid-conflict-with-guava.jar protobuf-java-3.6.1.
- jar netty-codec-4.1.32.Final.jar logback-classic-1.2.3.jar netty-transp
- ort-4.1.32.Final.jar gson-javatime-serialisers-1.1.1.jar netty-transpor
- t-native-epoll-4.1.32.Final.jar netty-resolver-4.1.32.Final.jar okio-1.
- 14.0.jar netty-socketio-1.7.17.jar DBL-Java-Library-2.0.1.jar animal-sn
- iffer-annotations-1.18.jar jackson-databind-2.9.7.jar logging-intercept
- or-3.9.1.jar netty-common-4.1.32.Final.jar jackson-core-2.9.7.jar netty
- -buffer-4.1.32.Final.jar emoji-java-5.1.1.jar okhttp-3.11.0.jar netty-c
- odec-http-4.1.32.Final.jar netty-handler-4.1.32.Final.jar javacord-api-
- 3.0.6.jar logback-core-1.2.3.jar error_prone_annotations-2.3.2.jar jsou
- p-1.12.1.jar json-20180813.jar log4j-to-slf4j-2.13.1.jar java-youtube-d
- ownloader-1.0.2.jar jsr305-3.0.2.jar checker-qual-2.8.1.jar netty-trans
- port-native-unix-common-4.1.32.Final.jar guava-28.1-jre.jar
+Class-Path: j2objc-annotations-1.3.jar error_prone_annotations-2.3.2.jar
+  netty-codec-http-4.1.32.Final.jar okio-1.14.0.jar reflections-0.9.11.j
+ ar netty-handler-4.1.32.Final.jar jsr305-3.0.2.jar jsoup-1.12.1.jar log
+ 4j-to-slf4j-2.13.1.jar netty-transport-native-epoll-4.1.32.Final.jar ja
+ ckson-databind-2.9.7.jar nv-websocket-client-2.6.jar listenablefuture-9
+ 999.0-empty-to-avoid-conflict-with-guava.jar animal-sniffer-annotations
+ -1.18.jar checker-qual-2.8.1.jar netty-transport-4.1.32.Final.jar commo
+ ns-io-2.6.jar failureaccess-1.0.1.jar jackson-annotations-2.9.0.jar slf
+ 4j-api-1.7.25.jar netty-transport-native-unix-common-4.1.32.Final.jar o
+ khttp-3.11.0.jar jackson-core-2.9.7.jar guava-28.1-jre.jar json-2018081
+ 3.jar netty-common-4.1.32.Final.jar fastjson-1.2.47.jar mysql-connector
+ -java-8.0.17.jar netty-buffer-4.1.32.Final.jar logback-classic-1.2.3.ja
+ r gson-javatime-serialisers-1.1.1.jar javacord-core-3.0.6.jar gson-2.8.
+ 5.jar java-youtube-downloader-1.0.2.jar netty-codec-4.1.32.Final.jar lo
+ gging-interceptor-3.9.1.jar netty-socketio-1.7.17.jar netty-resolver-4.
+ 1.32.Final.jar javassist-3.21.0-GA.jar DBL-Java-Library-2.0.1.jar log4j
+ -api-2.13.1.jar javacord-api-3.0.6.jar protobuf-java-3.6.1.jar emoji-ja
+ va-5.1.1.jar logback-core-1.2.3.jar
 

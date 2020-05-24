@@ -238,7 +238,7 @@ public class ImageCreator {
         final double SHADOW_NUM = 5;
         final double MULTI = 1.03;
         for(double i=0; i < SHADOW_NUM; i++) {
-            g2d.setColor(new Color(0, 0, 0, (int) (20.0 * (i+1) / SHADOW_NUM)));
+            g2d.setColor(new Color(0, 0, 0, (int) (10.0 * (i+1) / SHADOW_NUM)));
             g2d.fillRect((int) (x - (width * (MULTI - 1) / 2) + (SHADOW_NUM - i)),  (int) (y - (height * (MULTI - 1) / 2) + (SHADOW_NUM - i)), (int) (width * MULTI), (int) (height * MULTI));
         }
     }
@@ -258,7 +258,7 @@ public class ImageCreator {
     private static void drawStringShadow(Graphics2D g2d, AttributedCharacterIterator attributedCharacterIterator, Rectangle2D bounds, int x, int y, double maxWidth, double width) {
         final double SHADOW_NUM = 5;
         for(double i=0; i < SHADOW_NUM; i++) {
-            g2d.setColor(new Color(0, 0, 0, (int) (30.0 * ((i+1) / SHADOW_NUM))));
+            g2d.setColor(new Color(0, 0, 0, (int) (20.0 * ((i+1) / SHADOW_NUM))));
             drawStringCenter(g2d, attributedCharacterIterator, bounds, (int) (x + (SHADOW_NUM - i)), (int) (y + (SHADOW_NUM - i)), maxWidth, width);
         }
     }

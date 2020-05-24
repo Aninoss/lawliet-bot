@@ -15,7 +15,6 @@ public class SystemUtil {
 
     final static Logger LOGGER = LoggerFactory.getLogger(BotUtil.class);
 
-
     public static int executeProcess(String... command) {
         ProcessBuilder pb = new ProcessBuilder(command);
         try {
@@ -34,7 +33,7 @@ public class SystemUtil {
 
             return p.exitValue();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not run process", e);
         }
 
         return -1;

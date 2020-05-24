@@ -56,7 +56,7 @@ public class WebComServer {
                     try {
                         Thread.sleep(10 * 1000);
                     } catch (InterruptedException interruptedException) {
-                        interruptedException.printStackTrace();
+                        LOGGER.error("Interrupted", e);
                     }
                 }
             }

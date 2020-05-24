@@ -8,6 +8,7 @@ import Core.EmbedFactory;
 import Core.PermissionCheck;
 import Core.TextManager;
 import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerPriority;
 import DiscordListener.ListenerTypeAbstracts.MessageCreateAbstract;
 import Modules.BannedWordsCheck;
 import MySQL.Modules.BannedWords.BannedWordsBean;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-@DiscordListenerAnnotation(highPriority = true)
+@DiscordListenerAnnotation(priority = ListenerPriority.HIGH)
 public class MessageCreateBannedWords extends MessageCreateAbstract {
 
     @Override

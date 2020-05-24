@@ -7,7 +7,6 @@ import Constants.Settings;
 import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.PatreonCache;
-import Core.Utils.BotUtil;
 import Modules.Porn.PornImageDownloader;
 import Core.Utils.NSFWUtil;
 import Modules.Porn.PornImage;
@@ -38,7 +37,7 @@ public abstract class PornAbstract extends Command {
 
         long amount = 1;
         if (StringUtil.stringContainsDigits(followedString)) {
-            amount = StringUtil.filterNumberFromString(followedString);
+            amount = StringUtil.filterLongFromString(followedString);
             int patreonLevel = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId());
             if (patreonLevel == 0 && (amount < 1 || amount > 20)) {
                 if (event.getChannel().canYouEmbedLinks()) {

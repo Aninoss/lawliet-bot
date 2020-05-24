@@ -4,12 +4,13 @@ import Core.DiscordApiCollection;
 import Core.TextManager;
 import Core.Utils.StringUtil;
 import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerPriority;
 import DiscordListener.ListenerTypeAbstracts.MessageCreateAbstract;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-@DiscordListenerAnnotation(highPriority = true)
+@DiscordListenerAnnotation(priority = ListenerPriority.HIGH)
 public class MessageCreateSingleBotMention extends MessageCreateAbstract {
 
     @Override

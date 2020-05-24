@@ -347,7 +347,7 @@ public class DiscordApiCollection {
         return getHomeEmojiById(511165137202446346L);
     }
 
-    public Optional<ServerTextChannel> getRandomWritableChannel(Server server) {
+    public Optional<ServerTextChannel> getFirstWritableChannel(Server server) {
         if (server.getSystemChannel().isPresent() && server.getSystemChannel().get().canYouWrite() && server.getSystemChannel().get().canYouEmbedLinks()) {
             return server.getSystemChannel();
         } else {

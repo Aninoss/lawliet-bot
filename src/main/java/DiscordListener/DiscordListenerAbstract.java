@@ -10,6 +10,6 @@ public abstract class DiscordListenerAbstract {
         discordListenerAnnotation = this.getClass().getAnnotation(DiscordListenerAnnotation.class);
     }
 
-    public boolean hasHighPriority() { return discordListenerAnnotation.highPriority(); }
+    public ListenerPriority getPriority() { return discordListenerAnnotation.priority(); }
 
 }

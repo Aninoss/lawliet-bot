@@ -24,46 +24,109 @@ public class MentionUtil {
 
     final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
 
-    public static MentionList<User> getUsers(Message message, String string) {
+    public static MentionList<User> getUsers(Message message, String content) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
-        if (!string.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString())) list.remove(DiscordApiCollection.getInstance().getYourself());
-        for (User user : list) {
-            string = string.replace(user.getMentionTag(), "").replace("<@!"+user.getIdAsString()+">", "");
+        if (!content.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString())) list.remove(DiscordApiCollection.getInstance().getYourself());
+        list.removeIf(user -> !message.getServer().get().getMembers().contains(user));
+
+        for (User user : list)
+            content = content
+                    .replace(user.getMentionTag(), "")
+                    .replace("<@!" + user.getIdAsString() + ">", "");
+
+        for(User user : message.getServer().get().getMembers()) {
+            String[] strings = {
+                    "@" + user.getDiscriminatedName(),
+                    "@" + user.getName(),
+                    "@" + user.getDisplayName(message.getServer().get()) + "#" + user.getDiscriminator(),
+                    "@" + user.getDisplayName(message.getServer().get()),
+                    user.getIdAsString(),
+                    user.getDiscriminatedName(),
+                    user.getName(),
+                    user.getDisplayName(message.getServer().get())
+            };
+            content = check(user, list, content, strings);
         }
 
-        for (String part : getArgs(string)) {
-            if (part.startsWith("@")) part = part.substring(1);
+        content = StringUtil.trimString(content);
+        return new MentionList<>(content, list);
+    }
 
-            if (message.getServer().get().getMemberById(part).isPresent()) {
-                User u = message.getServer().get().getMemberById(part).get();
-                if (!list.contains(u)) list.add(u);
-                string = removeMentionFromString(string, part, "@");
-            }
+    public static MentionList<Role> getRoles(Message message, String content) {
+        ArrayList<Role> list = new ArrayList<>(message.getMentionedRoles());
+        list.removeIf(role -> !message.getServer().get().getRoles().contains(role));
 
-            for (User u : message.getServer().get().getMembers()) {
-                String disciminatedNickname = u.getDisplayName(message.getServer().get()) + "#" + u.getDiscriminator();
+        for (Role role : list)
+            content = content.replace(role.getMentionTag(), "");
 
-                if (u.getDiscriminatedName().equalsIgnoreCase(part) || disciminatedNickname.equalsIgnoreCase(part)) {
-                    if (!list.contains(u)) list.add(u);
-                    string = removeMentionFromString(string, part, "@");
-                }
-            }
+        for(Role role : message.getServer().get().getRoles()) {
+            String[] strings = {
+                    "@" + role.getName(),
+                    role.getName(),
+                    role.getIdAsString()
+            };
+            content = check(role, list, content, strings);
+        }
 
-            for (User u : message.getServer().get().getMembersByNameIgnoreCase(part)) {
-                if (!list.contains(u)) list.add(u);
-                string = removeMentionFromString(string, part, "@");
-            }
+        content = StringUtil.trimString(content);
+        return new MentionList<>(content, list);
+    }
 
-            for (User u : message.getServer().get().getMembersByNicknameIgnoreCase(part)) {
-                if (!list.contains(u)) list.add(u);
-                string = removeMentionFromString(string, part, "@");
+    public static MentionList<ServerTextChannel> getTextChannels(Message message, String content) {
+        ArrayList<ServerTextChannel> list = new ArrayList<>(message.getMentionedChannels());
+        list.removeIf(channel -> !message.getServer().get().getTextChannels().contains(channel));
+
+        for (ServerTextChannel channel : list)
+            content = content.replace(channel.getMentionTag(), "");
+
+        for(ServerTextChannel channel : message.getServer().get().getTextChannels()) {
+            String[] strings = {
+                    "#" + channel.getName(),
+                    channel.getName(),
+                    channel.getIdAsString()
+            };
+            content = check(channel, list, content, strings);
+        }
+
+        content = StringUtil.trimString(content);
+        return new MentionList<>(content, list);
+    }
+
+    public static MentionList<ServerVoiceChannel> getVoiceChannels(Message message, String content) {
+        ArrayList<ServerVoiceChannel> list = new ArrayList<>();
+
+        for(ServerVoiceChannel voiceChannel : message.getServer().get().getVoiceChannels()) {
+            String[] strings = {
+                    "#" + voiceChannel.getName(),
+                    voiceChannel.getName(),
+                    voiceChannel.getIdAsString()
+            };
+            content = check(voiceChannel, list, content, strings);
+        }
+
+        content = StringUtil.trimString(content);
+        return new MentionList<>(content, list);
+    }
+
+    private static <T> String check(T o, ArrayList<T> list, String content, String... names) {
+        for(String name : names) {
+            if (matches(content, name)) {
+                content = content.replaceAll("(?i)" + name, "");
+                if (!list.contains(o)) list.add(o);
             }
         }
 
-        Collection<User> members = message.getServer().get().getMembers();
-        list.removeIf(user -> !members.contains(user));
+        return content;
+    }
 
-        return new MentionList<>(string, list);
+    private static boolean matches(String str, String check) {
+        check = check.toLowerCase();
+        str = str.toLowerCase().replace("\n", " ");
+
+        return  str.equals(check) ||
+                str.startsWith(check + " ") ||
+                str.contains(" " + check + " ") ||
+                str.endsWith(" " + check);
     }
 
     public static MentionList<URL> getImages(String string) {
@@ -75,7 +138,7 @@ public class MentionUtil {
                     try {
                         URL urlTemp = new URL(part);
                         if (!list.contains(urlTemp)) list.add(urlTemp);
-                        string = removeMentionFromString(string, part, "");
+                        string = string.replace(part, "");
                     } catch (MalformedURLException e) {
                         LOGGER.error("Wrong url", e);
                     }
@@ -105,115 +168,6 @@ public class MentionUtil {
         return false;
     }
 
-    public static MentionList<Role> getRoles(Message message, String string) {
-        ArrayList<Role> list = new ArrayList<>(message.getMentionedRoles());
-        for (Role role : list) {
-            string = string.replace(role.getMentionTag(), "");
-        }
-        for (String part : getArgs(string)) {
-            if (part.startsWith("@")) part = part.substring(1);
-
-            if (message.getServer().get().getRoleById(part).isPresent()) {
-                Role r = message.getServer().get().getRoleById(part).get();
-                if (!list.contains(r)) list.add(r);
-                string = removeMentionFromString(string, part, "@");
-            }
-
-            for (Role r : message.getServer().get().getRoles()) {
-                if (r.getName().equalsIgnoreCase(part)) {
-                    if (!list.contains(r)) list.add(r);
-                    string = removeMentionFromString(string, part, "@");
-                }
-            }
-        }
-
-        Collection<Role> roles = message.getServer().get().getRoles();
-        list.removeIf(role -> !roles.contains(role));
-
-        return new MentionList<>(string, list);
-    }
-
-    public static MentionList<ServerTextChannel> getTextChannels(Message message, String string) {
-        return getTextChannels(message, string, false);
-    }
-
-    public static MentionList<ServerTextChannel> getTextChannels(Message message, String string, boolean tagRequired) {
-        ArrayList<ServerTextChannel> list = new ArrayList<>(message.getMentionedChannels());
-        for (ServerTextChannel channel : list) {
-            string = string.replace(channel.getMentionTag(), "");
-        }
-        for (String part : getArgs(string)) {
-            if (part.startsWith("#")) part = part.substring(1);
-
-            if (message.getServer().get().getTextChannelById(part).isPresent()) {
-                ServerTextChannel r = message.getServer().get().getTextChannelById(part).get();
-                if (!list.contains(r)) list.add(r);
-                string = removeMentionFromString(string, part, "#");
-            }
-
-            if (!tagRequired) {
-                for (ServerTextChannel sc : message.getServer().get().getTextChannelsByNameIgnoreCase(part)) {
-                    if (!list.contains(sc)) list.add(sc);
-                    string = removeMentionFromString(string, part, "#");
-                }
-
-                for (ChannelCategory c: message.getServer().get().getChannelCategories()) {
-                    for (ServerChannel channel: c.getChannels()) {
-                        if (channel.asServerTextChannel().isPresent() &&
-                                channel.asServerTextChannel().get().getCategory().isPresent() &&
-                                channel.asServerTextChannel().get().getCategory().get().getName().equalsIgnoreCase(part)
-                        ) {
-                            ServerTextChannel sc = channel.asServerTextChannel().get();
-                            if (!list.contains(sc)) list.add(sc);
-                            string = removeMentionFromString(string, part, "#");
-                        }
-                    }
-                }
-            }
-        }
-
-        Collection<ServerTextChannel> channels = message.getServer().get().getTextChannels();
-        list.removeIf(channel -> !channels.contains(channel));
-
-        return new MentionList<>(string, list);
-    }
-
-    public static MentionList<ServerVoiceChannel> getVoiceChannels(Message message, String string) {
-        ArrayList<ServerVoiceChannel> list = new ArrayList<>();
-        for (String part : getArgs(string)) {
-            if (part.startsWith("#")) part = part.substring(1);
-
-            if (message.getServer().get().getVoiceChannelById(part).isPresent()) {
-                ServerVoiceChannel r = message.getServer().get().getVoiceChannelById(part).get();
-                if (!list.contains(r)) list.add(r);
-                string = removeMentionFromString(string, part, "#");
-            }
-
-            for (ServerVoiceChannel sc : message.getServer().get().getVoiceChannelsByNameIgnoreCase(part)) {
-                if (!list.contains(sc)) list.add(sc);
-                string = removeMentionFromString(string, part, "#");
-            }
-
-            for (ChannelCategory c: message.getServer().get().getChannelCategories()) {
-                for (ServerChannel channel: c.getChannels()) {
-                    if (channel.asServerVoiceChannel().isPresent() &&
-                            channel.asServerVoiceChannel().get().getCategory().isPresent() &&
-                            channel.asServerVoiceChannel().get().getCategory().get().getName().equalsIgnoreCase(part)
-                        ) {
-                        ServerVoiceChannel sc = channel.asServerVoiceChannel().get();
-                        if (!list.contains(sc)) list.add(sc);
-                        string = removeMentionFromString(string, part, "#");
-                    }
-                }
-            }
-        }
-
-        Collection<ServerVoiceChannel> channels = message.getServer().get().getVoiceChannels();
-        list.removeIf(channel -> !channels.contains(channel));
-
-        return new MentionList<>(string, list);
-    }
-
     public static MentionList<Message> getMessagesAll(Message message, String string) {
         MentionList<Message> mentionList = getMessagesURL(message, string);
         ArrayList<Message> list = new ArrayList<>(mentionList.getList());
@@ -226,7 +180,7 @@ public class MentionUtil {
                     if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
-                            string = removeMentionFromString(string, part, "");
+                            string = string.replace(part, "");
                         }
                     }
                 } catch (InterruptedException | ExecutionException ignored) {
@@ -247,7 +201,7 @@ public class MentionUtil {
                     if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                         if (m.getChannel() == channel) {
                             if (!list.contains(m)) list.add(m);
-                            string = removeMentionFromString(string, part, "");
+                            string = string.replace(part, "");
                         }
                     }
                 } catch (InterruptedException | ExecutionException ignored) {
@@ -269,7 +223,7 @@ public class MentionUtil {
                 if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
                     if (m.getChannel() == channel) {
                         if (!list.contains(m)) list.add(m);
-                        string = removeMentionFromString(string, part, "");
+                        string = string.replace(part, "");
                     }
                 }
             } catch (InterruptedException | ExecutionException ignored) {
@@ -291,7 +245,7 @@ public class MentionUtil {
                         if (message.getServer().get().getTextChannelById(parts[5]).isPresent() && (m = message.getServer().get().getTextChannelById(parts[5]).get().getMessageById(parts[6]).get()) != null) {
                             if (m.getIdAsString().equals(parts[6])) {
                                 if (!list.contains(m)) list.add(m);
-                                string = removeMentionFromString(string, part, "");
+                                string = string.replace(part, "");
                             }
                         }
                     } catch (InterruptedException | ExecutionException ignored) {
@@ -301,16 +255,6 @@ public class MentionUtil {
             }
         }
         return new MentionList<>(string,list);
-    }
-
-    public static Message getMessageSearch(String searchTerm, TextChannel channel, Message messageStarter) throws ExecutionException, InterruptedException {
-        if (!channel.canYouReadMessageHistory()) return null;
-
-        searchTerm = StringUtil.trimString(searchTerm);
-        for(Message message: channel.getMessagesBefore(100,messageStarter).get().descendingSet()) {
-            if (message.getContent().toLowerCase().contains(searchTerm.toLowerCase())) return message;
-        }
-        return null;
     }
 
     private static ArrayList<String> getArgs(String string) {
@@ -429,11 +373,6 @@ public class MentionUtil {
         return new Mention(string, multi);
     }
 
-    private static String removeMentionFromString(String string, String mention, String prefix) {
-        String str = string.replace(prefix+mention,"");
-        return str.replace(mention,"");
-    }
-
     public static Optional<Role> getRoleByTag(Server server, String tag) {
         String id = tag.substring(3, tag.length() -1);
         return server.getRoleById(id);
@@ -460,18 +399,18 @@ public class MentionUtil {
 
         for(String part : str.split(" ")) {
             if (part.length() > 0) {
-                if (part.equals("all")) return available;
+                if (part.equals("all") || part.equals("allin")) return available;
                 if (part.equals("half")) return available / 2;
 
-                long value = StringUtil.filterNumberFromString(part);
+                double value = StringUtil.filterDoubleFromString(part);
                 if (value != -1) {
                     if (part.endsWith("%")) return (long) Math.abs(value / 100.0 * available);
 
-                    if (part.endsWith("k")) return value * 1000;
-                    if (part.endsWith("m") || part.endsWith("mio") || part.endsWith("kk")) return value * 1000000;
-                    if (part.endsWith("b") || part.endsWith("kkk")) return value * 1000000000;
+                    if (part.endsWith("k")) return (long) (value * 1000);
+                    if (part.endsWith("m") || part.endsWith("mio") || part.endsWith("kk")) return (long) (value * 1000000);
+                    if (part.endsWith("b") || part.endsWith("kkk")) return (long) (value * 1000000000);
 
-                    return value;
+                    return (long) value;
                 }
             }
         }

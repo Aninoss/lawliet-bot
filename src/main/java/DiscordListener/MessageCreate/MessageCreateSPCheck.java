@@ -5,7 +5,7 @@ import DiscordListener.ListenerTypeAbstracts.MessageCreateAbstract;
 import Modules.SPCheck;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-@DiscordListenerAnnotation(highPriority = true)
+@DiscordListenerAnnotation(priority = ListenerPriority.HIGH)
 public class MessageCreateSPCheck extends MessageCreateAbstract {
 
     @Override

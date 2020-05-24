@@ -44,16 +44,12 @@ public final class StringUtil {
         }
     }
 
-    public static long filterNumberFromString(String string) {
+    public static long filterLongFromString(String string) {
         StringBuilder numberString = new StringBuilder();
-        boolean record = true;
-        int i = 0;
-        for(char c: string.toCharArray()) {
-            if (Character.isDigit(c) && record) numberString.append(c);
-            if (c == '<' && string.substring(i).contains(">")) record = false;
-            if (c == '>') record = true;
+
+        for(char c: string.replace(",", ".").toCharArray()) {
+            if (Character.isDigit(c)) numberString.append(c);
             if (c == '.') break;
-            i++;
         }
 
         if (numberString.toString().length() == 0) return -1;
@@ -62,6 +58,29 @@ public final class StringUtil {
 
         try {
             num = Long.parseLong(numberString.toString());
+        } catch (Throwable e) {
+            //Ignore
+        }
+
+        return num;
+    }
+
+    public static double filterDoubleFromString(String string) {
+        StringBuilder numberString = new StringBuilder();
+
+        for(char c: string.replace(",", ".").toCharArray()) {
+            if (Character.isDigit(c)) numberString.append(c);
+            if (c == '.') {
+                if (numberString.toString().contains(".")) break;
+                else numberString.append(".");
+            }
+        }
+
+        if (numberString.toString().length() == 0) return -1;
+        double num = -1;
+
+        try {
+            num = Double.parseDouble(numberString.toString());
         } catch (Throwable e) {
             //Ignore
         }

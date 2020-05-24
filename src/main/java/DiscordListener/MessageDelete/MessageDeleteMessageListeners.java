@@ -1,24 +1,25 @@
-package DiscordListener.Obsolete;
+package DiscordListener.MessageDelete;
 
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnNavigationListener;
 import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
+import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerTypeAbstracts.MessageDeleteAbstract;
+import DiscordListener.ListenerTypeAbstracts.MessageEditAbstract;
+import Modules.LinkCheck;
 import org.javacord.api.event.message.MessageDeleteEvent;
+import org.javacord.api.event.message.MessageEditEvent;
 
 import java.util.ArrayList;
 
-public class MessageDeleteListener {
+@DiscordListenerAnnotation()
+public class MessageDeleteMessageListeners extends MessageDeleteAbstract {
 
-    public void onMessageDelete(MessageDeleteEvent event) {
-        if (!event.getMessage().isPresent() ||
-                !event.getMessage().get().getUserAuthor().isPresent() ||
-                !event.getServer().isPresent() ||
-                event.getMessage().get().getUserAuthor().get().isBot()
-        ) return;
-
-        //Entfernt Forwarded Listeners
+    @Override
+    public boolean onMessageDelete(MessageDeleteEvent event) throws Throwable {
+        /* forwarded */
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
         for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
@@ -34,7 +35,7 @@ public class MessageDeleteListener {
             }
         }
 
-        //Entfernt Reaction Listeners
+        /* reaction */
         list = CommandContainer.getInstance().getReactionInstances();
         for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
@@ -49,5 +50,8 @@ public class MessageDeleteListener {
                 }
             }
         }
+
+        return true;
     }
+
 }

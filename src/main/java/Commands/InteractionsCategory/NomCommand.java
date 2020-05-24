@@ -63,7 +63,8 @@ public class NomCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/708661265689739274/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f776174747061642d6d656469612d736572766963652f53746f.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708661268772290560/unnamed.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708661270336897054/GsUMxxu.gif",
-                "https://tenor.com/view/holo-spice-and-wolf-anime-cartoon-japanese-gif-9404307"
+                "https://tenor.com/view/holo-spice-and-wolf-anime-cartoon-japanese-gif-9404307",
+                "https://i.gifer.com/BWYz.gif"
         };
     }
 

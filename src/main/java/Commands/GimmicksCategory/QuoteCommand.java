@@ -88,26 +88,6 @@ public class QuoteCommand extends Command {
                 }
             }
 
-            //Sucht anhand dem Inhalt der Nachricht im eigene Channel
-            if (channelArrayList.contains(ownChannel)) {
-                Message m = MentionUtil.getMessageSearch(followString, ownChannel, message);
-                if (m != null && m.getChannel().canSee(author) && m.getChannel().canReadMessageHistory(author)) {
-                    postEmbed(message.getServerTextChannel().get(),m);
-                    return true;
-                }
-            }
-
-            //Sucht anhand dem Inhalt der Nachricht in den anderen Channels des Servers.
-            for(ServerTextChannel channel: channelArrayList) {
-                if (channel != ownChannel) {
-                    Message m = MentionUtil.getMessageSearch(followString, channel, message);
-                    if (m != null && m.getChannel().canSee(author) && m.getChannel().canReadMessageHistory(author)) {
-                        postEmbed(message.getServerTextChannel().get(), m);
-                        return true;
-                    }
-                }
-            }
-
             //Wenn keines der Suchmethoden funktioniert hat (keine Ergebnisse)
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"));

@@ -1,9 +1,11 @@
-package DiscordListener.Obsolete;
+package DiscordListener.ServerVoiceChannelMemberJoin;
 
 import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
 import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
+import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerTypeAbstracts.ServerVoiceChannelMemberJoinAbstract;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.Server.DBServer;
@@ -13,26 +15,15 @@ import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
 import org.javacord.api.entity.permission.*;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class VoiceChannelMemberJoinListener {
+@DiscordListenerAnnotation
+public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(VoiceChannelMemberJoinListener.class);
-
-    private String getNewVCName(AutoChannelBean autoChannelBean, ServerVoiceChannelMemberJoinEvent event, int n) {
-        String name = autoChannelBean.getNameMask();
-        name = AutoChannelCommand.replaceVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
-        name = name.substring(0, Math.min(100, name.length()));
-        return name;
-    }
-
-    public void onJoin(ServerVoiceChannelMemberJoinEvent event) throws Exception {
-        if (event.getUser().isYourself() ||
-                !userIsConnected(event.getChannel(), event.getUser())
-        ) return;
+    @Override
+    public boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable {
+        if (!userIsConnected(event.getChannel(), event.getUser())) return true;
 
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
@@ -47,7 +38,7 @@ public class VoiceChannelMemberJoinListener {
                     else break;
                 }
 
-                if (!userIsConnected(event.getChannel(), event.getUser())) return;
+                if (!userIsConnected(event.getChannel(), event.getUser())) return true;
 
                 //Create channel
                 ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
@@ -88,7 +79,6 @@ public class VoiceChannelMemberJoinListener {
                 ServerVoiceChannel vc = vcb.create().get();
 
                 if (userIsConnected(event.getChannel(), event.getUser())) {
-                    if (vc == null) LOGGER.error("VC is null");
                     event.getUser().move(vc).get();
                     autoChannelBean.getChildChannels().add(vc.getId());
                 } else {
@@ -96,6 +86,15 @@ public class VoiceChannelMemberJoinListener {
                 }
             }
         }
+
+        return true;
+    }
+
+    private String getNewVCName(AutoChannelBean autoChannelBean, ServerVoiceChannelMemberJoinEvent event, int n) {
+        String name = autoChannelBean.getNameMask();
+        name = AutoChannelCommand.replaceVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
+        name = name.substring(0, Math.min(100, name.length()));
+        return name;
     }
 
     private boolean userIsConnected(ServerVoiceChannel channel, User user) {

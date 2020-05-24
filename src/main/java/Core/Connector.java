@@ -4,7 +4,6 @@ import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import DiscordListener.DiscordListenerManager;
-import DiscordListener.Obsolete.*;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
@@ -149,107 +148,6 @@ public class Connector {
 
         DiscordListenerManager.getInstance().addApi(api);
         api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
-
-        api.addMessageDeleteListener(event -> {
-            Thread t = new CustomThread(() -> {
-                new MessageDeleteListener().onMessageDelete(event);
-            }, "message_delete");
-            t.start();
-        });
-        api.addReactionAddListener(event -> {
-            Thread t = new CustomThread(() -> {
-                new ReactionAddListener().onReactionAdd(event);
-            }, "reaction_add");
-            t.start();
-        });
-        api.addReactionRemoveListener(event -> {
-            Thread t = new CustomThread(() -> {
-                new ReactionRemoveListener().onReactionRemove(event);
-            }, "reaction_remove");
-            t.start();
-        });
-        api.addServerVoiceChannelMemberJoinListener(event -> {
-            Thread t = new CustomThread(() -> {
-                try {
-                    new VoiceChannelMemberJoinListener().onJoin(event);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
-            }, "vc_member_join");
-            t.start();
-        });
-        api.addServerVoiceChannelMemberLeaveListener(event -> {
-            Thread t = new CustomThread(() -> {
-                try {
-                    new VoiceChannelMemberLeaveListener().onLeave(event);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
-            }, "vc_member_leave");
-            t.start();
-        });
-        api.addServerMemberJoinListener(event -> {
-            Thread t = new CustomThread(() -> {
-                try {
-                    new ServerMemberJoinListener().onJoin(event);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
-            }, "member_join");
-            t.start();
-        });
-        api.addServerMemberLeaveListener(event -> {
-            Thread t = new CustomThread(() -> {
-                try {
-                    new ServerMemberLeaveListener().onLeave(event);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
-            }, "member_leave");
-            t.start();
-        });
-        api.addServerChannelDeleteListener(event -> {
-            Thread t = new CustomThread(() -> {
-                try {
-                    new ServerChannelDeleteListener().onDelete(event);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
-            }, "channel_delete");
-            t.start();
-        });
-        api.addServerJoinListener(event -> {
-            Thread t = new CustomThread(() -> {
-                try {
-                    new ServerJoinListener().onServerJoin(event);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
-            }, "server_join");
-            t.start();
-        });
-        api.addServerLeaveListener(event -> {
-            Thread t = new CustomThread(() -> new ServerLeaveListener().onServerLeave(event), "server_leave");
-            t.start();
-        });
-        api.addServerVoiceChannelChangeUserLimitListener(event -> {
-            Thread t = new CustomThread(() -> {
-                new VoiceChannelChangeUserLimitListener().onVoiceChannelChangeUserLimit(event);
-            }, "server_change_userlimit");
-            t.start();
-        });
-        api.addUserRoleAddListener(event -> {
-            Thread t = new CustomThread(() -> {
-                new UserRoleAddListener().onUserRoleAdd(event);
-            }, "user_role_add");
-            t.start();
-        });
-        api.addUserRoleRemoveListener(event -> {
-            Thread t = new CustomThread(() -> {
-                new UserRoleRemoveListener().onUserRoleRemove(event);
-            }, "user_role_remove");
-            t.start();
-        });
     }
 
     public static void updateActivity() {

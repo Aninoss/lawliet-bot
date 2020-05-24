@@ -1,0 +1,26 @@
+package DiscordListener.ServerLeave;
+
+import Core.DiscordApiCollection;
+import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerTypeAbstracts.ServerJoinAbstract;
+import DiscordListener.ListenerTypeAbstracts.ServerLeaveAbstract;
+import org.javacord.api.event.server.ServerJoinEvent;
+import org.javacord.api.event.server.ServerLeaveEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@DiscordListenerAnnotation
+public class ServerLeaveNotifyBotOwner extends ServerLeaveAbstract {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerLeaveNotifyBotOwner.class);
+
+    @Override
+    public boolean onServerLeave(ServerLeaveEvent event) throws Throwable {
+        if (event.getServer().getMemberCount() >= 500)
+            DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMemberCount() + ")");
+
+        LOGGER.info("--- {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
+        return true;
+    }
+
+}

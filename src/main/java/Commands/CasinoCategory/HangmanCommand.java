@@ -28,7 +28,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
     private String answer, log;
     private int health;
-    private final int MAX_HEALTH = 8;
+    private final int MAX_HEALTH = 6;
     private boolean[] progress;
     private LogStatus logStatus;
     private ArrayList<String> used;

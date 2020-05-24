@@ -1,9 +1,10 @@
-package DiscordListener.Obsolete;
+package DiscordListener.ServerJoin;
 
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
-import MySQL.Modules.Server.DBServer;
+import DiscordListener.DiscordListenerAnnotation;
+import DiscordListener.ListenerTypeAbstracts.ServerJoinAbstract;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.server.ServerJoinEvent;
@@ -12,19 +13,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
-public class ServerJoinListener {
+@DiscordListenerAnnotation
+public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinListener.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinPostWelcomeMessage.class);
 
-    public void onServerJoin(ServerJoinEvent event) throws Exception {
-        DBServer.getInstance().getBean(event.getServer().getId());
-
-        DiscordApiCollection.getInstance().getRandomWritableChannel(event.getServer()).ifPresent(this::sendNewMessage);
-        DiscordApiCollection.getInstance().insertWebhook(event.getServer());
-        if (event.getServer().getMemberCount() >= 500)
-            DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** " + event.getServer().getName() + " (" + event.getServer().getMemberCount() + ")");
-
-        LOGGER.info("+++ {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
+    @Override
+    public boolean onServerJoin(ServerJoinEvent event) throws Throwable {
+        DiscordApiCollection.getInstance().getFirstWritableChannel(event.getServer()).ifPresent(this::sendNewMessage);
+        return true;
     }
 
     private void sendNewMessage(ServerTextChannel channel) {

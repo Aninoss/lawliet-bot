@@ -87,7 +87,9 @@ public class SmileCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/709440291748184164/smile.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/709443475040501800/1497753943_Chitoge-chan.gif",
                 "https://tenor.com/view/black-clover-secre-gif-16167453",
-                "https://tenor.com/view/black-clover-secre-gif-16167453"
+                "https://tenor.com/view/black-clover-secre-gif-16167453",
+                "https://tenor.com/view/re-zero-rem-smile-happy-gif-9725590",
+                "https://tenor.com/view/emilia-re-zero-anime-smile-gif-12793368"
         };
     }
 
