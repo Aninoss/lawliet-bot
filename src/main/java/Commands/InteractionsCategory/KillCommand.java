@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "kill",
         emoji = "☠️",
-        executable = false,
+        executable = true,
         aliases = {"die"}
 )
 public class KillCommand extends InteractionAbstract {

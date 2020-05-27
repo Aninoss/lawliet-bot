@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "yurikiss",
         emoji = "\uD83D\uDC69\u200D❤️\u200D\uD83D\uDC69",
-        executable = false
+        executable = true
 )
 public class YuriKissCommand extends InteractionAbstract {
 

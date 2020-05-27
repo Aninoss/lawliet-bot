@@ -9,24 +9,20 @@ import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.util.List;
 import java.util.Optional;
 
 public class AttributedStringGenerator {
 
-    private Font[] fonts;
-    private final static int MAIN_FONT_POS = 0;
+    private final List<Font> fonts;
 
     public AttributedStringGenerator(int size) {
-        Font fontMain = new Font("Segoe UI Symbol", Font.PLAIN, size);
-        Font fontJapanese = new Font("MS UI Gothic", Font.PLAIN, size);
-        Font fontLucida = new Font("Lucida Sans Unicode", Font.PLAIN, size);
-        Font fontEmoji = new Font("Noto Emoji", Font.PLAIN, size);
-        fonts = new Font[]{fontJapanese, fontEmoji, fontMain, fontLucida};
+        fonts = FontContainer.getInstance().getFontList(size);
     }
 
     public AttributedCharacterIterator getIterator(String str) {
         AttributedString astr = new AttributedString(str);
-        if (!str.isEmpty()) astr.addAttribute(TextAttribute.FONT, fonts[MAIN_FONT_POS], 0, str.length());
+        if (!str.isEmpty()) astr.addAttribute(TextAttribute.FONT, fonts.get(0), 0, str.length());
 
         int begin = 0;
         while(!str.isEmpty()) {

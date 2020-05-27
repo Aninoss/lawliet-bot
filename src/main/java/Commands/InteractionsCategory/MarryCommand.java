@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "marry",
         emoji = "\uD83D\uDC8D",
-        executable = false
+        executable = true
 )
 public class MarryCommand extends InteractionAbstract {
     protected String[] getGifs() {

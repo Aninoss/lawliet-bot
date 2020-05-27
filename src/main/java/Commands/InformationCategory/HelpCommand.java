@@ -109,7 +109,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommands().values()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger())) {

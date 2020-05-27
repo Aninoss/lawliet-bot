@@ -298,16 +298,20 @@ public class MentionUtil {
         int counted = 0;
         boolean multi = false;
         Server server = message.getServer().get();
-        List<User> userList = MentionUtil.getUsers(message, followedString).getList();
-        List<Role> roleList = MentionUtil.getRoles(message, followedString).getList();
+
+        MentionList<User> userMention = MentionUtil.getUsers(message, followedString);
+        followedString = userMention.getResultMessageString();
+        MentionList<Role> roleMention = MentionUtil.getRoles(message, followedString);
+        followedString = roleMention.getResultMessageString();
+
         StringBuilder sb = new StringBuilder();
 
-        for(User user: userList) {
+        for(User user: userMention.getList()) {
             sb.append("**").append(user.getDisplayName(server)).append("**, ");
             counted++;
         }
 
-        for(Role role: roleList) {
+        for(Role role: roleMention.getList()) {
             sb.append("**").append(role.getName()).append("**, ");
             counted++;
             multi = true;
@@ -318,6 +322,7 @@ public class MentionUtil {
             else sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_end")).append("**, ");
             counted++;
             multi = true;
+            followedString = followedString.replace("@everyone", "").replace("everyone", "");
         }
 
         if (counted == 0) return null;
@@ -328,7 +333,7 @@ public class MentionUtil {
 
         if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
-        return new Mention(string,multi);
+        return new Mention(string, followedString, multi);
     }
 
     public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) throws IOException {
@@ -349,7 +354,7 @@ public class MentionUtil {
 
         if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
-        return new Mention(string, multi);
+        return new Mention(string, null, multi);
     }
 
     public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) throws IOException {
@@ -370,7 +375,7 @@ public class MentionUtil {
 
         if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
 
-        return new Mention(string, multi);
+        return new Mention(string, null, multi);
     }
 
     public static Optional<Role> getRoleByTag(Server server, String tag) {

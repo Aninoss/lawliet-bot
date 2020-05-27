@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
-        executable = false,
+        executable = true,
         aliases = {"hit", "attack"}
 )
 public class PunchCommand extends InteractionAbstract {

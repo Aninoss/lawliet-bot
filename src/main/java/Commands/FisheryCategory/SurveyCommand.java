@@ -120,7 +120,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey);
-        if (!tracker) EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        if (!tracker) EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
         Message message = channel.sendMessage(eb).get();
 
         for(int i = 0; i < 2; i++) {

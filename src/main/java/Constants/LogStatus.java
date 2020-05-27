@@ -1,5 +1,11 @@
 package Constants;
 
 public enum LogStatus {
-    SUCCESS, FAILURE, WIN, LOSE, WARNING;
+
+    SUCCESS,
+    FAILURE,
+    WIN,
+    LOSE,
+    WARNING
+
 }

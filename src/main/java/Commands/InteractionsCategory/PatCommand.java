@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
-        executable = false,
+        executable = true,
         aliases = {"praise"}
 )
 public class PatCommand extends InteractionAbstract {

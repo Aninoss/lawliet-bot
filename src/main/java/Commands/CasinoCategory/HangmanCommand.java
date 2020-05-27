@@ -140,8 +140,8 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         if (input.length() == 0) return null;
 
         if (!used.contains(input)) {
-            used.add(input);
             if (input.length() == 1) {
+                used.add(input);
                 boolean successful = false;
                 for (int i = 0; i < answer.length(); i++) {
                     if (answer.charAt(i) == input.toUpperCase().charAt(0)) {

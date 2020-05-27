@@ -7,7 +7,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "kiss",
         emoji = "\uD83D\uDC8B",
-        executable = false
+        executable = true
 )
 public class KissCommand extends InteractionAbstract {
 

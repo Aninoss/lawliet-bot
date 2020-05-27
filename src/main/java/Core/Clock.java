@@ -162,7 +162,7 @@ public class Clock {
             double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
             Console.getInstance().setTraffic(trafficGB);
 
-            if (trafficGB >= 60 && !trafficWarned) {
+            if (trafficGB >= 95 && !trafficWarned) {
                 try {
                     apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
                 } catch (ExecutionException e) {
@@ -171,7 +171,7 @@ public class Clock {
                 trafficWarned = true;
             }
 
-            if (trafficGB >= 100) {
+            if (trafficGB >= 120) {
                 LOGGER.error("EXIT - Too much traffic");
                 System.exit(-1);
             }

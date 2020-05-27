@@ -38,6 +38,7 @@ public class CommandManager {
         if (botCanPost(event, command) &&
                 isWhiteListed(event) &&
                 botCanUseEmbeds(event, command) &&
+                canRunOnServer(event, command) &&
                 isNSFWCompliant(event, command) &&
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
@@ -174,6 +175,10 @@ public class CommandManager {
 
         addErrorEmoji(event);
         return false;
+    }
+
+    private static boolean canRunOnServer(MessageCreateEvent event, Command command) {
+        return command.canRunOnServer(event.getServer().get().getId());
     }
 
     private static boolean botCanUseEmbeds(MessageCreateEvent event, Command command) {

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "yaoifuck",
         emoji = "\uD83D\uDC68\uD83D\uDECF\uD83D\uDC68️",
-        executable = false,
+        executable = true,
         nsfw = true
 )
 public class YaoiFuckCommand extends InteractionAbstract {

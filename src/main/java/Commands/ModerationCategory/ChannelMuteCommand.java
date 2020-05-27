@@ -78,7 +78,7 @@ public class ChannelMuteCommand extends Command  {
         boolean doneSomething = MuteManager.getInstance().executeMute(muteData, mute);
 
         Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
-        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getString(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
+        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.toString(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
         for(User user: userList) {
             try {
                 if (!user.isYourself() && !user.isBot()) user.sendMessage(actionEmbed).get();
@@ -94,9 +94,9 @@ public class ChannelMuteCommand extends Command  {
             EmbedBuilder eb;
 
             if (doneSomething)
-                eb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.getString(), channel.getMentionTag()));
+                eb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.toString(), channel.getMentionTag()));
             else
-                eb = EmbedFactory.getCommandEmbedError(this, getString("nothingdone", mention.isMultiple(), mention.getString(), channel.getMentionTag()));
+                eb = EmbedFactory.getCommandEmbedError(this, getString("nothingdone", mention.isMultiple(), mention.toString(), channel.getMentionTag()));
 
             event.getChannel().sendMessage(eb).get();
         }

@@ -113,4 +113,9 @@ public class EmbedFactory {
 
         return eb;
     }
+
+    public static EmbedBuilder addTrackerNote(Locale locale, EmbedBuilder eb, String prefix, String trigger) {
+        return EmbedFactory.addLog(eb, null, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
+    }
+
 }

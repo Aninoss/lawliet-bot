@@ -82,7 +82,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
-        EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
         return eb;
     }
 

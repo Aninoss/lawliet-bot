@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
     trigger = "bite",
     emoji = "\uD83E\uDE78",
-    executable = false
+    executable = true
 )
 public class BiteCommand extends InteractionAbstract {
 

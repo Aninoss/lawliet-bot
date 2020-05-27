@@ -36,7 +36,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "tracker", getPrefix(), getTrigger()));
+        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }

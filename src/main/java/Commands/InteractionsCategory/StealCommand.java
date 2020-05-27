@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "steal",
         emoji = "❔",
-        executable = false
+        executable = true
 )
 public class StealCommand extends InteractionAbstract {
 

@@ -25,7 +25,12 @@ public abstract class EmoteAbstract extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
         String gifUrl = gifs[RandomUtil.pickFullRandom(pickedCommand, gifs.length)];
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", "**"+event.getMessage().getAuthor().getDisplayName()+"**"))
+
+        String quote = "";
+        if (followedString.length() > 0)
+            quote = "\n\n> " + followedString.replace("\n", "\n> ");
+
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)
                 .setImage(gifUrl);
 
         event.getMessage().getChannel().sendMessage(eb).get();

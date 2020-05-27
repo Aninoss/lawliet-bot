@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "fish",
         emoji = "\uD83C\uDFA3",
-        executable = false
+        executable = true
 )
 public class FishCommand extends InteractionAbstract {
 

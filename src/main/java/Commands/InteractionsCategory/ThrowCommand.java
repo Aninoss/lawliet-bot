@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "throw",
         emoji = "\uD83D\uDCA8",
-        executable = false
+        executable = true
 )
 public class ThrowCommand extends InteractionAbstract {
 

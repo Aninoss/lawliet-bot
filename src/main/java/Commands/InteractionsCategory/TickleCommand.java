@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "tickle",
         emoji = "\uD83E\uDD23",
-        executable = false
+        executable = true
 )
 public class TickleCommand extends InteractionAbstract {
 

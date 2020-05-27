@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "yiff",
         emoji = "\uD83E\uDD8A",
-        executable = false,
+        executable = true,
         nsfw = true,
         aliases = {"knot", "furryfuck"}
 )

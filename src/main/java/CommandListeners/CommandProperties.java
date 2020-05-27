@@ -17,4 +17,5 @@ public @interface CommandProperties {
     boolean requiresEmbeds() default true;
     int maxCalculationTimeSec() default 30;
     boolean patreonRequired() default false;
+    long[] exlusiveServers() default {};
 }

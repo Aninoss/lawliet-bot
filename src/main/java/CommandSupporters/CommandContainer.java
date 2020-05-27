@@ -129,7 +129,6 @@ public class CommandContainer {
         commandList.add(AwkwardCommand.class);
         commandList.add(YesCommand.class);
         commandList.add(NoCommand.class);
-        commandList.add(WaveCommand.class);
         commandList.add(CryCommand.class);
         commandList.add(DanceCommand.class);
         commandList.add(SmileCommand.class);
@@ -159,6 +158,7 @@ public class CommandContainer {
         commandList.add(SpankCommand.class);
         commandList.add(FishCommand.class);
         commandList.add(TickleCommand.class);
+        commandList.add(WaveCommand.class);
         commandList.add(HighfiveCommand.class);
         commandList.add(PatCommand.class);
         commandList.add(RewardCommand.class);
@@ -214,14 +214,20 @@ public class CommandContainer {
         commandList.add(SalmonCommand.class);
         commandList.add(SplatnetCommand.class);
 
-        for(Class<? extends Command> clazz: commandList) {
+        //EXCLUSIVE
+        commandList.add(TreasureCommand.class);
+
+        for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz);
                 addCommand(command.getTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
+
                 if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add(((OnReactionAddStaticListener)command).getClass());
                 if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add(((OnReactionRemoveStaticListener)command).getClass());
                 if (command instanceof OnTrackerRequestListener) trackerCommands.add(((OnTrackerRequestListener)command).getClass());
+
+                if (!command.canRunOnServer(0L)) commandList.remove(clazz);
             } catch (IllegalAccessException | InstantiationException e) {
                 LOGGER.error("Could not create class", e);
             }

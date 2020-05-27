@@ -1,16 +1,24 @@
 package Core.Mention;
 
-public class Mention {
-    private String text;
-    private boolean multiple;
+import java.util.Optional;
 
-    public Mention(String text, boolean multiple) {
-        this.text = text;
+public class Mention {
+    private final String string, filteredOriginalText;
+    private final boolean multiple;
+
+    public Mention(String string, String filteredOriginalText, boolean multiple) {
+        this.string = string;
+        this.filteredOriginalText = filteredOriginalText;
         this.multiple = multiple;
     }
 
-    public String getString() {
-        return text;
+    @Override
+    public String toString() {
+        return string;
+    }
+
+    public Optional<String> getFilteredOriginalText() {
+        return Optional.ofNullable(filteredOriginalText);
     }
 
     public boolean isMultiple() {

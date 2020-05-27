@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "hug",
         emoji = "\uD83D\uDC50",
-        executable = false
+        executable = true
 )
 public class HugCommand extends InteractionAbstract {
 

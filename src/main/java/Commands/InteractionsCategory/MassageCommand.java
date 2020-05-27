@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "massage",
         emoji = "\uD83D\uDC86",
-        executable = false
+        executable = true
 )
 public class MassageCommand extends InteractionAbstract {
 

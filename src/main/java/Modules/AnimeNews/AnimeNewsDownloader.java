@@ -3,6 +3,7 @@ package Modules.AnimeNews;
 import Constants.Language;
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
+import Core.Utils.TimeUtil;
 import Modules.PostBundle;
 import Core.Utils.StringUtil;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class AnimeNewsDownloader {
 
@@ -90,8 +92,7 @@ public class AnimeNewsDownloader {
         else post.setComments(Integer.parseInt(StringUtil.extractGroups(data, "#respond\">", "<")[0]));
 
         String dateString = StringUtil.extractGroups(data, "datetime=\"", "\"")[0];
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'+00:00'").withZone(ZoneOffset.UTC);
-        Instant instant = formatter.parse(dateString, Instant::from);
+        Instant instant = TimeUtil.parseDateString3(dateString);
         post.setInstant(instant);
 
         post.setAuthor(StringUtil.decryptString(StringUtil.extractGroups(data, "class=\"td-post-author-name\">", "</a>")[0].split(">")[1]));
@@ -113,8 +114,7 @@ public class AnimeNewsDownloader {
         post.setAuthor("");
 
         String dateString = StringUtil.extractGroups(data, "<time datetime=\"", "\"")[0];
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'+00:00'").withZone(ZoneOffset.UTC);
-        Instant instant = formatter.parse(dateString, Instant::from);
+        Instant instant = TimeUtil.parseDateString3(dateString);
         post.setInstant(instant);
 
         post.setCategory(StringUtil.decryptString(StringUtil.extractGroups(data, "<span class=\"topics\">", "</div>")[0]));

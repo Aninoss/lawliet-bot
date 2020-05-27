@@ -6,7 +6,7 @@ import Commands.InteractionAbstract;
 @CommandProperties(
         trigger = "yurihug",
         emoji = "\uD83D\uDC69\uD83D\uDC50\uD83D\uDC69",
-        executable = false
+        executable = true
 )
 public class YuriHugCommand extends InteractionAbstract {
 

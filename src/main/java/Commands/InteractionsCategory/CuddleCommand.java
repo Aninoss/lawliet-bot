@@ -40,7 +40,8 @@ public class CuddleCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/8f8ba3baeecdf28f3e0fa7d4ce1a8586/tenor.gif?itemid=12668750",
                 "https://media1.tenor.com/images/c445e2665d12cfda0921291d919cbe9a/tenor.gif?itemid=15069987",
                 "https://media1.tenor.com/images/3d62384321435408f50823ae6f5ca033/tenor.gif?itemid=12270770",
-                "https://media1.tenor.com/images/c71f6fd355355a51903651a312d425a8/tenor.gif?itemid=12668753"
+                "https://media1.tenor.com/images/c71f6fd355355a51903651a312d425a8/tenor.gif?itemid=12668753",
+                "https://cdn.discordapp.com/attachments/499629904380297226/714434521004638208/ezgif.com-video-to-gif1.gif"
         };
     }
 

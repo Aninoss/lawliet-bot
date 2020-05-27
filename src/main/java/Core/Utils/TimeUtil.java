@@ -66,16 +66,7 @@ public final class TimeUtil {
 
     public static Instant parseDateString(String str) {
         String[] timeString = str.split(" ");
-
-        int month = 0;
-        String monthString = timeString[1];
-        String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        for (int i = 0; i < 12; i++) {
-            if (monthString.equalsIgnoreCase(monthNames[i])) {
-                month = i + 1;
-                break;
-            }
-        }
+        int month = parseMonth(timeString[1]);
 
         LocalDateTime ldt1 = LocalDateTime.now()
                 .withYear(Integer.parseInt(timeString[5]))
@@ -88,11 +79,8 @@ public final class TimeUtil {
         return ldt1.atZone(ZoneOffset.UTC).toInstant();
     }
 
-    public static Instant parseDateString2(String str) {
-        String[] timeString = str.split(" ");
-
-        int month = 0;
-        String monthString = timeString[2];
+    public static int parseMonth(String monthString) {
+        int month = -1;
         String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
         for (int i = 0; i < 12; i++) {
             if (monthString.equalsIgnoreCase(monthNames[i])) {
@@ -100,6 +88,13 @@ public final class TimeUtil {
                 break;
             }
         }
+
+        return month;
+    }
+
+    public static Instant parseDateString2(String str) {
+        String[] timeString = str.split(" ");
+        int month = parseMonth(timeString[2]);
 
         LocalDateTime ldt1 = LocalDateTime.now()
                 .withYear(Integer.parseInt(timeString[3]))
@@ -110,6 +105,14 @@ public final class TimeUtil {
                 .withSecond(Integer.parseInt(timeString[4].split(":")[2]));
 
         return ldt1.atZone(ZoneOffset.UTC).toInstant();
+    }
+
+    public static Instant parseDateString3(String str) {
+        String timeContent = str.split("\\+")[0];
+        int timeOffset = Integer.parseInt(str.split("\\+")[1].split(":")[0]);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(ZoneOffset.ofHours(timeOffset));
+        return formatter.parse(timeContent, Instant::from);
     }
 
     public static boolean instantHasHour(Instant instant, int hour) {

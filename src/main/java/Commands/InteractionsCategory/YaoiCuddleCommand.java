@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "yaoicuddle",
         emoji = "\uD83D\uDC68\uD83D\uDC50\uD83D\uDC68",
-        executable = false,
+        executable = true,
         aliases = {"yaoisnuggle"}
 )
 public class YaoiCuddleCommand extends InteractionAbstract {

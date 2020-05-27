@@ -133,19 +133,16 @@ public class ImageCreator {
             if (wert[0] == n) {
                 g.drawImage(image1, wert[1], wert[2], wert[3], wert[3], null);
                 g.drawImage(image2, wert[4], wert[5], wert[6], wert[6], null);
-                fsize = (int) (wert[7] * 1.25);
+                fsize = (int) (wert[7] * 1.1);
             }
         }
 
         g.drawImage(image, 0, 0, null);
-        Font fontTop = new Font("Impact", Font.PLAIN, (int) (fsize / 1.25));
-        Font font = new Font("Impact", Font.PLAIN, fsize);
+        Font font = new Font("Oswald", Font.PLAIN, fsize);
         Color mainColor = new Color((int) Math.min((510.0 - (perc / 100.0 * 255.0 * 2.0)), 255), (int) Math.min((perc / 100.0 * 255.0 * 2.0), 255), 0);
-        Color mainColorShadow = new Color((int) (Math.min((510.0 - (perc / 100.0 * 255.0 * 2.0)), 255) / 2), (int) (Math.min((perc / 100.0 * 255.0 * 2.0), 255) / 2), 0);
-        final double SHADOW_HEIGHT = 3;
 
-        if (n != 7) drawStringWithBorder(g, fontTop, TextManager.getString(locale,TextManager.COMMANDS,"ship_match"), Color.WHITE,image.getWidth()/2,(int) (image.getHeight() / 5.0 * 1.0),3,-1);
-        drawStringWithBorder(g, font, perc + "%", mainColor, image.getWidth()/2, (int) (image.getHeight() / 5.0 * 4.0),3,-1);
+        int y = (int) (image.getHeight() / 5.0 * 4.0);
+        drawStringWithBorder(g, font, perc + "%", mainColor, image.getWidth()/2, y - (int) (0.252 * fsize),3,-1);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageIO.write(result, "png", os);
@@ -188,7 +185,7 @@ public class ImageCreator {
             drawRectShadow(g2d, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30);
             if (profilePicture != null) g2d.drawImage(profilePicture, 15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30, null);
 
-            AttributedStringGenerator attributedStringGenerator = new AttributedStringGenerator(22);
+            AttributedStringGenerator attributedStringGenerator = new AttributedStringGenerator(20);
             Font fontWelcome = new Font("Oswald", Font.PLAIN, 28);
 
             int drawX = BASE_HEIGHT - 15 + (BASE_WIDTH - BASE_HEIGHT + 15) / 2;

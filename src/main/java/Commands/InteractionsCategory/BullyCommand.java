@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "bully",
         emoji = "\uD83D\uDE08",
-        executable = false
+        executable = true
 )
 public class BullyCommand extends InteractionAbstract {
 

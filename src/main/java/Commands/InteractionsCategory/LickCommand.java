@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "lick",
         emoji = "\uD83D\uDE0B",
-        executable = false
+        executable = true
 )
 public class LickCommand extends InteractionAbstract {
 

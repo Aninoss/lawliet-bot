@@ -1,5 +1,10 @@
 package Constants;
 
 public interface CodeBlockColor {
-    String RED = "autohotkey", WHITE = "cpp", GREEN = "css";
+
+    String
+            RED = "autohotkey",
+            WHITE = "cpp",
+            GREEN = "css";
+
 }

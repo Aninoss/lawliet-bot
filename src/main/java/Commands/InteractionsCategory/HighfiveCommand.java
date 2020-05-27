@@ -9,7 +9,7 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "highfive",
         emoji = "✋",
-        executable = false
+        executable = true
 )
 public class HighfiveCommand extends InteractionAbstract {
 

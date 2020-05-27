@@ -26,11 +26,7 @@ public abstract class InteractionAbstract extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         Mention mention = MentionUtil.getMentionedString(getLocale(), message, followedString);
-        if (mention == null) {
-            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(getLocale(),TextManager.GENERAL,"no_mentions"))).get();
-            return false;
-        } else if (mention.getString().equals( "**"+event.getMessage().getAuthor().getDisplayName()+"**")) {
+        if (mention != null && mention.toString().equals( "**"+event.getMessage().getAuthor().getDisplayName()+"**")) {
             message.getChannel().sendMessage(
                     EmbedFactory.getCommandEmbedStandard(this,
                         TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
@@ -38,10 +34,22 @@ public abstract class InteractionAbstract extends Command {
             return false;
         }
 
+        String quote = "";
+        if (mention != null)
+            followedString = mention.getFilteredOriginalText().get();
+        if (followedString.length() > 0)
+            quote = "\n\n> " + followedString.replace("\n", "\n> ");
+
         ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
         String gifUrl = gifs[RandomUtil.pickFullRandom(pickedCommand, gifs.length)];
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.getString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**"))
-                .setImage(gifUrl);
+        EmbedBuilder eb;
+        if (mention != null) {
+            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)
+                    .setImage(gifUrl);
+        } else {
+            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template_single", "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)
+                    .setImage(gifUrl);
+        }
 
         message.getChannel().sendMessage(eb).get();
         removeMessageForwarder();

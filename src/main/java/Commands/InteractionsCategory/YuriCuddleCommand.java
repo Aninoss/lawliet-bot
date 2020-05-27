@@ -6,7 +6,7 @@ import Commands.InteractionAbstract;
 @CommandProperties(
         trigger = "yuricuddle",
         emoji = "\uD83D\uDC69\uD83D\uDC50\uD83D\uDC69",
-        executable = false,
+        executable = true,
         aliases = {"yurisnuggle"}
 )
 public class YuriCuddleCommand extends InteractionAbstract {

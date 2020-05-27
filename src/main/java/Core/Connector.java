@@ -3,7 +3,7 @@ package Core;
 import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
-import DiscordListener.DiscordListenerManager;
+import DiscordEvents.DiscordEventManager;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
@@ -18,7 +18,7 @@ import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.awt.*;
+
 import java.io.*;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -36,7 +36,7 @@ public class Connector {
         Console.getInstance().start();
 
         try {
-            initFonts();
+            FontContainer.getInstance().init();
             DBMain.getInstance().connect();
             cleanAllTempFiles();
             if (Bot.isProductionMode()) initializeUpdate();
@@ -45,17 +45,6 @@ public class Connector {
             LOGGER.error("EXIT - Exception in main method", e);
             System.exit(-1);
         }
-    }
-
-    private static void initFonts() throws IOException, FontFormatException {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/impact.ttf")));
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Medium.ttf")));
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/Oswald-Regular.ttf")));
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/l_10646.ttf")));
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/seguisym.ttf")));
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/MS-UIGothic.ttf")));
-        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("recourses/NotoEmoji.ttf")));
     }
 
     private static void cleanAllTempFiles() {
@@ -146,7 +135,7 @@ public class Connector {
             }
         }
 
-        DiscordListenerManager.getInstance().addApi(api);
+        DiscordEventManager.getInstance().addApi(api);
         api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
     }
 

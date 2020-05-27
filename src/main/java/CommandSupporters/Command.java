@@ -501,14 +501,14 @@ public abstract class Command {
 
             if (forbiddenRoles.size() == 0) return true;
             try {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getString().replace("**", "")));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).toString().replace("**", "")));
             } catch (IOException e) {
                 LOGGER.error("Exception", e);
             }
             return false;
         }
         try {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getString().replace("**", "")));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanagableRoles).toString().replace("**", "")));
         } catch (IOException e) {
             LOGGER.error("Exception", e);
         }
@@ -539,7 +539,6 @@ public abstract class Command {
     }
     public Message getNavigationMessage() { return navigationMessage; }
 
-
     public String getTrigger() { return commandProperties.trigger(); }
     public String[] getAliases() { return commandProperties.aliases(); }
     public String getEmoji() { return commandProperties.emoji(); }
@@ -555,6 +554,11 @@ public abstract class Command {
             perm |= Permission.ADD_REACTIONS | Permission.READ_MESSAGE_HISTORY;
         }
         return perm;
+    }
+    public boolean canRunOnServer(long serverId) {
+        long[] allowedServerIds = commandProperties.exlusiveServers();
+        if (allowedServerIds.length == 0) return true;
+        return Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId);
     }
     public void blockLoading() { loadingBlock = true; }
 

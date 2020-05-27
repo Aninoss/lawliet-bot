@@ -5,7 +5,7 @@ import Commands.InteractionAbstract;
 @CommandProperties(
     trigger = "baka",
     emoji = "\uD83D\uDCA2",
-    executable = false
+    executable = true
 )
 public class BakaCommand extends InteractionAbstract {
 

@@ -1,6 +1,7 @@
 package Constants;
 
 public interface Permission {
+
     int ADMINISTRATOR = 0x1,
             ATTACH_FILES = 0x2,
             KICK_MEMBERS = 0x4,
@@ -31,4 +32,5 @@ public interface Permission {
             CONNECT = 0x8000000;
 
     int MAX = CONNECT;
+
 }

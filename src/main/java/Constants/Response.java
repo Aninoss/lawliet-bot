@@ -1,5 +1,8 @@
 package Constants;
 
 public enum Response {
-    TRUE, FALSE;
+
+    TRUE,
+    FALSE
+
 }
