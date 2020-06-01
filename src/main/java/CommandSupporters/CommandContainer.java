@@ -68,6 +68,8 @@ public class CommandContainer {
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
         commandList.add(AutoQuoteCommand.class);
+        commandList.add(AssignRoleCommand.class);
+        commandList.add(RevokeRoleCommand.class);
         commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
 
@@ -91,7 +93,6 @@ public class CommandContainer {
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);
         commandList.add(UserInfoCommand.class);
-        //commandList.add(SignUpCommand.class);
         commandList.add(CommandUsagesCommand.class);
         commandList.add(PingCommand.class);
         commandList.add(NewCommand.class);
@@ -105,6 +106,7 @@ public class CommandContainer {
         commandList.add(FisheryRolesCommand.class);
         commandList.add(VCTimeCommand.class);
         commandList.add(FisheryManageCommand.class);
+        commandList.add(TreasureCommand.class);
         commandList.add(ExchangeRateCommand.class);
         commandList.add(SellCommand.class);
         commandList.add(BuyCommand.class);
@@ -141,6 +143,7 @@ public class CommandContainer {
         commandList.add(LaughCommand.class);
         commandList.add(YawnCommand.class);
         commandList.add(FacepalmCommand.class);
+        commandList.add(SmugCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);
@@ -156,7 +159,6 @@ public class CommandContainer {
         commandList.add(NomCommand.class);
         commandList.add(PokeCommand.class);
         commandList.add(SpankCommand.class);
-        commandList.add(FishCommand.class);
         commandList.add(TickleCommand.class);
         commandList.add(WaveCommand.class);
         commandList.add(HighfiveCommand.class);
@@ -213,9 +215,6 @@ public class CommandContainer {
         commandList.add(MapsCommand.class);
         commandList.add(SalmonCommand.class);
         commandList.add(SplatnetCommand.class);
-
-        //EXCLUSIVE
-        commandList.add(TreasureCommand.class);
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {

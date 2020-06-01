@@ -6,7 +6,7 @@ import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
 import Modules.LinkCheck;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-@DiscordEventAnnotation(priority = EventPriority.HIGH)
+@DiscordEventAnnotation(priority = EventPriority.HIGH, allowBannedUser = true)
 public class MessageCreateLinkCheck extends MessageCreateAbstract {
 
     @Override

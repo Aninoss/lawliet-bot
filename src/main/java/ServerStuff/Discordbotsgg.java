@@ -16,7 +16,7 @@ public class Discordbotsgg {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Discordbotsgg.class);
 
-    public static boolean updateServerCount(int serverCount) {
+    public static void updateServerCount(int serverCount) {
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("guildCount", serverCount);
@@ -25,11 +25,9 @@ public class Discordbotsgg {
                     new HttpProperty("Authorization", SecretManager.getString("discordbotsgg.token"))
             };
             HttpResponse httpResponse = HttpRequest.getData(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
-            return httpResponse.getCode() == 200;
         } catch (IOException | InterruptedException | ExecutionException e) {
             LOGGER.error("Could not post request to Discordbots.gg", e);
         }
-        return false;
     }
 
 }

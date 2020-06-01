@@ -16,9 +16,12 @@ public abstract class ServerMemberLeaveAbstract extends DiscordEventAbstract {
     public static void onServerMemberLeaveStatic(ServerMemberLeaveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getUser().isYourself()) return;
 
+        boolean banned = userIsBanned(event.getUser().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof ServerMemberLeaveAbstract) {
                 ServerMemberLeaveAbstract serverMemberLeaveAbstract = (ServerMemberLeaveAbstract) listener;
+                if (banned && !serverMemberLeaveAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!serverMemberLeaveAbstract.onServerMemberLeave(event)) return;

@@ -2,6 +2,7 @@ package ServerStuff.WebCommunicationServer.Events;
 
 import Core.DiscordApiCollection;
 import Core.PermissionCheck;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
@@ -19,6 +20,7 @@ public class OnEventServerList implements DataListener<JSONObject> {
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
         long userId = jsonObject.getLong("user_id");
+        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId)) return;
         Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
 
         JSONObject mainJSON = new JSONObject();

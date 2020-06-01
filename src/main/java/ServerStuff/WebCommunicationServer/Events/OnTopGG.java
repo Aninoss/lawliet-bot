@@ -2,6 +2,7 @@ package ServerStuff.WebCommunicationServer.Events;
 
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Upvotes.DBUpvotes;
@@ -22,6 +23,7 @@ public class OnTopGG implements DataListener<JSONObject> {
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
         long userId = jsonObject.getLong("user");
+        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId)) return;
         String type = jsonObject.getString("type");
         boolean isWeekend = jsonObject.getBoolean("isWeekend");
 

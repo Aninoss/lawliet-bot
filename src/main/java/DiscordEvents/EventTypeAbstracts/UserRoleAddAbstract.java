@@ -16,9 +16,12 @@ public abstract class UserRoleAddAbstract extends DiscordEventAbstract {
     public static void onUserRoleAddStatic(UserRoleAddEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getUser().isBot()) return;
 
+        boolean banned = userIsBanned(event.getUser().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof UserRoleAddAbstract) {
                 UserRoleAddAbstract userRoleAddAbstract = (UserRoleAddAbstract) listener;
+                if (banned && !userRoleAddAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!userRoleAddAbstract.onUserRoleAdd(event)) return;

@@ -16,7 +16,7 @@ public class Botsfordiscord {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Botsfordiscord.class);
 
-    public static boolean updateServerCount(int serverCount) {
+    public static void updateServerCount(int serverCount) {
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("server_count", String.valueOf(serverCount));
@@ -25,11 +25,9 @@ public class Botsfordiscord {
                     new HttpProperty("Authorization", SecretManager.getString("botsfordiscord.token"))
             };
             HttpResponse httpResponse = HttpRequest.getData("https://botsfordiscord.com/api/bot/" + Settings.LAWLIET_ID, jsonObject.toString(), properties).get();
-            return httpResponse.getCode() == 200;
         } catch (IOException | InterruptedException | ExecutionException e) {
             LOGGER.error("Could not post Botsfordiscord request", e);
         }
-        return false;
     }
 
 }

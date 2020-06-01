@@ -136,8 +136,8 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                         removeReactionListener();
                         postMessage(EmbedFactory.getCommandEmbedStandard(
                                         this,
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, "warn_abort_description"),
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, "warn_abort_title")
+                                        getString("abort_description"),
+                                        getString("abort_title")
                                 )
                         );
                     }

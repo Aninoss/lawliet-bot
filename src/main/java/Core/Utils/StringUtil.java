@@ -290,4 +290,12 @@ public final class StringUtil {
         return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere").replace("<@&", "<@\u200B&");
     }
 
+    public static String removeMarkdown(String str) {
+        return str.replace("`", "")
+                .replace("*", "")
+                .replace("_", "")
+                .replace("~", "")
+                .replace("|", "");
+    }
+
 }

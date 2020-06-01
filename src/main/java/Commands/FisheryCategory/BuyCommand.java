@@ -101,7 +101,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                             }
                         }
 
-                        setLog(LogStatus.SUCCESS, getString("levelup", getString("product_" + slot.getPowerUpId() + "_0")));
+                        setLog(LogStatus.SUCCESS, getString("levelup", TextManager.getString(getLocale(), TextManager.COMMANDS, "product_" + slot.getPowerUpId())));
                         return true;
                     } else {
                         setLog(LogStatus.FAILURE, getString("notenough"));
@@ -144,7 +144,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                             price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getPowerUpId(), roles.get(slot.getLevel()).getMentionTag());
                         }
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(getLocale(), price), productDescription));
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], TextManager.getString(getLocale(), TextManager.COMMANDS, "product_" + slot.getPowerUpId()), String.valueOf(slot.getLevel()), StringUtil.numToString(getLocale(), price), productDescription));
 
                         numberReactions++;
                         eb.addField(Settings.EMPTY_EMOJI, description.toString());

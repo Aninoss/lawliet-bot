@@ -21,9 +21,12 @@ public abstract class MessageEditAbstract extends DiscordEventAbstract {
                 event.getMessage().get().getUserAuthor().get().isBot()
         ) return;
 
+        boolean banned = userIsBanned(event.getMessageAuthor().get().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof MessageEditAbstract) {
                 MessageEditAbstract messageEditAbstract = (MessageEditAbstract) listener;
+                if (banned && !messageEditAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!messageEditAbstract.onMessageEdit(event)) return;

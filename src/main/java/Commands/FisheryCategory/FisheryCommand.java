@@ -2,6 +2,7 @@ package Commands.FisheryCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
+import CommandSupporters.NavigationHelper;
 import Constants.*;
 import Core.*;
 import Core.Mention.MentionUtil;
@@ -39,8 +40,11 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     final static Logger LOGGER = LoggerFactory.getLogger(FisheryCommand.class);
 
+    private static final int MAX_CHANNELS = 50;
+
     private ServerBean serverBean;
     private boolean stopLock = true;
+    private NavigationHelper<ServerTextChannel> channelNavigationHelper;
     private CustomObservableList<ServerTextChannel> ignoredChannels;
 
     public static final String treasureEmoji = "\uD83D\uDCB0";
@@ -52,26 +56,16 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
         serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
         FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
         ignoredChannels = fisheryServerBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
+        channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;
     }
     
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
-
             case 1:
-                ArrayList<ServerTextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
-                if (channelIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                    return Response.FALSE;
-                } else {
-                    ignoredChannels.clear();
-                    ignoredChannels.addAll(channelIgnoredList);
-                    setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
-                    setState(0);
-                    return Response.TRUE;
-                }
-
+                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+                return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 
         return null;
@@ -97,10 +91,14 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 2:
-                        setState(1);
+                        channelNavigationHelper.startDataAdd(1);
                         return true;
 
                     case 3:
+                        channelNavigationHelper.startDataRemove(2);
+                        return true;
+
+                    case 4:
                         if (serverBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             serverBean.setFisheryStatus(FisheryStatus.ACTIVE);
                             stopLock = true;
@@ -110,7 +108,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         return true;
 
-                    case 4:
+                    case 5:
                         if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
@@ -126,26 +124,20 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 break;
 
             case 1:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        ignoredChannels.clear();
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
                 }
                 break;
+
+            case 2:
+                return channelNavigationHelper.removeData(i, 0);
         }
         return false;
     }
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-
         switch (state) {
             case 0:
                 setOptions(getString("state0_options_"+ serverBean.getFisheryStatus().ordinal()).split("\n"));
@@ -156,9 +148,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         .addField(getString("state0_mreminders"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false);
 
-            case 1:
-                setOptions(new String[]{getString("state1_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+            case 1: return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
+            case 2: return channelNavigationHelper.drawDataRemove();
         }
         return null;
     }
@@ -168,7 +159,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     @Override
     public int getMaxReactionNumber() {
-        return 5;
+        return 6;
     }
 
     @Override
@@ -209,7 +200,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(getLocale(), won)))
                         .setImage(treasureImage)
-                        .setFooter(getString("treasure_footer"));
+                        .setFooter( TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_footer"));
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 

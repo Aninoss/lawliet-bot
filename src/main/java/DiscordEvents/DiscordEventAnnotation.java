@@ -7,5 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface DiscordEventAnnotation {
 
     EventPriority priority() default EventPriority.MEDIUM;
+    boolean allowBannedUser() default false;
 
 }

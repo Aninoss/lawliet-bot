@@ -115,11 +115,11 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                     try {
                         bi = messageAttachment.downloadAsImage().get();
                     } catch (Throwable e) {
-                        setLog(LogStatus.FAILURE, getString("imagenotfound"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
                         return Response.FALSE;
                     }
                     if (bi == null) {
-                        setLog(LogStatus.FAILURE, getString("imagenotfound"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"imagenotfound"));
                         return Response.FALSE;
                     }
 
@@ -130,7 +130,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                     return Response.TRUE;
                 }
 
-                setLog(LogStatus.FAILURE, getString("imagenotfound"));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
                 return Response.FALSE;
 
             case 6:

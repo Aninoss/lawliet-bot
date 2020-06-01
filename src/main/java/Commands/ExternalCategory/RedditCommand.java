@@ -117,7 +117,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 if (!slot.getArgs().isPresent()) {
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_noresults_tracker", slot.getCommandKey().get()));
+                            .setDescription(getString("noresults_tracker", slot.getCommandKey().get()));
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {

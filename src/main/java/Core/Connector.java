@@ -1,5 +1,9 @@
 package Core;
 
+import CommandSupporters.Command;
+import CommandSupporters.CommandContainer;
+import CommandSupporters.CommandManager;
+import Constants.Locales;
 import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
@@ -12,17 +16,23 @@ import MySQL.Modules.Version.VersionBean;
 import MySQL.Modules.Version.VersionBeanSlot;
 import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
+import ch.qos.logback.core.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
+import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.user.UserStatus;
+import org.javacord.api.entity.webhook.Webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class Connector {
 

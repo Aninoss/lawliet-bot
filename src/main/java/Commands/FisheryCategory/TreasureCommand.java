@@ -5,17 +5,13 @@ import Commands.FisheryAbstract;
 import Constants.Permission;
 import Constants.Settings;
 import Core.EmbedFactory;
-import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.StringUtil;
-import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
@@ -25,27 +21,31 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "treasure",
         userPermissions = Permission.MANAGE_SERVER,
-        botPermissions = Permission.MANAGE_MESSAGES,
         emoji = "\uD83C\uDFF4\u200D☠️",
         executable = true,
-        aliases = {"tresure", "treasurechest", "schatz"},
-        exlusiveServers = { 619548671276744704L }
+        patreonRequired = true,
+        aliases = { "tresure", "treasurechest" }
 )
 public class TreasureCommand extends FisheryAbstract {
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         int amount = 1;
-        if (followedString.length() > 0 && StringUtil.stringIsInt(followedString)) {
-            amount = Integer.parseInt(followedString);
-            if (amount < 1 || amount > 50) {
+        if (followedString.length() > 0) {
+            if (StringUtil.stringIsInt(followedString)) {
+                amount = Integer.parseInt(followedString);
+                if (amount < 1 || amount > 30) {
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))).get();
+                    return false;
+                }
+            } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                        TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "50"))).get();
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
                 return false;
             }
         }
 
-        event.getMessage().delete().get();
         for(int i = 0; i < amount; i++) spawnTreasureChest(event.getServer().get().getId(), event.getServerTextChannel().get());
         return true;
     }

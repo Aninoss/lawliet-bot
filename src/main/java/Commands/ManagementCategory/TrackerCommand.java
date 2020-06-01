@@ -5,6 +5,7 @@ import CommandListeners.OnNavigationListener;
 import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
+import CommandSupporters.CommandLanguage;
 import CommandSupporters.CommandManager;
 import Constants.*;
 import Core.*;
@@ -237,7 +238,8 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 for (int i = 0; i < opt.length; i++) {
                     Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
                     String trigger = Command.getTrigger((Class<? extends Command>) clazz);
-                    opt[i] = trigger + " - " + TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description");
+                    CommandLanguage commandLanguage = Command.getCommandLanguage((Class<? extends Command>) clazz);
+                    opt[i] = trigger + " - " + commandLanguage.getDescShort();
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -248,9 +250,10 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i=0; i < getOptions().length; i++) {
                     String trigger = trackerSlots.get(i).getCommandTrigger();
+                    CommandLanguage commandLanguage = Command.getCommandLanguage(CommandContainer.getInstance().getCommands().get(trigger));
                     getOptions()[i] = getString("slot", trackerSlots.get(i).getCommandKey().isPresent(),
                             trigger,
-                            TextManager.getString(getLocale(), TextManager.COMMANDS, trigger + "_description"),
+                            commandLanguage.getDescShort(),
                             trackerSlots.get(i).getCommandKey().orElse("")
                             );
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
@@ -260,7 +263,8 @@ public class TrackerCommand extends Command implements OnNavigationListener {
             case 3:
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), TextManager.COMMANDS,  commandTrigger + "_trackerkey"), getString("state3_title"));
+                Command command = CommandManager.createCommandByClass(CommandContainer.getInstance().getCommands().get(commandTrigger), getLocale(), getPrefix());
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, command.getString( "trackerkey"), getString("state3_title"));
                 if (override) EmbedFactory.addLog(eb, null, getString("state3_override"));
 
                 return eb;

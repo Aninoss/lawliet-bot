@@ -18,9 +18,12 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
                 (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
         ) return;
 
+        boolean banned = userIsBanned(event.getUser().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof ReactionRemoveAbstract) {
                 ReactionRemoveAbstract reactionRemoveAbstract = (ReactionRemoveAbstract) listener;
+                if (banned && !reactionRemoveAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!reactionRemoveAbstract.onReactionRemove(event)) return;

@@ -7,7 +7,6 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Mention.MentionUtil;
-import Core.Utils.StringUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -73,7 +72,6 @@ public abstract class Command {
             return;
         } finally {
             removeLoadingReaction();
-            setResultReaction(successful);
         }
 
         if ((this instanceof OnReactionAddListener)) {
@@ -122,7 +120,6 @@ public abstract class Command {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
         } finally {
             removeLoadingReaction(event.getMessage());
-            if (success != null) setResultReaction(event.getMessage(), success == Response.TRUE);
         }
 
         return success != null;
@@ -158,7 +155,6 @@ public abstract class Command {
         } finally {
             removeLoadingReaction();
             if (success != null) {
-                setResultReaction(event.getMessage(), success == Response.TRUE);
             }
         }
 
@@ -325,16 +321,6 @@ public abstract class Command {
         }
     }
 
-    private void setResultReaction(boolean successful) {
-        setResultReaction(lastUserMessage, successful);
-    }
-
-    private void setResultReaction(Message message, boolean successful) {
-        if (!successful && message.getChannel().canYouAddNewReactions() && !navigationPrivateMessage) {
-            message.addReaction(StringUtil.getEmojiForBoolean(successful));
-        }
-    }
-
     public void addReactionListener(Message message) {
         reactionMessageID = message.getId();
         CommandContainer.getInstance().addReactionListener(this);
@@ -358,6 +344,7 @@ public abstract class Command {
     }
 
     private void onTimeOut(Message message) {
+        if (commandProperties.turnOffTimeout()) return;
         if (CommandContainer.getInstance().reactionListenerContains(this)) {
             if (this instanceof OnNavigationListener) {
                 try {
@@ -376,9 +363,7 @@ public abstract class Command {
                     ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
                 }
             }
-        }
-
-        else if (CommandContainer.getInstance().forwarderContains(this)) {
+        } else if (CommandContainer.getInstance().forwarderContains(this)) {
             removeMessageForwarder();
             if (this instanceof OnForwardedRecievedListener) {
                 try {
@@ -449,21 +434,24 @@ public abstract class Command {
 
 
     public String getString(String key, String... args) {
-        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, args);
-        if (prefix != null) text = text.replace("%PREFIX", prefix);
-        return text;
+        return TextManager.getString(this, key, args);
     }
 
     public String getString(String key, int option, String... args) {
-        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, option, args);
-        if (prefix != null) text = text.replace("%PREFIX", prefix);
-        return text;
+        return TextManager.getString(this, key, option, args);
     }
 
     public String getString(String key, boolean secondOption, String... args) {
-        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, secondOption, args);
-        if (prefix != null) text = text.replace("%PREFIX", prefix);
-        return text;
+        return TextManager.getString(this, key, secondOption, args);
+    }
+
+    public CommandLanguage getCommandLanguage() {
+        String title = getString("title");
+        String descShort = getString("description");
+        String descLong = getString("helptext");
+        String usage = getString("usage");
+        String examples = getString("examples");
+        return new CommandLanguage(title, descShort, descLong, usage, examples);
     }
 
     public boolean checkWriteInChannelWithLog(ServerTextChannel channel) {
@@ -583,6 +571,15 @@ public abstract class Command {
             LOGGER.error("Could not create command", e);
         }
         return "???";
+    }
+
+    public static CommandLanguage getCommandLanguage(Class<? extends Command> c) {
+        try {
+            return CommandManager.createCommandByClass(c).getCommandLanguage();
+        } catch (IllegalAccessException | InstantiationException e) {
+            LOGGER.error("Could not create command", e);
+        }
+        return null;
     }
 
 }

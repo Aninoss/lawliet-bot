@@ -16,7 +16,7 @@ public class BotsOnDiscord {
 
     final static Logger LOGGER = LoggerFactory.getLogger(BotsOnDiscord.class);
 
-    public static boolean updateServerCount(int serverCount) {
+    public static void updateServerCount(int serverCount) {
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("guildCount", serverCount);
@@ -25,11 +25,9 @@ public class BotsOnDiscord {
                     new HttpProperty("Authorization", SecretManager.getString("bots.ondiscord.token"))
             };
             HttpResponse httpResponse = HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + Settings.LAWLIET_ID + "/guilds", jsonObject.toString(), properties).get();
-            return httpResponse.getCode() == 204;
         } catch (IOException | InterruptedException | ExecutionException e) {
             LOGGER.error("Could not send data to BotsOnDiscord", e);
         }
-        return false;
     }
 
 }

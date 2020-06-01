@@ -3,17 +3,13 @@ package Commands;
 
 import CommandSupporters.Command;
 import Core.EmbedFactory;
-import Core.Utils.RandomUtil;
+import Core.RandomPicker;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public abstract class EmoteAbstract extends Command {
 
-    private String[] gifs;
-    private static final HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
+    private final String[] gifs;
 
     public EmoteAbstract() {
         this.gifs = getGifs();
@@ -23,8 +19,7 @@ public abstract class EmoteAbstract extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
-        String gifUrl = gifs[RandomUtil.pickFullRandom(pickedCommand, gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
 
         String quote = "";
         if (followedString.length() > 0)

@@ -10,13 +10,20 @@ import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Locale;
 
 @DiscordEventAnnotation
 public class ServerMemberJoinAutoRoles extends ServerMemberJoinAbstract {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinAutoRoles.class);
+
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
+        if (event.getServer().getId() == 462405241955155979L) LOGGER.info("0 - {}", event.getUser().getName());
+
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 

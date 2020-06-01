@@ -83,12 +83,11 @@ public class CommandManager {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                     .setDescription(desc);
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
         } else if (event.getChannel().canYouWrite()) {
-            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc).get();
+            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + event.getMessage().getUserAuthor().get().getMentionTag()).get();
         }
 
-        addErrorEmoji(event);
         return false;
     }
 
@@ -102,18 +101,17 @@ public class CommandManager {
 
         User user = event.getMessageAuthor().asUser().get();
         if (Cooldown.getInstance().isFree(user.getId())) {
-            String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, user.getMentionTag(), String.valueOf(waitingSec.get()));
+            String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
             if (event.getChannel().canYouEmbedLinks()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
-                event.getChannel().sendMessage(eb).get();
+                event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
             } else if (event.getChannel().canYouWrite()) {
-                event.getChannel().sendMessage(EMOJI_NO_EMBED + desc).get();
+                event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + user.getMentionTag()).get();
             }
 
-            addErrorEmoji(event);
             Thread.sleep(5000);
         }
 
@@ -132,12 +130,11 @@ public class CommandManager {
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
         } else if (event.getChannel().canYouWrite()) {
-            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc);
+            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + event.getMessage().getUserAuthor().get().getMentionTag());
         }
 
-        addErrorEmoji(event);
         return false;
     }
 
@@ -147,8 +144,8 @@ public class CommandManager {
             return true;
         }
 
-        if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) event.getChannel().sendMessage(errEmbed).get();
-        addErrorEmoji(event);
+        if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks())
+            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), errEmbed).get();
         return false;
     }
 
@@ -168,12 +165,10 @@ public class CommandManager {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title"))
                     .setDescription(desc);
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
         } else if (event.getChannel().canYouWrite()) {
-            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc).get();
+            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + event.getMessage().getUserAuthor().get().getMentionTag()).get();
         }
-
-        addErrorEmoji(event);
         return false;
     }
 
@@ -187,7 +182,6 @@ public class CommandManager {
         }
 
         event.getChannel().sendMessage("**" + TextManager.getString(command.getLocale(), TextManager.GENERAL, "missing_permissions_title") + "**\n" + TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_embed"));
-        addErrorEmoji(event);
         return false;
     }
 
@@ -196,17 +190,12 @@ public class CommandManager {
             return true;
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(command.getLocale()));
-        addErrorEmoji(event);
+        event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), EmbedFactory.getNSFWBlockEmbed(command.getLocale()));
         return false;
     }
 
     private static boolean isWhiteListed(MessageCreateEvent event) throws ExecutionException {
         return event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId()).isWhiteListed(event.getServerTextChannel().get().getId());
-    }
-
-    private static void addErrorEmoji(MessageCreateEvent event) {
-        event.getMessage().addReaction("❌");
     }
 
     private static boolean botCanPost(MessageCreateEvent event, Command command) {

@@ -54,7 +54,7 @@ public class Waifu2xCommand extends Command {
             return true;
         }
 
-        EmbedBuilder notFound = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "welcome_imagenotfound"));
+        EmbedBuilder notFound = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
         event.getChannel().sendMessage(notFound).get();
         return false;
     }

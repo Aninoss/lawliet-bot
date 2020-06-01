@@ -6,6 +6,8 @@ import Core.Utils.BotUtil;
 import Core.Utils.InternetUtil;
 import Core.Utils.SystemUtil;
 import MySQL.DBMain;
+import MySQL.Modules.BannedUsers.BannedUsersBean;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
@@ -101,6 +103,26 @@ public class Console {
                                     DonationHandler.addBonus(userId, usDollars);
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage donation", e);
+                                }
+                                break;
+
+                            case "ban":
+                                try {
+                                    long userId = Long.parseLong(arg);
+                                    DBBannedUsers.getInstance().getBean().getUserIds().add(userId);
+                                    LOGGER.info("User {} banned", userId);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage ban", e);
+                                }
+                                break;
+
+                            case "unban":
+                                try {
+                                    long userId = Long.parseLong(arg);
+                                    DBBannedUsers.getInstance().getBean().getUserIds().remove(userId);
+                                    LOGGER.info("User {} unbanned", userId);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage unban", e);
                                 }
                                 break;
 

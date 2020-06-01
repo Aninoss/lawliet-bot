@@ -3,6 +3,7 @@ package Commands.GimmicksCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
+import Core.RandomPicker;
 import Core.Utils.RandomUtil;
 import Core.TextManager;
 import org.javacord.api.entity.message.Message;
@@ -20,8 +21,6 @@ import java.util.ArrayList;
 )
 public class FortuneCommand extends Command {
 
-    private static ArrayList<Integer> picked = new ArrayList<>();
-
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
@@ -36,7 +35,7 @@ public class FortuneCommand extends Command {
     }
 
     private EmbedBuilder getEmbed(Message message, String question) throws IOException {
-        int n = RandomUtil.pickFullRandom(picked,TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
+        int n = RandomPicker.getInstance().pick(getTrigger(), message.getServer().get().getId(), TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
         String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
         String answer = answerRaw;
         if (answer.equals("%RandomUpperCase")) {

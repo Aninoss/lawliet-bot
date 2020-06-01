@@ -27,7 +27,6 @@ public class InternetCache {
 
     private static final HashMap<String, Instant> expirationDates = new HashMap<>();
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> cache = CacheBuilder.newBuilder()
-            .maximumSize(300)
             .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))
             .build(
                     new CacheLoader<String, CompletableFuture<HttpResponse>>() {
@@ -52,16 +51,7 @@ public class InternetCache {
             expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
         }
 
-        CompletableFuture<HttpResponse> future = cache.get(url);
-        if (!future.isDone()) {
-            future.thenAccept(internetResponse -> {
-                if (internetResponse.getCode() / 100 != 2 && internetResponse.getCode() != 429) {
-                    expirationDates.put(url, Instant.now().plus(5, ChronoUnit.MINUTES));
-                }
-            });
-        }
-
-        return future;
+        return cache.get(url);
     }
 
     public static void setExpirationDate(Instant instant, String... urls) {

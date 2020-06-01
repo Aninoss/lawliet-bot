@@ -6,7 +6,7 @@ import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
 import Modules.BannedWordsCheck;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-@DiscordEventAnnotation(priority = EventPriority.HIGH)
+@DiscordEventAnnotation(priority = EventPriority.HIGH, allowBannedUser = true)
 public class MessageCreateBannedWords extends MessageCreateAbstract {
 
     @Override

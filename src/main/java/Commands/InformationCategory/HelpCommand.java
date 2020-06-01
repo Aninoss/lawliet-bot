@@ -3,6 +3,7 @@ package Commands.InformationCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
+import CommandSupporters.CommandLanguage;
 import CommandSupporters.CommandManager;
 import Commands.PornPredefinedAbstract;
 import Commands.PornSearchAbstract;
@@ -105,25 +106,28 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 14;
+        return 15;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
+
             if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger())) {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 
+                CommandLanguage commandLanguage = command.getCommandLanguage();
+
                 StringBuilder usage = new StringBuilder();
-                for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_usage").split("\n")) {
+                for(String line: commandLanguage.getUsage().split("\n")) {
                     usage.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                 }
 
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
-                for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_examples").split("\n")) {
+                for(String line: commandLanguage.getExamples().split("\n")) {
                     line = StringUtil.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
                     examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
@@ -145,10 +149,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
-                                        command.getEmoji()+" "+TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_title")
+                                        command.getEmoji() + " " + commandLanguage.getTitle()
                         )
                         .setFooter(getString("command_args"))
-                        .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
+                        .setDescription(commandLanguage.getDescLong() + addNotExecutable)
                         .addField(Settings.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
                         .addField(Settings.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
 
@@ -228,19 +232,20 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, ExecutionException {
-        StringBuilder commands = new StringBuilder();
-
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+            CommandLanguage commandLanguage = command.getCommandLanguage();
             String commandTrigger = command.getTrigger();
             User author = getStarterMessage().getUserAuthor().get();
+
             if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
                 boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
                         !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 0;
 
+                StringBuilder commands = new StringBuilder();
                 commands.append("**")
                         .append(LetterEmojis.LETTERS[i])
                         .append(" → ")
@@ -249,7 +254,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 if (!canAccess) commands.append("~~");
 
-                commands.append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase());
+                commands.append(commandLanguage.getTitle().toUpperCase());
 
                 if (!canAccess) commands.append("~~");
                 if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
@@ -259,15 +264,16 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                         .append(" - ")
-                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
+                        .append(commandLanguage.getDescShort())
                         .append("\n\n");
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
+
+                eb.addField(Settings.EMPTY_EMOJI, commands.toString());
             }
         }
 
-        commands.append(getIconDescriptions());
-        eb.setDescription(commands.toString());
+        eb.addField(Settings.EMPTY_EMOJI, getIconDescriptions());
     }
 
     private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException {
@@ -279,14 +285,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+            CommandLanguage commandLanguage = command.getCommandLanguage();
 
             if (command.getCategory().equals(Category.NSFW)) {
-                String title = TextManager.getString(getLocale(), TextManager.COMMANDS, command.getTrigger() + "_title");
-
                 if (command instanceof PornSearchAbstract)
-                    withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, commandLanguage.getTitle())).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
-                    withoutSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
+                    withoutSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, commandLanguage.getTitle())).append("\n");
             }
         }
 

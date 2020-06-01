@@ -20,9 +20,12 @@ public abstract class MessageDeleteAbstract extends DiscordEventAbstract {
                 event.getMessage().get().getUserAuthor().get().isBot()
         ) return;
 
+        boolean banned = userIsBanned(event.getMessageAuthor().get().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof MessageDeleteAbstract) {
                 MessageDeleteAbstract messageDeleteAbstract = (MessageDeleteAbstract) listener;
+                if (banned && !messageDeleteAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!messageDeleteAbstract.onMessageDelete(event)) return;

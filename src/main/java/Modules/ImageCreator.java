@@ -170,7 +170,7 @@ public class ImageCreator {
                     RenderingHints.KEY_TEXT_ANTIALIASING,
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.setRenderingHints(rh);
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
             double scaledHeight = ((double) BASE_WIDTH / (double) base.getWidth()) * (double) base.getHeight();
             int yShift = (int) -Math.round(scaledHeight - BASE_HEIGHT) / 2;
@@ -195,20 +195,27 @@ public class ImageCreator {
                     new FontRenderContext(null, true, false);
 
             AttributedCharacterIterator aci = attributedStringGenerator.getIterator(user.getDisplayName(server));
+            AttributedCharacterIterator aciHeight = attributedStringGenerator.getIterator("A");
             Rectangle2D bounds = attributedStringGenerator.getStringBounds(aci, frc);
+            Rectangle2D boundsHeight = attributedStringGenerator.getStringBounds(aciHeight, frc);
+            bounds.setFrame(bounds.getX(), boundsHeight.getY(), bounds.getWidth(), boundsHeight.getHeight());
 
             double textHeight0 = bounds.getHeight();
             double textHeight1 = fontWelcome.getStringBounds(welcome, frc).getHeight();
             double textHeightTotal = textHeight0 + textHeight1 + 15;
-            int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2) + 5;
-            int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2) + 5;
+            int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2);
+            int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2);
 
-            drawStringShadow(g2d, fontWelcome, welcome, drawX, y0,  maxWidth, 1);
-            drawStringShadow(g2d, aci, bounds, drawX, y1, maxWidth, 1);
+            int topMargin = (int) (y0 - textHeight1 / 2);
+            int bottomMargin = BASE_HEIGHT - (int) (y1 + textHeight0 / 2);
+            int yOffset = (int) (((double) bottomMargin - (double) topMargin) / 2) - 8;
+
+            drawStringShadow(g2d, fontWelcome, welcome, drawX, y0 + yOffset,  maxWidth, 1);
+            drawStringShadow(g2d, aci, bounds, drawX, y1 + yOffset, maxWidth, 1);
 
             g2d.setColor(Color.WHITE);
-            drawStringCenter(g2d, fontWelcome, welcome, drawX, y0, maxWidth, 1);
-            drawStringCenter(g2d, aci, bounds, drawX, y1, maxWidth, 1);
+            drawStringCenter(g2d, fontWelcome, welcome, drawX, y0 + yOffset, maxWidth, 1);
+            drawStringCenter(g2d, aci, bounds, drawX, y1 + yOffset, maxWidth, 1);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(result, "png", os);

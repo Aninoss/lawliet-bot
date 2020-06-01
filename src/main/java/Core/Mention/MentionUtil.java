@@ -111,7 +111,7 @@ public class MentionUtil {
     private static <T> String check(T o, ArrayList<T> list, String content, String... names) {
         for(String name : names) {
             if (matches(content, name)) {
-                content = content.replaceAll("(?i)" + name, "");
+                content = content.replaceAll("(?i)" + Pattern.quote(name), "");
                 if (!list.contains(o)) list.add(o);
             }
         }
@@ -307,12 +307,12 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(User user: userMention.getList()) {
-            sb.append("**").append(user.getDisplayName(server)).append("**, ");
+            sb.append("**").append(StringUtil.removeMarkdown(user.getDisplayName(server))).append("**, ");
             counted++;
         }
 
         for(Role role: roleMention.getList()) {
-            sb.append("**").append(role.getName()).append("**, ");
+            sb.append("**").append(StringUtil.removeMarkdown(role.getName())).append("**, ");
             counted++;
             multi = true;
         }
@@ -342,7 +342,7 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(User user: userList) {
-            sb.append("**").append(user.getDisplayName(server)).append("**, ");
+            sb.append("**").append(StringUtil.removeMarkdown(user.getDisplayName(server))).append("**, ");
             counted++;
         }
 
@@ -363,7 +363,7 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(Role role: roleList) {
-            sb.append("**").append(role.getName()).append("**, ");
+            sb.append("**").append(StringUtil.removeMarkdown(role.getName())).append("**, ");
             counted++;
         }
 

@@ -16,9 +16,12 @@ public abstract class ServerMemberJoinAbstract extends DiscordEventAbstract {
     public static void onServerMemberJoinStatic(ServerMemberJoinEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getUser().isYourself()) return;
 
+        boolean banned = userIsBanned(event.getUser().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof ServerMemberJoinAbstract) {
                 ServerMemberJoinAbstract serverMemberJoinAbstract = (ServerMemberJoinAbstract) listener;
+                if (banned && !serverMemberJoinAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!serverMemberJoinAbstract.onServerMemberJoin(event)) return;

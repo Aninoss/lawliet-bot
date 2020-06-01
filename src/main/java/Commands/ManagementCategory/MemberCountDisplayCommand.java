@@ -59,7 +59,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
             ArrayList<ServerVoiceChannel> vcList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
             if (vcList.size() == 0) {
                 String checkString = inputString.toLowerCase();
-                if (checkString.contains("%members") || checkString.contains("%users") || checkString.contains("%bots")) {
+                if (!replaceVariables(checkString, "", "", "", "").equals(checkString)) {
                     if (inputString.length() <= 50) {
                         currentName = inputString;
                         setLog(LogStatus.SUCCESS, getString("nameset"));
@@ -148,12 +148,23 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                             updater.addPermissionOverwrite(user, permissions.build());
                         }
 
+                        Role everyoneRole = event.getServer().get().getEveryoneRole();
+                        PermissionsBuilder permissions = currentVC.getOverwrittenPermissions(everyoneRole).toBuilder();
+                        permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
+                        updater.addPermissionOverwrite(everyoneRole, permissions.build());
+
                         User yourself = DiscordApiCollection.getInstance().getYourself();
-                        Permissions ownPermissions = currentVC.getOverwrittenPermissions(yourself).toBuilder().setState(PermissionType.CONNECT, PermissionState.ALLOWED).build();
+                        Permissions ownPermissions = currentVC.getOverwrittenPermissions(yourself)
+                                .toBuilder()
+                                .setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED)
+                                .setState(PermissionType.MANAGE_ROLES, PermissionState.ALLOWED)
+                                .setState(PermissionType.CONNECT, PermissionState.ALLOWED)
+                                .build();
                         updater.addPermissionOverwrite(yourself, ownPermissions);
 
-                        renameVC(event.getServer().get(), getLocale(), updater, currentName);
-                        updater.update().get();
+                        String newVCName = getNewVCName(event.getServer().get(), getLocale(), currentName);
+                        updater.setName(newVCName)
+                                .update().get();
                     } catch (ExecutionException e) {
                         //Ignore
                         setLog(LogStatus.FAILURE, getString("nopermissions"));
@@ -226,38 +237,51 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     }
 
     private String highlightVariables(String str) {
-        return replaceVariables(str, "`%MEMBERS`", "`%USERS`", "`%BOTS`");
+        return replaceVariables(str, "`%MEMBERS`", "`%USERS`", "`%BOTS`", "`%BOOSTS`");
     }
 
-    public static void manage(Locale locale, Server server) throws ExecutionException, InterruptedException {
+    public static void manage(Locale locale, Server server) throws ExecutionException {
         ArrayList<MemberCountDisplay> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
-        for(MemberCountDisplay display: displays) {
-            if (display.getVoiceChannel().isPresent()) {
-                ServerVoiceChannel voiceChannel = display.getVoiceChannel().get();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
-                    ServerVoiceChannelUpdater updater = voiceChannel.createUpdater();
-                    renameVC(server, locale, updater, display.getMask());
-                    updater.update().get();
+        for (MemberCountDisplay display : displays) {
+            try {
+                synchronized (server) {
+                    Optional<ServerVoiceChannel> vcOpt = display.getVoiceChannel();
+                    if (vcOpt.isPresent()) {
+                        ServerVoiceChannel voiceChannel = vcOpt.get();
+                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                            String newVCName = getNewVCName(server, locale, display.getMask());
+                            if (!newVCName.equals(voiceChannel.getName())) {
+                                voiceChannel.createUpdater()
+                                        .setName(newVCName)
+                                        .update().get();
+                            }
+                        }
+                    }
                 }
+            } catch (Throwable throwable) {
+                LOGGER.error("Error in mcdisplay", throwable);
             }
         }
     }
 
-    public static void renameVC(Server server, Locale locale, ServerVoiceChannelUpdater updater, String name) {
+    public static String getNewVCName(Server server, Locale locale, String name) {
         long members = server.getMemberCount();
         long botMembers = server.getMembers().stream().filter(User::isBot).count();
+        int boosts = server.getBoostCount();
 
-        updater.setName(replaceVariables(name,
+        return replaceVariables(name,
                 StringUtil.numToString(locale, members),
                 StringUtil.numToString(locale, members - botMembers),
-                StringUtil.numToString(locale, botMembers)
-        ));
+                StringUtil.numToString(locale, botMembers),
+                StringUtil.numToString(locale, boosts)
+        );
     }
 
-    public static String replaceVariables(String string, String arg1, String arg2, String arg3) {
+    public static String replaceVariables(String string, String arg1, String arg2, String arg3, String arg4) {
         return string.replaceAll("(?i)" + Pattern.quote("%members"), Matcher.quoteReplacement(arg1))
                 .replaceAll("(?i)" + Pattern.quote("%users"), Matcher.quoteReplacement(arg2))
-                .replaceAll("(?i)" + Pattern.quote("%bots"), Matcher.quoteReplacement(arg3));
+                .replaceAll("(?i)" + Pattern.quote("%bots"), Matcher.quoteReplacement(arg3))
+                .replaceAll("(?i)" + Pattern.quote("%boosts"), Matcher.quoteReplacement(arg4));
     }
 
 }

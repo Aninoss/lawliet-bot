@@ -6,19 +6,32 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Commands.GimmicksCategory.QuoteCommand;
+import Constants.Settings;
 import Core.*;
+import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
+import MySQL.Modules.AutoQuote.DBAutoQuote;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @DiscordEventAnnotation
 public class MessageCreateCommand extends MessageCreateAbstract {
+
+    final Logger LOGGER = LoggerFactory.getLogger(MessageCreateCommand.class);
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
@@ -55,6 +68,8 @@ public class MessageCreateCommand extends MessageCreateAbstract {
             String followedString = StringUtil.trimString(newContent.substring(commandTrigger.length()));
 
             if (commandTrigger.length() > 0) {
+                if (checkForSqlInjection(event)) return false;
+
                 Locale locale = serverBean.getLocale();
                 Class<? extends Command> clazz;
                 try {
@@ -69,9 +84,49 @@ public class MessageCreateCommand extends MessageCreateAbstract {
             }
         } else {
             if (manageForwardedMessages(event)) return true;
+            checkAutoQuote(event);
         }
 
         return true;
+    }
+
+    private void checkAutoQuote(MessageCreateEvent event) throws ExecutionException {
+        if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            Locale locale = serverBean.getLocale();
+            ArrayList<Message> messages = MentionUtil.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
+            if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {
+                try {
+                    for (int i = 0; i < Math.min(3, messages.size()); i++) {
+                        Message message = messages.get(i);
+                        QuoteCommand quoteCommand = new QuoteCommand();
+                        quoteCommand.setLocale(locale);
+                        quoteCommand.setPrefix(serverBean.getPrefix());
+                        quoteCommand.postEmbed(event.getServerTextChannel().get(), message, true);
+                    }
+                } catch (Throwable throwable) {
+                    ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+                }
+            }
+        }
+    }
+
+    private boolean checkForSqlInjection(MessageCreateEvent event) throws SQLException, ExecutionException {
+        String content = event.getMessageContent().toLowerCase().replace("  ", "");
+        if (content.contains("drop table") || content.contains("drop database")) {
+            DBBannedUsers.getInstance().getBean().getUserIds().add(event.getMessageAuthor().getId());
+
+            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setDescription(TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_banned", Settings.SERVER_INVITE_URL));
+
+            LOGGER.warn("### SQL Injection: {}", event.getMessageContent());
+            event.getMessage().getUserAuthor().get().sendMessage(eb);
+            DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("%s SQL Injection \"%s\"", event.getMessage().getUserAuthor().get().getMentionTag(), event.getMessageContent()));
+            return true;
+        }
+
+        return false;
     }
 
     private boolean manageForwardedMessages(MessageCreateEvent event) {

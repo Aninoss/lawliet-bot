@@ -15,8 +15,7 @@ import java.util.HashMap;
 
 public abstract class InteractionAbstract extends Command {
 
-    private String[] gifs;
-    private static final HashMap<String, ArrayList<Integer>> picked = new HashMap<>();
+    private final String[] gifs;
 
     public InteractionAbstract() { this.gifs = getGifs(); }
 
@@ -40,8 +39,7 @@ public abstract class InteractionAbstract extends Command {
         if (followedString.length() > 0)
             quote = "\n\n> " + followedString.replace("\n", "\n> ");
 
-        ArrayList<Integer> pickedCommand = picked.computeIfAbsent(getTrigger(), key -> new ArrayList<>());
-        String gifUrl = gifs[RandomUtil.pickFullRandom(pickedCommand, gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
         EmbedBuilder eb;
         if (mention != null) {
             eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)

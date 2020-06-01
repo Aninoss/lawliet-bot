@@ -22,7 +22,7 @@ public class EmbedFactory {
     public static EmbedBuilder getCommandEmbedStandard(Command command, String description) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(DEFAULT_EMBED_COLOR)
-                .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), TextManager.COMMANDS, command.getTrigger()+"_title"))
+                .setTitle(command.getEmoji() + " " + command.getCommandLanguage().getTitle())
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
 
@@ -46,7 +46,7 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static EmbedBuilder getCommandEmbedError(Command command, String description, String title) throws IOException {
+    public static EmbedBuilder getCommandEmbedError(Command command, String description, String title) {
         return getCommandEmbedError(command, description).setTitle(title);
     }
 

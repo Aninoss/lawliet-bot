@@ -55,7 +55,7 @@ public class GearCommand extends FisheryAbstract {
         list.removeIf(User::isBot);
         if (list.size() == 0) {
             if (userBefore) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "acc_nobot"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
                 return false;
             } else {
                 list.add(message.getUserAuthor().get());
@@ -84,7 +84,7 @@ public class GearCommand extends FisheryAbstract {
                 for (FisheryUserPowerUpBean slot : fisheryUserBean.getPowerUpMap().values()) {
                     gearString.append(getString("gear_slot",
                             FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
-                            TextManager.getString(getLocale(), TextManager.COMMANDS, "buy_product_" + slot.getPowerUpId() + "_0"),
+                            TextManager.getString(getLocale(), TextManager.COMMANDS, "product_" + slot.getPowerUpId()),
                             String.valueOf(slot.getLevel())
                     )).append("\n");
                 }

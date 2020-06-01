@@ -9,6 +9,7 @@ import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
 import MySQL.Interfaces.IntervalSave;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
 import com.google.common.cache.CacheBuilder;
@@ -82,7 +83,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         .filter(FisheryUserBean::checkChanged)
                         .forEach(this::saveFisheryUserBean);
 
-                LOGGER.info("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
+                LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
                 if (Bot.isRunning()) Thread.sleep(500);
             }
         } catch (Throwable e) {
@@ -289,7 +290,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     public void startVCObserver() {
         IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
         while (intervalBlock.block()) {
-            LOGGER.info("VC Observer - Start");
+            LOGGER.debug("VC Observer - Start");
             DiscordApiCollection.getInstance().getServers().stream()
                     .filter(server -> {
                         try {
@@ -302,16 +303,18 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .forEach(server -> {
                         try {
                             manageVCFish(server);
-                        } catch (ExecutionException e) {
+                        } catch (ExecutionException | SQLException e) {
                             LOGGER.error("Could not manage vc fish observer", e);
                         }
                     });
-            LOGGER.info("VC Observer - End");
+            LOGGER.debug("VC Observer - End");
         }
     }
 
-    private void manageVCFish(Server server) throws ExecutionException {
+    private void manageVCFish(Server server) throws ExecutionException, SQLException {
         FisheryServerBean serverBean = DBFishery.getInstance().getBean(server.getId());
+
+        server.getBoostCount();
 
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             ArrayList<User> validUsers = new ArrayList<>();
@@ -320,7 +323,8 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         !user.isMuted(server) &&
                         !user.isDeafened(server) &&
                         !user.isSelfDeafened(server) &&
-                        !user.isSelfMuted(server)
+                        !user.isSelfMuted(server) &&
+                        !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
                 ) {
                     validUsers.add(user);
                 }

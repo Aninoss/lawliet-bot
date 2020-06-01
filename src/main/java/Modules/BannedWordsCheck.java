@@ -1,5 +1,6 @@
 package Modules;
 
+import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Commands.ModerationCategory.BannedWordsCommand;
 import Commands.ModerationCategory.ModSettingsCommand;
@@ -51,7 +52,7 @@ public class BannedWordsCheck {
             else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
 
             ModSettingsCommand.postLog(CommandManager.createCommandByClass(BannedWordsCommand.class, locale), eb, server);
-            ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_title"));
+            ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), Command.getCommandLanguage(BannedWordsCommand.class).getTitle());
 
             return false;
         }

@@ -1,6 +1,8 @@
 package Modules;
 
+import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
+import Commands.ModerationCategory.BannedWordsCommand;
 import Commands.ModerationCategory.ModSettingsCommand;
 import Commands.ModerationCategory.SelfPromotionBlockCommand;
 import Constants.Settings;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 public class SPCheck {
 
@@ -46,13 +49,13 @@ public class SPCheck {
             informLogReceivers(spBlockBean, selfPromotionBlockCommand, locale, message, author, successful);
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_action"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_actionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                     .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
             if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
 
             ModSettingsCommand.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale()), eb, server);
-            ModSettingsCommand.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), TextManager.COMMANDS, "spblock_title"));
+            ModSettingsCommand.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), Command.getCommandLanguage(SelfPromotionBlockCommand.class).getTitle());
 
             return false;
         }
@@ -62,7 +65,7 @@ public class SPCheck {
 
     private static void informLogReceivers(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author, boolean successful) {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_action"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_actionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true);
         if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
@@ -105,7 +108,7 @@ public class SPCheck {
 
     private static void informMessageAuthor(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author) throws InterruptedException {
         EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_action"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_actionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true)
                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));
@@ -134,10 +137,10 @@ public class SPCheck {
                 !message.getUserAuthor().get().isBot()
         ) {
             String content = message.getContent();
-            content = content.replaceAll("(?i)" + Settings.SERVER_INVITE_URL, "");
+            content = content.replaceAll("(?i)" + Pattern.quote(Settings.SERVER_INVITE_URL), "");
             if (contentContainsDiscordLink(content)) {
                 for(RichInvite richInvite: server.getInvites().get()) {
-                    content = content.replace(" ", "").replaceAll("(?i)discord.gg/"+richInvite.getCode(), "");
+                    content = content.replace(" ", "").replaceAll("(?i)" + Pattern.quote("discord.gg/" + richInvite.getCode()), "");
                 }
 
                 return contentContainsDiscordLink(content);

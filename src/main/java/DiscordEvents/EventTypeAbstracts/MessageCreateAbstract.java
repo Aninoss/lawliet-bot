@@ -3,10 +3,12 @@ package DiscordEvents.EventTypeAbstracts;
 import Constants.Settings;
 import Core.EmbedFactory;
 import DiscordEvents.DiscordEventAbstract;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public abstract class MessageCreateAbstract extends DiscordEventAbstract {
@@ -28,9 +30,12 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
             return;
         }
 
+        boolean banned = userIsBanned(event.getMessageAuthor().getId());
+
         for(DiscordEventAbstract listener : listenerList) {
             if (listener instanceof MessageCreateAbstract) {
                 MessageCreateAbstract messageCreateAbstract = (MessageCreateAbstract) listener;
+                if (banned && !messageCreateAbstract.isAllowingBannedUser()) continue;
 
                 try {
                     if (!messageCreateAbstract.onMessageCreate(event)) return;

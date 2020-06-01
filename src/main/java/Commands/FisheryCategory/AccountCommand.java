@@ -45,7 +45,7 @@ public class AccountCommand extends FisheryAbstract {
         list.removeIf(User::isBot);
         if (list.size() == 0) {
             if (userBefore) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("nobot"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
                 return false;
             } else {
                 list.add(message.getUserAuthor().get());

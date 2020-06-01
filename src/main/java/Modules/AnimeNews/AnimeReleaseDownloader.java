@@ -20,11 +20,11 @@ public class AnimeReleaseDownloader {
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filter) throws InterruptedException, ExecutionException {
         filter = StringUtil.trimString(filter);
 
-        String downloadUrl;
-        if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
-        else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
+        String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
+        /*if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
+        else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";*/
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 14 * 60).get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
         String postString = httpResponse.getContent().get();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
@@ -100,6 +100,7 @@ public class AnimeReleaseDownloader {
 
         String description = data.getString("description");
         description = description.substring(description.indexOf("<br />") + "<br />".length());
+        if (description.contains("<img")) description = description.split("<img")[0];
 
         String episode = null;
         if (data.has("crunchyroll:episodeNumber")) {

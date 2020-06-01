@@ -5,7 +5,7 @@ import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
 import Modules.SPCheck;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-@DiscordEventAnnotation(priority = EventPriority.HIGH)
+@DiscordEventAnnotation(priority = EventPriority.HIGH, allowBannedUser = true)
 public class MessageCreateSPCheck extends MessageCreateAbstract {
 
     @Override
