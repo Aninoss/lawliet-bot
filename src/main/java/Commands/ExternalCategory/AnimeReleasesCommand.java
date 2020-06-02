@@ -52,7 +52,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) {
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-16x16.png")
+                .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-32x32.png")
                 .setDescription(post.getDescription())
                 .setUrl(post.getUrl())
                 .setImage(post.getThumbnail())
@@ -70,7 +70,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        slot.setNextRequest(Instant.now().plus(30, ChronoUnit.MINUTES));
+        slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         boolean first = !slot.getArgs().isPresent();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey().get());
 

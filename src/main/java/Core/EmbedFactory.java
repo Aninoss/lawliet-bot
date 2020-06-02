@@ -22,7 +22,7 @@ public class EmbedFactory {
     public static EmbedBuilder getCommandEmbedStandard(Command command, String description) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(DEFAULT_EMBED_COLOR)
-                .setTitle(command.getEmoji() + " " + command.getCommandLanguage().getTitle())
+                .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), TextManager.COMMANDS, command.getTrigger()+"_title"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
 

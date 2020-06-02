@@ -192,7 +192,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         })
                         .filter(Objects::nonNull)
                         .filter(command -> command.getCategory().equals(category))
-                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), command.getCommandLanguage().getTitle()))
+                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), TextManager.COMMANDS, command.getTrigger() + "_title")))
                         .toArray(String[]::new);
                 setOptions(options);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));

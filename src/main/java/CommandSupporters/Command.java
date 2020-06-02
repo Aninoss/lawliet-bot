@@ -434,15 +434,21 @@ public abstract class Command {
 
 
     public String getString(String key, String... args) {
-        return TextManager.getString(this, key, args);
+        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, args);
+        if (prefix != null) text = text.replace("%PREFIX", prefix);
+        return text;
     }
 
     public String getString(String key, int option, String... args) {
-        return TextManager.getString(this, key, option, args);
+        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, option, args);
+        if (prefix != null) text = text.replace("%PREFIX", prefix);
+        return text;
     }
 
     public String getString(String key, boolean secondOption, String... args) {
-        return TextManager.getString(this, key, secondOption, args);
+        String text = TextManager.getString(locale,"commands",commandProperties.trigger()+"_"+key, secondOption, args);
+        if (prefix != null) text = text.replace("%PREFIX", prefix);
+        return text;
     }
 
     public CommandLanguage getCommandLanguage() {

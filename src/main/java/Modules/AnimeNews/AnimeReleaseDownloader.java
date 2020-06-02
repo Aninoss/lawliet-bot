@@ -21,8 +21,6 @@ public class AnimeReleaseDownloader {
         filter = StringUtil.trimString(filter);
 
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
-        /*if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE";
-        else downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";*/
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
         String postString = httpResponse.getContent().get();

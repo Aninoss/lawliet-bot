@@ -74,17 +74,6 @@ public class WebComServer {
         return jsonObject;
     }
 
-    public JSONObject getLanguagePack(Command command,  String key) {
-        JSONObject jsonObject = new JSONObject();
-
-        for(String localeString: Locales.LIST) {
-            Locale locale = new Locale(localeString);
-            jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, command, key).replace("%PREFIX", "L."));
-        }
-
-        return jsonObject;
-    }
-
     public JSONObject getCommandPermissions(Command command) {
         JSONObject jsonObject = new JSONObject();
 
@@ -99,14 +88,14 @@ public class WebComServer {
         return jsonObject;
     }
 
-    public JSONObject getCommandSpecs(Command command, String key) {
+    public JSONObject getCommandSpecs(String key, String commandTrigger) {
         JSONObject jsonObject = new JSONObject();
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, command, key));
+            String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
             if (!str.isEmpty())
-                str = ("\n" + str).replace("\n", "\n• L." + command.getTrigger() + " ").substring(1);
+                str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 
             jsonObject.put(locale.getDisplayName(), str);
         }

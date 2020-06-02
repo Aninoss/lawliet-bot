@@ -1,8 +1,6 @@
 package Modules;
 
-import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
-import Commands.ModerationCategory.BannedWordsCommand;
 import Commands.ModerationCategory.ModSettingsCommand;
 import Commands.ModerationCategory.SelfPromotionBlockCommand;
 import Constants.Settings;
@@ -49,13 +47,13 @@ public class SPCheck {
             informLogReceivers(spBlockBean, selfPromotionBlockCommand, locale, message, author, successful);
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_action"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_actionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                     .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
             if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_failed", author.getMentionTag()));
 
             ModSettingsCommand.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale()), eb, server);
-            ModSettingsCommand.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), Command.getCommandLanguage(SelfPromotionBlockCommand.class).getTitle());
+            ModSettingsCommand.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), TextManager.COMMANDS, "spblock_title"));
 
             return false;
         }
@@ -65,7 +63,7 @@ public class SPCheck {
 
     private static void informLogReceivers(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author, boolean successful) {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_action"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_actionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true);
         if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful", author.getMentionTag()));
@@ -108,7 +106,7 @@ public class SPCheck {
 
     private static void informMessageAuthor(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author) throws InterruptedException {
         EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_action"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_actionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_maction"), TextManager.getString(locale, TextManager.COMMANDS, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_content"), message.getContent(), true)
                 .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "spblock_log_successful_user"));

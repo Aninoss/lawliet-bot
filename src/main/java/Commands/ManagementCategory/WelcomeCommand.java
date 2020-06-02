@@ -119,7 +119,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         return Response.FALSE;
                     }
                     if (bi == null) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"imagenotfound"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
                         return Response.FALSE;
                     }
 

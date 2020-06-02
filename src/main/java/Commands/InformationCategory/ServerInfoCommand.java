@@ -35,7 +35,7 @@ public class ServerInfoCommand extends Command {
                 StringUtil.numToString(getLocale(), server.getMembers().stream().filter(User::isBot).count()),
                 StringUtil.numToString(getLocale(), server.getBoostCount()),
                 StringUtil.numToString(getLocale(), server.getRoles().size()),
-                StringUtil.numToString(getLocale(), server.getChannels().size()),
+                StringUtil.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerTextChannel().isPresent() || channel.asServerVoiceChannel().isPresent()).count()),
                 StringUtil.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerTextChannel().isPresent()).count()),
                 StringUtil.numToString(getLocale(), server.getChannels().stream().filter(channel -> channel.asServerVoiceChannel().isPresent()).count())
         };

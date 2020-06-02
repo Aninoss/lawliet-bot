@@ -84,7 +84,7 @@ public class GearCommand extends FisheryAbstract {
                 for (FisheryUserPowerUpBean slot : fisheryUserBean.getPowerUpMap().values()) {
                     gearString.append(getString("gear_slot",
                             FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
-                            TextManager.getString(getLocale(), TextManager.COMMANDS, "product_" + slot.getPowerUpId()),
+                            TextManager.getString(getLocale(), TextManager.COMMANDS, "buy_product_" + slot.getPowerUpId() + "_0"),
                             String.valueOf(slot.getLevel())
                     )).append("\n");
                 }
