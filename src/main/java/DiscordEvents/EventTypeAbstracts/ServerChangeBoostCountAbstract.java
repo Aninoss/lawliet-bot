@@ -9,25 +9,12 @@ import java.util.ArrayList;
 
 public abstract class ServerChangeBoostCountAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerChangeBoostCountAbstract.class);
-
     public abstract boolean onServerChangeBoostCount(ServerChangeBoostCountEvent event) throws Throwable;
 
     public static void onServerChangeBoostCountStatic(ServerChangeBoostCountEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof ServerChangeBoostCountAbstract) {
-                ServerChangeBoostCountAbstract serverChangeBoostCountAbstract = (ServerChangeBoostCountAbstract) listener;
-
-                try {
-                    if (!serverChangeBoostCountAbstract.onServerChangeBoostCount(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught exception", throwable);
-                }
-            }
-        }
+        execute(event, listenerList,
+                listener -> ((ServerChangeBoostCountAbstract) listener).onServerChangeBoostCount(event)
+        );
     }
 
 }

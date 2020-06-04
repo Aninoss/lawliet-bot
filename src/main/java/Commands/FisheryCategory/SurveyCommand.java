@@ -155,13 +155,13 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                     getString("results_template",
                             LetterEmojis.LETTERS[i],
                             StringUtil.getBar(firstVotesRelative[i], 12),
-                            String.valueOf(firstVotes[i]),
-                            String.valueOf(Math.round(firstVotesRelative[i] * 100))
+                            StringUtil.numToString(getLocale(), firstVotes[i]),
+                            StringUtil.numToString(getLocale(), Math.round(firstVotesRelative[i] * 100))
                     )
             ).append("\n");
         }
 
-        eb.addField(getString("results_results", firstVotesTotal != 1, String.valueOf(firstVotesTotal)), resultString.toString(), false);
+        eb.addField(getString("results_results", firstVotesTotal != 1, StringUtil.numToString(getLocale(), firstVotesTotal)), resultString.toString(), false);
         eb.addField(Settings.EMPTY_EMOJI, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]).toUpperCase());
 
         return eb;

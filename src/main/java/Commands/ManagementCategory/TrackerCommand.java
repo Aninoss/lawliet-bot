@@ -45,14 +45,14 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         serverId = event.getServer().get().getId();
         channelId = event.getServerTextChannel().get().getId();
-        controll(followedString, 0, true);
+        controll(followedString, 0);
         return true;
     }
 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 3) {
-            controll(inputString, state, false);
+            controll(inputString, state);
             return Response.TRUE;
         }
         return null;
@@ -81,7 +81,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                             return true;
                     }
                 }
-                controll(emojiConnection.getConnection(), state,false);
+                controll(emojiConnection.getConnection(), state);
                 return true;
             }
         }
@@ -89,7 +89,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         return false;
     }
 
-    private void controll(String searchTerm, int state, boolean first) throws Throwable {
+    private void controll(String searchTerm, int state) throws Throwable {
         while(true) {
             if (searchTerm.replace(" ", "").length() == 0) return;
             String arg = searchTerm.split(" ")[0].toLowerCase();
@@ -140,7 +140,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                             this.commandTrigger = trigger;
                             if (!command.trackerUsesKey()) {
                                 addTracker(null);
-                                if (first) endNavigation();
                             } else {
                                 updateTrackerList();
                                 state = 3;
@@ -165,7 +164,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                         if (trackerSlots.size() == 0) {
                             setState(0);
                         }
-                        if (first) endNavigation();
                         return;
                     }
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
@@ -173,7 +171,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
 
                 case 3:
                     addTracker(searchTerm);
-                    if (first) endNavigation();
                     return;
             }
 
@@ -194,11 +191,6 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         DBTracker.getInstance().getBean().getMap().put(new Pair<>(channelId, commandTrigger), slot);
         setState(1);
         setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
-    }
-
-    private void endNavigation() {
-        removeNavigation();
-        setState(4);
     }
 
     private void updateTrackerList() throws Throwable {

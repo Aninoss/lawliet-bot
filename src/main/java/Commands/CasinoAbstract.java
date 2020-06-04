@@ -23,6 +23,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 public abstract class CasinoAbstract extends Command implements OnReactionAddListener {
@@ -141,7 +142,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             command.setReactionUserID(event.getUser().getId());
             command.blockLoading();
 
-            CommandManager.manage(createEvent, command, String.valueOf(coinsInput));
+            CommandManager.manage(createEvent, command, String.valueOf(coinsInput), Instant.now());
         }
     }
 

@@ -14,20 +14,9 @@ public abstract class ServerVoiceChannelChangeUserLimitAbstract extends DiscordE
     public abstract boolean onServerVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable;
 
     public static void onServerVoiceChannelChangeUserLimitStatic(ServerVoiceChannelChangeUserLimitEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof ServerVoiceChannelChangeUserLimitAbstract) {
-                ServerVoiceChannelChangeUserLimitAbstract serverVoiceChannelChangeUserLimitAbstract = (ServerVoiceChannelChangeUserLimitAbstract) listener;
-
-                try {
-                    if (!serverVoiceChannelChangeUserLimitAbstract.onServerVoiceChannelChangeUserLimit(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught exception", throwable);
-                }
-            }
-        }
+        execute(event, listenerList,
+                listener -> ((ServerVoiceChannelChangeUserLimitAbstract) listener).onServerVoiceChannelChangeUserLimit(event)
+        );
     }
 
 }

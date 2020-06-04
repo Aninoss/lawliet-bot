@@ -395,11 +395,9 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public void setReminderSent() {
-        if (!reminderSent) {
-            reminderSent = true;
-            setChanged();
-        }
+    public void remove() {
+        getFisheryServerBean().getUsers().remove(userId);
+        DBFishery.getInstance().removeFisheryUserBean(this);
     }
 
     public boolean checkChanged() {

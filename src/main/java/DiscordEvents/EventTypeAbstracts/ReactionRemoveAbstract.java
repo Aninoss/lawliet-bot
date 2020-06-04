@@ -9,8 +9,6 @@ import java.util.ArrayList;
 
 public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ReactionRemoveAbstract.class);
-
     public abstract boolean onReactionRemove(ReactionRemoveEvent event) throws Throwable;
 
     public static void onReactionRemoveStatic(ReactionRemoveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
@@ -18,23 +16,9 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
                 (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
         ) return;
 
-        boolean banned = userIsBanned(event.getUser().getId());
-
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof ReactionRemoveAbstract) {
-                ReactionRemoveAbstract reactionRemoveAbstract = (ReactionRemoveAbstract) listener;
-                if (banned && !reactionRemoveAbstract.isAllowingBannedUser()) continue;
-
-                try {
-                    if (!reactionRemoveAbstract.onReactionRemove(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught exception", throwable);
-                }
-            }
-        }
+        execute(event, listenerList,
+                listener -> ((ReactionRemoveAbstract) listener).onReactionRemove(event)
+        );
     }
 
 }

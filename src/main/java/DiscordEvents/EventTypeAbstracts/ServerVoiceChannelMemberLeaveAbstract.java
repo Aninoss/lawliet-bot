@@ -16,23 +16,9 @@ public abstract class ServerVoiceChannelMemberLeaveAbstract extends DiscordEvent
     public static void onServerVoiceChannelMemberLeaveStatic(ServerVoiceChannelMemberLeaveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getUser().isYourself()) return;
 
-        boolean banned = userIsBanned(event.getUser().getId());
-
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof ServerVoiceChannelMemberLeaveAbstract) {
-                ServerVoiceChannelMemberLeaveAbstract serverVoiceChannelMemberLeaveAbstract = (ServerVoiceChannelMemberLeaveAbstract) listener;
-                if (banned && !serverVoiceChannelMemberLeaveAbstract.isAllowingBannedUser()) continue;
-
-                try {
-                    if (!serverVoiceChannelMemberLeaveAbstract.onServerVoiceChannelMemberLeave(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught exception", throwable);
-                }
-            }
-        }
+        execute(event, listenerList,
+                listener -> ((ServerVoiceChannelMemberLeaveAbstract) listener).onServerVoiceChannelMemberLeave(event)
+        );
     }
 
 }

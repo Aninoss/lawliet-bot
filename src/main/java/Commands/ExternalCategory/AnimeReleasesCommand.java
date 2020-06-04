@@ -75,7 +75,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey().get());
 
         ServerTextChannel channel = slot.getChannel().get();
-        for(int i = postBundle.getPosts().size() - 1; i >= Math.max(0, postBundle.getPosts().size() - 10); i--) {
+        for(int i = Math.min(9, postBundle.getPosts().size() - 1); i >= 0; i--) {
             AnimeReleasePost post = postBundle.getPosts().get(i);
             channel.sendMessage(getEmbed(post)).get();
         }

@@ -171,6 +171,10 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         return true;
                     }
 
+                    memberCountBean.getMemberCountBeanSlots();
+                    currentVC.getId();
+                    currentName.length(); //TODO DEBUGGIN
+
                     memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplay(event.getServer().get().getId(), currentVC.getId(), currentName));
 
                     setLog(LogStatus.SUCCESS, getString("displayadd"));

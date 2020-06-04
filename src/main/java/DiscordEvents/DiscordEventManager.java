@@ -2,13 +2,19 @@ package DiscordEvents;
 
 import Core.CustomThread;
 import DiscordEvents.EventTypeAbstracts.*;
+import MySQL.Modules.BannedUsers.DBBannedUsers;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
+import org.javacord.api.entity.user.User;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.json.XMLTokener.entity;
 
 public class DiscordEventManager {
 
@@ -38,7 +44,6 @@ public class DiscordEventManager {
                 .filter(Objects::nonNull)
                 .filter(obj -> obj instanceof DiscordEventAbstract)
                 .map(obj -> (DiscordEventAbstract) obj)
-                .sorted((o1, o2) -> Integer.compare(o2.getPriority().ordinal(), o1.getPriority().ordinal()))
                 .forEach(listener -> putListener(listener, listenerTypeAbstracts));
     }
 
@@ -52,33 +57,55 @@ public class DiscordEventManager {
     }
 
     public void addApi(DiscordApi api) {
-        api.addMessageCreateListener(event -> new CustomThread(() -> MessageCreateAbstract.onMessageCreateStatic(event, getListenerList(MessageCreateAbstract.class)), "message_create").start());
-        api.addMessageEditListener(event -> new CustomThread(() -> MessageEditAbstract.onMessageEditStatic(event, getListenerList(MessageEditAbstract.class)), "message_edit").start());
-        api.addMessageDeleteListener(event -> new CustomThread(() -> MessageDeleteAbstract.onMessageDeleteStatic(event, getListenerList(MessageDeleteAbstract.class)), "message_delete").start());
+        api.addMessageCreateListener(event -> new CustomThread(() -> MessageCreateAbstract.onMessageCreateStatic(event, getListenerList(MessageCreateAbstract.class, event.getMessageAuthor().getId())), "message_create").start());
+        api.addMessageEditListener(event -> new CustomThread(() -> MessageEditAbstract.onMessageEditStatic(event, getListenerList(MessageEditAbstract.class, event.getMessageAuthor())), "message_edit").start());
+        api.addMessageDeleteListener(event -> new CustomThread(() -> MessageDeleteAbstract.onMessageDeleteStatic(event, getListenerList(MessageDeleteAbstract.class, event.getMessageAuthor())), "message_delete").start());
 
-        api.addReactionAddListener(event -> new CustomThread(() -> ReactionAddAbstract.onReactionAddStatic(event, getListenerList(ReactionAddAbstract.class)), "reaction_add").start());
-        api.addReactionRemoveListener(event -> new CustomThread(() -> ReactionRemoveAbstract.onReactionRemoveStatic(event, getListenerList(ReactionRemoveAbstract.class)), "reaction_remove").start());
+        api.addReactionAddListener(event -> new CustomThread(() -> ReactionAddAbstract.onReactionAddStatic(event, getListenerList(ReactionAddAbstract.class, event.getMessageAuthor())), "reaction_add").start());
+        api.addReactionRemoveListener(event -> new CustomThread(() -> ReactionRemoveAbstract.onReactionRemoveStatic(event, getListenerList(ReactionRemoveAbstract.class, event.getMessageAuthor())), "reaction_remove").start());
 
         api.addServerChannelDeleteListener(event -> new CustomThread(() -> ServerChannelDeleteAbstract.onServerChannelDeleteStatic(event, getListenerList(ServerChannelDeleteAbstract.class)), "server_channel_delete").start());
 
         api.addServerJoinListener(event -> new CustomThread(() -> ServerJoinAbstract.onServerJoinStatic(event, getListenerList(ServerJoinAbstract.class)), "server_join").start());
         api.addServerLeaveListener(event -> new CustomThread(() -> ServerLeaveAbstract.onServerLeaveStatic(event, getListenerList(ServerLeaveAbstract.class)), "server_leave").start());
 
-        api.addServerMemberJoinListener(event -> new CustomThread(() -> ServerMemberJoinAbstract.onServerMemberJoinStatic(event, getListenerList(ServerMemberJoinAbstract.class)), "server_member_join").start());
-        api.addServerMemberLeaveListener(event -> new CustomThread(() -> ServerMemberLeaveAbstract.onServerMemberLeaveStatic(event, getListenerList(ServerMemberLeaveAbstract.class)), "server_member_leave").start());
+        api.addServerMemberJoinListener(event -> new CustomThread(() -> ServerMemberJoinAbstract.onServerMemberJoinStatic(event, getListenerList(ServerMemberJoinAbstract.class, event.getUser().getId())), "server_member_join").start());
+        api.addServerMemberLeaveListener(event -> new CustomThread(() -> ServerMemberLeaveAbstract.onServerMemberLeaveStatic(event, getListenerList(ServerMemberLeaveAbstract.class, event.getUser().getId())), "server_member_leave").start());
 
         api.addServerVoiceChannelChangeUserLimitListener(event -> new CustomThread(() -> ServerVoiceChannelChangeUserLimitAbstract.onServerVoiceChannelChangeUserLimitStatic(event, getListenerList(ServerVoiceChannelChangeUserLimitAbstract.class)), "server_voice_channel_change_user_limit").start());
-        api.addServerVoiceChannelMemberJoinListener(event -> new CustomThread(() -> ServerVoiceChannelMemberJoinAbstract.onServerVoiceChannelMemberJoinStatic(event, getListenerList(ServerVoiceChannelMemberJoinAbstract.class)), "server_voice_channel_member_join").start());
-        api.addServerVoiceChannelMemberLeaveListener(event -> new CustomThread(() -> ServerVoiceChannelMemberLeaveAbstract.onServerVoiceChannelMemberLeaveStatic(event, getListenerList(ServerVoiceChannelMemberLeaveAbstract.class)), "server_voice_channel_member_leave").start());
+        api.addServerVoiceChannelMemberJoinListener(event -> new CustomThread(() -> ServerVoiceChannelMemberJoinAbstract.onServerVoiceChannelMemberJoinStatic(event, getListenerList(ServerVoiceChannelMemberJoinAbstract.class, event.getUser().getId())), "server_voice_channel_member_join").start());
+        api.addServerVoiceChannelMemberLeaveListener(event -> new CustomThread(() -> ServerVoiceChannelMemberLeaveAbstract.onServerVoiceChannelMemberLeaveStatic(event, getListenerList(ServerVoiceChannelMemberLeaveAbstract.class, event.getUser().getId())), "server_voice_channel_member_leave").start());
 
-        api.addUserRoleAddListener(event -> new CustomThread(() -> UserRoleAddAbstract.onUserRoleAddStatic(event, getListenerList(UserRoleAddAbstract.class)), "user_role_add").start());
-        api.addUserRoleRemoveListener(event -> new CustomThread(() -> UserRoleRemoveAbstract.onUserRoleRemoveStatic(event, getListenerList(UserRoleRemoveAbstract.class)), "user_role_remove").start());
+        api.addUserRoleAddListener(event -> new CustomThread(() -> UserRoleAddAbstract.onUserRoleAddStatic(event, getListenerList(UserRoleAddAbstract.class, event.getUser().getId())), "user_role_add").start());
+        api.addUserRoleRemoveListener(event -> new CustomThread(() -> UserRoleRemoveAbstract.onUserRoleRemoveStatic(event, getListenerList(UserRoleRemoveAbstract.class, event.getUser().getId())), "user_role_remove").start());
 
         api.addServerChangeBoostCountListener(event -> new CustomThread(() -> ServerChangeBoostCountAbstract.onServerChangeBoostCountStatic(event, getListenerList(ServerChangeBoostCountAbstract.class)), "server_change_boost_count").start());
     }
 
+    private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz, Optional<? extends DiscordEntity> entityOpt) {
+        if (!entityOpt.isPresent()) return getListenerList(clazz);
+        return getListenerList(clazz, entityOpt.get().getId());
+    }
+
     private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz) {
-        return listenerMap.computeIfAbsent(clazz, k -> new ArrayList<>());
+        return new ArrayList<>(listenerMap.computeIfAbsent(clazz, k -> new ArrayList<>()));
+    }
+
+    private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz, long userId) {
+        boolean banned = userIsBanned(userId);
+        return listenerMap.computeIfAbsent(clazz, k -> new ArrayList<>())
+                .stream()
+                .filter(listener -> !banned || listener.isAllowingBannedUser())
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private boolean userIsBanned(long userId) {
+        try {
+            return DBBannedUsers.getInstance().getBean().getUserIds().contains(userId);
+        } catch (SQLException throwables) {
+            LOGGER.error("SQL error", throwables);
+            return true;
+        }
     }
 
 }

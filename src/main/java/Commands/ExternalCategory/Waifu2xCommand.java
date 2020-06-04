@@ -66,8 +66,6 @@ public class Waifu2xCommand extends Command {
 
         String query = "image=" + url.toString();
 
-        //String data = Internet.getDataRequestPropertyPost("https://api.deepai.org/api/waifu2x", "Api-Key", SecretManager.getString("deepai.token"), query);
-
         HttpProperty[] properties = new HttpProperty[]{
                 new HttpProperty("Api-Key", SecretManager.getString("deepai.token")),
                 new HttpProperty("Content-Type", "application/x-www-form-urlencoded")

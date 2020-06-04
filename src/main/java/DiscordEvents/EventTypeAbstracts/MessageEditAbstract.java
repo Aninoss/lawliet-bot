@@ -9,8 +9,6 @@ import java.util.ArrayList;
 
 public abstract class MessageEditAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(MessageEditAbstract.class);
-
     public abstract boolean onMessageEdit(MessageEditEvent event) throws Throwable;
 
     public static void onMessageEditStatic(MessageEditEvent event, ArrayList<DiscordEventAbstract> listenerList) {
@@ -21,23 +19,9 @@ public abstract class MessageEditAbstract extends DiscordEventAbstract {
                 event.getMessage().get().getUserAuthor().get().isBot()
         ) return;
 
-        boolean banned = userIsBanned(event.getMessageAuthor().get().getId());
-
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof MessageEditAbstract) {
-                MessageEditAbstract messageEditAbstract = (MessageEditAbstract) listener;
-                if (banned && !messageEditAbstract.isAllowingBannedUser()) continue;
-
-                try {
-                    if (!messageEditAbstract.onMessageEdit(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught exception", throwable);
-                }
-            }
-        }
+        execute(event, listenerList,
+                listener -> ((MessageEditAbstract) listener).onMessageEdit(event)
+        );
     }
 
 }

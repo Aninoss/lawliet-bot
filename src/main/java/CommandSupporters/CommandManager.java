@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class CommandManager {
     final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
     final static String EMOJI_NO_EMBED = "❌ ";
 
-    public static void manage(MessageCreateEvent event, Command command, String followedString) throws IOException, ExecutionException, InterruptedException, SQLException {
+    public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
                 isWhiteListed(event) &&
                 botCanUseEmbeds(event, command) &&
@@ -49,7 +50,7 @@ public class CommandManager {
             DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
             CommandUsers.getInstance().addUsage(event.getMessageAuthor().getId());
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
-            manageSlowCommandLoadingReaction(command, event.getMessage());
+            manageSlowCommandLoadingReaction(command);
             if (command.isPatreonRequired() && (command.getUserPermissions() & Permission.MANAGE_SERVER) != 0) {
                 ServerPatreonBoostCache.getInstance().setTrue(event.getServer().get().getId());
             }
@@ -57,6 +58,7 @@ public class CommandManager {
             try {
                 sendOverwrittenSignals(event);
 
+                command.setStartTime(startTime);
                 if (command instanceof OnNavigationListener)
                     command.onNavigationMessageSuper(event, followedString, true);
                 else
@@ -302,19 +304,19 @@ public class CommandManager {
         }
     }
 
-    private static void manageSlowCommandLoadingReaction(Command command, Message userMessage) {
+    private static void manageSlowCommandLoadingReaction(Command command) {
         final Thread commandThread = Thread.currentThread();
         Thread t = new CustomThread(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
                 if (commandThread.isAlive()) {
                     command.addLoadingReaction();
-                    for (int i = 0; i < command.getMaxCalculationTimeSec(); i++) {
+                    for (int i = 0; i < command.getMaxCalculationTimeSec() - 3; i++) {
                         if (!commandThread.isAlive()) return;
                         Thread.sleep(1000);
                     }
 
-                    //commandThread.interrupt();
+                    commandThread.interrupt();
                 }
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);

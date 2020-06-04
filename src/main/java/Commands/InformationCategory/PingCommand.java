@@ -19,13 +19,13 @@ import java.util.Optional;
 @CommandProperties(
         trigger = "ping",
         emoji = "\uD83C\uDFD3",
-        executable = false
+        executable = true
 )
 public class PingCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        Instant creationTime = ((CustomThread)Thread.currentThread()).getCreationTime();
+        Instant creationTime = getStartTime();
 
         long milisInternal = TimeUtil.getMilisBetweenInstants(creationTime, Instant.now());
 

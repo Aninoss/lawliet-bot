@@ -197,10 +197,10 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
 
                 eb = EmbedFactory.getEmbed()
-                        .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(getLocale(), won)))
+                        .setTitle(FisheryCommand.treasureEmoji + " " +getString("treasure_title"))
+                        .setDescription(getString("treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(getLocale(), won)))
                         .setImage(treasureImage)
-                        .setFooter( TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_footer"));
+                        .setFooter(getString("treasure_footer"));
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 

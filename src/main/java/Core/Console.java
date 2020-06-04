@@ -162,6 +162,18 @@ public class Console {
                                 }
                                 break;
 
+                            case "delete":
+                            case "remove":
+                                try {
+                                    long serverId = Long.parseLong(arg.split(" ")[0]);
+                                    long userId = Long.parseLong(arg.split(" ")[1]);
+                                    DBFishery.getInstance().getBean(serverId).getUserBean(userId).remove();
+                                    LOGGER.info("Fishery user {} from server {} removed", userId, serverId);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not remove fishery user", e);
+                                }
+                                break;
+
                             case "server":
                                 long serverId = Long.parseLong(arg);
                                 DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount()));

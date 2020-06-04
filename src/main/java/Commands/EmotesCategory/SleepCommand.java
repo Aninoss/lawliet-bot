@@ -39,8 +39,7 @@ public class SleepCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/563763c318916e8fe915eca62d164903/tenor.gif?itemid=9249213",
                 "https://media1.tenor.com/images/d38b83768e108889e7e0dadfc92d4070/tenor.gif?itemid=15077633",
                 "https://static.zerochan.net/Lance.Mcclain.full.2240592.gif",
-                "https://static.zerochan.net/Fruits.Basket.full.2607312.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/709440294348783696/tumblr_mkdjemyFrL1rkaewto1_500.gif"
+                "https://static.zerochan.net/Fruits.Basket.full.2607312.gif"
         };
     }
 

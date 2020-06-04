@@ -106,7 +106,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                     MessageAttachment messageAttachment = attachmentList.get(0);
 
                     long size = messageAttachment.getSize();
-                    if (size >= 8000000) {
+                    if (size >= 20000000) {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "file_too_large"));
                         return Response.FALSE;
                     }

@@ -87,7 +87,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);
-            LOGGER.error("Could not save fishery server", e);
+            LOGGER.error("Could not save fishery server {}", fisheryServerBean.getServerId(), e);
         }
     }
 
@@ -110,13 +110,30 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .forEach(this::saveFisheryUserPowerUpBean);
         } catch (Throwable e) {
             fisheryUserBean.setChanged();
-            LOGGER.error("Could not save fishery user", e);
+            LOGGER.error("Could not save fishery user {} on server {}", fisheryUserBean.getUserId(), fisheryUserBean.getServerId(), e);
         }
+    }
+
+    protected void removeFisheryUserBean(FisheryUserBean fisheryUserBean) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, fisheryUserBean.getServerId());
+            preparedStatement.setLong(2, fisheryUserBean.getUserId());
+        });
+
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, fisheryUserBean.getServerId());
+            preparedStatement.setLong(2, fisheryUserBean.getUserId());
+        });
+
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, fisheryUserBean.getServerId());
+            preparedStatement.setLong(2, fisheryUserBean.getUserId());
+        });
     }
 
     private void saveFisheryUserPowerUpBean(FisheryUserPowerUpBean fisheryUserPowerUpBean) {
         try {
-            DBMain.getInstance().update("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?)", preparedStatement -> {
+            DBMain.getInstance().update("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, fisheryUserPowerUpBean.getServerId());
                 preparedStatement.setLong(2, fisheryUserPowerUpBean.getUserId());
                 preparedStatement.setInt(3, fisheryUserPowerUpBean.getPowerUpId());
@@ -130,7 +147,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private void saveFisheryHourlyIncomeBean(FisheryHourlyIncomeBean fisheryHourlyIncomeBean) {
         try {
-            DBMain.getInstance().update("REPLACE INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (?, ?, ?, ?)", preparedStatement -> {
+            DBMain.getInstance().update("REPLACE INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, fisheryHourlyIncomeBean.getServerId());
                 preparedStatement.setLong(2, fisheryHourlyIncomeBean.getUserId());
                 preparedStatement.setString(3, DBMain.instantToDateTimeString(fisheryHourlyIncomeBean.getTime()));

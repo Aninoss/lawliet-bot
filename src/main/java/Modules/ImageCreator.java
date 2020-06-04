@@ -176,8 +176,11 @@ public class ImageCreator {
             int yShift = (int) -Math.round(scaledHeight - BASE_HEIGHT) / 2;
             g2d.drawImage(base, 0, yShift, BASE_WIDTH, (int) scaledHeight, null);
 
-            g2d.setColor(new Color(0, 0, 0, 120));
-            g2d.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+            double lumi = getAverageLuminance(result);
+            if (lumi >= 0.4) {
+                g2d.setColor(new Color(0, 0, 0, (float) (lumi - 0.4)));
+                g2d.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+            }
 
             g2d.setColor(Color.BLACK);
             g2d.fillRect(15, 15, BASE_HEIGHT - 30, BASE_HEIGHT - 30);
@@ -202,7 +205,7 @@ public class ImageCreator {
 
             double textHeight0 = bounds.getHeight();
             double textHeight1 = fontWelcome.getStringBounds(welcome, frc).getHeight();
-            double textHeightTotal = textHeight0 + textHeight1 + 15;
+            double textHeightTotal = textHeight0 + textHeight1 + 18;
             int y0 = (int) (BASE_HEIGHT / 2 - textHeightTotal / 2 + textHeight0 / 2);
             int y1 = (int) (BASE_HEIGHT / 2 + textHeightTotal / 2 - textHeight1 / 2);
 
@@ -224,6 +227,29 @@ public class ImageCreator {
             LOGGER.error("Exception", e);
         }
         return null;
+    }
+
+    private static double getAverageLuminance(BufferedImage image) {
+        double totalLuminance = 0;
+        int n = 0;
+        for (int y = 0; y < image.getHeight(); y++)
+        {
+            for (int x = image.getWidth() / 3; x < image.getWidth(); x++)
+            {
+                int color = image.getRGB(x, y);
+
+                // extract each color component
+                int red   = (color >>> 16) & 0xFF;
+                int green = (color >>>  8) & 0xFF;
+                int blue  = (color >>>  0) & 0xFF;
+
+                // calc luminance in range 0.0 to 1.0; using SRGB luminance constants
+                totalLuminance += Math.sqrt((red * 0.2126f + green * 0.7152f + blue * 0.0722f) / 255);
+                n++;
+            }
+        }
+
+        return totalLuminance / (double) n;
     }
 
     private static File getBackgroundFile(Server server) {

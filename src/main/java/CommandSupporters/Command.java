@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -43,6 +44,7 @@ public abstract class Command {
     private LogStatus logStatus = null;
     private String log;
     private String[] options;
+    private Instant startTime;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
     private int state = 0, page = 0, pageMax = 0;
     private final Thread thread;
@@ -307,8 +309,7 @@ public abstract class Command {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
-                    return;
+                    //Ignore
                 }
             }
 
@@ -555,6 +556,8 @@ public abstract class Command {
         return Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId);
     }
     public void blockLoading() { loadingBlock = true; }
+    public Instant getStartTime() { return startTime; }
+    public void setStartTime(Instant startTime) { this.startTime = startTime; }
 
     public String[] getOptions() { return options; }
     public void setOptions(String[] options) {

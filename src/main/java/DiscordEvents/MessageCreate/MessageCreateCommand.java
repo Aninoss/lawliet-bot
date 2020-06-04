@@ -76,7 +76,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                     clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
                     if (clazz != null) {
                         Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                        CommandManager.manage(event, command, followedString);
+                        CommandManager.manage(event, command, followedString, getStartTime());
                     }
                 } catch (Throwable e) {
                     ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());

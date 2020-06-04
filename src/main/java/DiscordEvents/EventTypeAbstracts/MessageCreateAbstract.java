@@ -3,19 +3,31 @@ package DiscordEvents.EventTypeAbstracts;
 import Constants.Settings;
 import Core.EmbedFactory;
 import DiscordEvents.DiscordEventAbstract;
+import DiscordEvents.EventPriority;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class MessageCreateAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(MessageCreateAbstract.class);
+    private Instant startTime;
 
     public abstract boolean onMessageCreate(MessageCreateEvent event) throws Throwable;
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
 
     public static void onMessageCreateStatic(MessageCreateEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (!event.getMessage().getUserAuthor().isPresent() ||
@@ -30,23 +42,14 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
             return;
         }
 
-        boolean banned = userIsBanned(event.getMessageAuthor().getId());
+        Instant startTime = Instant.now();
 
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof MessageCreateAbstract) {
-                MessageCreateAbstract messageCreateAbstract = (MessageCreateAbstract) listener;
-                if (banned && !messageCreateAbstract.isAllowingBannedUser()) continue;
-
-                try {
-                    if (!messageCreateAbstract.onMessageCreate(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught Excecption", throwable);
+        execute(event, listenerList,
+                listener -> {
+                    ((MessageCreateAbstract) listener).setStartTime(startTime);
+                    return ((MessageCreateAbstract) listener).onMessageCreate(event);
                 }
-            }
-        }
+        );
     }
 
 }

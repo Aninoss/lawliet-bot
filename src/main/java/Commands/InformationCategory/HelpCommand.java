@@ -23,6 +23,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -68,7 +69,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     command.setReactionUserID(event.getUser().getId());
                     command.blockLoading();
 
-                    CommandManager.manage(authorEvent, command, "");
+                    CommandManager.manage(authorEvent, command, "", Instant.now());
 
                     return false;
                 }

@@ -9,25 +9,12 @@ import java.util.ArrayList;
 
 public abstract class ServerChannelDeleteAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerChannelDeleteAbstract.class);
-
     public abstract boolean onServerChannelDelete(ServerChannelDeleteEvent event) throws Throwable;
 
     public static void onServerChannelDeleteStatic(ServerChannelDeleteEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        for(DiscordEventAbstract listener : listenerList) {
-            if (listener instanceof ServerChannelDeleteAbstract) {
-                ServerChannelDeleteAbstract serverChannelDeleteAbstract = (ServerChannelDeleteAbstract) listener;
-
-                try {
-                    if (!serverChannelDeleteAbstract.onServerChannelDelete(event)) return;
-                } catch (InterruptedException interrupted) {
-                    LOGGER.error("Interrupted", interrupted);
-                    return;
-                } catch (Throwable throwable) {
-                    LOGGER.error("Uncaught exception", throwable);
-                }
-            }
-        }
+        execute(event, listenerList,
+                listener -> ((ServerChannelDeleteAbstract) listener).onServerChannelDelete(event)
+        );
     }
 
 }

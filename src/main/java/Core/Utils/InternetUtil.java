@@ -38,7 +38,7 @@ public final class InternetUtil {
     }
 
     public static boolean stringHasURL(String str) {
-        if (str.contains("http://") || str.contains("https://") || str.contains("www")) return true;
+        if (str.contains("http://") || str.contains("https://") || str.contains("www.")) return true;
 
         String [] parts = str.split("\\s+");
 
