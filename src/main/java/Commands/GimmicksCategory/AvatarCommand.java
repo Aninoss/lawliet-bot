@@ -17,7 +17,8 @@ import java.util.ArrayList;
 @CommandProperties(
         trigger = "avatar",
         emoji = "\uD83D\uDDBC️️",
-        executable = true
+        executable = true,
+        aliases = { "profilepic" }
 )
 public class AvatarCommand extends Command {
 

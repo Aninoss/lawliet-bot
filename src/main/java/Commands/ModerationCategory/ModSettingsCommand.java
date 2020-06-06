@@ -314,7 +314,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
         if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS) && server.canYouBanUser(user)) {
             try {
-                server.banUser(user, 7, TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban")).get();
+                server.banUser(user, 0, TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban")).get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban"))

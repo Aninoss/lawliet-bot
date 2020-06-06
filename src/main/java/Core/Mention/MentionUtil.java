@@ -357,6 +357,27 @@ public class MentionUtil {
         return new Mention(string, null, multi);
     }
 
+    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, Server server, List<User> userList) throws IOException {
+        int counted = 0;
+        boolean multi = false;
+        StringBuilder sb = new StringBuilder();
+
+        for(User user: userList) {
+            sb.append("**").append(StringUtil.removeMarkdown(user.getDiscriminatedName())).append("**, ");
+            counted++;
+        }
+
+        if (counted == 0) throw new IOException();
+        if (counted > 1) multi = true;
+
+        String string = sb.toString();
+        string = string.substring(0,string.length()-2);
+
+        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
+
+        return new Mention(string, null, multi);
+    }
+
     public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) throws IOException {
         int counted = 0;
         boolean multi = false;

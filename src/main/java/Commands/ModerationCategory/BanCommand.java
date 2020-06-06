@@ -24,7 +24,7 @@ public class BanCommand extends WarnCommand  {
     @Override
     public void process(Server server, User user) throws Throwable {
         try {
-            server.banUser(user, 7, reason).get();
+            server.banUser(user, 0, reason).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Exception on ban", e);
             server.banUser(user).get();

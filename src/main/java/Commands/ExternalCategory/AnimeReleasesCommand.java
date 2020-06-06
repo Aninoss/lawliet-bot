@@ -74,10 +74,13 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         boolean first = !slot.getArgs().isPresent();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey().get());
 
+        if (postBundle.getPosts().size() > 0) LOGGER.info("ANIME RELEASES ({}): {} new posts", slot.getServerId(), postBundle.getPosts().size());
+
         ServerTextChannel channel = slot.getChannel().get();
         for(int i = Math.min(9, postBundle.getPosts().size() - 1); i >= 0; i--) {
             AnimeReleasePost post = postBundle.getPosts().get(i);
             channel.sendMessage(getEmbed(post)).get();
+            LOGGER.info("{}: {}", slot.getServerId(), post.getEpisodeTitle().orElse(post.getAnime()));
         }
 
         if (first && postBundle.getPosts().size() == 0) {

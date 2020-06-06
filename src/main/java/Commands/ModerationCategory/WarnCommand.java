@@ -59,7 +59,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
         if (moderationBean.isQuestion()) {
-            Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), event.getServer().get(), userList);
+            Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), event.getServer().get(), userList);
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.toString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);

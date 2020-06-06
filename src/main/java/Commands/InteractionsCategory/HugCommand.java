@@ -72,7 +72,8 @@ public class HugCommand extends InteractionAbstract {
                 "https://static.zerochan.net/Mahou.Tsukai.no.Yome.full.2230099.gif",
                 "https://static.zerochan.net/Sword.Art.Online%3A.Alicization.-War.Of.Underworld-.full.2805619.gif",
                 "https://static.zerochan.net/Fruits.Basket.full.2700026.gif",
-                "https://static.zerochan.net/Lady.Momona.full.2640371.gif"
+                "https://static.zerochan.net/Lady.Momona.full.2640371.gif",
+                "https://tenor.com/view/coco-go-play-goku-krillin-dbz-dragon-ball-z-gif-15161811"
         };
     }
 

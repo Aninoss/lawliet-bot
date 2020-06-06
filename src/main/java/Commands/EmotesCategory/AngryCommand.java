@@ -50,7 +50,9 @@ public class AngryCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/05bcd47e2540b6f055aa6837e70650f5/tenor.gif?itemid=14130191",
                 "https://media1.tenor.com/images/d7ef57a02d1148945c78878011c799f8/tenor.gif?itemid=15641051",
                 "https://cdn.discordapp.com/attachments/499629904380297226/709440300468273162/angry.gif",
-                "https://tenor.com/view/rem-rezero-gif-5569548"
+                "https://tenor.com/view/rem-rezero-gif-5569548",
+                "https://giffiles.alphacoders.com/208/208599.gif",
+                "https://tenor.com/view/dbz-vegeta-rage-gif-11185744"
         };
     }
 

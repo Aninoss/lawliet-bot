@@ -40,7 +40,8 @@ public class KillCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/709429751072161822/Black_Clover_Demon_Kill.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/710877980536340530/unnamed.gif",
                 "https://cdn.discordapp.com/attachments/708252321221443625/713734195754827846/Black_Clover_Devil_Kill.gif",
-                "https://cdn.discordapp.com/attachments/708252321221443625/713734600416821349/Mob_Dimple_Kill.gif"
+                "https://cdn.discordapp.com/attachments/708252321221443625/713734600416821349/Mob_Dimple_Kill.gif",
+                "https://tenor.com/view/black-goku-attack-dragon-ball-gif-6163610"
         };
     }
 

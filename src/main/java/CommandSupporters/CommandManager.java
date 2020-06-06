@@ -66,9 +66,12 @@ public class CommandManager {
 
                 CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.SUCCESS));
             } catch (Throwable e) {
+                CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.EXCEPTION));
                 ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();
+        } else {
+            CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.FALSE));
         }
     }
 
