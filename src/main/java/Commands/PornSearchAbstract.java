@@ -1,6 +1,7 @@
 package Commands;
 
 
+import Constants.Category;
 import Core.*;
 import Modules.Porn.PornImage;
 import Core.Utils.NSFWUtil;
@@ -29,7 +30,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
 
         if (search.isEmpty()) {
             search = "animated";
-            notice = TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_nokey");
+            notice = TextManager.getString(getLocale(), Category.NSFW, "porn_nokey");
         }
 
         switch (search.toLowerCase()) {

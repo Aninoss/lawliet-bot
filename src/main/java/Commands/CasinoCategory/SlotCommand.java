@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
 
 import Commands.CasinoAbstract;
+import Constants.Category;
 import Constants.LogStatus;
 import Core.*;
 import Core.Utils.StringUtil;
@@ -133,7 +134,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
                 DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag()
                 ));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

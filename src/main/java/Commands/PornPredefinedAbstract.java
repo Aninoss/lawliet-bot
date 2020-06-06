@@ -1,5 +1,6 @@
 package Commands;
 
+import Constants.Category;
 import Modules.Porn.PornImage;
 import Core.TextManager;
 
@@ -23,7 +24,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
 
     @Override
     public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable {
-        if (!search.isEmpty()) notice = TextManager.getString(getLocale(), TextManager.COMMANDS, "porn_keyforbidden");
+        if (!search.isEmpty()) notice = TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden");
 
         search = getSearchKey();
         String searchAdd = getSearchExtra();

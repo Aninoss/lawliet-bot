@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
 
 import CommandSupporters.Command;
+import Constants.Category;
 import Constants.Permission;
 import Core.CustomObservableList;
 import Core.EmbedFactory;
@@ -136,8 +137,8 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                         removeReactionListener();
                         postMessage(EmbedFactory.getCommandEmbedStandard(
                                         this,
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, "warn_abort_description"),
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, "warn_abort_title")
+                                        TextManager.getString(getLocale(), Category.MODERATION, "warn_abort_description"),
+                                        TextManager.getString(getLocale(), Category.MODERATION, "warn_abort_title")
                                 )
                         );
                     }

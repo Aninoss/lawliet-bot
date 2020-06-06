@@ -3,6 +3,7 @@ package Commands.CasinoCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
 import Commands.CasinoAbstract;
+import Constants.Category;
 import Constants.LetterEmojis;
 import Constants.LogStatus;
 import Constants.Settings;
@@ -162,7 +163,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String label = "tutorial";
         if (active) label = "tutorial_start";

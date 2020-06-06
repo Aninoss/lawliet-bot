@@ -314,11 +314,11 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
         if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS) && server.canYouBanUser(user)) {
             try {
-                server.banUser(user, 0, TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban")).get();
+                server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban"))
-                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autoban_template", user.getDisplayName(server)));
+                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (IllegalAccessException | InstantiationException | ExecutionException e) {
@@ -328,11 +328,11 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
         else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.KICK_MEMBERS) && server.canYouKickUser(user)) {
             try {
-                server.kickUser(user, TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick")).get();
+                server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "mod_autokick_template", user.getDisplayName(server)));
+                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
 
                 postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
             } catch (ExecutionException | IllegalAccessException | InstantiationException e) {

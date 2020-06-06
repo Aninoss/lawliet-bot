@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
 
 import Commands.CasinoAbstract;
+import Constants.Category;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
@@ -66,7 +67,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0),true)
                 .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1),true);
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String key = "tutorial";
         if (finished) key = "data";

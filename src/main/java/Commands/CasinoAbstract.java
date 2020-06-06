@@ -3,6 +3,7 @@ package Commands;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
+import Constants.Category;
 import Constants.FisheryStatus;
 import Constants.Settings;
 import Core.EmbedFactory;
@@ -81,7 +82,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
                 userBean.addHiddenCoins(coinsInput);
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_too_large", StringUtil.numToString(getLocale(), coins)))).get();
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_too_large", StringUtil.numToString(getLocale(), coins)))).get();
             }
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
@@ -130,7 +131,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
     protected EmbedBuilder addRetryOption(EmbedBuilder eb) {
         addReactionListener(getReactionMessage());
         message.addReaction(RETRY_EMOJI);
-        eb.addField(Settings.EMPTY_EMOJI, TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_retry", RETRY_EMOJI));
+        eb.addField(Settings.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI));
         return eb;
     }
 

@@ -178,8 +178,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions().get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "fishery_treasure_opening", event.getUser().getMentionTag()));
+                        .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY, "fishery_treasure_title"))
+                        .setDescription(TextManager.getString(getLocale(), Category.FISHERY, "fishery_treasure_opening", event.getUser().getMentionTag()));
                 message.edit(eb).get();
 
                 Thread.sleep(1000 * 3);

@@ -2,6 +2,7 @@ package Commands;
 
 
 import CommandSupporters.Command;
+import Constants.Category;
 import Core.*;
 import Modules.Reddit.RedditDownloader;
 import Modules.Reddit.RedditPost;
@@ -27,7 +28,7 @@ public abstract class RedditAbstract extends Command {
         if (post == null) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "error"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_error", followedString));
+                    .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_error", followedString));
 
             event.getChannel().sendMessage(eb).get();
 

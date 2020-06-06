@@ -2,6 +2,7 @@ package Commands.CasinoCategory;
 
 import CommandListeners.*;
 import Commands.CasinoAbstract;
+import Constants.Category;
 import Constants.LogStatus;
 import Constants.Response;
 import Core.*;
@@ -93,7 +94,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
                 answer,
                 getUsedString()));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

@@ -1,9 +1,6 @@
 package Core;
 
-import Constants.FisheryStatus;
-import Constants.FisheryCategoryInterface;
-import Constants.Locales;
-import Constants.Settings;
+import Constants.*;
 import Core.Utils.SystemUtil;
 import Modules.Porn.PornImageCache;
 import CommandSupporters.RunningCommands.RunningCommandManager;
@@ -329,8 +326,8 @@ public class Clock {
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(locale);
 
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setTitle(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_title"))
-                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_template", won == 2,
+                .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
+                .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
                         surveyQuestion.getQuestion(),
                         surveyQuestion.getAnswers()[0],
                         surveyQuestion.getAnswers()[1],
@@ -344,7 +341,7 @@ public class Clock {
             secondVotes.stream()
                     .filter(secondVote -> (finalI == 0) == (won == 2 || secondVote.getVote() == won))
                     .forEach(secondVote -> {
-                        sb.append(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_server",
+                        sb.append(TextManager.getString(locale, Category.FISHERY, "survey_results_message_server",
                                 finalI,
                                 DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get().getName(),
                                 StringUtil.numToString(locale, coinsWinMap.computeIfAbsent(secondVote.getServerId(), k -> 0L))
@@ -352,7 +349,7 @@ public class Clock {
                     });
 
             if (sb.length() > 0)
-                eb.addField(TextManager.getString(locale, TextManager.COMMANDS, "survey_results_message_wonlost", i), sb.toString());
+                eb.addField(TextManager.getString(locale, Category.FISHERY, "survey_results_message_wonlost", i), sb.toString());
         }
 
         user.sendMessage(eb).get();

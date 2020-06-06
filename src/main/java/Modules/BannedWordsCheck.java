@@ -3,6 +3,7 @@ package Modules;
 import CommandSupporters.CommandManager;
 import Commands.ModerationCategory.BannedWordsCommand;
 import Commands.ModerationCategory.ModSettingsCommand;
+import Constants.Category;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
 import Core.PermissionCheck;
@@ -45,13 +46,13 @@ public class BannedWordsCheck {
             informLogReceivers(bannedWordsBean, bannedWordsCommand, locale, message, author, successful);
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
-                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                    .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true);
-            if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
-            else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
+                    .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                    .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true);
+            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful", author.getMentionTag()));
+            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
 
             ModSettingsCommand.postLog(CommandManager.createCommandByClass(BannedWordsCommand.class, locale), eb, server);
-            ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_title"));
+            ModSettingsCommand.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "bannedwords_title"));
 
             return false;
         }
@@ -61,10 +62,10 @@ public class BannedWordsCheck {
 
     private static void informLogReceivers(BannedWordsBean bannedWordsBean, BannedWordsCommand bannedWordsCommand, Locale locale, Message message, User author, boolean successful) throws InterruptedException {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true);
-        if (successful) eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful", author.getMentionTag()));
-        else eb.setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_failed", author.getMentionTag()));
+                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true);
+        if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful", author.getMentionTag()));
+        else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
 
         for(User user: bannedWordsBean.getLogReceiverUserIds().transform(message.getServer().get()::getMemberById, DiscordEntity::getId)) {
             try {
@@ -77,9 +78,9 @@ public class BannedWordsCheck {
 
     private static void informMessageAuthor(BannedWordsCommand bannedWordsCommand, Locale locale, Message message, User author) throws InterruptedException {
         EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_content"), message.getContent(), true)
-                .setDescription(TextManager.getString(locale, TextManager.COMMANDS, "bannedwords_log_successful_user"));
+                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true)
+                .setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful_user"));
         try {
             author.sendMessage(ebUser).get();
         } catch (ExecutionException e) {

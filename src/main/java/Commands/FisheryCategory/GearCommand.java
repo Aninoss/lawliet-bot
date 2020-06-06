@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 
 import CommandSupporters.Command;
 import Commands.FisheryAbstract;
+import Constants.Category;
 import Constants.FisheryCategoryInterface;
 import Constants.Permission;
 import Constants.FisheryStatus;
@@ -84,7 +85,7 @@ public class GearCommand extends FisheryAbstract {
                 for (FisheryUserPowerUpBean slot : fisheryUserBean.getPowerUpMap().values()) {
                     gearString.append(getString("gear_slot",
                             FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
-                            TextManager.getString(getLocale(), TextManager.COMMANDS, "buy_product_" + slot.getPowerUpId() + "_0"),
+                            TextManager.getString(getLocale(), Category.FISHERY, "buy_product_" + slot.getPowerUpId() + "_0"),
                             String.valueOf(slot.getLevel())
                     )).append("\n");
                 }

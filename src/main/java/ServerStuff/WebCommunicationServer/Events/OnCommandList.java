@@ -61,11 +61,11 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
                     JSONObject commandJSON = new JSONObject();
                     commandJSON.put("trigger", trigger);
                     commandJSON.put("emoji", command.getEmoji());
-                    commandJSON.put("title", webComServer.getLanguagePack(TextManager.COMMANDS, trigger + "_title"));
-                    commandJSON.put("desc_short", webComServer.getLanguagePack(TextManager.COMMANDS, trigger + "_description"));
-                    commandJSON.put("desc_long", webComServer.getLanguagePack(TextManager.COMMANDS, trigger + "_helptext"));
-                    commandJSON.put("usage", webComServer.getCommandSpecs(trigger + "_usage", trigger));
-                    commandJSON.put("examples", webComServer.getCommandSpecs(trigger + "_examples", trigger));
+                    commandJSON.put("title", webComServer.getLanguagePack(command.getCategory(), trigger + "_title"));
+                    commandJSON.put("desc_short", webComServer.getLanguagePack(command.getCategory(), trigger + "_description"));
+                    commandJSON.put("desc_long", webComServer.getLanguagePack(command.getCategory(), trigger + "_helptext"));
+                    commandJSON.put("usage", webComServer.getCommandSpecs(command.getCategory(), trigger + "_usage", trigger));
+                    commandJSON.put("examples", webComServer.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
                     commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
                     commandJSON.put("nsfw", command.isNsfw());
                     commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);

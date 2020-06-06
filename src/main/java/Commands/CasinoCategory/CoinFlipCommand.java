@@ -4,6 +4,7 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
 
 import Commands.CasinoAbstract;
+import Constants.Category;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
@@ -82,7 +83,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
 
         if (selection[0] == -1) eb.addField(Settings.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         if (!active) {
             eb = EmbedFactory.addLog(eb, logStatus, log);

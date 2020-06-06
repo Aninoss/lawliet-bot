@@ -1,5 +1,6 @@
 package MySQL.Modules.WelcomeMessage;
 
+import Constants.Category;
 import Core.TextManager;
 import MySQL.DBBeanGenerator;
 import MySQL.DBMain;
@@ -45,11 +46,11 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
             welcomeMessageBean = new WelcomeMessageBean(
                     serverBean,
                     false,
-                    TextManager.getString(locale, TextManager.COMMANDS, "welcome_standard_title"),
-                    TextManager.getString(locale, TextManager.COMMANDS, "welcome_standard_description"),
+                    TextManager.getString(locale, Category.MANAGEMENT, "welcome_standard_title"),
+                    TextManager.getString(locale, Category.MANAGEMENT, "welcome_standard_description"),
                     0L,
                     false,
-                    TextManager.getString(locale, TextManager.COMMANDS, "welcome_standard_goodbye"),
+                    TextManager.getString(locale, Category.MANAGEMENT, "welcome_standard_goodbye"),
                     0L
             );
         }

@@ -1,5 +1,6 @@
 package Modules.Reddit;
 
+import Constants.Category;
 import Core.*;
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
@@ -170,7 +171,7 @@ public class RedditDownloader {
         }
 
         if (postSource && !source.equals(url)) {
-            String linkText = TextManager.getString(locale, TextManager.COMMANDS, "reddit_linktext", source);
+            String linkText = TextManager.getString(locale, Category.EXTERNAL, "reddit_linktext", source);
             description = StringUtil.shortenString(description, 2048-linkText.length());
             if (!description.equals("")) description += "\n\n";
             description += linkText;

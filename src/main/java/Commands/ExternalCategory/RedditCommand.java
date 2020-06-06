@@ -2,6 +2,7 @@ package Commands.ExternalCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
+import Constants.Category;
 import Constants.LogStatus;
 import Constants.TrackerResult;
 import Core.*;
@@ -117,7 +118,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 if (!slot.getArgs().isPresent()) {
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getString(getLocale(), TextManager.COMMANDS, "reddit_noresults_tracker", slot.getCommandKey().get()));
+                            .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().get()));
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {

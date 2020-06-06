@@ -88,12 +88,12 @@ public class WebComServer {
         return jsonObject;
     }
 
-    public JSONObject getCommandSpecs(String key, String commandTrigger) {
+    public JSONObject getCommandSpecs(String key, String commandCategory, String commandTrigger) {
         JSONObject jsonObject = new JSONObject();
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, TextManager.COMMANDS, key));
+            String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, commandCategory, key));
             if (!str.isEmpty())
                 str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
 

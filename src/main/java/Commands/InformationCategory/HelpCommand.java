@@ -119,13 +119,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 
                 StringBuilder usage = new StringBuilder();
-                for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_usage").split("\n")) {
+                for(String line: TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_usage").split("\n")) {
                     usage.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                 }
 
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
-                for(String line: TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_examples").split("\n")) {
+                for(String line: TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_examples").split("\n")) {
                     line = StringUtil.solveVariablesOfCommandText(line, getStarterMessage(), getPrefix());
                     examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
@@ -147,10 +147,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
-                                        command.getEmoji()+" "+TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_title")
+                                        command.getEmoji()+" "+TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_title")
                         )
                         .setFooter(getString("command_args"))
-                        .setDescription(TextManager.getString(getLocale(),TextManager.COMMANDS,commandTrigger+"_helptext") + addNotExecutable)
+                        .setDescription(TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_helptext") + addNotExecutable)
                         .addField(Settings.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
                         .addField(Settings.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
 
@@ -250,7 +250,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 if (!canAccess) commands.append("~~");
 
-                commands.append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_title").toUpperCase());
+                commands.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title").toUpperCase());
 
                 if (!canAccess) commands.append("~~");
                 if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
@@ -260,7 +260,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                         .append(" - ")
-                        .append(TextManager.getString(getLocale(), TextManager.COMMANDS, commandTrigger + "_description"))
+                        .append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description"))
                         .append("\n\n");
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
@@ -283,7 +283,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
             if (command.getCategory().equals(Category.NSFW)) {
-                String title = TextManager.getString(getLocale(), TextManager.COMMANDS, command.getTrigger() + "_title");
+                String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
                 if (command instanceof PornSearchAbstract)
                     withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
