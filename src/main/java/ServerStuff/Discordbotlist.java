@@ -22,9 +22,9 @@ public class Discordbotlist {
             jsonObject.put("guilds", serverCount);
             HttpProperty[] properties = new HttpProperty[]{
                     new HttpProperty("Content-Type", "application/json"),
-                    new HttpProperty("Authorization", "Bot " + SecretManager.getString("discordbotlist.token"))
+                    new HttpProperty("Authorization", SecretManager.getString("discordbotlist.token"))
             };
-            HttpResponse httpResponse = HttpRequest.getData(String.format("https://discordbotlist.com/api/v1/bots/%s/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
+            HttpRequest.getData(String.format("https://discordbotlist.com/api/v1/bots/%s/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
         } catch (IOException | InterruptedException | ExecutionException e) {
             LOGGER.error("Could not send data to Discordbotlist", e);
         }

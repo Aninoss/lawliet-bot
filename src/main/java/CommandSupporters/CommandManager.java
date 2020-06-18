@@ -96,7 +96,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException, SQLException {
+    private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2) return true;
 
         Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);

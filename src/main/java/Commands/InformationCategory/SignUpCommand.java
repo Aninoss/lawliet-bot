@@ -5,20 +5,20 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Settings;
 import Core.EmbedFactory;
+import MySQL.DBGiveaway;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @CommandProperties(
         trigger = "signup",
         emoji = "✏️",
         executable = true,
-        aliases = {"giveaway"}
+        aliases = {"giveaway", "singup", "register"}
 )
 public class SignUpCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        //boolean success = DBUser.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
-        boolean success = false;
+        boolean success = DBGiveaway.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
         if (success) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,

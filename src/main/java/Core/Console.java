@@ -4,7 +4,9 @@ import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Utils.BotUtil;
 import Core.Utils.InternetUtil;
+import Core.Utils.StringUtil;
 import Core.Utils.SystemUtil;
+import MySQL.DBGiveaway;
 import MySQL.DBMain;
 import MySQL.Modules.BannedUsers.BannedUsersBean;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
@@ -12,6 +14,7 @@ import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
 import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
+import javafx.util.Pair;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -23,6 +26,7 @@ import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class Console {
 
@@ -222,6 +226,47 @@ public class Console {
                                     LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not check connection", e);
+                                }
+                                break;
+
+                            case "giveaway":
+                                try {
+                                    LOGGER.info("### GIVEAWAY RESULTS ###");
+                                    for(Pair<Long, Long> slot : DBGiveaway.getGiveawaySlots()) {
+                                        DiscordApiCollection.getInstance().getServerById(slot.getKey()).ifPresent(server -> {
+                                            if (server.getMembers().stream().filter(user -> !user.isBot()).count() >= 10 &&
+                                                server.getMembers().stream().anyMatch(user -> user.getId() == slot.getValue())
+                                            ) {
+                                                User user = server.getMemberById(slot.getValue()).get();
+                                                try {
+                                                    LOGGER.info("{} ({}) - Patreon: {}", user.getDiscriminatedName(), user.getId(), PatreonCache.getInstance().getPatreonLevel(user.getId()));
+                                                } catch (ExecutionException e) {
+                                                    LOGGER.error("Exception for user with id {}", user.getId(), e);
+                                                }
+                                            }
+                                        });
+                                    }
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not check connection", e);
+                                }
+                                break;
+
+                            case "send":
+                                try {
+                                    String userIdString = arg.split(" ")[0];
+                                    long userId = Long.parseLong(userIdString);
+                                    String text = StringUtil.trimString(arg.substring(userIdString.length())).replace("\\n", "\n");
+                                    DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
+                                        try {
+                                            LOGGER.info(">{} ({}): {}", user.getDiscriminatedName(), user.getId(), text);
+                                            user.sendMessage(text).get();
+                                            LOGGER.info("SUCCESS");
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            LOGGER.error("Exception", e);
+                                        }
+                                    });
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not manage donation", e);
                                 }
                                 break;
                         }

@@ -146,8 +146,6 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 return;
             }
         }
-
-        reactionAddEvent.removeReaction();
     }
 
     @Override

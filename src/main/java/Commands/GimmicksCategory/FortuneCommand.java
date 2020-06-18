@@ -17,7 +17,7 @@ import java.util.ArrayList;
         trigger = "fortune",
         emoji = "❓",
         executable = false,
-        aliases = {"question"}
+        aliases = {"question", "8ball"}
 )
 public class FortuneCommand extends Command {
 
@@ -34,15 +34,16 @@ public class FortuneCommand extends Command {
         }
     }
 
-    private EmbedBuilder getEmbed(Message message, String question) throws IOException {
-        int n = RandomPicker.getInstance().pick(getTrigger(), message.getServer().get().getId(), TextManager.getKeySize(getLocale(),TextManager.ANSWERS));
-        String answerRaw = TextManager.getString(getLocale(),TextManager.ANSWERS, String.valueOf(n+1));
+    private EmbedBuilder getEmbed(Message message, String question) {
+        int n = RandomPicker.getInstance().pick(getTrigger(), message.getServer().get().getId(), 27);
+        String answerRaw = getString("answer_" + n);
+
         String answer = answerRaw;
         if (answer.equals("%RandomUpperCase")) {
             answer = RandomUtil.randomUpperCase(question);
         } else if (answer.startsWith("%Gif")) answer = "";
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
-                getString("template",message.getAuthor().getDisplayName(),question,answer));
+                getString("template", message.getAuthor().getDisplayName(), question, answer));
 
         if (answerRaw.equals("%GifNo")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665289359786014/godno.jpg");
         if (answerRaw.equals("%GifYes")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665290601037904/yes.gif");

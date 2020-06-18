@@ -311,9 +311,13 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         if (emojiConnections.size() > 0) {
                             Message m;
                             if (!editMode) {
-                                m = channel.sendMessage(getMessageEmbed(false)).get();
-                                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-                                    emojiConnection.addReaction(m);
+                                if (checkWriteInChannelWithLog(channel)) {
+                                    m = channel.sendMessage(getMessageEmbed(false)).get();
+                                    if (channel.canYouAddNewReactions()) {
+                                        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                                            emojiConnection.addReaction(m);
+                                        }
+                                    }
                                 }
                             }
                             else {
@@ -597,18 +601,16 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         }
 
                         if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) event.getUser().addRole(r).get();
-
-                        queueRemove(message.getId(), user.getId());
                         return;
                     }
                 }
 
-                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction();
-                queueRemove(message.getId(), user.getId());
+                event.removeReaction();
             } catch (Throwable e) {
-                if (message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) event.removeReaction();
-                queueRemove(message.getId(), user.getId());
+                event.removeReaction();
                 throw e;
+            } finally {
+                queueRemove(message.getId(), user.getId());
             }
         }
     }

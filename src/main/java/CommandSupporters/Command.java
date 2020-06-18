@@ -39,7 +39,7 @@ public abstract class Command {
     private Message starterMessage, navigationMessage, lastUserMessage;
     private Locale locale;
     private LoadingStatus loadingStatus = LoadingStatus.OFF;
-    private long reactionMessageID, reactionUserID, forwardChannelID = -1, forwardUserID = -1;
+    private long reactionMessageID = -1, reactionUserID = -1, forwardChannelID = -1, forwardUserID = -1;
     private Countdown countdown;
     private LogStatus logStatus = null;
     private String log;

@@ -88,7 +88,7 @@ public class WebComServer {
         return jsonObject;
     }
 
-    public JSONObject getCommandSpecs(String key, String commandCategory, String commandTrigger) {
+    public JSONObject getCommandSpecs(String commandCategory, String key, String commandTrigger) {
         JSONObject jsonObject = new JSONObject();
 
         for(String localeString: Locales.LIST) {

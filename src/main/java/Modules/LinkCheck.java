@@ -21,7 +21,7 @@ public class LinkCheck {
                 !channel.canEmbedLinks(message.getUserAuthor().get()) &&
                 InternetUtil.stringHasURL(message.getContent())
         ) {
-            DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("- Link in %s: %s", server.getName(), message.getContent()));
+            DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("- Link in **%s** from **%s**: %s", server.getName(), message.getUserAuthor().get().getDiscriminatedName(), message.getContent()));
             message.delete().get();
             return false;
         }

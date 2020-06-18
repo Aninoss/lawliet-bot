@@ -3,9 +3,10 @@ import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
 @CommandProperties(
-    trigger = "dab",
-    emoji = "\uD83C\uDD92",
-    executable = true
+        trigger = "dab",
+        emoji = "\uD83C\uDD92",
+        executable = true,
+        aliases = {"dap"}
 )
 public class DabCommand extends EmoteAbstract {
 

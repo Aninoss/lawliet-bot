@@ -16,7 +16,7 @@ import java.util.Locale;
 public class PermissionCheck {
 
     public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) {
-        ArrayList<Integer> userPermission = getMissingPermissionListForUser(server, channel, user,userPermissions);
+        ArrayList<Integer> userPermission = getMissingPermissionListForUser(server, channel, user, userPermissions);
         ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
 
         return getUserPermissionMissingEmbed(locale, userPermission, botPermission);

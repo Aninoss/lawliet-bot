@@ -217,8 +217,6 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 }, "treasure_block_countdown", 1);
                 t.start();
             }
-        } else {
-            event.removeReaction();
         }
     }
 

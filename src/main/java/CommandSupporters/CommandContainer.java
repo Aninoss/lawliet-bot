@@ -13,6 +13,7 @@ import Commands.NSFWCategory.*;
 import Commands.FisheryCategory.*;
 import Commands.ManagementCategory.*;
 import Commands.Splatoon2Category.*;
+import Constants.Settings;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,7 @@ public class CommandContainer {
 
         //INFORMATION
         commandList.add(HelpCommand.class);
+        if (Settings.GIVEAWAY_RUNNING) commandList.add(SignUpCommand.class);
         commandList.add(FAQCommand.class);
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);
@@ -215,6 +217,9 @@ public class CommandContainer {
         commandList.add(MapsCommand.class);
         commandList.add(SalmonCommand.class);
         commandList.add(SplatnetCommand.class);
+
+        //PRIVATE
+        commandList.add(CommunismCommand.class);
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {

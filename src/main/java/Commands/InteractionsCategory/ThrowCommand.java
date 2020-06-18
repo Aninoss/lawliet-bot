@@ -21,7 +21,8 @@ public class ThrowCommand extends InteractionAbstract {
                 "https://media1.tenor.com/images/1f75d734bfe69aa3d468a0defc6c4b5a/tenor.gif?itemid=9278201",
                 "https://media1.tenor.com/images/6ed656e93d34f089d1c54366d9ca4f81/tenor.gif?itemid=7380119",
                 "https://media1.tenor.com/images/2cdc20be64a750201b23a72cd3e19e6b/tenor.gif?itemid=9214216",
-                "https://media1.tenor.com/images/e194c072efada4a3dd96ed44cbda7d10/tenor.gif?itemid=10810504"
+                "https://media1.tenor.com/images/e194c072efada4a3dd96ed44cbda7d10/tenor.gif?itemid=10810504",
+                "https://media1.tenor.com/images/d14969a21a96ec46f61770c50fccf24f/tenor.gif?itemid=5509136"
         };
     }
 

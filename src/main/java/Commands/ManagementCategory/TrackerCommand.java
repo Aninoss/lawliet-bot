@@ -230,8 +230,9 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i = 0; i < opt.length; i++) {
                     Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
-                    String trigger = Command.getTrigger((Class<? extends Command>) clazz);
-                    opt[i] = trigger + " - " + TextManager.getString(getLocale(), getCategory(), trigger + "_description");
+                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz);
+                    String trigger = command.getTrigger();
+                    opt[i] = trigger + " - " + TextManager.getString(getLocale(), command.getCategory(), trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
@@ -241,10 +242,11 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i=0; i < getOptions().length; i++) {
-                    String trigger = trackerSlots.get(i).getCommandTrigger();
+                    Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix());
+                    String trigger = command.getTrigger();
                     getOptions()[i] = getString("slot", trackerSlots.get(i).getCommandKey().isPresent(),
                             trigger,
-                            TextManager.getString(getLocale(), getCategory(), trigger + "_description"),
+                            TextManager.getString(getLocale(), command.getCategory(), trigger + "_description"),
                             trackerSlots.get(i).getCommandKey().orElse("")
                             );
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));

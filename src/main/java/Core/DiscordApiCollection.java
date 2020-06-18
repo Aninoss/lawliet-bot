@@ -88,7 +88,7 @@ public class DiscordApiCollection {
                     LOGGER.debug("No data from shard {}", n);
 
                     errorCounter[n]++;
-                    if (errorCounter[n] >= 6) {
+                    if (errorCounter[n] >= 8) {
                         if (hasReconnected[n]) {
                             LOGGER.error("EXIT - Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
                             LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());

@@ -150,7 +150,7 @@ public class SPCheck {
     }
 
     private static boolean contentContainsDiscordLink(String string) {
-        return string.toLowerCase().contains("discord.gg/");
+        return string.toLowerCase().contains("discord.gg/") || string.toLowerCase().contains("discordapp.com/invite/") || string.toLowerCase().contains("discord.com/invite/");
     }
 
 }

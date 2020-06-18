@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 public class TextManager {
 
     final static Logger LOGGER = LoggerFactory.getLogger(TextManager.class);
-    public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", ANSWERS = "answers", VERSIONS = "versions", FAQ = "faq";
+    public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", VERSIONS = "versions", FAQ = "faq";
 
     public static String getString(Locale locale, String category, String key, String... args) {
         return getString(locale, category, key, -1, args);
@@ -21,6 +21,7 @@ public class TextManager {
 
     public static String getString(Locale locale, String category, String key, int option, String... args) {
         ResourceBundle texts = ResourceBundle.getBundle(category, locale, new UTF8Control());
+
         if (!texts.containsKey(key)) {
             LOGGER.error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());
             if (StringUtil.getLanguage(locale) != Language.EN) return getString(new Locale(Locales.EN), category, key, option, args);
@@ -31,8 +32,13 @@ public class TextManager {
 
             //Calculate References
             for(String reference: StringUtil.extractGroups(text, "%<", ">")) {
-                String[] argsLink = reference.split("\\.");
-                String newString = getString(locale, argsLink[0], argsLink[1]);
+                String newString;
+                if (reference.contains(".")) {
+                    String[] argsLink = reference.split("\\.");
+                    newString = getString(locale, argsLink[0], argsLink[1]);
+                } else {
+                    newString = getString(locale, category, reference);
+                }
                 text = text.replace("%<" + reference + ">", newString);
             }
 
