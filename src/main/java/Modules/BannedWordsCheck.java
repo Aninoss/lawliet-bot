@@ -48,6 +48,7 @@ public class BannedWordsCheck {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(bannedWordsCommand)
                     .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true);
+
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
 

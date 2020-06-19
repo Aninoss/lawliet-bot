@@ -72,7 +72,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             switch (typeString.toLowerCase()) {
                 case "fish": type = 0; break;
                 case "coins": case "coin": type = 1; break;
-                case "daily": case "dailystreak": type = 2; break;
+                case "daily": case "dailystreak": case "streak": type = 2; break;
             }
 
             if (type == -1) {

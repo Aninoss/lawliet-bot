@@ -13,7 +13,7 @@ import java.util.Random;
         trigger = "communism",
         emoji = "\uD83C\uDF39",
         executable = true,
-        exlusiveServers = { 680112488825487384L },
+        //exlusiveServers = { 462405241955155979L },
         aliases = {"socialism"}
 )
 public class CommunismCommand extends Command {

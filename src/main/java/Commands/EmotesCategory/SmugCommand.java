@@ -35,7 +35,8 @@ public class SmugCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/0dbc24b7b195bca10dd04e57c3823c64/tenor.gif?itemid=9779997",
                 "https://media1.tenor.com/images/f9b7309b23cb2071f5ed70e1e33c73b5/tenor.gif?itemid=10059356",
                 "https://media1.tenor.com/images/7626f2a35d27c5201acf5378f2b30b34/tenor.gif?itemid=14038034",
-                "https://media1.tenor.com/images/d9b3127da3f9419cbb28f9f7c00860d8/tenor.gif?itemid=9588226"
+                "https://media1.tenor.com/images/d9b3127da3f9419cbb28f9f7c00860d8/tenor.gif?itemid=9588226",
+                "https://cdn.discordapp.com/attachments/499629904380297226/723596727998873691/Tower_of_God_Khun_Smug.gif"
         };
     }
 

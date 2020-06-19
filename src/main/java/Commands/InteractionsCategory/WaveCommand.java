@@ -7,7 +7,7 @@ import Commands.InteractionAbstract;
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
         executable = true,
-        aliases = {"greet", "bye", "hi"}
+        aliases = {"greet", "bye", "hi", "cya"}
 )
 public class WaveCommand extends InteractionAbstract {
 

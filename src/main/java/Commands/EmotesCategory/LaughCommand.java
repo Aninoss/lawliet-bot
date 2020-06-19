@@ -53,7 +53,8 @@ public class LaughCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/709440301793542154/laugh.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/709442099988398140/ImaginativeTepidDormouse-size_restricted.gif",
                 "http://mrwgifs.com/wp-content/uploads/2014/10/Vegeta-Laughing-On-Earth-After-The-Battle-With-Frieza-On-Dragon-Ball-Z.gif",
-                "https://tenor.com/view/dragon-ball-super-vegetablue-dbz-vegeta-dbs-gif-12462077"
+                "https://tenor.com/view/dragon-ball-super-vegetablue-dbz-vegeta-dbs-gif-12462077",
+                "https://thumbs.gfycat.com/KeyUnsightlyEwe-size_restricted.gif"
         };
     }
 

@@ -52,7 +52,10 @@ public class AngryCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/709440300468273162/angry.gif",
                 "https://tenor.com/view/rem-rezero-gif-5569548",
                 "https://giffiles.alphacoders.com/208/208599.gif",
-                "https://tenor.com/view/dbz-vegeta-rage-gif-11185744"
+                "https://tenor.com/view/dbz-vegeta-rage-gif-11185744",
+                "https://cdn.discordapp.com/attachments/499629904380297226/723596722911182858/Tower_of_God_Quant_Angry.gif",
+                "https://media1.tenor.com/images/f9026c02e38d36bd85d1efd491db5054/tenor.gif?itemid=13877848",
+                "https://tenor.com/view/anime-dragon-ball-super-drago-ball-z-broly-angry-gif-12209516"
         };
     }
 

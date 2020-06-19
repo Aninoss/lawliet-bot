@@ -48,7 +48,9 @@ public class PunchCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/708252321221443625/713734856923676732/OPM_Saitama_Punch.gif",
                 "https://tenor.com/view/the-world-muda-muda-muda-jojos-bizarre-adventures-jjba-punch-gif-16215899",
                 "https://tenor.com/5Jje.gif",
-                "https://tenor.com/view/vegeta-dragon-ball-z-gif-5392362"
+                "https://tenor.com/view/vegeta-dragon-ball-z-gif-5392362",
+                "https://giffiles.alphacoders.com/358/35862.gif",
+                "https://media1.tenor.com/images/31003b964b358e937ec43ebeb7774d4c/tenor.gif?itemid=14137100"
         };
     }
 

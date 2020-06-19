@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\u2699\uFE0F️",
         executable = true,
-        aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem"}
+        aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings"}
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
@@ -205,12 +205,17 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 
                 ServerTextChannel channel = event.getServerTextChannel().get();
-                if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(userBean.changeValues(0, won)).get();
+                Message accountUpdateMessage = null;
+                if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) accountUpdateMessage = channel.sendMessage(userBean.changeValues(0, won)).get();
 
+                final Message finalAccountUpdateMessage = accountUpdateMessage;
                 Thread t = new CustomThread(() -> {
                     try {
                         Thread.sleep(1000 * 60);
                         blockedTreasureMessages.remove(message);
+                        Thread.sleep(Settings.FISHERY_DESPAWN_MINUTES * 60 * 1000);
+                        if (finalAccountUpdateMessage != null) finalAccountUpdateMessage.delete();
+                        message.delete();
                     } catch (InterruptedException e) {
                         LOGGER.error("Interrupted", e);
                     }

@@ -64,7 +64,8 @@ public class NomCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/499629904380297226/708661268772290560/unnamed.gif",
                 "https://cdn.discordapp.com/attachments/499629904380297226/708661270336897054/GsUMxxu.gif",
                 "https://tenor.com/view/holo-spice-and-wolf-anime-cartoon-japanese-gif-9404307",
-                "https://i.gifer.com/BWYz.gif"
+                "https://i.gifer.com/BWYz.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/723596721833246800/Tower_of_God_Rak_Nom.gif"
         };
     }
 

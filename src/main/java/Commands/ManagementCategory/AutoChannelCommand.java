@@ -24,11 +24,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @CommandProperties(
-    trigger = "autochannel",
-    botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
-    userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
-    emoji = "\uD83D\uDD0A",
-    executable = true
+        trigger = "autochannel",
+        botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
+        userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
+        emoji = "\uD83D\uDD0A",
+        executable = true,
+        aliases = { "tempchannel" }
 )
 public class AutoChannelCommand extends Command implements OnNavigationListener {
     

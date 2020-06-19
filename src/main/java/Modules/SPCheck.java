@@ -50,6 +50,7 @@ public class SPCheck {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
                     .addField(TextManager.getString(locale, Category.MODERATION, "spblock_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
+
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
 
@@ -67,6 +68,7 @@ public class SPCheck {
                 .addField(TextManager.getString(locale, Category.MODERATION, "spblock_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_content"), message.getContent(), true);
+
         if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
         else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
 
@@ -80,7 +82,7 @@ public class SPCheck {
     }
 
     private static boolean safeBan(SPBlockBean spBlockBean, Server server, User author) throws InterruptedException {
-        if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
+        if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER) {
             try {
                 server.kickUser(author, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_auditlog_sp")).get();
             } catch (ExecutionException e) {
@@ -128,7 +130,7 @@ public class SPCheck {
         return true;
     }
 
-    private static boolean hasPostedSP(Server server, Message message, SPBlockBean spBlockBean) throws ExecutionException, InterruptedException {
+    private static boolean hasPostedSP(Server server, Message message, SPBlockBean spBlockBean) throws InterruptedException {
         if (spBlockBean.isActive() &&
                 !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
                 !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
@@ -138,11 +140,15 @@ public class SPCheck {
             String content = message.getContent();
             content = content.replaceAll("(?i)" + Pattern.quote(Settings.SERVER_INVITE_URL), "");
             if (contentContainsDiscordLink(content)) {
-                for(RichInvite richInvite: server.getInvites().get()) {
-                    content = content.replace(" ", "").replaceAll("(?i)" + Pattern.quote("discord.gg/" + richInvite.getCode()), "");
+                try {
+                    for (RichInvite richInvite : server.getInvites().get()) {
+                        content = content.replace(" ", "").replaceAll("(?i)" + Pattern.quote("discord.gg/" + richInvite.getCode()), "");
+                    }
+                    return contentContainsDiscordLink(content);
+                } catch (ExecutionException e) {
+                    //Ignore
+                    return true;
                 }
-
-                return contentContainsDiscordLink(content);
             }
         }
 

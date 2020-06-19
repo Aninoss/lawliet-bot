@@ -62,7 +62,9 @@ public class BlushCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/a4b397af35d4e1ea21b87726a5717441/tenor.gif",
                 "https://media1.tenor.com/images/8ee8fb8abbfa023bc640d9deda41ebb8/tenor.gif?itemid=15987170",
                 "https://media1.tenor.com/images/bee15af20336f813c0270495d0061835/tenor.gif?itemid=14282456",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708658734758363156/vYRve1s.gif"
+                "https://cdn.discordapp.com/attachments/499629904380297226/708658734758363156/vYRve1s.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/723596424474001448/Tower_of_God_Quant_Blush.gif",
+                "https://cdn.discordapp.com/attachments/499629904380297226/723596727919312916/Tower_of_God_Endorsi_Blush.gif"
         };
     }
 

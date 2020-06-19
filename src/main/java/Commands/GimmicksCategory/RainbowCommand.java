@@ -21,7 +21,7 @@ import java.util.ArrayList;
         withLoadingBar = true,
         emoji = "\uD83C\uDF08",
         executable = true,
-        aliases = {"lgbt"}
+        aliases = {"lgbt", "pride"}
 )
 public class RainbowCommand extends Command {
 

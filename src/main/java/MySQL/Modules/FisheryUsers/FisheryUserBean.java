@@ -4,10 +4,7 @@ import Constants.CodeBlockColor;
 import Constants.FisheryCategoryInterface;
 import Constants.LogStatus;
 import Constants.Settings;
-import Core.EmbedFactory;
-import Core.PatreonCache;
-import Core.ServerPatreonBoostCache;
-import Core.TextManager;
+import Core.*;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
@@ -191,11 +188,20 @@ public class FisheryUserBean extends BeanWithServer {
                     Locale locale = getServerBean().getLocale();
                     String prefix = getServerBean().getPrefix();
 
-                    channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
+                    Message message1 = channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
                             .setAuthor(user)
                             .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
                             .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
                             .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix))).get();
+
+                    new CustomThread(() -> {
+                        try {
+                            Thread.sleep(Settings.FISHERY_DESPAWN_MINUTES * 60 * 1000);
+                            message1.delete();
+                        } catch (InterruptedException e) {
+                            LOGGER.error("Interrupted", e);
+                        }
+                    }, "fishery_100_countdown", 1).start();
                 }
 
                 return true;
