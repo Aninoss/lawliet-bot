@@ -156,7 +156,7 @@ public class Clock {
 
         //Analyzes Traffic
         try {
-            double trafficGB = SIGNALTRANSMITTER.getInstance().getTrafficGB();
+            double trafficGB = 0; //TODO
             Console.getInstance().setTraffic(trafficGB);
 
             if (trafficGB >= 95 && !trafficWarned) {

@@ -22,8 +22,6 @@ public class ServerMemberJoinAutoRoles extends ServerMemberJoinAbstract {
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        if (event.getServer().getId() == 462405241955155979L) LOGGER.info("0 - {}", event.getUser().getName());
-
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 

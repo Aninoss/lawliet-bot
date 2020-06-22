@@ -15,8 +15,6 @@ public class ServerMemberJoinMCDisplays extends ServerMemberJoinAbstract {
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        if (event.getServer().getId() == 462405241955155979L) LOGGER.info("2 - {}", event.getUser().getName());
-
         MemberCountDisplayCommand.manage(DBServer.getInstance().getBean(event.getServer().getId()).getLocale(), event.getServer());
         return true;
     }

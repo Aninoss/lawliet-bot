@@ -7,6 +7,7 @@ import Constants.Permission;
 import Core.*;
 import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
@@ -32,75 +33,41 @@ public class QuoteCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        return calculateResults(event.getMessage(),followedString);
-    }
+        User user = event.getMessage().getUserAuthor().get();
 
-    private boolean calculateResults(Message message, String followString) throws IOException, ExecutionException, InterruptedException {
-        Server server = message.getServer().get();
-        MentionList<ServerTextChannel> list = MentionUtil.getTextChannels(message, followString);
-        User author = message.getUserAuthor().get();
-        if (list.getResultMessageString().replace(" ","").length() > 0) {
-            addLoadingReaction();
-            followString = list.getResultMessageString();
-            ArrayList<ServerTextChannel> channelArrayList = list.getList();
-            if (channelArrayList.size() == 0) channelArrayList = new ArrayList<>(server.getTextChannels());
-            ServerTextChannel ownChannel = message.getServerTextChannel().get();
+        //Message Link
+        ArrayList<Message> directMessage = MentionUtil.getMessagesURL(event.getMessage(), followedString).getList();
+        if (directMessage.size() > 0) {
+            for(Message message : directMessage) {
+                if (message.getChannel().canSee(user) && message.getChannel().canReadMessageHistory(user)) {
+                    postEmbed(event.getMessage().getServerTextChannel().get(), message);
+                    return true;
+                }
+            }
+        }
 
-            String add = null;
-            if (channelArrayList.size() == 1) add = channelArrayList.get(0).getMentionTag();
+        if (followedString.length() > 0) {
+            MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), followedString);
+            String newString = channelMention.getResultMessageString();
+            ServerTextChannel channel = channelMention.getList().isEmpty() ? event.getServerTextChannel().get() : channelMention.getList().get(0);
 
-            //Sucht nach dem Link der Nachricht
-            ArrayList<Message> directMessage = MentionUtil.getMessagesURL(message, followString).getList();
-            if (directMessage.size() > 0) {
-                for(Message message1: directMessage) {
-                    if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
-                        postEmbed(message.getServerTextChannel().get(),message1);
-                        return true;
-                    }
+            //ID with channel
+            if (StringUtil.stringIsLong(newString)) {
+                Message message = DiscordApiCollection.getInstance().getMessageById(channel, Long.parseLong(newString)).orElse(null);
+                if (message != null) {
+                    postEmbed(event.getMessage().getServerTextChannel().get(), message);
+                    return true;
                 }
             }
 
-            //Sucht nach der Message-ID im dortigen Channel
-            if (channelArrayList.contains(ownChannel)) {
-                ArrayList<Message> messageArrayList = MentionUtil.getMessagesId(message, followString, message.getServerTextChannel().get()).getList();
-                if (messageArrayList.size() > 0) {
-                    for(Message message1: messageArrayList) {
-                        if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
-                            postEmbed(message.getServerTextChannel().get(),message1);
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            //Sucht nach der Message-ID in alle anderen Channels auf dem Server
-            for(ServerTextChannel channel: channelArrayList) {
-                if (channel != ownChannel) {
-                    ArrayList<Message> messageArrayList = MentionUtil.getMessagesId(message, followString).getList();
-                    if (messageArrayList.size() > 0) {
-                        for(Message message1: messageArrayList) {
-                            if (message1.getChannel().canSee(author) && message1.getChannel().canReadMessageHistory(author)) {
-                                postEmbed(message.getServerTextChannel().get(), message1);
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            //Wenn keines der Suchmethoden funktioniert hat (keine Ergebnisse)
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"));
-
-            if (add == null) eb.setDescription(getString("noresult",list.getResultMessageString()));
-            else eb.setDescription(getString("noresult_channel",list.getResultMessageString(),add));
-
-            message.getChannel().sendMessage(eb).get();
+                    .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
+                    .setDescription(getString("noresult_channel", newString, channel.getMentionTag()));
+            event.getChannel().sendMessage(eb).get();
             return false;
         } else {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this,getString("noarg",message.getUserAuthor().get().getMentionTag()));
-
-            message.getChannel().sendMessage(eb).get();
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("noarg", event.getMessage().getUserAuthor().get().getMentionTag()));
+            event.getChannel().sendMessage(eb).get();
             return false;
         }
     }

@@ -191,48 +191,6 @@ public class MentionUtil {
         return new MentionList<>(string, list);
     }
 
-    public static MentionList<Message> getMessagesId(Message message, String string) {
-        ArrayList<Message> list = new ArrayList<>();
-
-        for (String part : getArgs(string)) {
-            for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
-                Message m;
-                try {
-                    if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
-                        if (m.getChannel() == channel) {
-                            if (!list.contains(m)) list.add(m);
-                            string = string.replace(part, "");
-                        }
-                    }
-                } catch (InterruptedException | ExecutionException ignored) {
-                    //Ignore
-                }
-            }
-        }
-        return new MentionList<>(string, list);
-    }
-
-    public static MentionList<Message> getMessagesId(Message message, String string, ServerTextChannel channel) {
-        ArrayList<Message> list = new ArrayList<>();
-
-        if (!message.getServer().get().getTextChannels().contains(channel)) new MentionList<>(string, list);
-
-        for (String part : getArgs(string)) {
-            Message m;
-            try {
-                if (StringUtil.stringIsLong(part) && (m = channel.getMessageById(part).get()) != null) {
-                    if (m.getChannel() == channel) {
-                        if (!list.contains(m)) list.add(m);
-                        string = string.replace(part, "");
-                    }
-                }
-            } catch (InterruptedException | ExecutionException ignored) {
-                //Ignore
-            }
-        }
-        return new MentionList<>(string, list);
-    }
-
     public static MentionList<Message> getMessagesURL(Message message, String string) {
         ArrayList<Message> list = new ArrayList<>();
         for(String part: getArgs(string)) {

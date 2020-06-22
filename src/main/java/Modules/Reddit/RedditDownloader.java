@@ -1,6 +1,8 @@
 package Modules.Reddit;
 
 import Constants.Category;
+import Constants.Language;
+import Constants.Locales;
 import Core.*;
 import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
@@ -119,6 +121,15 @@ public class RedditDownloader {
         }
 
         return new PostBundle<>(redditPosts, newArg.toString());
+    }
+
+    public static boolean checkRedditConnection() {
+        try {
+            return getPost(new Locale(Locales.EN), "memes") != null;
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            LOGGER.error("Error in reddit check", e);
+        }
+        return false;
     }
 
     private static RedditPost getPost(Locale locale, JSONObject data) {

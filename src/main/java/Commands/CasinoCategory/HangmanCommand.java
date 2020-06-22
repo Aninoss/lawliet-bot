@@ -23,7 +23,8 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "hangman",
         emoji = "\uD83D\uDD21",
-        executable = true
+        executable = true,
+        aliases = {"hm"}
 )
 public class HangmanCommand extends CasinoAbstract implements OnForwardedRecievedListener, OnReactionAddListener {
 

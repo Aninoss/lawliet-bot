@@ -4,6 +4,7 @@ import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventManager;
+import Modules.Reddit.RedditDownloader;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;

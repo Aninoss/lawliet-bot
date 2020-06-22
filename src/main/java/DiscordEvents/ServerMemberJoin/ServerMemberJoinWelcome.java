@@ -27,8 +27,6 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        if (event.getServer().getId() == 462405241955155979L) LOGGER.info("3 - {}", event.getUser().getName());
-
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 

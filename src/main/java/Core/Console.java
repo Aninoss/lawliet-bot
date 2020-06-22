@@ -12,7 +12,6 @@ import MySQL.Modules.BannedUsers.BannedUsersBean;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
-import ServerStuff.SIGNALTRANSMITTER;
 import com.sun.management.OperatingSystemMXBean;
 import javafx.util.Pair;
 import org.javacord.api.entity.server.Server;
@@ -69,10 +68,6 @@ public class Console {
 
                             case "stats":
                                 System.out.println(getStats());
-                                break;
-
-                            case "traffic":
-                                System.out.println(SIGNALTRANSMITTER.getInstance().getTrafficGB() + " GB");
                                 break;
 
                             case "connected":

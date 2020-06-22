@@ -122,6 +122,11 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {
+                    if (RedditDownloader.checkRedditConnection()) {
+                        slot.setArgs(null);
+                        return TrackerResult.CONTINUE_AND_SAVE;
+                    }
+
                     return TrackerResult.CONTINUE;
                 }
             }

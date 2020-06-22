@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 public class HttpRequest {
 
     final static Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0";
 
     public static CompletableFuture<HttpResponse> getData(String urlString, HttpProperty... headers) {
         return getData(urlString, "GET", 0, null, headers);

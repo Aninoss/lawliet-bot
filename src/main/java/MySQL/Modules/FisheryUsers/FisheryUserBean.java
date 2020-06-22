@@ -91,7 +91,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public int getRank() {
         try {
-            return (int) (fisheryServerBean.getUsers().values().stream()
+            return (int) (fisheryServerBean.getUsers().values().parallelStream()
                     .filter(user -> (user.getFishIncome() > getFishIncome()) ||
                             (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
                             (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins())
@@ -320,7 +320,7 @@ public class FisheryUserBean extends BeanWithServer {
         else if (rank > rankPrevious)
             codeBlock = CodeBlockColor.RED;
 
-        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, coins != 0 ? "rankingprogress_desription" : "rankingprogress_desription_nocoins",
+        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_desription",
                 getEmbedSlot(locale, fishIncome, fishIncomePrevious, false),
                 getEmbedSlot(locale, getFish(), fishPrevious, false),
                 getEmbedSlot(locale, getCoins(), coinsPrevious, false),
