@@ -26,6 +26,9 @@ public class AnimeReleaseDownloader {
             default: downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
         }
 
+        boolean test = true;
+        if (test) throw new ExecutionException(new Exception()); //TODO DEBUG
+
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
         String postString = httpResponse.getContent().get();
 

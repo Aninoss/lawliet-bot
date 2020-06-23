@@ -27,7 +27,8 @@ public class StatsCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        User dephord = DiscordApiCollection.getInstance().getUserById(303085910784737281L).get();
+        String dephordName = DiscordApiCollection.getInstance().getUserById(303085910784737281L).map(User::getDiscriminatedName).orElse("???");
+        String neverCookFirstName = DiscordApiCollection.getInstance().getUserById(298153126223937538L).map(User::getDiscriminatedName).orElse("???");
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",
@@ -41,7 +42,7 @@ public class StatsCommand extends Command {
                 StringUtil.numToString(getLocale(), DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +
                 "\n\n" +
-                getString("translator", dephord.getMentionTag(), dephord.getDiscriminatedName()));
+                getString("translator", dephordName, neverCookFirstName));
 
         event.getServerTextChannel().get().sendMessage(eb).get();
         return true;

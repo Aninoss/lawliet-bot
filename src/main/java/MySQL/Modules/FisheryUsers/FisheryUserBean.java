@@ -91,7 +91,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public int getRank() {
         try {
-            return (int) (fisheryServerBean.getUsers().values().parallelStream()
+            return (int) (fisheryServerBean.getUsers().values().stream()
                     .filter(user -> (user.getFishIncome() > getFishIncome()) ||
                             (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
                             (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins())

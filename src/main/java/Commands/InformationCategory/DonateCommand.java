@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
         trigger = "donate",
         emoji = "\uD83D\uDCB8",
         executable = true,
-        aliases = {"patreon", "donation"}
+        aliases = {"patreon", "donation", "premium"}
 )
 public class DonateCommand extends Command {
 
