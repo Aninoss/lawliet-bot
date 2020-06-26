@@ -7,6 +7,7 @@ import Constants.*;
 import Core.*;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
+import Core.Utils.TimeUtil;
 import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
 import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,11 +164,12 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                                 .setState(PermissionType.CONNECT, PermissionState.ALLOWED)
                                 .build();
                         updater.addPermissionOverwrite(yourself, ownPermissions);
+                        //TODO I JUST DON'T KNOW ANYMORE MAN
 
                         String newVCName = getNewVCName(event.getServer().get(), getLocale(), currentName);
                         updater.setName(newVCName)
-                                .update().get();
-                    } catch (ExecutionException e) {
+                                .update().get(10, TimeUnit.SECONDS);
+                    } catch (ExecutionException | TimeoutException e) {
                         //Ignore
                         setLog(LogStatus.FAILURE, getString("nopermissions"));
                         return true;

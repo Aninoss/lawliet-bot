@@ -34,10 +34,9 @@ public class ServerMemberJoinFisheryRoles extends ServerMemberJoinAbstract {
         FisheryUserBean fisheryUserBean = fisheryServerBean.getUserBean(event.getUser().getId());
         int level = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
         if (level > 0) {
-            List<Role> roles = fisheryServerBean.getRoleIds().transform(server::getRoleById, DiscordEntity::getId);
-            ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
+            List<Role> roles = fisheryServerBean.getRoles();
 
-            if (serverBean.isFisherySingleRoles()) {
+            if (fisheryServerBean.getServerBean().isFisherySingleRoles()) {
                 Role role = roles.get(level - 1);
                 if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) role.addUser(event.getUser()).get();
             } else {

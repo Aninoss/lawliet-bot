@@ -22,6 +22,10 @@ public class PermissionCheck {
         return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
     }
 
+    public static ArrayList<Integer> getMissingPermissionListForUser(Server server, User user, int userPermissions) {
+        return getMissingPermissionListForUser(server, null, user, userPermissions);
+    }
+
     public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {
         ArrayList<Integer> missingPermissions = new ArrayList<>();
         if (hasAdminPermissions(server, user)) return missingPermissions;
@@ -29,8 +33,14 @@ public class PermissionCheck {
         for(int permission: permissionsToNumberList(userPermissions)) {
             PermissionConvertion permissionConvertion = convertPermission(permission);
             Permissions permissions;
-            if (channel != null && (channel instanceof ChannelCategory || !permissionConvertion.isServerOnly())) permissions = channel.getEffectivePermissions(user);
-            else permissions = server.getPermissions(user);
+
+            if (channel != null &&
+                    (channel instanceof ChannelCategory || !permissionConvertion.isServerOnly())
+            ) {
+                permissions = channel.getEffectivePermissions(user);
+            } else {
+                permissions = server.getPermissions(user);
+            }
 
             if (permissions.getState(permissionConvertion.getPermissionType()) != PermissionState.ALLOWED)
                 missingPermissions.add(permission);

@@ -20,14 +20,13 @@ public class AnimeReleaseDownloader {
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filter) throws InterruptedException, ExecutionException {
         filter = StringUtil.trimString(filter);
 
-        String downloadUrl;
+        /*String downloadUrl;
         switch (StringUtil.getLanguage(locale)) {
             case DE: downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE"; break;
             default: downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
-        }
+        }*/
 
-        boolean test = true;
-        if (test) throw new ExecutionException(new Exception()); //TODO DEBUG
+        String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
         String postString = httpResponse.getContent().get();
@@ -130,8 +129,7 @@ public class AnimeReleaseDownloader {
         String thumbnail = "";
         if (data.has("media:thumbnail")) thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         Instant date = TimeUtil.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
-        String url = data.getString("link");
-        if (StringUtil.getLanguage(locale) == Language.EN) url = url.replace("/de/", "/");
+        String url = data.getString("link").replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");
 
         return new AnimeReleasePost(anime, description, episode, episodeTitle, thumbnail, date, url, id);

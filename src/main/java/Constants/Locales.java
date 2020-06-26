@@ -2,7 +2,7 @@ package Constants;
 
 public interface Locales {
 
-    String DE = "de_de", EN = "en_us";
+    String DE = "de_de", RU = "ru_ru", EN = "en_us";
     String[] LIST = {DE, EN};
 
 }

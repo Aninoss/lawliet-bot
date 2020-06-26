@@ -250,7 +250,11 @@ public final class StringUtil {
     public static String numToString(Locale locale, long n) {
         DecimalFormat formatter = new DecimalFormat("#,###", DecimalFormatSymbols.getInstance(Locale.US));
         String str = formatter.format(n);
-        if (getLanguage(locale) == Language.DE) str = str.replace(",",".");
+
+        switch (getLanguage(locale)) {
+            case RU:
+            case DE: str = str.replace(",","."); break;
+        }
 
         return str;
     }
@@ -269,10 +273,10 @@ public final class StringUtil {
 
     public static Language getLanguage(Locale locale) {
         String language = locale.getLanguage().split("_")[0].toLowerCase();
-        if (language.equalsIgnoreCase("de")) {
-            return Language.DE;
-        } else {
-            return Language.EN;
+        switch (locale.getLanguage().split("_")[0].toLowerCase()) {
+            case "de": return Language.DE;
+            case "ru": return Language.RU;
+            default: return Language.DE;
         }
     }
 
