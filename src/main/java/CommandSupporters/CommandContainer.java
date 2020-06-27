@@ -2,6 +2,7 @@ package CommandSupporters;
 
 import CommandListeners.*;
 import Commands.CasinoCategory.CoinFlipCommand;
+import Commands.FisherySettingsCategory.*;
 import Commands.InformationCategory.*;
 import Commands.CasinoCategory.*;
 import Commands.EmotesCategory.*;
@@ -73,6 +74,7 @@ public class CommandContainer {
         commandList.add(RevokeRoleCommand.class);
         commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
+        commandList.add(StarterDeleteCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
@@ -103,19 +105,21 @@ public class CommandContainer {
         commandList.add(UpvoteCommand.class);
         commandList.add(DonateCommand.class);
 
-        //FISHERY
+        //FISHERY SETTINGS
         commandList.add(FisheryCommand.class);
         commandList.add(FisheryRolesCommand.class);
         commandList.add(VCTimeCommand.class);
         commandList.add(FisheryManageCommand.class);
         commandList.add(TreasureCommand.class);
+
+        //FISHERY
+        commandList.add(AccountCommand.class);
+        commandList.add(GearCommand.class);
+        commandList.add(DailyCommand.class);
+        commandList.add(ClaimCommand.class);
         commandList.add(ExchangeRateCommand.class);
         commandList.add(SellCommand.class);
         commandList.add(BuyCommand.class);
-        commandList.add(DailyCommand.class);
-        commandList.add(ClaimCommand.class);
-        commandList.add(AccountCommand.class);
-        commandList.add(GearCommand.class);
         commandList.add(TopCommand.class);
         commandList.add(GiveCommand.class);
         commandList.add(SurveyCommand.class);

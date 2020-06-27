@@ -1,4 +1,4 @@
-package Commands.FisheryCategory;
+package Commands.FisherySettingsCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
@@ -24,9 +24,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fishery",

@@ -15,12 +15,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -35,7 +30,7 @@ public class BannedWordsCheck {
         Locale locale = bannedWordsBean.getServerBean().getLocale();
 
         if (bannedWordsBean.isActive() &&
-                stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords())) &&
+                stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords()), bannedWordsBean.isStrict()) &&
                 !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
                 !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get())
         ) {
@@ -99,10 +94,17 @@ public class BannedWordsCheck {
         return true;
     }
 
-    private static boolean stringContainsWord(String input, ArrayList<String> badWords) {
+    private static boolean stringContainsWord(String input, ArrayList<String> badWords, boolean strict) {
         input = translateString(input);
         for(String word: badWords) {
-            if (input.contains(word)) return true;
+            if (strict) {
+                if (input.startsWith(word) ||
+                        input.endsWith(word) ||
+                        input.contains(" " + word + " ")
+                ) return true;
+            } else {
+                if (input.contains(word)) return true;
+            }
         }
         return false;
     }
@@ -119,7 +121,7 @@ public class BannedWordsCheck {
         input = input.replace("9","g");
         input = input.toLowerCase().replaceAll("[^a-zA-Z]", "");
 
-        input = input.replace("\n","");
+        input = input.replace("\n"," ");
 
         return input;
     }

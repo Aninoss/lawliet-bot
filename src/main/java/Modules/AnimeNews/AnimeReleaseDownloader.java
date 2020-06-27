@@ -1,17 +1,20 @@
 package Modules.AnimeNews;
 
 import Constants.Language;
-import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
-import Modules.PostBundle;
+import Core.Internet.InternetCache;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
+import Modules.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -39,7 +42,10 @@ public class AnimeReleaseDownloader {
         ArrayList<String> newUsedIds = new ArrayList<>();
 
         for (AnimeReleasePost post : animeReleasePosts) {
-            if (postPassesFilter(post, filter)) {
+            boolean ok = postPassesFilter(post, filter) &&
+                    (!post.getAnime().endsWith("(Russian)") || StringUtil.getLanguage(locale) == Language.RU);
+
+            if (ok) {
                 if (!currentUsedIds.contains(post.getId()) &&
                         (postList.size() == 0 || newestPostId != null)
                 ) postList.add(post);

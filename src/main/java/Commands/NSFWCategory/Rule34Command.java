@@ -1,6 +1,7 @@
 package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
+import CommandListeners.OnTrackerRequestListener;
 import Commands.PornSearchAbstract;
 
 @CommandProperties(
@@ -12,7 +13,7 @@ import Commands.PornSearchAbstract;
         withLoadingBar = true,
         aliases = {"rule34", "34"}
 )
-public class Rule34Command extends PornSearchAbstract {
+public class Rule34Command extends PornSearchAbstract implements OnTrackerRequestListener {
 
     @Override
     protected String getDomain() {

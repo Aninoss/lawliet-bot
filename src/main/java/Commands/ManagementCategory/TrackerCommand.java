@@ -232,7 +232,8 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                     Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz);
                     String trigger = command.getTrigger();
-                    opt[i] = trigger + " - " + TextManager.getString(getLocale(), command.getCategory(), trigger + "_description");
+                    String nsfw = command.isNsfw() ? " " + getString("nsfw") : "";
+                    opt[i] = trigger + nsfw + " - " + TextManager.getString(getLocale(), command.getCategory(), trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

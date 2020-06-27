@@ -1,18 +1,20 @@
 package CommandSupporters;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnForwardedRecievedListener;
+import CommandListeners.OnNavigationListener;
+import CommandListeners.OnReactionAddListener;
 import CommandSupporters.CommandLogger.CommandLogger;
 import CommandSupporters.CommandLogger.CommandUsage;
+import CommandSupporters.Cooldown.Cooldown;
+import CommandSupporters.RunningCommands.RunningCommandManager;
 import Commands.InformationCategory.HelpCommand;
 import Constants.Permission;
 import Constants.Settings;
 import Core.*;
-import CommandSupporters.Cooldown.Cooldown;
-import CommandSupporters.RunningCommands.RunningCommandManager;
-import Core.Mention.MentionUtil;
-import Core.Utils.BotUtil;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
+import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.WhiteListedChannels.DBWhiteListedChannels;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -57,6 +59,10 @@ public class CommandManager {
 
             try {
                 sendOverwrittenSignals(event);
+
+                if (DBServer.getInstance().getBean(event.getServer().get().getId()).isCommandAuthorMessageRemove() &&
+                        ServerPatreonBoostCache.getInstance().get(event.getServer().get().getId()))
+                    event.getMessage().delete();
 
                 command.setStartTime(startTime);
                 if (command instanceof OnNavigationListener)
@@ -214,10 +220,10 @@ public class CommandManager {
             else
                 event.addReactionsToMessage("❌");
             event.addReactionsToMessage("✍️");
-
-            if (PermissionCheck.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
-                event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
         }
+
+        if (PermissionCheck.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
+            event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
 
         return false;
     }

@@ -1,4 +1,4 @@
-package Commands.FisheryCategory;
+package Commands.FisherySettingsCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;
@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "fisheryroles",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\u2699\uFE0F️",
+        emoji = "\uD83D\uDCDC",
         executable = true,
         aliases = {"fishingroles", "fishroles", "fisheryr"}
 )

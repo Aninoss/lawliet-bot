@@ -49,8 +49,8 @@ public class FisheryUserPowerUpBean {
 
     /* Setters */
 
-    void levelUp() {
-        level++;
+    void setLevel(int level) {
+        this.level = level;
         changed = true;
     }
 
@@ -75,7 +75,7 @@ public class FisheryUserPowerUpBean {
 
     public static long getValue(long level) {
         long n = level + 1;
-        return n*(n + 1) / 2;
+        return n * (n + 1) / 2;
     }
 
 }

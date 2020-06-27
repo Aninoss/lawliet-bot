@@ -15,7 +15,7 @@ public class Cooldown {
 
     private final HashMap<Long, CooldownData> cooldownDataMap = new HashMap<>();
 
-    public Optional<Integer> getWaitingSec(long userId, int cooldown) {
+    public synchronized Optional<Integer> getWaitingSec(long userId, int cooldown) {
         return cooldownDataMap.computeIfAbsent(userId, uid -> new CooldownData()).getWaitingSec(cooldown);
     }
 

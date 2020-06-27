@@ -5,7 +5,6 @@ import Constants.FisheryCategoryInterface;
 import Constants.LogStatus;
 import Constants.Settings;
 import Core.*;
-import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.BeanWithServer;
@@ -17,13 +16,13 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.awt.*;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -361,7 +360,12 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     public void levelUp(int powerUpId) {
-        getPowerUp(powerUpId).levelUp();
+        getPowerUp(powerUpId).setLevel(getPowerUp(powerUpId).getLevel() + 1);
+        setChanged();
+    }
+
+    public void setLevel(int powerUpId, int level) {
+        getPowerUp(powerUpId).setLevel(level);
         setChanged();
     }
 

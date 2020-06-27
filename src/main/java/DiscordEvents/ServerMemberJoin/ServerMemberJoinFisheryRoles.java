@@ -1,6 +1,6 @@
 package DiscordEvents.ServerMemberJoin;
 
-import Commands.FisheryCategory.FisheryCommand;
+import Commands.FisherySettingsCategory.FisheryCommand;
 import Constants.FisheryCategoryInterface;
 import Core.PermissionCheckRuntime;
 import DiscordEvents.DiscordEventAnnotation;
@@ -9,8 +9,6 @@ import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
-import MySQL.Modules.Server.ServerBean;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
@@ -33,9 +31,15 @@ public class ServerMemberJoinFisheryRoles extends ServerMemberJoinAbstract {
         FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
         FisheryUserBean fisheryUserBean = fisheryServerBean.getUserBean(event.getUser().getId());
         int level = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
-        if (level > 0) {
-            List<Role> roles = fisheryServerBean.getRoles();
 
+        List<Role> roles = fisheryServerBean.getRoles();
+
+        if (level > roles.size()) {
+            level = roles.size();
+            fisheryUserBean.setLevel(FisheryCategoryInterface.ROLE, level);
+        }
+
+        if (level > 0) {
             if (fisheryServerBean.getServerBean().isFisherySingleRoles()) {
                 Role role = roles.get(level - 1);
                 if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) role.addUser(event.getUser()).get();

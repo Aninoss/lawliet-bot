@@ -1,23 +1,16 @@
 package DiscordEvents.MessageCreate;
 
-import Commands.FisheryCategory.FisheryCommand;
-import Commands.FisheryCategory.TreasureCommand;
+import Commands.FisherySettingsCategory.TreasureCommand;
 import Constants.FisheryStatus;
-import Constants.Settings;
 import Core.CustomObservableList;
-import Core.EmbedFactory;
-import Core.TextManager;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.util.Locale;
 import java.util.Random;
 
 @DiscordEventAnnotation()

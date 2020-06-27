@@ -1,8 +1,8 @@
 package Commands;
 
 import Constants.Category;
-import Modules.Porn.PornImage;
 import Core.TextManager;
+import Modules.Porn.PornImage;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -34,5 +34,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
 
         return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly, isExplicit(), usedResults);
     }
+
+    public boolean trackerUsesKey() { return false; }
 
 }

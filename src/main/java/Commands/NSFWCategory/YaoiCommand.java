@@ -1,6 +1,7 @@
 package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
+import CommandListeners.OnTrackerRequestListener;
 import Commands.GelbooruAbstract;
 
 @CommandProperties(
@@ -11,7 +12,7 @@ import Commands.GelbooruAbstract;
         requiresEmbeds = false,
         withLoadingBar = true
 )
-public class YaoiCommand extends GelbooruAbstract {
+public class YaoiCommand extends GelbooruAbstract implements OnTrackerRequestListener {
 
     @Override
     protected String getSearchKey() {

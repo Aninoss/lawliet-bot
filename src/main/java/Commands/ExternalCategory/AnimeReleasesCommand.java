@@ -1,17 +1,14 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
-import Constants.LogStatus;
 import Constants.TrackerResult;
+import Core.EmbedFactory;
+import Core.TextManager;
 import Modules.AnimeNews.AnimeReleaseDownloader;
 import Modules.AnimeNews.AnimeReleasePost;
-import Core.EmbedFactory;
-import Core.ExceptionHandler;
 import Modules.PostBundle;
-import Core.TextManager;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -19,15 +16,15 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @CommandProperties(
-    trigger = "animereleases",
-    withLoadingBar = true,
-    emoji = "\uD83D\uDCFA",
-    executable = true
+        trigger = "animereleases",
+        withLoadingBar = true,
+        emoji = "\uD83D\uDCFA",
+        executable = true,
+        aliases = {"animerelease"}
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 

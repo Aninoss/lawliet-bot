@@ -1,4 +1,4 @@
-package Commands.FisheryCategory;
+package Commands.FisherySettingsCategory;
 
 import CommandListeners.CommandProperties;
 import Commands.FisheryAbstract;
@@ -15,7 +15,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 

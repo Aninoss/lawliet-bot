@@ -22,7 +22,7 @@ public class CommandLogger {
 
     private static final int MAX_SIZE = 20;
 
-    private HashMap<Long, ArrayList<CommandUsage>> servers = new HashMap<>();
+    private final HashMap<Long, ArrayList<CommandUsage>> servers = new HashMap<>();
 
     public void add(long serverId, CommandUsage commandUsage) {
         if (Bot.isProductionMode()) {

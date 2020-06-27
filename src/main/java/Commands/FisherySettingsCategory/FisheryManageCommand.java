@@ -1,4 +1,4 @@
-package Commands.FisheryCategory;
+package Commands.FisherySettingsCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;

@@ -16,11 +16,11 @@ public class ServerBean extends Observable {
     private String prefix, webhookUrl;
     private Locale locale;
     private FisheryStatus fisheryStatus;
-    private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders;
+    private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders, commandAuthorMessageRemove;
     private Long fisheryAnnouncementChannelId;
     private Integer fisheryVcHoursCap = null;
 
-    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles, Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, int fisheryVcHoursCap, String webhookUrl) {
+    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles, Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, int fisheryVcHoursCap, String webhookUrl, boolean commandAuthorMessageRemove) {
         this.serverId = serverId;
         this.fisheryRoleMin = fisheryRoleMin;
         this.fisheryRoleMax = fisheryRoleMax;
@@ -34,6 +34,7 @@ public class ServerBean extends Observable {
         if (fisheryVcHoursCap == 0) this.fisheryVcHoursCap = null;
         else this.fisheryVcHoursCap = fisheryVcHoursCap;
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
+        this.commandAuthorMessageRemove = commandAuthorMessageRemove;
     }
 
 
@@ -97,6 +98,7 @@ public class ServerBean extends Observable {
         return DBServer.getInstance().containsServerId(serverId);
     }
 
+    public boolean isCommandAuthorMessageRemove() { return commandAuthorMessageRemove; }
 
     /* Setters */
 
@@ -173,6 +175,16 @@ public class ServerBean extends Observable {
             setChanged();
             notifyObservers();
         }
+    }
+
+    public void toggleCommandAuthorMessageRemove() {
+        this.commandAuthorMessageRemove = !this.commandAuthorMessageRemove;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setCommandAuthorMessageRemove(boolean active) {
+        if (this.isCommandAuthorMessageRemove() != active) toggleCommandAuthorMessageRemove();
     }
 
 }

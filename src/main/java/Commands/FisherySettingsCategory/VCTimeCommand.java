@@ -1,4 +1,4 @@
-package Commands.FisheryCategory;
+package Commands.FisherySettingsCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnForwardedRecievedListener;
@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "vctime",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\u2699\uFE0F️",
+        emoji = "⏲️",
         executable = true,
         patreonRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }
