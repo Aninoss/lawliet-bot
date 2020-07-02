@@ -15,11 +15,15 @@ import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
 import org.javacord.api.entity.permission.*;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 @DiscordEventAnnotation
 public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelMemberJoinAbstract {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberJoinAutoChannel.class);
 
     @Override
     public boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable {
@@ -78,11 +82,17 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
                 ServerVoiceChannel vc = vcb.create().get();
 
-                if (userIsConnected(event.getChannel(), event.getUser())) {
+                try {
                     event.getUser().move(vc).get();
-                    autoChannelBean.getChildChannels().add(vc.getId());
-                } else {
-                    vc.delete();
+                } catch (Throwable e) {
+                    vc.delete().get();
+                    throw e;
+                }
+
+                autoChannelBean.getChildChannels().add(vc.getId());
+                if (!userIsConnected(vc, event.getUser())) {
+                    vc.delete().get();
+                    autoChannelBean.getChildChannels().remove(vc.getId());
                 }
             }
         }

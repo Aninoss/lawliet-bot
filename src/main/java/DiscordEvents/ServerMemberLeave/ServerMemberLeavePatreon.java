@@ -17,17 +17,11 @@ public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {
         if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
-            PatreonCache.getInstance().resetUser(event.getUser().getId());
-            DiscordApiCollection.getInstance().getOwner().sendMessage("User left roles: " + event.getServer().getRoles(event.getUser()).size());
-
-            for(long roleId : Settings.DONATION_ROLE_IDS) {
-                if (event.getServer().getRoles(event.getUser()).stream().anyMatch(role -> role.getId() == roleId)) {
-                    LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + event.getUser().getDiscriminatedName());
-                    //PatreonCache.getInstance().resetUser(event.getUser().getId());
-                    break;
-                }
+            if (PatreonCache.getInstance().getPatreonLevel(event.getUser().getId()) > 0) {
+                LOGGER.info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
+                DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT (LEFT SERVER): " + event.getUser().getDiscriminatedName());
             }
+            PatreonCache.getInstance().resetUser(event.getUser().getId());
         }
 
         return true;
