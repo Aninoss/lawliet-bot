@@ -5,7 +5,6 @@ import Core.DiscordApiCollection;
 import Core.PatreonCache;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerMemberJoinAbstract;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +18,11 @@ public class ServerMemberJoinPatreon extends ServerMemberJoinAbstract {
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
         if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.DONATION_ROLE_IDS) {
-                for(Role role : event.getServer().getRoles(event.getUser())) {
-                    if (role.getId() == roleId) {
-                        LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                        DiscordApiCollection.getInstance().getOwner().sendMessage("NEW PATREON USER: " + event.getUser().getDiscriminatedName());
-                        PatreonCache.getInstance().resetUser(event.getUser().getId());
-                        break;
-                    }
+                if (event.getServer().getRoles(event.getUser()).stream().anyMatch(role -> role.getId() == roleId)) {
+                    LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
+                    DiscordApiCollection.getInstance().getOwner().sendMessage("NEW PATREON USER: " + event.getUser().getDiscriminatedName());
+                    PatreonCache.getInstance().resetUser(event.getUser().getId());
+                    break;
                 }
             }
         }

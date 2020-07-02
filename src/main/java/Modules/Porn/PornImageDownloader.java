@@ -1,7 +1,7 @@
 package Modules.Porn;
 
-import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
+import Core.Internet.InternetCache;
 import Core.Utils.InternetUtil;
 import Core.Utils.NSFWUtil;
 import Core.Utils.StringUtil;
@@ -9,8 +9,6 @@ import Core.Utils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -21,8 +19,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class PornImageDownloader {
-
-    final static Logger LOGGER = LoggerFactory.getLogger(PornImageDownloader.class);
 
     public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
         return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit,2, false, additionalFilters, usedResults);

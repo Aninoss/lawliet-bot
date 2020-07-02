@@ -273,10 +273,10 @@ public final class StringUtil {
 
     public static Language getLanguage(Locale locale) {
         String language = locale.getLanguage().split("_")[0].toLowerCase();
-        switch (locale.getLanguage().split("_")[0].toLowerCase()) {
+        switch (language) {
             case "de": return Language.DE;
             case "ru": return Language.RU;
-            default: return Language.DE;
+            default: return Language.EN;
         }
     }
 

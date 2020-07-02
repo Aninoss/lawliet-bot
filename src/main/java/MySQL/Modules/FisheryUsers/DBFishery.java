@@ -4,7 +4,6 @@ import Constants.FisheryStatus;
 import Core.Bot;
 import Core.DiscordApiCollection;
 import Core.IntervalBlock;
-import Core.Utils.TimeUtil;
 import MySQL.DBBeanGenerator;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
@@ -18,12 +17,14 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
@@ -33,7 +34,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     private DBFishery() { }
 
     final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
-    private final int VC_CHECK_INTERVAL_MIN = 5;
+    private final int VC_CHECK_INTERVAL_MIN = 1;
 
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {

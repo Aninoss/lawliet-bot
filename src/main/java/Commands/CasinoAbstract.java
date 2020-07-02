@@ -103,7 +103,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
     protected void onLose() throws ExecutionException {
         onGameEnd();
         if (coinsInput > 0 && useCalculatedMultiplicator) {
-            DBGameStatistics.getInstance().getBean(compareKey).addValue(false, Math.pow(coinsInput, 0.25));
+            DBGameStatistics.getInstance().getBean(compareKey).addValue(false, 1);
         }
         EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).changeValues(0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb);
@@ -118,7 +118,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         double multiplicator = 1;
         if (coinsInput != 0 && useCalculatedMultiplicator) {
             GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().getBean(compareKey);
-            gameStatisticsBean.addValue(true, winMultiplicator * Math.pow(coinsInput, 0.25));
+            gameStatisticsBean.addValue(true, winMultiplicator);
 
             double won = gameStatisticsBean.getValue(true), lost = gameStatisticsBean.getValue(false);
             if (won > 0 && lost > 0) multiplicator = lost / won;

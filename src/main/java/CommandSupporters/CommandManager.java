@@ -246,32 +246,36 @@ public class CommandManager {
         //Count Forwarded Listeners
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
         for (Command command : list) {
-            Message message = null;
-            long activityUserId = command.getReactionUserID();
+            if (command != null) {
+                Message message = null;
+                long activityUserId = command.getReactionUserID();
 
-            if (command instanceof OnForwardedRecievedListener)
-                message = ((OnForwardedRecievedListener) command).getForwardedMessage();
-            else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
+                if (command instanceof OnForwardedRecievedListener)
+                    message = ((OnForwardedRecievedListener) command).getForwardedMessage();
+                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
-            if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
-                long messageID = message.getId();
-                if (!openedMessages.contains(messageID)) openedMessages.add(messageID);
+                if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
+                    long messageID = message.getId();
+                    if (!openedMessages.contains(messageID)) openedMessages.add(messageID);
+                }
             }
         }
 
         //Count Reaction Listeners
         list = CommandContainer.getInstance().getReactionInstances();
         for (Command command : list) {
-            Message message = null;
-            long activityUserId = command.getReactionUserID();
+            if (command != null) {
+                Message message = null;
+                long activityUserId = command.getReactionUserID();
 
-            if (command instanceof OnReactionAddListener)
-                message = ((OnReactionAddListener) command).getReactionMessage();
-            else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
+                if (command instanceof OnReactionAddListener)
+                    message = ((OnReactionAddListener) command).getReactionMessage();
+                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
-            if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
-                long messageID = message.getId();
-                if (!openedMessages.contains(messageID)) openedMessages.add(messageID);
+                if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
+                    long messageID = message.getId();
+                    if (!openedMessages.contains(messageID)) openedMessages.add(messageID);
+                }
             }
         }
 
@@ -282,32 +286,36 @@ public class CommandManager {
             //Remove Forwarded Listeners
             list = CommandContainer.getInstance().getMessageForwardInstances();
             for (Command command : list) {
-                Message message = null;
+                if (command != null) {
+                    Message message = null;
 
-                if (command instanceof OnForwardedRecievedListener)
-                    message = ((OnForwardedRecievedListener) command).getForwardedMessage();
-                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
+                    if (command instanceof OnForwardedRecievedListener)
+                        message = ((OnForwardedRecievedListener) command).getForwardedMessage();
+                    else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
-                if (message != null && removeMessageId == message.getId()) {
-                    if (command instanceof OnNavigationListener) command.removeNavigation();
-                    else command.removeReactionListener(message);
-                    break;
+                    if (message != null && removeMessageId == message.getId()) {
+                        if (command instanceof OnNavigationListener) command.removeNavigation();
+                        else command.removeReactionListener(message);
+                        break;
+                    }
                 }
             }
 
             //Remove Reaction Listeners
             list = CommandContainer.getInstance().getReactionInstances();
             for (Command command : list) {
-                Message message = null;
+                if (command != null) {
+                    Message message = null;
 
-                if (command instanceof OnReactionAddListener)
-                    message = ((OnReactionAddListener) command).getReactionMessage();
-                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
+                    if (command instanceof OnReactionAddListener)
+                        message = ((OnReactionAddListener) command).getReactionMessage();
+                    else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
 
-                if (message != null && removeMessageId == message.getId()) {
-                    if (command instanceof OnNavigationListener) command.removeNavigation();
-                    else command.removeMessageForwarder();
-                    break;
+                    if (message != null && removeMessageId == message.getId()) {
+                        if (command instanceof OnNavigationListener) command.removeNavigation();
+                        else command.removeMessageForwarder();
+                        break;
+                    }
                 }
             }
         }

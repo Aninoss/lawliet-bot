@@ -126,7 +126,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         long baseValue;
         switch (type) {
             case 0: baseValue = fisheryUserBean.getFish(); break;
-            case 1: baseValue = fisheryUserBean.getCoins(); break;
+            case 1: baseValue = fisheryUserBean.getCoinsRaw(); break;
             case 2: baseValue = fisheryUserBean.getDailyStreak(); break;
             default: baseValue = 0;
         }

@@ -116,11 +116,11 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                         return true;
 
                     case 4:
-                        setState(3);
+                        wordsNavigationHelper.startDataAdd(3);
                         return true;
 
                     case 5:
-                        setState(4);
+                        wordsNavigationHelper.startDataRemove(4);
                         return true;
                 }
                 return false;

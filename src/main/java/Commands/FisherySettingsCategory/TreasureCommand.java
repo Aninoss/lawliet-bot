@@ -54,8 +54,8 @@ public class TreasureCommand extends FisheryAbstract {
         ServerBean serverBean = DBServer.getInstance().getBean(serverId);
         Locale locale = serverBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY, "fishery_treasure_title") + Settings.EMPTY_EMOJI)
-                .setDescription(TextManager.getString(locale, Category.FISHERY, "fishery_treasure_desription", FisheryCommand.keyEmoji))
+                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Settings.EMPTY_EMOJI)
+                .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
         Message message = channel.sendMessage(eb).get();

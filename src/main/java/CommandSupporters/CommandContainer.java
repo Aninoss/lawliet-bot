@@ -303,12 +303,12 @@ public class CommandContainer {
     }
 
     public void addReactionListener(Command commandParent) {
-        if (!commandsReaction.contains(commandParent))
+        if (commandParent != null && !commandsReaction.contains(commandParent))
             commandsReaction.add(commandParent);
     }
 
     public void addMessageForwardListener(Command commandParent) {
-        if (!commandsMessageForward.contains(commandParent))
+        if (commandParent != null && !commandsMessageForward.contains(commandParent))
             commandsMessageForward.add(commandParent);
     }
 
