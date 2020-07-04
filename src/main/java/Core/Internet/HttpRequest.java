@@ -1,19 +1,23 @@
 package Core.Internet;
 
 import Core.CustomThread;
+import Core.Utils.BotUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpRequest {
 
     final static Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0";
+    private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss", BotUtil.getCurrentVersion());
 
     public static CompletableFuture<HttpResponse> getData(String urlString, HttpProperty... headers) {
         return getData(urlString, "GET", 0, null, headers);

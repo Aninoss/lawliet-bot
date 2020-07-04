@@ -36,4 +36,10 @@ public class FontContainer {
     public List<Font> getFontList(int size) {
         return fontList.stream().map(font -> font.deriveFont(Font.PLAIN, size)).collect(Collectors.toList());
     }
+
+    public void reload() {
+        fontList.clear();
+        init();
+    }
+
 }

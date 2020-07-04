@@ -31,7 +31,7 @@ public class AnimeReleaseDownloader {
 
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 29 * 60).get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 14 * 60).get();
         String postString = httpResponse.getContent().get();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");

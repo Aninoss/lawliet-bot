@@ -2,13 +2,11 @@ package Core;
 
 import CommandSupporters.CommandContainer;
 import CommandSupporters.RunningCommands.RunningCommandManager;
-import Core.Utils.BotUtil;
 import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;
 import Core.Utils.SystemUtil;
 import MySQL.DBGiveaway;
 import MySQL.DBMain;
-import MySQL.Modules.BannedUsers.BannedUsersBean;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import ServerStuff.DonationHandler;
@@ -20,10 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -67,11 +63,11 @@ public class Console {
                                 break;
 
                             case "stats":
-                                System.out.println(getStats());
+                                LOGGER.info(getStats());
                                 break;
 
                             case "connected":
-                                System.out.println(DiscordApiCollection.getInstance().allShardsConnected());
+                                LOGGER.info("All shards connected: {}", DiscordApiCollection.getInstance().allShardsConnected());
                                 break;
 
                             case "threads":
@@ -87,8 +83,7 @@ public class Console {
                                     String str = sb.toString();
                                     if (str.length() >= 2) str = str.substring(0, str.length() - 2);
 
-                                    System.out.println("\n--- THREADS (" + Thread.getAllStackTraces().size() + ") ---");
-                                    System.out.println(str + "\n");
+                                    LOGGER.info("\n--- THREADS ({}) ---\n{}\n", Thread.getAllStackTraces().size(), str);
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not list threads", e);
                                 }
@@ -100,6 +95,7 @@ public class Console {
                                     long userId = Long.parseLong(arg.split(" ")[0]);
                                     double usDollars = Double.parseDouble(arg.split(" ")[1]);
                                     DonationHandler.addBonus(userId, usDollars);
+                                    LOGGER.info("{} dollars donated by {}", usDollars, userId);
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage donation", e);
                                 }
@@ -149,7 +145,7 @@ public class Console {
                                 }
                                 break;
 
-                            case "dailystreak":
+                            case "daily_streak":
                                 try {
                                     long serverId = Long.parseLong(arg.split(" ")[0]);
                                     long userId = Long.parseLong(arg.split(" ")[1]);
@@ -180,7 +176,12 @@ public class Console {
 
                             case "clear":
                                 DBMain.getInstance().clearCache();
-                                System.out.println("Cache cleared!");
+                                LOGGER.info("Cache cleared!");
+                                break;
+
+                            case "fonts_reload":
+                                FontContainer.getInstance().reload();
+                                LOGGER.info("Fonts reloaded!");
                                 break;
 
                             case "backup":
@@ -207,10 +208,10 @@ public class Console {
                                 LOGGER.info("---------------");
                                 break;
 
-                            case "donation":
+                            case "donation_status":
                                 try {
                                     long userId = Long.parseLong(arg.split(" ")[0]);
-                                    System.out.println(PatreonCache.getInstance().getPatreonLevel(userId));
+                                    LOGGER.info("Donation stats of user {}: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage donation", e);
                                 }
@@ -218,7 +219,7 @@ public class Console {
 
                             case "connection":
                                 try {
-                                    LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
+                                    LOGGER.info("Internet connection: {}", InternetUtil.checkConnection());
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not check connection", e);
                                 }
@@ -233,11 +234,7 @@ public class Console {
                                                 server.getMembers().stream().anyMatch(user -> user.getId() == slot.getValue())
                                             ) {
                                                 User user = server.getMemberById(slot.getValue()).get();
-                                                try {
-                                                    LOGGER.info("{} ({}) - Patreon: {}", user.getDiscriminatedName(), user.getId(), PatreonCache.getInstance().getPatreonLevel(user.getId()));
-                                                } catch (ExecutionException e) {
-                                                    LOGGER.error("Exception for user with id {}", user.getId(), e);
-                                                }
+                                                LOGGER.info("{} ({}) - Patreon: {}", user.getDiscriminatedName(), user.getId(), PatreonCache.getInstance().getPatreonLevel(user.getId()));
                                             }
                                         });
                                     }
@@ -255,7 +252,7 @@ public class Console {
                                         try {
                                             LOGGER.info(">{} ({}): {}", user.getDiscriminatedName(), user.getId(), text);
                                             user.sendMessage(text).get();
-                                            LOGGER.info("SUCCESS");
+                                            LOGGER.info("MESSAGE SENT SUCCESS");
                                         } catch (InterruptedException | ExecutionException e) {
                                             LOGGER.error("Exception", e);
                                         }

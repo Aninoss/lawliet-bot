@@ -5,7 +5,9 @@ import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Core.*;
+import Core.Mention.MentionList;
 import Core.Mention.MentionUtil;
+import Core.Utils.StringUtil;
 import Modules.ImageCreator;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -29,24 +31,32 @@ public class RainbowCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
-        ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
+        MentionList<User> userMention = MentionUtil.getUsers(message,followedString);
+        ArrayList<User> list = userMention.getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
+
+        long opacity = StringUtil.filterLongFromString(userMention.getResultMessageString());
+        if (opacity == -1) opacity = 50;
+        if (opacity < 0) opacity = 0;
+        if (opacity > 100) opacity = 100;
+
         boolean userMentioned = true;
         if (list.size() == 0) {
             list.add(message.getUserAuthor().get());
             userMentioned = false;
         }
+
         for (User user: list) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template",user.getDisplayName(server)))
-                    .setImage(ImageCreator.createImageRainbow(user));
+                    .setImage(ImageCreator.createImageRainbow(user, opacity));
 
             if (!userMentioned) {
                 eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
-                if (followedString.length() > 0)
+                if (StringUtil.filterLettersFromString(followedString).length() > 0)
                     EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
             }
 

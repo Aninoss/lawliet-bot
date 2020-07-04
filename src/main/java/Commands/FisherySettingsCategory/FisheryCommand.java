@@ -1,6 +1,8 @@
 package Commands.FisherySettingsCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnNavigationListener;
+import CommandListeners.OnReactionAddStaticListener;
 import CommandSupporters.Command;
 import CommandSupporters.NavigationHelper;
 import Constants.*;
@@ -21,8 +23,10 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -213,7 +217,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         blockedTreasureMessages.remove(message);
                         Thread.sleep(Settings.FISHERY_DESPAWN_MINUTES * 60 * 1000);
                         if (finalAccountUpdateMessage != null) finalAccountUpdateMessage.delete();
-                        message.delete();
+                        message.delete().exceptionally(ExceptionLogger.get());
                     } catch (InterruptedException e) {
                         LOGGER.error("Interrupted", e);
                     }

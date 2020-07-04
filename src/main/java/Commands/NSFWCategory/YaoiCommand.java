@@ -16,7 +16,7 @@ public class YaoiCommand extends GelbooruAbstract implements OnTrackerRequestLis
 
     @Override
     protected String getSearchKey() {
-        return "animated yaoi";
+        return "animated yaoi -trap -shemale";
     }
 
     @Override

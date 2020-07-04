@@ -1,14 +1,13 @@
 package Modules.Reddit;
 
 import Constants.Category;
-import Constants.Language;
 import Constants.Locales;
-import Core.*;
-import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
-import Modules.PostBundle;
+import Core.Internet.InternetCache;
+import Core.TextManager;
 import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;
+import Modules.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -24,6 +25,8 @@ import java.util.concurrent.ExecutionException;
 public class RedditDownloader {
 
     final static Logger LOGGER = LoggerFactory.getLogger(RedditDownloader.class);
+    private final static int TIMEOUT_MIN = 60;
+    private static Instant nextRequestBlockUntil = null;
 
     public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
         sub = URLEncoder.encode(sub, "UTF-8");
@@ -40,12 +43,14 @@ public class RedditDownloader {
     }
 
     public static RedditPost getPost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
+        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil))
+            return null;
+
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
         Subreddit subreddit = SubredditContainer.getInstance().get(sub);
         String postReference = subreddit.getPostReference();
-
         if (postReference.length() > 0) postReference = "&after=" + postReference;
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
@@ -60,7 +65,13 @@ public class RedditDownloader {
             return null;
         }
 
-        JSONObject tempData = new JSONObject(dataString).getJSONObject("data");
+        JSONObject root = new JSONObject(dataString);
+        if (root.has("error") && root.getInt("error") == 429) {
+            nextRequestBlockUntil = Instant.now().plus(TIMEOUT_MIN, ChronoUnit.MINUTES);
+            return null;
+        }
+
+        JSONObject tempData = root.getJSONObject("data");
         if (!tempData.isNull("after")) postReference = tempData.getString("after");
         else postReference = "";
 
@@ -75,6 +86,9 @@ public class RedditDownloader {
     }
 
     public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws IOException, InterruptedException, ExecutionException {
+        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil))
+            return null;
+
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, "UTF-8");
 
@@ -86,7 +100,13 @@ public class RedditDownloader {
         String dataString = httpResponse.getContent().get();
         if (!dataString.startsWith("{")) return null;
 
-        JSONArray postData = new JSONObject(dataString).getJSONObject("data").getJSONArray("children");
+        JSONObject root = new JSONObject(dataString);
+        if (root.has("error") && root.getInt("error") == 429) {
+            nextRequestBlockUntil = Instant.now().plus(TIMEOUT_MIN, ChronoUnit.MINUTES);
+            return null;
+        }
+
+        JSONArray postData = root.getJSONObject("data").getJSONArray("children");
         if (postData.length() <= 0) return null;
 
         ArrayList<RedditPost> redditPosts = new ArrayList<>();

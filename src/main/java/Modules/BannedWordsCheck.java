@@ -120,6 +120,8 @@ public class BannedWordsCheck {
         input = input.replace("9","g");
         input = input.toLowerCase().replaceAll("[^a-zA-Z]", strict ? " " : "");
 
+        //TODO Exception for Russian language
+
         return " " + input + " ";
     }
 

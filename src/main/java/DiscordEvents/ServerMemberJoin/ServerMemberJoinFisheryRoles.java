@@ -2,6 +2,7 @@ package DiscordEvents.ServerMemberJoin;
 
 import Commands.FisherySettingsCategory.FisheryCommand;
 import Constants.FisheryCategoryInterface;
+import Constants.FisheryStatus;
 import Core.PermissionCheckRuntime;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerMemberJoinAbstract;
@@ -29,6 +30,9 @@ public class ServerMemberJoinFisheryRoles extends ServerMemberJoinAbstract {
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
         FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
+        if (fisheryServerBean.getServerBean().getFisheryStatus() == FisheryStatus.STOPPED)
+            return true;
+
         FisheryUserBean fisheryUserBean = fisheryServerBean.getUserBean(event.getUser().getId());
         int level = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
 

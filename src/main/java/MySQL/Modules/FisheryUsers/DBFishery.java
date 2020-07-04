@@ -312,7 +312,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .filter(server -> {
                         try {
                             return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
-                        } catch (ExecutionException e) {
+                        } catch (Throwable e) {
                             LOGGER.error("Could not get server bean", e);
                         }
                         return false;
@@ -320,7 +320,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .forEach(server -> {
                         try {
                             manageVCFish(server);
-                        } catch (ExecutionException | SQLException e) {
+                        } catch (Throwable e) {
                             LOGGER.error("Could not manage vc fish observer", e);
                         }
                     });

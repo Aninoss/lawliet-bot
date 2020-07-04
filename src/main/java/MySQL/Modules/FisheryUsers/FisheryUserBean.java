@@ -38,6 +38,7 @@ public class FisheryUserBean extends BeanWithServer {
     private LocalDate dailyReceived;
     private int upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1, vcMinutes = 0;
     private boolean reminderSent, changed = false, banned = false;
+    private Boolean onServer = null;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
     private long hiddenCoins = 0, messagesThisHour = 0;
@@ -91,14 +92,18 @@ public class FisheryUserBean extends BeanWithServer {
     public int getRank() {
         try {
             return (int) (fisheryServerBean.getUsers().values().stream()
-                    .filter(user -> (user.getFishIncome() > getFishIncome()) ||
-                            (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
-                            (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins())
-                    ).count() + 1);
+                    .filter(user -> user.isOnServer() && userIsRankedHigherThanMe(user))
+                    .count() + 1);
         } catch (ConcurrentModificationException e) {
             LOGGER.error("Concurrent modification exception", e);
             return 0;
         }
+    }
+
+    private boolean userIsRankedHigherThanMe(FisheryUserBean user) {
+        return (user.getFishIncome() > getFishIncome()) ||
+                (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
+                (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins());
     }
 
     public long getFishIncome() {
@@ -293,11 +298,7 @@ public class FisheryUserBean extends BeanWithServer {
         if (user == null) return null;
 
         boolean patron = false;
-        try {
-            patron = PatreonCache.getInstance().getPatreonLevel(userId) >= 1;
-        } catch (ExecutionException throwables) {
-            LOGGER.error("Error in donation check", throwables);
-        }
+        patron = PatreonCache.getInstance().getPatreonLevel(userId) >= 1;
 
         String patreonEmoji = "\uD83D\uDC51";
         String displayName = user.getDisplayName(server);
@@ -403,6 +404,18 @@ public class FisheryUserBean extends BeanWithServer {
             upvoteStack = 0;
             setChanged();
         }
+    }
+
+    public boolean isOnServer() {
+        if (onServer == null) {
+            onServer = getServer().get().getMembers().stream().anyMatch(user -> user.getId() == userId);
+        }
+
+        return onServer;
+    }
+
+    public void setOnServer(boolean onServer) {
+        this.onServer = onServer;
     }
 
     public void remove() {

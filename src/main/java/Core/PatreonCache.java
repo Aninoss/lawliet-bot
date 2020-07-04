@@ -1,7 +1,6 @@
 package Core;
 
 import Constants.Settings;
-import Core.Utils.BotUtil;
 import MySQL.Modules.Donators.DBDonators;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -17,6 +16,8 @@ import java.util.concurrent.ExecutionException;
 
 public class PatreonCache {
 
+    final static Logger LOGGER = LoggerFactory.getLogger(PatreonCache.class);
+
     private static final PatreonCache ourInstance = new PatreonCache();
     private PatreonCache() {}
     public static PatreonCache getInstance() {
@@ -28,12 +29,15 @@ public class PatreonCache {
                     new CacheLoader<Long, Integer>() {
                         @Override
                         public Integer load(@NonNull Long userId) throws SQLException {
-                            if (DiscordApiCollection.getInstance().getOwner().getId() == userId) return Settings.DONATION_ROLE_IDS.length;
+                            if (DiscordApiCollection.getInstance().getOwner().getId() == userId)
+                                return Settings.DONATION_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 
-                            Server server = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID).get();
-                            for(int i = 0; i < Settings.DONATION_ROLE_IDS.length; i++) {
-                                if (server.getRoleById(Settings.DONATION_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId)) return i + 1;
+                            Optional<Server> supportServerOpt = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID);
+                            Server server = supportServerOpt.get();
+                            for (int i = 0; i < Settings.DONATION_ROLE_IDS.length; i++) {
+                                if (supportServerOpt.get().getRoleById(Settings.DONATION_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
+                                    return i + 1;
                             }
 
                             if (DBDonators.getInstance().getBean().get(userId).isValid()) return 1;
@@ -50,8 +54,13 @@ public class PatreonCache {
         cache.refresh(userId);
     }
 
-    public int getPatreonLevel(long userId) throws ExecutionException {
-        return cache.get(userId);
+    public int getPatreonLevel(long userId) {
+        try {
+            return cache.get(userId);
+        } catch (ExecutionException e) {
+            LOGGER.error("Exception in Patreon check", e);
+        }
+        return 0;
     }
 
 }

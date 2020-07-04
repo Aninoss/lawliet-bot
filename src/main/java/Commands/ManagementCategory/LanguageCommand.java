@@ -24,7 +24,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
 
     private final String[] languageEmojis = new String[]{"\uD83C\uDDE9\uD83C\uDDEA", "\uD83C\uDDEC\uD83C\uDDE7"};
     private final String[] languageLocales = Locales.LIST;
-    private final String[] languageArgs = new String[]{"de", "en"};
+    private final String[] languageArgs = new String[]{"de", "en"}; //TODO add Russian
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

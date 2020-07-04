@@ -22,7 +22,6 @@ public class YesCommand extends EmoteAbstract {
                 "https://media1.tenor.com/images/13d12906ab6c24e688a1144f85199e98/tenor.gif?itemid=10627589",
                 "https://media1.tenor.com/images/0a3589d141f2a18f78c62db3dc950112/tenor.gif?itemid=10780533",
                 "https://media1.tenor.com/images/6ff2c294909c6b9b981a9011fc8435e8/tenor.gif?itemid=7564927",
-                "https://media1.tenor.com/images/96378f911d4057b56a947db06b7eec2d/tenor.gif?itemid=9685848",
                 "https://media1.tenor.com/images/0b673f57807af5ac91e68091ed1549ab/tenor.gif?itemid=10883460",
                 "https://media1.tenor.com/images/692274404c366b49bcb0c9636f7601d1/tenor.gif?itemid=7467617",
                 "https://media1.tenor.com/images/dd070dad2d442c01170258f2e86e7453/tenor.gif?itemid=10616938",

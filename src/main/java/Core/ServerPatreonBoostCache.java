@@ -36,12 +36,7 @@ public class ServerPatreonBoostCache {
                                 return server.getMembers().stream()
                                         .filter(user -> !user.isBot() && server.canManage(user))
                                         .anyMatch(user -> {
-                                            try {
-                                                return PatreonCache.getInstance().getPatreonLevel(user.getId()) > 0;
-                                            } catch (ExecutionException throwables) {
-                                                LOGGER.error("Exception when checking donation status of user", throwables);
-                                            }
-                                            return false;
+                                            return PatreonCache.getInstance().getPatreonLevel(user.getId()) > 0;
                                         });
                             }
 

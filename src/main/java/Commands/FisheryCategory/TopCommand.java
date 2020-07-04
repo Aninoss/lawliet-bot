@@ -33,6 +33,7 @@ public class TopCommand extends ListAbstract {
         FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             rankingSlots = new ArrayList<>(DBFishery.getInstance().getBean(event.getServer().get().getId()).getUsers().values());
+            rankingSlots.removeIf(user -> !user.isOnServer());
             rankingSlots.sort((s1, s2) -> {
                 if (s1.getFishIncome() < s2.getFishIncome()) return 1;
                 if (s1.getFishIncome() > s2.getFishIncome()) return -1;
@@ -54,7 +55,7 @@ public class TopCommand extends ListAbstract {
         String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(userBean.getUserId()));
 
 
-        int rank = (int) userBean.getRank();
+        int rank = userBean.getRank();
         String rankString = String.valueOf(rank);
         switch (rank) {
             case 1:

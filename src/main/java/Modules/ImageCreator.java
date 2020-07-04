@@ -1,14 +1,13 @@
 package Modules;
 
 import Core.AttributedStringGenerator;
-import Core.TextManager;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.*;
+import javax.imageio.stream.FileCacheImageOutputStream;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
@@ -21,7 +20,6 @@ import java.text.AttributedString;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
-import java.awt.AlphaComposite;
 
 public class ImageCreator {
 
@@ -78,7 +76,7 @@ public class ImageCreator {
         return new ByteArrayInputStream(os.toByteArray());
     }
 
-    public static InputStream createImageRainbow(User user) throws ExecutionException, InterruptedException, IOException {
+    public static InputStream createImageRainbow(User user, long opacity) throws ExecutionException, InterruptedException, IOException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;
         image = getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
@@ -89,7 +87,7 @@ public class ImageCreator {
         Graphics2D g = result.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(image, 0, 0, null);
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (0.5)));
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (opacity / 100.0)));
         g.drawImage(rainbow, 0, 0, image.getWidth(), image.getHeight(), null);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
