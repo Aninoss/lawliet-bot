@@ -1,10 +1,12 @@
 package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
+import Constants.Permission;
 
 @CommandProperties(
         trigger = "animequiz",
         emoji = "❔",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         withLoadingBar = true,
         deleteOnTimeOut = true,
         executable = true

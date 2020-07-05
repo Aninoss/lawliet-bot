@@ -85,8 +85,9 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 try {
                     event.getUser().move(vc).get();
                 } catch (Throwable e) {
+                    //Ignore
                     vc.delete().get();
-                    throw e;
+                    return true;
                 }
 
                 autoChannelBean.getChildChannels().add(vc.getId());

@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class PatreonCache {
@@ -33,10 +32,9 @@ public class PatreonCache {
                                 return Settings.DONATION_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 
-                            Optional<Server> supportServerOpt = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID);
-                            Server server = supportServerOpt.get();
+                            Server supportServer = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID).get();
                             for (int i = 0; i < Settings.DONATION_ROLE_IDS.length; i++) {
-                                if (supportServerOpt.get().getRoleById(Settings.DONATION_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
+                                if (supportServer.getRoleById(Settings.DONATION_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
                                     return i + 1;
                             }
 

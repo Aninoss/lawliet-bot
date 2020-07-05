@@ -302,4 +302,28 @@ public final class StringUtil {
                 .replace("|", "");
     }
 
+    public static String generateHeartBar(int health, int healthMax, boolean lostHealth) {
+        StringBuilder sb = new StringBuilder();
+
+        if (health > 0) {
+            if (lostHealth) sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729337505626849370L).getMentionTag());
+            else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729332545388544080L).getMentionTag());
+        } else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729337505215938621L).getMentionTag());
+
+        for(int i = 0; i < healthMax; i++) {
+            if (i < health) {
+                if (lostHealth) sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338253358137374L).getMentionTag());
+                else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338714702217256L).getMentionTag());
+            } else if (i == health) {
+                if (lostHealth) sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729337391369682944L).getMentionTag());
+                else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338774194225183L).getMentionTag());
+            } else {
+                sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338774194225183L).getMentionTag());
+            }
+        }
+
+        sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729342822536183839L).getMentionTag());
+        return sb.toString();
+    }
+
 }

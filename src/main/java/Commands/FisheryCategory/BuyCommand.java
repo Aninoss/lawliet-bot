@@ -64,7 +64,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 case "rod":
                 case "message":
                 case "messages":
-                    i = 0;
+                    i = FisheryCategoryInterface.PER_MESSAGE;
                     break;
 
                 case "fishingrobot":
@@ -73,7 +73,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 case "bot":
                 case "daily":
                 case "dailies":
-                    i = 1;
+                    i = FisheryCategoryInterface.PER_DAY;
                     break;
 
                 case "fishingnet":
@@ -81,7 +81,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 case "vc":
                 case "voicechannel":
                 case "voicechannels":
-                    i = 2;
+                    i = FisheryCategoryInterface.PER_VC;
                     break;
 
                 case "metaldetector":
@@ -89,12 +89,21 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 case "treasurechests":
                 case "chest":
                 case "chests":
-                    i = 3;
+                    i = FisheryCategoryInterface.PER_TREASURE;
+                    break;
+
+                case "role":
+                case "roles":
+                case "buyablerole":
+                case "buyableroles":
+                case "fisheryrole":
+                case "fisheryroles":
+                    i = FisheryCategoryInterface.ROLE;
                     break;
 
                 case "survey":
                 case "surveys":
-                    i = 4;
+                    i = FisheryCategoryInterface.PER_SURVEY;
                     break;
 
                 default:

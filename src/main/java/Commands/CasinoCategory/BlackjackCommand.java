@@ -54,7 +54,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
             gameCards[1] = new ArrayList<>();
             for(int i=0; i<1; i++) gameCards[1].add(new GameCard());
 
-            message = event.getChannel().sendMessage(getEmbed()).get();
+            message = event.getChannel().sendMessage(getEmbed(-1)).get();
             for (String str : EMOJIS) message.addReaction(str);
 
             return true;
@@ -62,10 +62,10 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         return false;
     }
 
-    private EmbedBuilder getEmbed() throws IOException {
+    private EmbedBuilder getEmbed(int playerNewCard) {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
-                .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0),true)
-                .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1),true);
+                .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0, playerNewCard == 0),true)
+                .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1, playerNewCard == 1),true);
 
         if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
@@ -80,10 +80,14 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         return eb;
     }
 
-    private String getCards(int i) {
+    private String getCards(int i, boolean newCard) {
         StringBuilder sb = new StringBuilder();
-        for(GameCard gameCard: gameCards[i]) {
-            sb.append(gameCard.getEmoji());
+        for(int j = 0; j < gameCards[i].size(); j++) {
+            GameCard gameCard = gameCards[i].get(j);
+            if (j == gameCards[i].size() - 1 && newCard)
+                sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d_get", gameCard.getId())).getMentionTag());
+            else
+                sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d", gameCard.getId())).getMentionTag());
         }
 
         return sb.toString();
@@ -117,7 +121,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 gameCards[0].add(new GameCard());
                 logStatus = LogStatus.SUCCESS;
                 log = getString("getcard", 0);
-                message.edit(getEmbed());
+                message.edit(getEmbed(0));
 
                 if (getCardSize(0) > 21) {
                     block = true;
@@ -127,7 +131,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
                     logStatus = LogStatus.LOSE;
                     log = getString("toomany", 0);
-                    message.edit(getEmbed());
+                    message.edit(getEmbed(-1));
                 }
             } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[1])) {
                 finished = true;
@@ -135,7 +139,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
                 logStatus = LogStatus.SUCCESS;
                 log = getString("stopcard", 0);
-                message.edit(getEmbed());
+                message.edit(getEmbed(-1));
 
                 try {
                     onCPUTurn();
@@ -154,14 +158,14 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 gameCards[1].add(new GameCard());
                 logStatus = LogStatus.SUCCESS;
                 log = getString("getcard", 1);
-                message.edit(getEmbed()).get();
+                message.edit(getEmbed(1)).get();
 
                 if (getCardSize(1) >= 17) {
                     if (getCardSize(1) <= 21) {
                         Thread.sleep(TIME_BETWEEN_EVENTS);
                         logStatus = LogStatus.SUCCESS;
                         log = getString("stopcard", 1);
-                        message.edit(getEmbed());
+                        message.edit(getEmbed(-1));
 
                         Thread.sleep(TIME_BEFORE_END);
 
@@ -172,7 +176,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onWin();
                             logStatus = LogStatus.WIN;
                             log = getString("blackjack", 0);
-                            message.edit(getEmbed()).get();
+                            message.edit(getEmbed(-1)).get();
                             return;
                         }
 
@@ -180,7 +184,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onLose();
                             logStatus = LogStatus.LOSE;
                             log = getString("blackjack", 1);
-                            message.edit(getEmbed()).get();
+                            message.edit(getEmbed(-1)).get();
                             return;
                         }
 
@@ -190,7 +194,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onGameEnd();
                             logStatus = LogStatus.FAILURE;
                             log = getString("draw");
-                            message.edit(getEmbed()).get();
+                            message.edit(getEmbed(-1)).get();
                             return;
                         }
 
@@ -198,7 +202,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onWin();
                             logStatus = LogStatus.WIN;
                             log = getString("21", 0);
-                            message.edit(getEmbed()).get();
+                            message.edit(getEmbed(-1)).get();
                             return;
                         }
 
@@ -206,7 +210,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onLose();
                             logStatus = LogStatus.LOSE;
                             log = getString("21", 1);
-                            message.edit(getEmbed()).get();
+                            message.edit(getEmbed(-1)).get();
                             return;
                         }
                     } else {
@@ -215,7 +219,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                         onWin();
                         logStatus = LogStatus.WIN;
                         log = getString("toomany", 1);
-                        message.edit(getEmbed());
+                        message.edit(getEmbed(-1));
                         return;
                     }
                 }
@@ -238,66 +242,24 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
     public static class GameCard {
 
+        private int id;
         private int value;
-        private String emoji;
         private boolean ace;
 
         public GameCard() {
             ace = false;
-            emoji = "";
             value = 0;
 
             Random r = new Random();
-            int card = r.nextInt(13);
+            id = r.nextInt(13);
 
-            if (card <= 8) {
-                value = card + 2;
-                switch (value) {
-                    case 2:
-                        emoji = ":two:";
-                        break;
-                    case 3:
-                        emoji = ":three:";
-                        break;
-                    case 4:
-                        emoji = ":four:";
-                        break;
-                    case 5:
-                        emoji = ":five:";
-                        break;
-                    case 6:
-                        emoji = ":six:";
-                        break;
-                    case 7:
-                        emoji = ":seven:";
-                        break;
-                    case 8:
-                        emoji = ":eight:";
-                        break;
-                    case 9:
-                        emoji = ":nine:";
-                        break;
-                    default:
-                        emoji = ":keycap_ten:";
-                        break;
-                }
-            }
-            if (card == 9) {
-                value = 10;
-                emoji = ":regional_indicator_j:";
-            }
-            if (card == 10) {
-                value = 10;
-                emoji = ":regional_indicator_q:";
-            }
-            if (card == 11) {
-                value = 10;
-                emoji = ":regional_indicator_k:";
-            }
-            if (card == 12) {
-                value = 11;
+            if (id <= 8) {
+                value = id + 2;
+            } else if (id == 12) {
                 ace = true;
-                emoji = ":a:";
+                value = 11;
+            } else {
+                value = 10;
             }
         }
 
@@ -305,9 +267,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
             return value;
         }
 
-        public String getEmoji() {
-            return emoji;
-        }
+        public int getId() { return id; }
 
         public boolean isAce() {
             return ace;

@@ -3,14 +3,15 @@ package Commands.CasinoCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
 import Commands.CasinoAbstract;
-import Constants.Category;
-import Constants.LetterEmojis;
-import Constants.LogStatus;
-import Constants.Settings;
-import Core.*;
+import Constants.*;
+import Core.CustomThread;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
 import Core.Internet.HttpRequest;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
+import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -21,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "quiz",
         emoji = "❔",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         withLoadingBar = true,
         deleteOnTimeOut = true,
         executable = true
@@ -158,7 +159,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         t.start();
     }
 
-    private EmbedBuilder getEmbed() throws IOException {
+    private EmbedBuilder getEmbed() {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
@@ -168,7 +169,8 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         String label = "tutorial";
         if (active) label = "tutorial_start";
 
-        eb.addField(Settings.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput), String.valueOf(COUNTER)), false);
+        CustomEmoji countdown = DiscordApiCollection.getInstance().getHomeEmojiById(729327026514821190L);
+        eb.addField(Settings.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput), countdown.getMentionTag()), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

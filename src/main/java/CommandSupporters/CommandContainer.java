@@ -58,6 +58,7 @@ public class CommandContainer {
         commandList.add(AvatarCommand.class);
         commandList.add(SayCommand.class);
         commandList.add(VoteCommand.class);
+        commandList.add(TopicCommand.class);
 
         //MANAGEMENT
         commandList.add(CommandManagementCommand.class);

@@ -6,6 +6,7 @@ import CommandListeners.OnReactionAddListener;
 import Commands.CasinoAbstract;
 import Constants.Category;
 import Constants.LogStatus;
+import Constants.Permission;
 import Core.*;
 import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "slot",
         emoji = "\uD83C\uDFB0",
         executable = true,
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         aliases = {"slots", "slotmachine"}
 )
 public class SlotCommand extends CasinoAbstract implements OnReactionAddListener {

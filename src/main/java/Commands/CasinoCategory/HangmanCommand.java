@@ -1,11 +1,16 @@
 package Commands.CasinoCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnForwardedRecievedListener;
+import CommandListeners.OnReactionAddListener;
 import Commands.CasinoAbstract;
 import Constants.Category;
 import Constants.LogStatus;
+import Constants.Permission;
 import Constants.Response;
-import Core.*;
+import Core.EmbedFactory;
+import Core.FileManager;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -23,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "hangman",
         emoji = "\uD83D\uDD21",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         executable = true,
         aliases = {"hm"}
 )
@@ -69,7 +75,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
             health = MAX_HEALTH;
             progress = new boolean[answer.length()];
             used = new ArrayList<>();
-            message = event.getChannel().sendMessage(getEmbed()).get();
+            message = event.getChannel().sendMessage(getEmbed(false)).get();
             message.addReaction("❌");
 
             return true;
@@ -77,7 +83,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         return false;
     }
 
-    private EmbedBuilder getEmbed() throws IOException {
+    private EmbedBuilder getEmbed(boolean wrong) {
         String key = "template_ongoing";
         if (first) {
             key = "template_start";
@@ -90,8 +96,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
                 player.getDisplayName(server),
                 StringUtil.numToString(getLocale(), coinsInput),
                 getProgress(),
-                String.valueOf(health),
-                String.valueOf(MAX_HEALTH),
+                StringUtil.generateHeartBar(health, MAX_HEALTH, wrong),
                 answer,
                 getUsedString()));
 
@@ -160,7 +165,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         } else {
             logStatus = LogStatus.FAILURE;
             log = getString("used", input);
-            message.edit(getEmbed());
+            message.edit(getEmbed(false));
         }
 
         event.getMessage().delete();
@@ -179,7 +184,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
             onLose();
         }
 
-        message.edit(getEmbed());
+        message.edit(getEmbed(true));
     }
 
     private void onRight(String input) throws IOException, SQLException, ExecutionException {
@@ -201,7 +206,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
             onWin();
         }
 
-        message.edit(getEmbed());
+        message.edit(getEmbed(false));
     }
 
     @Override
@@ -223,7 +228,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
         if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals("❌")) {
             onAbort();
-            message.edit(getEmbed());
+            message.edit(getEmbed(false));
         }
     }
 
