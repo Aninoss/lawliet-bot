@@ -7,23 +7,17 @@ import Constants.Category;
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
-import Core.PermissionCheck;
+import Core.Utils.PermissionUtil;
 import Core.TextManager;
 import MySQL.Modules.SPBlock.DBSPBlock;
 import MySQL.Modules.SPBlock.SPBlockBean;
-import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -134,7 +128,7 @@ public class SPCheck {
         if (spBlockBean.isActive() &&
                 !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
                 !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
-                !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get()) &&
+                !PermissionUtil.hasAdminPermissions(server, message.getUserAuthor().get()) &&
                 !message.getUserAuthor().get().isBot()
         ) {
             String content = message.getContent();

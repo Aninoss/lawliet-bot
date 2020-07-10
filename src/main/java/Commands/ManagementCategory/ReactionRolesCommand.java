@@ -10,6 +10,7 @@ import Core.*;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
+import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
 import com.vdurmont.emoji.EmojiParser;
 import javafx.util.Pair;
@@ -560,7 +561,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
         if (event.getEmoji().isUnicodeEmoji() &&
                 event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
-                PermissionCheck.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(), event.getUser(), getUserPermissions()).isEmpty()
+                PermissionUtil.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(), event.getUser(), getUserPermissions()).isEmpty()
         ) {
             event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
         }

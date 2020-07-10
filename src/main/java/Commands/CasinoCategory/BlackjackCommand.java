@@ -6,6 +6,7 @@ import CommandListeners.OnReactionAddListener;
 import Commands.CasinoAbstract;
 import Constants.Category;
 import Constants.LogStatus;
+import Constants.Permission;
 import Constants.Settings;
 import Core.*;
 import Core.Utils.StringUtil;
@@ -24,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "blackjack",
         emoji = "\uD83C\uDCCF",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         executable = true,
         aliases = {"bj"}
 )
@@ -36,7 +38,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     private String[] EMOJIS = {"\uD83D\uDCE5", "✋"};
     private ArrayList<GameCard>[] gameCards;
     private final int TIME_BETWEEN_EVENTS = 2500;
-    private final int TIME_BEFORE_END = 1000;
+    private final int TIME_BEFORE_END = 1500;
     private boolean block;
     private boolean finished;
 
@@ -89,6 +91,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
             else
                 sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d", gameCard.getId())).getMentionTag());
         }
+        sb.append(Settings.EMPTY_EMOJI);
 
         return sb.toString();
     }

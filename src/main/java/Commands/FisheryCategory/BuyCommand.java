@@ -6,7 +6,7 @@ import Commands.FisheryAbstract;
 import Commands.FisherySettingsCategory.FisheryRolesCommand;
 import Constants.*;
 import Core.EmbedFactory;
-import Core.PermissionCheck;
+import Core.Utils.PermissionUtil;
 import Core.PermissionCheckRuntime;
 import Core.TextManager;
 import Core.Utils.StringUtil;
@@ -159,7 +159,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
             List<Role> roles = fisheryServerBean.getRoles();
 
             boolean canUseTreasureChests = serverBean.isFisheryTreasureChests();
-            boolean canUseRoles = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryServerBean.getRoleIds().size() && PermissionCheck.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
+            boolean canUseRoles = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryServerBean.getRoleIds().size() && PermissionUtil.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
 
             if (transferableSlots) {
                 if (i >= FisheryCategoryInterface.PER_TREASURE && !canUseTreasureChests) i++;
@@ -168,6 +168,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 if (i == FisheryCategoryInterface.PER_TREASURE && !canUseTreasureChests) return false;
                 if (i == FisheryCategoryInterface.ROLE && !canUseRoles) return false;
             }
+            if (i > 5 || i < 0) return false;
 
             FisheryUserPowerUpBean slot = fisheryUserBean.getPowerUp(i);
 
@@ -225,7 +226,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                     if (
                             (slot .getPowerUpId() != FisheryCategoryInterface.ROLE ||
                             (slot.getLevel() < fisheryServerBean.getRoleIds().size() &&
-                                    PermissionCheck.canYouManageRole(roles.get(slot.getLevel())))) &&
+                                    PermissionUtil.canYouManageRole(roles.get(slot.getLevel())))) &&
                             (slot.getPowerUpId() != FisheryCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
                     ) {
                         String productDescription = "???";

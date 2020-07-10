@@ -1,7 +1,6 @@
 package Commands.ExternalCategory;
 
 import CommandListeners.CommandProperties;
-import CommandListeners.OnTrackerRequestListener;
 import Commands.SafebooruAbstract;
 
 @CommandProperties(
@@ -11,7 +10,7 @@ import Commands.SafebooruAbstract;
         executable = true,
         aliases = {"safeyaoi"}
 )
-public class SoftYaoiCommand extends SafebooruAbstract implements OnTrackerRequestListener {
+public class SoftYaoiCommand extends SafebooruAbstract {
 
     @Override
     protected String getSearchKey() {

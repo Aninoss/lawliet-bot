@@ -8,8 +8,11 @@ import CommandSupporters.CommandManager;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Commands.GimmicksCategory.QuoteCommand;
 import Constants.Settings;
-import Core.*;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.ExceptionHandler;
 import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
@@ -133,7 +136,10 @@ public class MessageCreateCommand extends MessageCreateAbstract {
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
         for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
-            if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
+            if (command != null &&
+                    (event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) &&
+                    (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)
+            ) {
                 try {
                     RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard(), command.getMaxCalculationTimeSec());
 

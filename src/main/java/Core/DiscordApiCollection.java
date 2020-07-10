@@ -7,6 +7,7 @@ import Core.Internet.HttpProperty;
 import Core.Internet.HttpResponse;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Core.Utils.InternetUtil;
+import Core.Utils.PermissionUtil;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -362,7 +363,7 @@ public class DiscordApiCollection {
     }
 
     public Optional<Webhook> getOwnWebhook(Server server) {
-        if (!PermissionCheck.userHasServerPermission(server, getYourself(), PermissionType.MANAGE_WEBHOOKS))
+        if (!PermissionUtil.userHasServerPermission(server, getYourself(), PermissionType.MANAGE_WEBHOOKS))
             return Optional.empty();
 
         try {
@@ -380,19 +381,19 @@ public class DiscordApiCollection {
             User yourself = getYourself();
 
             try {
-                if (PermissionCheck.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
+                if (PermissionUtil.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
                     return;
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Exception", e);
             }
 
             ServerTextChannel finalChannel = null;
-            if (server.getSystemChannel().isPresent() && PermissionCheck.userHasChannelPermission(server.getSystemChannel().get(), yourself, PermissionType.MANAGE_WEBHOOKS))
+            if (server.getSystemChannel().isPresent() && PermissionUtil.userHasChannelPermission(server.getSystemChannel().get(), yourself, PermissionType.MANAGE_WEBHOOKS))
                 finalChannel = server.getSystemChannel().get();
 
             else {
                 for (ServerTextChannel channel: server.getTextChannels()) {
-                    if (PermissionCheck.userHasChannelPermission(channel, yourself, PermissionType.MANAGE_WEBHOOKS)) {
+                    if (PermissionUtil.userHasChannelPermission(channel, yourself, PermissionType.MANAGE_WEBHOOKS)) {
                         finalChannel = channel;
                         break;
                     }

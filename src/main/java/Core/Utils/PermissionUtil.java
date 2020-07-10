@@ -1,7 +1,12 @@
-package Core;
+package Core.Utils;
 
 import Constants.Permission;
-import org.javacord.api.entity.channel.*;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.TextManager;
+import org.javacord.api.entity.channel.ChannelCategory;
+import org.javacord.api.entity.channel.ServerChannel;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.PermissionState;
 import org.javacord.api.entity.permission.PermissionType;
@@ -11,9 +16,11 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
-public class PermissionCheck {
+public class PermissionUtil {
 
     public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server, channel, user, userPermissions);
@@ -178,9 +185,42 @@ public class PermissionCheck {
         return channel.getEffectivePermissions(user).getState(permissionType) == PermissionState.UNSET && channel.getServer().getAllowedPermissions(user).contains(permissionType);
     }
 
+    public static boolean roleHasServerPermission(Role role, PermissionType permissionType) {
+        Permissions permissions = role.getPermissions();
+        return permissions.getState(PermissionType.ADMINISTRATOR) == PermissionState.ALLOWED ||
+                permissions.getState(permissionType) == PermissionState.ALLOWED;
+    }
+
+    public static boolean roleHasChannelPermission(ServerChannel channel, Role role, PermissionType permissionType) {
+        Permissions permissions = channel.getOverwrittenPermissions(role);
+        return roleHasServerPermission(role, PermissionType.ADMINISTRATOR) ||
+                (permissions.getState(permissionType) == PermissionState.UNSET && roleHasServerPermission(role, permissionType)) ||
+                permissions.getState(permissionType) == PermissionState.ALLOWED;
+    }
+
+    public static boolean roleHasChannelPermissionRestricted(ServerChannel channel, Role role, PermissionType permissionType) {
+        return !roleHasServerPermission(role, PermissionType.ADMINISTRATOR) &&
+                channel.getOverwrittenPermissions(role).getState(permissionType) == PermissionState.DENIED;
+    }
+
+    public static List<Role> getMemberRoles(Server server) {
+        int min = (int) (server.getMemberCount() * 0.75);
+        return server.getRoles().stream()
+                .filter(role -> role.getUsers().size() >= min)
+                .collect(Collectors.toList());
+    }
+
+    public static boolean channelIsPublic(ServerTextChannel channel) {
+        Server server = channel.getServer();
+        return server.getMembers().stream()
+                .filter(user -> channel.canSee(user) && channel.canReadMessageHistory(user))
+                .count() >= server.getMemberCount() * 0.75;
+    }
+
     public static class PermissionConvertion {
-        private PermissionType permissionType;
-        private boolean serverOnly;
+
+        private final PermissionType permissionType;
+        private final boolean serverOnly;
 
         public PermissionConvertion(PermissionType permissionType, boolean serverOnly) {
             this.permissionType = permissionType;
@@ -194,6 +234,7 @@ public class PermissionCheck {
         public boolean isServerOnly() {
             return serverOnly;
         }
+
     }
 
 }

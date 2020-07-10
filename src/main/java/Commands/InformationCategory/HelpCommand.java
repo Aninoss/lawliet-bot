@@ -10,7 +10,7 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.BackEmojiConnection;
 import Core.EmojiConnection.EmojiConnection;
-import Core.Utils.BotUtil;
+import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.CommandManagement.CommandManagementBean;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
@@ -22,7 +22,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -139,7 +138,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0],"exec:"+command.getClass().getName()));
                 }
 
-                String permissionsList = new ListGen<Integer>().getList(PermissionCheck.permissionsToNumberList(command.getUserPermissions()), getLocale(), ListGen.SLOT_TYPE_BULLET,
+                String permissionsList = new ListGen<Integer>().getList(PermissionUtil.permissionsToNumberList(command.getUserPermissions()), getLocale(), ListGen.SLOT_TYPE_BULLET,
                         i -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(i))
                 );
 
@@ -237,7 +236,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             User author = getStarterMessage().getUserAuthor().get();
             if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
                 StringBuilder commands = new StringBuilder();
-                boolean canAccess = PermissionCheck.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
+                boolean canAccess = PermissionUtil.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
                         !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 0;

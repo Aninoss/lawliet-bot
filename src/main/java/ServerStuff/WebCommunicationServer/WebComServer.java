@@ -3,6 +3,7 @@ package ServerStuff.WebCommunicationServer;
 import CommandSupporters.Command;
 import Constants.Locales;
 import Core.*;
+import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
 import ServerStuff.WebCommunicationServer.Events.*;
 import com.corundumstudio.socketio.Configuration;
@@ -79,7 +80,7 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String permissionsList = new ListGen<Integer>().getList(PermissionCheck.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_BULLET,
+            String permissionsList = new ListGen<Integer>().getList(PermissionUtil.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_BULLET,
                     i -> TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(i))
             );
             jsonObject.put(locale.getDisplayName(), permissionsList);

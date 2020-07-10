@@ -9,6 +9,7 @@ public interface Settings {
     long HOME_SERVER_ID = 368531164861825024L;
     long SUPPORT_SERVER_ID = 557953262305804308L;
     String BOT_INVITE_URL = "https://lawlietbot.xyz/invite?BOT";
+    String BOT_INVITE_REMINDER_URL = "https://lawlietbot.xyz/invite?BOT_REMINDER";
     String SERVER_INVITE_URL = "https://discord.gg/F4FcAbQ";
     String DONATION_URL = "https://donatebot.io/checkout/" + SUPPORT_SERVER_ID;
     String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";
@@ -46,6 +47,6 @@ public interface Settings {
             "2.12.0", "2.12.1", "2.12.2", "2.12.3", "2.12.4", "2.12.5", "2.12.6", "2.12.7", "2.12.8", "2.12.9", "2.12.10", "2.12.11",
             "2.13.1", "2.13.2", "2.13.3", "2.13.4", "2.13.5", "2.13.6", "2.13.7", "2.13.8", "2.13.9", "2.13.10", "2.13.11",
             "2.14.1", "2.14.2", "2.14.3", "2.14.4", "2.14.5", "2.14.6", "2.14.7", "2.14.8", "2.14.9", "2.14.10", "2.14.11", "2.14.12", "2.14.13", "2.14.14", "2.14.15", "2.14.16", "2.14.17", "2.14.18", "2.14.19", "2.14.20",
-            "2.15.1", "2.15.2", "2.15.3"
+            "2.15.1", "2.15.2", "2.15.3", "2.15.4", "2.15.5"
     };
 }

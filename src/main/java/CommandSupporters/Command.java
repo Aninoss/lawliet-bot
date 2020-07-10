@@ -7,6 +7,7 @@ import Constants.*;
 import Core.*;
 import Core.EmojiConnection.EmojiConnection;
 import Core.Mention.MentionUtil;
+import Core.Utils.PermissionUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -468,13 +469,13 @@ public abstract class Command {
     }
 
     public boolean checkManageChannelWithLog(ServerChannel channel) {
-        if (PermissionCheck.botHasChannelPermission(channel, PermissionType.MANAGE_CHANNELS)) return true;
+        if (PermissionUtil.botHasChannelPermission(channel, PermissionType.MANAGE_CHANNELS)) return true;
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.asTextChannel().isPresent() ? "#" : "") +channel.getName()));
         return false;
     }
 
     public boolean checkRoleWithLog(Role role) {
-        if (PermissionCheck.canYouManageRole(role)) return true;
+        if (PermissionUtil.canYouManageRole(role)) return true;
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@"+role.getName()));
         return false;
     }
@@ -483,7 +484,7 @@ public abstract class Command {
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
 
         for(Role role: roles) {
-            if (!PermissionCheck.canYouManageRole(role)) unmanagableRoles.add(role);
+            if (!PermissionUtil.canYouManageRole(role)) unmanagableRoles.add(role);
         }
 
         if (unmanagableRoles.size() == 0) {
@@ -491,7 +492,7 @@ public abstract class Command {
 
             if (requester == null) requester = DiscordApiCollection.getInstance().getYourself();
             for(Role role: roles) {
-                if (!PermissionCheck.canManageRole(requester, role)) forbiddenRoles.add(role);
+                if (!PermissionUtil.canManageRole(requester, role)) forbiddenRoles.add(role);
             }
 
             if (forbiddenRoles.size() == 0) return true;
@@ -555,6 +556,7 @@ public abstract class Command {
         if (allowedServerIds.length == 0) return true;
         return Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId);
     }
+    public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }
     public void blockLoading() { loadingBlock = true; }
     public Instant getStartTime() { return startTime; }
     public void setStartTime(Instant startTime) { this.startTime = startTime; }

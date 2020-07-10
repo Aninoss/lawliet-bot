@@ -25,16 +25,20 @@ public class MentionUtil {
     final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
 
     public static MentionList<User> getUsers(Message message, String content) {
+        return getUsers(message, content, message.getServer().get().getMembers());
+    }
+
+    public static MentionList<User> getUsers(Message message, String content, Collection<User> users) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
         if (!content.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString())) list.remove(DiscordApiCollection.getInstance().getYourself());
-        list.removeIf(user -> !message.getServer().get().getMembers().contains(user));
+        list.removeIf(user -> !users.contains(user));
 
         for (User user : list)
             content = content
                     .replace(user.getMentionTag(), "")
                     .replace("<@!" + user.getIdAsString() + ">", "");
 
-        for(User user : message.getServer().get().getMembers()) {
+        for(User user : users) {
             String[] strings = {
                     "@" + user.getDiscriminatedName(),
                     "@" + user.getName(),

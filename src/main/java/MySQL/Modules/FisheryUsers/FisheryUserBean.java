@@ -109,18 +109,22 @@ public class FisheryUserBean extends BeanWithServer {
     public long getFishIncome() {
         Instant currentHourInstance = TimeUtil.instantRoundDownToHour(Instant.now());
         if (fishIncome == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
-            long n = 0;
+            try {
+                long n = 0;
 
-            Instant effectiveInstant = currentHourInstance.minus(7, ChronoUnit.DAYS);
-            for (Iterator<FisheryHourlyIncomeBean> iterator = fisheryHourlyIncomeMap.values().iterator(); iterator.hasNext(); ) {
-                FisheryHourlyIncomeBean fisheryHourlyIncomeBean = iterator.next();
-                if (fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant)) iterator.remove();
-                else n += fisheryHourlyIncomeBean.getFishIncome();
+                Instant effectiveInstant = currentHourInstance.minus(7, ChronoUnit.DAYS);
+                for (Iterator<FisheryHourlyIncomeBean> iterator = fisheryHourlyIncomeMap.values().iterator(); iterator.hasNext(); ) {
+                    FisheryHourlyIncomeBean fisheryHourlyIncomeBean = iterator.next();
+                    if (fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant)) iterator.remove();
+                    else n += fisheryHourlyIncomeBean.getFishIncome();
+                }
+
+                fishIncome = n;
+                fishIncomeUpdateTime = currentHourInstance;
+                checkValuesBound();
+            } catch (Throwable e) {
+                LOGGER.error("Exception", e);
             }
-
-            fishIncome = n;
-            fishIncomeUpdateTime = currentHourInstance;
-            checkValuesBound();
         }
 
         return fishIncome;

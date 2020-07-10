@@ -2,8 +2,7 @@ package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
 import Constants.Permission;
-import Core.PermissionCheck;
-import Modules.ImageCreator;
+import Core.Utils.PermissionUtil;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ public class KickCommand extends WarnCommand  {
 
     @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
-        return PermissionCheck.canYouKickUser(server, userAim) && server.canKickUser(userStarter, userAim);
+        return PermissionUtil.canYouKickUser(server, userAim) && server.canKickUser(userStarter, userAim);
     }
 
 }

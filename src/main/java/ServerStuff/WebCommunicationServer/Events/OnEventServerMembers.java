@@ -1,7 +1,7 @@
 package ServerStuff.WebCommunicationServer.Events;
 
 import Core.DiscordApiCollection;
-import Core.PermissionCheck;
+import Core.Utils.PermissionUtil;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
@@ -29,7 +29,7 @@ public class OnEventServerMembers implements DataListener<JSONObject> {
             Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
             if (serverOptional.isPresent()) {
                 Server server = serverOptional.get();
-                if (PermissionCheck.hasAdminPermissions(server, user)) {
+                if (PermissionUtil.hasAdminPermissions(server, user)) {
                     JSONObject mainJSON = new JSONObject()
                             .put("user_id", userId)
                             .put("members_online", server.getMembers().stream().filter(userCheck -> userCheck.getStatus() != UserStatus.OFFLINE).count())

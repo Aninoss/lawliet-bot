@@ -6,8 +6,8 @@ import CommandSupporters.Command;
 import Constants.*;
 import Core.*;
 import Core.Mention.MentionUtil;
+import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
-import Core.Utils.TimeUtil;
 import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
 import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
@@ -78,7 +78,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
             } else {
                 ServerVoiceChannel channel = vcList.get(0);
 
-                ArrayList<Integer> missingPermissions = PermissionCheck.getMissingPermissionListForUser(channel.getServer(), channel, DiscordApiCollection.getInstance().getYourself(), Permission.MANAGE_CHANNEL | Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.CONNECT);
+                ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(channel.getServer(), channel, DiscordApiCollection.getInstance().getYourself(), Permission.MANAGE_CHANNEL | Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.CONNECT);
                 if (missingPermissions.size() > 0) {
                     String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(n)));
                     setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));

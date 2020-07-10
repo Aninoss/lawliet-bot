@@ -1,7 +1,7 @@
 package ServerStuff.WebCommunicationServer.Events;
 
 import Core.DiscordApiCollection;
-import Core.PermissionCheck;
+import Core.Utils.PermissionUtil;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import com.corundumstudio.socketio.AckRequest;
@@ -31,7 +31,7 @@ public class OnEventServerList implements DataListener<JSONObject> {
             ArrayList<Server> mutualServers = new ArrayList<>(DiscordApiCollection.getInstance().getMutualServers(user));
             mutualServers.sort((s1, s2) -> s1.getName().compareToIgnoreCase(s2.getName()));
             for(Server server: mutualServers) {
-                if (PermissionCheck.hasAdminPermissions(server, user)) {
+                if (PermissionUtil.hasAdminPermissions(server, user)) {
                     JSONObject serverObject = new JSONObject();
                     serverObject
                             .put("server_id", server.getId())

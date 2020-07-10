@@ -7,11 +7,10 @@ import Constants.Permission;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
-import Core.PermissionCheck;
+import Core.Utils.PermissionUtil;
 import Core.TextManager;
 import Core.Utils.StringUtil;
 import Modules.RoleAssigner;
-import MySQL.Modules.AutoQuote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -57,14 +56,14 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         role = roles.get(0);
 
          /* check for missing role manage permissions bot */
-        if (!PermissionCheck.canManageRole(DiscordApiCollection.getInstance().getYourself(), role)) {
+        if (!PermissionUtil.canManageRole(DiscordApiCollection.getInstance().getYourself(), role)) {
             event.getChannel()
                     .sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getMentionTag()))).get();
             return false;
         }
 
         /* check for missing role manage permissions user */
-        if (!PermissionCheck.canManageRole(event.getMessageAuthor().asUser().get(), role)) {
+        if (!PermissionUtil.canManageRole(event.getMessageAuthor().asUser().get(), role)) {
             event.getChannel()
                     .sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", role.getMentionTag()))).get();
             return false;

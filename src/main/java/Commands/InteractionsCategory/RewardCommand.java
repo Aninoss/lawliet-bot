@@ -1,15 +1,12 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "reward",
         emoji = "\uD83C\uDF53",
-        executable = true
+        executable = true,
+        aliases = { "rewards" }
 )
 public class RewardCommand extends InteractionAbstract {
 

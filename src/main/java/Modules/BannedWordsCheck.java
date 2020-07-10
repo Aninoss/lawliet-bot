@@ -6,7 +6,7 @@ import Commands.ModerationCategory.ModSettingsCommand;
 import Constants.Category;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
-import Core.PermissionCheck;
+import Core.Utils.PermissionUtil;
 import Core.TextManager;
 import MySQL.Modules.BannedWords.BannedWordsBean;
 import MySQL.Modules.BannedWords.DBBannedWords;
@@ -32,7 +32,7 @@ public class BannedWordsCheck {
         if (bannedWordsBean.isActive() &&
                 stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords()), bannedWordsBean.isStrict()) &&
                 !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
-                !PermissionCheck.hasAdminPermissions(server, message.getUserAuthor().get())
+                !PermissionUtil.hasAdminPermissions(server, message.getUserAuthor().get())
         ) {
             BannedWordsCommand bannedWordsCommand = (BannedWordsCommand) CommandManager.createCommandByClass(BannedWordsCommand.class, locale, bannedWordsBean.getServerBean().getPrefix());
 

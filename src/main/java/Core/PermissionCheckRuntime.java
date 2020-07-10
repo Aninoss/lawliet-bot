@@ -2,6 +2,7 @@ package Core;
 
 import CommandSupporters.Command;
 import Constants.Permission;
+import Core.Utils.PermissionUtil;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -32,7 +33,7 @@ public class PermissionCheckRuntime {
     }
 
     private boolean botHasPermission(Locale locale, Class<? extends Command> c, Server server, ServerChannel channel, int permissions) {
-        ArrayList<Integer> missingPermissions = PermissionCheck.getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), permissions);
+        ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), permissions);
 
         if (missingPermissions.size() == 0) return true;
 
@@ -57,7 +58,7 @@ public class PermissionCheckRuntime {
         ArrayList<Role> unreachableRoles = new ArrayList<>();
 
         for(Role role: roles) {
-            if (!PermissionCheck.canYouManageRole(role)) unreachableRoles.add(role);
+            if (!PermissionUtil.canYouManageRole(role)) unreachableRoles.add(role);
         }
 
         if (unreachableRoles.size() == 0) return true;

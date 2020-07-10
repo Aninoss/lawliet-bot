@@ -10,6 +10,7 @@ import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,8 @@ public class ServerMemberJoinAutoRoles extends ServerMemberJoinAbstract {
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
         for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
-            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) event.getUser().addRole(role).get();
+            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
+                event.getUser().addRole(role).exceptionally(ExceptionLogger.get());
         }
 
         return true;

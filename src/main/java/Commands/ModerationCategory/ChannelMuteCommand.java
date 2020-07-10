@@ -7,6 +7,7 @@ import Constants.Permission;
 import Core.*;
 import Core.Mention.Mention;
 import Core.Mention.MentionUtil;
+import Core.Utils.PermissionUtil;
 import Modules.Mute.MuteData;
 import Modules.Mute.MuteManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -50,7 +51,7 @@ public class ChannelMuteCommand extends Command  {
         if (channelList.size() > 0)
             channel = channelList.get(0);
 
-        EmbedBuilder errorEmbed = PermissionCheck.getUserAndBotPermissionMissingEmbed(getLocale(), server, channel, message.getUserAuthor().get(), getUserPermissions(), getBotPermissions());
+        EmbedBuilder errorEmbed = PermissionUtil.getUserAndBotPermissionMissingEmbed(getLocale(), server, channel, message.getUserAuthor().get(), getUserPermissions(), getBotPermissions());
         if (errorEmbed != null) {
             message.getChannel().sendMessage(errorEmbed).get();
             return false;
@@ -65,7 +66,7 @@ public class ChannelMuteCommand extends Command  {
 
         ArrayList<User> successfulUsers = new ArrayList<>();
         for(User user: userList) {
-            if (!PermissionCheck.hasAdminPermissions(server, user)) successfulUsers.add(user);
+            if (!PermissionUtil.hasAdminPermissions(server, user)) successfulUsers.add(user);
         }
 
         if (successfulUsers.size() == 0) {

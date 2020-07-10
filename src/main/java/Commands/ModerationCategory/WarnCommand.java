@@ -1,18 +1,21 @@
 package Commands.ModerationCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
 import Constants.Permission;
-import Core.*;
+import Core.EmbedFactory;
 import Core.Mention.Mention;
-import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
+import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
@@ -20,8 +23,6 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import org.javacord.api.entity.server.Server;
 
 @CommandProperties(
     trigger = "warn",
@@ -31,30 +32,17 @@ import org.javacord.api.entity.server.Server;
 )
 public class WarnCommand extends Command implements OnReactionAddListener {
 
-    private final int CHAR_LIMIT = 300;
+    protected final int CHAR_LIMIT = 300;
 
     private Message message;
-    private List<User> userList;
+    protected List<User> userList;
     private ModerationBean moderationBean;
     protected String reason;
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        Message message = event.getMessage();
-        MentionList<User> userMentionList = MentionUtil.getUsers(message, followedString);
-        userList = userMentionList.getList();
-        if (userList.size() == 0) {
-            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
+        if (!setUserListAndReason(event, followedString))
             return false;
-        }
-
-        reason = userMentionList.getResultMessageString().replace("`", "");
-        reason = StringUtil.trimString(reason);
-        if (reason.length() > CHAR_LIMIT) {
-            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
-            return false;
-        }
 
         moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
@@ -69,6 +57,30 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         }
 
         return true;
+    }
+
+    private boolean setUserListAndReason(MessageCreateEvent event, String followedString) throws ExecutionException, InterruptedException {
+        Message message = event.getMessage();
+        MentionList<User> userMentionList = getMentionList(message, followedString);
+        userList = userMentionList.getList();
+        if (userList.size() == 0) {
+            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
+            return false;
+        }
+
+        reason = userMentionList.getResultMessageString().replace("`", "");
+        reason = StringUtil.trimString(reason);
+        if (reason.length() > CHAR_LIMIT) {
+            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
+            return false;
+        }
+
+        return true;
+    }
+
+    protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {
+        return MentionUtil.getUsers(message, followedString);
     }
 
     private boolean execute(ServerTextChannel channel, User executer) throws Throwable {
@@ -89,7 +101,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {
             try {
-                if (!user.isYourself() && !user.isBot()) user.sendMessage(actionEmbed).get();
+                if (!user.isYourself() && !user.isBot() && sendDM()) user.sendMessage(actionEmbed).get();
             } catch (ExecutionException e) {
                 //Ignore
             }
@@ -103,6 +115,10 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
         postMessage(channel, successEb);
 
+        return true;
+    }
+
+    protected boolean sendDM() {
         return true;
     }
 

@@ -1,31 +1,26 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandSupporters.Command;
 import Commands.FisheryAbstract;
-import Constants.LogStatus;
 import Constants.Permission;
-import Constants.FisheryStatus;
-import Core.*;
+import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
+import Core.TextManager;
 import MySQL.Modules.FisheryUsers.DBFishery;
-import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-import java.io.IOException;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "acc",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDE4B",
         executable = true,
-        aliases = {"profile", "profil", "account"}
+        aliases = {"profile", "profil", "account", "balance"}
 )
 public class AccountCommand extends FisheryAbstract {
 

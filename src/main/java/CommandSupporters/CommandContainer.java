@@ -59,6 +59,7 @@ public class CommandContainer {
         commandList.add(SayCommand.class);
         commandList.add(VoteCommand.class);
         commandList.add(TopicCommand.class);
+        commandList.add(ImitateCommand.class);
 
         //MANAGEMENT
         commandList.add(CommandManagementCommand.class);
@@ -82,6 +83,7 @@ public class CommandContainer {
         commandList.add(WarnCommand.class);
         commandList.add(KickCommand.class);
         commandList.add(BanCommand.class);
+        commandList.add(UnbanCommand.class);
         commandList.add(WarnLogCommand.class);
         commandList.add(WarnRemoveCommand.class);
         commandList.add(ChannelMuteCommand.class);

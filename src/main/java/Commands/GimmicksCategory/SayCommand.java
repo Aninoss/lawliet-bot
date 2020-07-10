@@ -1,17 +1,13 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
-import Constants.Permission;
 import Core.EmbedFactory;
-import Core.Mention.MentionUtil;
-import Core.Mention.MentionList;
-import Core.PermissionCheck;
-import Core.TextManager;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+
+import java.util.List;
 
 @CommandProperties(
         trigger = "say",
@@ -23,7 +19,14 @@ public class SayCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(EmbedFactory.getEmbed().setDescription(followedString).setFooter(event.getMessage().getUserAuthor().get().getDiscriminatedName())).get();
+        List<MessageAttachment> attachments = event.getMessage().getAttachments();
+        EmbedBuilder eb = EmbedFactory.getEmbed()
+                .setDescription(followedString)
+                .setFooter(event.getMessage().getUserAuthor().get().getDiscriminatedName());
+        if (attachments.size() > 0) eb.setImage(attachments.get(0).getUrl().toString());
+        if (attachments.size() > 1) eb.setThumbnail(attachments.get(1).getUrl().toString());
+
+        event.getChannel().sendMessage(eb).get();
         return true;
     }
 

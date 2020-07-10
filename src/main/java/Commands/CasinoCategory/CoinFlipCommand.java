@@ -45,9 +45,8 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             useCalculatedMultiplicator = false;
             winMultiplicator = 1;
 
-            String filteredString = StringUtil.trimString(StringUtil.filterLettersFromString(followedString.toLowerCase()));
-            if (filteredString.contains("h")) selection[0] = 0;
-            else if (filteredString.contains("t")) selection[0] = 1;
+            int coinSideSelection = getCoinValue(followedString);
+            if (coinSideSelection >= 0) selection[0] = coinSideSelection;
 
             message = event.getChannel().sendMessage(getEmbed(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get())).get();
             if (selection[0] == -1) for (String str : EMOJIS) message.addReaction(str);
@@ -56,6 +55,17 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             return true;
         }
         return false;
+    }
+
+    private int getCoinValue(String followedString) {
+        for (String word : followedString.toLowerCase().split(" ")) {
+            if (word.equals("h")) return 0;
+            if (word.equals("t")) return 1;
+            if (word.startsWith("head")) return 0;
+            if (word.startsWith("tail")) return 1;
+        }
+
+        return -1;
     }
 
     private String getChoiceString(ServerTextChannel channel, int pos) {

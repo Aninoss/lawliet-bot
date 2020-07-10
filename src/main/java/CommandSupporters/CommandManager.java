@@ -12,6 +12,7 @@ import Commands.InformationCategory.HelpCommand;
 import Constants.Permission;
 import Constants.Settings;
 import Core.*;
+import Core.Utils.PermissionUtil;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
 import MySQL.Modules.Server.DBServer;
@@ -21,6 +22,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
@@ -71,6 +74,7 @@ public class CommandManager {
                     command.onRecievedSuper(event, followedString);
 
                 CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.SUCCESS));
+                maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
                 CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.EXCEPTION));
                 ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
@@ -78,6 +82,22 @@ public class CommandManager {
             command.removeLoadingReaction();
         } else {
             CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.FALSE));
+        }
+    }
+
+    private static void maybeSendInvite(MessageCreateEvent event, Locale locale) {
+        User author = event.getMessage().getUserAuthor().get();
+
+        if (new Random().nextInt(200) == 0 &&
+                !event.getServer().get().canManage(author) &&
+                !event.getChannel().canManageMessages(author) &&
+                event.getChannel().canYouEmbedLinks()
+        ) {
+            EmbedBuilder eb = EmbedFactory.getEmbed()
+                    .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
+                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", Settings.BOT_INVITE_REMINDER_URL));
+
+            event.getChannel().sendMessage(eb).exceptionally(ExceptionLogger.get());
         }
     }
 
@@ -150,7 +170,7 @@ public class CommandManager {
     }
 
     private static boolean checkPermissions(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        EmbedBuilder errEmbed = PermissionCheck.getUserAndBotPermissionMissingEmbed(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
+        EmbedBuilder errEmbed = PermissionUtil.getUserAndBotPermissionMissingEmbed(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
         if (errEmbed == null || command instanceof HelpCommand) {
             return true;
         }
@@ -164,7 +184,7 @@ public class CommandManager {
         Server server = event.getServer().get();
         User user = event.getMessage().getUserAuthor().get();
 
-        if (PermissionCheck.hasAdminPermissions(server, user) ||
+        if (PermissionUtil.hasAdminPermissions(server, user) ||
                 DBCommandManagement.getInstance().getBean(server.getId()).commandIsTurnedOn(command)
         ) {
             return true;
@@ -222,7 +242,7 @@ public class CommandManager {
             event.addReactionsToMessage("✍️");
         }
 
-        if (PermissionCheck.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
+        if (PermissionUtil.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
             event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
 
         return false;
@@ -333,7 +353,7 @@ public class CommandManager {
                         Thread.sleep(1000);
                     }
 
-                    commandThread.interrupt();
+                    if (command.hasTimeOut()) commandThread.interrupt();
                 }
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
