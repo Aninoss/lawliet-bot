@@ -114,6 +114,7 @@ public class CommandContainer {
         commandList.add(VCTimeCommand.class);
         commandList.add(FisheryManageCommand.class);
         commandList.add(TreasureCommand.class);
+        commandList.add(AutoClaimCommand.class);
 
         //FISHERY
         commandList.add(AccountCommand.class);
@@ -189,7 +190,7 @@ public class CommandContainer {
         commandList.add(FuckCommand.class);
         commandList.add(YaoiFuckCommand.class);
         commandList.add(YuriFuckCommand.class);
-        commandList.add(YiffCommand.class);
+        commandList.add(FurryFuckCommand.class);
 
         //EXTERNAL
         commandList.add(RedditCommand.class);
@@ -208,6 +209,7 @@ public class CommandContainer {
         commandList.add(Rule34Command.class);
         commandList.add(GelbooruCommand.class);
         commandList.add(RealbooruCommand.class);
+        commandList.add(FurryCommand.class);
         commandList.add(RealLifePornCommand.class);
         commandList.add(RealLifeBoobsCommand.class);
         commandList.add(RealLifeAssCommand.class);
@@ -218,7 +220,6 @@ public class CommandContainer {
         commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
-        commandList.add(FurryCommand.class);
 
         //SPLATOON
         commandList.add(MapsCommand.class);
@@ -231,7 +232,7 @@ public class CommandContainer {
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz);
-                addCommand(command.getTrigger(), command);
+                addCommand(command.getClassTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
 
                 if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add(((OnReactionAddStaticListener)command).getClass());
@@ -267,7 +268,7 @@ public class CommandContainer {
     }
 
     private void addCommand(String trigger, Command command) {
-        if (commands.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getTrigger() + "\"");
+        if (commands.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getClassTrigger() + "\"");
         else commands.put(trigger, command.getClass());
     }
 

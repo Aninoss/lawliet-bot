@@ -1,7 +1,6 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.*;
-import CommandSupporters.Command;
 import Commands.FisheryAbstract;
 import Constants.*;
 import Core.*;
@@ -120,7 +119,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey);
-        if (!tracker) EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+        if (!tracker) EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getClassTrigger());
         Message message = channel.sendMessage(eb).get();
 
         for(int i = 0; i < 2; i++) {

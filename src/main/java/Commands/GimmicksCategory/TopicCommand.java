@@ -36,7 +36,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
 
     private void send(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
         List<String> topicList = FileManager.readInList(new File("recourses/topics_" + getLocale().getDisplayName() + ".txt"));
-        int n = RandomPicker.getInstance().pick(getTrigger(), channel.getServer().getId(), topicList.size());
+        int n = RandomPicker.getInstance().pick(getClassTrigger(), channel.getServer().getId(), topicList.size());
         String topic = topicList.get(n);
 
         channel.sendMessage(EmbedFactory.getCommandEmbedStandard(this, topic)).get();

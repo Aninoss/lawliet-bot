@@ -1,9 +1,13 @@
 package ServerStuff.WebCommunicationServer.Events;
 
+import Commands.FisheryCategory.ClaimCommand;
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
+import Core.PatreonCache;
+import MySQL.Modules.AutoClaim.DBAutoClaim;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.FisheryUsers.DBFishery;
+import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Upvotes.DBUpvotes;
 import ServerStuff.WebCommunicationServer.WebComServer;
@@ -31,22 +35,32 @@ public class OnTopGG implements DataListener<JSONObject> {
             DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
                 LOGGER.info("UPVOTE | {}", user.getName());
 
-                DiscordApiCollection.getInstance().getMutualServers(user).stream().filter(
-                        server -> {
+                DiscordApiCollection.getInstance().getMutualServers(user).stream()
+                        .filter(
+                                server -> {
+                                    try {
+                                        return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                                    } catch (ExecutionException e) {
+                                        LOGGER.error("Could not get server bean", e);
+                                    }
+                                    return false;
+                                }
+                        ).forEach(server -> {
                             try {
-                                return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                                int value = isWeekend ? 2 : 1;
+                                FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
+
+                                if (PatreonCache.getInstance().getPatreonLevel(userId) >= 1 &&
+                                        DBAutoClaim.getInstance().getBean(userId).isActive()
+                                ) {
+                                    userBean.changeValues(ClaimCommand.getClaimValue(userBean) * value, 0);
+                                } else {
+                                    userBean.addUpvote(value);
+                                }
                             } catch (ExecutionException e) {
-                                LOGGER.error("Could not get server bean", e);
+                                LOGGER.error("Could not get fishery bean", e);
                             }
-                            return false;
-                        }
-                ).forEach(server -> {
-                    try {
-                        DBFishery.getInstance().getBean(server.getId()).getUserBean(userId).addUpvote(isWeekend ? 2 : 1);
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Could not get fishery bean", e);
-                    }
-                });
+                        });
             });
             DBUpvotes.getInstance().getBean(userId).updateLastUpvote();
 

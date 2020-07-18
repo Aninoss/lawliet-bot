@@ -148,7 +148,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             case 0: fisheryUserBean.setFish(newValue); break;
 
             /* Coins */
-            case 1: fisheryUserBean.setCoins(newValue); break;
+            case 1: fisheryUserBean.setCoinsRaw(newValue); break;
 
             /* Daily Streak */
             case 2: fisheryUserBean.setDailyStreak(newValue); break;

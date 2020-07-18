@@ -5,13 +5,9 @@ import CommandSupporters.Command;
 import Core.*;
 import Core.Mention.Mention;
 import Core.Mention.MentionUtil;
-import Core.Utils.RandomUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public abstract class InteractionAbstract extends Command {
 
@@ -39,7 +35,7 @@ public abstract class InteractionAbstract extends Command {
         if (followedString.length() > 0)
             quote = "\n\n> " + followedString.replace("\n", "\n> ");
 
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getClassTrigger(), event.getServer().get().getId(), gifs.length)];
         EmbedBuilder eb;
         if (mention != null) {
             eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)

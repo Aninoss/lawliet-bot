@@ -20,7 +20,7 @@ import java.util.ArrayList;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDE4B",
         executable = true,
-        aliases = {"profile", "profil", "account", "balance"}
+        aliases = {"profile", "profil", "account", "balance", "fish"}
 )
 public class AccountCommand extends FisheryAbstract {
 

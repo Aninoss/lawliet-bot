@@ -2,13 +2,11 @@ package Commands.InformationCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
-import Constants.LogStatus;
 import Constants.Settings;
 import Constants.TrackerResult;
 import Core.*;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
-import Modules.SPCheck;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
@@ -82,7 +80,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
-        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getClassTrigger());
         return eb;
     }
 

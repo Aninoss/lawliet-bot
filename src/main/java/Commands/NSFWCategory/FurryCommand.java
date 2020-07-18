@@ -1,8 +1,7 @@
 package Commands.NSFWCategory;
 
 import CommandListeners.CommandProperties;
-import Commands.GelbooruAbstract;
-import Commands.Rule34Abstract;
+import Commands.PornSearchAbstract;
 
 @CommandProperties(
         trigger = "furry",
@@ -10,18 +9,22 @@ import Commands.Rule34Abstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true
+        withLoadingBar = true,
+        aliases = { "furrybooru", "yiff" }
 )
-public class FurryCommand extends Rule34Abstract {
+public class FurryCommand extends PornSearchAbstract {
 
     @Override
-    protected String getSearchKey() {
-        return "animated furry";
+    protected String getDomain() {
+        return "furry.booru.org";
     }
 
     @Override
-    protected boolean isAnimatedOnly() {
-        return true;
+    protected String getImageTemplate() {
+        return "https://furry.booru.org/images/%d/%f";
     }
+
+    @Override
+    public boolean isExplicit() { return true; }
 
 }

@@ -1,19 +1,14 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
-        trigger = "yiff",
+        trigger = "furryfuck",
         emoji = "\uD83E\uDD8A",
         executable = true,
-        nsfw = true,
-        aliases = {"knot", "furryfuck"}
+        nsfw = true
 )
-public class YiffCommand extends InteractionAbstract {
+public class FurryFuckCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
         return new String[]{"https://static1.e621.net/data/24/e1/24e19783d4e24ea5d426ade6fe554ef9.gif",

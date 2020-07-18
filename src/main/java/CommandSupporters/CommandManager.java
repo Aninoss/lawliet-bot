@@ -52,7 +52,7 @@ public class CommandManager {
                 checkPatreon(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
+            DBCommandUsages.getInstance().getBean(command.getClassTrigger()).increase();
             CommandUsers.getInstance().addUsage(event.getMessageAuthor().getId());
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
             manageSlowCommandLoadingReaction(command);

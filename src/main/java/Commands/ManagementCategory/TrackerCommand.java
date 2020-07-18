@@ -125,7 +125,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                     boolean found = false;
                     for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
                         OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByClass((Class<? extends Command>)clazz);
-                        String trigger = ((Command) command).getTrigger();
+                        String trigger = ((Command) command).getClassTrigger();
                         String category = ((Command) command).getCategory();
 
                         if (trigger.equalsIgnoreCase(arg)) {
@@ -231,7 +231,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 for (int i = 0; i < opt.length; i++) {
                     Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz);
-                    String trigger = command.getTrigger();
+                    String trigger = command.getClassTrigger();
                     String nsfw = command.isNsfw() ? " " + getString("nsfw") : "";
                     opt[i] = trigger + nsfw + " - " + TextManager.getString(getLocale(), command.getCategory(), trigger + "_description");
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
@@ -244,7 +244,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i=0; i < getOptions().length; i++) {
                     Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix());
-                    String trigger = command.getTrigger();
+                    String trigger = command.getClassTrigger();
                     getOptions()[i] = getString("slot", trackerSlots.get(i).getCommandKey().isPresent(),
                             trigger,
                             TextManager.getString(getLocale(), command.getCategory(), trigger + "_description"),

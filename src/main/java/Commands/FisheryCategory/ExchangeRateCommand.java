@@ -2,7 +2,6 @@ package Commands.FisheryCategory;
 
 import CommandListeners.*;
 import CommandSupporters.Command;
-import Constants.LogStatus;
 import Constants.TrackerResult;
 import Core.*;
 import Core.Utils.StringUtil;
@@ -28,7 +27,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getClassTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }

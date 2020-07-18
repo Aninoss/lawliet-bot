@@ -2,8 +2,6 @@ package Constants;
 
 public enum Language {
 
-    DE,
-    EN,
-    RU
+    DE, EN, RU
 
 }

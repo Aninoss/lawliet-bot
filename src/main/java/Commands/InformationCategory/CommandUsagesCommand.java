@@ -5,26 +5,15 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Commands.ListAbstract;
-import Commands.ManagementCategory.CommandManagementCommand;
-import Constants.FisheryStatus;
 import Constants.Permission;
-import Core.DiscordApiCollection;
-import Core.EmbedFactory;
-import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.CommandUsages.CommandUsagesBean;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
-import MySQL.Modules.FisheryUsers.DBFishery;
-import MySQL.Modules.FisheryUsers.FisheryUserBean;
-import MySQL.Modules.Server.DBServer;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Optional;
 
 @CommandProperties(
         trigger = "commandusages",
@@ -41,7 +30,7 @@ public class CommandUsagesCommand extends ListAbstract {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         for(Class<? extends Command> clazz: CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            commandUsages.add(new Pair<>(DBCommandUsages.getInstance().getBean(command.getTrigger()), command.getEmoji()));
+            commandUsages.add(new Pair<>(DBCommandUsages.getInstance().getBean(command.getClassTrigger()), command.getEmoji()));
         }
 
         commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));

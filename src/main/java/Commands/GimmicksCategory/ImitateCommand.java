@@ -39,9 +39,16 @@ public class ImitateCommand extends Command {
         ArrayList<User> users = userMentions.getList();
 
         ArrayList<Message> tempMessageCache = new ArrayList<>();
-        User user = users.isEmpty() ? event.getMessageAuthor().asUser().get() : users.get(0);
+        User user = null;
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("wait", user.getMentionTag(), StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
+        if (!followedString.equalsIgnoreCase("all") &&
+                !followedString.equalsIgnoreCase("everyone")
+        )
+            user = users.isEmpty() ? event.getMessageAuthor().asUser().get() : users.get(0);
+
+        String search = user != null ? user.getMentionTag() : "**" + event.getServer().get().getName() + "**";
+
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("wait", search, StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
         Message message = event.getChannel().sendMessage(eb).get();
 
         eb = getEmbed(event.getServer().get(), user, 2, tempMessageCache);
@@ -54,7 +61,9 @@ public class ImitateCommand extends Command {
 
     private EmbedBuilder getEmbed(Server server, User user, int n, ArrayList<Message> tempMessageCache) throws ExecutionException, InterruptedException {
         TextAI textAI = new TextAI(n);
-        TextAI.WordMap wordMap = TextAICache.getInstance().get(server.getId(), user.getId(), n);
+        TextAI.WordMap wordMap;
+        if (user != null) wordMap = TextAICache.getInstance().get(server.getId(), user.getId(), n);
+        else wordMap = TextAICache.getInstance().get(server.getId(), n);
 
         if (wordMap.isEmpty()) {
             if (tempMessageCache.isEmpty())
@@ -70,9 +79,13 @@ public class ImitateCommand extends Command {
         }
 
         if (response.isPresent()) {
-            return EmbedFactory.getEmbed()
-                    .setAuthor(user)
+            EmbedBuilder eb = EmbedFactory.getEmbed()
                     .setDescription(response.get());
+
+            if (user != null) eb.setAuthor(user);
+            else eb.setAuthor(server.getName(), "", server.getIcon().map(icon -> icon.getUrl().toString()).orElse(""));
+
+            return eb;
         } else {
             return getErrorEmbed();
         }
@@ -92,7 +105,7 @@ public class ImitateCommand extends Command {
                 .filter(channel -> !channel.isNsfw() &&
                         channel.canYouSee() &&
                         channel.canYouReadMessageHistory() &&
-                        channel.canWrite(user) &&
+                        (user == null || channel.canWrite(user)) &&
                         PermissionUtil.channelIsPublic(channel)
                 ).limit(REQUESTS)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -107,7 +120,7 @@ public class ImitateCommand extends Command {
                 else messageSet = startMessage.getMessagesBefore(100).get();
 
                 for (Message message : messageSet.descendingSet()) {
-                    if (message.getAuthor().getId() == user.getId()) {
+                    if (user == null || message.getAuthor().getId() == user.getId()) {
                         tempMessageCache.add(message);
                         startMessage = message;
                     }

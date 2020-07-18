@@ -106,18 +106,18 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 } else if (i < commandList.size()) {
                     Command command = commandList.get(i);
                     if (commandManagementBean.commandIsTurnedOn(command)) {
-                        commandManagementBean.getSwitchedOffElements().add(command.getTrigger());
-                        setLog(LogStatus.SUCCESS, getString("commandset", false, command.getTrigger()));
+                        commandManagementBean.getSwitchedOffElements().add(command.getClassTrigger());
+                        setLog(LogStatus.SUCCESS, getString("commandset", false, command.getClassTrigger()));
                     } else {
                         if (commandManagementBean.getSwitchedOffElements().contains(command.getCategory())) {
                             commandManagementBean.getSwitchedOffElements().remove(command.getCategory());
                             commandList.stream()
                                     .filter(c -> !c.equals(command))
-                                    .forEach(c -> commandManagementBean.getSwitchedOffElements().add(c.getTrigger()));
+                                    .forEach(c -> commandManagementBean.getSwitchedOffElements().add(c.getClassTrigger()));
                         } else {
-                            commandManagementBean.getSwitchedOffElements().remove(command.getTrigger());
+                            commandManagementBean.getSwitchedOffElements().remove(command.getClassTrigger());
                         }
-                        setLog(LogStatus.SUCCESS, getString("commandset", true, command.getTrigger()));
+                        setLog(LogStatus.SUCCESS, getString("commandset", true, command.getClassTrigger()));
                     }
                     return true;
                 }
@@ -192,7 +192,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         })
                         .filter(Objects::nonNull)
                         .filter(command -> command.getCategory().equals(category))
-                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
+                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getClassTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getClassTrigger() + "_title")))
                         .toArray(String[]::new);
                 setOptions(options);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));

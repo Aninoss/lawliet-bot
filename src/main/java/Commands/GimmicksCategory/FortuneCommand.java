@@ -5,13 +5,9 @@ import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.RandomPicker;
 import Core.Utils.RandomUtil;
-import Core.TextManager;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "fortune",
@@ -35,7 +31,7 @@ public class FortuneCommand extends Command {
     }
 
     private EmbedBuilder getEmbed(Message message, String question) {
-        int n = RandomPicker.getInstance().pick(getTrigger(), message.getServer().get().getId(), 27);
+        int n = RandomPicker.getInstance().pick(getClassTrigger(), message.getServer().get().getId(), 27);
         String answerRaw = getString("answer_" + n);
 
         String answer = answerRaw;

@@ -254,9 +254,17 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public void setCoins(long coins) {
+    public void setCoinsRaw(long coins) {
         if (this.coins != coins) {
             this.coins = coins;
+            checkValuesBound();
+            setChanged();
+        }
+    }
+
+    public void addCoins(long coins) {
+        if (coins != 0) {
+            this.coins += coins;
             checkValuesBound();
             setChanged();
         }
@@ -400,7 +408,7 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     public void addHiddenCoins(long amount) {
-        hiddenCoins = Math.min(coins, hiddenCoins + amount);
+        hiddenCoins = Math.max(0, Math.min(coins, hiddenCoins + amount));
     }
 
     public void clearUpvoteStack() {

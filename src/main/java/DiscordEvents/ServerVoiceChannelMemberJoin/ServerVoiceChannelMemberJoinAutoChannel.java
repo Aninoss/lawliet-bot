@@ -81,6 +81,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 vcb.addPermissionOverwrite(DiscordApiCollection.getInstance().getYourself(), botPermission);
 
                 ServerVoiceChannel vc = vcb.create().get();
+                vc.updateRawPosition(event.getChannel().getRawPosition()).get();
 
                 try {
                     event.getUser().move(vc).get();

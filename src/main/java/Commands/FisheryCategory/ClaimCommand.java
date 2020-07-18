@@ -1,20 +1,19 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-
-import CommandSupporters.Command;
 import Commands.FisheryAbstract;
-import Constants.*;
+import Constants.FisheryCategoryInterface;
+import Constants.Permission;
+import Constants.Settings;
 import Core.EmbedFactory;
-import Core.TextManager;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
-import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Upvotes.DBUpvotes;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -35,22 +34,25 @@ public class ClaimCommand extends FisheryAbstract {
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
-
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("nothing_description", Settings.UPVOTE_URL), getString("nothing_title"));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb).get();
             return false;
         } else {
-            long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
+            long fishes = getClaimValue(userBean);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * 0.25 * upvotesUnclaimed)), Settings.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * upvotesUnclaimed)), Settings.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb);
-            event.getChannel().sendMessage(userBean.changeValues(Math.round(fishes * 0.25 * upvotesUnclaimed), 0)).get();
+            event.getChannel().sendMessage(userBean.changeValues(fishes * upvotesUnclaimed, 0)).get();
             return true;
         }
+    }
+
+    public static long getClaimValue(FisheryUserBean userBean) {
+        return Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect() * 0.25);
     }
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) throws IOException {

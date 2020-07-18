@@ -4,14 +4,13 @@ import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventManager;
-import Modules.Reddit.RedditDownloader;
+import MySQL.DBMain;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.Tracker.DBTracker;
 import MySQL.Modules.Version.DBVersion;
 import MySQL.Modules.Version.VersionBean;
 import MySQL.Modules.Version.VersionBeanSlot;
-import MySQL.*;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -20,10 +19,12 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
 
 public class Connector {
 

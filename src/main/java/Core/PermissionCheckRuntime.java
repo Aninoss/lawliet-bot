@@ -41,7 +41,7 @@ public class PermissionCheckRuntime {
             String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> "**"+TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(n))+"**");
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
-            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getTrigger(c), channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
+            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getClassTrigger(c), channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + channel.getName() : "", permissionsList));
 
             server.getOwner().sendMessage(eb);
             setErrorInstant(server, permissions);
@@ -68,7 +68,7 @@ public class PermissionCheckRuntime {
             String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> "**@"+role.getName()+"**");
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
-            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getTrigger(c), rolesList));
+            eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getClassTrigger(c), rolesList));
 
             server.getOwner().sendMessage(eb);
             setErrorInstant(server, PERMISSION_ROLE_POS);

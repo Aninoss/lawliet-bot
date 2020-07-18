@@ -23,7 +23,7 @@ public class CommandManagementBean extends BeanWithServer {
     public CustomObservableList<String> getSwitchedOffElements() { return switchedOffElements; }
 
     public boolean commandIsTurnedOn(Command command) {
-        return !switchedOffElements.contains(command.getTrigger()) && !switchedOffElements.contains(command.getCategory());
+        return !switchedOffElements.contains(command.getClassTrigger()) && !switchedOffElements.contains(command.getCategory());
     }
 
 }

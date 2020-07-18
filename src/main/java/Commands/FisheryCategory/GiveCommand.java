@@ -1,20 +1,16 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-
-import CommandSupporters.Command;
 import Commands.FisheryAbstract;
 import Constants.Permission;
-import Constants.FisheryStatus;
-import Core.*;
-import Core.Mention.MentionUtil;
+import Core.EmbedFactory;
 import Core.Mention.MentionList;
+import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
-import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -61,13 +57,21 @@ public class GiveCommand extends FisheryAbstract {
         if (value != -1) {
             if (value >= 1) {
                 if (value <= fisheryUser0.getCoins()) {
-                    EmbedBuilder eb = fisheryUser0.changeValues(0, -value);
-                    event.getChannel().sendMessage(eb);
+                    long coins0Pre = fisheryUser0.getCoins();
+                    long coins1Pre = fisheryUser1.getCoins();
 
-                    eb = fisheryUser1.changeValues(0, value);
-                    event.getChannel().sendMessage(eb);
+                    fisheryUser0.addCoins(-value);
+                    fisheryUser1.addCoins(value);
 
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("successful", StringUtil.numToString(getLocale(), value), user1.getMentionTag()))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("successful",
+                            StringUtil.numToString(getLocale(), value),
+                            user1.getMentionTag(),
+                            user0.getMentionTag(),
+                            StringUtil.numToString(getLocale(), coins0Pre),
+                            StringUtil.numToString(getLocale(), coins0Pre - value),
+                            StringUtil.numToString(getLocale(), coins1Pre),
+                            StringUtil.numToString(getLocale(), coins1Pre + value)
+                        ))).get();
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringUtil.numToString(getLocale(), fisheryUser0.getCoins())))).get();

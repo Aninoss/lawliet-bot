@@ -3,6 +3,7 @@ package Constants;
 public enum Response {
 
     TRUE,
-    FALSE
+    FALSE,
+    ERROR
 
 }

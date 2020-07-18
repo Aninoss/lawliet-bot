@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCE5",
         executable = true,
-        aliases = {"shop", "upgrade"}
+        aliases = { "shop", "upgrade", "invest", "levelup" }
 )
 public class BuyCommand extends FisheryAbstract implements OnNavigationListener {
 

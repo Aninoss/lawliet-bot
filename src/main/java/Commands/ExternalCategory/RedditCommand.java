@@ -3,7 +3,6 @@ package Commands.ExternalCategory;
 import CommandListeners.*;
 import CommandSupporters.Command;
 import Constants.Category;
-import Constants.LogStatus;
 import Constants.TrackerResult;
 import Core.*;
 import Modules.PostBundle;
@@ -49,7 +48,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 }
 
                 EmbedBuilder eb = getEmbed(post);
-                EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+                EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getClassTrigger());
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else {

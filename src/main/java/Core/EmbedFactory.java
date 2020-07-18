@@ -6,7 +6,6 @@ import Constants.Settings;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.Locale;
 
 public class EmbedFactory {
@@ -22,7 +21,7 @@ public class EmbedFactory {
     public static EmbedBuilder getCommandEmbedStandard(Command command, String description) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(DEFAULT_EMBED_COLOR)
-                .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), command.getCategory(), command.getTrigger()+"_title"))
+                .setTitle(command.getEmoji()+" "+TextManager.getString(command.getLocale(), command.getCategory(), command.getClassTrigger()+"_title"))
                 .setTimestampToNow();
         if (description != null && description.length() > 0) eb.setDescription(description);
 

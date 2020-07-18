@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Command {
 
@@ -67,9 +68,8 @@ public abstract class Command {
         lastUserMessage = event.getMessage();
         if (commandProperties.withLoadingBar()) addLoadingReaction();
 
-        boolean successful = false;
         try {
-            successful = onMessageReceived(event, followedString);
+            onMessageReceived(event, followedString);
         } catch (Throwable e) {
             ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
             return;
@@ -132,17 +132,27 @@ public abstract class Command {
         updateThreadName();
         resetNavigation();
 
-        Response success = null;
         if (firstTime) {
             starterMessage = event.getMessage();
             reactionUserID = starterMessage.getUserAuthor().get().getId();
             ServerTextChannel channel = event.getServerTextChannel().get();
 
-            if (this instanceof HelpCommand && (!channel.canYouWrite() || !channel.canYouAddNewReactions() || !channel.canYouEmbedLinks())) navigationPrivateMessage = true;
+            if (this instanceof HelpCommand && (!channel.canYouWrite() || !channel.canYouAddNewReactions() || !channel.canYouEmbedLinks()))
+                navigationPrivateMessage = true;
         }
+
         lastUserMessage = event.getMessage();
         if (commandProperties.withLoadingBar()) addLoadingReaction();
 
+        Response success = runMessageCreate(event, followedString, firstTime);
+        if (success == Response.ERROR) return true;
+
+        addNavigationEmojis(event, firstTime, success);
+        return success != null;
+    }
+
+    private Response runMessageCreate(MessageCreateEvent event, String followedString, boolean firstTime) {
+        Response success;
         try {
             navigationActive = true;
             if (firstTime) success = onMessageReceived(event, followedString) ? Response.TRUE : Response.FALSE;
@@ -154,13 +164,15 @@ public abstract class Command {
             }
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
-            return true;
+            return Response.ERROR;
         } finally {
             removeLoadingReaction();
-            if (success != null) {
-            }
         }
 
+        return success;
+    }
+
+    private void addNavigationEmojis(MessageCreateEvent event, boolean firstTime, Response success) {
         if (firstTime) {
             if (success == Response.TRUE && navigationActive) {
                 for (int i = -1; i < ((OnNavigationListener) this).getMaxReactionNumber(); i++) {
@@ -178,52 +190,67 @@ public abstract class Command {
                 if (navigationMessage != null) addNavigation(navigationMessage,navigationMessage.getChannel(), event.getMessage().getUserAuthor().get());
             }
         } else {
-            if (success == Response.TRUE) event.getMessage().delete();
+            if (success == Response.TRUE)
+                event.getMessage().delete();
         }
-
-        return success != null;
     }
 
     public void onNavigationReactionSuper(SingleReactionEvent event) {
         updateThreadName();
 
-        //resetNavigation();
         if (countdown != null) countdown.reset();
 
-        int index = -2;
-        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Settings.BACK_EMOJI)) || (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(DiscordApiCollection.getInstance().getBackEmojiCustom().getMentionTag())))
-            index = -1;
-        else {
-            for(int i = 0; i < ((OnNavigationListener) this).getMaxReactionNumber(); i++) {
-                if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals(LetterEmojis.LETTERS[i])) {
-                    index = i;
-                    break;
-                }
-            }
-        }
+        int index = getIndex(event);
         boolean changed = true;
         try {
-            int max = ((OnNavigationListener) this).getMaxReactionNumber();
+            AtomicBoolean startCalculation = new AtomicBoolean(false);
+            index = reactionPageChangeAndGetNewIndex(index, startCalculation);
 
-            if (index >= max - 2 && options != null && options.length > max) {
-                if (index == max - 2) {
-                    page--;
-                    if (page < 0) page = pageMax;
-                } else if (index == max - 1) {
-                    page++;
-                    if (page > pageMax) page = 0;
-                }
-                resetNavigation();
-            } else {
-                if (options != null && options.length > max && index >= 0) index += (max - 2) * page;
-                resetNavigation();
+            if (startCalculation.get())
                 changed = ((OnNavigationListener) this).controllerReaction(event, index, state);
-            }
 
-            if (changed) drawSuper(event.getApi(), event.getChannel());
+            if (changed)
+                drawSuper(event.getApi(), event.getChannel());
         } catch (Throwable throwable) {
             ExceptionHandler.handleException(throwable, locale, event.getChannel());
         }
+    }
+
+    private int reactionPageChangeAndGetNewIndex(int index, AtomicBoolean startCalculation) {
+        int max = ((OnNavigationListener) this).getMaxReactionNumber();
+        if (index >= max - 2 && options != null && options.length > max) {
+            if (index == max - 2) {
+                page--;
+                if (page < 0) page = pageMax;
+            } else if (index == max - 1) {
+                page++;
+                if (page > pageMax) page = 0;
+            }
+            resetNavigation();
+            startCalculation.set(false);
+            return index;
+        } else {
+            if (options != null && options.length > max && index >= 0)
+                index += (max - 2) * page;
+            resetNavigation();
+            startCalculation.set(true);
+            return index;
+        }
+    }
+
+    private int getIndex(SingleReactionEvent event) {
+        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Settings.BACK_EMOJI)) ||
+                (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(DiscordApiCollection.getInstance().getBackEmojiCustom().getMentionTag()))
+        ) {
+            return -1;
+        } else {
+            for(int i = 0; i < ((OnNavigationListener) this).getMaxReactionNumber(); i++) {
+                if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals(LetterEmojis.LETTERS[i]))
+                    return i;
+            }
+        }
+
+        return -2;
     }
 
     public void drawSuper(DiscordApi api, TextChannel channel) throws Throwable {
@@ -257,7 +284,7 @@ public abstract class Command {
         try {
             if (navigationMessage == null) {
                 if (navigationPrivateMessage) {
-                    if (channel.canYouAddNewReactions()) starterMessage.addReaction("\u2709").get();
+                    if (channel.canYouAddNewReactions()) starterMessage.addReaction("✉").get();
                     navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
                 } else navigationMessage = channel.sendMessage(eb).get();
             } else {
@@ -427,7 +454,7 @@ public abstract class Command {
         String name = Thread.currentThread().getName();
         if (name.contains(":")) name = name.split(":")[0];
 
-        Thread.currentThread().setName(name + ":" + getTrigger());
+        Thread.currentThread().setName(name + ":" + getClassTrigger());
     }
 
     public void stopCountdown() {
@@ -535,7 +562,7 @@ public abstract class Command {
     }
     public Message getNavigationMessage() { return navigationMessage; }
 
-    public String getTrigger() { return commandProperties.trigger(); }
+    public String getClassTrigger() { return commandProperties.trigger(); }
     public String[] getAliases() { return commandProperties.aliases(); }
     public String getEmoji() { return commandProperties.emoji(); }
     public boolean isNsfw() { return commandProperties.nsfw(); }
@@ -575,22 +602,13 @@ public abstract class Command {
         return thread;
     }
 
-    public static String getTrigger(Class<? extends Command> c) {
+    public static String getClassTrigger(Class<? extends Command> c) {
         try {
-            return CommandManager.createCommandByClass(c).getTrigger();
+            return CommandManager.createCommandByClass(c).getClassTrigger();
         } catch (IllegalAccessException | InstantiationException e) {
             LOGGER.error("Could not create command", e);
         }
         return "???";
-    }
-
-    public static CommandLanguage getCommandLanguage(Class<? extends Command> c) {
-        try {
-            return CommandManager.createCommandByClass(c).getCommandLanguage();
-        } catch (IllegalAccessException | InstantiationException e) {
-            LOGGER.error("Could not create command", e);
-        }
-        return null;
     }
 
 }

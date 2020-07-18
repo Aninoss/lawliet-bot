@@ -23,12 +23,6 @@ public class AnimeReleaseDownloader {
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filter) throws InterruptedException, ExecutionException {
         filter = StringUtil.trimString(filter);
 
-        /*String downloadUrl;
-        switch (StringUtil.getLanguage(locale)) {
-            case DE: downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=deDE"; break;
-            default: downloadUrl = "https://www.crunchyroll.com/rss/anime?lang=enUS";
-        }*/
-
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 14 * 60).get();

@@ -14,7 +14,7 @@ public class TextAICache {
     private TextAICache() {}
 
     private final LoadingCache<String, TextAI.WordMap> cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.HOURS)
+            .expireAfterWrite(2, TimeUnit.HOURS)
             .build(new CacheLoader<String, TextAI.WordMap>() {
                 @Override
                 public TextAI.WordMap load(@NonNull String userOnServer) throws Exception {
@@ -24,6 +24,18 @@ public class TextAICache {
 
     public TextAI.WordMap get(long serverId, long userId, int contextSize) throws ExecutionException {
         return cache.get(generateKey(serverId, userId, contextSize));
+    }
+
+    public TextAI.WordMap get(long serverId, int contextSize) throws ExecutionException {
+        return cache.get(generateKey(serverId, contextSize));
+    }
+
+    private String generateKey(long serverId, int contextSize) {
+        StringBuilder sb = new StringBuilder()
+                .append(serverId)
+                .append(contextSize);
+
+        return sb.toString();
     }
 
     private String generateKey(long serverId, long userId, int contextSize) {

@@ -7,8 +7,6 @@ import CommandSupporters.CommandManager;
 import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
 import Core.*;
-import Core.Utils.TimeUtil;
-import ServerStuff.Discordbotlist;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -103,7 +101,7 @@ public class TrackerBean extends Observable {
         ArrayList<ArrayList<TrackerBeanSlot>> trackerCommandTriggerList = new ArrayList<>();
 
         for(Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
-            String commandTrigger = Command.getTrigger((Class<? extends Command>) clazz);
+            String commandTrigger = Command.getClassTrigger((Class<? extends Command>) clazz);
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
             getMap().values().stream()

@@ -138,7 +138,7 @@ public class Console {
                                     long serverId = Long.parseLong(arg.split(" ")[0]);
                                     long userId = Long.parseLong(arg.split(" ")[1]);
                                     long value = Long.parseLong(arg.split(" ")[2]);
-                                    DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoins(value);
+                                    DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoinsRaw(value);
                                     LOGGER.info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
                                 } catch (Throwable e) {
                                     LOGGER.error("Could not manage user fish", e);
