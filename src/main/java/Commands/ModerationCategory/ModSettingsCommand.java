@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "mod",
         botPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\u2699\uFE0F️",
+        emoji = "️⚙️️",
         executable = true,
         aliases = {"modsettings"}
 )
@@ -48,7 +48,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
-    private static final String EMOJI_AUTOMOD = "\uD83D\uDC77";
+    private static final String EMOJI_AUTOMOD = "👷";
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -141,9 +141,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"no_digit"));
                     return Response.FALSE;
                 }
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -171,8 +172,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                     case 3:
                         setState(3);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 1:
                 switch (i) {
@@ -185,8 +188,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         setLog(LogStatus.SUCCESS, getString("channelreset"));
                         setState(0);
                         return true;
+
+                    default:
+                            return false;
                 }
-                return false;
 
             case 2:
                 switch (i) {
@@ -199,8 +204,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 3:
                 switch (i) {
@@ -213,8 +220,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 4:
                 switch (i) {
@@ -227,8 +236,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 5:
                 switch (i) {
@@ -241,10 +252,14 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
+
+                    default:
+                        return false;
                 }
+
+            default:
                 return false;
         }
-        return false;
     }
 
     @Override
@@ -277,8 +292,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
             case 5:
                 setOptions(new String[]{getString("state4_options")});
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     private String getAutoModString(int value, int days) throws IOException {

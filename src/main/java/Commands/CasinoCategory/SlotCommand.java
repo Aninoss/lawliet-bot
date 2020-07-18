@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "slot",
-        emoji = "\uD83C\uDFB0",
+        emoji = "🎰",
         executable = true,
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         aliases = {"slots", "slotmachine"}
@@ -34,7 +34,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     private boolean[] progress;
     private LogStatus logStatus;
     private boolean first;
-    private final String[] FRUITS_CONTAINER = {"\uD83C\uDF47", "\uD83C\uDF48", "\uD83C\uDF49", "\uD83C\uDF4A", "\uD83C\uDF4B", "\uD83C\uDF4C", "\uD83C\uDF4D", "\uD83C\uDF4E", "\uD83C\uDF50", "\uD83C\uDF51", "\uD83C\uDF52", "\uD83C\uDF53", "\uD83C\uDD92"};
+    private final String[] FRUITS_CONTAINER = {"🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🍎", "🍐", "🍑", "🍒", "🍓", "🆒"};
     private final double[] WIN_POSSABILITIES = {10, 20, 100, 200};
     private final double[] WIN_AMOUNT_ADJUSTMENT = {1.6, 1.2, 0.8, 0.4};
     private int[] fruits;
@@ -70,41 +70,64 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     private void setFruits() {
+        switch (winLevel) {
+            case 0:
+                setFruitsLevel0();
+                break;
+
+            case 1:
+            case 2:
+                setFruitsLevel1_2();
+                break;
+
+            case 3:
+            case 4:
+                setFruitsLevel3_4();
+                break;
+
+            default:
+                setFruitsLevel0();
+        }
+    }
+
+    private void setFruitsLevel3_4() {
         Random r = new Random();
 
-        if (winLevel == 0) {
-            int n;
-            for (int i = 0; i < 3; i++) {
+        int selectedFruit = r.nextInt(FRUITS_CONTAINER.length - 1);
+        if (winLevel == 4) selectedFruit =FRUITS_CONTAINER.length - 1;
+        for (int i = 0; i < 3; i++) {
+            fruits[i] = selectedFruit;
+        }
+    }
+
+    private void setFruitsLevel1_2() {
+        Random r = new Random();
+
+        int n;
+        int notSelected = r.nextInt(3);
+        int selectedFruit = r.nextInt(FRUITS_CONTAINER.length - 1);
+        if (winLevel == 2) selectedFruit =FRUITS_CONTAINER.length - 1;
+        for (int i = 0; i < 3; i++) {
+            if (notSelected != i) {
+                fruits[i] = selectedFruit;
+            } else {
                 do {
                     n = r.nextInt(FRUITS_CONTAINER.length);
-                } while (n == fruits[0] || n == fruits[1] || n == fruits[2]);
+                } while (n == selectedFruit);
                 fruits[i] = n;
             }
         }
+    }
 
-        if (winLevel == 1 || winLevel == 2) {
-            int n;
-            int notSelected = r.nextInt(3);
-            int selectedFruit = r.nextInt(FRUITS_CONTAINER.length - 1);
-            if (winLevel == 2) selectedFruit =FRUITS_CONTAINER.length - 1;
-            for (int i = 0; i < 3; i++) {
-                if (notSelected != i) {
-                    fruits[i] = selectedFruit;
-                } else {
-                    do {
-                        n = r.nextInt(FRUITS_CONTAINER.length);
-                    } while (n == selectedFruit);
-                    fruits[i] = n;
-                }
-            }
-        }
+    private void setFruitsLevel0() {
+        Random r = new Random();
 
-        if (winLevel == 3 || winLevel == 4) {
-            int selectedFruit = r.nextInt(FRUITS_CONTAINER.length - 1);
-            if (winLevel == 4) selectedFruit =FRUITS_CONTAINER.length - 1;
-            for (int i = 0; i < 3; i++) {
-                fruits[i] = selectedFruit;
-            }
+        int n;
+        for (int i = 0; i < 3; i++) {
+            do {
+                n = r.nextInt(FRUITS_CONTAINER.length);
+            } while (n == fruits[0] || n == fruits[1] || n == fruits[2]);
+            fruits[i] = n;
         }
     }
 

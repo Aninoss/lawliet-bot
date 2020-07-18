@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "reactionroles",
         botPermissions = Permission.MANAGE_ROLES | Permission.READ_MESSAGE_HISTORY,
         userPermissions = Permission.MANAGE_ROLES,
-        emoji = "\u2611\uFE0F️",
+        emoji = "☑️️",
         executable = true,
         aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
 )
@@ -202,9 +202,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -226,8 +227,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         setState(2);
                         editMode = true;
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             //Reaction Message hinzufügen
             case 1:
@@ -241,8 +244,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                             setState(3);
                             return true;
                         }
+
+                    default:
+                        return false;
                 }
-                return false;
 
             //Reaction Message bearbeiten
             case 2:
@@ -257,8 +262,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                             setState(3);
                             return true;
                         }
+
+                    default:
+                        return false;
                 }
-                return false;
 
             //Message konfigurieren
             case 3:
@@ -349,8 +356,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                             removeNavigation();
                             return true;
                         } break;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             //Verknüpfung hinzufügen
             case 6:
@@ -361,15 +370,12 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     return true;
                 }
 
-                switch (i) {
-                    case -1:
-                        setState(3);
-                        return true;
-
-                    default:
-                        event.getMessage().get().removeReactionByEmoji(event.getUser(), event.getEmoji());
-                        return calculateEmoji(event.getEmoji());
+                if (i == -1) {
+                    setState(3);
+                    return true;
                 }
+                event.getMessage().get().removeReactionByEmoji(event.getUser(), event.getEmoji());
+                return calculateEmoji(event.getEmoji());
 
             //Verknüpfung entfernen
             case 7:
@@ -478,9 +484,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
             case 9:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state9_description"), getString("state9_title"));
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -567,51 +574,61 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
 
         if (queueFind(message.getId(), user.getId()) == null) {
-
             try {
                 updateValuesFromMessage(message);
 
                 if (!multipleRoles) {
                     queueAdd(message.getId(), user.getId());
-
-                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
-                        if (rOpt.isPresent()) {
-                            Role r = rOpt.get();
-                            if (r.hasUser(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
-                                r.removeUser(event.getUser());
-                        }
-                    }
+                    removeMultipleRoles(event);
                 }
 
-                for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                    if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
-                        Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
-                        if (!rOpt.isPresent()) return;
-                        Role r = rOpt.get();
-                        for (Reaction reaction : message.getReactions()) {
-                            List<User> userList = reaction.getUsers().get();
-
-                            for (User userCheck : userList) {
-                                if (!message.getServer().get().getMemberById(userCheck.getId()).isPresent() &&
-                                        userCheck.getId() != user.getId() && message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()
-                                ) {
-                                    reaction.removeUser(userCheck).get();
-                                }
-                            }
-                        }
-
-                        if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) event.getUser().addRole(r).get();
-                        return;
-                    }
-                }
-
-                event.removeReaction();
+                if (!giveRole(message, event, user))
+                    event.removeReaction();
             } catch (Throwable e) {
                 event.removeReaction();
                 throw e;
             } finally {
                 queueRemove(message.getId(), user.getId());
+            }
+        }
+    }
+
+    private boolean giveRole(Message message, ReactionAddEvent event, User user) throws ExecutionException, InterruptedException {
+        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+            if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
+                Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+
+                if (!rOpt.isPresent())
+                    return true;
+
+                Role r = rOpt.get();
+                for (Reaction reaction : message.getReactions()) {
+                    List<User> userList = reaction.getUsers().get();
+
+                    for (User userCheck : userList) {
+                        if (!message.getServer().get().getMemberById(userCheck.getId()).isPresent() &&
+                                userCheck.getId() != user.getId() && message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()
+                        ) {
+                            reaction.removeUser(userCheck).get();
+                        }
+                    }
+                }
+
+                if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) event.getUser().addRole(r).get();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void removeMultipleRoles(ReactionAddEvent event) {
+        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+            Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
+            if (rOpt.isPresent()) {
+                Role r = rOpt.get();
+                if (r.hasUser(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
+                    r.removeUser(event.getUser());
             }
         }
     }
