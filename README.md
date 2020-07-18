@@ -1,3 +1,4 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/aninoss/lawliet/badge)](https://www.codefactor.io/repository/github/aninoss/lawliet)
 # Lawliet
 The source code of the Lawliet Discord Bot  
 https://top.gg/bot/368521195940741122
