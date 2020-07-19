@@ -3,36 +3,27 @@ package Commands.ModerationCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
-import CommandSupporters.CommandManager;
-import Constants.*;
-import Core.*;
+import Constants.LogStatus;
+import Constants.Permission;
+import Constants.Response;
+import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
-import MySQL.Modules.Server.DBServer;
-import MySQL.Modules.Warning.DBServerWarnings;
-import MySQL.Modules.Warning.ServerWarningsBean;
-import MySQL.Modules.Warning.ServerWarningsSlot;
-import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "mod",
@@ -48,7 +39,6 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
-    private static final String EMOJI_AUTOMOD = "👷";
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -309,69 +299,6 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
     @Override
     public int getMaxReactionNumber() {
         return 4;
-    }
-
-    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws ExecutionException, InterruptedException {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
-        serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
-                DBServer.getInstance().getBean(server.getId()),
-                user.getId(),
-                Instant.now(),
-                requestor.getId(),
-                reason == null || reason.isEmpty() ? null : reason)
-        );
-
-        ModerationBean moderationBean = DBModeration.getInstance().getBean(server.getId());
-
-        int autoKickDays = moderationBean.getAutoKickDays();
-        int autoBanDays = moderationBean.getAutoBanDays();
-
-        boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
-        boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
-
-        if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS) && server.canYouBanUser(user)) {
-            try {
-                server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).get();
-
-                EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
-
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
-            } catch (IllegalAccessException | InstantiationException | ExecutionException e) {
-                LOGGER.error("Could not ban user", e);
-            }
-        }
-
-        else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.KICK_MEMBERS) && server.canYouKickUser(user)) {
-            try {
-                server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).get();
-
-                EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
-
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
-            } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
-                LOGGER.error("Could not kick user", e);
-            }
-        }
-    }
-
-    public static void postLog(Command command, EmbedBuilder eb, Server server) throws ExecutionException {
-        postLog(command, eb, DBModeration.getInstance().getBean(server.getId()));
-    }
-
-    public static void postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean) {
-        moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), serverTextChannel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
-                try {
-                    serverTextChannel.sendMessage(eb).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.error("Could not post warning", e);
-                }
-            }
-        });
     }
 
 }

@@ -1,9 +1,9 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import Commands.FisheryCategory.ClaimCommand;
 import Constants.FisheryStatus;
 import Core.DiscordApiCollection;
 import Core.PatreonCache;
+import Modules.Fishery;
 import MySQL.Modules.AutoClaim.DBAutoClaim;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -53,7 +53,7 @@ public class OnTopGG implements DataListener<JSONObject> {
                                 if (PatreonCache.getInstance().getPatreonLevel(userId) >= 1 &&
                                         DBAutoClaim.getInstance().getBean(userId).isActive()
                                 ) {
-                                    userBean.changeValues(ClaimCommand.getClaimValue(userBean) * value, 0);
+                                    userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
                                 } else {
                                     userBean.addUpvote(value);
                                 }

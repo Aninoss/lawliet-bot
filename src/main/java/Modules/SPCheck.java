@@ -1,7 +1,6 @@
 package Modules;
 
 import CommandSupporters.CommandManager;
-import Commands.ModerationCategory.ModSettingsCommand;
 import Commands.ModerationCategory.SelfPromotionBlockCommand;
 import Constants.Category;
 import Constants.Settings;
@@ -48,8 +47,8 @@ public class SPCheck {
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
 
-            ModSettingsCommand.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale()), eb, server);
-            ModSettingsCommand.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_title"));
+            Mod.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale()), eb, server);
+            Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_title"));
 
             return false;
         }

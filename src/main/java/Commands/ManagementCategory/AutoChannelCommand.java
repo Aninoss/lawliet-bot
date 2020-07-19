@@ -9,6 +9,7 @@ import Constants.Response;
 import Core.*;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
+import Modules.AutoChannel;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
@@ -20,8 +21,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @CommandProperties(
         trigger = "autochannel",
@@ -129,7 +128,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
                         .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet), true)
-                        .addField(getString("state0_mchannelname"), replaceVariables(autoChannelBean.getNameMask(),
+                        .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(autoChannelBean.getNameMask(),
                                 "`%VCNAME`",
                                 "`%INDEX`",
                                 "`%CREATOR`").replace("``", "` `"), true)
@@ -154,9 +153,4 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
         return 4;
     }
 
-    public static String replaceVariables(String string, String arg1, String arg2, String arg3) {
-        return string.replaceAll("(?i)" + Pattern.quote("%vcname"), Matcher.quoteReplacement(arg1))
-                .replaceAll("(?i)" + Pattern.quote("%index"), Matcher.quoteReplacement(arg2))
-                .replaceAll("(?i)" + Pattern.quote("%creator"), Matcher.quoteReplacement(arg3));
-    }
 }

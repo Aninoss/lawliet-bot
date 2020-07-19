@@ -2,12 +2,12 @@ package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
 import Commands.FisheryAbstract;
-import Constants.FisheryCategoryInterface;
 import Constants.Permission;
 import Constants.Settings;
 import Core.EmbedFactory;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
+import Modules.Fishery;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Upvotes.DBUpvotes;
@@ -40,7 +40,7 @@ public class ClaimCommand extends FisheryAbstract {
             event.getChannel().sendMessage(eb).get();
             return false;
         } else {
-            long fishes = getClaimValue(userBean);
+            long fishes = Fishery.getClaimValue(userBean);
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * upvotesUnclaimed)), Settings.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
@@ -49,10 +49,6 @@ public class ClaimCommand extends FisheryAbstract {
             event.getChannel().sendMessage(userBean.changeValues(fishes * upvotesUnclaimed, 0)).get();
             return true;
         }
-    }
-
-    public static long getClaimValue(FisheryUserBean userBean) {
-        return Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect() * 0.25);
     }
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) throws IOException {

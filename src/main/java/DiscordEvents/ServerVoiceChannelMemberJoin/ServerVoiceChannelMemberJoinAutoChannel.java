@@ -6,6 +6,7 @@ import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerVoiceChannelMemberJoinAbstract;
+import Modules.AutoChannel;
 import MySQL.Modules.AutoChannel.AutoChannelBean;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.Server.DBServer;
@@ -104,7 +105,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
     private String getNewVCName(AutoChannelBean autoChannelBean, ServerVoiceChannelMemberJoinEvent event, int n) {
         String name = autoChannelBean.getNameMask();
-        name = AutoChannelCommand.replaceVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
+        name = AutoChannel.resolveVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
         name = name.substring(0, Math.min(100, name.length()));
         return name;
     }

@@ -3,13 +3,13 @@ package Commands.FisheryCategory;
 import CommandListeners.CommandProperties;
 import CommandListeners.OnNavigationListener;
 import Commands.FisheryAbstract;
-import Commands.FisherySettingsCategory.FisheryRolesCommand;
 import Constants.*;
 import Core.EmbedFactory;
 import Core.PermissionCheckRuntime;
 import Core.TextManager;
 import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
+import Modules.Fishery;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
@@ -270,7 +270,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
     }
 
     private long calculateRolePrice(FisheryUserPowerUpBean slot) throws ExecutionException {
-        return FisheryRolesCommand.getFisheryRolePrice(server, fisheryServerBean.getRoleIds(), slot.getLevel());
+        return Fishery.getFisheryRolePrice(server, fisheryServerBean.getRoleIds(), slot.getLevel());
     }
 
     @Override

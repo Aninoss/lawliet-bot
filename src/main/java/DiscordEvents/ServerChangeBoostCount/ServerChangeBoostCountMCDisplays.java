@@ -1,13 +1,11 @@
 package DiscordEvents.ServerChangeBoostCount;
 
-import Commands.ManagementCategory.MemberCountDisplayCommand;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerChangeBoostCountAbstract;
-import DiscordEvents.EventTypeAbstracts.ServerMemberLeaveAbstract;
+import Modules.MemberCountDisplay;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.ServerChangeBoostCountEvent;
-import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 
 import java.util.Locale;
 
@@ -19,7 +17,7 @@ public class ServerChangeBoostCountMCDisplays extends ServerChangeBoostCountAbst
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
-        MemberCountDisplayCommand.manage(locale, server);
+        MemberCountDisplay.manage(locale, server);
         return true;
     }
 

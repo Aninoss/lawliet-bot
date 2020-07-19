@@ -7,6 +7,7 @@ import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerMemberJoinAbstract;
 import Modules.ImageCreator;
+import Modules.Welcome;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
@@ -40,7 +41,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                         if (image != null) {
                             channel.sendMessage(
                                     StringUtil.defuseMassPing(
-                                            WelcomeCommand.replaceVariables(
+                                            Welcome.resolveVariables(
                                                     welcomeMessageBean.getWelcomeText(),
                                                     server.getName(),
                                                     user.getMentionTag(),
@@ -55,7 +56,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                         } else {
                             channel.sendMessage(
                                     StringUtil.defuseMassPing(
-                                            WelcomeCommand.replaceVariables(
+                                            Welcome.resolveVariables(
                                                     welcomeMessageBean.getWelcomeText(),
                                                     server.getName(),
                                                     user.getMentionTag(),

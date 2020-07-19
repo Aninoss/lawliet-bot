@@ -12,6 +12,7 @@ import Core.Mention.MentionUtil;
 import Core.Utils.InternetUtil;
 import Core.Utils.StringUtil;
 import Modules.ImageCreator;
+import Modules.Welcome;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
 import org.javacord.api.DiscordApi;
@@ -31,8 +32,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @CommandProperties(
     trigger = "welcome",
@@ -238,7 +237,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
                         .addField(getString("state0_mtitle"), welcomeMessageBean.getWelcomeTitle(), true)
                         .addField(getString("state0_mdescription"),
-                               replaceVariables(welcomeMessageBean.getWelcomeText(),
+                               Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
                                        "`%SERVER`",
                                        "`%USER_MENTION`",
                                        "`%USER_NAME`",
@@ -249,7 +248,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
                         .addField(getString("state0_mgoodbyeText"),
-                               replaceVariables(welcomeMessageBean.getGoodbyeText(),
+                               Welcome.resolveVariables(welcomeMessageBean.getGoodbyeText(),
                                        "`%SERVER`",
                                        "`%USER_MENTION`",
                                        "`%USER_NAME`",
@@ -278,7 +277,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
     public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
         Server server = welcomeMessageBean.getServer().get();
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setDescription(replaceVariables(welcomeMessageBean.getWelcomeText(),
+                .setDescription(Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
                         server.getName(),
                         user.getMentionTag(),
                         user.getName(),
@@ -289,11 +288,4 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
         return eb;
     }
 
-    public static String replaceVariables(String string, String arg1, String arg2, String arg3, String arg4, String arg5) {
-        return string.replaceAll("(?i)" + Pattern.quote("%server"), Matcher.quoteReplacement(arg1))
-                .replaceAll("(?i)" + Pattern.quote("%user_mention"), Matcher.quoteReplacement(arg2))
-                .replaceAll("(?i)" + Pattern.quote("%user_discriminated"), Matcher.quoteReplacement(arg4))
-                .replaceAll("(?i)" + Pattern.quote("%user_name"), Matcher.quoteReplacement(arg3))
-                .replaceAll("(?i)" + Pattern.quote("%members"), Matcher.quoteReplacement(arg5));
-    }
 }

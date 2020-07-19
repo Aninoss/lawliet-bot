@@ -1,4 +1,4 @@
-package Modules.AnimeNews;
+package Modules.AnimeRelease;
 
 import java.time.Instant;
 import java.util.Optional;

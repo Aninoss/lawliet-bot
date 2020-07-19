@@ -1,8 +1,8 @@
 package DiscordEvents.ServerMemberLeave;
 
-import Commands.ManagementCategory.MemberCountDisplayCommand;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerMemberLeaveAbstract;
+import Modules.MemberCountDisplay;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
@@ -17,7 +17,7 @@ public class ServerMemberLeaveMCDisplays extends ServerMemberLeaveAbstract {
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
-        MemberCountDisplayCommand.manage(locale, server);
+        MemberCountDisplay.manage(locale, server);
         return true;
     }
 

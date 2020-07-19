@@ -8,6 +8,7 @@ import Core.*;
 import Core.Mention.Mention;
 import Core.Mention.MentionUtil;
 import Core.Utils.PermissionUtil;
+import Modules.Mod;
 import Modules.Mute.MuteData;
 import Modules.Mute.MuteManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -89,7 +90,7 @@ public class ChannelMuteCommand extends Command  {
         }
 
         if (doneSomething)
-            ModSettingsCommand.postLog(this, actionEmbed, event.getServer().get());
+            Mod.postLog(this, actionEmbed, event.getServer().get());
 
         if (!mute || !successfulUsers.contains(DiscordApiCollection.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;

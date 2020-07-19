@@ -6,6 +6,7 @@ import Core.PermissionCheckRuntime;
 import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerMemberLeaveAbstract;
+import Modules.Welcome;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.WelcomeMessage.DBWelcomeMessage;
 import MySQL.Modules.WelcomeMessage.WelcomeMessageBean;
@@ -36,7 +37,7 @@ public class ServerMemberLeaveWelcome extends ServerMemberLeaveAbstract {
                     try {
                         channel.sendMessage(
                                 StringUtil.defuseMassPing(
-                                        WelcomeCommand.replaceVariables(
+                                        Welcome.resolveVariables(
                                                 welcomeMessageBean.getGoodbyeText(),
                                                 server.getName(),
                                                 user.getMentionTag(),

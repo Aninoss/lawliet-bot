@@ -1,10 +1,10 @@
 package DiscordEvents.MessageCreate;
 
-import Commands.FisherySettingsCategory.TreasureCommand;
 import Constants.FisheryStatus;
 import Core.CustomObservableList;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.MessageCreateAbstract;
+import Modules.Fishery;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.Server.DBServer;
@@ -48,7 +48,7 @@ public class MessageCreateFishery extends MessageCreateAbstract {
             }
 
             if (noSpamChannel) {
-                TreasureCommand.spawnTreasureChest(event.getServer().get().getId(), event.getServerTextChannel().get());
+                Fishery.spawnTreasureChest(event.getServer().get().getId(), event.getServerTextChannel().get());
             }
         }
 

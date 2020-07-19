@@ -1,10 +1,12 @@
 package Commands.InformationCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.Settings;
 import Constants.TrackerResult;
-import Core.*;
+import Core.EmbedFactory;
+import Core.TextManager;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
@@ -14,8 +16,6 @@ import MySQL.Modules.Version.VersionBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
         aliases = {"changelog"}
 )
 public class NewCommand extends Command implements OnTrackerRequestListener {
-
-    final static Logger LOGGER = LoggerFactory.getLogger(NewCommand.class);
 
     VersionBean versionBean;
 

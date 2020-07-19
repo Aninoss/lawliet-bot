@@ -1,4 +1,4 @@
-package Modules.AnimeNews;
+package Modules.AnimeRelease;
 
 import Constants.Language;
 import Core.Internet.HttpResponse;

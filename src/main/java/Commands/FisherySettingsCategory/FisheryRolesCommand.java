@@ -7,6 +7,7 @@ import Constants.*;
 import Core.*;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
+import Modules.Fishery;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import MySQL.Modules.Server.DBServer;
@@ -17,14 +18,12 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -223,27 +222,11 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
     private String getRoleString(Role role) {
         int n = roles.indexOf(role);
         try {
-            return getString("state0_rolestring", role.getMentionTag(), StringUtil.numToString(getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
+            return getString("state0_rolestring", role.getMentionTag(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
         } catch (ExecutionException e) {
             LOGGER.error("Exception", e);
             return "";
         }
-    }
-
-    public static long getFisheryRolePrice(Server server, List<Long> roleIds, int n) throws ExecutionException {
-        ServerBean serverBean = DBServer.getInstance().getBean(server.getId());
-
-        double priceIdealMin = serverBean.getFisheryRoleMin();
-        double priceIdealMax = serverBean.getFisheryRoleMax();
-
-        if (roleIds.size() == 1) return (long) priceIdealMin;
-
-        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double)(roleIds.size() - 1));
-
-        double price = Math.pow(power, n);
-        double priceMax = Math.pow(power, roleIds.size() - 1);
-
-        return Math.round(price * (priceIdealMax / priceMax));
     }
 
     @Override

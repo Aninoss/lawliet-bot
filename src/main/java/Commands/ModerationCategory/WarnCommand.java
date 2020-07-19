@@ -10,6 +10,7 @@ import Core.Mention.MentionList;
 import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.StringUtil;
+import Modules.Mod;
 import MySQL.Modules.Moderation.DBModeration;
 import MySQL.Modules.Moderation.ModerationBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -105,11 +106,11 @@ public class WarnCommand extends Command implements OnReactionAddListener {
             } catch (ExecutionException e) {
                 //Ignore
             }
-            ModSettingsCommand.insertWarning(getLocale(), channel.getServer(), user, executer, reason);
+            Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason);
             process(channel.getServer(), user);
         }
 
-        ModSettingsCommand.postLog(this, actionEmbed, moderationBean);
+        Mod.postLog(this, actionEmbed, moderationBean);
 
         EmbedBuilder successEb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.toString()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
