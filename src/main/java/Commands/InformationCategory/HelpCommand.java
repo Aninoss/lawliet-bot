@@ -111,9 +111,9 @@ public class HelpCommand extends Command implements OnNavigationListener {
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            String commandTrigger = command.getClassTrigger();
+            String commandTrigger = command.getTrigger();
 
-            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getClassTrigger())) {
+            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger())) {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 
@@ -176,10 +176,20 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
 
                     switch (category) {
-                        case Category.INTERACTIONS: categoryInteractionsEmotes(eb, Category.INTERACTIONS); break;
-                        case Category.EMOTES: categoryInteractionsEmotes(eb, Category.EMOTES); break;
-                        case Category.NSFW: categoryNSFW(eb); break;
-                        default: categoryDefault(eb, category);
+                        case Category.INTERACTIONS:
+                            categoryInteractionsEmotes(eb, Category.INTERACTIONS);
+                            break;
+
+                        case Category.EMOTES:
+                            categoryInteractionsEmotes(eb, Category.EMOTES);
+                            break;
+
+                        case Category.NSFW:
+                            categoryNSFW(eb);
+                            break;
+
+                        default:
+                            categoryDefault(eb, category);
                     }
 
                     return eb;
@@ -197,8 +207,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            String commandTrigger = command.getClassTrigger();
-            if (!commandTrigger.equals(getClassTrigger()) && command.getCategory().equals(category)) {
+            String commandTrigger = command.getTrigger();
+            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
                 stringBuilder
                         .append("• `")
                         .append(command.getEmoji())
@@ -232,9 +242,9 @@ public class HelpCommand extends Command implements OnNavigationListener {
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            String commandTrigger = command.getClassTrigger();
+            String commandTrigger = command.getTrigger();
             User author = getStarterMessage().getUserAuthor().get();
-            if (!commandTrigger.equals(getClassTrigger()) && command.getCategory().equals(category)) {
+            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category)) {
                 StringBuilder commands = new StringBuilder();
                 boolean canAccess = PermissionUtil.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
@@ -261,7 +271,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .append(" - ")
                         .append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description"))
                         .append("\n\n");
-                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getClassTrigger()));
+                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
 
                 eb.addField(Settings.EMPTY_EMOJI, commands.toString());
@@ -282,12 +292,12 @@ public class HelpCommand extends Command implements OnNavigationListener {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
             if (command.getCategory().equals(Category.NSFW)) {
-                String title = TextManager.getString(getLocale(), command.getCategory(), command.getClassTrigger() + "_title");
+                String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
                 if (command instanceof PornSearchAbstract)
-                    withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getClassTrigger(), patreonIcon, title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
-                    withoutSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getClassTrigger(), patreonIcon, title)).append("\n");
+                    withoutSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
             }
         }
 

@@ -35,7 +35,7 @@ public abstract class InteractionAbstract extends Command {
         if (followedString.length() > 0)
             quote = "\n\n> " + followedString.replace("\n", "\n> ");
 
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getClassTrigger(), event.getServer().get().getId(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
         EmbedBuilder eb;
         if (mention != null) {
             eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)

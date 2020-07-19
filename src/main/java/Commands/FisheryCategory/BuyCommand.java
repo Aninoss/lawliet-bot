@@ -6,9 +6,9 @@ import Commands.FisheryAbstract;
 import Commands.FisherySettingsCategory.FisheryRolesCommand;
 import Constants.*;
 import Core.EmbedFactory;
-import Core.Utils.PermissionUtil;
 import Core.PermissionCheckRuntime;
 import Core.TextManager;
+import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "buy",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        emoji = "\uD83D\uDCE5",
+        emoji = "📥",
         executable = true,
         aliases = { "shop", "upgrade", "invest", "levelup" }
 )
@@ -58,57 +58,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
             String letters = StringUtil.filterLettersFromString(followedString).toLowerCase().replace(" ", "");
             long numbers = StringUtil.filterLongFromString(followedString);
 
-            int i;
-            switch (letters) {
-                case "fishingrod":
-                case "rod":
-                case "message":
-                case "messages":
-                    i = FisheryCategoryInterface.PER_MESSAGE;
-                    break;
-
-                case "fishingrobot":
-                case "robot":
-                case "fishingbot":
-                case "bot":
-                case "daily":
-                case "dailies":
-                    i = FisheryCategoryInterface.PER_DAY;
-                    break;
-
-                case "fishingnet":
-                case "net":
-                case "vc":
-                case "voicechannel":
-                case "voicechannels":
-                    i = FisheryCategoryInterface.PER_VC;
-                    break;
-
-                case "metaldetector":
-                case "treasurechest":
-                case "treasurechests":
-                case "chest":
-                case "chests":
-                    i = FisheryCategoryInterface.PER_TREASURE;
-                    break;
-
-                case "role":
-                case "roles":
-                case "buyablerole":
-                case "buyableroles":
-                case "fisheryrole":
-                case "fisheryroles":
-                    i = FisheryCategoryInterface.ROLE;
-                    break;
-
-                case "survey":
-                case "surveys":
-                    i = FisheryCategoryInterface.PER_SURVEY;
-                    break;
-
-                default:
-                    i = -1;
-            }
+            int i = getI(letters);
 
             long amount = 1;
             if (numbers != -1) {
@@ -134,6 +84,53 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
         }
 
         return true;
+    }
+
+    private int getI(String letters) {
+        switch (letters) {
+            case "fishingrod":
+            case "rod":
+            case "message":
+            case "messages":
+                return FisheryCategoryInterface.PER_MESSAGE;
+
+            case "fishingrobot":
+            case "robot":
+            case "fishingbot":
+            case "bot":
+            case "daily":
+            case "dailies":
+                return FisheryCategoryInterface.PER_DAY;
+
+            case "fishingnet":
+            case "net":
+            case "vc":
+            case "voicechannel":
+            case "voicechannels":
+                return FisheryCategoryInterface.PER_VC;
+
+            case "metaldetector":
+            case "treasurechest":
+            case "treasurechests":
+            case "chest":
+            case "chests":
+                return FisheryCategoryInterface.PER_TREASURE;
+
+            case "role":
+            case "roles":
+            case "buyablerole":
+            case "buyableroles":
+            case "fisheryrole":
+            case "fisheryroles":
+                return FisheryCategoryInterface.ROLE;
+
+            case "survey":
+            case "surveys":
+                return FisheryCategoryInterface.PER_SURVEY;
+
+            default:
+                return -1;
+        }
     }
 
     @Override
@@ -175,34 +172,37 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
             long price = slot.getPrice();
             if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) price = calculateRolePrice(slot);
             if (fisheryUserBean.getCoins() >= price) {
-                fisheryUserBean.changeValues(0, -price);
-                fisheryUserBean.levelUp(slot.getPowerUpId());
-
-                if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
-                    roles.get(slot.getLevel() - 1).addUser(user).get();
-                    if (slot.getLevel() > 1) {
-                        if (serverBean.isFisherySingleRoles())
-                            for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                                if (roles.get(j).hasUser(user)) roles.get(j).removeUser(user).get();
-                            }
-                        else
-                            for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                                if (!roles.get(j).hasUser(user)) roles.get(j).addUser(user).get();
-                            }
-                    }
-
-                    Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
-                    if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
-                        String announcementText = getString("newrole", user.getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
-                        announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).get();
-                    }
-                }
-
+                upgrade(slot, price, roles, user);
                 setLog(LogStatus.SUCCESS, getString("levelup", getString("product_" + slot.getPowerUpId() + "_0")));
                 return true;
             } else {
                 setLog(LogStatus.FAILURE, getString("notenough"));
                 return false;
+            }
+        }
+    }
+
+    private void upgrade(FisheryUserPowerUpBean slot, long price, List<Role> roles, User user) throws ExecutionException, InterruptedException {
+        fisheryUserBean.changeValues(0, -price);
+        fisheryUserBean.levelUp(slot.getPowerUpId());
+
+        if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
+            roles.get(slot.getLevel() - 1).addUser(user).get();
+            if (slot.getLevel() > 1) {
+                if (serverBean.isFisherySingleRoles())
+                    for(int j = slot.getLevel() - 2; j >= 0; j--) {
+                        if (roles.get(j).hasUser(user)) roles.get(j).removeUser(user).get();
+                    }
+                else
+                    for(int j = slot.getLevel() - 2; j >= 0; j--) {
+                        if (!roles.get(j).hasUser(user)) roles.get(j).addUser(user).get();
+                    }
+            }
+
+            Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
+            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+                String announcementText = getString("newrole", user.getMentionTag(), roles.get(slot.getLevel() - 1).getName(), String.valueOf(slot.getLevel()));
+                announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).get();
             }
         }
     }
@@ -263,8 +263,10 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
 
             case 1:
                 return EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     private long calculateRolePrice(FisheryUserPowerUpBean slot) throws ExecutionException {

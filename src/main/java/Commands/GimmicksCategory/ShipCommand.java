@@ -47,7 +47,7 @@ public class ShipCommand extends Command {
         if (list.get(0).getId() == 272037078919938058L && list.get(1).getId() == 326714012022865930L)
             percentage = 100;
 
-        int n = RandomPicker.getInstance().pick(getClassTrigger(), event.getServer().get().getId(), 7);
+        int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), 7);
         if (event.getServer().get().getId() == 580048842020487180L) n = 7;
 
         InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1), n, percentage);

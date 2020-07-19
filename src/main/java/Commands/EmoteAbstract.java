@@ -19,7 +19,7 @@ public abstract class EmoteAbstract extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getClassTrigger(), event.getServer().get().getId(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
 
         String quote = "";
         if (followedString.length() > 0)

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
         trigger = "autochannel",
         botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
         userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
-        emoji = "\uD83D\uDD0A",
+        emoji = "🔊",
         executable = true,
         aliases = { "tempchannel" }
 )
@@ -66,9 +66,10 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "50"));
                     return Response.FALSE;
                 }
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -97,8 +98,10 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
                         autoChannelBean.toggleLocked();
                         setLog(LogStatus.SUCCESS, getString("lockedset", autoChannelBean.isLocked()));
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 1:
                 if (i == -1) {
@@ -111,8 +114,10 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
                     setState(0);
                     return true;
                 }
+
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -135,8 +140,10 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
 
             case 2:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override

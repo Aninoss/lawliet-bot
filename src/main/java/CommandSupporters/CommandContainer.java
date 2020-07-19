@@ -232,7 +232,7 @@ public class CommandContainer {
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz);
-                addCommand(command.getClassTrigger(), command);
+                addCommand(command.getTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
 
                 if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add(((OnReactionAddStaticListener)command).getClass());
@@ -268,7 +268,7 @@ public class CommandContainer {
     }
 
     private void addCommand(String trigger, Command command) {
-        if (commands.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getClassTrigger() + "\"");
+        if (commands.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getTrigger() + "\"");
         else commands.put(trigger, command.getClass());
     }
 

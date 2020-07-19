@@ -55,7 +55,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
         for(Class c: CommandContainer.getInstance().getCommandList()) {
             try {
                 Command command = CommandManager.createCommandByClass(c);
-                String trigger = command.getClassTrigger();
+                String trigger = command.getTrigger();
 
                 if (!trigger.equals("help")) {
                     JSONObject commandJSON = new JSONObject();

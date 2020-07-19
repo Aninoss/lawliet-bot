@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "commandmanagement",
         userPermissions = Permission.ADMINISTRATOR,
-        emoji = "\uD83D\uDEA6",
+        emoji = "🚦",
         executable = true,
         aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm"}
 )
@@ -83,8 +83,10 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         commandManagementBean.getSwitchedOffElements().add(category);
                         setLog(LogStatus.SUCCESS, getString("categoryset_all", false, TextManager.getString(getLocale(), TextManager.COMMANDS, category)));
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 2:
                 List<Command> commandList = CommandContainer.getInstance().getCommandList().stream()
@@ -106,25 +108,26 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 } else if (i < commandList.size()) {
                     Command command = commandList.get(i);
                     if (commandManagementBean.commandIsTurnedOn(command)) {
-                        commandManagementBean.getSwitchedOffElements().add(command.getClassTrigger());
-                        setLog(LogStatus.SUCCESS, getString("commandset", false, command.getClassTrigger()));
+                        commandManagementBean.getSwitchedOffElements().add(command.getTrigger());
+                        setLog(LogStatus.SUCCESS, getString("commandset", false, command.getTrigger()));
                     } else {
                         if (commandManagementBean.getSwitchedOffElements().contains(command.getCategory())) {
                             commandManagementBean.getSwitchedOffElements().remove(command.getCategory());
                             commandList.stream()
                                     .filter(c -> !c.equals(command))
-                                    .forEach(c -> commandManagementBean.getSwitchedOffElements().add(c.getClassTrigger()));
+                                    .forEach(c -> commandManagementBean.getSwitchedOffElements().add(c.getTrigger()));
                         } else {
-                            commandManagementBean.getSwitchedOffElements().remove(command.getClassTrigger());
+                            commandManagementBean.getSwitchedOffElements().remove(command.getTrigger());
                         }
-                        setLog(LogStatus.SUCCESS, getString("commandset", true, command.getClassTrigger()));
+                        setLog(LogStatus.SUCCESS, getString("commandset", true, command.getTrigger()));
                     }
                     return true;
                 }
                 return false;
-        }
 
-        return false;
+            default:
+                return false;
+        }
     }
 
     private void turnOnAllCategoryCommands() {
@@ -192,12 +195,14 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         })
                         .filter(Objects::nonNull)
                         .filter(command -> command.getCategory().equals(category))
-                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getClassTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getClassTrigger() + "_title")))
+                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
                         .toArray(String[]::new);
                 setOptions(options);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override

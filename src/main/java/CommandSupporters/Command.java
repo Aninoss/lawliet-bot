@@ -454,7 +454,7 @@ public abstract class Command {
         String name = Thread.currentThread().getName();
         if (name.contains(":")) name = name.split(":")[0];
 
-        Thread.currentThread().setName(name + ":" + getClassTrigger());
+        Thread.currentThread().setName(name + ":" + getTrigger());
     }
 
     public void stopCountdown() {
@@ -562,7 +562,7 @@ public abstract class Command {
     }
     public Message getNavigationMessage() { return navigationMessage; }
 
-    public String getClassTrigger() { return commandProperties.trigger(); }
+    public String getTrigger() { return commandProperties.trigger(); }
     public String[] getAliases() { return commandProperties.aliases(); }
     public String getEmoji() { return commandProperties.emoji(); }
     public boolean isNsfw() { return commandProperties.nsfw(); }
@@ -604,7 +604,7 @@ public abstract class Command {
 
     public static String getClassTrigger(Class<? extends Command> c) {
         try {
-            return CommandManager.createCommandByClass(c).getClassTrigger();
+            return CommandManager.createCommandByClass(c).getTrigger();
         } catch (IllegalAccessException | InstantiationException e) {
             LOGGER.error("Could not create command", e);
         }

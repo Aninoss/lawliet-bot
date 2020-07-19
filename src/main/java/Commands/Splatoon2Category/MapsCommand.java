@@ -31,7 +31,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getClassTrigger());
+        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }

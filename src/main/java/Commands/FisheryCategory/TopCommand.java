@@ -59,15 +59,15 @@ public class TopCommand extends ListAbstract {
         String rankString = String.valueOf(rank);
         switch (rank) {
             case 1:
-                rankString = "\uD83E\uDD47";
+                rankString = "🥇";
                 break;
 
             case 2:
-                rankString = "\uD83E\uDD48";
+                rankString = "🥈";
                 break;
 
             case 3:
-                rankString = "\uD83E\uDD49";
+                rankString = "🥉";
                 break;
 
             default:

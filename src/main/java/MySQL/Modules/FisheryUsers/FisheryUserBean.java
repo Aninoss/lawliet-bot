@@ -242,13 +242,21 @@ public class FisheryUserBean extends BeanWithServer {
         return changeValues(0, 0);
     }
 
-    public EmbedBuilder changeValues(long fishAdd, long coinsAdd) {
-        return changeValues(fishAdd, coinsAdd, null);
-    }
-
     public void setFish(long fish) {
         if (this.fish != fish) {
             this.fish = fish;
+            checkValuesBound();
+            setChanged();
+        }
+    }
+
+    public void addFish(long fish) {
+        if (fish != 0) {
+            this.coins += coins;
+            if (fish > 0) {
+                if (fishIncome != null) fishIncome += fish;
+                getCurrentFisheryHourlyIncome().add(fish);
+            }
             checkValuesBound();
             setChanged();
         }
@@ -278,6 +286,10 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
+    public EmbedBuilder changeValues(long fishAdd, long coinsAdd) {
+        return changeValues(fishAdd, coinsAdd, null);
+    }
+
     public synchronized EmbedBuilder changeValues(long fishAdd, long coinsAdd, Long newDailyStreak) {
         /* Collect Current Data */
         long fishIncomePrevious = getFishIncome();
@@ -287,17 +299,10 @@ public class FisheryUserBean extends BeanWithServer {
         long dailyStreakPrevious = getDailyStreak();
 
         /* Update Changes */
-        if (fishAdd != 0) {
-            fish += fishAdd;
-            if (fishAdd > 0) {
-                if (fishIncome != null) fishIncome += fishAdd;
-                getCurrentFisheryHourlyIncome().add(fishAdd);
-            }
-        }
+        addFish(fishAdd);
+        addCoins(coinsAdd);
         if (coinsAdd != 0) coins += coinsAdd;
         if (newDailyStreak != null) dailyStreak = newDailyStreak;
-        checkValuesBound();
-        setChanged();
 
         long rank = getRank();
         long fishIncome = getFishIncome();
@@ -309,10 +314,15 @@ public class FisheryUserBean extends BeanWithServer {
 
         if (user == null) return null;
 
-        boolean patron = false;
-        patron = PatreonCache.getInstance().getPatreonLevel(userId) >= 1;
+        return generateUserChangeEmbed(server, user, locale, fishAdd, coinsAdd, rank, rankPrevious, fishIncomePrevious, fishPrevious, coinsPrevious, newDailyStreak, dailyStreakPrevious);
+    }
 
-        String patreonEmoji = "\uD83D\uDC51";
+    private EmbedBuilder generateUserChangeEmbed(Server server, User user, Locale locale, long fishAdd, long coinsAdd,
+                                                 long rank, long rankPrevious, long fishIncomePrevious, long fishPrevious, long coinsPrevious, Long newDailyStreak, long dailyStreakPrevious
+    ) {
+        boolean patron = PatreonCache.getInstance().getPatreonLevel(userId) >= 1;
+
+        String patreonEmoji = "👑";
         String displayName = user.getDisplayName(server);
         while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) displayName = displayName.substring(patreonEmoji.length());
 

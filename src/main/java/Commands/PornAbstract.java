@@ -136,7 +136,7 @@ public abstract class PornAbstract extends Command {
             getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
             channel.sendMessage(eb).get();
         } else {
-            StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), getCategory(), getClassTrigger() + "_title"), getPrefix(), getClassTrigger(), search));
+            StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
             for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
                 if (pornImages.get(i) != null) sb.append('\n').append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()));
             }

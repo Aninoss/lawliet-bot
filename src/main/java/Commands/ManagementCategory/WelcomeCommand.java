@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
     trigger = "welcome",
     botPermissions = Permission.ATTACH_FILES,
     userPermissions = Permission.MANAGE_SERVER,
-    emoji = "\uD83D\uDE4B",
+    emoji = "🙋",
     executable = true
 )
 public class WelcomeCommand extends Command implements OnNavigationListener {
@@ -160,9 +160,10 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         return Response.TRUE;
                     } else return Response.FALSE;
                 }
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -212,8 +213,10 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                     case 8:
                         setState(5);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             default:
                 if (i == -1) {

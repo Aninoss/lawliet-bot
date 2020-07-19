@@ -54,7 +54,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         channel = event.getServerTextChannel().get();
         active = true;
         useCalculatedMultiplicator = true;
-        compareKey = getClassTrigger();
+        compareKey = getTrigger();
 
         if (!allowBet) {
             coinsInput = 0;

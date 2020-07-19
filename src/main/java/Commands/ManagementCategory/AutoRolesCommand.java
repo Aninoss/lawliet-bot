@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "autoroles",
         botPermissions = Permission.MANAGE_ROLES,
         userPermissions = Permission.MANAGE_ROLES,
-        emoji = "\uD83D\uDC6A",
+        emoji = "👪",
         executable = true,
         aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
 )
@@ -73,8 +73,10 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
                     case 1:
                         roleNavigationHelper.startDataRemove(2);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 1:
                 if (i == -1) {
@@ -84,8 +86,10 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
 
             case 2:
                 return roleNavigationHelper.removeData(i, 0);
+
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -101,8 +105,10 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
 
             case 2:
                 return roleNavigationHelper.drawDataRemove();
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
