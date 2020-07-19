@@ -1,15 +1,21 @@
 package Commands.ManagementCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnNavigationListener;
+import CommandListeners.OnReactionAddStaticListener;
+import CommandListeners.OnReactionRemoveStaticListener;
 import CommandSupporters.Command;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Response;
 import Constants.Settings;
-import Core.*;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
 import Core.EmojiConnection.EmojiConnection;
-import Core.Mention.MentionUtil;
 import Core.Mention.MentionList;
+import Core.Mention.MentionUtil;
+import Core.PermissionCheckRuntime;
+import Core.TextManager;
 import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
 import com.vdurmont.emoji.EmojiParser;
@@ -33,11 +39,11 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @CommandProperties(
         trigger = "reactionroles",
@@ -135,69 +141,18 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             //Verknüpfung hinzufügen
             case 6:
                 if (inputString.length() > 0) {
-                    boolean updateRole = false, updateEmoji = false;
-                    String inputString2 = null;
+                    String inputStringNoEmoji;
+                    AtomicBoolean updateEmoji = new AtomicBoolean(false);
+                    AtomicBoolean updateRole = new AtomicBoolean(false);
 
-                    List<KnownCustomEmoji> customEmojis = MentionUtil.getCustomEmojiByTag(inputString);
-                    if (customEmojis.size() > 0) {
-                        updateEmoji = calculateEmoji(customEmojis.get(0));
-                        inputString2 = inputString.replaceFirst(customEmojis.get(0).getMentionTag(), "");
-                    } else {
-                        try {
-                            boolean remove = true;
-                            for (Reaction reaction : getNavigationMessage().getReactions()) {
-                                if (reaction.getEmoji().getMentionTag().equals(inputString)) {
-                                    remove = false;
-                                    break;
-                                }
-                            }
+                    inputStringNoEmoji = filterEmojis(inputString, updateEmoji);
+                    Optional<String> filterRolesResult = filterRoles(event, inputString, inputStringNoEmoji, updateRole);
 
-                            List<String> emojis = EmojiParser.extractEmojis(inputString);
+                    if (filterRolesResult.isPresent()) inputString = filterRolesResult.get();
+                    else return Response.FALSE;
 
-                            if (emojis.size() > 0) {
-                                boolean success = false;
-                                try {
-                                    getNavigationMessage().addReaction(emojis.get(0)).get();
-                                    success = true;
-                                } catch (ExecutionException e) {
-                                    //Ignore
-                                }
-                                if (success) {
-                                    if (remove) Thread.sleep(500);
-                                    for (Reaction reaction : getNavigationMessage().getReactions()) {
-                                        if (emojis.get(0).equals(reaction.getEmoji().getMentionTag())) {
-                                            if (remove) reaction.remove().get();
-                                            inputString2 = StringUtil.trimString(inputString.replaceFirst(emojis.get(0), ""));
-                                            updateEmoji = calculateEmoji(reaction.getEmoji());
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (ExecutionException e) {
-                            LOGGER.error("Could not add reactions", e);
-                        }
-                    }
-
-                    MentionList<Role> mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString);
-                    if (inputString2 != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString2);
-                    ArrayList<Role> list = mentionedRoles.getList();
-                    if (list.size() > 0) {
-                        Role roleTest = list.get(0);
-
-                        if (!checkRoleWithLog(roleTest)) return Response.FALSE;
-
-                        roleTemp = roleTest;
-                        updateRole = true;
-
-                        inputString = mentionedRoles.getResultMessageString();
-                        //setLog(LogStatus.SUCCESS, getString("roleset"));
-                        //return Response.TRUE;
-                    }
-
-                    if (updateEmoji || updateRole) {
+                    if (updateEmoji.get() || updateRole.get())
                         return Response.TRUE;
-                    }
                 }
 
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
@@ -206,6 +161,67 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             default:
                 return null;
         }
+    }
+
+    private Optional<String> filterRoles(MessageCreateEvent event, String inputString, String inputStringNoEmoji, AtomicBoolean updateRole) {
+        MentionList<Role> mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString);
+        if (inputStringNoEmoji != null && mentionedRoles.getList().size() == 0) mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputStringNoEmoji);
+        ArrayList<Role> list = mentionedRoles.getList();
+        if (list.size() > 0) {
+            Role roleTest = list.get(0);
+
+            if (!checkRoleWithLog(roleTest)) return Optional.empty();
+
+            roleTemp = roleTest;
+            updateRole.set(true);
+
+            return Optional.of(mentionedRoles.getResultMessageString());
+        }
+
+        return Optional.of(inputString);
+    }
+
+    private String filterEmojis(String inputString, AtomicBoolean updateEmoji) throws InterruptedException {
+        List<KnownCustomEmoji> customEmojis = MentionUtil.getCustomEmojiByTag(inputString);
+        if (customEmojis.size() > 0) {
+            updateEmoji.set(calculateEmoji(customEmojis.get(0)));
+            return inputString.replaceFirst(customEmojis.get(0).getMentionTag(), "");
+        } else {
+            try {
+                boolean remove = true;
+                for (Reaction reaction : getNavigationMessage().getReactions()) {
+                    if (reaction.getEmoji().getMentionTag().equals(inputString)) {
+                        remove = false;
+                        break;
+                    }
+                }
+
+                List<String> emojis = EmojiParser.extractEmojis(inputString);
+
+                if (emojis.size() > 0) {
+                    boolean success = false;
+                    try {
+                        getNavigationMessage().addReaction(emojis.get(0)).get();
+                        success = true;
+                    } catch (ExecutionException e) {
+                        //Ignore
+                    }
+                    if (success) {
+                        if (remove) Thread.sleep(500);
+                        for (Reaction reaction : getNavigationMessage().getReactions()) {
+                            if (emojis.get(0).equals(reaction.getEmoji().getMentionTag())) {
+                                if (remove) reaction.remove().get();
+                                updateEmoji.set(calculateEmoji(reaction.getEmoji()));
+                            }
+                        }
+                    }
+                }
+            } catch (ExecutionException e) {
+                LOGGER.error("Could not add reactions", e);
+            }
+        }
+
+        return inputString;
     }
 
     @Override
@@ -317,45 +333,12 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
                     case 7:
                         if (emojiConnections.size() > 0) {
-                            Message m;
-                            if (!editMode) {
-                                if (checkWriteInChannelWithLog(channel)) {
-                                    m = channel.sendMessage(getMessageEmbed(false)).get();
-                                    if (channel.canYouAddNewReactions()) {
-                                        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                                            emojiConnection.addReaction(m);
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                editMessage.edit(getMessageEmbed(false));
-                                m = editMessage;
-                                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-                                    boolean exist = false;
-                                    for(Reaction reaction: m.getReactions()) {
-                                        if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
-                                            exist = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!exist) emojiConnection.addReaction(m);
-                                }
-                                for(Reaction reaction: m.getReactions()) {
-                                    boolean exist = false;
-                                    for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-                                        if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
-                                            exist = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!exist) reaction.remove();
-                                }
-                            }
+                            sendMessage();
                             setState(9);
                             removeNavigation();
                             return true;
-                        } break;
+                        }
+                        return false;
 
                     default:
                         return false;
@@ -405,7 +388,44 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
     }
 
-    private boolean calculateEmoji(Emoji emoji) throws IOException {
+    private void sendMessage() throws ExecutionException, InterruptedException {
+        Message m;
+        if (!editMode) {
+            if (checkWriteInChannelWithLog(channel)) {
+                m = channel.sendMessage(getMessageEmbed(false)).get();
+                if (channel.canYouAddNewReactions()) {
+                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                        emojiConnection.addReaction(m);
+                    }
+                }
+            }
+        } else {
+            editMessage.edit(getMessageEmbed(false));
+            m = editMessage;
+            for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
+                boolean exist = false;
+                for(Reaction reaction: m.getReactions()) {
+                    if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist) emojiConnection.addReaction(m);
+            }
+            for(Reaction reaction: m.getReactions()) {
+                boolean exist = false;
+                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
+                    if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist) reaction.remove();
+            }
+        }
+    }
+
+    private boolean calculateEmoji(Emoji emoji) {
         if (emoji == null || (emoji.isCustomEmoji() && !DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()))) {
             setLog(LogStatus.FAILURE, getString("emojiunknown"));
             return true;
