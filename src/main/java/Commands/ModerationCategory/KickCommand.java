@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class KickCommand extends WarnCommand  {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(KickCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(KickCommand.class);
 
     @Override
     public void process(Server server, User user) throws Throwable {

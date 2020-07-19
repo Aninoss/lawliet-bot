@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class CommandLogger {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CommandLogger.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CommandLogger.class);
 
     private static CommandLogger ourInstance = new CommandLogger();
     public static CommandLogger getInstance() { return ourInstance; }

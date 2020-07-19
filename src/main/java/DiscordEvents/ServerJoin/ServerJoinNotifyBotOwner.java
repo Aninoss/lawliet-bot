@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation
 public class ServerJoinNotifyBotOwner extends ServerJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinNotifyBotOwner.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinNotifyBotOwner.class);
 
     @Override
     public boolean onServerJoin(ServerJoinEvent event) throws Throwable {

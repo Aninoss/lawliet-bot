@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class PornAbstract extends Command {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
     public abstract boolean isExplicit();
@@ -115,7 +115,7 @@ public abstract class PornAbstract extends Command {
         if (pornImages.size() == 0) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().get()));
+                    .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().orElse("")));
             channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         }

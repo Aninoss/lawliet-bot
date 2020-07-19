@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 public class CommandManager {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
     final static String EMOJI_NO_EMBED = "❌ ";
 
     public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {

@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class AssignRoleCommand extends Command implements OnReactionAddListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(AssignRoleCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AssignRoleCommand.class);
 
     private static final String CANCEL_EMOJI = "❌";
 

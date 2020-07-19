@@ -21,7 +21,7 @@ import java.util.HashMap;
 public class OnCommandList implements ConnectListener, DataListener<JSONObject> {
 
     private final WebComServer webComServer;
-    final static Logger LOGGER = LoggerFactory.getLogger(OnCommandList.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(OnCommandList.class);
 
     public OnCommandList(WebComServer webComServer) {
         this.webComServer = webComServer;

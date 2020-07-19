@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 public class OnTopGG implements DataListener<JSONObject> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(OnTopGG.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(OnTopGG.class);
 
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation
 public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(UserRoleRemovePatreonRole.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(UserRoleRemovePatreonRole.class);
 
     @Override
     public boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable {

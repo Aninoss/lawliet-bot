@@ -65,7 +65,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private boolean removeRole = true, editMode = false, multipleRoles = true;
     private Message editMessage;
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
     private static final ArrayList<Pair<Long, Long>> queue = new ArrayList<>();
 
     @Override

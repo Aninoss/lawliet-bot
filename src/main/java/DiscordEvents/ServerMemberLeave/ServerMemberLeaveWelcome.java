@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 @DiscordEventAnnotation
 public class ServerMemberLeaveWelcome extends ServerMemberLeaveAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeaveWelcome.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeaveWelcome.class);
 
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {

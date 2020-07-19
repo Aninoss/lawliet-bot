@@ -39,7 +39,7 @@ import java.util.Random;
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(FisheryCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FisheryCommand.class);
 
     private static final int MAX_CHANNELS = 50;
 

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation(allowBannedUser = true)
 public class ServerMemberJoinMCDisplays extends ServerMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinMCDisplays.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinMCDisplays.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

@@ -36,7 +36,7 @@ public class DiscordApiCollection {
     private static final DiscordApiCollection ourInstance = new DiscordApiCollection();
     public static DiscordApiCollection getInstance() { return ourInstance; }
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiCollection.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiCollection.class);
 
     private DiscordApi[] apiList = new DiscordApi[0];
     private int[] errorCounter;

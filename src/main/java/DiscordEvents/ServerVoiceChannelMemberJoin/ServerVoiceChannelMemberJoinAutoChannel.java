@@ -24,7 +24,7 @@ import java.util.Map;
 @DiscordEventAnnotation
 public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberJoinAutoChannel.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberJoinAutoChannel.class);
 
     @Override
     public boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable {

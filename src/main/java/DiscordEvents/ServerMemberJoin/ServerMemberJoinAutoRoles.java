@@ -19,7 +19,7 @@ import java.util.Locale;
 @DiscordEventAnnotation
 public class ServerMemberJoinAutoRoles extends ServerMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinAutoRoles.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinAutoRoles.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

@@ -28,7 +28,7 @@ import java.time.temporal.ChronoUnit;
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(AnimeReleasesCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeReleasesCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

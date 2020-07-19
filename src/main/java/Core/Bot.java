@@ -7,7 +7,7 @@ import java.io.File;
 
 public class Bot {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
     private static boolean production = false;
     private static boolean stopped = false;

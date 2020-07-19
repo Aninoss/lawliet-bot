@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation
 public class ServerMemberJoinFisheryOnServerStatus extends ServerMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinFisheryOnServerStatus.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinFisheryOnServerStatus.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

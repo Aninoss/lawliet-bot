@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 
 public class TopGG {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(TopGG.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(TopGG.class);
     private static final TopGG ourInstance = new TopGG();
     private DiscordBotListAPI dblApi;
 

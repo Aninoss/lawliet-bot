@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class MentionUtil {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
 
     public static MentionList<User> getUsers(Message message, String content) {
         return getUsers(message, content, message.getServer().get().getMembers());

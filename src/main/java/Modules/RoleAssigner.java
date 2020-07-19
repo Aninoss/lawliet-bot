@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class RoleAssigner {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(RoleAssigner.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(RoleAssigner.class);
 
     private static final RoleAssigner ourInstance = new RoleAssigner();
     public static RoleAssigner getInstance() { return ourInstance; }

@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Discordbotlist {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Discordbotlist.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Discordbotlist.class);
 
     public static void updateServerCount(int serverCount) {
         try {

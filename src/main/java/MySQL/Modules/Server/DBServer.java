@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBServer.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBServer.class);
     private static final DBServer ourInstance = new DBServer();
     public static DBServer getInstance() { return ourInstance; }
     private DBServer() {}

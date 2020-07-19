@@ -22,7 +22,7 @@ import java.util.Locale;
 @DiscordEventAnnotation
 public class ServerMemberJoinFisheryRoles extends ServerMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinFisheryRoles.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinFisheryRoles.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

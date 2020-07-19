@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 @DiscordEventAnnotation
 public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinPostWelcomeMessage.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinPostWelcomeMessage.class);
 
     @Override
     public boolean onServerJoin(ServerJoinEvent event) throws Throwable {

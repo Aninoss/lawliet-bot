@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class QuizCommand extends CasinoAbstract implements OnReactionAddListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(QuizCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(QuizCommand.class);
 
     private String log;
     private LogStatus logStatus;

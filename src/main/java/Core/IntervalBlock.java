@@ -14,7 +14,7 @@ public class IntervalBlock {
     private final ChronoUnit chronoUnit;
     Instant nextRequest;
 
-    final static Logger LOGGER = LoggerFactory.getLogger(IntervalBlock.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(IntervalBlock.class);
 
     public IntervalBlock(int time, ChronoUnit chronoUnit) {
         this.time = time;

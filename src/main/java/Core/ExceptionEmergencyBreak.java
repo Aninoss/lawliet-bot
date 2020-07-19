@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class ExceptionEmergencyBreak extends Filter<ILoggingEvent> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ExceptionEmergencyBreak.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionEmergencyBreak.class);
     private Class<?> exceptionClass;
 
     public ExceptionEmergencyBreak() {}

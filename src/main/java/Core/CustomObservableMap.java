@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implements Observer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CustomObservableMap.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CustomObservableMap.class);
 
     private final ArrayList<MapAddListener<T, U>> mapAddListeners = new ArrayList<>();
     private final ArrayList<MapRemoveListener<T, U>> mapRemoveListeners = new ArrayList<>();

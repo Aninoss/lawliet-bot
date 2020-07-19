@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public abstract class ServerVoiceChannelMemberJoinAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberJoinAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberJoinAbstract.class);
 
     public abstract boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable;
 

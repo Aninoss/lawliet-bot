@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CoinFlipCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CoinFlipCommand.class);
 
     private String log;
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};

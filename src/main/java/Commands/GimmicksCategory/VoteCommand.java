@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(VoteCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(VoteCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

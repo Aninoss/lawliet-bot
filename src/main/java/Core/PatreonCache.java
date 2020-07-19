@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PatreonCache {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(PatreonCache.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(PatreonCache.class);
 
     private static final PatreonCache ourInstance = new PatreonCache();
     private PatreonCache() {}

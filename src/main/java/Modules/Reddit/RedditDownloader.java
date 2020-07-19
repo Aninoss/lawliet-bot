@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 public class RedditDownloader {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(RedditDownloader.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(RedditDownloader.class);
     private final static int TIMEOUT_MIN = 60;
     private static Instant nextRequestBlockUntil = null;
 

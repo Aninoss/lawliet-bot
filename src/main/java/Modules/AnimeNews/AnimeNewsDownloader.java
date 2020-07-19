@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AnimeNewsDownloader {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(AnimeNewsDownloader.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeNewsDownloader.class);
 
     public static AnimeNewsPost getPost(Locale locale) throws InterruptedException, ExecutionException {
         String downloadUrl;

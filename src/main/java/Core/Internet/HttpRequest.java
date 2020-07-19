@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class HttpRequest {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
     private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss", BotUtil.getCurrentVersion());
 
     public static CompletableFuture<HttpResponse> getData(String urlString, HttpProperty... headers) {

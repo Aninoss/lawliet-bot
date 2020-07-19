@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation
 public class ServerMemberJoinPatreon extends ServerMemberJoinAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinPatreon.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinPatreon.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

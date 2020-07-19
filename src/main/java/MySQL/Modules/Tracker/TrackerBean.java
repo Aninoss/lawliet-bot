@@ -19,7 +19,7 @@ import java.util.*;
 
 public class TrackerBean extends Observable {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(TrackerBean.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(TrackerBean.class);
 
     private final CustomObservableMap<Pair<Long, String>, TrackerBeanSlot> slots;
     private boolean active = false;

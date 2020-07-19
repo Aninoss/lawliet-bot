@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached implements Observer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBBeanGenerator.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBBeanGenerator.class);
 
     private final DBBeanGenerator<T, U> instance = this;
     private ArrayList<U> changed;

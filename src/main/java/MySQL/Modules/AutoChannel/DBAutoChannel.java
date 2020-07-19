@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBAutoChannel.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBAutoChannel.class);
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
     public static DBAutoChannel getInstance() { return ourInstance; }
     private DBAutoChannel() {}

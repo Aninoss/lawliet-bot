@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation
 public class ServerLeaveNotifyBotOwner extends ServerLeaveAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerLeaveNotifyBotOwner.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerLeaveNotifyBotOwner.class);
 
     @Override
     public boolean onServerLeave(ServerLeaveEvent event) throws Throwable {

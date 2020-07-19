@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 @DiscordEventAnnotation
 public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeavePatreon.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeavePatreon.class);
 
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {

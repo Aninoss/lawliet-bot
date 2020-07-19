@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public abstract class UserRoleAddAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(UserRoleAddAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(UserRoleAddAbstract.class);
 
     public abstract boolean onUserRoleAdd(UserRoleAddEvent event) throws Throwable;
 

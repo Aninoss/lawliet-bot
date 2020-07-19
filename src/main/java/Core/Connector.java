@@ -28,7 +28,7 @@ import java.util.Calendar;
 
 public class Connector {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Connector.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Connector.class);
 
     public static void main(String[] args) {
         boolean production = args.length >= 1 && args[0].equals("production");

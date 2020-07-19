@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class TrackerBeanSlot extends BeanWithServer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(TrackerBeanSlot.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(TrackerBeanSlot.class);
 
     private final long channelId;
     private Long messageId;

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public class Countdown {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Countdown.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Countdown.class);
     public enum TimePeriod { MILISECONDS, SECONDS, MINUTES }
     private long startTime;
     private boolean active = true;

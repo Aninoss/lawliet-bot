@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class FullClearCommand extends Command implements OnTrackerRequestListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(FullClearCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FullClearCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

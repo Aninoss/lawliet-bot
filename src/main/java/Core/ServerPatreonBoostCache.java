@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ServerPatreonBoostCache {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerPatreonBoostCache.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerPatreonBoostCache.class);
 
     private static final ServerPatreonBoostCache ourInstance = new ServerPatreonBoostCache();
 

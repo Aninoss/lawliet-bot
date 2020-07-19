@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class AutoChannelBean extends BeanWithServer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(AutoChannelBean.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AutoChannelBean.class);
 
     private boolean active, locked;
     private String nameMask;

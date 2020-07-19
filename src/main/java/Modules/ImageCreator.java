@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ImageCreator {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ImageCreator.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ImageCreator.class);
 
     public static InputStream createImageTriggered(User user) throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();

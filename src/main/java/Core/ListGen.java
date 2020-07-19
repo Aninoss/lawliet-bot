@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class ListGen<T> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ListGen.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ListGen.class);
     public static final int SLOT_TYPE_NONE = 0;
     public static final int SLOT_TYPE_BULLET = 1;
     public static final int SLOT_TYPE_NUMBERED = 2;

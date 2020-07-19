@@ -19,7 +19,7 @@ public class RunningCommandManager {
     public static RunningCommandManager getInstance() { return ourInstance; }
     private RunningCommandManager() {}
 
-    final static Logger LOGGER = LoggerFactory.getLogger(RunningCommandManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(RunningCommandManager.class);
 
     private HashMap<Long, RunningCommand> runningCommands = new HashMap<>();
 

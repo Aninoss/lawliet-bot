@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Command {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
 
     private final String category;
     private String prefix;

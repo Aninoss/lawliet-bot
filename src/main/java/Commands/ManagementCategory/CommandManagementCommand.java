@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 )
 public class CommandManagementCommand extends Command implements OnNavigationListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CommandManagementCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CommandManagementCommand.class);
 
     private CommandManagementBean commandManagementBean;
     private String category;

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 )
 public class ModSettingsCommand extends Command implements OnNavigationListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ModSettingsCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ModSettingsCommand.class);
 
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;

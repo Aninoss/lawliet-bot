@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DBTracker extends DBCached {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBTracker.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBTracker.class);
 
     private static final DBTracker ourInstance = new DBTracker();
     public static DBTracker getInstance() { return ourInstance; }

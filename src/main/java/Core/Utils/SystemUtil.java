@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class SystemUtil {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(BotUtil.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BotUtil.class);
 
     public static int executeProcess(String... command) {
         ProcessBuilder pb = new ProcessBuilder(command);

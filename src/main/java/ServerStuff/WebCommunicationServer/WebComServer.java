@@ -16,7 +16,7 @@ import java.util.*;
 
 public class WebComServer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(WebComServer.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(WebComServer.class);
 
     public static final String EVENT_COMMANDLIST = "command_list";
     public static final String EVENT_FAQLIST = "faq_list";

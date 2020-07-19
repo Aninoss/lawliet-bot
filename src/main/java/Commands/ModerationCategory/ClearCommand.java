@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class ClearCommand extends Command {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ClearCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClearCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

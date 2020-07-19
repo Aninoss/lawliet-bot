@@ -20,7 +20,7 @@ import java.util.Date;
 
 public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBUpvotes.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBUpvotes.class);
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
     public static DBUpvotes getInstance() { return ourInstance; }

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public abstract class DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DiscordEventAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordEventAbstract.class);
 
     private final DiscordEventAnnotation discordEventAnnotation;
 

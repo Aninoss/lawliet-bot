@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(BlackjackCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BlackjackCommand.class);
 
     private String log;
     private LogStatus logStatus;

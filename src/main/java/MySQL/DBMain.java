@@ -29,7 +29,7 @@ public class DBMain implements DriverAction {
     public static DBMain getInstance() { return ourInstance; }
     private DBMain() {}
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
 
     private ArrayList<DBCached> caches = new ArrayList<>();

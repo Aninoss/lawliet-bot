@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 @DiscordEventAnnotation
 public class ServerVoiceChannelChangeUserLimitAutoChannel extends ServerVoiceChannelChangeUserLimitAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelChangeUserLimitAutoChannel.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelChangeUserLimitAutoChannel.class);
 
     @Override
     public boolean onServerVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable {

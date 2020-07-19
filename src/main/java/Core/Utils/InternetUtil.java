@@ -16,7 +16,7 @@ public final class InternetUtil {
 
     private InternetUtil() {}
 
-    final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
 
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();

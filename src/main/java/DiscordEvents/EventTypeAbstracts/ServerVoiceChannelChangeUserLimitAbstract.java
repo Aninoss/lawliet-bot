@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public abstract class ServerVoiceChannelChangeUserLimitAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelChangeUserLimitAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelChangeUserLimitAbstract.class);
 
     public abstract boolean onServerVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable;
 

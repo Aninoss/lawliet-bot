@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class YouTubeDownloader {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(YouTubeDownloader.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(YouTubeDownloader.class);
     private static final ArrayList<String> videoRequests = new ArrayList<>();
 
     public static Optional<String> getVideoID(String str) {

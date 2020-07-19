@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 )
 public class UnbanCommand extends WarnCommand  {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(UnbanCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(UnbanCommand.class);
 
     @Override
     protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {

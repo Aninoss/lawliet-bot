@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public abstract class UserRoleRemoveAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(UserRoleRemoveAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(UserRoleRemoveAbstract.class);
 
     public abstract boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable;
 

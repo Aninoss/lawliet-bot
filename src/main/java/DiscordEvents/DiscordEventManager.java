@@ -21,7 +21,7 @@ public class DiscordEventManager {
     private static final DiscordEventManager ourInstance = new DiscordEventManager();
     public static DiscordEventManager getInstance() { return ourInstance; }
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DiscordEventManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordEventManager.class);
 
     private final HashMap<Class<?>, ArrayList<DiscordEventAbstract>> listenerMap;
 

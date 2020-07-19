@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 
 public class OnInvite implements DataListener<JSONObject> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(OnInvite.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(OnInvite.class);
 
     @Override
     public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {

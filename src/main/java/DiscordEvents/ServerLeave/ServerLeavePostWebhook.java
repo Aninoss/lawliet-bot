@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 @DiscordEventAnnotation
 public class ServerLeavePostWebhook extends ServerLeaveAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerLeavePostWebhook.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerLeavePostWebhook.class);
 
     @Override
     public boolean onServerLeave(ServerLeaveEvent event) throws Throwable {

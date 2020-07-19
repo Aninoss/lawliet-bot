@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Console {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
     private static final Console instance = new Console();
     private double maxMemory = 0;
     private double traffic = -1;

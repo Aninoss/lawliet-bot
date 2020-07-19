@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public abstract class ServerVoiceChannelMemberLeaveAbstract extends DiscordEventAbstract {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberLeaveAbstract.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberLeaveAbstract.class);
 
     public abstract boolean onServerVoiceChannelMemberLeave(ServerVoiceChannelMemberLeaveEvent event) throws Throwable;
 

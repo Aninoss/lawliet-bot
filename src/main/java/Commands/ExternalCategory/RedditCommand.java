@@ -27,7 +27,7 @@ import java.time.temporal.ChronoUnit;
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(RedditCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(RedditCommand.class);
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

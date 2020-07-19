@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class BotsOnDiscord {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(BotsOnDiscord.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BotsOnDiscord.class);
 
     public static void updateServerCount(int serverCount) {
         try {

@@ -33,7 +33,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     public static DBFishery getInstance() { return ourInstance; }
     private DBFishery() { }
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
     private final int VC_CHECK_INTERVAL_MIN = 1;
 
     @Override

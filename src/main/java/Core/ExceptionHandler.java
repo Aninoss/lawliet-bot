@@ -15,7 +15,7 @@ import java.util.Locale;
  */
 public class ExceptionHandler {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
 
     public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
         boolean submitToDeveloper = true;

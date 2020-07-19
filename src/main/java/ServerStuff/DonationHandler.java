@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DonationHandler {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(DonationHandler.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DonationHandler.class);
 
     public static void addBonus(long userId, double usDollars) throws SQLException, InterruptedException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();

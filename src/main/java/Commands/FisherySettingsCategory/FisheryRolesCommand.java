@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 public class FisheryRolesCommand extends Command implements OnNavigationListener {
 
     private static final int MAX_ROLES = 50;
-    final static Logger LOGGER = LoggerFactory.getLogger(FisheryRolesCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FisheryRolesCommand.class);
 
     private ServerBean serverBean;
     private FisheryServerBean fisheryServerBean;

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class FisheryUserBean extends BeanWithServer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(FisheryUserBean.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FisheryUserBean.class);
 
     private final long userId;
     private FisheryServerBean fisheryServerBean = null;
@@ -301,20 +301,18 @@ public class FisheryUserBean extends BeanWithServer {
         /* Update Changes */
         addFish(fishAdd);
         addCoins(coinsAdd);
-        if (coinsAdd != 0) coins += coinsAdd;
         if (newDailyStreak != null) dailyStreak = newDailyStreak;
 
         long rank = getRank();
-        long fishIncome = getFishIncome();
 
         /* Generate Account Embed */
-        Server server = getServer().get();
-        User user = server.getMemberById(userId).orElse(null);
+        Optional<Server> serverOpt = getServer();
+        Optional<User> userOpt = serverOpt.flatMap(server -> server.getMemberById(userId));
         Locale locale = getServerBean().getLocale();
 
-        if (user == null) return null;
-
-        return generateUserChangeEmbed(server, user, locale, fishAdd, coinsAdd, rank, rankPrevious, fishIncomePrevious, fishPrevious, coinsPrevious, newDailyStreak, dailyStreakPrevious);
+        return userOpt
+                .map(user -> generateUserChangeEmbed(serverOpt.get(), user, locale, fishAdd, coinsAdd, rank, rankPrevious, fishIncomePrevious, fishPrevious, coinsPrevious, newDailyStreak, dailyStreakPrevious))
+                .orElse(null);
     }
 
     private EmbedBuilder generateUserChangeEmbed(Server server, User user, Locale locale, long fishAdd, long coinsAdd,

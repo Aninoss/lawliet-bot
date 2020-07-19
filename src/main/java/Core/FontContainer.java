@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class FontContainer {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(FontContainer.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FontContainer.class);
 
     public static final FontContainer ourInstance = new FontContainer();
     public static FontContainer getInstance() { return ourInstance; }
