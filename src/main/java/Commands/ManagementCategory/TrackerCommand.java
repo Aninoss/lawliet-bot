@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
         trigger = "tracker",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\uD83D\uDD16",
+        emoji = "🔖",
         executable = true,
         aliases = {"track", "tracking", "alert", "alerts"}
 )
@@ -79,8 +79,11 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                         case 3:
                             setState(1);
                             return true;
+
+                        default:
                     }
                 }
+
                 controll(emojiConnection.getConnection(), state);
                 return true;
             }
@@ -174,6 +177,8 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 case 3:
                     addTracker(searchTerm);
                     return;
+
+                default:
             }
 
             searchTerm = StringUtil.trimString(searchTerm.substring(arg.length()));
@@ -264,9 +269,10 @@ public class TrackerCommand extends Command implements OnNavigationListener {
 
             case 4:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"));
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override

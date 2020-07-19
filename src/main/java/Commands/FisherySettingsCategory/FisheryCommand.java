@@ -33,7 +33,7 @@ import java.util.Random;
         trigger = "fishery",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\u2699\uFE0F️",
+        emoji = "️⚙️️",
         executable = true,
         aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings"}
 )
@@ -48,8 +48,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     private NavigationHelper<ServerTextChannel> channelNavigationHelper;
     private CustomObservableList<ServerTextChannel> ignoredChannels;
 
-    public static final String treasureEmoji = "\uD83D\uDCB0";
-    public static final String keyEmoji = "\uD83D\uDD11";
+    public static final String treasureEmoji = "💰";
+    public static final String keyEmoji = "🔑";
     private static final ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
 
     @Override
@@ -63,10 +63,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
-        switch (state) {
-            case 1:
-                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
-                return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
+        if (state == 1) {
+            ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+            return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
         }
 
         return null;
@@ -121,20 +120,24 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                                 return true;
                             }
                         }
+
+                    default:
+                        return false;
                 }
-                break;
 
             case 1:
                 if (i == -1) {
                     setState(0);
                     return true;
                 }
-                break;
+                return false;
 
             case 2:
                 return channelNavigationHelper.removeData(i, 0);
+
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -151,8 +154,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
             case 1: return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
             case 2: return channelNavigationHelper.drawDataRemove();
+
+            default: return null;
         }
-        return null;
     }
 
     @Override

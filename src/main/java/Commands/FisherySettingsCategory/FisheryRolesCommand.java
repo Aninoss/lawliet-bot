@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "fisheryroles",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\uD83D\uDCDC",
+        emoji = "📜",
         executable = true,
         aliases = {"fishingroles", "fishroles", "fisheryr"}
 )
@@ -127,9 +127,10 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                     setLog(LogStatus.FAILURE, getString("prices_wrongvalues"));
                     return Response.FALSE;
                 }
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -171,15 +172,17 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                     case 4:
                         setState(4);
                         return true;
+
+                    default:
+                        return false;
                 }
-                break;
 
             case 1:
                 if (i == -1) {
                     setState(0);
                     return true;
                 }
-                break;
+                return false;
 
             case 2:
                 if (i == -1) {
@@ -191,30 +194,30 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                     if (roles.size() == 0) setState(0);
                     return true;
                 }
-                break;
+                return false;
 
             case 3:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        serverBean.setFisheryAnnouncementChannelId(null);
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                } else if (i == 0) {
+                    serverBean.setFisheryAnnouncementChannelId(null);
+                    setState(0);
+                    setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
+                    return true;
                 }
-                break;
+                return false;
 
             case 4:
                 if (i == -1) {
                     setState(0);
                     return true;
                 }
-                break;
+                return false;
+
+            default:
+                return false;
         }
-        return false;
     }
 
     private String getRoleString(Role role) {
@@ -276,8 +279,10 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
 
             case 4:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override

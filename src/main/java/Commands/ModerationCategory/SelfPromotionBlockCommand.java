@@ -27,7 +27,7 @@ import java.util.ArrayList;
     trigger = "spblock",
     botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
     userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
-    emoji = "\uD83D\uDEE1️",
+    emoji = "️🛡️",
     executable = true
 )
 public class SelfPromotionBlockCommand extends Command implements OnNavigationListener {
@@ -87,9 +87,10 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                     setState(0);
                     return Response.TRUE;
                 }
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -121,48 +122,44 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                     case 4:
                         setState(4);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 1:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        ignoredUsers.clear();
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                } else if (i == 0) {
+                    ignoredUsers.clear();
+                    setState(0);
+                    setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
+                    return true;
                 }
                 return false;
 
             case 2:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        ignoredChannels.clear();
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                } else if (i == 0) {
+                    ignoredChannels.clear();
+                    setState(0);
+                    setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
+                    return true;
                 }
                 return false;
 
             case 3:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        logReceivers.clear();
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("logrecieverset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                } else if (i == 0) {
+                    logReceivers.clear();
+                    setState(0);
+                    setLog(LogStatus.SUCCESS, getString("logrecieverset"));
+                    return true;
                 }
                 return false;
 
@@ -177,8 +174,10 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
                     return true;
                 }
                 return false;
+
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -208,8 +207,10 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
             case 4:
                 setOptions(getString("state0_mactionlist").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override

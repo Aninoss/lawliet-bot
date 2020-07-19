@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 @CommandProperties(
         trigger = "mcdisplays",
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\uD83E\uDDEE️",
+        emoji = "️🧮️",
         executable = true,
         aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
@@ -128,8 +128,10 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                             setLog(LogStatus.FAILURE, getString("nothingtoremove"));
                             return true;
                         }
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 1:
                 if (i == -1) {
@@ -164,7 +166,6 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                                 .setState(PermissionType.CONNECT, PermissionState.ALLOWED)
                                 .build();
                         updater.addPermissionOverwrite(yourself, ownPermissions);
-                        //TODO I JUST DON'T KNOW ANYMORE MAN
 
                         String newVCName = getNewVCName(event.getServer().get(), getLocale(), currentName);
                         updater.setName(newVCName)
@@ -195,8 +196,10 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                     setState(0);
                     return true;
                 }
+
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -228,8 +231,10 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                 }
                 setOptions(roleStrings);
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override

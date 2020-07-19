@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
     trigger = "bannedwords",
     botPermissions = Permission.MANAGE_MESSAGES,
     userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
-    emoji = "\uD83D\uDEA7️",
+    emoji = "️🚧️",
     executable = true
 )
 public class BannedWordsCommand extends Command implements OnNavigationListener {
@@ -83,9 +83,10 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 String[] wordArray = inputString.replace("\n", " ").split(" ");
                 List<String> wordList = Arrays.stream(wordArray).map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length()))).collect(Collectors.toList());
                 return wordsNavigationHelper.addData(wordList, inputString, event.getMessage().getUserAuthor().get(), 0);
-        }
 
-        return null;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -122,34 +123,32 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                     case 5:
                         wordsNavigationHelper.startDataRemove(4);
                         return true;
+
+                    default:
+                        return false;
                 }
-                return false;
 
             case 1:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        ignoredUsers.clear();
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                } else if (i == 0) {
+                    ignoredUsers.clear();
+                    setState(0);
+                    setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
+                    return true;
                 }
                 return false;
 
             case 2:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        logReceivers.clear();
-                        setState(0);
-                        setLog(LogStatus.SUCCESS, getString("logrecieverset"));
-                        return true;
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                } else if (i == 0) {
+                    logReceivers.clear();
+                    setState(0);
+                    setLog(LogStatus.SUCCESS, getString("logrecieverset"));
+                    return true;
                 }
                 return false;
 
@@ -162,8 +161,10 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
 
             case 4:
                 return wordsNavigationHelper.removeData(i, 0);
+
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -188,8 +189,10 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
 
             case 3: return wordsNavigationHelper.drawDataAdd(getString("state3_title"), getString("state3_description"));
             case 4: return wordsNavigationHelper.drawDataRemove(getString("state4_title"), getString("state4_description"));
+
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override

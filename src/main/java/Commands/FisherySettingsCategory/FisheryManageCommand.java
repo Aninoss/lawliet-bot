@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
         trigger = "fisherymanage",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "\uD83D\uDCB0",
+        emoji = "💰",
         executable = false,
         patreonRequired = true,
         aliases = {"fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager"}
@@ -70,9 +70,22 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
             int type = -1;
             switch (typeString.toLowerCase()) {
-                case "fish": type = 0; break;
-                case "coins": case "coin": type = 1; break;
-                case "daily": case "dailystreak": case "streak": type = 2; break;
+                case "fish":
+                    type = 0;
+                    break;
+
+                case "coins":
+                    case "coin":
+                        type = 1;
+                        break;
+
+                case "daily":
+                    case "dailystreak":
+                        case "streak":
+                            type = 2;
+                            break;
+
+                default:
             }
 
             if (type == -1) {
@@ -123,38 +136,70 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
         if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) return null;
 
-        long baseValue;
-        switch (type) {
-            case 0: baseValue = fisheryUserBean.getFish(); break;
-            case 1: baseValue = fisheryUserBean.getCoinsRaw(); break;
-            case 2: baseValue = fisheryUserBean.getDailyStreak(); break;
-            default: baseValue = 0;
-        }
-
+        long baseValue = getBaseValueByType(fisheryUserBean, type);
         long newValue = MentionUtil.getAmountExt(inputString, baseValue);
-        if (newValue == -1) {
+        if (newValue == -1)
             return null;
-        }
 
+        newValue = calculateNewValue(baseValue, newValue, valueProcedure);
+        setNewValues(newValue, type);
+
+        return newValue;
+    }
+
+    private void setNewValues(long newValue, int type) {
+        switch (type) {
+            /* Fish */
+            case 0:
+                fisheryUserBean.setFish(newValue);
+                break;
+
+            /* Coins */
+            case 1:
+                fisheryUserBean.setCoinsRaw(newValue);
+                break;
+
+            /* Daily Streak */
+            case 2:
+                fisheryUserBean.setDailyStreak(newValue);
+                break;
+
+            default:
+        }
+    }
+
+    private long calculateNewValue(long baseValue, long newValue, ValueProcedure valueProcedure) {
         switch (valueProcedure) {
-            case ADD: newValue = baseValue + newValue; break;
-            case SUB: newValue = baseValue - newValue; break;
+            case ADD:
+                newValue = baseValue + newValue;
+                break;
+
+            case SUB:
+                newValue = baseValue - newValue;
+                break;
+
+            default:
         }
         if (newValue < 0) newValue = 0;
         if (newValue > Settings.MAX) newValue = Settings.MAX;
 
-        switch (type) {
-            /* Fish */
-            case 0: fisheryUserBean.setFish(newValue); break;
-
-            /* Coins */
-            case 1: fisheryUserBean.setCoinsRaw(newValue); break;
-
-            /* Daily Streak */
-            case 2: fisheryUserBean.setDailyStreak(newValue); break;
-        }
-
         return newValue;
+    }
+
+    private long getBaseValueByType(FisheryUserBean fisheryUserBean, int type) {
+        switch (type) {
+            case 0:
+                return fisheryUserBean.getFish();
+
+            case 1:
+                return fisheryUserBean.getCoinsRaw();
+
+            case 2:
+                return fisheryUserBean.getDailyStreak();
+
+            default:
+                throw new IndexOutOfBoundsException("invalid type");
+        }
     }
 
     @Override
