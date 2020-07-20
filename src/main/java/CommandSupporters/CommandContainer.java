@@ -135,6 +135,7 @@ public class CommandContainer {
         commandList.add(BlackjackCommand.class);
         commandList.add(QuizCommand.class);
         commandList.add(AnimeQuizCommand.class);
+        commandList.add(TowerCommand.class);
 
         //EMOTES
         commandList.add(DabCommand.class);

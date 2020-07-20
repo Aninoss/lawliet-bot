@@ -120,7 +120,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
             if (event.getEmoji().asUnicodeEmoji().get().equals(CLEAR_EMOJI))
                 markUnlimited(event.getServerTextChannel().get());
             else if (event.getEmoji().asUnicodeEmoji().get().equals(QUIT_EMOJI)) {
-                removeReactionWithMessage();
+                removeReactionListenerWithMessage();
                 removeNavigation();
             }
         }

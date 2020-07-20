@@ -279,7 +279,7 @@ public class MentionUtil {
             multi = true;
         }
 
-        if (message.mentionsEveryone() || followedString.contains("everyone")) {
+        if (message.mentionsEveryone() || followedString.contains("everyone") || followedString.contains("all")) {
             if (counted == 0) sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_start")).append("**, ");
             else sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_end")).append("**, ");
             counted++;

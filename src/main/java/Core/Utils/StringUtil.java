@@ -233,13 +233,31 @@ public final class StringUtil {
     }
 
     public static String doubleToString(double d, int placesAfterPoint) {
-        String pattern = "#";
-        if (placesAfterPoint > 0) pattern += ".";
+        return doubleToString(d, placesAfterPoint, Locale.US);
+    }
+
+    public static String doubleToString(double d, int placesAfterPoint, Locale locale) {
+        StringBuilder pattern = new StringBuilder("#");
+        if (placesAfterPoint > 0) pattern.append(".");
         for(int i=0; i<placesAfterPoint; i++) {
-            pattern += "#";
+            pattern.append("#");
         }
-        DecimalFormat df = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(Locale.US));
-        return df.format(d);
+
+        DecimalFormat df = new DecimalFormat(pattern.toString(), DecimalFormatSymbols.getInstance(Locale.US));
+        String str = df.format(d);
+        switch (StringUtil.getLanguage(locale)) {
+            case DE:
+                str = str.replace(".", ",");
+                break;
+
+            case RU:
+                str = str.replace(".", ",");
+                break;
+
+            default:
+        }
+
+        return str;
     }
 
     public static boolean stringContainsLetters(String s) {

@@ -385,7 +385,7 @@ public abstract class Command {
                 }
             } else if (this instanceof OnReactionAddListener) {
                 try {
-                    if (commandProperties.deleteOnTimeOut()) removeReactionWithMessage();
+                    if (commandProperties.deleteOnTimeOut()) removeReactionListenerWithMessage();
                     else removeReactionListener();
                     ((OnReactionAddListener) this).onReactionTimeOut(message);
                 } catch (Throwable throwable) {
@@ -417,7 +417,7 @@ public abstract class Command {
         }
     }
 
-    public void removeReactionWithMessage() throws InterruptedException {
+    public void removeReactionListenerWithMessage() throws InterruptedException {
         Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
         try {
