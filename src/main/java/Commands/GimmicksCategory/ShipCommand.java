@@ -40,11 +40,15 @@ public class ShipCommand extends Command {
                     getString( "not_2"))).get();
             return false;
         }
+
         list.sort(Comparator.comparingLong(DiscordEntity::getId));
         String idString = String.valueOf(list.get(0).getId() + list.get(1).getId());
         int randomNum = String.valueOf(idString.hashCode()).hashCode();
         int percentage = new Random(randomNum).nextInt(101);
+
         if (list.get(0).getId() == 272037078919938058L && list.get(1).getId() == 326714012022865930L)
+            percentage = 100;
+        if (list.get(0).getId() == 397209883793162240L && list.get(1).getId() == 710120672499728426L)
             percentage = 100;
 
         int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), 7);
