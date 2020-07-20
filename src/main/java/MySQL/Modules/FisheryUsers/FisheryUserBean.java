@@ -108,7 +108,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public long getFishIncome() {
         Instant currentHourInstance = TimeUtil.instantRoundDownToHour(Instant.now());
-        if (fishIncome == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
+        if (fishIncome == null || fishIncomeUpdateTime == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
             try {
                 long n = 0;
 
@@ -252,7 +252,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public void addFish(long fish) {
         if (fish != 0) {
-            this.coins += coins;
+            this.fish += fish;
             if (fish > 0) {
                 if (fishIncome != null) fishIncome += fish;
                 getCurrentFisheryHourlyIncome().add(fish);
