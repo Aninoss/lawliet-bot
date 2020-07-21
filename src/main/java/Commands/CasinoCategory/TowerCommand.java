@@ -34,7 +34,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     private double towerMultiplier = 1.0;
     private String log;
     private LogStatus logStatus;
-    private Random r = new Random();
+    private final Random r = new Random();
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

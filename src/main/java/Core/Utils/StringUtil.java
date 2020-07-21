@@ -280,7 +280,10 @@ public final class StringUtil {
 
         switch (getLanguage(locale)) {
             case RU:
-            case DE: str = str.replace(",","."); break;
+            case DE:
+                str = str.replace(",",".");
+                break;
+            default:
         }
 
         return str;
@@ -361,13 +364,17 @@ public final class StringUtil {
     }
 
     public static double similarity(String s1, String s2) {
-        String longer = s1, shorter = s2;
+        String longer = s1;
+        String shorter = s2;
         if (s1.length() < s2.length()) {
             longer = s2; shorter = s1;
         }
         int longerLength = longer.length();
-        if (longerLength == 0) { return 1.0; }
-        if (s1.equalsIgnoreCase(s2)) { return 1.0; }
+        if (longerLength == 0)
+            return 1.0;
+        if (s1.equalsIgnoreCase(s2))
+            return 1.0;
+
         return (longerLength - editDistance(longer, shorter)) / (double) longerLength;
     }
 
