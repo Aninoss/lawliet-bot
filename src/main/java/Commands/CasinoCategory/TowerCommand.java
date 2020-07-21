@@ -49,6 +49,8 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     }
 
     private EmbedBuilder getEmbed(boolean showMoreText, boolean crashed, boolean falling) {
+        final int LEVEL_LIMIT = 12;
+
         final String GRASS_EMOJI = DiscordApiCollection.getInstance().getHomeEmojiById(734843199985811556L).getMentionTag();
         final String EMPTY_EMOJI = DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag();
         String[] towerEmojis = new String[2];
@@ -65,9 +67,9 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         };
 
         /* build tower */
-        StringBuilder towerText = new StringBuilder(Settings.EMPTY_EMOJI + "\n");
-        for(int i = 0; i < Math.min(12, towerLevel) && !crashed; i++) {
-            if (i == 0 && falling) {
+        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Settings.EMPTY_EMOJI + "\n") : "");
+        for(int i = 0; i < Math.min(LEVEL_LIMIT, towerLevel) && !crashed; i++) {
+            if (i == 0 && falling && towerLevel <= LEVEL_LIMIT) {
                 towerText.append(getString("base", EMPTY_EMOJI, towerEmojisAnimated[0], towerEmojisAnimated[1]))
                         .append("\n");
             } else {

@@ -23,8 +23,21 @@ public class SayCommand extends Command {
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setDescription(followedString)
                 .setFooter(event.getMessage().getUserAuthor().get().getDiscriminatedName());
-        if (attachments.size() > 0) eb.setImage(attachments.get(0).downloadAsImage().get());
-        if (attachments.size() > 1) eb.setThumbnail(attachments.get(1).downloadAsImage().get());
+
+        if (attachments.size() > 0) {
+            MessageAttachment attachment = attachments.get(0);
+            if (attachment.getUrl().toString().endsWith("gif"))
+                eb.setImage(attachment.getUrl().toString());
+            else
+                eb.setImage(attachment.downloadAsInputStream());
+        }
+        if (attachments.size() > 1) {
+            MessageAttachment attachment = attachments.get(1);
+            if (attachment.getUrl().toString().endsWith("gif"))
+                eb.setThumbnail(attachment.getUrl().toString());
+            else
+                eb.setThumbnail(attachment.downloadAsInputStream());
+        }
 
         event.getChannel().sendMessage(eb).get();
         return true;
