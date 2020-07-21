@@ -34,6 +34,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     private double towerMultiplier = 1.0;
     private String log;
     private LogStatus logStatus;
+    private Random r = new Random();
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -62,8 +63,8 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
             towerEmojis[1] = DiscordApiCollection.getInstance().getHomeEmojiById(734836799402409986L).getMentionTag();
         }
         String[] towerEmojisAnimated = {
-                DiscordApiCollection.getInstance().getHomeEmojiById(734904032920993993L).getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiById(734904032530923693L).getMentionTag()
+                DiscordApiCollection.getInstance().getHomeEmojiById(735259827563135030L).getMentionTag(),
+                DiscordApiCollection.getInstance().getHomeEmojiById(735259827382779985L).getMentionTag()
         };
 
         /* build tower */
@@ -107,16 +108,12 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
             for(int i = 0; i < 2; i++) {
                 if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[i])) {
                     if (i == 0) {
-                        if (new Random().nextDouble() <= (towerMultiplier / (towerMultiplier + MULTIPLIER_STEP))) {
-                            towerLevel++;
-                            towerMultiplier += MULTIPLIER_STEP;
-                            message.edit(getEmbed(true, false, true)).get();
+                        if (towerMultiplier < 10.0) {
+                            onRaise();
                         } else {
-                            onLose();
-                            towerLevel = 0;
-                            logStatus = LogStatus.LOSE;
-                            log = getString("lost");
-                            message.edit(getEmbed(false, true, false)).get();
+                            logStatus = LogStatus.FAILURE;
+                            log = getString("cap");
+                            message.edit(getEmbed(true, false, false)).get();
                         }
                     } else {
                         onSell();
@@ -124,6 +121,20 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
                     return;
                 }
             }
+        }
+    }
+
+    private void onRaise() throws ExecutionException, InterruptedException {
+        if (r.nextDouble() <= (towerMultiplier / (towerMultiplier + MULTIPLIER_STEP))) {
+            towerLevel++;
+            towerMultiplier += MULTIPLIER_STEP;
+            message.edit(getEmbed(true, false, true)).get();
+        } else {
+            onLose();
+            towerLevel = 0;
+            logStatus = LogStatus.LOSE;
+            log = getString("lost");
+            message.edit(getEmbed(false, true, false)).get();
         }
     }
 

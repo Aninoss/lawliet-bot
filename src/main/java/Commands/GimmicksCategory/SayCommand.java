@@ -13,7 +13,7 @@ import java.util.List;
         trigger = "say",
         emoji = "\uD83D\uDCAC",
         executable = false,
-        aliases = {"repeat"}
+        aliases = { "repeat" }
 )
 public class SayCommand extends Command {
 
