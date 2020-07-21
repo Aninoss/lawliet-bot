@@ -102,7 +102,6 @@ public abstract class PornAbstract extends Command {
 
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         ServerTextChannel channel = slot.getChannel().get();
-        slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
 
         if (isExplicit() && !channel.isNsfw()) {
             channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
@@ -113,14 +112,20 @@ public abstract class PornAbstract extends Command {
         ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, slot.getCommandKey().orElse(""), 1, new ArrayList<>());
 
         if (pornImages.size() == 0) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().orElse("")));
-            channel.sendMessage(eb).get();
-            return TrackerResult.STOP_AND_DELETE;
+            if (!slot.getArgs().isPresent()) {
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                        .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().orElse("")));
+                channel.sendMessage(eb).get();
+                return TrackerResult.STOP_AND_DELETE;
+            } else {
+                return TrackerResult.CONTINUE;
+            }
         }
 
         post(pornImages, slot.getCommandKey().orElse(""), channel, !pornImages.get(0).isVideo(), 1);
+        slot.setArgs("found");
+        slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         return TrackerResult.CONTINUE_AND_SAVE;
     }
 

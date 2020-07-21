@@ -229,6 +229,7 @@ public class CommandContainer {
 
         //PRIVATE
         commandList.add(CommunismCommand.class);
+        commandList.add(NibbleCommand.class);
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
@@ -240,7 +241,7 @@ public class CommandContainer {
                 if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add(((OnReactionRemoveStaticListener)command).getClass());
                 if (command instanceof OnTrackerRequestListener) trackerCommands.add(((OnTrackerRequestListener)command).getClass());
 
-                if (!command.canRunOnServer(0L)) commandList.remove(clazz);
+                if (!command.canRunOnServer(0L, 0L)) commandList.remove(clazz);
             } catch (IllegalAccessException | InstantiationException e) {
                 LOGGER.error("Could not create class", e);
             }

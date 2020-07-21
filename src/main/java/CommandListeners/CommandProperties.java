@@ -18,5 +18,6 @@ public @interface CommandProperties {
     int maxCalculationTimeSec() default 30;
     boolean patreonRequired() default false;
     long[] exlusiveServers() default {};
+    long[] exlusiveUsers() default {};
     boolean turnOffTimeout() default false;
 }

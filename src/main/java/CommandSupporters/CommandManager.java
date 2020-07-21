@@ -204,7 +204,7 @@ public class CommandManager {
     }
 
     private static boolean canRunOnServer(MessageCreateEvent event, Command command) {
-        return command.canRunOnServer(event.getServer().get().getId());
+        return command.canRunOnServer(event.getServer().get().getId(), event.getMessage().getUserAuthor().get().getId());
     }
 
     private static boolean botCanUseEmbeds(MessageCreateEvent event, Command command) {

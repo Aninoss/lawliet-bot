@@ -578,10 +578,12 @@ public abstract class Command {
         }
         return perm;
     }
-    public boolean canRunOnServer(long serverId) {
+    public boolean canRunOnServer(long serverId, long userId) {
         long[] allowedServerIds = commandProperties.exlusiveServers();
-        if (allowedServerIds.length == 0) return true;
-        return Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId);
+        long[] allowedUserIds = commandProperties.exlusiveUsers();
+
+        return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId)) &&
+                ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId));
     }
     public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }
     public void blockLoading() { loadingBlock = true; }
