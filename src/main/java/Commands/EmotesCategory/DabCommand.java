@@ -11,9 +11,10 @@ import Commands.EmoteAbstract;
 public class DabCommand extends EmoteAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/d13c16a8853e3b309db0ec7e573c4c94/tenor.gif?itemid=10617637",
-                "https://media1.tenor.com/images/033a2e811f625be20008eed617734d40/tenor.gif?itemid=13628207",
-                "https://media1.tenor.com/images/425cf503dedae77ca0ffcfebd0ddc5d7/tenor.gif?itemid=12692598"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736253507618865215/736253511095943269/dab.gif",
+                "https://media.discordapp.net/attachments/736253507618865215/736253518100299796/dab.gif",
+                "https://media.discordapp.net/attachments/736253507618865215/736253522198396928/dab.gif",
         };
     }
 

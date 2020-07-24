@@ -1,10 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "throw",
@@ -14,15 +10,16 @@ import java.util.ArrayList;
 public class ThrowCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/a5b0c596a130bff78b062749bd75ac77/tenor.gif?itemid=10002831",
-                "https://media1.tenor.com/images/9e520f7d32a8b6cb5449c295db4e2e5f/tenor.gif?itemid=4884862",
-                "https://media1.tenor.com/images/8dee438ec0ee975375b7bca7efb47e11/tenor.gif?itemid=4607781",
-                "https://media1.tenor.com/images/22568c7293f1a8375392d86b47186355/tenor.gif?itemid=9181485",
-                "https://media1.tenor.com/images/1f75d734bfe69aa3d468a0defc6c4b5a/tenor.gif?itemid=9278201",
-                "https://media1.tenor.com/images/6ed656e93d34f089d1c54366d9ca4f81/tenor.gif?itemid=7380119",
-                "https://media1.tenor.com/images/2cdc20be64a750201b23a72cd3e19e6b/tenor.gif?itemid=9214216",
-                "https://media1.tenor.com/images/e194c072efada4a3dd96ed44cbda7d10/tenor.gif?itemid=10810504",
-                "https://media1.tenor.com/images/d14969a21a96ec46f61770c50fccf24f/tenor.gif?itemid=5509136"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736272093900963923/736272105422716990/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272109927530566/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272115216679033/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272120849629285/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272129246625948/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272137224060959/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272144731734056/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272152646647918/throw.gif",
+                "https://media.discordapp.net/attachments/736272093900963923/736272157025501295/throw.gif"
         };
     }
 

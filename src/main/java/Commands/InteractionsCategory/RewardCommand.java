@@ -11,7 +11,9 @@ import Commands.InteractionAbstract;
 public class RewardCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://cdn.discordapp.com/attachments/499629904380297226/499653477568348163/reward.gif"};
+        return new String[]{
+                "https://media.discordapp.net/attachments/736276242466078761/736276249969950781/reward.gif"
+        };
     }
 
 }

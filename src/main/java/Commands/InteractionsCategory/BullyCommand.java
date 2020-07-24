@@ -1,10 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "bully",
@@ -14,14 +10,15 @@ import java.util.ArrayList;
 public class BullyCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/cd4e555c2f9e0a269c4bc556c26bad85/tenor.gif?itemid=14116420",
-                "https://media1.tenor.com/images/a67eb981bfda1c87e06f80b4cab2b98c/tenor.gif?itemid=5707440",
-                "https://media1.tenor.com/images/75d23ea3deef54f1bb0cba73957ede72/tenor.gif?itemid=6132622",
-                "https://media1.tenor.com/images/d8eb944ec458745740bf455cc6d50c9f/tenor.gif?itemid=12354084",
-                "https://media1.tenor.com/images/608fcf3bb559a51dcea46e6f244a32d8/tenor.gif?itemid=5600466",
-                "https://media1.tenor.com/images/0074d757a7b82f0f5860d6847093f715/tenor.gif?itemid=7733341",
-                "https://media1.tenor.com/images/8c3eeb259617b1137211ab8f47a68406/tenor.gif?itemid=5661490",
-                "https://data.whicdn.com/images/249906657/original.gif"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736272234628251689/736272238071906314/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272249224560720/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272262466109460/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272267989876866/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272276118569030/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272279574413322/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272283198554212/bully.gif",
+                "https://media.discordapp.net/attachments/736272234628251689/736272291247292426/bully.gif"
         };
     }
 

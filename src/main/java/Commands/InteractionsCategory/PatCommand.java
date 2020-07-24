@@ -1,10 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "pat",
@@ -15,39 +11,40 @@ import java.util.ArrayList;
 public class PatCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/c0bcaeaa785a6bdf1fae82ecac65d0cc/tenor.gif?itemid=7453915",
-                "https://media1.tenor.com/images/116fe7ede5b7976920fac3bf8067d42b/tenor.gif?itemid=9200932",
-                "https://media1.tenor.com/images/da8f0e8dd1a7f7db5298bda9cc648a9a/tenor.gif?itemid=12018819",
-                "https://media1.tenor.com/images/183ff4514cbe90609e3f286adaa3d0b4/tenor.gif?itemid=5518321",
-                "https://media1.tenor.com/images/f5176d4c5cbb776e85af5dcc5eea59be/tenor.gif?itemid=5081286",
-                "https://media1.tenor.com/images/153e9bdd80008e8c0f94110450fcbf98/tenor.gif?itemid=10534102",
-                "https://media1.tenor.com/images/28f4f29de42f03f66fb17c5621e7bedf/tenor.gif?itemid=8659513",
-                "https://media1.tenor.com/images/291ea37382e1d6cd33349c50a398b6b9/tenor.gif?itemid=10204936",
-                "https://media1.tenor.com/images/71e74263a48a6e9a2c53f3bc1439c3ac/tenor.gif?itemid=12434286",
-                "https://media1.tenor.com/images/c0c1c5d15f8ad65a9f0aaf6c91a3811e/tenor.gif?itemid=13410974",
-                "https://media1.tenor.com/images/bf646b7164b76efe82502993ee530c78/tenor.gif?itemid=7394758",
-                "https://media1.tenor.com/images/857aef7553857b812808a355f31bbd1f/tenor.gif?itemid=13576017",
-                "https://media1.tenor.com/images/9bf3e710f33cae1eed1962e7520f9cf3/tenor.gif?itemid=13236885",
-                "https://media1.tenor.com/images/005e8df693c0f59e442b0bf95c22d0f5/tenor.gif?itemid=10947495",
-                "https://media1.tenor.com/images/54722063c802bac30d928db3bf3cc3b4/tenor.gif?itemid=8841561",
-                "https://media1.tenor.com/images/a9d0fd4bb985bb38a82a9af843fa2480/tenor.gif?itemid=6211183",
-                "https://media1.tenor.com/images/daa885ec8a9cfa4107eb966df05ba260/tenor.gif?itemid=13792462",
-                "https://media1.tenor.com/images/ae7a21f434cee8762d127b8aed889296/tenor.gif?itemid=9058328",
-                "https://media1.tenor.com/images/70960e87fb9454df6a1d15c96c9ad955/tenor.gif?itemid=10092582",
-                "https://media1.tenor.com/images/64d45ee51ea8d55760c81a93353ffdb3/tenor.gif?itemid=11179299",
-                "https://media1.tenor.com/images/7e89ab34fd2c59698479a740f056e325/tenor.gif?itemid=11993003",
-                "https://media1.tenor.com/images/13f385a3442ac5b513a0fa8e8d805567/tenor.gif?itemid=13857199",
-                "https://media1.tenor.com/images/098a45951c569edc25ea744135f97ccf/tenor.gif?itemid=10895868",
-                "https://media1.tenor.com/images/5466adf348239fba04c838639525c28a/tenor.gif?itemid=13284057",
-                "https://media1.tenor.com/images/68d981347bf6ee8c7d6b78f8a7fe3ccb/tenor.gif?itemid=5155410",
-                "https://media1.tenor.com/images/dadf2f2aa8efc7b0856b6af26e72a8cb/tenor.gif?itemid=6005361",
-                "https://media1.tenor.com/images/d9e575861bb2f6389cec93da6cbdfa1f/tenor.gif?itemid=9720876",
-                "https://media1.tenor.com/images/398c9c832335a13be124914c23e88fdf/tenor.gif?itemid=9939761",
-                "https://tenor.com/view/kitten-kittens-cute-pet-give-me-attention-gif-12816949",
-                "https://i.pinimg.com/originals/be/75/ff/be75ff9f2ba20efb4dbda09c62802b39.gif",
-                "https://i.giphy.com/media/L2z7dnOduqEow/source.gif",
-                "https://static.zerochan.net/Neko.Para.full.2867447.gif",
-                "https://tenor.com/view/rem-re-zero-gif-6148969"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736275536317382717/736275542193733702/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275544949260368/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275548061302886/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275551500763186/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275553941848176/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275564264161350/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275566885601391/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275577140543569/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275582425366620/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275590251937872/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275593615769640/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275599550578778/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275602939576380/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275607645847572/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275612804579328/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275622304677908/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275627279122502/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275630219591690/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275637765144716/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275648313688124/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275656794701904/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275665401413632/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275670447030292/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275674821689404/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275680597377064/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275692689555456/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275700214136892/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275702793371654/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275705926778895/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275710263558225/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275713761476668/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275763661242478/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/736275767389978676/pat.gif"
         };
     }
 

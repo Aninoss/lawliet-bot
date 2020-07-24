@@ -25,7 +25,7 @@ public interface Settings {
     String EMPTY_EMOJI = "⠀";
     String[] NSFW_FILTERS = {"shota", "loli", "bestiality", "beastiality", "cub", "vore", "gore", "scat", "rape"};
     int UPDATE_HOUR = 7;
-    int COOLDOWN_TIME_SEC = 6;
+    int COOLDOWN_TIME_SEC = 4;
     long[] DONATION_ROLE_IDS = { 703303395867492453L, 704721905453629481L, 704721939968688249L, 706143381784494132L, 706143478085582898L };
     Color PATREON_COLOR = new Color(249, 104, 84);
     boolean GIVEAWAY_RUNNING = false;

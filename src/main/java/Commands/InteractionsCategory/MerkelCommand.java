@@ -1,10 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "merkel",
@@ -14,7 +10,9 @@ import java.util.ArrayList;
 public class MerkelCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://cdn.discordapp.com/attachments/499629904380297226/590539990455418885/merkel.png"};
+        return new String[]{
+                "https://media.discordapp.net/attachments/736269653948760146/736269660143747082/merkel.png"
+        };
     }
 
 }

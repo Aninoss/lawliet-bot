@@ -10,20 +10,21 @@ import Commands.InteractionAbstract;
 public class YaoiHugCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://media.giphy.com/media/yziFo5qYAOgY8/giphy.gif",
-                "https://media1.tenor.com/images/949d3eb3f689fea42258a88fa171d4fc/tenor.gif?itemid=4900166",
-                "https://media1.tenor.com/images/81f693db5e5265c9ae21052d55ab7b3d/tenor.gif?itemid=13576354",
-                "https://media1.tenor.com/images/b45619f5c109890d894eae5132dbd809/tenor.gif?itemid=14162538",
-                "https://media1.tenor.com/images/1f44c379b43bc4efb6d227a2e20b6b50/tenor.gif?itemid=13331088",
-                "https://media1.tenor.com/images/1e2195e1244de5b98f50929872b4265c/tenor.gif?itemid=7614634",
-                "https://media1.tenor.com/images/ce6b3a9fd4ad07f5aa84b914b6dd91d4/tenor.gif?itemid=12668669",
-                "https://media1.tenor.com/images/96fc16ffae483fdce54e4f1e7fa6f649/tenor.gif?itemid=8132019",
-                "https://media1.tenor.com/images/9b8e9fa95f4799f8940062c2a879a790/tenor.gif?itemid=12668679",
-                "https://media1.tenor.com/images/0a3cac5657b5e9b82f64d7d4bc5d45db/tenor.gif?itemid=7898031",
-                "https://media1.tenor.com/images/19cf84b7a56e9a64fe7fd5559ad287bf/tenor.gif?itemid=10243168",
-                "https://media1.tenor.com/images/eccacd077d0ac499e1a5cc76c6172ad4/tenor.gif?itemid=4854611",
-                "https://static.zerochan.net/Shin.Megami.Tensei%3A.PERSONA.5.full.2149903.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/731459064072241213/4f3edd8.gif"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736278340733894710/736278344986918954/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278350959607949/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278355015630868/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278358869934101/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278361889964072/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278366818271302/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278374993100840/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278379849973780/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278390432071800/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278395180154961/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278403434676224/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278410568925315/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278429510533176/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/736278434866790532/yaoihug.gif"
         };
     }
 

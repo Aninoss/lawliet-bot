@@ -1,10 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "yurikiss",
@@ -14,19 +10,20 @@ import java.util.ArrayList;
 public class YuriKissCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://i.gifer.com/Djbt.gif",
-                "https://i.gifer.com/KTGr.gif",
-                "https://i.gifer.com/J1b0.gif",
-                "https://www.wykop.pl/cdn/c3201142/comment_tfROJ3JwtatzGcJxpnnFRiunICfsZsb5.gif",
-                "https://media1.tenor.com/images/279c4716a469ace39b15e34d7fa3e7c4/tenor.gif?itemid=11487318",
-                "https://data.whicdn.com/images/95252800/original.gif",
-                "https://cdn.weeb.sh/images/rJrCj6_w-.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/579494706870747147/0.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/579494710247292929/1.gif",
-                "https://media1.tenor.com/images/1f06e53598fb516931da7baee4807e4d/tenor.gif?itemid=9118951",
-                "https://media1.tenor.com/images/69ace17be06147ed8db45af81d1d5485/tenor.gif?itemid=15111552",
-                "https://media1.tenor.com/images/83c1c6749b404d95c05df23a67c0ca41/tenor.gif?itemid=12003885",
-                "https://static.zerochan.net/Magic.Knight.Rayearth.full.2623741.gif"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736281091534618674/736281096764784780/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281104201285732/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281115098087506/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281124774346822/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281129346400416/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281133649756273/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281140683604080/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281151748047088/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281161139093544/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281165736181860/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281173185265794/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281183738003456/yurikiss.gif",
+                "https://media.discordapp.net/attachments/736281091534618674/736281204617248848/yurikiss.gif"
         };
     }
 

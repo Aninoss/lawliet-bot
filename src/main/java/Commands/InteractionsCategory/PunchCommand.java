@@ -1,10 +1,6 @@
 package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
-
 import Commands.InteractionAbstract;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 
 @CommandProperties(
         trigger = "punch",
@@ -15,42 +11,43 @@ import java.util.ArrayList;
 public class PunchCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/31686440e805309d34e94219e4bedac1/tenor.gif?itemid=4790446",
-                "https://media1.tenor.com/images/2487a7679b3d7d23cadcd51381635467/tenor.gif?itemid=11451829",
-                "https://media1.tenor.com/images/c621075def6ca41785ef4aaea20cc3a2/tenor.gif?itemid=7679409",
-                "https://media1.tenor.com/images/79cc6480652032a20f1cb5c446b113ae/tenor.gif?itemid=12911685",
-                "https://media1.tenor.com/images/cff010b188084e1faed2905c0f1634c2/tenor.gif?itemid=10161883",
-                "https://media1.tenor.com/images/ee3f2a6939a68df9563a7374f131fd96/tenor.gif?itemid=14210784",
-                "https://media1.tenor.com/images/965fabbfcdc09ee0eb4d697e25509f34/tenor.gif?itemid=7380310",
-                "https://media1.tenor.com/images/d7c30e46a937aaade4d7bc20eb09339b/tenor.gif?itemid=12003970",
-                "https://media1.tenor.com/images/6afcfbc435b698fa5ceb2ff019718e6d/tenor.gif?itemid=10480971",
-                "https://media1.tenor.com/images/1c986c555ed0b645670596d978c88f6e/tenor.gif?itemid=13142581",
-                "https://media1.tenor.com/images/2fe2e31bd486f36dd552f4d6e2e5b602/tenor.gif?itemid=10606507",
-                "https://media1.tenor.com/images/5511a8309a1719987a27aa7b1ee7da04/tenor.gif?itemid=12303482",
-                "https://media1.tenor.com/images/f03329d8877abfde62b1e056953724f3/tenor.gif?itemid=13785833",
-                "https://media1.tenor.com/images/7d43687195b86c8ce2411484eb1951fc/tenor.gif?itemid=7922533",
-                "https://media1.tenor.com/images/517f63ce5ffc6426bddd17d7413ebaca/tenor.gif?itemid=5247335",
-                "https://media1.tenor.com/images/2efcac044a4f9f2377b118b1cc6282cb/tenor.gif?itemid=13142576",
-                "https://media1.tenor.com/images/0dbb53b0f2a8730ea3c8a0e2502b6bac/tenor.gif?itemid=10194762",
-                "https://media1.tenor.com/images/745d16a823805edbfe83aa9363c48a87/tenor.gif?itemid=12003981",
-                "https://media1.tenor.com/images/b2308e16fa5b71c541efdd13dea4f9ba/tenor.gif?itemid=10462739",
-                "https://media1.tenor.com/images/2c96a0f0c2e7f5e446b6771fe1b6fca8/tenor.gif?itemid=14949242",
-                "https://i.imgur.com/9wi47g3.gif",
-                "https://data.whicdn.com/images/314492571/original.gif",
-                "https://media1.tenor.com/images/2e36b49b3d26d1e2fe014e5d4c1dbc75/tenor.gif?itemid=15580060",
-                "https://media1.tenor.com/images/16c587440a4f8301c22ed04625e0f868/tenor.gif?itemid=16922805",
-                "https://media1.tenor.com/images/f1294897c63a4e82da1f466dc3764b2d/tenor.gif",
-                "https://media1.tenor.com/images/e72966a32c66380aa288009cb0379b32/tenor.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708657611842650152/anime-punch-gif-3.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708657620017348628/giphy.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/708657624320835586/ImperfectFrightenedFoal-size_restricted.gif",
-                "https://cdn.discordapp.com/attachments/499629904380297226/711608276105691196/Black_Clover_Lumiere_Punch.gif",
-                "https://cdn.discordapp.com/attachments/708252321221443625/713734856923676732/OPM_Saitama_Punch.gif",
-                "https://tenor.com/view/the-world-muda-muda-muda-jojos-bizarre-adventures-jjba-punch-gif-16215899",
-                "https://tenor.com/5Jje.gif",
-                "https://tenor.com/view/vegeta-dragon-ball-z-gif-5392362",
-                "https://giffiles.alphacoders.com/358/35862.gif",
-                "https://media1.tenor.com/images/31003b964b358e937ec43ebeb7774d4c/tenor.gif?itemid=14137100"
+        return new String[]{
+                "https://media.discordapp.net/attachments/736270998772383826/736271005756031066/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271012462723223/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271018930208818/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271024047521873/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271030565339217/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271042212790339/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271047208468490/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271054988771408/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271060869316728/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271072332349511/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271075901440060/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271083208179743/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271086987116624/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271092628324392/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271099179958282/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271107866493009/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271117974634566/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271123175702581/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271128678498454/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271134676484106/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271140875665408/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271157933637652/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271178955489352/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271189055504394/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271197766942750/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271205262426172/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271229358571550/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271238405554186/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271248845439077/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271259679064205/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271270789775481/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271275680465028/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271418265829436/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271285230764152/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271295062343740/punch.gif",
+                "https://media.discordapp.net/attachments/736270998772383826/736271300414144552/punch.gif"
         };
     }
 
