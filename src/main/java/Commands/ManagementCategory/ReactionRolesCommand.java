@@ -593,22 +593,18 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
         }
 
-        if (queueFind(message.getId(), user.getId()) == null) {
+        synchronized (message.getServer().get()) {
             try {
                 updateValuesFromMessage(message);
 
-                if (!multipleRoles) {
-                    queueAdd(message.getId(), user.getId());
-                    removeMultipleRoles(event);
-                }
+                if (!multipleRoles && removeMultipleRoles(event))
+                    return;
 
                 if (!giveRole(message, event, user))
                     event.removeReaction();
             } catch (Throwable e) {
                 event.removeReaction();
                 throw e;
-            } finally {
-                queueRemove(message.getId(), user.getId());
             }
         }
     }
@@ -642,15 +638,19 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         return false;
     }
 
-    private void removeMultipleRoles(ReactionAddEvent event) {
+    private boolean removeMultipleRoles(ReactionAddEvent event) throws ExecutionException, InterruptedException {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
             if (rOpt.isPresent()) {
                 Role r = rOpt.get();
-                if (r.hasUser(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
-                    r.removeUser(event.getUser());
+                if (r.hasUser(event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
+                    if (!removeRole) return true;
+                    r.removeUser(event.getUser()).get();
+                }
             }
         }
+
+        return false;
     }
 
     @Override
@@ -672,22 +672,6 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 }
             }
         }
-    }
-
-    private static synchronized Pair<Long, Long> queueFind(long messageId, long userId) {
-        for(Pair<Long, Long> pair: queue) {
-            if (pair.getKey() == messageId && pair.getValue() == userId) return pair;
-        }
-        return null;
-    }
-
-    private static synchronized void queueAdd(long messageId, long userId) {
-        if (queueFind(messageId, userId) == null) queue.add(new Pair<>(messageId, userId));
-    }
-
-    private static synchronized void queueRemove(long messageId, long userId) {
-        Pair<Long, Long> pair = queueFind(messageId, userId);
-        if (pair != null) queue.remove(pair);
     }
 
     @Override

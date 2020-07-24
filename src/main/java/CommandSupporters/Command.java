@@ -579,7 +579,6 @@ public abstract class Command {
         return perm;
     }
     public boolean canRunOnServer(long serverId, long userId) {
-        if (DiscordApiCollection.getInstance().getOwner().getId() == userId) return true;
         long[] allowedServerIds = commandProperties.exlusiveServers();
         long[] allowedUserIds = commandProperties.exlusiveUsers();
 
