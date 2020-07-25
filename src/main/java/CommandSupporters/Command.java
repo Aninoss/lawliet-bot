@@ -1,7 +1,6 @@
 package CommandSupporters;
 
 import CommandListeners.*;
-import CommandListeners.CommandProperties;
 import Commands.InformationCategory.HelpCommand;
 import Constants.*;
 import Core.*;
@@ -25,6 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Command {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
+    protected static final int DEFAULT_STATE = 0;
 
     private final String category;
     private final String prefix;
@@ -48,7 +51,7 @@ public abstract class Command {
     private String[] options;
     private Instant startTime;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
-    private int state = 0, page = 0, pageMax = 0;
+    private int state = DEFAULT_STATE, page = 0, pageMax = 0;
     private final Thread thread;
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
@@ -159,7 +162,7 @@ public abstract class Command {
         try {
             navigationActive = true;
             if (firstTime) success = onMessageReceived(event, followedString) ? Response.TRUE : Response.FALSE;
-            else success = ((OnNavigationListener) this).controllerMessage(event, followedString, state);
+            else success = controllerMessage(event, followedString, state);
 
             if ((success != null || navigationMessage == null) && (!firstTime || success == Response.TRUE) && navigationActive) {
                 if (countdown != null) countdown.reset();
@@ -210,7 +213,7 @@ public abstract class Command {
             index = reactionPageChangeAndGetNewIndex(index, startCalculation);
 
             if (startCalculation.get())
-                changed = ((OnNavigationListener) this).controllerReaction(event, index, state);
+                changed = controllerReaction(event, index, state);
 
             if (changed)
                 drawSuper(event.getApi(), event.getChannel());
@@ -257,7 +260,7 @@ public abstract class Command {
     }
 
     public void drawSuper(DiscordApi api, TextChannel channel) throws Throwable {
-        EmbedBuilder eb = ((OnNavigationListener) this).draw(api, state)
+        EmbedBuilder eb = draw(api, state)
                 .setTimestampToNow();
 
         int max = ((OnNavigationListener) this).getMaxReactionNumber();
@@ -283,7 +286,6 @@ public abstract class Command {
 
         EmbedFactory.addLog(eb, logStatus, log);
         if (options != null && options.length > max) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
-
         try {
             if (navigationMessage == null) {
                 if (navigationPrivateMessage) {
@@ -297,6 +299,60 @@ public abstract class Command {
             if (!ExceptionHandler.exceptionIsClass(e, org.javacord.api.exception.UnknownMessageException.class))
                 LOGGER.error("Exception in draw event", e);
         }
+    }
+
+    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+        for(Method method : getClass().getDeclaredMethods()) {
+            Draw c = method.getAnnotation(Draw.class);
+            if (c != null && c.state() == state) {
+                return ((EmbedBuilder) method.invoke(this, api));
+            }
+        }
+
+        for(Method method : getClass().getDeclaredMethods()) {
+            Draw c = method.getAnnotation(Draw.class);
+            if (c != null && c.state() == -1) {
+                return ((EmbedBuilder) method.invoke(this, api));
+            }
+        }
+
+        throw new Exception("State not found");
+    }
+
+    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+        for(Method method : getClass().getDeclaredMethods()) {
+            ControllerMessage c = method.getAnnotation(ControllerMessage.class);
+            if (c != null && c.state() == state) {
+                return (Response) method.invoke(this, event, inputString);
+            }
+        }
+
+        for(Method method : getClass().getDeclaredMethods()) {
+            ControllerMessage c = method.getAnnotation(ControllerMessage.class);
+            if (c != null && c.state() == -1) {
+                return (Response) method.invoke(this, event, inputString);
+            }
+        }
+
+        return null;
+    }
+
+    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+        for(Method method : getClass().getDeclaredMethods()) {
+            ControllerReaction c = method.getAnnotation(ControllerReaction.class);
+            if (c != null && c.state() == state) {
+                return (boolean) method.invoke(this, event, i);
+            }
+        }
+
+        for(Method method : getClass().getDeclaredMethods()) {
+            ControllerReaction c = method.getAnnotation(ControllerReaction.class);
+            if (c != null && c.state() == -1) {
+                return (boolean) method.invoke(this, event, i);
+            }
+        }
+
+        return false;
     }
 
     private void resetNavigation() {
@@ -608,6 +664,22 @@ public abstract class Command {
 
     public static String getClassTrigger(Class<? extends Command> c) {
         return c.getAnnotation(CommandProperties.class).trigger();
+    }
+
+
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ControllerMessage {
+        int state() default -1;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ControllerReaction {
+        int state() default -1;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface Draw {
+        int state() default -1;
     }
 
 }

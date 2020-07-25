@@ -54,11 +54,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
         return true;
     }
 
-    @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable { return null; }
+    @ControllerMessage(state = DEFAULT_STATE)
+    public Response onMessage(MessageCreateEvent event, String inputString) throws Throwable {
+        return null;
+    }
 
-    @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    @ControllerReaction(state = DEFAULT_STATE)
+    public boolean onReaction(SingleReactionEvent event, int i) throws Throwable {
         for (EmojiConnection emojiConnection: emojiConnections) {
             if (emojiConnection.isEmoji(event.getEmoji()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 searchTerm = emojiConnection.getConnection();
@@ -86,8 +88,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
         return false;
     }
 
-    @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder onDraw(DiscordApi api) throws Throwable {
         String arg = StringUtil.trimString(searchTerm);
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1,arg.length()-1);
 

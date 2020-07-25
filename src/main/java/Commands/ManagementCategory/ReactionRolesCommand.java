@@ -38,6 +38,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -56,6 +57,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
     private static final int MAX_LINKS = 18;
+    private final static int
+            ADD_OR_EDIT = 0,
+            ADD_MESSAGE = 1,
+            EDIT_MESSAGE = 2,
+            CONFIGURE_MESSAGE = 3,
+            UPDATE_TITLE = 4,
+            UPDATE_DESC = 5,
+            ADD_SLOT = 6,
+            REMOVE_SLOT = 7,
+            EXAMPLE = 8,
+            SENT = 9;
 
     private String title, description;
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
@@ -77,94 +89,89 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         return true;
     }
 
-    @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
-        switch (state) {
-            //Reaction Message hinzufügen
-            case 1:
-                ArrayList<ServerTextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
-                if (serverTextChannel.size() > 0) {
-                    if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
-                        channel = serverTextChannel.get(0);
-                        setLog(LogStatus.SUCCESS, getString("channelset"));
+    @ControllerMessage(state = ADD_MESSAGE)
+    public Response onMessageAddMessage(MessageCreateEvent event, String inputString) {
+        ArrayList<ServerTextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+        if (serverTextChannel.size() > 0) {
+            if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
+                channel = serverTextChannel.get(0);
+                setLog(LogStatus.SUCCESS, getString("channelset"));
+                return Response.TRUE;
+            } else {
+                return Response.FALSE;
+            }
+        }
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        return Response.FALSE;
+    }
+
+    @ControllerMessage(state = EDIT_MESSAGE)
+    public Response onMessageEditMessage(MessageCreateEvent event, String inputString) {
+        addLoadingReaction();
+        ArrayList<Message> messageArrayList = MentionUtil.getMessagesAll(event.getMessage(), inputString).getList();
+        if (messageArrayList.size() > 0) {
+            for (Message message : messageArrayList) {
+                if (messageIsReactionMessage(message)) {
+                    ServerTextChannel messageChannel = message.getServerTextChannel().get();
+                    if (checkWriteInChannelWithLog(messageChannel)) {
+                        editMessage = message;
+                        setLog(LogStatus.SUCCESS, getString("messageset"));
                         return Response.TRUE;
                     } else {
                         return Response.FALSE;
                     }
                 }
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                return Response.FALSE;
-
-            //Reaction Message bearbeiten
-            case 2:
-                addLoadingReaction();
-                ArrayList<Message> messageArrayList = MentionUtil.getMessagesAll(event.getMessage(), inputString).getList();
-                if (messageArrayList.size() > 0) {
-                    for (Message message : messageArrayList) {
-                        if (messageIsReactionMessage(message)) {
-                            ServerTextChannel messageChannel = message.getServerTextChannel().get();
-                            if (checkWriteInChannelWithLog(messageChannel)) {
-                                editMessage = message;
-                                setLog(LogStatus.SUCCESS, getString("messageset"));
-                                return Response.TRUE;
-                            } else {
-                                return Response.FALSE;
-                            }
-                        }
-                    }
-                }
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                return Response.FALSE;
-
-            //Titel anpassen
-            case 4:
-                if (inputString.length() > 0 && inputString.length() <= 256) {
-                    title = inputString;
-                    setLog(LogStatus.SUCCESS, getString("titleset", inputString));
-                    setState(3);
-                    return Response.TRUE;
-                }
-            {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
-                return Response.FALSE;
             }
-
-            //Beschreibung anpassen
-            case 5:
-                if (inputString.length() > 0 && inputString.length() <= 1024) {
-                    description = inputString;
-                    setLog(LogStatus.SUCCESS, getString("descriptionset", inputString));
-                    setState(3);
-                    return Response.TRUE;
-                }
-            {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
-                return Response.FALSE;
-            }
-
-            //Verknüpfung hinzufügen
-            case 6:
-                if (inputString.length() > 0) {
-                    String inputStringNoEmoji;
-                    AtomicBoolean updateEmoji = new AtomicBoolean(false);
-                    AtomicBoolean updateRole = new AtomicBoolean(false);
-
-                    inputStringNoEmoji = filterEmojis(inputString, updateEmoji);
-                    Optional<String> filterRolesResult = filterRoles(event, inputString, inputStringNoEmoji, updateRole);
-
-                    if (filterRolesResult.isPresent()) inputString = filterRolesResult.get();
-                    else return Response.FALSE;
-
-                    if (updateEmoji.get() || updateRole.get())
-                        return Response.TRUE;
-                }
-
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-                return Response.FALSE;
-
-            default:
-                return null;
         }
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        return Response.FALSE;
+    }
+
+    @ControllerMessage(state = UPDATE_TITLE)
+    public Response onMessageUpdateTitle(MessageCreateEvent event, String inputString) {
+        if (inputString.length() > 0 && inputString.length() <= 256) {
+            title = inputString;
+            setLog(LogStatus.SUCCESS, getString("titleset", inputString));
+            setState(CONFIGURE_MESSAGE);
+            return Response.TRUE;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
+            return Response.FALSE;
+        }
+    }
+
+    @ControllerMessage(state = UPDATE_DESC)
+    public Response onMessageUpdateDesc(MessageCreateEvent event, String inputString) {
+        if (inputString.length() > 0 && inputString.length() <= 1024) {
+            description = inputString;
+            setLog(LogStatus.SUCCESS, getString("descriptionset", inputString));
+            setState(CONFIGURE_MESSAGE);
+            return Response.TRUE;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
+            return Response.FALSE;
+        }
+    }
+
+    @ControllerMessage(state = ADD_SLOT)
+    public Response onMessageAddSlot(MessageCreateEvent event, String inputString) throws InterruptedException {
+        if (inputString.length() > 0) {
+            String inputStringNoEmoji;
+            AtomicBoolean updateEmoji = new AtomicBoolean(false);
+            AtomicBoolean updateRole = new AtomicBoolean(false);
+
+            inputStringNoEmoji = filterEmojis(inputString, updateEmoji);
+            Optional<String> filterRolesResult = filterRoles(event, inputString, inputStringNoEmoji, updateRole);
+
+            if (filterRolesResult.isPresent()) inputString = filterRolesResult.get();
+            else return Response.FALSE;
+
+            if (updateEmoji.get() || updateRole.get())
+                return Response.TRUE;
+        }
+
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        return Response.FALSE;
     }
 
     private Optional<String> filterRoles(MessageCreateEvent event, String inputString, String inputStringNoEmoji, AtomicBoolean updateRole) {
@@ -228,168 +235,172 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         return inputString;
     }
 
-    @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
-        switch (state) {
-            //Hauptmenü
+    @ControllerReaction(state = ADD_OR_EDIT)
+    public boolean onReactionAddOrEdit(SingleReactionEvent event, int i) {
+        switch (i) {
+            case -1:
+                removeNavigationWithMessage();
+                return false;
+
             case 0:
-                switch (i) {
-                    case -1:
-                        removeNavigationWithMessage();
-                        return false;
+                setState(ADD_MESSAGE);
+                editMode = false;
+                return true;
 
-                    case 0:
-                        setState(1);
-                        editMode = false;
-                        return true;
-
-                    case 1:
-                        setState(2);
-                        editMode = true;
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            //Reaction Message hinzufügen
             case 1:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
+                setState(EDIT_MESSAGE);
+                editMode = true;
+                return true;
 
-                    case 0:
-                        if (channel != null) {
-                            setState(3);
-                            return true;
-                        }
-
-                    default:
-                        return false;
-                }
-
-            //Reaction Message bearbeiten
-            case 2:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        if (editMessage != null) {
-                            updateValuesFromMessage(editMessage);
-                            setState(3);
-                            return true;
-                        }
-
-                    default:
-                        return false;
-                }
-
-            //Message konfigurieren
-            case 3:
-                switch (i) {
-                    case -1:
-                        if (!editMode) setState(1);
-                        else setState(2);
-                        return true;
-
-                    case 0:
-                        setState(4);
-                        return true;
-
-                    case 1:
-                        setState(5);
-                        return true;
-
-                    case 2:
-                        if (emojiConnections.size() < MAX_LINKS) setState(6);
-                        else {
-                            setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(MAX_LINKS)));
-                        }
-                        roleTemp = null;
-                        emojiTemp = null;
-                        return true;
-
-                    case 3:
-                        if (emojiConnections.size() > 0) setState(7);
-                        else {
-                            setLog(LogStatus.FAILURE, getString("noshortcuts"));
-                        }
-                        return true;
-
-                    case 4:
-                        removeRole = !removeRole;
-                        setLog(LogStatus.SUCCESS, getString("roleremoveset"));
-                        return true;
-
-                    case 5:
-                        multipleRoles = !multipleRoles;
-                        setLog(LogStatus.SUCCESS, getString("multiplerolesset"));
-                        return true;
-
-                    case 6:
-                        if (emojiConnections.size() > 0) {
-                            setState(8);
-                            return true;
-                        } break;
-
-                    case 7:
-                        if (emojiConnections.size() > 0) {
-                            sendMessage();
-                            setState(9);
-                            removeNavigation();
-                            return true;
-                        }
-                        return false;
-
-                    default:
-                        return false;
-                }
-
-            //Verknüpfung hinzufügen
-            case 6:
-                if (i == 0 && roleTemp != null && emojiTemp != null) {
-                    emojiConnections.add(new EmojiConnection(emojiTemp, roleTemp.getMentionTag()));
-                    setState(3);
-                    setLog(LogStatus.SUCCESS, getString("linkadded"));
-                    return true;
-                }
-
-                if (i == -1) {
-                    setState(3);
-                    return true;
-                }
-                event.getMessage().get().removeReactionByEmoji(event.getUser(), event.getEmoji());
-                return calculateEmoji(event.getEmoji());
-
-            //Verknüpfung entfernen
-            case 7:
-                if (i == -1) {
-                    setState(3);
-                    return true;
-                }
-                if (i < emojiConnections.size() && i != -2) {
-                    setLog(LogStatus.SUCCESS, getString("linkremoved"));
-                    emojiConnections.remove(i);
-                    if (emojiConnections.size() == 0) setState(3);
-                    return true;
-                }
-                return false;
-
-            //Abgesendet
-            case 9:
-                return false;
-
-            //Der Rest
             default:
-                if (i == -1) {
-                    setState(3);
-                    return true;
-                }
                 return false;
         }
+    }
+
+    @ControllerReaction(state = ADD_MESSAGE)
+    public boolean onReactionAddMessage(SingleReactionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(ADD_OR_EDIT);
+                return true;
+
+            case 0:
+                if (channel != null) {
+                    setState(CONFIGURE_MESSAGE);
+                    return true;
+                }
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerReaction(state = EDIT_MESSAGE)
+    public boolean onReactionEditMessage(SingleReactionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(ADD_OR_EDIT);
+                return true;
+
+            case 0:
+                if (editMessage != null) {
+                    updateValuesFromMessage(editMessage);
+                    setState(CONFIGURE_MESSAGE);
+                    return true;
+                }
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerReaction(state = CONFIGURE_MESSAGE)
+    public boolean onReactionConfigureMessage(SingleReactionEvent event, int i) throws ExecutionException, InterruptedException {
+        switch (i) {
+            case -1:
+                if (!editMode) setState(ADD_MESSAGE);
+                else setState(EDIT_MESSAGE);
+                return true;
+
+            case 0:
+                setState(UPDATE_TITLE);
+                return true;
+
+            case 1:
+                setState(UPDATE_DESC);
+                return true;
+
+            case 2:
+                if (emojiConnections.size() < MAX_LINKS) setState(ADD_SLOT);
+                else {
+                    setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(MAX_LINKS)));
+                }
+                roleTemp = null;
+                emojiTemp = null;
+                return true;
+
+            case 3:
+                if (emojiConnections.size() > 0) setState(REMOVE_SLOT);
+                else {
+                    setLog(LogStatus.FAILURE, getString("noshortcuts"));
+                }
+                return true;
+
+            case 4:
+                removeRole = !removeRole;
+                setLog(LogStatus.SUCCESS, getString("roleremoveset"));
+                return true;
+
+            case 5:
+                multipleRoles = !multipleRoles;
+                setLog(LogStatus.SUCCESS, getString("multiplerolesset"));
+                return true;
+
+            case 6:
+                if (emojiConnections.size() > 0) {
+                    setState(EXAMPLE);
+                    return true;
+                }
+                return false;
+
+            case 7:
+                if (emojiConnections.size() > 0) {
+                    sendMessage();
+                    setState(SENT);
+                    removeNavigation();
+                    return true;
+                }
+                return false;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerReaction(state = ADD_SLOT)
+    public boolean onReactionAddSlot(SingleReactionEvent event, int i) {
+        if (i == 0 && roleTemp != null && emojiTemp != null) {
+            emojiConnections.add(new EmojiConnection(emojiTemp, roleTemp.getMentionTag()));
+            setState(CONFIGURE_MESSAGE);
+            setLog(LogStatus.SUCCESS, getString("linkadded"));
+            return true;
+        }
+
+        if (i == -1) {
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+        event.getMessage().get().removeReactionByEmoji(event.getUser(), event.getEmoji());
+        return calculateEmoji(event.getEmoji());
+    }
+
+    @ControllerReaction(state = REMOVE_SLOT)
+    public boolean onReactionRemoveSlot(SingleReactionEvent event, int i) {
+        if (i == -1) {
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+        if (i < emojiConnections.size() && i != -2) {
+            setLog(LogStatus.SUCCESS, getString("linkremoved"));
+            emojiConnections.remove(i);
+            if (emojiConnections.size() == 0) setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerReaction(state = SENT)
+    public boolean onReactionSent(SingleReactionEvent event, int i) {
+        return false;
+    }
+
+    @ControllerReaction
+    public boolean onReactionDefault(SingleReactionEvent event, int i) {
+        if (i == -1) {
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+        return false;
     }
 
     private void sendMessage() throws ExecutionException, InterruptedException {
@@ -445,73 +456,87 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         emojiTemp = emoji;
         return true;
     }
+    
+    @Draw(state = ADD_OR_EDIT)
+    public EmbedBuilder onDrawAddOrEdit(DiscordApi api) {
+        setOptions(getString("state0_options").split("\n"));
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+    }
 
-    @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    @Draw(state = ADD_MESSAGE)
+    public EmbedBuilder onDrawAddMessage(DiscordApi api) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        switch (state) {
-            case 0:
-                setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+        if (channel != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Optional.ofNullable(channel).map(Mentionable::getMentionTag).orElse(notSet)), getString("state1_title"));
+    }
 
-            case 1:
-                if (channel != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Optional.ofNullable(channel).map(Mentionable::getMentionTag).orElse(notSet)), getString("state1_title"));
+    @Draw(state = EDIT_MESSAGE)
+    public EmbedBuilder onDrawEditMessage(DiscordApi api) {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+        if (editMessage != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", Optional.ofNullable(editMessage).map(DiscordEntity::getIdAsString).orElse(notSet)), getString("state2_title"));
+    }
 
-            case 2:
-                if (editMessage != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", Optional.ofNullable(editMessage).map(DiscordEntity::getIdAsString).orElse(notSet)), getString("state2_title"));
+    @Draw(state = CONFIGURE_MESSAGE)
+    public EmbedBuilder onDrawConfigureMessage(DiscordApi api) throws IOException {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+        setOptions(getString("state3_options").split("\n"));
 
-            case 3:
-                setOptions(getString("state3_options").split("\n"));
-
-                if (emojiConnections.size() == 0) {
-                    String[] optionsNew = new String[getOptions().length-2];
-                    for(int i=0; i < optionsNew.length; i++) {
-                        optionsNew[i] = getOptions()[i];
-                    }
-                    setOptions(optionsNew);
-                }
-
-                String add;
-                if (editMode) add = "edit";
-                else add = "new";
-
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
-                        .addField(getString("state3_mtitle"), Optional.ofNullable(title).orElse(notSet), true)
-                        .addField(getString("state3_mdescription"), Optional.ofNullable(description).orElse(notSet), true)
-                        .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
-                        .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
-
-
-            case 4:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
-
-            case 5:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state5_description"), getString("state5_title"));
-
-            case 6:
-                if (roleTemp != null && emojiTemp != null) setOptions(new String[]{getString("state6_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Mentionable::getMentionTag).orElse(notSet), Optional.ofNullable(roleTemp).map(Role::getMentionTag).orElse(notSet)), getString("state6_title"));
-
-            case 7:
-                ArrayList<String> optionsDelete = new ArrayList<>();
-                for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-                    optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
-                }
-                setOptions(optionsDelete.toArray(new String[0]));
-
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state7_description"), getString("state7_title"));
-
-            case 8:
-                return getMessageEmbed(true);
-
-            case 9:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state9_description"), getString("state9_title"));
-
-            default:
-                return null;
+        if (emojiConnections.size() == 0) {
+            String[] optionsNew = new String[getOptions().length-2];
+            for(int i=0; i < optionsNew.length; i++) {
+                optionsNew[i] = getOptions()[i];
+            }
+            setOptions(optionsNew);
         }
+
+        String add;
+        if (editMode) add = "edit";
+        else add = "new";
+
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
+                .addField(getString("state3_mtitle"), Optional.ofNullable(title).orElse(notSet), true)
+                .addField(getString("state3_mdescription"), Optional.ofNullable(description).orElse(notSet), true)
+                .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
+                .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
+    }
+
+    @Draw(state = UPDATE_TITLE)
+    public EmbedBuilder onDrawUpdateTitle(DiscordApi api) {
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+    }
+
+    @Draw(state = UPDATE_DESC)
+    public EmbedBuilder onDrawUpdateDesc(DiscordApi api) {
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state5_description"), getString("state5_title"));
+    }
+
+    @Draw(state = ADD_SLOT)
+    public EmbedBuilder onDrawAddSlot(DiscordApi api) {
+        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+        if (roleTemp != null && emojiTemp != null) setOptions(new String[]{getString("state6_options")});
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Mentionable::getMentionTag).orElse(notSet), Optional.ofNullable(roleTemp).map(Role::getMentionTag).orElse(notSet)), getString("state6_title"));
+    }
+
+    @Draw(state = REMOVE_SLOT)
+    public EmbedBuilder onDrawRemoveSlot(DiscordApi api) {
+        ArrayList<String> optionsDelete = new ArrayList<>();
+        for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
+            optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
+        }
+        setOptions(optionsDelete.toArray(new String[0]));
+
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state7_description"), getString("state7_title"));
+    }
+
+    @Draw(state = EXAMPLE)
+    public EmbedBuilder onDrawExample(DiscordApi api) {
+        return getMessageEmbed(true);
+    }
+
+    @Draw(state = SENT)
+    public EmbedBuilder onDrawSent(DiscordApi api) {
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state9_description"), getString("state9_title"));
     }
 
     @Override

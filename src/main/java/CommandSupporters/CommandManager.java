@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -369,11 +370,15 @@ public class CommandManager {
     }
 
     public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
-        return (Command) Class.forName(className).getConstructors()[0].newInstance(locale, prefix);
+        return createCommandByClass((Class<? extends Command>) Class.forName(className), locale, prefix);
     }
 
     public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        return (Command) clazz.getConstructors()[0].newInstance(locale, prefix);
+        for(Constructor<?> s : clazz.getConstructors()) {
+            if (s.getParameterCount() == 2)
+                return (Command) s.newInstance(locale, prefix);
+        }
+        return null;
     }
 
 }

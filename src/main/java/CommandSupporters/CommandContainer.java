@@ -8,6 +8,7 @@ import Commands.CasinoCategory.*;
 import Commands.EmotesCategory.*;
 import Commands.ExternalCategory.*;
 import Commands.GimmicksCategory.*;
+import Commands.InformationCategory.HelpCommand;
 import Commands.InteractionsCategory.*;
 import Commands.ModerationCategory.*;
 import Commands.NSFWCategory.*;
