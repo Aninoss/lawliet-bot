@@ -6,11 +6,11 @@ import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Verarbeitet Exceptions
@@ -44,6 +44,9 @@ public class ExceptionHandler {
         } else if (errorCause.contains("MissingPermissions")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
         } else if (throwable instanceof InterruptedException) {
+            submitToDeveloper = false;
+            postErrorMessage = false;
+        } else if (throwable instanceof RejectedExecutionException) {
             submitToDeveloper = false;
             postErrorMessage = false;
         } else if (errorCause.contains("Read timed out")) {

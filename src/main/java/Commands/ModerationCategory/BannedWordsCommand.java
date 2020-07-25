@@ -85,13 +85,30 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 }
 
             case 3:
-                String[] wordArray = inputString.replace("\n", " ").split(" ");
-                List<String> wordList = Arrays.stream(wordArray).map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length()))).collect(Collectors.toList());
+                String[] wordArray = transform(inputString).split(" ");
+                List<String> wordList = Arrays
+                        .stream(wordArray)
+                        .filter(str -> str.length() > 0)
+                        .map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length())))
+                        .collect(Collectors.toList());
                 return wordsNavigationHelper.addData(wordList, inputString, event.getMessage().getUserAuthor().get(), 0);
 
             default:
                 return null;
         }
+    }
+
+    private String transform(String input) {
+        input = input.replace("1","i");
+        input = input.replace("!","i");
+        input = input.replace("3","e");
+        input = input.replace("4","a");
+        input = input.replace("@","a");
+        input = input.replace("5","s");
+        input = input.replace("7","t");
+        input = input.replace("0","o");
+        input = input.replace("9","g");
+        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}]", " ").toLowerCase();
     }
 
     @Override

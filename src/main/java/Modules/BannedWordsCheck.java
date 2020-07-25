@@ -118,9 +118,7 @@ public class BannedWordsCheck {
         input = input.replace("7","t");
         input = input.replace("0","o");
         input = input.replace("9","g");
-        input = input.toLowerCase().replaceAll("[^a-zA-Z]", strict ? " " : "");
-
-        //TODO Exception for Russian language
+        input = input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}]", strict ? " " : "");
 
         return " " + input + " ";
     }

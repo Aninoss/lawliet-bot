@@ -35,6 +35,9 @@ public class PingCommand extends Command {
         long milisDiscordServers = TimeUtil.getMilisBetweenInstants(startTime, endTime);
         message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("pong_end", StringUtil.numToString(getLocale(), milisInternal), StringUtil.numToString(getLocale(), milisDiscordServers)))).get();
 
+        String out = followedString.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}]","");
+        System.out.println(out);
+
         return true;
     }
 
