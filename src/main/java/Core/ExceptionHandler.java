@@ -19,7 +19,6 @@ public class ExceptionHandler {
 
     public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
         boolean submitToDeveloper = true;
-        LOGGER.error("Command exception", throwable);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -38,6 +37,8 @@ public class ExceptionHandler {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else if (errorMessage.contains("MissingPermissions")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
+        } else if (throwable instanceof InterruptedException) {
+            submitToDeveloper = false;
         } else if (errorMessage.contains("Read timed out")) {
             submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
@@ -53,11 +54,13 @@ public class ExceptionHandler {
         }
 
         try {
-            if (channel.canYouWrite() && channel.canYouEmbedLinks()) channel.sendMessage(EmbedFactory.getEmbedError()
+            if (channel.canYouWrite() && channel.canYouEmbedLinks())
+                channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error"))
                     .setDescription(errorMessage + (submitToDeveloper ? "\n\n"+TextManager.getString(locale,TextManager.GENERAL,"error_submit") : ""))).get();
 
             if (submitToDeveloper) {
+                LOGGER.error("Command exception", throwable);
                 DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
                         .setDescription(StringUtil.shortenString(stacktrace, 1000))).get();

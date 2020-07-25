@@ -19,7 +19,6 @@ import Core.TextManager;
 import Core.Utils.PermissionUtil;
 import Core.Utils.StringUtil;
 import com.vdurmont.emoji.EmojiParser;
-import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
@@ -66,7 +65,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private Message editMessage;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
-    private static final ArrayList<Pair<Long, Long>> queue = new ArrayList<>();
+    private static final ArrayList<Long> block = new ArrayList<>();
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -593,18 +592,23 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
         }
 
-        synchronized (message.getServer().get()) {
+        if (!block.contains(user.getId())) {
             try {
                 updateValuesFromMessage(message);
-
-                if (!multipleRoles && removeMultipleRoles(event))
-                    return;
+                if (!multipleRoles) {
+                    block.add(user.getId());
+                    if (removeMultipleRoles(event))
+                        return;
+                }
 
                 if (!giveRole(message, event, user))
                     event.removeReaction();
             } catch (Throwable e) {
                 event.removeReaction();
                 throw e;
+            } finally {
+                if (!multipleRoles)
+                    block.remove(user.getId());
             }
         }
     }
