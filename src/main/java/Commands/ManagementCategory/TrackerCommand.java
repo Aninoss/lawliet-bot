@@ -23,6 +23,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -40,6 +41,10 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     private ArrayList<TrackerBeanSlot> trackerSlots;
     private String commandTrigger, commandCategory;
     private boolean override;
+
+    public TrackerCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -127,7 +132,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 case 1:
                     boolean found = false;
                     for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
-                        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByClass((Class<? extends Command>)clazz);
+                        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByClass((Class<? extends Command>)clazz, getLocale(), getPrefix());
                         String trigger = ((Command) command).getTrigger();
                         String category = ((Command) command).getCategory();
 
@@ -235,7 +240,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 emojiConnections.add(new BackEmojiConnection(channel, "back"));
                 for (int i = 0; i < opt.length; i++) {
                     Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
-                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz);
+                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, getLocale(), getPrefix());
                     String trigger = command.getTrigger();
                     String nsfw = command.isNsfw() ? " " + getString("nsfw") : "";
                     opt[i] = trigger + nsfw + " - " + TextManager.getString(getLocale(), command.getCategory(), trigger + "_description");

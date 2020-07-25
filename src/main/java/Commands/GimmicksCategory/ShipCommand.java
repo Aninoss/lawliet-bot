@@ -17,6 +17,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Random;
 
 @CommandProperties(
@@ -27,6 +28,10 @@ import java.util.Random;
     executable = false
 )
 public class ShipCommand extends Command {
+
+    public ShipCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

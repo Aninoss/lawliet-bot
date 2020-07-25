@@ -3,6 +3,8 @@ package Commands.NSFWCategory;
 import CommandListeners.CommandProperties;
 import Commands.GelbooruAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "ahegao",
         executable = true,
@@ -13,6 +15,10 @@ import Commands.GelbooruAbstract;
         withLoadingBar = true
 )
 public class AhegaoCommand extends GelbooruAbstract {
+
+    public AhegaoCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchKey() {

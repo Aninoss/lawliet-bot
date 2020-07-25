@@ -13,11 +13,10 @@ import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "animereleases",
@@ -28,7 +27,9 @@ import java.time.temporal.ChronoUnit;
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeReleasesCommand.class);
+    public AnimeReleasesCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

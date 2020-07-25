@@ -17,6 +17,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -32,6 +33,10 @@ public class NSFWFilterCommand extends Command implements OnNavigationListener {
 
     private CustomObservableList<String> keywords;
     private final static int MAX_LENGTH = 50;
+
+    public NSFWFilterCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

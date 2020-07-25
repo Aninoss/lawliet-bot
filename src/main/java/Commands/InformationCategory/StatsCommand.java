@@ -16,6 +16,8 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "stats",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
@@ -24,6 +26,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         aliases = {"info"}
 )
 public class StatsCommand extends Command {
+
+    public StatsCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

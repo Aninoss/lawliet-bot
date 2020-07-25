@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,10 @@ import java.util.stream.Collectors;
 public class UnbanCommand extends WarnCommand  {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(UnbanCommand.class);
+
+    public UnbanCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {

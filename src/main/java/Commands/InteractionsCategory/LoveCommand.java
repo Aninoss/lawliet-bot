@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "love",
         emoji = "\u2764\uFE0F",
         executable = true
 )
 public class LoveCommand extends InteractionAbstract {
+
+    public LoveCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

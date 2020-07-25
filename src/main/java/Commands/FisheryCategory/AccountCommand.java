@@ -14,6 +14,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "acc",
@@ -23,6 +24,10 @@ import java.util.ArrayList;
         aliases = {"profile", "profil", "account", "balance", "fish", "bal"}
 )
 public class AccountCommand extends FisheryAbstract {
+
+    public AccountCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

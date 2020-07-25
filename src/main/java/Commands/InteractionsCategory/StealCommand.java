@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "steal",
         emoji = "❔",
         executable = true
 )
 public class StealCommand extends InteractionAbstract {
+
+    public StealCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

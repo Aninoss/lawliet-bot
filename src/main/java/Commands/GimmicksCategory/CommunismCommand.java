@@ -7,6 +7,8 @@ import Core.RandomPicker;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "communism",
         emoji = "\uD83C\uDF39",
@@ -32,6 +34,10 @@ public class CommunismCommand extends Command {
             "Communism in theory is a type of society where people are all equal. In reality it became a type of dictatorship as the fundamental basics of communism and removing social class became lost.", 
             "Some of the most famous communist leaders and activists in history include Vladimir Lenin, Fidel Castro, Raul Castro, Leon Trotsky, Pol Pot, Nikita Khrushchev, Kim Il-Sung, Imre Nagy, Jiang Zemin, Ho Chi-Minh, and Joseph Stalin. "
     };
+
+    public CommunismCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

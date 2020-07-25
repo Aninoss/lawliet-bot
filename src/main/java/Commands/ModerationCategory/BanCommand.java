@@ -8,6 +8,7 @@ import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -20,6 +21,10 @@ import java.util.concurrent.ExecutionException;
 public class BanCommand extends WarnCommand  {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BanCommand.class);
+
+    public BanCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public void process(Server server, User user) throws Throwable {

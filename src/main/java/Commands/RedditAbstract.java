@@ -10,7 +10,13 @@ import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 public abstract class RedditAbstract extends Command {
+
+    public RedditAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     public abstract String getSubreddit();
 

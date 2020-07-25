@@ -3,12 +3,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
     trigger = "spank",
     emoji = "\uD83C\uDF51",
     executable = false
 )
 public class SpankCommand extends InteractionAbstract {
+
+    public SpankCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

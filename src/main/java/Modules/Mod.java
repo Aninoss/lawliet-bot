@@ -20,6 +20,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -56,8 +58,8 @@ public class Mod {
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
 
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
-            } catch (IllegalAccessException | InstantiationException | ExecutionException e) {
+                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean);
+            } catch (IllegalAccessException | InstantiationException | ExecutionException | InvocationTargetException e) {
                 LOGGER.error("Could not ban user", e);
             }
         }
@@ -70,8 +72,8 @@ public class Mod {
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
 
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale), eb, moderationBean);
-            } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
+                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean);
+            } catch (ExecutionException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 LOGGER.error("Could not kick user", e);
             }
         }

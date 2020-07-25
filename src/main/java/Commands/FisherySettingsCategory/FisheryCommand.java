@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
 @CommandProperties(
@@ -51,6 +52,10 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     public static final String treasureEmoji = "💰";
     public static final String keyEmoji = "🔑";
     private static final ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
+
+    public FisheryCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

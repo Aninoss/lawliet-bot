@@ -7,11 +7,14 @@ import Core.RandomPicker;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 public abstract class EmoteAbstract extends Command {
 
     private final String[] gifs;
 
-    public EmoteAbstract() {
+    public EmoteAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
         this.gifs = getGifs();
     }
 

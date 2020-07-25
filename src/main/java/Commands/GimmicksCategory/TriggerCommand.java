@@ -14,6 +14,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "trigger",
@@ -24,6 +25,10 @@ import java.util.ArrayList;
         aliases = {"triggered"}
 )
 public class TriggerCommand extends Command {
+
+    public TriggerCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

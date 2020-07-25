@@ -3,6 +3,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
@@ -10,6 +12,10 @@ import Commands.InteractionAbstract;
         aliases = {"greet", "bye", "hi", "cya"}
 )
 public class WaveCommand extends InteractionAbstract {
+
+    public WaveCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

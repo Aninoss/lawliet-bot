@@ -16,6 +16,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -25,6 +26,10 @@ import java.util.stream.Collectors;
         aliases = {"channelinfos", "channelstat", "channelstats"}
 )
 public class ChannelInfoCommand extends Command {
+
+    public ChannelInfoCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

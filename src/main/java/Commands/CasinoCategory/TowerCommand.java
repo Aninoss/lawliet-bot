@@ -14,6 +14,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -35,6 +36,10 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     private String log;
     private LogStatus logStatus;
     private final Random r = new Random();
+
+    public TowerCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

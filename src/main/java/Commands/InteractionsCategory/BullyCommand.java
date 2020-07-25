@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "bully",
         emoji = "\uD83D\uDE08",
         executable = true
 )
 public class BullyCommand extends InteractionAbstract {
+
+    public BullyCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

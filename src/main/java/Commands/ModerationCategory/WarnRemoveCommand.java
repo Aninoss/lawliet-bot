@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -45,6 +46,10 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
     private User requestor;
     private ServerTextChannel channel;
     private Message message;
+
+    public WarnRemoveCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -3,14 +3,20 @@ package Commands.ExternalCategory;
 import CommandListeners.CommandProperties;
 import Commands.SafebooruAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "softyuri",
         emoji = "\uD83D\uDC6D",
         withLoadingBar = true,
         executable = true,
-        aliases = {"safeyuri"}
+        aliases = {"safeyuri", "sfwyuri", "shoujoai", "shoujo-ai"}
 )
 public class SoftYuriCommand extends SafebooruAbstract {
+
+    public SoftYuriCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchKey() {

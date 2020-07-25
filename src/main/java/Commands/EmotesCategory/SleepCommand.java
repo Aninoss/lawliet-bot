@@ -2,12 +2,18 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
     trigger = "sleep",
     emoji = "\uD83D\uDCA4",
     executable = true
 )
 public class SleepCommand extends EmoteAbstract {
+
+    public SleepCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

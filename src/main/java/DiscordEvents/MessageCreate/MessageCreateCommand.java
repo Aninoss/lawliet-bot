@@ -75,14 +75,14 @@ public class MessageCreateCommand extends MessageCreateAbstract {
 
                 Locale locale = serverBean.getLocale();
                 Class<? extends Command> clazz;
-                try {
-                    clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
-                    if (clazz != null) {
-                        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
+                if (clazz != null) {
+                    Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                    try {
                         CommandManager.manage(event, command, followedString, getStartTime());
+                    } catch (Throwable e) {
+                        ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
                     }
-                } catch (Throwable e) {
-                    ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
                 }
             }
         } else {
@@ -102,13 +102,11 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                 try {
                     for (int i = 0; i < Math.min(3, messages.size()); i++) {
                         Message message = messages.get(i);
-                        QuoteCommand quoteCommand = new QuoteCommand();
-                        quoteCommand.setLocale(locale);
-                        quoteCommand.setPrefix(serverBean.getPrefix());
+                        QuoteCommand quoteCommand = new QuoteCommand(locale, serverBean.getPrefix());
                         quoteCommand.postEmbed(event.getServerTextChannel().get(), message, true);
                     }
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+                    LOGGER.error("Exception in Auto Quote", throwable);
                 }
             }
         }
@@ -152,7 +150,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                         if (end) return true;
                     }
                 } catch (Throwable e) {
-                    ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
+                    ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
                 }
             }
         }

@@ -3,6 +3,8 @@ package Commands.NSFWCategory;
 import CommandListeners.CommandProperties;
 import Commands.RealbooruAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "rlboobs",
         executable = true,
@@ -14,6 +16,10 @@ import Commands.RealbooruAbstract;
         aliases = {"boobs"}
 )
 public class RealLifeBoobsCommand extends RealbooruAbstract {
+
+    public RealLifeBoobsCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchKey() {

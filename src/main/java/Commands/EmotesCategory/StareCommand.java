@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "stare",
         emoji = "\uD83D\uDC40",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"see"}
 )
 public class StareCommand extends EmoteAbstract {
+
+    public StareCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

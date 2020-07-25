@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -42,8 +43,8 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private ArrayList<String> used;
     private boolean first;
 
-    public HangmanCommand() {
-        super();
+    public HangmanCommand(Locale locale, String prefix) {
+        super(locale, prefix);
         winMultiplicator = 1;
     }
 

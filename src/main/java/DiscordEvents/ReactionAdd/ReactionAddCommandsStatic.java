@@ -33,17 +33,14 @@ public class ReactionAddCommandsStatic extends ReactionAddAbstract {
                 message.getAuthor().isYourself() &&
                 message.getEmbeds().size() > 0
         ) {
+            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 String title = embed.getTitle().get();
                 for (Class<? extends OnReactionAddStaticListener> clazz : CommandContainer.getInstance().getStaticReactionAddCommands()) {
-                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz);
+                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, serverBean.getLocale(), serverBean.getPrefix());
                     if (title.toLowerCase().startsWith(((OnReactionAddStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
-                        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-                        (command).setLocale(serverBean.getLocale());
-                        (command).setPrefix(serverBean.getPrefix());
                         ((OnReactionAddStaticListener)command).onReactionAddStatic(message, event);
-
                         return false;
                     }
                 }

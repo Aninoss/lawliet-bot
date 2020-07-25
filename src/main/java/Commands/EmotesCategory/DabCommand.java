@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "dab",
         emoji = "\uD83C\uDD92",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"dap"}
 )
 public class DabCommand extends EmoteAbstract {
+
+    public DabCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

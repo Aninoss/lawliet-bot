@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "splatnet",
@@ -29,6 +30,10 @@ import java.util.Date;
 public class SplatnetCommand extends Command implements OnTrackerRequestListener {
     
     private Instant trackingTime;
+
+    public SplatnetCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "massage",
         emoji = "\uD83D\uDC86",
         executable = true
 )
 public class MassageCommand extends InteractionAbstract {
+
+    public MassageCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

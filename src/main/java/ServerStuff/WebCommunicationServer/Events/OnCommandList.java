@@ -16,7 +16,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class OnCommandList implements ConnectListener, DataListener<JSONObject> {
 
@@ -54,7 +56,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
         //Add every command
         for(Class c: CommandContainer.getInstance().getCommandList()) {
             try {
-                Command command = CommandManager.createCommandByClass(c);
+                Command command = CommandManager.createCommandByClass(c, Locale.US, "L.");
                 String trigger = command.getTrigger();
 
                 if (!trigger.equals("help")) {
@@ -74,7 +76,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
 
                     categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
                 }
-            } catch (IllegalAccessException | InstantiationException e) {
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 LOGGER.error("Could not create class", e);
             }
         }

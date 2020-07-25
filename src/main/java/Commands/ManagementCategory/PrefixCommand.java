@@ -12,6 +12,8 @@ import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
     trigger = "prefix",
     userPermissions = Permission.MANAGE_SERVER,
@@ -19,6 +21,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
     executable = false
 )
 public class PrefixCommand extends Command {
+
+    public PrefixCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

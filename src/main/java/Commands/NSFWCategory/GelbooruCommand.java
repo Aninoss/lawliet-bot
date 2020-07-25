@@ -3,6 +3,8 @@ package Commands.NSFWCategory;
 import CommandListeners.CommandProperties;
 import Commands.PornSearchAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "gelb",
         executable = true,
@@ -13,6 +15,10 @@ import Commands.PornSearchAbstract;
         aliases = {"gel", "gbooru", "gelbooru"}
 )
 public class GelbooruCommand extends PornSearchAbstract {
+
+    public GelbooruCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getDomain() {

@@ -1,7 +1,6 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Constants.Settings;
 import Core.DiscordApiCollection;
@@ -13,9 +12,8 @@ import MySQL.Modules.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -25,6 +23,10 @@ import java.util.stream.Collectors;
         aliases = {"patreon", "donation", "premium"}
 )
 public class DonateCommand extends Command {
+
+    public DonateCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

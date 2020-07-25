@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -48,8 +49,8 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     private final int COUNTER = 10;
     String url;
 
-    public QuizCommand() {
-        super();
+    public QuizCommand(Locale locale, String prefix) {
+        super(locale, prefix);
         url = "https://opentdb.com/api.php?amount=1";
     }
     @Override

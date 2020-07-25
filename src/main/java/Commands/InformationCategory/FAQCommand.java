@@ -9,6 +9,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "faq",
@@ -18,6 +19,10 @@ import java.util.ArrayList;
 public class FAQCommand extends ListAbstract {
 
     private ArrayList<Pair<String, String>> slots;
+
+    public FAQCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

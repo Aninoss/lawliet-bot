@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -27,6 +28,10 @@ import java.util.concurrent.ExecutionException;
         aliases = {"topics"}
 )
 public class TopicCommand extends Command implements OnTrackerRequestListener {
+
+    public TopicCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -7,7 +7,13 @@ import Core.TextManager;
 import MySQL.Modules.Server.DBServer;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 public abstract class FisheryAbstract extends Command {
+
+    public FisheryAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected abstract boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable;
 

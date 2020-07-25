@@ -9,6 +9,7 @@ import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
 import java.util.Random;
 
 @CommandProperties(
@@ -18,6 +19,10 @@ import java.util.Random;
         aliases = {"dice", "diceroll"}
 )
 public class RollCommand extends Command {
+
+    public RollCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

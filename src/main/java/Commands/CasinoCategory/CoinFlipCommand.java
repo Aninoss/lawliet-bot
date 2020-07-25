@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -37,6 +38,10 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};
     private final int[] selection = {-1, -1};
     private LogStatus logStatus;
+
+    public CoinFlipCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -120,7 +125,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                 message.edit(getEmbed());
                 Thread.sleep(1000);
             } catch (IOException | InterruptedException e) {
-                ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
+                ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
             }
 
             if (selection[0] == selection[1]) {
@@ -129,7 +134,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                     logStatus = LogStatus.WIN;
                     onWin();
                 } catch (ExecutionException e) {
-                    ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
+                    ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
                 }
             } else {
                 try {
@@ -137,14 +142,14 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                     logStatus = LogStatus.LOSE;
                     onLose();
                 } catch (ExecutionException e) {
-                    ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
+                    ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
                 }
             }
 
             try {
                 message.edit(getEmbed());
             } catch (IOException e) {
-                ExceptionHandler.handleException(e, getLocale(), message.getServerTextChannel().get());
+                ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
             }
         }, "coinflip_cpu", 1);
         t.start();

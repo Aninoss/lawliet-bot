@@ -14,6 +14,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "commandusages",
@@ -25,6 +26,10 @@ import java.util.ArrayList;
 public class CommandUsagesCommand extends ListAbstract {
 
     private final ArrayList<Pair<CommandUsagesBean, String>> commandUsages = new ArrayList<>();
+
+    public CommandUsagesCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

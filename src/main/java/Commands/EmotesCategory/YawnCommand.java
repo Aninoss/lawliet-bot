@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "yawn",
         emoji = "\uD83E\uDD71",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"wakeup", "tired", "sleepy"}
 )
 public class YawnCommand extends EmoteAbstract {
+
+    public YawnCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

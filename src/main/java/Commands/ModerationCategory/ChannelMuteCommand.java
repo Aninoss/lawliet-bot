@@ -1,12 +1,13 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Constants.Permission;
-import Core.*;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
 import Core.Mention.Mention;
 import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.PermissionUtil;
 import Modules.Mod;
 import Modules.Mute.MuteData;
@@ -20,6 +21,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -34,11 +36,13 @@ public class ChannelMuteCommand extends Command  {
 
     private final boolean mute;
 
-    public ChannelMuteCommand() {
+    public ChannelMuteCommand(Locale locale, String prefix) {
+        super(locale, prefix);
         this.mute = true;
     }
 
-    public ChannelMuteCommand(boolean mute) {
+    public ChannelMuteCommand(Locale locale, String prefix, boolean mute) {
+        super(locale, prefix);
         this.mute = mute;
     }
 

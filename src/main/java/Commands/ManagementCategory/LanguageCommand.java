@@ -26,6 +26,10 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
     private final String[] languageLocales = Locales.LIST;
     private final String[] languageArgs = new String[]{"de", "ru", "en"};
 
+    public LanguageCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
+
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.length() > 0) {

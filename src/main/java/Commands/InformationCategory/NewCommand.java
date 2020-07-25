@@ -20,6 +20,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -31,6 +32,10 @@ import java.util.stream.Collectors;
 public class NewCommand extends Command implements OnTrackerRequestListener {
 
     VersionBean versionBean;
+
+    public NewCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

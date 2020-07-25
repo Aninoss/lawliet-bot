@@ -16,6 +16,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -39,6 +40,10 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     private final double[] WIN_AMOUNT_ADJUSTMENT = {1.6, 1.2, 0.8, 0.4};
     private int[] fruits;
     private final String ALL_EMOJI = "✅";
+
+    public SlotCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

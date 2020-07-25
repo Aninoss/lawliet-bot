@@ -20,6 +20,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -37,6 +38,10 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
     private AutoRolesBean autoRolesBean;
     private NavigationHelper<Role> roleNavigationHelper;
     private CustomObservableList<Role> roles;
+
+    public AutoRolesCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

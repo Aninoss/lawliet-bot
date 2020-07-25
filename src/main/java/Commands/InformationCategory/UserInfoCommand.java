@@ -13,6 +13,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "userinfo",
@@ -21,6 +22,10 @@ import java.util.ArrayList;
         aliases = {"userinfos", "userstat", "userstats", "accountinfo", "whois"}
 )
 public class UserInfoCommand extends Command {
+
+    public UserInfoCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -2,12 +2,19 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "marry",
         emoji = "\uD83D\uDC8D",
         executable = true
 )
 public class MarryCommand extends InteractionAbstract {
+
+    public MarryCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
+
     protected String[] getGifs() {
         return new String[]{
                 "https://media.discordapp.net/attachments/736281363464060979/736281372750118912/marry.gif",

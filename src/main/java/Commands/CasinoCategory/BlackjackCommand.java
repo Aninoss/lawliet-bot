@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -41,6 +42,10 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     private final int TIME_BEFORE_END = 1500;
     private boolean block;
     private boolean finished;
+
+    public BlackjackCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

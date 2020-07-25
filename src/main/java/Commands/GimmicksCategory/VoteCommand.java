@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -36,6 +37,10 @@ import java.util.concurrent.ExecutionException;
 public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(VoteCommand.class);
+
+    public VoteCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

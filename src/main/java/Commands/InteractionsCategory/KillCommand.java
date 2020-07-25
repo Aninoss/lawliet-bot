@@ -2,6 +2,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "kill",
         emoji = "☠️",
@@ -9,6 +11,10 @@ import Commands.InteractionAbstract;
         aliases = {"die"}
 )
 public class KillCommand extends InteractionAbstract {
+
+    public KillCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

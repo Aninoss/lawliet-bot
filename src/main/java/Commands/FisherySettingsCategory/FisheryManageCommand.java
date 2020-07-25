@@ -21,6 +21,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -37,6 +38,11 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
     private User user;
     private Server server;
     private FisheryUserBean fisheryUserBean;
+
+    public FisheryManageCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
+
     private enum ValueProcedure { ABSOLUTE, ADD, SUB }
 
     @Override

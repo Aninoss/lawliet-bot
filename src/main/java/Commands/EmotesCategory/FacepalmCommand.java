@@ -2,12 +2,18 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "facepalm",
         emoji = "\uD83E\uDD26",
         executable = true
 )
 public class FacepalmCommand extends EmoteAbstract {
+
+    public FacepalmCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

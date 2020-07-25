@@ -11,6 +11,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "serverinfo",
         emoji = "\uD83D\uDC6A",
@@ -18,6 +20,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         aliases = {"serverinfos", "serverstat", "serverstats"}
 )
 public class ServerInfoCommand extends Command {
+
+    public ServerInfoCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

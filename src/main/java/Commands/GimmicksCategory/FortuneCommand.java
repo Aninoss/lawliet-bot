@@ -9,6 +9,8 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "fortune",
         emoji = "❓",
@@ -16,6 +18,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         aliases = {"question", "8ball"}
 )
 public class FortuneCommand extends Command {
+
+    public FortuneCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

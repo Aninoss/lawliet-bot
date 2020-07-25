@@ -1,6 +1,12 @@
 package Commands;
 
+import java.util.Locale;
+
 public abstract class Rule34Abstract extends PornPredefinedAbstract {
+
+    public Rule34Abstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchExtra() {

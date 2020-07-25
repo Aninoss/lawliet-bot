@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "mod",
@@ -39,6 +40,10 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
 
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
+
+    public ModSettingsCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

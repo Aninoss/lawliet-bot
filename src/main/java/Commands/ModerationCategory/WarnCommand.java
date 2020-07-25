@@ -23,6 +23,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -39,6 +40,10 @@ public class WarnCommand extends Command implements OnReactionAddListener {
     protected List<User> userList;
     private ModerationBean moderationBean;
     protected String reason;
+
+    public WarnCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

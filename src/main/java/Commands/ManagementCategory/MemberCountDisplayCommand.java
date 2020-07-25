@@ -27,6 +27,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +45,10 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     private MemberCountBean memberCountBean;
     private ServerVoiceChannel currentVC = null;
     private String currentName = null;
+
+    public MemberCountDisplayCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

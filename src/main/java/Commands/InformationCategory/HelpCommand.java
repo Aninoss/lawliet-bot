@@ -22,8 +22,10 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -39,6 +41,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
     private String searchTerm;
     private MessageCreateEvent authorEvent;
     private CommandManagementBean commandManagementBean;
+
+    public HelpCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -200,7 +206,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
         return null;
     }
 
-    private void categoryInteractionsEmotes(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException {
+    private void categoryInteractionsEmotes(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         eb.setDescription(getString("emotes_desc"));
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -240,7 +246,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     }
 
-    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, ExecutionException {
+    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, ExecutionException, InvocationTargetException {
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
@@ -284,7 +290,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
         eb.addField(Settings.EMPTY_EMOJI, getIconDescriptions());
     }
 
-    private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException {
+    private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         eb.setDescription(getString("nsfw"));
         String patreonIcon = DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag();
 

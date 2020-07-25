@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "laugh",
         emoji = "\uD83D\uDE06",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"lol", "funny"}
 )
 public class LaughCommand extends EmoteAbstract {
+
+    public LaughCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

@@ -19,10 +19,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @CommandProperties(
         trigger = "warnlog",
@@ -30,6 +27,10 @@ import java.util.Optional;
         executable = true
 )
 public class WarnLogCommand extends Command {
+
+    public WarnLogCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

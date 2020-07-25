@@ -2,6 +2,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "nom",
         emoji = "\uD83E\uDD62",
@@ -9,6 +11,10 @@ import Commands.InteractionAbstract;
         aliases = {"eat"}
 )
 public class NomCommand extends InteractionAbstract {
+
+    public NomCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

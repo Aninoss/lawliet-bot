@@ -1,24 +1,25 @@
 package Commands.GimmicksCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Constants.Permission;
-import Core.*;
-import Core.Mention.MentionUtil;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
 import Core.Mention.MentionList;
+import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.message.embed.EmbedField;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -30,6 +31,10 @@ import java.util.concurrent.ExecutionException;
         aliases = {"qoute"}
 )
 public class QuoteCommand extends Command {
+
+    public QuoteCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

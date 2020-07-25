@@ -2,6 +2,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "furryfuck",
         emoji = "\uD83E\uDD8A",
@@ -9,6 +11,10 @@ import Commands.InteractionAbstract;
         nsfw = true
 )
 public class FurryFuckCommand extends InteractionAbstract {
+
+    public FurryFuckCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

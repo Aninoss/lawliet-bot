@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,6 +67,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
     private static final ArrayList<Long> block = new ArrayList<>();
+
+    public ReactionRolesCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

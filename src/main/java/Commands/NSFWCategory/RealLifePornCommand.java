@@ -4,6 +4,8 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnTrackerRequestListener;
 import Commands.RealbooruAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "rlporn",
         executable = true,
@@ -13,6 +15,10 @@ import Commands.RealbooruAbstract;
         withLoadingBar = true
 )
 public class RealLifePornCommand extends RealbooruAbstract implements OnTrackerRequestListener {
+
+    public RealLifePornCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchKey() {

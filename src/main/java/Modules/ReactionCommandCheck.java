@@ -17,7 +17,7 @@ public class ReactionCommandCheck {
                         if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
                         if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
                     } catch (Throwable e) {
-                        ExceptionHandler.handleException(e, command.getLocale(), event.getMessage().get().getChannel());
+                        ExceptionHandler.handleCommandException(e, command, event.getMessage().get().getChannel());
                     }
                 } else {
                     if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent()) event.getReaction().get().removeUser(event.getUser());

@@ -3,6 +3,8 @@ package Commands.ExternalCategory;
 import CommandListeners.CommandProperties;
 import Commands.PornSearchAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "safeb",
         emoji = "\uD83D\uDE07",
@@ -11,6 +13,10 @@ import Commands.PornSearchAbstract;
         aliases = {"softb", "safebooru", "softbooru", "sbooru"}
 )
 public class SafebooruCommand extends PornSearchAbstract {
+
+    public SafebooruCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getDomain() {

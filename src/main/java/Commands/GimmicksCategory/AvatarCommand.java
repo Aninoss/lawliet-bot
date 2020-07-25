@@ -13,6 +13,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "avatar",
@@ -21,6 +22,10 @@ import java.util.ArrayList;
         aliases = { "profilepic" }
 )
 public class AvatarCommand extends Command {
+
+    public AvatarCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

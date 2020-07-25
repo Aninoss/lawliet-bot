@@ -4,6 +4,8 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnTrackerRequestListener;
 import Commands.PornSearchAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "r34",
         executable = true,
@@ -14,6 +16,10 @@ import Commands.PornSearchAbstract;
         aliases = {"rule34", "34"}
 )
 public class Rule34Command extends PornSearchAbstract implements OnTrackerRequestListener {
+
+    public Rule34Command(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getDomain() {

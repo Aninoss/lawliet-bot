@@ -3,6 +3,8 @@ import CommandListeners.CommandProperties;
 
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "dance",
         emoji = "\uD83D\uDD7A",
@@ -10,6 +12,10 @@ import Commands.EmoteAbstract;
         aliases = {"party"}
 )
 public class DanceCommand extends EmoteAbstract {
+
+    public DanceCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

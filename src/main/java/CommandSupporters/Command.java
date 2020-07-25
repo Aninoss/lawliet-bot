@@ -36,7 +36,7 @@ public abstract class Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
 
     private final String category;
-    private String prefix;
+    private final String prefix;
     private final CommandProperties commandProperties;
     private Message starterMessage, navigationMessage, lastUserMessage;
     private Locale locale;
@@ -53,7 +53,10 @@ public abstract class Command {
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
 
-    public Command() {
+    public Command(Locale locale, String prefix) {
+        this.locale = locale;
+        this.prefix = prefix;
+
         commandProperties = this.getClass().getAnnotation(CommandProperties.class);
         category = CategoryCalculator.getCategoryByCommand(this.getClass());
         thread = Thread.currentThread();
@@ -71,7 +74,7 @@ public abstract class Command {
         try {
             onMessageReceived(event, followedString);
         } catch (Throwable e) {
-            ExceptionHandler.handleException(e, locale, event.getServerTextChannel().get());
+            ExceptionHandler.handleCommandException(e, this, event.getServerTextChannel().get());
             return;
         } finally {
             removeLoadingReaction();
@@ -106,7 +109,7 @@ public abstract class Command {
         try {
             ((OnReactionAddListener) this).onReactionAdd(event);
         } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+            ExceptionHandler.handleCommandException(throwable, this, event.getServerTextChannel().get());
         }
     }
 
@@ -120,7 +123,7 @@ public abstract class Command {
         try {
             success = ((OnForwardedRecievedListener) this).onForwardedRecieved(event);
         } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+            ExceptionHandler.handleCommandException(throwable, this, event.getServerTextChannel().get());
         } finally {
             removeLoadingReaction(event.getMessage());
         }
@@ -163,7 +166,7 @@ public abstract class Command {
                 drawSuper(event.getApi(), event.getServerTextChannel().get());
             }
         } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getServerTextChannel().get());
+            ExceptionHandler.handleCommandException(throwable, this, event.getServerTextChannel().get());
             return Response.ERROR;
         } finally {
             removeLoadingReaction();
@@ -212,7 +215,7 @@ public abstract class Command {
             if (changed)
                 drawSuper(event.getApi(), event.getChannel());
         } catch (Throwable throwable) {
-            ExceptionHandler.handleException(throwable, locale, event.getChannel());
+            ExceptionHandler.handleCommandException(throwable, this, event.getChannel());
         }
     }
 
@@ -381,7 +384,7 @@ public abstract class Command {
                     if (commandProperties.deleteOnTimeOut()) removeNavigationWithMessage();
                     else removeNavigation();
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
+                    ExceptionHandler.handleCommandException(throwable, this, message.getServerTextChannel().get());
                 }
             } else if (this instanceof OnReactionAddListener) {
                 try {
@@ -389,7 +392,7 @@ public abstract class Command {
                     else removeReactionListener();
                     ((OnReactionAddListener) this).onReactionTimeOut(message);
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
+                    ExceptionHandler.handleCommandException(throwable, this, message.getServerTextChannel().get());
                 }
             }
         } else if (CommandContainer.getInstance().forwarderContains(this)) {
@@ -398,7 +401,7 @@ public abstract class Command {
                 try {
                     ((OnForwardedRecievedListener) this).onForwardedTimeOut();
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleException(throwable, locale, message.getServerTextChannel().get());
+                    ExceptionHandler.handleCommandException(throwable, this, message.getServerTextChannel().get());
                 }
             }
         }
@@ -541,7 +544,6 @@ public abstract class Command {
     //Just getters and setters, nothing important
     public Server getServer() { return starterMessage.getServer().get(); }
     public String getPrefix() { return prefix; }
-    public void setPrefix(String prefix) { this.prefix = prefix; }
     public String getCategory() { return category; }
     public void setLocale(Locale locale) { this.locale = locale; }
     public Locale getLocale() {
@@ -605,12 +607,7 @@ public abstract class Command {
     }
 
     public static String getClassTrigger(Class<? extends Command> c) {
-        try {
-            return CommandManager.createCommandByClass(c).getTrigger();
-        } catch (IllegalAccessException | InstantiationException e) {
-            LOGGER.error("Could not create command", e);
-        }
-        return "???";
+        return c.getAnnotation(CommandProperties.class).trigger();
     }
 
 }

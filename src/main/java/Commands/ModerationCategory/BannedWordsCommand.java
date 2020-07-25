@@ -23,6 +23,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -40,6 +41,10 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
     private BannedWordsBean bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
     private CustomObservableList<User> ignoredUsers, logReceivers;
+
+    public BannedWordsCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

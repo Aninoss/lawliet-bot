@@ -1,8 +1,9 @@
 package Commands.ModerationCategory;
 
 import CommandListeners.CommandProperties;
-
 import Constants.Permission;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "chunmute",
@@ -14,8 +15,8 @@ import Constants.Permission;
 )
 public class ChannelUnmuteCommand extends ChannelMuteCommand  {
 
-    public ChannelUnmuteCommand() {
-        super(false);
+    public ChannelUnmuteCommand(Locale locale, String prefix) {
+        super(locale, prefix, false);
     }
 
 }

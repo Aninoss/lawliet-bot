@@ -2,12 +2,18 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "run",
         emoji = "\uD83C\uDFC3",
         executable = true
 )
 public class RunCommand extends EmoteAbstract {
+
+    public RunCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

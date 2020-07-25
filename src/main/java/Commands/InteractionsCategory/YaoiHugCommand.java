@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "yaoihug",
         emoji = "\uD83D\uDC68\uD83D\uDC50\uD83D\uDC68",
         executable = true
 )
 public class YaoiHugCommand extends InteractionAbstract {
+
+    public YaoiHugCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

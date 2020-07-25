@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
     trigger = "baka",
     emoji = "\uD83D\uDCA2",
     executable = true
 )
 public class BakaCommand extends InteractionAbstract {
+
+    public BakaCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

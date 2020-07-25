@@ -17,6 +17,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "claim",
@@ -25,6 +26,10 @@ import java.time.temporal.ChronoUnit;
     executable = true
 )
 public class ClaimCommand extends FisheryAbstract {
+
+    public ClaimCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

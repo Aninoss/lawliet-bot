@@ -1,22 +1,25 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-import CommandSupporters.Command;
 import Commands.FisheryAbstract;
-import Constants.*;
-import Core.*;
-import Core.Utils.BotUtil;
+import Constants.FisheryCategoryInterface;
+import Constants.LogStatus;
+import Constants.Permission;
+import Constants.Settings;
+import Core.EmbedFactory;
+import Core.PatreonCache;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
-import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "daily",
@@ -25,6 +28,10 @@ import java.time.temporal.ChronoUnit;
     executable = true
 )
 public class DailyCommand extends FisheryAbstract {
+
+    public DailyCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

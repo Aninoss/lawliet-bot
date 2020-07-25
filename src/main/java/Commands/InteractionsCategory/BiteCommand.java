@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
     trigger = "bite",
     emoji = "\uD83E\uDE78",
     executable = true
 )
 public class BiteCommand extends InteractionAbstract {
+
+    public BiteCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

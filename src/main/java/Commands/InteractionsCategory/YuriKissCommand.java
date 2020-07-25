@@ -2,12 +2,18 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "yurikiss",
         emoji = "\uD83D\uDC69\u200D❤️\u200D\uD83D\uDC69",
         executable = true
 )
 public class YuriKissCommand extends InteractionAbstract {
+
+    public YuriKissCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

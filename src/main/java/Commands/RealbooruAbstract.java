@@ -1,6 +1,12 @@
 package Commands;
 
+import java.util.Locale;
+
 public abstract class RealbooruAbstract extends PornPredefinedAbstract {
+
+    public RealbooruAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchExtra() {

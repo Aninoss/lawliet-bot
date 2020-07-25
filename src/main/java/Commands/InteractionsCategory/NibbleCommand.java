@@ -14,6 +14,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "nibble",
@@ -22,6 +23,10 @@ import java.util.List;
     executable = true
 )
 public class NibbleCommand extends Command {
+
+    public NibbleCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{"https://media1.tenor.com/images/60369861b53a2f4c2b0e1012220d63fd/tenor.gif?itemid=14714300",

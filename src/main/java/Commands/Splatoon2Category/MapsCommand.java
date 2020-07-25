@@ -16,6 +16,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "maps",
@@ -27,6 +28,10 @@ import java.util.Date;
 public class MapsCommand extends Command implements OnTrackerRequestListener {
 
     private Instant trackingTime;
+
+    public MapsCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

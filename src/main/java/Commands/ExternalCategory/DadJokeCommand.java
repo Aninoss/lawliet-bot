@@ -10,6 +10,8 @@ import Core.Utils.StringUtil;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 @CommandProperties(
     trigger = "dadjoke",
     withLoadingBar = true,
@@ -17,6 +19,10 @@ import org.json.JSONObject;
     executable = true
 )
 public class DadJokeCommand extends Command {
+
+    public DadJokeCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

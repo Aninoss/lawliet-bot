@@ -4,6 +4,8 @@ import CommandListeners.CommandProperties;
 import CommandListeners.OnTrackerRequestListener;
 import Commands.GelbooruAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "yaoi",
         executable = true,
@@ -13,6 +15,10 @@ import Commands.GelbooruAbstract;
         withLoadingBar = true
 )
 public class YaoiCommand extends GelbooruAbstract implements OnTrackerRequestListener {
+
+    public YaoiCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchKey() {

@@ -26,12 +26,18 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public abstract class PornAbstract extends Command {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
+
+    public PornAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
+
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
     public abstract boolean isExplicit();

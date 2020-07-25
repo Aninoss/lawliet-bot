@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "no",
         emoji = "\uD83D\uDC4E",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"nope", "thumbsdown", "thumpsdown"}
 )
 public class NoCommand extends EmoteAbstract {
+
+    public NoCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

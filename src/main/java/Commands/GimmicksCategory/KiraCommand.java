@@ -13,6 +13,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
 @CommandProperties(
@@ -21,6 +22,10 @@ import java.util.Random;
     executable = true
 )
 public class KiraCommand extends Command {
+
+    public KiraCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

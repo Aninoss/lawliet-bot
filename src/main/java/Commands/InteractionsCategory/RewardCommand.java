@@ -2,6 +2,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "reward",
         emoji = "\uD83C\uDF53",
@@ -9,6 +11,10 @@ import Commands.InteractionAbstract;
         aliases = { "rewards" }
 )
 public class RewardCommand extends InteractionAbstract {
+
+    public RewardCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

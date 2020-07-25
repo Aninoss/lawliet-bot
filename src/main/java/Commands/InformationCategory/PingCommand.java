@@ -1,20 +1,15 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
-import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.MessageBuilder;
-import org.javacord.api.entity.message.mention.AllowedMentions;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "ping",
@@ -22,6 +17,10 @@ import java.util.Optional;
         executable = true
 )
 public class PingCommand extends Command {
+
+    public PingCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

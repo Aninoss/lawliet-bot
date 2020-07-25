@@ -1,7 +1,9 @@
 package Core;
 
+import CommandSupporters.Command;
 import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,33 +19,36 @@ public class ExceptionHandler {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
 
-    public static void handleException(Throwable throwable, Locale locale, TextChannel channel) {
+    public static void handleCommandException(Throwable throwable, Command command, TextChannel channel) {
+        Locale locale = command.getLocale();
         boolean submitToDeveloper = true;
+        boolean postErrorMessage = true;
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         throwable.printStackTrace(pw);
         String stacktrace = sw.toString();
 
-        String errorMessage = stacktrace.split("\n")[0];
-        if (errorMessage.contains("500: Internal Server Error")) {
+        String errorCause = stacktrace.split("\n")[0];
+        String errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
+
+        if (errorCause.contains("500: Internal Server Error")) {
             submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
-        } else if (errorMessage.contains("Server returned HTTP response code: 5")) {
+        } else if (errorCause.contains("Server returned HTTP response code: 5")) {
             submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
-        } else if (errorMessage.contains("java.net.SocketTimeoutException")) {
+        } else if (errorCause.contains("java.net.SocketTimeoutException")) {
             submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
-        } else if (errorMessage.contains("MissingPermissions")) {
+        } else if (errorCause.contains("MissingPermissions")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
         } else if (throwable instanceof InterruptedException) {
             submitToDeveloper = false;
-        } else if (errorMessage.contains("Read timed out")) {
+            postErrorMessage = false;
+        } else if (errorCause.contains("Read timed out")) {
             submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
-        } else {
-            errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
         }
 
         pw.close();
@@ -53,20 +58,17 @@ public class ExceptionHandler {
             LOGGER.error("Could not close String Writer", e);
         }
 
-        try {
-            if (channel.canYouWrite() && channel.canYouEmbedLinks())
-                channel.sendMessage(EmbedFactory.getEmbedError()
+        if (postErrorMessage && channel.canYouWrite() && channel.canYouEmbedLinks()) {
+            channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error"))
-                    .setDescription(errorMessage + (submitToDeveloper ? "\n\n"+TextManager.getString(locale,TextManager.GENERAL,"error_submit") : ""))).get();
+                    .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))).exceptionally(ExceptionLogger.get());
+        }
 
-            if (submitToDeveloper) {
-                LOGGER.error("Command exception", throwable);
-                DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error"))
-                        .setDescription(StringUtil.shortenString(stacktrace, 1000))).get();
-            }
-        } catch (Throwable e1) {
-            LOGGER.error("Could not send error message", e1);
+        if (submitToDeveloper) {
+            LOGGER.error("Exception for command \"{}\"", command.getTrigger(), throwable);
+            DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error") + " \"" + command.getTrigger() + "\"")
+                    .setDescription(StringUtil.shortenString(stacktrace, 1000))).exceptionally(ExceptionLogger.get());
         }
     }
 

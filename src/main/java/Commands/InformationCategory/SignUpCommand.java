@@ -8,6 +8,8 @@ import Core.EmbedFactory;
 import MySQL.DBGiveaway;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "signup",
         emoji = "✏️",
@@ -15,6 +17,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         aliases = {"giveaway", "singup", "register"}
 )
 public class SignUpCommand extends Command {
+
+    public SignUpCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -10,11 +10,17 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.util.Locale;
+
 public abstract class ListAbstract extends Command implements OnReactionAddListener {
 
     private Message message;
     private int page, entriesPerPage, size;
     private final String[] SCROLL_EMOJIS = {"⏪", "⏩"};
+
+    public ListAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected abstract Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable;
     protected abstract int getSize();

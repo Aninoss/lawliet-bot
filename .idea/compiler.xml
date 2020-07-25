@@ -11,7 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Lawliet" target="8" />
+      <module name="Lawliet" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

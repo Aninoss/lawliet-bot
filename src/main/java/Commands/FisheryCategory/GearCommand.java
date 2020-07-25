@@ -1,23 +1,18 @@
 package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
-
-import CommandSupporters.Command;
 import Commands.FisheryAbstract;
 import Constants.Category;
 import Constants.FisheryCategoryInterface;
 import Constants.Permission;
-import Constants.FisheryStatus;
 import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
 import Core.PatreonCache;
 import Core.TextManager;
-import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.FisheryUsers.FisheryUserPowerUpBean;
-import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -26,10 +21,9 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.awt.*;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -40,6 +34,10 @@ import java.util.concurrent.ExecutionException;
         aliases = {"equip", "equipment", "inventory", "level"}
 )
 public class GearCommand extends FisheryAbstract {
+
+    public GearCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws ExecutionException, InterruptedException {

@@ -5,11 +5,16 @@ import Core.TextManager;
 import Modules.Porn.PornImage;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 
 public abstract class PornPredefinedAbstract extends PornAbstract {
 
     private String notice = null;
+
+    public PornPredefinedAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected abstract String getSearchKey();
     protected abstract String getSearchExtra();

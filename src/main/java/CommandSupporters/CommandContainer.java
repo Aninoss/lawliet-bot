@@ -19,6 +19,7 @@ import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class CommandContainer {
@@ -233,7 +234,7 @@ public class CommandContainer {
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
-                Command command = CommandManager.createCommandByClass(clazz);
+                Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
                 addCommand(command.getTrigger(), command);
                 for(String str: command.getAliases()) addCommand(str, command);
 
@@ -242,7 +243,7 @@ public class CommandContainer {
                 if (command instanceof OnTrackerRequestListener) trackerCommands.add(((OnTrackerRequestListener)command).getClass());
 
                 if (!command.canRunOnServer(0L, 0L)) commandList.remove(clazz);
-            } catch (IllegalAccessException | InstantiationException e) {
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 LOGGER.error("Could not create class", e);
             }
         }

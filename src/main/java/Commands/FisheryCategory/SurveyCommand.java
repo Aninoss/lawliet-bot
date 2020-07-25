@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -31,6 +32,10 @@ import java.util.concurrent.ExecutionException;
     executable = true
 )
 public class SurveyCommand extends FisheryAbstract implements OnReactionAddStaticListener, OnTrackerRequestListener {
+
+    public SurveyCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

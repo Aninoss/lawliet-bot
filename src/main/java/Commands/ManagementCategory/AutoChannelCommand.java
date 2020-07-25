@@ -21,6 +21,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "autochannel",
@@ -33,6 +34,10 @@ import java.util.ArrayList;
 public class AutoChannelCommand extends Command implements OnNavigationListener {
     
     private AutoChannelBean autoChannelBean;
+
+    public AutoChannelCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -37,6 +38,10 @@ import java.util.concurrent.ExecutionException;
 public class FullClearCommand extends Command implements OnTrackerRequestListener {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FullClearCommand.class);
+
+    public FullClearCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

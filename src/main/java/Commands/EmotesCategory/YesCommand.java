@@ -3,6 +3,8 @@ import CommandListeners.CommandProperties;
 
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "yes",
         emoji = "\uD83D\uDC4D",
@@ -10,6 +12,10 @@ import Commands.EmoteAbstract;
         aliases = {"thumbsup", "thumpsup"}
 )
 public class YesCommand extends EmoteAbstract {
+
+    public YesCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

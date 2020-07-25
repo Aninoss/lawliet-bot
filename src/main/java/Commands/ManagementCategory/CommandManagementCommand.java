@@ -20,8 +20,11 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -38,6 +41,10 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
 
     private CommandManagementBean commandManagementBean;
     private String category;
+
+    public CommandManagementCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -93,7 +100,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         .map(clazz -> {
                             try {
                                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                            } catch (IllegalAccessException | InstantiationException e) {
+                            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                                 LOGGER.error("Could not create command", e);
                                 return null;
                             }
@@ -136,14 +143,14 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(element);
                 if (clazz == null) return false;
                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
-            } catch (IllegalAccessException | InstantiationException e) {
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 LOGGER.error("Error when creating command", e);
                 return false;
             }
         });
     }
 
-    private int getCategoryStatus(String category) throws InstantiationException, IllegalAccessException {
+    private int getCategoryStatus(String category) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         boolean hasOn = false, hasOff = false;
 
         if (!commandManagementBean.getSwitchedOffElements().contains(category)) {
@@ -168,7 +175,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                             String name = TextManager.getString(getLocale(), TextManager.COMMANDS, id);
                             try {
                                 return getString("category", getCategoryStatus(id), name);
-                            } catch (InstantiationException | IllegalAccessException e) {
+                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                                 LOGGER.error("Error while creating command", e);
                                 return null;
                             }
@@ -188,7 +195,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         .map(clazz -> {
                             try {
                                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                            } catch (IllegalAccessException | InstantiationException e) {
+                            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                                 LOGGER.error("Could not create command", e);
                                 return null;
                             }

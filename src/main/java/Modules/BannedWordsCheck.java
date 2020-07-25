@@ -15,13 +15,14 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class BannedWordsCheck {
 
-    public static boolean check(Message message) throws ExecutionException, InstantiationException, IllegalAccessException, InterruptedException {
+    public static boolean check(Message message) throws ExecutionException, InstantiationException, IllegalAccessException, InterruptedException, InvocationTargetException {
         Server server = message.getServer().get();
         String input = message.getContent();
         User author = message.getUserAuthor().get();
@@ -46,7 +47,7 @@ public class BannedWordsCheck {
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
 
-            Mod.postLog(CommandManager.createCommandByClass(BannedWordsCommand.class, locale), eb, server);
+            Mod.postLog(CommandManager.createCommandByClass(BannedWordsCommand.class, locale, bannedWordsBean.getServerBean().getPrefix()), eb, server);
             Mod.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "bannedwords_title"));
 
             return false;

@@ -3,6 +3,8 @@ package Commands.NSFWCategory;
 import CommandListeners.CommandProperties;
 import Commands.PornSearchAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "furry",
         executable = true,
@@ -13,6 +15,10 @@ import Commands.PornSearchAbstract;
         aliases = { "furrybooru", "yiff" }
 )
 public class FurryCommand extends PornSearchAbstract {
+
+    public FurryCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getDomain() {

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -30,6 +31,10 @@ import java.util.concurrent.ExecutionException;
 public class ClearCommand extends Command {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ClearCommand.class);
+
+    public ClearCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

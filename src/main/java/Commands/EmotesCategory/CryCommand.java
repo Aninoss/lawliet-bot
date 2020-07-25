@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "cry",
         emoji = "\uD83D\uDE2D",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"sad" , "sob"}
 )
 public class CryCommand extends EmoteAbstract {
+
+    public CryCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

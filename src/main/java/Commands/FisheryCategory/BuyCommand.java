@@ -27,6 +27,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -44,6 +45,10 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
     private int numberReactions = 0;
     private Server server;
     private ServerBean serverBean;
+
+    public BuyCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

@@ -2,6 +2,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
@@ -9,6 +11,10 @@ import Commands.InteractionAbstract;
         aliases = {"praise"}
 )
 public class PatCommand extends InteractionAbstract {
+
+    public PatCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

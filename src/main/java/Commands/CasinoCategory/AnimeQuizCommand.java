@@ -3,6 +3,8 @@ package Commands.CasinoCategory;
 import CommandListeners.CommandProperties;
 import Constants.Permission;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "animequiz",
         emoji = "❔",
@@ -13,8 +15,8 @@ import Constants.Permission;
 )
 public class AnimeQuizCommand extends QuizCommand {
 
-    public AnimeQuizCommand() {
-        super();
+    public AnimeQuizCommand(Locale locale, String prefix) {
+        super(locale, prefix);
         url = "https://opentdb.com/api.php?amount=1&category=31";
         allowBet = false;
     }

@@ -17,13 +17,14 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.entity.user.User;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class SPCheck {
 
-    public static boolean check(Message message) throws ExecutionException, InstantiationException, IllegalAccessException, InterruptedException {
+    public static boolean check(Message message) throws ExecutionException, InstantiationException, IllegalAccessException, InterruptedException, InvocationTargetException {
         Server server = message.getServer().get();
         User author = message.getUserAuthor().get();
         SPBlockBean spBlockBean = DBSPBlock.getInstance().getBean(server.getId());
@@ -47,7 +48,7 @@ public class SPCheck {
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
 
-            Mod.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale()), eb, server);
+            Mod.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale(), spBlockBean.getServerBean().getPrefix()), eb, server);
             Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_title"));
 
             return false;

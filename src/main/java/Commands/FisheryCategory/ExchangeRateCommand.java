@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "exch",
@@ -23,6 +24,10 @@ import java.time.Instant;
         aliases = {"exchangerate", "er", "exchr"}
 )
 public class ExchangeRateCommand extends Command implements OnTrackerRequestListener {
+
+    public ExchangeRateCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

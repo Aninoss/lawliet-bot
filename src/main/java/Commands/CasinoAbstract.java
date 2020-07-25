@@ -23,8 +23,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public abstract class CasinoAbstract extends Command implements OnReactionAddListener {
@@ -42,8 +44,8 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
     private MessageCreateEvent createEvent;
     private final String RETRY_EMOJI = "\uD83D\uDD01";
 
-    public CasinoAbstract() {
-        super();
+    public CasinoAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
         allowBet = true;
     }
 
@@ -135,7 +137,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         return eb;
     }
 
-    protected void onReactionAddRetry(SingleReactionEvent event) throws InstantiationException, IllegalAccessException, InterruptedException, ExecutionException, IOException, SQLException {
+    protected void onReactionAddRetry(SingleReactionEvent event) throws InstantiationException, IllegalAccessException, InterruptedException, ExecutionException, IOException, SQLException, InvocationTargetException {
         if (!active && event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(RETRY_EMOJI)) {
             removeReactionListener(getReactionMessage());
 

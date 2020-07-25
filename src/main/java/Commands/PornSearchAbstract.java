@@ -7,11 +7,16 @@ import Modules.Porn.PornImage;
 import Core.Utils.NSFWUtil;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 
     private String notice = null;
+
+    public PornSearchAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected abstract String getDomain();
     protected abstract String getImageTemplate();

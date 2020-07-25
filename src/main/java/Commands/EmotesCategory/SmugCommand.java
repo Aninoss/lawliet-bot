@@ -2,12 +2,18 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "smug",
         emoji = "\uD83D\uDE0F",
         executable = true
 )
 public class SmugCommand extends EmoteAbstract {
+
+    public SmugCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

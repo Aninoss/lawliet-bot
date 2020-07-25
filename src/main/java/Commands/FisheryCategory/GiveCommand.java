@@ -17,6 +17,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "give",
@@ -26,6 +27,10 @@ import java.util.ArrayList;
         aliases = {"gift", "pay"}
 )
 public class GiveCommand extends FisheryAbstract {
+
+    public GiveCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

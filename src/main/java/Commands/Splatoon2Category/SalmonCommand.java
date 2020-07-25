@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -31,6 +32,10 @@ import java.util.concurrent.ExecutionException;
 public class SalmonCommand extends Command implements OnTrackerRequestListener {
     
     private Instant trackingTime;
+
+    public SalmonCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

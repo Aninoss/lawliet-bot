@@ -2,6 +2,8 @@ package Commands.InteractionsCategory;
 import CommandListeners.CommandProperties;
 import Commands.InteractionAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "cuddle",
         emoji = "\uD83D\uDC50",
@@ -9,6 +11,10 @@ import Commands.InteractionAbstract;
         aliases = {"snuggle"}
 )
 public class CuddleCommand extends InteractionAbstract {
+
+    public CuddleCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

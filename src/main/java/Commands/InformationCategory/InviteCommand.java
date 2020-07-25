@@ -7,6 +7,8 @@ import Constants.Settings;
 import Core.EmbedFactory;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "invite",
         emoji = "\uD83D\uDD17",
@@ -14,6 +16,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         aliases = {"link", "addbot", "inv"}
 )
 public class InviteCommand extends Command {
+
+    public InviteCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -3,6 +3,8 @@ package Commands.NSFWCategory;
 import CommandListeners.CommandProperties;
 import Commands.GelbooruAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "trap",
         executable = true,
@@ -12,6 +14,10 @@ import Commands.GelbooruAbstract;
         withLoadingBar = true
 )
 public class TrapCommand extends GelbooruAbstract {
+
+    public TrapCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected String getSearchKey() {

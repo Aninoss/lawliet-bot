@@ -11,6 +11,8 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "autoclaim",
         emoji = "\uD83E\uDD16",
@@ -22,6 +24,10 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
     private Message message;
 
     private final String[] activeArgs = new String[]{"off", "on"};
+
+    public AutoClaimCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

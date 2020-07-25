@@ -2,6 +2,8 @@ package Commands.EmotesCategory;
 import CommandListeners.CommandProperties;
 import Commands.EmoteAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "angry",
         emoji = "\uD83D\uDCA2",
@@ -9,6 +11,10 @@ import Commands.EmoteAbstract;
         aliases = {"rage", "mad"}
 )
 public class AngryCommand extends EmoteAbstract {
+
+    public AngryCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     protected String[] getGifs() {
         return new String[]{

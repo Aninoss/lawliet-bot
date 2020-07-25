@@ -9,6 +9,8 @@ import Core.Utils.StringUtil;
 import Modules.Fishery;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "treasure",
         userPermissions = Permission.MANAGE_SERVER,
@@ -18,6 +20,10 @@ import org.javacord.api.event.message.MessageCreateEvent;
         aliases = { "tresure", "treasurechest" }
 )
 public class TreasureCommand extends FisheryAbstract {
+
+    public TreasureCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

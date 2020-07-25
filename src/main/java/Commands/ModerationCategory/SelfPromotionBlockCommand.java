@@ -22,6 +22,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "spblock",
@@ -35,6 +36,10 @@ public class SelfPromotionBlockCommand extends Command implements OnNavigationLi
     private SPBlockBean spBlockBean;
     private CustomObservableList<User> ignoredUsers, logReceivers;
     private CustomObservableList<ServerTextChannel> ignoredChannels;
+
+    public SelfPromotionBlockCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

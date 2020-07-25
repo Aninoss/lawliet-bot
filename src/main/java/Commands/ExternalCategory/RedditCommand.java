@@ -1,23 +1,24 @@
 package Commands.ExternalCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import Constants.Category;
 import Constants.TrackerResult;
-import Core.*;
+import Core.EmbedFactory;
+import Core.TextManager;
+import Core.Utils.StringUtil;
 import Modules.PostBundle;
 import Modules.Reddit.RedditDownloader;
 import Modules.Reddit.RedditPost;
-import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "reddit",
@@ -27,7 +28,9 @@ import java.time.temporal.ChronoUnit;
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RedditCommand.class);
+    public RedditCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

@@ -108,7 +108,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public long getFishIncome() {
         Instant currentHourInstance = TimeUtil.instantRoundDownToHour(Instant.now());
-        if (fishIncome == null || fishIncomeUpdateTime == null || fishIncomeUpdateTime.isBefore(currentHourInstance)) {
+        for (int i = 0; i < 3 && (fishIncome == null || fishIncomeUpdateTime == null || fishIncomeUpdateTime.isBefore(currentHourInstance)); i++) {
             try {
                 long n = 0;
 
@@ -123,11 +123,11 @@ public class FisheryUserBean extends BeanWithServer {
                 fishIncomeUpdateTime = currentHourInstance;
                 checkValuesBound();
             } catch (Throwable e) {
-                LOGGER.error("Exception", e);
+                if (i == 2) LOGGER.error("Exception", e);
             }
         }
 
-        return fishIncome;
+        return fishIncome == null ? 0L : fishIncome;
     }
 
     private FisheryHourlyIncomeBean getCurrentFisheryHourlyIncome() {

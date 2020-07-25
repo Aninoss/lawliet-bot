@@ -1,6 +1,5 @@
 package CommandSupporters;
 
-import CommandListeners.CommandProperties;
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnNavigationListener;
 import CommandListeners.OnReactionAddListener;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class CommandManager {
                 maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
                 CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.EXCEPTION));
-                ExceptionHandler.handleException(e, command.getLocale(), event.getServerTextChannel().get());
+                ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();
         } else {
@@ -362,52 +362,18 @@ public class CommandManager {
         t.start();
     }
 
-    public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
+    public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz, locale, prefix);
     }
 
-
-    public static Command createCommandByClassName(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        return (Command) Class.forName(className).newInstance();
+    public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        return (Command) Class.forName(className).getConstructors()[0].newInstance(locale, prefix);
     }
 
-    public static Command createCommandByClassName(String className, Locale locale) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Command command = createCommandByClassName(className);
-        command.setLocale(locale);
-
-        return command;
-    }
-
-    public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Command command = createCommandByClassName(className, locale);
-        command.setPrefix(prefix);
-
-        return command;
-    }
-
-
-    public static Command createCommandByClass(Class<? extends Command> clazz) throws IllegalAccessException, InstantiationException {
-        return clazz.newInstance();
-    }
-
-    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale) throws IllegalAccessException, InstantiationException {
-        Command command = createCommandByClass(clazz);
-        command.setLocale(locale);
-
-        return command;
-    }
-
-    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException {
-        Command command = createCommandByClass(clazz, locale);
-        command.setPrefix(prefix);
-
-        return command;
-    }
-
-    public static CommandProperties getCommandProperties(Class<? extends Command> command) {
-        return (CommandProperties) command.getAnnotation(CommandProperties.class);
+    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        return (Command) clazz.getConstructors()[0].newInstance(locale, prefix);
     }
 
 }

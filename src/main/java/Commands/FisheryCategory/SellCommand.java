@@ -1,26 +1,28 @@
 package Commands.FisheryCategory;
 
-import CommandListeners.*;
-import CommandSupporters.Command;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnForwardedRecievedListener;
+import CommandListeners.OnReactionAddListener;
 import Commands.FisheryAbstract;
 import Constants.Permission;
-import Constants.FisheryStatus;
 import Constants.Response;
-import Core.*;
-import Modules.ExchangeRate;
+import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
+import Core.TextManager;
 import Core.Utils.StringUtil;
+import Modules.ExchangeRate;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
-import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -33,6 +35,10 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
 
     private Message message;
     private FisheryUserBean userBean;
+
+    public SellCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {

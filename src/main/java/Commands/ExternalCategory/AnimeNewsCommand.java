@@ -16,6 +16,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @CommandProperties(
     trigger = "animenews",
@@ -24,6 +25,10 @@ import java.time.temporal.ChronoUnit;
     executable = true
 )
 public class AnimeNewsCommand extends Command implements OnTrackerRequestListener {
+
+    public AnimeNewsCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

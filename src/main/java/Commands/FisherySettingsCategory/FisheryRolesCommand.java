@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -42,6 +43,10 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
     private ServerBean serverBean;
     private FisheryServerBean fisheryServerBean;
     private CustomObservableList<Role> roles;
+
+    public FisheryRolesCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

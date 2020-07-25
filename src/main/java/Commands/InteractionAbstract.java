@@ -11,11 +11,16 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.Locale;
+
 public abstract class InteractionAbstract extends Command {
 
     private final String[] gifs;
 
-    public InteractionAbstract() { this.gifs = getGifs(); }
+    public InteractionAbstract(Locale locale, String prefix) {
+        super(locale, prefix);
+        this.gifs = getGifs();
+    }
 
     protected abstract String[] getGifs();
 

@@ -11,6 +11,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.Optional;
 
 @CommandProperties(
@@ -23,6 +24,10 @@ import java.util.Optional;
         aliases = {"youtubemp3", "yt"}
 )
 public class YouTubeMP3Command extends Command {
+
+    public YouTubeMP3Command(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
