@@ -29,7 +29,8 @@ public class SpankCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736274084488282113/736274138632552478/spank.gif",
                 "https://media.discordapp.net/attachments/736274084488282113/736274143187828757/spank.gif",
                 "https://media.discordapp.net/attachments/736274084488282113/736274153820127362/spank.gif",
-                "https://media.discordapp.net/attachments/736274084488282113/736274160266903674/spank.gif"
+                "https://media.discordapp.net/attachments/736274084488282113/736274160266903674/spank.gif",
+                "https://media.discordapp.net/attachments/736274084488282113/737035145873457162/spank.gif"
         };
     }
 

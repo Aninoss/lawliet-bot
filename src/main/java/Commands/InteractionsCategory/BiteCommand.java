@@ -17,9 +17,6 @@ public class BiteCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
         return new String[]{
-                "https://media.discordapp.net/attachments/736272811789779006/736272817162551347/bite.gif",
-                "https://media.discordapp.net/attachments/736272811789779006/736272821134819428/bite.gif",
-                "https://media.discordapp.net/attachments/736272811789779006/736272835869278359/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272843343659120/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272848963764224/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272854709960784/bite.gif",
@@ -40,7 +37,9 @@ public class BiteCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736272811789779006/736272976814538812/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272985458999357/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272988722167808/bite.gif",
-                "https://media.discordapp.net/attachments/736272811789779006/736272993193427035/bite.gif"
+                "https://media.discordapp.net/attachments/736272811789779006/736272993193427035/bite.gif",
+                "https://media.discordapp.net/attachments/736272811789779006/737035754651254834/bite.gif",
+                "https://media.discordapp.net/attachments/736272811789779006/737035908699652136/bite.gif"
         };
     }
 

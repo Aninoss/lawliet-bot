@@ -320,7 +320,7 @@ public class ImageCreator {
         g2d.setColor(Color.BLACK);
         double n = 8;
         boolean blockBorder = false;
-        for(double i=0; i<n; i++) {
+        for(double i = 0; i < n; i++) {
             double a = (int)((i/n)*360);
             double xT = (Math.cos(Math.toRadians(a)) * thickness);
             double yT = (Math.sin(Math.toRadians(a)) * thickness);
