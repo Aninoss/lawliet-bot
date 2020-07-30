@@ -353,7 +353,6 @@ public class CommandManager {
                         if (!commandThread.isAlive()) return;
                         Thread.sleep(1000);
                     }
-
                     if (command.hasTimeOut()) commandThread.interrupt();
                 }
             } catch (InterruptedException e) {

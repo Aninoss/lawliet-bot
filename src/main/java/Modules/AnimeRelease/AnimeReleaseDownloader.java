@@ -20,9 +20,8 @@ import java.util.stream.Collectors;
 
 public class AnimeReleaseDownloader {
 
-    public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filter) throws InterruptedException, ExecutionException {
-        filter = StringUtil.trimString(filter);
-
+    public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filterString) throws InterruptedException, ExecutionException {
+        final List<String> filter = Arrays.stream(filterString.split(",")).map(StringUtil::trimString).collect(Collectors.toList());
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 14 * 60).get();
@@ -55,8 +54,11 @@ public class AnimeReleaseDownloader {
         return new PostBundle<>(postList, newestPostId);
     }
 
-    private static boolean postPassesFilter(AnimeReleasePost post, String filter) {
-        return filter.equalsIgnoreCase("all") || post.getAnime().toLowerCase().contains(filter.toLowerCase()) || post.getUrl().equalsIgnoreCase(filter);
+    private static boolean postPassesFilter(AnimeReleasePost post, List<String> filter) {
+        return filter.size() == 0 ||
+                filter.get(0).equalsIgnoreCase("all") ||
+                filter.stream().anyMatch(f -> StringUtil.stringContainsVague(post.getAnime(), f)) ||
+                filter.stream().anyMatch(f -> StringUtil.stringContainsVague(post.getUrl(), f));
     }
 
     private static List<AnimeReleasePost> getAnimeReleasePostList(JSONArray data, Locale locale) {

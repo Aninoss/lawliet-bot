@@ -1,7 +1,5 @@
 package CommandSupporters.RunningCommands;
 
-import org.javacord.api.entity.user.User;
-
 import java.time.Instant;
 
 public class RunningCommand {
@@ -34,10 +32,6 @@ public class RunningCommand {
 
     public Instant getInstant() {
         return instant;
-    }
-
-    public Thread getThread() {
-        return thread;
     }
 
     public int getMaxCalculationTimeSec() { return maxCalculationTimeSec; }

@@ -5,7 +5,6 @@ import CommandListeners.OnNavigationListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
-import CommandSupporters.RunningCommands.RunningCommandManager;
 import Commands.GimmicksCategory.QuoteCommand;
 import Constants.Settings;
 import Core.DiscordApiCollection;
@@ -139,8 +138,6 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                     (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)
             ) {
                 try {
-                    RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard(), command.getMaxCalculationTimeSec());
-
                     if (command instanceof OnForwardedRecievedListener) {
                         boolean end = command.onForwardedRecievedSuper(event);
                         if (end) return true;

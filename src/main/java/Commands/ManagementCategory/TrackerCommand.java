@@ -258,7 +258,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                     getOptions()[i] = getString("slot", trackerSlots.get(i).getCommandKey().isPresent(),
                             trigger,
                             TextManager.getString(getLocale(), command.getCategory(), trigger + "_description"),
-                            trackerSlots.get(i).getCommandKey().orElse("")
+                            StringUtil.shortenString(trackerSlots.get(i).getCommandKey().orElse(""), 200)
                             );
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
                 }

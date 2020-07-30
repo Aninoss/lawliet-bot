@@ -1,16 +1,10 @@
 package CommandSupporters.RunningCommands;
 
-import Constants.Settings;
 import Core.CustomThread;
-import javafx.util.Pair;
-import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RunningCommandManager {
@@ -31,15 +25,14 @@ public class RunningCommandManager {
             runningCommands.put(userId, new RunningCommand(userId, shardId, maxCalculationTimeSec));
 
             final Thread currentThread = Thread.currentThread();
-            Thread t = new CustomThread(() -> {
+            new CustomThread(() -> {
                 try {
                     currentThread.join();
                 } catch (InterruptedException e) {
                     LOGGER.error("Interrupted", e);
                 }
                 runningCommands.remove(userId);
-            }, "command_state_observer_thread", 1);
-            t.start();
+            }, "command_state_observer_thread", 1).start();
 
             return true;
         }
@@ -49,10 +42,6 @@ public class RunningCommandManager {
 
     public HashMap<Long, RunningCommand> getRunningCommands() {
         return new HashMap<>(runningCommands);
-    }
-
-    public boolean isActive(long userId, Thread commandThread) {
-        return runningCommands.containsKey(userId) && runningCommands.get(userId).getThread() == commandThread;
     }
 
     public void clear() {

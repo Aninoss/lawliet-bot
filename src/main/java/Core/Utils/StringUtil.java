@@ -405,4 +405,8 @@ public final class StringUtil {
         return costs[s2.length()];
     }
 
+    public static boolean stringContainsVague(String str0, String str1) {
+        return str0.toLowerCase().replace(" ", "").contains(str1.toLowerCase().replace(" ", ""));
+    }
+
 }

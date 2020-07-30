@@ -6,6 +6,7 @@ import CommandSupporters.Command;
 import Constants.TrackerResult;
 import Core.EmbedFactory;
 import Core.TextManager;
+import Core.Utils.StringUtil;
 import Modules.AnimeRelease.AnimeReleaseDownloader;
 import Modules.AnimeRelease.AnimeReleasePost;
 import Modules.PostBundle;
@@ -81,7 +82,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(getString("no_results", slot.getCommandKey().get()));
+                    .setDescription(getString("no_results", StringUtil.shortenString(slot.getCommandKey().get(), 200)));
             slot.getChannel().get().sendMessage(eb).get();
         }
 

@@ -11,6 +11,6 @@ public enum InviteTypes {
     DISCORDBOTLIST_COM,
     BOTSFORDISCORD_COM,
     DISCORD_BOATS,
-
+    TOP_BOTS_XYZ,
 
 }
