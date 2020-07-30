@@ -48,7 +48,6 @@ public class ExceptionHandler {
             postErrorMessage = false;
         } else if (throwable instanceof RejectedExecutionException) {
             submitToDeveloper = false;
-            postErrorMessage = false;
         } else if (errorCause.contains("Read timed out")) {
             submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
