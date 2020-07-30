@@ -107,8 +107,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     @ControllerMessage(state = EDIT_MESSAGE)
     public Response onMessageEditMessage(MessageCreateEvent event, String inputString) {
-        addLoadingReaction();
-        ArrayList<Message> messageArrayList = MentionUtil.getMessagesAll(event.getMessage(), inputString).getList();
+        ArrayList<Message> messageArrayList = MentionUtil.getMessagesURL(event.getMessage(), inputString).getList();
         if (messageArrayList.size() > 0) {
             for (Message message : messageArrayList) {
                 if (messageIsReactionMessage(message)) {
@@ -619,7 +618,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
                 PermissionUtil.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(), event.getUser(), getUserPermissions()).isEmpty()
         ) {
-            event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getIdAsString())));
+            event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getLink().toString())));
         }
 
         if (!block.contains(user.getId())) {
