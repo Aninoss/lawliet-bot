@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
     trigger = "kick",
     botPermissions = Permission.KICK_MEMBERS,
-    userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+    userPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEAA",
     executable = false
 )

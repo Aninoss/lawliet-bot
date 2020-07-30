@@ -64,7 +64,8 @@ public class ExceptionHandler {
         if (postErrorMessage && channel.canYouWrite() && channel.canYouEmbedLinks()) {
             channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error"))
-                    .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))).exceptionally(ExceptionLogger.get());
+                    .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))
+            ).exceptionally(ExceptionLogger.get());
         }
 
         if (submitToDeveloper) {

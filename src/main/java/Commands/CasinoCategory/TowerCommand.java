@@ -13,6 +13,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.Locale;
 import java.util.Random;
@@ -118,7 +119,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
                         } else {
                             logStatus = LogStatus.FAILURE;
                             log = getString("cap");
-                            message.edit(getEmbed(true, false, false)).get();
+                            message.edit(getEmbed(true, false, false)).exceptionally(ExceptionLogger.get());
                         }
                     } else {
                         onSell();
@@ -139,7 +140,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
             towerLevel = 0;
             logStatus = LogStatus.LOSE;
             log = getString("lost");
-            message.edit(getEmbed(false, true, false)).get();
+            message.edit(getEmbed(false, true, false)).exceptionally(ExceptionLogger.get());
         }
     }
 
@@ -152,7 +153,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         }
         logStatus = LogStatus.WIN;
         log = getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale()));
-        message.edit(getEmbed(false, false, false)).get();
+        message.edit(getEmbed(false, false, false)).exceptionally(ExceptionLogger.get());
     }
 
     @Override

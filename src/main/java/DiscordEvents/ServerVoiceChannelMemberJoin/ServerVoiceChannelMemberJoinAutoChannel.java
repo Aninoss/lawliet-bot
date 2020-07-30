@@ -4,6 +4,7 @@ import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
 import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
+import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerVoiceChannelMemberJoinAbstract;
 import Modules.AutoChannel;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @DiscordEventAnnotation
 public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelMemberJoinAbstract {
@@ -47,7 +49,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
                 //Create channel
                 ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
-                        .setName(getNewVCName(autoChannelBean, event, n))
+                        .setName(StringUtil.removeUnprintable(getNewVCName(autoChannelBean, event, n)))
                         .setBitrate(event.getChannel().getBitrate());
                 if (event.getChannel().getCategory().isPresent())
                     vcb.setCategory(event.getChannel().getCategory().get());
@@ -80,8 +82,13 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 pb.setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED);
                 vcb.addPermissionOverwrite(event.getUser(), pb.build());
                 vcb.addPermissionOverwrite(DiscordApiCollection.getInstance().getYourself(), botPermission);
-
-                ServerVoiceChannel vc = vcb.create().get();
+                ServerVoiceChannel vc;
+                try {
+                    vc = vcb.create().get();
+                } catch (ExecutionException e) {
+                    vcb.setName("???");
+                    vc = vcb.create().get();
+                }
 
                 try {
                     event.getUser().move(vc).get();

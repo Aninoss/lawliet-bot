@@ -132,6 +132,8 @@ public final class StringUtil {
     }
 
     public static String trimString(String string) {
+        if (string.isEmpty()) return string;
+
         while (string.length() > 0 && string.charAt(0) == ' ') {
             string = string.substring(1);
         }
@@ -330,6 +332,10 @@ public final class StringUtil {
                 .replace("`", "\\`")
                 .replace("|", "\\|")
                 .replace("~", "\\~");
+    }
+
+    public static String removeUnprintable(String str) {
+        return str.replaceAll("\\p{C}", "?");
     }
 
     public static String generateHeartBar(int health, int healthMax, boolean lostHealth) {

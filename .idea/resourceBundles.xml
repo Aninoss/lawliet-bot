@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ResourceBundleManager">
+    <file url="file://$PROJECT_DIR$/src/main/resources/management_de_de.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/management_en_us.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/management_ru_ru.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/versions_de_de.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/versions_en_us.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/versions_ru_ru.properties" />
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/src/main/resources/management_de_de.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/management_en_us.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/management_ru_ru.properties" />
+      <base-name>management</base-name>
+    </custom-resource-bundle>
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/src/main/resources/versions_de_de.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/versions_en_us.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/versions_ru_ru.properties" />
+      <base-name>versions</base-name>
+    </custom-resource-bundle>
+  </component>
+</project>

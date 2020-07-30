@@ -2,13 +2,14 @@ package Commands.CasinoCategory;
 
 import CommandListeners.CommandProperties;
 import CommandListeners.OnReactionAddListener;
-
 import Commands.CasinoAbstract;
 import Constants.Category;
 import Constants.LogStatus;
 import Constants.Permission;
 import Constants.Settings;
-import Core.*;
+import Core.DiscordApiCollection;
+import Core.EmbedFactory;
+import Core.TextManager;
 import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -17,7 +18,6 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -159,7 +159,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         }
     }
 
-    private void onCPUTurn() throws ExecutionException, InterruptedException, IOException {
+    private void onCPUTurn() throws ExecutionException, InterruptedException {
             while (true) {
                 Thread.sleep(TIME_BETWEEN_EVENTS);
 
