@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
     trigger = "ban",
     botPermissions = Permission.BAN_MEMBERS,
-    userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+    userPermissions = Permission.BAN_MEMBERS,
     emoji = "\uD83D\uDEAB",
     executable = false
 )
@@ -34,6 +34,11 @@ public class BanCommand extends WarnCommand  {
             LOGGER.error("Exception on ban", e);
             server.banUser(user).get();
         }
+    }
+
+    @Override
+    protected boolean autoMod() {
+        return false;
     }
 
     @Override

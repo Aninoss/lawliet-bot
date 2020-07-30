@@ -37,6 +37,11 @@ public class KickCommand extends WarnCommand  {
     }
 
     @Override
+    protected boolean autoMod() {
+        return false;
+    }
+
+    @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
         return PermissionUtil.canYouKickUser(server, userAim) && server.canKickUser(userStarter, userAim);
     }

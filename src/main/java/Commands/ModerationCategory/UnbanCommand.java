@@ -53,6 +53,11 @@ public class UnbanCommand extends WarnCommand  {
     }
 
     @Override
+    protected boolean sendWarning() {
+        return false;
+    }
+
+    @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
         return true;
     }

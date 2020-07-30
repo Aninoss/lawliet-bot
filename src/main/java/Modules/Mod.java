@@ -32,7 +32,7 @@ public class Mod {
     private final static Logger LOGGER = LoggerFactory.getLogger(Mod.class);
     private static final String EMOJI_AUTOMOD = "👷";
 
-    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason) throws ExecutionException, InterruptedException {
+    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason, boolean withAutoMod) throws ExecutionException, InterruptedException {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
         serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
                 DBServer.getInstance().getBean(server.getId()),

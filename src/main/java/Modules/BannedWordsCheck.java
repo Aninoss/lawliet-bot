@@ -48,7 +48,7 @@ public class BannedWordsCheck {
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
 
             Mod.postLog(CommandManager.createCommandByClass(BannedWordsCommand.class, locale, bannedWordsBean.getServerBean().getPrefix()), eb, server);
-            Mod.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "bannedwords_title"));
+            Mod.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "bannedwords_title"), true);
 
             return false;
         }

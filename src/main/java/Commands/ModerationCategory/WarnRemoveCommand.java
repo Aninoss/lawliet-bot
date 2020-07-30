@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "warnremove",
         emoji = "\uD83D\uDDD1",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = Permission.KICK_MEMBERS,
         executable = false,
         aliases = {"unwarn"}
 )

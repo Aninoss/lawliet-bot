@@ -49,7 +49,7 @@ public class SPCheck {
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
 
             Mod.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale(), spBlockBean.getServerBean().getPrefix()), eb, server);
-            Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_title"));
+            Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_title"), true);
 
             return false;
         }

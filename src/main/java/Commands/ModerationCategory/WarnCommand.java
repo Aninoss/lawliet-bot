@@ -28,13 +28,14 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "warn",
-    userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+    userPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEA8",
     executable = false
 )
 public class WarnCommand extends Command implements OnReactionAddListener {
 
     protected final int CHAR_LIMIT = 300;
+    protected final boolean SEND_DM = true;
 
     private Message message;
     protected List<User> userList;
@@ -107,11 +108,13 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {
             try {
-                if (!user.isYourself() && !user.isBot() && sendDM()) user.sendMessage(actionEmbed).get();
+                if (sendDM() && !user.isYourself() && !user.isBot())
+                    user.sendMessage(actionEmbed).get();
             } catch (ExecutionException e) {
                 //Ignore
             }
-            Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason);
+            if (sendWarning())
+                Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason, autoMod());
             process(channel.getServer(), user);
         }
 
@@ -125,6 +128,14 @@ public class WarnCommand extends Command implements OnReactionAddListener {
     }
 
     protected boolean sendDM() {
+        return true;
+    }
+
+    protected boolean sendWarning() {
+        return true;
+    }
+
+    protected boolean autoMod() {
         return true;
     }
 
