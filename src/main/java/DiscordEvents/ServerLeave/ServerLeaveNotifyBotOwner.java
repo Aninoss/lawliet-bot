@@ -1,6 +1,7 @@
 package DiscordEvents.ServerLeave;
 
 import Core.DiscordApiCollection;
+import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerLeaveAbstract;
 import org.javacord.api.event.server.ServerLeaveEvent;
@@ -15,7 +16,7 @@ public class ServerLeaveNotifyBotOwner extends ServerLeaveAbstract {
     @Override
     public boolean onServerLeave(ServerLeaveEvent event) throws Throwable {
         if (event.getServer().getMemberCount() >= 500)
-            DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + event.getServer().getName() + " (" + event.getServer().getMemberCount() + ")");
+            DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")");
 
         LOGGER.info("--- {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
         return true;

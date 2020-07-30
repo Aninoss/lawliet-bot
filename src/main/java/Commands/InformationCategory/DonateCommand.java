@@ -39,7 +39,7 @@ public class DonateCommand extends Command {
 
         for(DonatorBeanSlot donatorBean: donationsList) {
             DiscordApiCollection.getInstance().getUserById(donatorBean.getUserId()).ifPresent(user ->
-                    donators.append(getString("slot", user.getDiscriminatedName(), StringUtil.doubleToString(donatorBean.getTotalDollars(), 2))).append("\n")
+                    donators.append(getString("slot", StringUtil.escapeMarkdown(user.getDiscriminatedName()), StringUtil.doubleToString(donatorBean.getTotalDollars(), 2))).append("\n")
             );
         }
 

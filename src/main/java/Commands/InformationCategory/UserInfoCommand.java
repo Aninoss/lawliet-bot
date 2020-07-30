@@ -1,11 +1,11 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
 import Core.TextManager;
+import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -53,8 +53,8 @@ public class UserInfoCommand extends Command {
 
             String[] args = {
                     type[typeN],
-                    user.getName(),
-                    user.getNickname(server).isPresent() ? user.getNickname(server).get() : "-",
+                    StringUtil.escapeMarkdown(user.getName()),
+                    user.getNickname(server).isPresent() ? StringUtil.escapeMarkdown(user.getNickname(server).get()) : "-",
                     user.getDiscriminator(),
                     user.getIdAsString(),
                     user.getAvatar().getUrl().toString() + "?size=2048",

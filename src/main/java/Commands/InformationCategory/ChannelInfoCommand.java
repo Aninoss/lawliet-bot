@@ -49,7 +49,7 @@ public class ChannelInfoCommand extends Command {
             List<User> members = channel.getServer().getMembers().stream().filter(channel::canSee).collect(Collectors.toList());
 
             String[] args = {
-                    channel.getName(),
+                    StringUtil.escapeMarkdown(channel.getName()),
                     channel.getIdAsString(),
                     TimeUtil.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
                     StringUtil.numToString(getLocale(), members.size()),

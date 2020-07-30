@@ -1,13 +1,11 @@
 package Modules;
 
-import Constants.FisheryCategoryInterface;
 import Core.DiscordApiCollection;
 import Core.Utils.InternetUtil;
-import MySQL.Modules.FisheryUsers.DBFishery;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +19,7 @@ public class LinkCheck {
                 !channel.canEmbedLinks(message.getUserAuthor().get()) &&
                 InternetUtil.stringHasURL(message.getContent())
         ) {
-            DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("- Link in **%s** from **%s**: %s", server.getName(), message.getUserAuthor().get().getDiscriminatedName(), message.getContent()));
+            DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("- Link in **%s** from **%s**: %s", StringUtil.escapeMarkdown(server.getName()), message.getUserAuthor().get().getDiscriminatedName(), message.getContent()));
             message.delete().get();
             return false;
         }

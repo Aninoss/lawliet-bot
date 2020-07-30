@@ -227,8 +227,8 @@ public final class StringUtil {
                 .replaceAll("(?i)%MessageID", "557961653975515168")
                 .replaceAll("(?i)%ChannelID", "557953262305804310")
                 .replaceAll("(?i)%ServerID", String.valueOf(Settings.SUPPORT_SERVER_ID))
-                .replaceAll("(?i)%@User", "@" + apiCollection.getOwner().getDiscriminatedName())
-                .replaceAll("(?i)%@Bot", "@" + apiCollection.getYourself().getDiscriminatedName())
+                .replaceAll("(?i)%@User", "@" + StringUtil.escapeMarkdown(apiCollection.getOwner().getDiscriminatedName()))
+                .replaceAll("(?i)%@Bot", "@" + StringUtil.escapeMarkdown(apiCollection.getYourself().getDiscriminatedName()))
                 .replaceAll("(?i)%Prefix", "L.");
     }
 
@@ -321,15 +321,15 @@ public final class StringUtil {
     }
 
     public static String defuseMassPing(String str) {
-        return str.replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere").replace("<@&", "<@\u200B&");
+        return str.replace("@everyone", "\\@everyone").replace("@here", "\\@here").replace("<@&", "\\<@&");
     }
 
-    public static String removeMarkdown(String str) {
-        return str.replace("`", "")
-                .replace("*", "")
-                .replace("_", "")
-                .replace("~", "")
-                .replace("|", "");
+    public static String escapeMarkdown(String str) {
+        return str.replace("*", "\\*")
+                .replace("_", "\\_")
+                .replace("`", "\\`")
+                .replace("|", "\\|")
+                .replace("~", "\\~");
     }
 
     public static String generateHeartBar(int health, int healthMax, boolean lostHealth) {

@@ -43,10 +43,10 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                                     StringUtil.defuseMassPing(
                                             Welcome.resolveVariables(
                                                     welcomeMessageBean.getWelcomeText(),
-                                                    server.getName(),
+                                                    StringUtil.escapeMarkdown(server.getName()),
                                                     user.getMentionTag(),
-                                                    StringUtil.removeMarkdown(user.getName()),
-                                                    StringUtil.removeMarkdown(user.getDiscriminatedName()),
+                                                    StringUtil.escapeMarkdown(user.getName()),
+                                                    StringUtil.escapeMarkdown(user.getDiscriminatedName()),
                                                     StringUtil.numToString(locale, server.getMemberCount())
                                             )
                                     ),
@@ -58,10 +58,10 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                                     StringUtil.defuseMassPing(
                                             Welcome.resolveVariables(
                                                     welcomeMessageBean.getWelcomeText(),
-                                                    server.getName(),
+                                                    StringUtil.escapeMarkdown(server.getName()),
                                                     user.getMentionTag(),
-                                                    user.getName(),
-                                                    user.getDiscriminatedName(),
+                                                    StringUtil.escapeMarkdown(user.getName()),
+                                                    StringUtil.escapeMarkdown(user.getDiscriminatedName()),
                                                     StringUtil.numToString(locale, server.getMemberCount())
                                             )
                                     )

@@ -23,9 +23,6 @@ public class TextManager {
 
         if (!texts.containsKey(key)) {
             LOGGER.error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());
-            //System.out.println(StringUtil.getLanguage(locale).name());
-            //System.out.println(Language.EN.name());
-            //if (StringUtil.getLanguage(locale) != Language.EN) return getString(new Locale(Locales.EN), category, key, option, args);
             return "???";
         } else {
             //Get String

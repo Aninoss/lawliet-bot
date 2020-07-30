@@ -3,6 +3,7 @@ package DiscordEvents.ServerMemberLeave;
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.PatreonCache;
+import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerMemberLeaveAbstract;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
@@ -19,7 +20,7 @@ public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
         if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
             if (PatreonCache.getInstance().getPatreonLevel(event.getUser().getId()) > 0) {
                 LOGGER.info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT (LEFT SERVER): " + event.getUser().getDiscriminatedName());
+                DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT (LEFT SERVER): " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName()));
             }
             PatreonCache.getInstance().resetUser(event.getUser().getId());
         }

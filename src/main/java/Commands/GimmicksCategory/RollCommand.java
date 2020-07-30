@@ -49,7 +49,7 @@ public class RollCommand extends Command {
         drawn = Math.floor(n.nextDouble()*border)+1;
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
-                getString("result",event.getMessage().getAuthor().getDisplayName(), String.valueOf((long) drawn),String.valueOf((long) border)));
+                getString("result", StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()), String.valueOf((long) drawn),String.valueOf((long) border)));
         if (!userMentioned) eb.setFooter(getString("noarg"));
         event.getChannel().sendMessage(eb).get();
         return true;

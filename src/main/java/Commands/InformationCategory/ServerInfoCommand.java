@@ -30,9 +30,9 @@ public class ServerInfoCommand extends Command {
         Server server = event.getServer().get();
 
         String[] args = {
-                server.getName(),
+                StringUtil.escapeMarkdown(server.getName()),
                 server.getIdAsString(),
-                server.getOwner() == null ? "-" : server.getOwner().getDiscriminatedName(),
+                server.getOwner() == null ? "-" : StringUtil.escapeMarkdown(server.getOwner().getDiscriminatedName()),
                 server.getRegion().getName(),
                 TimeUtil.getInstantString(getLocale(), server.getCreationTimestamp(), true),
                 server.getIcon().isPresent() ? server.getIcon().get().getUrl().toString() : "-",

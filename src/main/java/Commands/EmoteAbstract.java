@@ -4,6 +4,7 @@ package Commands;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.RandomPicker;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -28,7 +29,7 @@ public abstract class EmoteAbstract extends Command {
         if (followedString.length() > 0)
             quote = "\n\n> " + followedString.replace("\n", "\n> ");
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                 .setImage(gifUrl);
 
         event.getMessage().getChannel().sendMessage(eb).get();

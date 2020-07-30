@@ -1,10 +1,11 @@
 package Commands.GimmicksCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Core.EmbedFactory;
 import Core.RandomPicker;
 import Core.Utils.RandomUtil;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -45,7 +46,7 @@ public class FortuneCommand extends Command {
             answer = RandomUtil.randomUpperCase(question);
         } else if (answer.startsWith("%Gif")) answer = "";
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
-                getString("template", message.getAuthor().getDisplayName(), question, answer));
+                getString("template", StringUtil.escapeMarkdown(message.getAuthor().getDisplayName()), question, answer));
 
         if (answerRaw.equals("%GifNo")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665289359786014/godno.jpg");
         if (answerRaw.equals("%GifYes")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665290601037904/yes.gif");

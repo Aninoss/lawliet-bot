@@ -269,12 +269,12 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(User user: userMention.getList()) {
-            sb.append("**").append(StringUtil.removeMarkdown(user.getDisplayName(server))).append("**, ");
+            sb.append("**").append(StringUtil.escapeMarkdown(user.getDisplayName(server))).append("**, ");
             counted++;
         }
 
         for(Role role: roleMention.getList()) {
-            sb.append("**").append(StringUtil.removeMarkdown(role.getName())).append("**, ");
+            sb.append("**").append(StringUtil.escapeMarkdown(role.getName())).append("**, ");
             counted++;
             multi = true;
         }
@@ -304,7 +304,7 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(User user: userList) {
-            sb.append("**").append(StringUtil.removeMarkdown(user.getDisplayName(server))).append("**, ");
+            sb.append("**").append(StringUtil.escapeMarkdown(user.getDisplayName(server))).append("**, ");
             counted++;
         }
 
@@ -325,7 +325,7 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(User user: userList) {
-            sb.append("**").append(StringUtil.removeMarkdown(user.getDiscriminatedName())).append("**, ");
+            sb.append("**").append(StringUtil.escapeMarkdown(user.getDiscriminatedName())).append("**, ");
             counted++;
         }
 
@@ -346,7 +346,7 @@ public class MentionUtil {
         StringBuilder sb = new StringBuilder();
 
         for(Role role: roleList) {
-            sb.append("**").append(StringUtil.removeMarkdown(role.getName())).append("**, ");
+            sb.append("**").append(StringUtil.escapeMarkdown(role.getName())).append("**, ");
             counted++;
         }
 

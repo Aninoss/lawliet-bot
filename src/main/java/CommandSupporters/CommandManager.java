@@ -12,6 +12,7 @@ import Constants.Permission;
 import Constants.Settings;
 import Core.*;
 import Core.Utils.PermissionUtil;
+import Core.Utils.StringUtil;
 import MySQL.Modules.CommandManagement.DBCommandManagement;
 import MySQL.Modules.CommandUsages.DBCommandUsages;
 import MySQL.Modules.Server.DBServer;
@@ -244,7 +245,7 @@ public class CommandManager {
         }
 
         if (PermissionUtil.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
-            event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", event.getServerTextChannel().get().getName()));
+            event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getServerTextChannel().get().getName())));
 
         return false;
     }

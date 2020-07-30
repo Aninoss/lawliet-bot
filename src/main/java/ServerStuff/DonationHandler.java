@@ -1,8 +1,8 @@
 package ServerStuff;
 
 import Constants.Settings;
-import Core.Connector;
 import Core.DiscordApiCollection;
+import Core.Utils.StringUtil;
 import MySQL.Modules.Donators.DBDonators;
 import MySQL.Modules.Donators.DonatorBeanSlot;
 import org.javacord.api.entity.server.Server;
@@ -48,7 +48,7 @@ public class DonationHandler {
         if (server.isMember(user)) {
             userName = user.getMentionTag();
             user.addRole(server.getRoleById(558760578336686083L).get());
-        } else userName = "**" + user.getName() + "**";
+        } else userName = "**" + StringUtil.escapeMarkdown(user.getName()) + "**";
 
         LOGGER.info("NEW DONATION ${}", usDollars);
         donatorBean.addDollars(usDollars);

@@ -343,7 +343,7 @@ public class Clock {
                     .forEach(secondVote -> {
                         sb.append(TextManager.getString(locale, Category.FISHERY, "survey_results_message_server",
                                 finalI,
-                                DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get().getName(),
+                                StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get().getName()),
                                 StringUtil.numToString(locale, coinsWinMap.computeIfAbsent(secondVote.getServerId(), k -> 0L))
                         )).append("\n");
                     });

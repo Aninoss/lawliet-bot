@@ -44,7 +44,7 @@ public class StatsCommand extends Command {
                 TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
                 StringUtil.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
                 StringUtil.numToString(getLocale(), DBTracker.getInstance().getBean().getMap().size()),
-                DiscordApiCollection.getInstance().getOwner().getDiscriminatedName(),
+                        StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getOwner().getDiscriminatedName()),
                 StringUtil.numToString(getLocale(), DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +
                 "\n\n" +

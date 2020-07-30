@@ -12,6 +12,7 @@ import Core.ListGen;
 import Core.Mention.MentionUtil;
 import Core.TextManager;
 import Core.Utils.PermissionUtil;
+import Core.Utils.StringUtil;
 import MySQL.Modules.MemberCountDisplays.DBMemberCountDisplays;
 import MySQL.Modules.MemberCountDisplays.MemberCountBean;
 import MySQL.Modules.MemberCountDisplays.MemberCountDisplay;
@@ -214,7 +215,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplay>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
-                                        return getString("state0_displays", bean.getVoiceChannel().get().getName(), bean.getMask());
+                                        return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getName()), bean.getMask());
                                     } else {
                                         return getString("state0_displays", "???", bean.getMask());
                                     }

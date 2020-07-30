@@ -39,10 +39,10 @@ public class ServerMemberLeaveWelcome extends ServerMemberLeaveAbstract {
                                 StringUtil.defuseMassPing(
                                         Welcome.resolveVariables(
                                                 welcomeMessageBean.getGoodbyeText(),
-                                                server.getName(),
+                                                StringUtil.escapeMarkdown(server.getName()),
                                                 user.getMentionTag(),
-                                                user.getName(),
-                                                user.getDiscriminatedName(),
+                                                StringUtil.escapeMarkdown(user.getName()),
+                                                StringUtil.escapeMarkdown(user.getDiscriminatedName()),
                                                 StringUtil.numToString(locale, server.getMemberCount())
                                         )
                                 )

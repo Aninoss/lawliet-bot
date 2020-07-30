@@ -7,6 +7,7 @@ import Core.Mention.Mention;
 import Core.Mention.MentionUtil;
 import Core.RandomPicker;
 import Core.TextManager;
+import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -45,10 +46,10 @@ public abstract class InteractionAbstract extends Command {
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
         EmbedBuilder eb;
         if (mention != null) {
-            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)
+            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                     .setImage(gifUrl);
         } else {
-            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template_single", "**"+event.getMessage().getAuthor().getDisplayName()+"**") + quote)
+            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                     .setImage(gifUrl);
         }
 

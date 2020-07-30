@@ -3,6 +3,7 @@ package DiscordEvents.UserRoleRemove;
 import Constants.Settings;
 import Core.DiscordApiCollection;
 import Core.PatreonCache;
+import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.UserRoleRemoveAbstract;
 import org.javacord.api.event.server.role.UserRoleRemoveEvent;
@@ -20,7 +21,7 @@ public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
             for(long roleId : Settings.DONATION_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
                     LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + event.getUser().getDiscriminatedName());
+                    DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName()));
                     PatreonCache.getInstance().resetUser(event.getUser().getId());
                     break;
                 }

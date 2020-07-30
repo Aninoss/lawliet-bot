@@ -51,7 +51,7 @@ public class ImitateCommand extends Command {
         )
             user = users.isEmpty() ? event.getMessageAuthor().asUser().get() : users.get(0);
 
-        String search = user != null ? user.getMentionTag() : "**" + event.getServer().get().getName() + "**";
+        String search = user != null ? user.getMentionTag() : "**" + StringUtil.escapeMarkdown(event.getServer().get().getName()) + "**";
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("wait", search, StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
         Message message = event.getChannel().sendMessage(eb).get();

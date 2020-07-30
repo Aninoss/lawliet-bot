@@ -113,14 +113,14 @@ public class QuoteCommand extends Command {
             else eb.setFooter(getString("title") + footerAdd);
             if (embed.getFields().size() > 0) {
                 for(EmbedField ef: embed.getFields()) {
-                    eb.addField(ef.getName(),ef.getValue(),ef.isInline());
+                    eb.addField(ef.getName(), ef.getValue(), ef.isInline());
                 }
             }
         }
 
         eb
                 .setTimestamp(searchedMessage.getCreationTimestamp())
-                .setAuthor(getString("sendby", searchedMessage.getAuthor().getDisplayName(), "#"+searchedMessage.getServerTextChannel().get().getName()), "", searchedMessage.getAuthor().getAvatar());
+                .setAuthor(getString("sendby", searchedMessage.getAuthor().getDisplayName(), "#" + searchedMessage.getServerTextChannel().get().getName()), "", searchedMessage.getAuthor().getAvatar());
 
         channel.sendMessage(eb).get();
     }

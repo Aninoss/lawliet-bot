@@ -283,10 +283,10 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
         Server server = welcomeMessageBean.getServer().get();
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setDescription(Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
-                        server.getName(),
+                        StringUtil.escapeMarkdown(server.getName()),
                         user.getMentionTag(),
-                        user.getName(),
-                        user.getDiscriminatedName(),
+                        StringUtil.escapeMarkdown(user.getName()),
+                        StringUtil.escapeMarkdown(user.getDiscriminatedName()),
                         StringUtil.numToString(getLocale(), server.getMemberCount())));
 
         eb.setImage(InternetUtil.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());

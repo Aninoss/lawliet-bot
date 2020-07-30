@@ -1,10 +1,10 @@
 package Commands.InformationCategory;
 
 import CommandListeners.CommandProperties;
-
 import CommandSupporters.Command;
 import Constants.Settings;
 import Core.EmbedFactory;
+import Core.Utils.StringUtil;
 import MySQL.DBGiveaway;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -30,7 +30,7 @@ public class SignUpCommand extends Command {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                     getString("success", Settings.SERVER_INVITE_URL,
                             event.getMessage().getUserAuthor().get().getMentionTag(),
-                            event.getServer().get().getName()
+                            StringUtil.escapeMarkdown(event.getServer().get().getName())
                     )
             )).get();
         } else {

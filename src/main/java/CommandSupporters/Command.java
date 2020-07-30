@@ -550,19 +550,19 @@ public abstract class Command {
 
     public boolean checkWriteInChannelWithLog(ServerTextChannel channel) {
         if (channel.canYouWrite() && channel.canYouEmbedLinks()) return true;
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#"+channel.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName()));
         return false;
     }
 
     public boolean checkManageChannelWithLog(ServerChannel channel) {
         if (PermissionUtil.botHasChannelPermission(channel, PermissionType.MANAGE_CHANNELS)) return true;
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.asTextChannel().isPresent() ? "#" : "") +channel.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.asTextChannel().isPresent() ? "#" : "") + channel.getName()));
         return false;
     }
 
     public boolean checkRoleWithLog(Role role) {
         if (PermissionUtil.canYouManageRole(role)) return true;
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@"+role.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@" + role.getName()));
         return false;
     }
 
