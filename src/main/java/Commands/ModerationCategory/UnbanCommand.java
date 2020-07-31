@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "unban",
         botPermissions = Permission.BAN_MEMBERS,
-        userPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+        userPermissions = Permission.BAN_MEMBERS,
         emoji = "\uD83C\uDF3C",
         executable = false
 )
