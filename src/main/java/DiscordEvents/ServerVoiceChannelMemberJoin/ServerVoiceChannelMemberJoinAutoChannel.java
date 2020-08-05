@@ -4,7 +4,6 @@ import Commands.ManagementCategory.AutoChannelCommand;
 import Constants.Permission;
 import Core.DiscordApiCollection;
 import Core.PermissionCheckRuntime;
-import Core.Utils.StringUtil;
 import DiscordEvents.DiscordEventAnnotation;
 import DiscordEvents.EventTypeAbstracts.ServerVoiceChannelMemberJoinAbstract;
 import Modules.AutoChannel;
@@ -49,7 +48,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
                 //Create channel
                 ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
-                        .setName(StringUtil.removeUnprintable(getNewVCName(autoChannelBean, event, n)))
+                        .setName(getNewVCName(autoChannelBean, event, n))
                         .setBitrate(event.getChannel().getBitrate());
                 if (event.getChannel().getCategory().isPresent())
                     vcb.setCategory(event.getChannel().getCategory().get());

@@ -35,7 +35,6 @@ import java.util.concurrent.ExecutionException;
 public class WarnCommand extends Command implements OnReactionAddListener {
 
     protected final int CHAR_LIMIT = 300;
-    protected final boolean SEND_DM = true;
 
     private Message message;
     protected List<User> userList;
@@ -53,7 +52,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
 
         moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
-        if (moderationBean.isQuestion()) {
+        if (userList.size() > 1 || moderationBean.isQuestion()) {
             Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), event.getServer().get(), userList);
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.toString(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
@@ -104,7 +103,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         }
 
         Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
-        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.toString(), executer.getMentionTag()));
+        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.toString(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {
             try {

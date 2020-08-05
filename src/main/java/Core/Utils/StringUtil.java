@@ -334,10 +334,6 @@ public final class StringUtil {
                 .replace("~", "\\~");
     }
 
-    public static String removeUnprintable(String str) {
-        return str.replaceAll("\\p{C}", "?");
-    }
-
     public static String generateHeartBar(int health, int healthMax, boolean lostHealth) {
         StringBuilder sb = new StringBuilder();
 

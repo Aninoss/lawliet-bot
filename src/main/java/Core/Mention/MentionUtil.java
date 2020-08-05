@@ -284,7 +284,10 @@ public class MentionUtil {
             else sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_end")).append("**, ");
             counted++;
             multi = true;
-            followedString = followedString.replace("@everyone", "").replace("everyone", "");
+            followedString = followedString.replace("@everyone", "")
+                    .replace("everyone", "")
+                    .replace("all", "")
+                    .replace("@here", "");
         }
 
         if (counted == 0) return null;

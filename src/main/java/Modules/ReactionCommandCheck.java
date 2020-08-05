@@ -6,8 +6,12 @@ import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import Core.ExceptionHandler;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReactionCommandCheck {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionCommandCheck.class);
 
     public static boolean manage(SingleReactionEvent event) {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
@@ -20,7 +24,11 @@ public class ReactionCommandCheck {
                         ExceptionHandler.handleCommandException(e, command, event.getMessage().get().getChannel());
                     }
                 } else {
-                    if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent()) event.getReaction().get().removeUser(event.getUser());
+                    if (event.getServer().get().getId() == 622036523713429523L) //TODO
+                        LOGGER.info("### REACTION ERROR {} | USER ID {}", command.getReactionUserID(), event.getUser().getId());
+
+                    if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent())
+                        event.getReaction().get().removeUser(event.getUser());
                 }
 
                 return false;

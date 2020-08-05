@@ -86,7 +86,9 @@ public abstract class Command {
         if ((this instanceof OnReactionAddListener)) {
             Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
             if (reactionMessage != null) {
-                reactionUserID = starterMessage.getUserAuthor().get().getId();
+                if (event.getServer().get().getId() == 622036523713429523L) //TODO
+                    LOGGER.info("### REACTION START USER ID {}", event.getMessage().getAuthor().getId());
+                reactionUserID = event.getMessage().getAuthor().getId();
                 addReactionListener(reactionMessage);
             }
         }
@@ -94,8 +96,8 @@ public abstract class Command {
         if ((this instanceof OnForwardedRecievedListener)) {
             Message forwardedMessage = ((OnForwardedRecievedListener) this).getForwardedMessage();
             if (forwardedMessage != null) {
-                reactionUserID = starterMessage.getUserAuthor().get().getId();
-                addForwarder(forwardedMessage, starterMessage.getServerTextChannel().get(), starterMessage.getUserAuthor().get());
+                reactionUserID = event.getMessage().getAuthor().getId();
+                addForwarder(forwardedMessage, event.getMessage().getServerTextChannel().get(), starterMessage.getUserAuthor().get());
             }
         }
 
