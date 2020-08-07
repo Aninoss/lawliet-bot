@@ -28,7 +28,6 @@ public class Console {
     private final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
     private static final Console instance = new Console();
     private double maxMemory = 0;
-    private double traffic = -1;
 
     private Console() {}
 
@@ -300,9 +299,6 @@ public class Console {
     private String getStats() {
         StringBuilder sb = new StringBuilder("\n--- STATS ---\n");
 
-        //Traffic
-        sb.append("Traffic: ").append(traffic + " GB").append("\n");
-
         //Memory
         double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
         double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
@@ -333,10 +329,6 @@ public class Console {
         sb.append("CPU Total: ").append(Math.floor(cpuTotal * 1000) / 10 + "%").append("\n");
 
         return sb.toString();
-    }
-
-    public void setTraffic(double traffic) {
-        this.traffic = traffic;
     }
 
     public double getMaxMemory() { return maxMemory; }

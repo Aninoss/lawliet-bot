@@ -154,28 +154,6 @@ public class Clock {
             LOGGER.error("Exception while cleaning cooldown list", e);
         }
 
-        //Analyzes Traffic
-        try {
-            double trafficGB = 0; //TODO
-            Console.getInstance().setTraffic(trafficGB);
-
-            if (trafficGB >= 95 && !trafficWarned) {
-                try {
-                    apiCollection.getOwner().sendMessage("Traffic Warning! " + trafficGB + " GB!").get();
-                } catch (ExecutionException e) {
-                    LOGGER.error("Could not send message", e);
-                }
-                trafficWarned = true;
-            }
-
-            if (trafficGB >= 120) {
-                LOGGER.error("EXIT - Too much traffic");
-                System.exit(-1);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Exception while checking traffic", e);
-        }
-
         //Checks Database Connection
         if (!DBMain.getInstance().checkConnection()) {
             try {
