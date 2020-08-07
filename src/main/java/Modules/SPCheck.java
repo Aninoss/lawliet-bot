@@ -78,7 +78,7 @@ public class SPCheck {
     private static boolean safeBan(SPBlockBean spBlockBean, Server server, User author) throws InterruptedException {
         if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER) {
             try {
-                server.kickUser(author, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_auditlog_sp")).get();
+                server.banUser(author, 0, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_auditlog_sp")).get();
             } catch (ExecutionException e) {
                 return false;
                 //Ignore

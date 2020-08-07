@@ -178,8 +178,10 @@ public class FisheryUserBean extends BeanWithServer {
                 long effect = getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect();
 
                 fish += effect;
-                if (fishIncome != null) fishIncome += effect;
-                getCurrentFisheryHourlyIncome().add(effect);
+                if (effect > 0) {
+                    if (fishIncome != null) fishIncome += effect;
+                    getCurrentFisheryHourlyIncome().add(effect);
+                }
                 checkValuesBound();
                 setChanged();
 
@@ -228,8 +230,10 @@ public class FisheryUserBean extends BeanWithServer {
                 long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
 
                 fish += effect;
-                if (fishIncome != null) fishIncome += effect;
-                getCurrentFisheryHourlyIncome().add(effect);
+                if (effect > 0) {
+                    if (fishIncome != null) fishIncome += effect;
+                    getCurrentFisheryHourlyIncome().add(effect);
+                }
                 vcMinutes += minutes;
 
                 checkValuesBound();
