@@ -1,21 +1,21 @@
 package Modules.AnimeNews;
 
 import Constants.Language;
-import Core.Internet.InternetCache;
 import Core.Internet.HttpResponse;
+import Core.Internet.InternetCache;
+import Core.Utils.StringUtil;
 import Core.Utils.TimeUtil;
 import Modules.PostBundle;
-import Core.Utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class AnimeNewsDownloader {
 
@@ -95,7 +95,7 @@ public class AnimeNewsDownloader {
         Instant instant = TimeUtil.parseDateString3(dateString);
         post.setInstant(instant);
 
-        post.setAuthor(StringUtil.decryptString(StringUtil.extractGroups(data, "class=\"td-post-author-name\">", "</a>")[0].split(">")[1]));
+        post.setAuthor("");
         post.setCategory("");
 
         return post;

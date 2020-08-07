@@ -144,7 +144,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         }
     }
 
-    private void onSell() throws ExecutionException, InterruptedException {
+    private void onSell() throws ExecutionException {
         if (towerMultiplier > 1) {
             winMultiplicator = towerMultiplier - 1;
             onWin();

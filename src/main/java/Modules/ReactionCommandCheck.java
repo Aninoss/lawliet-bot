@@ -24,9 +24,6 @@ public class ReactionCommandCheck {
                         ExceptionHandler.handleCommandException(e, command, event.getMessage().get().getChannel());
                     }
                 } else {
-                    if (event.getServer().get().getId() == 622036523713429523L) //TODO
-                        LOGGER.info("### REACTION ERROR {} | USER ID {}", command.getReactionUserID(), event.getUser().getId());
-
                     if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent())
                         event.getReaction().get().removeUser(event.getUser());
                 }

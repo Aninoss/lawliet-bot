@@ -67,7 +67,7 @@ public class ExceptionHandler {
             ).exceptionally(ExceptionLogger.get());
         }
 
-        if (submitToDeveloper) {
+        if (submitToDeveloper && Bot.isProductionMode()) {
             LOGGER.error("Exception for command \"{}\"", command.getTrigger(), throwable);
             DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error") + " \"" + command.getTrigger() + "\"")

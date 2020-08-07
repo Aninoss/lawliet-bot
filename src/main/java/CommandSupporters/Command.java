@@ -86,8 +86,6 @@ public abstract class Command {
         if ((this instanceof OnReactionAddListener)) {
             Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
             if (reactionMessage != null) {
-                if (event.getServer().get().getId() == 622036523713429523L) //TODO
-                    LOGGER.info("### REACTION START USER ID {}", event.getMessage().getAuthor().getId());
                 reactionUserID = event.getMessage().getAuthor().getId();
                 addReactionListener(reactionMessage);
             }
@@ -628,9 +626,21 @@ public abstract class Command {
     public boolean isNsfw() { return commandProperties.nsfw(); }
     public boolean isExecutable() { return commandProperties.executable(); }
     public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
-    public int getUserPermissions() { return commandProperties.userPermissions(); }
     public int getMaxCalculationTimeSec() { return commandProperties.maxCalculationTimeSec(); }
     public boolean isPatreonRequired() { return commandProperties.patreonRequired(); }
+
+    public int getUserPermissions() {
+        int perm = commandProperties.userPermissions();
+        if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {
+            perm |= Permission.READ_MESSAGE_HISTORY;
+        }
+        return perm;
+    }
+
+    public boolean isModCommand() {
+        return (commandProperties.userPermissions() & ~Permission.READ_MESSAGE_HISTORY) != 0;
+    }
+
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {
@@ -638,6 +648,7 @@ public abstract class Command {
         }
         return perm;
     }
+
     public boolean canRunOnServer(long serverId, long userId) {
         long[] allowedServerIds = commandProperties.exlusiveServers();
         long[] allowedUserIds = commandProperties.exlusiveUsers();
@@ -645,6 +656,7 @@ public abstract class Command {
         return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId)) &&
                 ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId));
     }
+
     public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }
     public void blockLoading() { loadingBlock = true; }
     public Instant getStartTime() { return startTime; }

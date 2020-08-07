@@ -50,7 +50,8 @@ public class PatCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736275536317382717/736275710263558225/pat.gif",
                 "https://media.discordapp.net/attachments/736275536317382717/736275713761476668/pat.gif",
                 "https://media.discordapp.net/attachments/736275536317382717/736275763661242478/pat.gif",
-                "https://media.discordapp.net/attachments/736275536317382717/736275767389978676/pat.gif"
+                "https://media.discordapp.net/attachments/736275536317382717/736275767389978676/pat.gif",
+                "https://media.discordapp.net/attachments/736275536317382717/741227933955522570/pat.gif"
         };
     }
 

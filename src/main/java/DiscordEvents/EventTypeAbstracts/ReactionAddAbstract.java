@@ -2,8 +2,6 @@ package DiscordEvents.EventTypeAbstracts;
 
 import DiscordEvents.DiscordEventAbstract;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -19,6 +17,10 @@ public abstract class ReactionAddAbstract extends DiscordEventAbstract {
         execute(event, listenerList,
                 listener -> ((ReactionAddAbstract) listener).onReactionAdd(event)
         );
+    }
+
+    public static void lol(ArrayList<String> lol) {
+
     }
 
 }

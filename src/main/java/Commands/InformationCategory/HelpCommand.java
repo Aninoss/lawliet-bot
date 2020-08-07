@@ -161,7 +161,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .addField(Settings.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
                         .addField(Settings.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
 
-                if (command.getUserPermissions() > 0) eb.addField(Settings.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
+                if (command.getUserPermissions() != 0)
+                    eb.addField(Settings.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
 
                 return eb;
             }
@@ -273,7 +274,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 commands.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title").toUpperCase());
 
                 if (!canAccess) commands.append("~~");
-                if (command.getUserPermissions() > 0) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                if (command.isModCommand()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
                 if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                 if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
                 if (command.isPatreonRequired()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());

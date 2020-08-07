@@ -30,7 +30,8 @@ public class YaoiHugCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736278340733894710/736278403434676224/yaoihug.gif",
                 "https://media.discordapp.net/attachments/736278340733894710/736278410568925315/yaoihug.gif",
                 "https://media.discordapp.net/attachments/736278340733894710/736278429510533176/yaoihug.gif",
-                "https://media.discordapp.net/attachments/736278340733894710/736278434866790532/yaoihug.gif"
+                "https://media.discordapp.net/attachments/736278340733894710/736278434866790532/yaoihug.gif",
+                "https://media.discordapp.net/attachments/736278340733894710/741227684587241503/yaoihug.gif"
         };
     }
 

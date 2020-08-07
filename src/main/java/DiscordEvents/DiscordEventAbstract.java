@@ -1,17 +1,13 @@
 package DiscordEvents;
 
 import Core.CustomThread;
-import MySQL.Modules.BannedUsers.DBBannedUsers;
 import org.javacord.api.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class DiscordEventAbstract {
@@ -30,7 +26,8 @@ public abstract class DiscordEventAbstract {
 
     protected static <T extends Event> void execute(T event, ArrayList<DiscordEventAbstract> listenerList, EventExecution function) {
         for(EventPriority priority : EventPriority.values())
-            if (!runListenerPriority(event, listenerList, function, priority)) return;
+            if (!runListenerPriority(event, listenerList, function, priority))
+                return;
     }
 
     private static <T extends Event> boolean runListenerPriority(T event, ArrayList<DiscordEventAbstract> listenerList, EventExecution function, EventPriority priority) {

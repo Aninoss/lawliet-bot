@@ -70,7 +70,7 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
                     commandJSON.put("examples", webComServer.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
                     commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
                     commandJSON.put("nsfw", command.isNsfw());
-                    commandJSON.put("requires_user_permissions", command.getUserPermissions() != 0);
+                    commandJSON.put("requires_user_permissions", command.isModCommand());
                     commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
                     commandJSON.put("patron_only", command.isPatreonRequired());
 

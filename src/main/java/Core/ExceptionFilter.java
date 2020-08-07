@@ -19,6 +19,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "Read timed out",
             "Unknown Member",
             "disconnect was called already",
+            "java.util.concurrent.RejectedExecutionException"
     };
 
     public ExceptionFilter() {}
