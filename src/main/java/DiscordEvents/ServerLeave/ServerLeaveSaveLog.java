@@ -10,7 +10,7 @@ public class ServerLeaveSaveLog extends ServerLeaveAbstract {
 
     @Override
     public boolean onServerLeave(ServerLeaveEvent event) throws Throwable {
-        if (event.getServer().getMemberCount() >= 100) {
+        if (event.getServer().getMemberCount() >= 1000) {
             CommandLogger.getInstance().saveLog(event.getServer().getId(), true);
         }
 

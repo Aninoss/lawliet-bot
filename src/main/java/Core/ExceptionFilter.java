@@ -19,7 +19,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "Read timed out",
             "Unknown Member",
             "disconnect was called already",
-            "java.util.concurrent.RejectedExecutionException"
+            "java.util.concurrent.RejectedExecutionException",
+            "Received a 502 response from Discord"
     };
 
     public ExceptionFilter() {}

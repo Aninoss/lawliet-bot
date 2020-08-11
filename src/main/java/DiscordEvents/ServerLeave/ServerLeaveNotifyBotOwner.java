@@ -15,7 +15,7 @@ public class ServerLeaveNotifyBotOwner extends ServerLeaveAbstract {
 
     @Override
     public boolean onServerLeave(ServerLeaveEvent event) throws Throwable {
-        if (event.getServer().getMemberCount() >= 500)
+        if (event.getServer().getMemberCount() >= 1000)
             DiscordApiCollection.getInstance().getOwner().sendMessage("**---** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")");
 
         LOGGER.info("--- {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
