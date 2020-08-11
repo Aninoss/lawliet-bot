@@ -323,7 +323,9 @@ public final class StringUtil {
     }
 
     public static String defuseMassPing(String str) {
-        return str.replace("@everyone", "\\@everyone").replace("@here", "\\@here").replace("<@&", "\\<@&");
+        return str.replace("@everyone", "@\u200Beveryone")
+                .replace("@here", "@\u200Bhere")
+                .replace("<@&", "<@\u200B&");
     }
 
     public static String escapeMarkdown(String str) {
