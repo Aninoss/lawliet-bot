@@ -37,7 +37,8 @@ public class NoCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736254603410014320/736254717839278100/no.gif",
                 "https://media.discordapp.net/attachments/736254603410014320/736254725196087427/no.gif",
                 "https://media.discordapp.net/attachments/736254603410014320/736254733131579482/no.gif",
-                "https://media.discordapp.net/attachments/736254603410014320/736254738223333517/no.gif"
+                "https://media.discordapp.net/attachments/736254603410014320/736254738223333517/no.gif",
+                "https://media.discordapp.net/attachments/736254603410014320/743053003820498964/no.gif"
         };
     }
 
