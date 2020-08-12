@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RunningCommandManager {
@@ -15,14 +16,15 @@ public class RunningCommandManager {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RunningCommandManager.class);
 
-    private HashMap<Long, RunningCommand> runningCommands = new HashMap<>();
+    private final HashMap<Long, ArrayList<RunningCommand>> runningCommandsMap = new HashMap<>();
 
-    public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec) {
-        RunningCommand runningCommand = runningCommands.get(userId);
+    public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec, int maxAmount) {
+        ArrayList<RunningCommand> runningCommandsList = runningCommandsMap.computeIfAbsent(userId, k -> new ArrayList<>());
+        stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 
-        if (runningCommand == null || Instant.now().isAfter(runningCommand.getInstant().plusSeconds(runningCommand.getMaxCalculationTimeSec()))) {
-            if (runningCommand != null) runningCommand.stop();
-            runningCommands.put(userId, new RunningCommand(userId, shardId, maxCalculationTimeSec));
+        if (runningCommandsList.size() < maxAmount) {
+            final RunningCommand runningCommand = new RunningCommand(userId, shardId, maxCalculationTimeSec);
+            runningCommandsList.add(runningCommand);
 
             final Thread currentThread = Thread.currentThread();
             new CustomThread(() -> {
@@ -31,7 +33,9 @@ public class RunningCommandManager {
                 } catch (InterruptedException e) {
                     LOGGER.error("Interrupted", e);
                 }
-                runningCommands.remove(userId);
+                runningCommandsList.remove(runningCommand);
+                if (runningCommandsList.size() == 0)
+                    runningCommandsMap.remove(userId);
             }, "command_state_observer_thread", 1).start();
 
             return true;
@@ -40,16 +44,25 @@ public class RunningCommandManager {
         return false;
     }
 
-    public HashMap<Long, RunningCommand> getRunningCommands() {
-        return new HashMap<>(runningCommands);
+    private void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCommand> runningCommandsList) {
+        new ArrayList<>(runningCommandsList).stream()
+                .filter(runningCommand -> Instant.now().isAfter(runningCommand.getInstant().plusSeconds(runningCommand.getMaxCalculationTimeSec())))
+                .forEach(runningCommand -> {
+                    runningCommand.stop();
+                    runningCommandsList.remove(runningCommand);
+                });
     }
 
-    public void clear() {
-        runningCommands = new HashMap<>();
+    public HashMap<Long, ArrayList<RunningCommand>> getRunningCommandsMap() {
+        return new HashMap<>(runningCommandsMap);
+    }
+
+    public synchronized void clear() {
+        runningCommandsMap.clear();
     }
 
     public synchronized void clearShard(int shardId) {
-        runningCommands.entrySet().removeIf(set -> set.getValue().getShardId() == shardId);
+        runningCommandsMap.values().forEach(runningCommandsList -> runningCommandsList.removeIf(rc -> rc.getShardId() == shardId));
     }
 
 }

@@ -104,9 +104,13 @@ public class CommandManager {
     }
 
     private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2) return true;
-
-        if (RunningCommandManager.getInstance().canUserRunCommand(event.getMessage().getUserAuthor().get().getId(), event.getApi().getCurrentShard(), command.getMaxCalculationTimeSec())) {
+        boolean patreonBonus = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2;
+        if (RunningCommandManager.getInstance().canUserRunCommand(
+                event.getMessage().getUserAuthor().get().getId(),
+                event.getApi().getCurrentShard(),
+                command.getMaxCalculationTimeSec(),
+                patreonBonus ? 2 : 1
+        )) {
             return true;
         }
 

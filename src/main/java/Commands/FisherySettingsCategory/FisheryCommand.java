@@ -185,7 +185,8 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
             if (!blocked) {
                 blockedTreasureMessages.add(message);
-                if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions().get();
+                if (message.getChannel().canYouRemoveReactionsOfOthers())
+                    message.removeAllReactions().get();
 
                 EmbedBuilder eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))

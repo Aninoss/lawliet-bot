@@ -318,7 +318,7 @@ public class Console {
         sb.append("Activities: ").append(CommandContainer.getInstance().getActivitiesSize()).append("\n");
 
         //Running Commands
-        sb.append("Running Commands: ").append(RunningCommandManager.getInstance().getRunningCommands().size()).append("\n");
+        sb.append("Running Commands: ").append(RunningCommandManager.getInstance().getRunningCommandsMap().size()).append("\n");
 
         //CPU Usage
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
