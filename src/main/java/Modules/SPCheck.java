@@ -43,7 +43,8 @@ public class SPCheck {
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
                     .addField(TextManager.getString(locale, Category.MODERATION, "spblock_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
+                    .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                    .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_content"), message.getContent(), true);;
 
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));

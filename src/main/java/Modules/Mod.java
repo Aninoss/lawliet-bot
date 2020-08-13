@@ -42,39 +42,39 @@ public class Mod {
                 reason == null || reason.isEmpty() ? null : reason)
         );
 
-        ModerationBean moderationBean = DBModeration.getInstance().getBean(server.getId());
+        if (withAutoMod) {
+            ModerationBean moderationBean = DBModeration.getInstance().getBean(server.getId());
 
-        int autoKickDays = moderationBean.getAutoKickDays();
-        int autoBanDays = moderationBean.getAutoBanDays();
+            int autoKickDays = moderationBean.getAutoKickDays();
+            int autoBanDays = moderationBean.getAutoBanDays();
 
-        boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
-        boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
+            boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
+            boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
 
-        if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS) && server.canYouBanUser(user)) {
-            try {
-                server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).get();
+            if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS) && server.canYouBanUser(user)) {
+                try {
+                    server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).get();
 
-                EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
+                    EmbedBuilder eb = EmbedFactory.getEmbed()
+                            .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
+                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
 
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean);
-            } catch (IllegalAccessException | InstantiationException | ExecutionException | InvocationTargetException e) {
-                LOGGER.error("Could not ban user", e);
-            }
-        }
+                    postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean);
+                } catch (IllegalAccessException | InstantiationException | ExecutionException | InvocationTargetException e) {
+                    LOGGER.error("Could not ban user", e);
+                }
+            } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.KICK_MEMBERS) && server.canYouKickUser(user)) {
+                try {
+                    server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).get();
 
-        else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.KICK_MEMBERS) && server.canYouKickUser(user)) {
-            try {
-                server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).get();
+                    EmbedBuilder eb = EmbedFactory.getEmbed()
+                            .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
+                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
 
-                EmbedBuilder eb = EmbedFactory.getEmbed()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
-
-                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean);
-            } catch (ExecutionException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                LOGGER.error("Could not kick user", e);
+                    postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean);
+                } catch (ExecutionException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                    LOGGER.error("Could not kick user", e);
+                }
             }
         }
     }
