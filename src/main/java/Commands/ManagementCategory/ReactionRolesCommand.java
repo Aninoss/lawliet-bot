@@ -494,8 +494,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         else add = "new";
 
         return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
-                .addField(getString("state3_mtitle"), Optional.ofNullable(title).orElse(notSet), true)
-                .addField(getString("state3_mdescription"), Optional.ofNullable(description).orElse(notSet), true)
+                .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
+                .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), true)
                 .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
                 .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
     }

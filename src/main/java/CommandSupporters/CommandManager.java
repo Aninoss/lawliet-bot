@@ -25,7 +25,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -40,17 +39,17 @@ import java.util.concurrent.ExecutionException;
 public class CommandManager {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
-    final static String EMOJI_NO_EMBED = "❌ ";
+    private final static int SEC_UNTIL_REMOVAL = 8;
 
     public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
                 isWhiteListed(event) &&
+                checkCooldown(event, command) &&
                 botCanUseEmbeds(event, command) &&
                 canRunOnServer(event, command) &&
                 isNSFWCompliant(event, command) &&
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
-                checkCooldown(event, command) &&
                 checkPatreon(event, command) &&
                 checkRunningCommands(event, command)
         ) {
@@ -120,9 +119,9 @@ public class CommandManager {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                     .setDescription(desc);
-            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+            sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {
-            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + event.getMessage().getUserAuthor().get().getMentionTag()).get();
+            sendErrorNoEmbed(event, command.getLocale(), desc);
         }
 
         return false;
@@ -144,9 +143,9 @@ public class CommandManager {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
-                event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+                sendError(event, command.getLocale(), eb);
             } else if (event.getChannel().canYouWrite()) {
-                event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + user.getMentionTag()).get();
+                sendErrorNoEmbed(event, command.getLocale(), desc);
             }
 
             Thread.sleep(5000);
@@ -167,9 +166,9 @@ public class CommandManager {
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
-            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+            sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {
-            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + event.getMessage().getUserAuthor().get().getMentionTag());
+            sendErrorNoEmbed(event, command.getLocale(), desc);
         }
 
         return false;
@@ -182,7 +181,7 @@ public class CommandManager {
         }
 
         if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks())
-            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), errEmbed).get();
+            sendError(event, command.getLocale(), errEmbed);
         return false;
     }
 
@@ -202,9 +201,9 @@ public class CommandManager {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title"))
                     .setDescription(desc);
-            event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+            sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {
-            event.getChannel().sendMessage(EMOJI_NO_EMBED + desc + "\n" + event.getMessage().getUserAuthor().get().getMentionTag()).get();
+            sendErrorNoEmbed(event, command.getLocale(), desc);
         }
         return false;
     }
@@ -213,22 +212,48 @@ public class CommandManager {
         return command.canRunOnServer(event.getServer().get().getId(), event.getMessage().getUserAuthor().get().getId());
     }
 
-    private static boolean botCanUseEmbeds(MessageCreateEvent event, Command command) {
+    private static boolean botCanUseEmbeds(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (event.getChannel().canYouEmbedLinks() || !command.requiresEmbeds()) {
             return true;
         }
 
-        event.getChannel().sendMessage("**" + TextManager.getString(command.getLocale(), TextManager.GENERAL, "missing_permissions_title") + "**\n" + TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_embed"));
+        sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_embed"));
         return false;
     }
 
-    private static boolean isNSFWCompliant(MessageCreateEvent event, Command command) throws IOException {
+    private static boolean isNSFWCompliant(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
             return true;
         }
 
-        event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), EmbedFactory.getNSFWBlockEmbed(command.getLocale()));
+        EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
+        sendError(event, command.getLocale(), eb);
         return false;
+    }
+
+    private static void sendErrorNoEmbed(MessageCreateEvent event, Locale locale, String text) throws ExecutionException, InterruptedException {
+        Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMessage().getUserAuthor().get().getMentionTag())).get();
+        autoRemoveMessageAfterCountdown(event, message);
+    }
+
+    private static void sendError(MessageCreateEvent event, Locale locale, EmbedBuilder eb) throws ExecutionException, InterruptedException {
+        eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
+        Message message = event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+        autoRemoveMessageAfterCountdown(event, message);
+    }
+
+    private static void autoRemoveMessageAfterCountdown(MessageCreateEvent event, Message message) {
+        new CustomThread(() -> {
+            try {
+                Thread.sleep(SEC_UNTIL_REMOVAL * 1000);
+                if (event.getChannel().canYouManageMessages())
+                    event.getChannel().bulkDelete(message, event.getMessage()).exceptionally(ExceptionLogger.get());
+                else
+                    message.delete().exceptionally(ExceptionLogger.get());
+            } catch (InterruptedException e) {
+                LOGGER.error("Interrupted", e);
+            }
+        }, "error_message_remove_countdown", 1).start();
     }
 
     private static boolean isWhiteListed(MessageCreateEvent event) throws ExecutionException {

@@ -233,6 +233,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+        System.out.println(StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeText()));
 
         switch (state) {
             case 0:
@@ -240,9 +241,9 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
-                        .addField(getString("state0_mtitle"), welcomeMessageBean.getWelcomeTitle(), true)
+                        .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
                         .addField(getString("state0_mdescription"),
-                               Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
+                               Welcome.resolveVariables(StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeText()),
                                        "`%SERVER`",
                                        "`%USER_MENTION`",
                                        "`%USER_NAME`",
@@ -253,12 +254,12 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
                         .addField(getString("state0_mgoodbyeText"),
-                               Welcome.resolveVariables(welcomeMessageBean.getGoodbyeText(),
+                               Welcome.resolveVariables(StringUtil.escapeMarkdown(welcomeMessageBean.getGoodbyeText()),
                                        "`%SERVER`",
                                        "`%USER_MENTION`",
                                        "`%USER_NAME`",
                                        "`%USER_DISCRIMINATED`",
-                                       "`%MEMBERS`").replace("``", "` `"),
+                                       "`%MEMBERS`"),
                                 true)
                         .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(Mentionable::getMentionTag).orElse(notSet), true);
 

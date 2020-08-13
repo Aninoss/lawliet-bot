@@ -20,7 +20,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "Unknown Member",
             "disconnect was called already",
             "java.util.concurrent.RejectedExecutionException",
-            "Received a 502 response from Discord"
+            "Received a 502 response from Discord",
+            "org.javacord.api.exception.UnknownMessageException"
     };
 
     public ExceptionFilter() {}

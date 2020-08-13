@@ -215,15 +215,15 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplay>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
-                                        return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getName()), bean.getMask());
+                                        return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getName()), StringUtil.escapeMarkdown(bean.getMask()));
                                     } else {
-                                        return getString("state0_displays", "???", bean.getMask());
+                                        return getString("state0_displays", "???", StringUtil.escapeMarkdown(bean.getMask()));
                                     }
                                 })), false);
 
             case 1:
                 if (currentName != null && currentVC != null) setOptions(new String[]{getString("state1_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Optional.ofNullable(currentVC).map(Nameable::getName).orElse(notSet), highlightVariables(Optional.ofNullable(currentName).orElse(notSet))), getString("state1_title"));
+                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).map(Nameable::getName).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:
                 ArrayList<MemberCountDisplay> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());

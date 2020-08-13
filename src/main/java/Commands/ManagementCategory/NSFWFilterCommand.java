@@ -9,6 +9,7 @@ import Constants.Response;
 import Core.CustomObservableList;
 import Core.EmbedFactory;
 import Core.ListGen;
+import Core.Utils.StringUtil;
 import MySQL.Modules.NSFWFilter.DBNSFWFilters;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
@@ -142,7 +143,7 @@ public class NSFWFilterCommand extends Command implements OnNavigationListener {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                       .addField(getString("state0_mkeywords"), new ListGen<String>().getList(keywords, getLocale(), str -> str), true);
+                       .addField(getString("state0_mkeywords"), StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

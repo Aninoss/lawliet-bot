@@ -10,6 +10,9 @@ public class Welcome {
                 .replaceAll("(?i)" + Pattern.quote("%user_mention"), Matcher.quoteReplacement(arg2))
                 .replaceAll("(?i)" + Pattern.quote("%user_discriminated"), Matcher.quoteReplacement(arg4))
                 .replaceAll("(?i)" + Pattern.quote("%user_name"), Matcher.quoteReplacement(arg3))
+                .replaceAll("(?i)" + Pattern.quote("%user\\_mention"), Matcher.quoteReplacement(arg2))
+                .replaceAll("(?i)" + Pattern.quote("%user\\_discriminated"), Matcher.quoteReplacement(arg4))
+                .replaceAll("(?i)" + Pattern.quote("%user\\_name"), Matcher.quoteReplacement(arg3))
                 .replaceAll("(?i)" + Pattern.quote("%members"), Matcher.quoteReplacement(arg5));
     }
 

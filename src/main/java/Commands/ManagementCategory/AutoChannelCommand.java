@@ -132,11 +132,11 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet), true)
-                        .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(autoChannelBean.getNameMask(),
+                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet)), true)
+                        .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
                                 "`%VCNAME`",
                                 "`%INDEX`",
-                                "`%CREATOR`").replace("``", "` `"), true)
+                                "`%CREATOR`"), true)
                         .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:
