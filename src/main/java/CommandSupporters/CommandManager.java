@@ -43,7 +43,7 @@ public class CommandManager {
 
     public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
-                isWhiteListed(event) &&
+                isWhiteListed(event, command) &&
                 checkCooldown(event, command) &&
                 botCanUseEmbeds(event, command) &&
                 canRunOnServer(event, command) &&
@@ -195,7 +195,7 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description", command.getPrefix());
 
         if (event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
@@ -256,8 +256,22 @@ public class CommandManager {
         }, "error_message_remove_countdown", 1).start();
     }
 
-    private static boolean isWhiteListed(MessageCreateEvent event) throws ExecutionException {
-        return event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId()).isWhiteListed(event.getServerTextChannel().get().getId());
+    private static boolean isWhiteListed(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
+        if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId()).isWhiteListed(event.getServerTextChannel().get().getId())) {
+            return true;
+        }
+
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_description", command.getPrefix());
+
+        if (event.getChannel().canYouEmbedLinks()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_title"))
+                    .setDescription(desc);
+            sendError(event, command.getLocale(), eb);
+        } else if (event.getChannel().canYouWrite()) {
+            sendErrorNoEmbed(event, command.getLocale(), desc);
+        }
+        return false;
     }
 
     private static boolean botCanPost(MessageCreateEvent event, Command command) {
