@@ -28,8 +28,7 @@ public abstract class RedditAbstract extends Command {
         do {
             post = RedditDownloader.getImagePost(getLocale(), getSubreddit());
             tries--;
-        }
-        while (post == null && tries >= 0);
+        } while ((post == null || post.isNsfw()) && tries >= 0);
 
         if (post == null) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class RedditDownloader {
     private static Instant nextRequestBlockUntil = null;
 
     public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
-        sub = URLEncoder.encode(sub, "UTF-8");
+        sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
 
         RedditPost redditPost;
         int i = 0;
