@@ -233,7 +233,6 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        System.out.println(StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeText()));
 
         switch (state) {
             case 0:
