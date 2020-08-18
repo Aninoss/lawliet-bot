@@ -43,7 +43,9 @@ public class SmugCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736262910678007808/736263069365305344/smug.gif",
                 "https://media.discordapp.net/attachments/736262910678007808/736263075304439808/smug.gif",
                 "https://media.discordapp.net/attachments/736262910678007808/736263085173506118/smug.gif",
-                "https://media.discordapp.net/attachments/736262910678007808/736263094984245299/smug.gif"
+                "https://media.discordapp.net/attachments/736262910678007808/736263094984245299/smug.gif",
+                "https://media.discordapp.net/attachments/736262910678007808/745277946721206352/smug.gif",
+                "https://media.discordapp.net/attachments/736262910678007808/745278389128003674/smug.gif"
         };
     }
 
