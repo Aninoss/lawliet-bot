@@ -11,6 +11,7 @@ import Core.TextManager;
 import Core.Utils.StringUtil;
 import MySQL.Modules.Tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.File;
@@ -54,8 +55,11 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
 
         long minutes = StringUtil.filterLongFromString(key);
         if (minutes > MAX_MINUTES || minutes < 1) {
-            slot.getChannel().get().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(getLocale(), MAX_MINUTES)))).get();
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this,
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(getLocale(), MAX_MINUTES)));
+            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+
+            slot.getChannel().get().sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         }
 

@@ -92,7 +92,9 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         ServerTextChannel channel = slot.getChannel().get();
         if (!slot.getCommandKey().isPresent() || slot.getCommandKey().get().length() == 0) {
-            channel.sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
+            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+            channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
@@ -110,7 +112,9 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 }
 
                 if (containsOnlyNsfw && !slot.getArgs().isPresent()) {
-                    channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
+                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+                    EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+                    channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 }
 
@@ -121,6 +125,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().get()));
+                    EmbedFactory.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {

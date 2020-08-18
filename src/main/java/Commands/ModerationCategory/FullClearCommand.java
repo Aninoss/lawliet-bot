@@ -120,12 +120,8 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         Optional<ServerTextChannel> channelOptional = slot.getChannel();
         if (channelOptional.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), Permission.READ_MESSAGE_HISTORY | Permission.MANAGE_MESSAGES)) {
-                try {
-                    Pair<Integer, Boolean> pair = fullClear(channelOptional.get(), slot.getCommandKey().get(), null);
-                    if (pair == null) return TrackerResult.STOP_AND_DELETE;
-                } catch (ExecutionException e) {
-                    return TrackerResult.STOP_AND_DELETE;
-                }
+                Pair<Integer, Boolean> pair = fullClear(channelOptional.get(), slot.getCommandKey().get(), null);
+                if (pair == null) return TrackerResult.STOP_AND_DELETE;
             }
         }
 

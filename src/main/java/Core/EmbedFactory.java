@@ -81,6 +81,10 @@ public class EmbedFactory {
         return addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", searchString));
     }
 
+    public static EmbedBuilder addTrackerRemoveLog(EmbedBuilder eb, Locale locale) {
+        return addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker_remove"));
+    }
+
     public static EmbedBuilder addLog(EmbedBuilder eb, LogStatus logStatus, String log) {
         if (log != null && log.length() > 0) {
             String add = "";

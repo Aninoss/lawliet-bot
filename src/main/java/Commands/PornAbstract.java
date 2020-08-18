@@ -110,7 +110,9 @@ public abstract class PornAbstract extends Command {
         ServerTextChannel channel = slot.getChannel().get();
 
         if (isExplicit() && !channel.isNsfw()) {
-            channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
+            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+            channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         }
 
@@ -118,10 +120,11 @@ public abstract class PornAbstract extends Command {
         ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, slot.getCommandKey().orElse(""), 1, new ArrayList<>());
 
         if (pornImages.size() == 0) {
-            if (!slot.getArgs().isPresent()) {
+            if (!slot.getArgs().isPresent() && this instanceof PornSearchAbstract) {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().orElse("")));
+                EmbedFactory.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessage(eb).get();
                 return TrackerResult.STOP_AND_DELETE;
             } else {

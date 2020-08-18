@@ -96,7 +96,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 }
 
             case 2:
-                List<Command> commandList = CommandContainer.getInstance().getCommandList().stream()
+                List<Command> commandList = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
                         .map(clazz -> {
                             try {
                                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
@@ -105,8 +105,6 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                                 return null;
                             }
                         })
-                        .filter(Objects::nonNull)
-                        .filter(command -> command.getCategory().equals(category))
                         .collect(Collectors.toList());
 
                 if (i == -1) {
@@ -140,7 +138,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
     private void turnOnAllCategoryCommands() {
         commandManagementBean.getSwitchedOffElements().removeIf(element -> {
             try {
-                Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(element);
+                Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(element);
                 if (clazz == null) return false;
                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
@@ -154,12 +152,10 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
         boolean hasOn = false, hasOff = false;
 
         if (!commandManagementBean.getSwitchedOffElements().contains(category)) {
-            for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+            for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                if (command.getCategory().equals(category)) {
-                    if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) hasOn = true;
-                    else if (!hasOff && !commandManagementBean.commandIsTurnedOn(command)) hasOff = true;
-                }
+                if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) hasOn = true;
+                else if (!hasOff && !commandManagementBean.commandIsTurnedOn(command)) hasOff = true;
             }
         }
 
@@ -191,7 +187,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", getCategoryStatus(category), categoryName));
 
             case 2:
-                options = CommandContainer.getInstance().getCommandList().stream()
+                options = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
                         .map(clazz -> {
                             try {
                                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
@@ -200,8 +196,6 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                                 return null;
                             }
                         })
-                        .filter(Objects::nonNull)
-                        .filter(command -> command.getCategory().equals(category))
                         .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
                         .toArray(String[]::new);
                 setOptions(options);

@@ -32,22 +32,17 @@ public class CommandContainer {
 
     final Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
 
-    private final HashMap<String, Class<? extends Command>> commands;
-    private final ArrayList<Class<? extends Command>> commandList;
-    private final ArrayList<Class<? extends OnReactionAddStaticListener>> staticReactionAddCommands;
-    private final ArrayList<Class<? extends OnReactionRemoveStaticListener>> staticReactionRemoveCommands;
-    private final ArrayList<Class<? extends OnTrackerRequestListener>> trackerCommands;
-    private final ArrayList<Command> commandsReaction;
-    private final ArrayList<Command> commandsMessageForward;
+    private final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
+    private final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
+    //private final ArrayList<Class<? extends Command>> commandList = new ArrayList<>();
+    private final ArrayList<Class<? extends OnReactionAddStaticListener>> staticReactionAddCommands = new ArrayList<>();
+    private final ArrayList<Class<? extends OnReactionRemoveStaticListener>> staticReactionRemoveCommands = new ArrayList<>();
+    private final ArrayList<Class<? extends OnTrackerRequestListener>> trackerCommands = new ArrayList<>();
+    private final ArrayList<Command> commandsReaction = new ArrayList<>();
+    private final ArrayList<Command> commandsMessageForward = new ArrayList<>();
 
     private CommandContainer() {
-        commands = new HashMap<>();
-        staticReactionAddCommands = new ArrayList<>();
-        staticReactionRemoveCommands = new ArrayList<>();
-        trackerCommands = new ArrayList<>();
-        commandsReaction = new ArrayList<>();
-        commandsMessageForward = new ArrayList<>();
-        commandList = new ArrayList<>();
+        final ArrayList<Class<? extends Command>> commandList = new ArrayList<>();
 
         //GIMMICKS
         commandList.add(RollCommand.class);
@@ -244,7 +239,8 @@ public class CommandContainer {
                 if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add(((OnReactionRemoveStaticListener)command).getClass());
                 if (command instanceof OnTrackerRequestListener) trackerCommands.add(((OnTrackerRequestListener)command).getClass());
 
-                if (!command.canRunOnServer(0L, 0L)) commandList.remove(clazz);
+                if (command.canRunOnServer(0L, 0L))
+                    addCommandCategoryMap(command);
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 LOGGER.error("Could not create class", e);
             }
@@ -272,14 +268,19 @@ public class CommandContainer {
         }
     }
 
+    private void addCommandCategoryMap(Command command) {
+        ArrayList<Class<? extends Command>> commands = commandCategoryMap.computeIfAbsent(command.getCategory(), e -> new ArrayList<>());
+        commands.add(command.getClass());
+    }
+
     private void addCommand(String trigger, Command command) {
-        if (commands.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getTrigger() + "\"");
-        else commands.put(trigger, command.getClass());
+        if (commandMap.containsKey(trigger)) LOGGER.error("Dupicate key for \"" + command.getTrigger() + "\"");
+        else commandMap.put(trigger, command.getClass());
     }
 
 
-    public HashMap<String, Class<? extends Command>> getCommands() {
-        return commands;
+    public HashMap<String, Class<? extends Command>> getCommandMap() {
+        return commandMap;
     }
 
     public ArrayList<Class<? extends OnReactionAddStaticListener>> getStaticReactionAddCommands() {
@@ -341,8 +342,16 @@ public class CommandContainer {
         return trackerCommands;
     }
 
-    public ArrayList<Class<? extends Command>> getCommandList() {
-        return commandList;
+    public HashMap<String, ArrayList<Class<? extends Command>>> getCommandCategoryMap() {
+        return commandCategoryMap;
+    }
+
+    public ArrayList<Class<? extends Command>> getFullCommandList() {
+        ArrayList<Class<? extends Command>> fullList = new ArrayList<>();
+        CommandContainer.getInstance().getCommandCategoryMap().values()
+                .forEach(fullList::addAll);
+
+        return fullList;
     }
 
 }

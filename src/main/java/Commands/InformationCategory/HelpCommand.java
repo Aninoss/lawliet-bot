@@ -1,6 +1,8 @@
 package Commands.InformationCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
+import CommandListeners.OnNavigationListener;
+import CommandListeners.OnTrackerRequestListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
@@ -26,7 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "help",
@@ -117,7 +118,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
 
@@ -214,11 +215,11 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (command.getCategory().equals(category) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
+            if (commandManagementBean.commandIsTurnedOn(command) ||
+                    PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())
             ) {
                 stringBuilder
                         .append("• `")
@@ -249,13 +250,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     }
 
-    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, ExecutionException, InvocationTargetException {
+    private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             User author = getStarterMessage().getUserAuthor().get();
-            if (!commandTrigger.equals(getTrigger()) && command.getCategory().equals(category) &&
+            if (!commandTrigger.equals(getTrigger()) &&
                     (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
             ) {
                 StringBuilder commands = new StringBuilder();
@@ -300,11 +301,12 @@ public class HelpCommand extends Command implements OnNavigationListener {
         StringBuilder withSearchKey = new StringBuilder();
         StringBuilder withoutSearchKey = new StringBuilder();
 
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (command.getCategory().equals(Category.NSFW) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))) {
+            if (commandManagementBean.commandIsTurnedOn(command) ||
+                    PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())
+            ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
                 if (command instanceof PornSearchAbstract)

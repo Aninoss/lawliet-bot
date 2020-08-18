@@ -74,7 +74,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
 
                 Locale locale = serverBean.getLocale();
                 Class<? extends Command> clazz;
-                clazz = CommandContainer.getInstance().getCommands().get(commandTrigger);
+                clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     try {

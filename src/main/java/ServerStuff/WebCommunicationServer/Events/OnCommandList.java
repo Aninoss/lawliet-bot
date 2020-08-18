@@ -54,32 +54,33 @@ public class OnCommandList implements ConnectListener, DataListener<JSONObject> 
         }
 
         //Add every command
-        for(Class c: CommandContainer.getInstance().getCommandList()) {
-            try {
-                Command command = CommandManager.createCommandByClass(c, Locale.US, "L.");
-                String trigger = command.getTrigger();
+        CommandContainer.getInstance().getFullCommandList()
+                .forEach(clazz -> {
+                        try {
+                            Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
+                            String trigger = command.getTrigger();
 
-                if (!trigger.equals("help")) {
-                    JSONObject commandJSON = new JSONObject();
-                    commandJSON.put("trigger", trigger);
-                    commandJSON.put("emoji", command.getEmoji());
-                    commandJSON.put("title", webComServer.getLanguagePack(command.getCategory(), trigger + "_title"));
-                    commandJSON.put("desc_short", webComServer.getLanguagePack(command.getCategory(), trigger + "_description"));
-                    commandJSON.put("desc_long", webComServer.getLanguagePack(command.getCategory(), trigger + "_helptext"));
-                    commandJSON.put("usage", webComServer.getCommandSpecs(command.getCategory(), trigger + "_usage", trigger));
-                    commandJSON.put("examples", webComServer.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
-                    commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
-                    commandJSON.put("nsfw", command.isNsfw());
-                    commandJSON.put("requires_user_permissions", command.isModCommand());
-                    commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
-                    commandJSON.put("patron_only", command.isPatreonRequired());
+                            if (!trigger.equals("help")) {
+                                JSONObject commandJSON = new JSONObject();
+                                commandJSON.put("trigger", trigger);
+                                commandJSON.put("emoji", command.getEmoji());
+                                commandJSON.put("title", webComServer.getLanguagePack(command.getCategory(), trigger + "_title"));
+                                commandJSON.put("desc_short", webComServer.getLanguagePack(command.getCategory(), trigger + "_description"));
+                                commandJSON.put("desc_long", webComServer.getLanguagePack(command.getCategory(), trigger + "_helptext"));
+                                commandJSON.put("usage", webComServer.getCommandSpecs(command.getCategory(), trigger + "_usage", trigger));
+                                commandJSON.put("examples", webComServer.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
+                                commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
+                                commandJSON.put("nsfw", command.isNsfw());
+                                commandJSON.put("requires_user_permissions", command.isModCommand());
+                                commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
+                                commandJSON.put("patron_only", command.isPatreonRequired());
 
-                    categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
-                }
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                LOGGER.error("Could not create class", e);
-            }
-        }
+                                categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
+                            }
+                        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                            LOGGER.error("Could not create class", e);
+                        }
+                });
 
         //Send data
         socketIOClient.sendEvent(WebComServer.EVENT_COMMANDLIST, mainJSON.toString());

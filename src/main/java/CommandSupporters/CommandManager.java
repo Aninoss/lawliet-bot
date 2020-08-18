@@ -407,7 +407,7 @@ public class CommandManager {
     }
 
     public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        Class<? extends Command> clazz = CommandContainer.getInstance().getCommands().get(trigger);
+        Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(trigger);
         if (clazz == null) return null;
         return createCommandByClass(clazz, locale, prefix);
     }

@@ -33,7 +33,7 @@ public class CommandUsagesCommand extends ListAbstract {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        for(Class<? extends Command> clazz: CommandContainer.getInstance().getCommandList()) {
+        for(Class<? extends Command> clazz: CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             commandUsages.add(new Pair<>(DBCommandUsages.getInstance().getBean(command.getTrigger()), command.getEmoji()));
         }
