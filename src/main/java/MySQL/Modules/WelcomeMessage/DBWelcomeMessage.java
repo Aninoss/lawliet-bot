@@ -6,12 +6,10 @@ import MySQL.DBBeanGenerator;
 import MySQL.DBMain;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Server.ServerBean;
-import org.javacord.api.entity.DiscordEntity;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Locale;
-import java.util.Optional;
 
 public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> {
 
@@ -23,7 +21,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
     protected WelcomeMessageBean loadBean(Long serverId) throws Exception {
         WelcomeMessageBean welcomeMessageBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel FROM ServerWelcomeMessage WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.execute();
 
@@ -37,7 +35,9 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
                     resultSet.getLong(4),
                     resultSet.getBoolean(5),
                     resultSet.getString(6),
-                    resultSet.getLong(7)
+                    resultSet.getLong(7),
+                    resultSet.getBoolean(8),
+                    resultSet.getString(9)
             );
         } else {
             ServerBean serverBean = DBServer.getInstance().getBean(serverId);
@@ -51,7 +51,9 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
                     0L,
                     false,
                     TextManager.getString(locale, Category.MANAGEMENT, "welcome_standard_goodbye"),
-                    0L
+                    0L,
+                    false,
+                    ""
             );
         }
 
@@ -63,7 +65,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
 
     @Override
     protected void saveBean(WelcomeMessageBean welcomeMessageBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, welcomeMessageBean.getServerId());
 
             preparedStatement.setBoolean(2, welcomeMessageBean.isWelcomeActive());
@@ -73,6 +75,8 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
             preparedStatement.setBoolean(6, welcomeMessageBean.isGoodbyeActive());
             preparedStatement.setString(7, welcomeMessageBean.getGoodbyeText());
             preparedStatement.setLong(8, welcomeMessageBean.getGoodbyeChannelId());
+            preparedStatement.setBoolean(9, welcomeMessageBean.isDmActive());
+            preparedStatement.setString(10, welcomeMessageBean.getDmText());
         });
     }
 

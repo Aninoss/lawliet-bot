@@ -1,23 +1,21 @@
 package MySQL.Modules.WelcomeMessage;
 
-import Core.DiscordApiCollection;
 import MySQL.BeanWithServer;
 import MySQL.Modules.Server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
 import java.util.List;
-import java.util.Observable;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WelcomeMessageBean extends BeanWithServer {
 
-    private String welcomeTitle, welcomeText, goodbyeText;
+    private String welcomeTitle, welcomeText, goodbyeText, dmText;
     private long welcomeChannelId, goodbyeChannelId;
-    private boolean welcomeActive, goodbyeActive;
+    private boolean welcomeActive, goodbyeActive, dmActive;
 
-    public WelcomeMessageBean(ServerBean serverBean, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId) {
+    public WelcomeMessageBean(ServerBean serverBean, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId, boolean dmActive, String dmText) {
         super(serverBean);
         this.welcomeTitle = welcomeTitle;
         this.welcomeText = welcomeText;
@@ -26,6 +24,8 @@ public class WelcomeMessageBean extends BeanWithServer {
         this.goodbyeChannelId = goodbyeChannelId;
         this.welcomeActive = welcomeActive;
         this.goodbyeActive = goodbyeActive;
+        this.dmActive = dmActive;
+        this.dmText = dmText;
     }
 
 
@@ -78,6 +78,14 @@ public class WelcomeMessageBean extends BeanWithServer {
         return goodbyeActive;
     }
 
+    public String getDmText() {
+        return dmText;
+    }
+
+    public boolean isDmActive() {
+        return dmActive;
+    }
+
 
     /* Setters */
 
@@ -100,6 +108,14 @@ public class WelcomeMessageBean extends BeanWithServer {
     public void setGoodbyeText(String goodbyeText) {
         if (this.goodbyeText == null || !this.goodbyeText.equals(goodbyeText)) {
             this.goodbyeText = goodbyeText;
+            setChanged();
+            notifyObservers();
+        }
+    }
+
+    public void setDmText(String dmText) {
+        if (this.dmText == null || !this.dmText.equals(dmText)) {
+            this.dmText = dmText;
             setChanged();
             notifyObservers();
         }
@@ -129,6 +145,12 @@ public class WelcomeMessageBean extends BeanWithServer {
 
     public void toggleGoodbyeActive() {
         this.goodbyeActive = !this.goodbyeActive;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void toggleDmActive() {
+        this.dmActive = !this.dmActive;
         setChanged();
         notifyObservers();
     }

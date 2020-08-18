@@ -78,13 +78,13 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
 
             case 2:
                 if (inputString.length() > 0) {
-                    if (inputString.length() <= 500) {
+                    if (inputString.length() <= 1000) {
                         welcomeMessageBean.setWelcomeText(inputString);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("descriptiontoolarge", "500"));
+                        setLog(LogStatus.FAILURE, getString("descriptiontoolarge", "1000"));
                         return Response.FALSE;
                     }
                 }
@@ -139,13 +139,13 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
 
             case 6:
                 if (inputString.length() > 0) {
-                    if (inputString.length() <= 500) {
+                    if (inputString.length() <= 1000) {
                         welcomeMessageBean.setGoodbyeText(inputString);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("goodbyetoolarge", "500"));
+                        setLog(LogStatus.FAILURE, getString("goodbyetoolarge", "1000"));
                         return Response.FALSE;
                     }
                 }
@@ -164,6 +164,20 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         return Response.TRUE;
                     } else return Response.FALSE;
                 }
+
+            case 8:
+                if (inputString.length() > 0) {
+                    if (inputString.length() <= 1000) {
+                        welcomeMessageBean.setDmText(inputString);
+                        setLog(LogStatus.SUCCESS, getString("dmtextset"));
+                        setState(0);
+                        return Response.TRUE;
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("dmtoolarge", "1000"));
+                        return Response.FALSE;
+                    }
+                }
+                return Response.FALSE;
 
             default:
                 return null;
@@ -202,19 +216,28 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         return true;
 
                     case 5:
+                        welcomeMessageBean.toggleDmActive();
+                        setLog(LogStatus.SUCCESS, getString("dmset", !welcomeMessageBean.isDmActive()));
+                        return true;
+
+                    case 6:
+                        setState(8);
+                        return true;
+
+                    case 7:
                         welcomeMessageBean.toggleGoodbyeActive();
                         setLog(LogStatus.SUCCESS, getString("goodbyeset", !welcomeMessageBean.isGoodbyeActive()));
                         return true;
 
-                    case 6:
+                    case 8:
                         setState(6);
                         return true;
 
-                    case 7:
+                    case 9:
                         setState(7);
                         return true;
 
-                    case 8:
+                    case 10:
                         setState(5);
                         return true;
 
@@ -251,6 +274,9 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                                true)
                         .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
+                        .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isDmActive()), true)
+                        .addField(getString("state0_mdmText"), welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText(), true)
+                        .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
                         .addField(getString("state0_mgoodbyeText"),
                                Welcome.resolveVariables(StringUtil.escapeMarkdown(welcomeMessageBean.getGoodbyeText()),
@@ -276,7 +302,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 9;
+        return 11;
     }
 
     public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
