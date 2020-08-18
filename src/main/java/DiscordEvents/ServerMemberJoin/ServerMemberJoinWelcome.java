@@ -37,7 +37,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
 
         WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
         if (welcomeMessageBean.isDmActive()) {
-            sendDmMessage(event, welcomeMessageBean);
+            sendDmMessage(event, welcomeMessageBean, locale);
         }
 
         if (welcomeMessageBean.isWelcomeActive()) {
@@ -49,14 +49,24 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
         return true;
     }
 
-    private void sendDmMessage(ServerMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean) {
+    private void sendDmMessage(ServerMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean, Locale locale) {
         Server server = event.getServer();
+        User user = event.getUser();
         String text = welcomeMessageBean.getDmText();
 
         if (text.length() > 0) {
             EmbedBuilder eb = EmbedFactory.getEmbed()
                     .setAuthor(server.getName(), "", server.getIcon().map(icon -> icon.getUrl().toString()).orElse(""))
-                    .setDescription(text);
+                    .setDescription(
+                            Welcome.resolveVariables(
+                                welcomeMessageBean.getDmText(),
+                                StringUtil.escapeMarkdown(server.getName()),
+                                user.getMentionTag(),
+                                StringUtil.escapeMarkdown(user.getName()),
+                                StringUtil.escapeMarkdown(user.getDiscriminatedName()),
+                                StringUtil.numToString(locale, server.getMemberCount())
+                        )
+                    );
             event.getUser().sendMessage(eb)
                     .exceptionally(ExceptionLogger.get());
         }

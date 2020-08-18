@@ -264,28 +264,16 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
                         .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
-                        .addField(getString("state0_mdescription"),
-                               Welcome.resolveVariables(StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeText()),
-                                       "`%SERVER`",
-                                       "`%USER_MENTION`",
-                                       "`%USER_NAME`",
-                                       "`%USER_DISCRIMINATED`",
-                                      "`%MEMBERS`"),
+                        .addField(getString("state0_mdescription"), stressVariables(welcomeMessageBean.getWelcomeText()),
                                true)
                         .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isDmActive()), true)
-                        .addField(getString("state0_mdmText"), welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText(), true)
+                        .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText()),
+                                true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
-                        .addField(getString("state0_mgoodbyeText"),
-                               Welcome.resolveVariables(StringUtil.escapeMarkdown(welcomeMessageBean.getGoodbyeText()),
-                                       "`%SERVER`",
-                                       "`%USER_MENTION`",
-                                       "`%USER_NAME`",
-                                       "`%USER_DISCRIMINATED`",
-                                       "`%MEMBERS`"),
-                                true)
+                        .addField(getString("state0_mgoodbyeText"), stressVariables(welcomeMessageBean.getGoodbyeText()), true)
                         .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(Mentionable::getMentionTag).orElse(notSet), true);
 
             default:
@@ -296,9 +284,17 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
         }
     }
 
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {
+    private String stressVariables(String text) {
+        return Welcome.resolveVariables(StringUtil.escapeMarkdown(text),
+                "`%SERVER`",
+                "`%USER_MENTION`",
+                "`%USER_NAME`",
+                "`%USER_DISCRIMINATED`",
+                "`%MEMBERS`");
     }
+
+    @Override
+    public void onNavigationTimeOut(Message message) throws Throwable { }
 
     @Override
     public int getMaxReactionNumber() {
