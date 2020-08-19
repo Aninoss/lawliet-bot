@@ -41,6 +41,7 @@ public abstract class PornAbstract extends Command {
     public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
     public abstract Optional<String> getNoticeOptional();
     public abstract boolean isExplicit();
+    protected abstract String getDomain();
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
@@ -79,14 +80,10 @@ public abstract class PornAbstract extends Command {
 
             if (pornImages.size() == 0) {
                 if (first) {
-                    String key = this instanceof PornSearchAbstract ? "no_results_description" : "no_results_description_unspecific";
-                    if (event.getChannel().canYouEmbedLinks()) {
-                        EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
-                                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                                .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, key, followedString));
-                        event.getChannel().sendMessage(eb).get();
+                    if (this instanceof PornPredefinedAbstract || !checkServiceAvailable()) {
+                        postApiUnavailable(event);
                     } else {
-                        event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, key, followedString)).get();
+                        postNoResults(event, followedString);
                     }
                     return false;
                 } else return true;
@@ -104,6 +101,37 @@ public abstract class PornAbstract extends Command {
         } while (amount > 0);
 
         return true;
+    }
+
+    private boolean checkServiceAvailable() {
+        try {
+            return PornImageDownloader.getPicture(getDomain(), "", "", "", false, true, isExplicit(), new ArrayList<>(), new ArrayList<>()).isPresent();
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            //Ignore
+            return false;
+        }
+    }
+
+    private void postApiUnavailable(MessageCreateEvent event) throws ExecutionException, InterruptedException {
+        if (event.getChannel().canYouEmbedLinks()) {
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down_title"))
+                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain()));
+            event.getChannel().sendMessage(eb).get();
+        } else {
+            event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain())).get();
+        }
+    }
+
+    private void postNoResults(MessageCreateEvent event, String followedString) throws ExecutionException, InterruptedException {
+        if (event.getChannel().canYouEmbedLinks()) {
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+            event.getChannel().sendMessage(eb).get();
+        } else {
+            event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString)).get();
+        }
     }
 
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {

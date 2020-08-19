@@ -40,6 +40,7 @@ public class PornImageDownloader {
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
         String data = InternetCache.getDataShortLived(url).get().getContent().get();
 
+        if (!data.contains("count=\"")) return Optional.empty();
         int count = Math.min(200 * 100, Integer.parseInt(StringUtil.extractGroups(data, "count=\"", "\"")[0]));
 
         if (count == 0) {

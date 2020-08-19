@@ -18,7 +18,6 @@ public abstract class PornSearchAbstract extends PornAbstract {
         super(locale, prefix);
     }
 
-    protected abstract String getDomain();
     protected abstract String getImageTemplate();
 
     @Override
