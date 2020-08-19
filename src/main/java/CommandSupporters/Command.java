@@ -297,7 +297,7 @@ public abstract class Command {
             }
         } catch (ExecutionException e) {
             if (!ExceptionHandler.exceptionIsClass(e, org.javacord.api.exception.UnknownMessageException.class))
-                LOGGER.error("Exception in draw event", e);
+                throw e;
         }
     }
 

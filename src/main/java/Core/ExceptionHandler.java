@@ -67,11 +67,13 @@ public class ExceptionHandler {
             ).exceptionally(ExceptionLogger.get());
         }
 
-        if (submitToDeveloper && Bot.isProductionMode()) {
+        if (submitToDeveloper) {
             LOGGER.error("Exception for command \"{}\"", command.getTrigger(), throwable);
-            DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(locale,TextManager.GENERAL,"error") + " \"" + command.getTrigger() + "\"")
-                    .setDescription(StringUtil.shortenString(stacktrace, 1000))).exceptionally(ExceptionLogger.get());
+            if (Bot.isProductionMode()) {
+                DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error") + " \"" + command.getTrigger() + "\"")
+                        .setDescription(StringUtil.shortenString(stacktrace, 1000))).exceptionally(ExceptionLogger.get());
+            }
         }
     }
 

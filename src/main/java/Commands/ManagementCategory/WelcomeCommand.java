@@ -269,7 +269,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isDmActive()), true)
-                        .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText()),
+                        .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()),
                                 true)
                         .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
