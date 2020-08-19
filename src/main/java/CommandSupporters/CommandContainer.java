@@ -228,6 +228,7 @@ public class CommandContainer {
         //PRIVATE
         commandList.add(CommunismCommand.class);
         commandList.add(NibbleCommand.class);
+        commandList.add(WebgateCommand.class);
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
