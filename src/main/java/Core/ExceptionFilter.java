@@ -46,7 +46,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     public boolean checkThrowable(final Throwable throwable) {
         return Arrays.stream(FILTERS)
-                .noneMatch(filter -> throwable.getMessage() != null && throwable.getMessage().contains(filter));
+                .noneMatch(filter -> throwable.toString().contains(filter));
     }
 
 }

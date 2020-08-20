@@ -1,6 +1,7 @@
 package DiscordEvents;
 
 import Core.CustomThread;
+import Core.DiscordApiCollection;
 import org.javacord.api.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,9 @@ public abstract class DiscordEventAbstract {
     public boolean isAllowingBannedUser() { return discordEventAnnotation.allowBannedUser(); }
 
     protected static <T extends Event> void execute(T event, ArrayList<DiscordEventAbstract> listenerList, EventExecution function) {
+        if (!DiscordApiCollection.getInstance().allShardsConnected())
+            return;
+
         for(EventPriority priority : EventPriority.values())
             if (!runListenerPriority(event, listenerList, function, priority))
                 return;
