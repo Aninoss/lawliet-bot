@@ -25,6 +25,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.List;
 import java.util.Locale;
@@ -207,7 +208,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
             Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
                 String announcementText = getString("newrole", user.getMentionTag(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
-                announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).get();
+                announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).exceptionally(ExceptionLogger.get());
             }
         }
     }

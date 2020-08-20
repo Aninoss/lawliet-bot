@@ -37,16 +37,16 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             return FilterReply.NEUTRAL;
         }
 
-        final ThrowableProxy throwableProxyImpl =
-                (ThrowableProxy) throwableProxy;
-        final Throwable throwable = throwableProxyImpl.getThrowable();
-        if (Arrays.stream(FILTERS)
-                .anyMatch(filter -> throwable.getMessage() != null && throwable.getMessage().contains(filter))
-        ) {
+        final ThrowableProxy throwableProxyImpl = (ThrowableProxy) throwableProxy;
+        if (!checkThrowable(throwableProxyImpl.getThrowable()))
             return FilterReply.DENY;
-        }
 
         return FilterReply.NEUTRAL;
+    }
+
+    public boolean checkThrowable(final Throwable throwable) {
+        return Arrays.stream(FILTERS)
+                .noneMatch(filter -> throwable.getMessage() != null && throwable.getMessage().contains(filter));
     }
 
 }

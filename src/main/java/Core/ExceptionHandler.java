@@ -6,11 +6,11 @@ import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Verarbeitet Exceptions
@@ -21,8 +21,8 @@ public class ExceptionHandler {
 
     public static void handleCommandException(Throwable throwable, Command command, TextChannel channel) {
         Locale locale = command.getLocale();
-        boolean submitToDeveloper = true;
         boolean postErrorMessage = true;
+        boolean submitToDeveloper = new ExceptionFilter().checkThrowable(throwable);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -33,23 +33,16 @@ public class ExceptionHandler {
         String errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
 
         if (errorCause.contains("500: Internal Server Error")) {
-            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500");
         } else if (errorCause.contains("Server returned HTTP response code: 5")) {
-            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
         } else if (errorCause.contains("java.net.SocketTimeoutException")) {
-            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         } else if (errorCause.contains("MissingPermissions")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
         } else if (throwable instanceof InterruptedException) {
-            submitToDeveloper = false;
             postErrorMessage = false;
-        } else if (throwable instanceof RejectedExecutionException) {
-            submitToDeveloper = false;
         } else if (errorCause.contains("Read timed out")) {
-            submitToDeveloper = false;
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         }
 
