@@ -62,11 +62,11 @@ public class ExceptionHandler {
 
         if (submitToDeveloper) {
             LOGGER.error("Exception for command \"{}\"", command.getTrigger(), throwable);
-            //if (Bot.isProductionMode()) {
+            if (Bot.isProductionMode()) {
                 DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error") + " \"" + command.getTrigger() + "\"")
                         .setDescription(StringUtil.shortenString(stacktrace, 1000))).exceptionally(ExceptionLogger.get());
-            //}
+            }
         }
     }
 

@@ -39,7 +39,8 @@ public class ClaimCommand extends FisheryAbstract {
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("nothing_description", Settings.UPVOTE_URL), getString("nothing_title"));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nothing_description", Settings.UPVOTE_URL));
+            eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb).get();
