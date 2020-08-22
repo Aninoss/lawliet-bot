@@ -2,10 +2,8 @@ package ServerStuff.WebCommunicationServer.Events;
 
 import Constants.InviteTypes;
 import MySQL.Modules.InviteTypeUsages.DBInviteTypeUsages;
+import ServerStuff.WebCommunicationServer.EventAbstract;
 import ServerStuff.WebCommunicationServer.WebComServer;
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +11,34 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-public class OnInvite implements DataListener<JSONObject> {
+public class OnInvite extends EventAbstract {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(OnInvite.class);
+
+    public OnInvite(WebComServer webComServer, String event) {
+        super(webComServer, event);
+    }
+
+    @Override
+    protected JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
+        String typeString = requestJSON.getString("type");
+
+        Arrays.stream(InviteTypes.values())
+                .filter(type -> type.name().equalsIgnoreCase(typeString))
+                .forEach(type -> {
+                    try {
+                        DBInviteTypeUsages.getInstance().getBean(type).increase();
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Exception when fetching invite type usages bean", e);
+                    }
+                });
+
+        return new JSONObject();
+    }
+
+}
+
+/*public class OnInvite implements DataListener<JSONObject> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OnInvite.class);
 
@@ -35,4 +60,4 @@ public class OnInvite implements DataListener<JSONObject> {
         socketIOClient.sendEvent(WebComServer.EVENT_INVITE);
     }
 
-}
+}*/

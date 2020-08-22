@@ -3,11 +3,8 @@ package ServerStuff.WebCommunicationServer.Events;
 import CommandSupporters.CommandLogger.CommandLogger;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
-import Core.ExceptionHandler;
+import ServerStuff.WebCommunicationServer.EventAbstract;
 import ServerStuff.WebCommunicationServer.WebComServer;
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,19 +13,23 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Optional;
 
-public class OnFeedback implements DataListener<JSONObject> {
+public class OnFeedback extends EventAbstract {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OnFeedback.class);
 
+    public OnFeedback(WebComServer webComServer, String event) {
+        super(webComServer, event);
+    }
+
     @Override
-    public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
-        String cause = jsonObject.getString("cause");
-        String reason = jsonObject.getString("reason");
+    protected JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
+        String cause = requestJSON.getString("cause");
+        String reason = requestJSON.getString("reason");
         Optional<String> usernameDiscriminatedOpt = Optional.ofNullable(
-                jsonObject.has("username_discriminated") ? jsonObject.getString("username_discriminated") : null
+                requestJSON.has("username_discriminated") ? requestJSON.getString("username_discriminated") : null
         );
         Optional<Long> serverIdOpt = Optional.ofNullable(
-                jsonObject.has("server_id") ? jsonObject.getLong("server_id") : null
+                requestJSON.has("server_id") ? requestJSON.getLong("server_id") : null
         );
 
         LOGGER.info("New Feedback! ### " + cause + " ###\n" + reason);
@@ -48,8 +49,7 @@ public class OnFeedback implements DataListener<JSONObject> {
 
         DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
 
-        //Send data
-        socketIOClient.sendEvent(WebComServer.EVENT_FEEDBACK);
+        return new JSONObject();
     }
 
 }

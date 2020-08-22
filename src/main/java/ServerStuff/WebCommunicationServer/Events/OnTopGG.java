@@ -10,26 +10,29 @@ import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.Server.DBServer;
 import MySQL.Modules.Upvotes.DBUpvotes;
+import ServerStuff.WebCommunicationServer.EventAbstract;
 import ServerStuff.WebCommunicationServer.WebComServer;
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.ExecutionException;
 
-public class OnTopGG implements DataListener<JSONObject> {
+public class OnTopGG extends EventAbstract {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OnTopGG.class);
 
+    public OnTopGG(WebComServer webComServer, String event) {
+        super(webComServer, event);
+    }
+
     @Override
-    public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
-        long userId = jsonObject.getLong("user");
-        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId)) return;
-        String type = jsonObject.getString("type");
-        boolean isWeekend = jsonObject.getBoolean("isWeekend");
+    protected JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
+        long userId = requestJSON.getLong("user");
+        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
+            return null;
+
+        String type = requestJSON.getString("type");
+        boolean isWeekend = requestJSON.getBoolean("isWeekend");
 
         if (type.equals("upvote")) {
             DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
@@ -46,29 +49,28 @@ public class OnTopGG implements DataListener<JSONObject> {
                                     return false;
                                 }
                         ).forEach(server -> {
-                            try {
-                                int value = isWeekend ? 2 : 1;
-                                FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
+                    try {
+                        int value = isWeekend ? 2 : 1;
+                        FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
 
-                                if (PatreonCache.getInstance().getPatreonLevel(userId) >= 1 &&
-                                        DBAutoClaim.getInstance().getBean(userId).isActive()
-                                ) {
-                                    userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
-                                } else {
-                                    userBean.addUpvote(value);
-                                }
-                            } catch (ExecutionException e) {
-                                LOGGER.error("Could not get fishery bean", e);
-                            }
-                        });
+                        if (PatreonCache.getInstance().getPatreonLevel(userId) >= 1 &&
+                                DBAutoClaim.getInstance().getBean(userId).isActive()
+                        ) {
+                            userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
+                        } else {
+                            userBean.addUpvote(value);
+                        }
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Could not get fishery bean", e);
+                    }
+                });
             });
             DBUpvotes.getInstance().getBean(userId).updateLastUpvote();
 
-            //Send data
-            socketIOClient.sendEvent(WebComServer.EVENT_TOPGG);
+            return new JSONObject();
         } else {
             LOGGER.error("Wrong type: " + type);
+            return new JSONObject();
         }
     }
-
 }

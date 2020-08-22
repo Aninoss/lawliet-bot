@@ -3,34 +3,37 @@ package ServerStuff.WebCommunicationServer.Events;
 import Core.DiscordApiCollection;
 import Core.Utils.PermissionUtil;
 import MySQL.Modules.BannedUsers.DBBannedUsers;
+import ServerStuff.WebCommunicationServer.EventAbstract;
 import ServerStuff.WebCommunicationServer.WebComServer;
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class OnEventServerList implements DataListener<JSONObject> {
+public class OnEventServerList extends EventAbstract {
+
+    public OnEventServerList(WebComServer webComServer, String event) {
+        super(webComServer, event);
+    }
 
     @Override
-    public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
-        long userId = jsonObject.getLong("user_id");
-        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId)) return;
+    protected JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
+        long userId = requestJSON.getLong("user_id");
+        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
+            return null;
+
         Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
 
-        JSONObject mainJSON = new JSONObject();
+        JSONObject responseJSON = new JSONObject();
         JSONArray serversArray = new JSONArray();
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             ArrayList<Server> mutualServers = new ArrayList<>(DiscordApiCollection.getInstance().getMutualServers(user));
             mutualServers.sort((s1, s2) -> s1.getName().compareToIgnoreCase(s2.getName()));
-            for(Server server: mutualServers) {
+            for (Server server : mutualServers) {
                 if (PermissionUtil.hasAdminPermissions(server, user)) {
                     JSONObject serverObject = new JSONObject();
                     serverObject
@@ -46,9 +49,10 @@ public class OnEventServerList implements DataListener<JSONObject> {
         }
 
         //Send data
-        mainJSON.put("user_id", userId)
+        responseJSON.put("user_id", userId)
                 .put("server_list", serversArray);
-        socketIOClient.sendEvent(WebComServer.EVENT_SERVERLIST, mainJSON.toString());
+
+        return responseJSON;
     }
 
 }

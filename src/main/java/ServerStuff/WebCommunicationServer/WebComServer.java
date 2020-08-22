@@ -18,14 +18,15 @@ public class WebComServer {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(WebComServer.class);
 
-    public static final String EVENT_COMMANDLIST = "command_list";
-    public static final String EVENT_FAQLIST = "faq_list";
-    public static final String EVENT_SERVERLIST = "server_list";
-    public static final String EVENT_SERVERMEMBERS = "server_members";
-    public static final String EVENT_TOPGG = "topgg";
-    public static final String EVENT_DONATEBOT_IO = "donatebot.io";
-    public static final String EVENT_FEEDBACK = "feedback";
-    public static final String EVENT_INVITE = "invite";
+    private static final String EVENT_COMMANDLIST = "command_list";
+    private static final String EVENT_FAQLIST = "faq_list";
+    private static final String EVENT_SERVERLIST = "server_list";
+    private static final String EVENT_SERVERMEMBERS = "server_members";
+    private static final String EVENT_FR_FETCH = "fr_fetch";
+    private static final String EVENT_TOPGG = "topgg";
+    private static final String EVENT_DONATEBOT_IO = "donatebot.io";
+    private static final String EVENT_FEEDBACK = "feedback";
+    private static final String EVENT_INVITE = "invite";
 
     public WebComServer(int port) {
         new CustomThread(() -> {
@@ -37,17 +38,18 @@ public class WebComServer {
 
                     final SocketIOServer webComServer = new SocketIOServer(config);
 
-                    webComServer.addConnectListener(new OnCommandList(this));
-                    webComServer.addConnectListener(new OnFAQList(this));
+                    webComServer.addConnectListener(new OnConnected());
 
-                    webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this));
-                    webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this));
-                    webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList());
-                    webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers());
-                    webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG());
-                    webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO());
-                    webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback());
-                    webComServer.addEventListener(EVENT_INVITE, JSONObject.class, new OnInvite());
+                    webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this, EVENT_COMMANDLIST));
+                    webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this, EVENT_FAQLIST));
+                    webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList(this, EVENT_SERVERLIST));
+                    webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers(this, EVENT_SERVERMEMBERS));
+                    webComServer.addEventListener(EVENT_FR_FETCH, JSONObject.class, new OnEventFRFetch(this, EVENT_FR_FETCH));
+
+                    webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG(this, EVENT_TOPGG));
+                    webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
+                    webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback(this, EVENT_FEEDBACK));
+                    webComServer.addEventListener(EVENT_INVITE, JSONObject.class, new OnInvite(this, EVENT_INVITE));
 
                     webComServer.start();
                     LOGGER.info("WebCom Server started");
