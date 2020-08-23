@@ -61,7 +61,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
     private boolean mainExecution(MessageCreateEvent event, String argString) throws Throwable {
         removeReactionListener(message);
         removeMessageForwarder();
-        long value = MentionUtil.getAmountExt(argString, userBean.getFish());
+        long value = Math.min(MentionUtil.getAmountExt(argString, userBean.getFish()), userBean.getFish());
 
         if (argString.equalsIgnoreCase("no")) {
             markNoInterest(event.getServerTextChannel().get());
@@ -72,15 +72,12 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
             return false;
         }
         if (value >= 1) {
-            if (value <= userBean.getFish()) {
-                long coins = ExchangeRate.getInstance().get(0) * value;
-                EmbedBuilder eb = userBean.changeValues(-value, coins);
+            long coins = ExchangeRate.getInstance().get(0) * value;
+            EmbedBuilder eb = userBean.changeValues(-value, coins);
 
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("done")));
-                event.getChannel().sendMessage(eb).get();
-                return true;
-            } else
-                sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("too_large", userBean.getFish() != 1, StringUtil.numToString(getLocale(), userBean.getFish()))));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("done")));
+            event.getChannel().sendMessage(eb).get();
+            return true;
         } else if (value == 0)
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
         else if (value == -1)

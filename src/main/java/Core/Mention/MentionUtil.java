@@ -390,18 +390,37 @@ public class MentionUtil {
 
         for(String part : str.split(" ")) {
             if (part.length() > 0) {
-                if (part.equals("all") || part.equals("allin")) return available;
-                if (part.equals("half")) return available / 2;
+                if (part.equals("all") || part.equals("allin"))
+                    return available;
+                if (part.equals("half"))
+                    return available / 2;
 
-                double value = StringUtil.filterDoubleFromString(part);
-                if (value != -1) {
-                    if (part.endsWith("%")) return (long) Math.abs(value / 100.0 * available);
+                String valueString = StringUtil.filterDoubleString(part);
+                String remainingString = part.substring(valueString.length());
+                if (valueString.isEmpty())
+                    continue;
 
-                    if (part.endsWith("k")) return (long) (value * 1000);
-                    if (part.endsWith("m") || part.endsWith("mio") || part.endsWith("kk")) return (long) (value * 1000000);
-                    if (part.endsWith("b") || part.endsWith("kkk")) return (long) (value * 1000000000);
+                double value = Double.parseDouble(valueString);
+                switch (remainingString) {
+                    case "":
+                        return (long) value;
 
-                    return (long) value;
+                    case "%":
+                        return (long) Math.abs(value / 100.0 * available);
+
+                    case "k":
+                        return (long) (value * 1000);
+
+                    case "m":
+                    case "mio":
+                    case "kk":
+                        return (long) (value * 1000000);
+
+                    case "b":
+                    case "kkk":
+                        return (long) (value * 1000000000);
+
+                    default:
                 }
             }
         }

@@ -57,30 +57,26 @@ public class GiveCommand extends FisheryAbstract {
 
         FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());
         FisheryUserBean fisheryUser1 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user1.getId());
-        long value = MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins());
+        long value = Math.min(MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins()), fisheryUser0.getCoins());
 
         if (value != -1) {
             if (value >= 1) {
-                if (value <= fisheryUser0.getCoins()) {
-                    long coins0Pre = fisheryUser0.getCoins();
-                    long coins1Pre = fisheryUser1.getCoins();
+                long coins0Pre = fisheryUser0.getCoins();
+                long coins1Pre = fisheryUser1.getCoins();
 
-                    fisheryUser0.addCoins(-value);
-                    fisheryUser1.addCoins(value);
+                fisheryUser0.addCoins(-value);
+                fisheryUser1.addCoins(value);
 
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("successful",
-                            StringUtil.numToString(getLocale(), value),
-                            user1.getMentionTag(),
-                            user0.getMentionTag(),
-                            StringUtil.numToString(getLocale(), coins0Pre),
-                            StringUtil.numToString(getLocale(), coins0Pre - value),
-                            StringUtil.numToString(getLocale(), coins1Pre),
-                            StringUtil.numToString(getLocale(), coins1Pre + value)
-                        ))).get();
-                    return true;
-                } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("too_large", StringUtil.numToString(getLocale(), fisheryUser0.getCoins())))).get();
-                }
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("successful",
+                        StringUtil.numToString(getLocale(), value),
+                        user1.getMentionTag(),
+                        user0.getMentionTag(),
+                        StringUtil.numToString(getLocale(), coins0Pre),
+                        StringUtil.numToString(getLocale(), coins0Pre - value),
+                        StringUtil.numToString(getLocale(), coins1Pre),
+                        StringUtil.numToString(getLocale(), coins1Pre + value)
+                ))).get();
+                return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
             }

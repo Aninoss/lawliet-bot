@@ -115,7 +115,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
             festTeams[1] = languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festData.getInt("festival_id"))).getJSONObject("names").getString("bravo_short");
 
             String id = "regular";
-            String fieldTitle = DiscordApiCollection.getInstance().getHomeEmojiById(401774931420905474L).getMentionTag() + getString("splatfest_battle", festTeams[0], festTeams[1]);
+            String fieldTitle = DiscordApiCollection.getInstance().getHomeEmojiById(747118860313821214L).getMentionTag() + getString("splatfest_battle", festTeams[0], festTeams[1]);
             String[] timeNames = getString("times").split("\n");
             String fieldContent = "";
             for (int j = 0; j < timeNames.length; j++) {

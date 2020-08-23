@@ -97,6 +97,21 @@ public final class StringUtil {
         return num;
     }
 
+    public static String filterDoubleString(String string) {
+        StringBuilder numberString = new StringBuilder();
+
+        for(char c: string.replace(",", ".").toCharArray()) {
+            if (Character.isDigit(c)) numberString.append(c);
+            else if (c == '.') {
+                if (numberString.toString().contains(".")) break;
+                else numberString.append(".");
+            }
+            else break;
+        }
+
+        return numberString.toString();
+    }
+
     public static String filterLettersFromString(String string) {
         for(int i = 0; i < 10; i++) {
             string = string.replace(String.valueOf(i), "");

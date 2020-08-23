@@ -1,6 +1,6 @@
 package Commands;
 
-import CommandListeners.*;
+import CommandListeners.OnReactionAddListener;
 import CommandSupporters.Command;
 import CommandSupporters.CommandManager;
 import Constants.Category;
@@ -9,7 +9,6 @@ import Constants.Settings;
 import Core.EmbedFactory;
 import Core.Mention.MentionUtil;
 import Core.TextManager;
-import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import MySQL.Modules.GameStatistics.DBGameStatistics;
@@ -18,10 +17,11 @@ import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
@@ -71,7 +71,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
 
         FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         long coins = userBean.getCoins();
-        long value = MentionUtil.getAmountExt(followedString, coins);
+        long value = Math.min(MentionUtil.getAmountExt(followedString, coins), coins);
         if (value == -1) {
             coinsInput = (long) Math.ceil(coins * 0.1);
             userBean.addHiddenCoins(coinsInput);
@@ -79,13 +79,9 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         }
 
         if (value >= 0) {
-            if (value <= coins) {
-                coinsInput = value;
-                userBean.addHiddenCoins(coinsInput);
-                return true;
-            } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_too_large", StringUtil.numToString(getLocale(), coins)))).get();
-            }
+            coinsInput = value;
+            userBean.addHiddenCoins(coinsInput);
+            return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
         }
