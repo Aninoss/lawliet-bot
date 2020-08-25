@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 public class Countdown {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Countdown.class);
-    public enum TimePeriod { MILISECONDS, SECONDS, MINUTES }
+
+    public enum TimePeriod {MILISECONDS, SECONDS, MINUTES}
+
     private long startTime;
     private boolean active = true;
     private long waitTime;
@@ -14,10 +16,16 @@ public class Countdown {
     public Countdown(long value, TimePeriod timePeriod, Runnable r) {
         startTime = System.currentTimeMillis();
 
-        switch(timePeriod) {
-            case MILISECONDS: waitTime = value; break;
-            case SECONDS: waitTime = value * 1000; break;
-            case MINUTES: waitTime = value * 1000 * 5; break;
+        switch (timePeriod) {
+            case MILISECONDS:
+                waitTime = value;
+                break;
+            case SECONDS:
+                waitTime = value * 1000;
+                break;
+            case MINUTES:
+                waitTime = value * 1000 * 5;
+                break;
         }
 
         Thread t = new CustomThread(() -> {
