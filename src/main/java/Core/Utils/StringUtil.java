@@ -99,8 +99,9 @@ public final class StringUtil {
 
     public static String filterDoubleString(String string) {
         StringBuilder numberString = new StringBuilder();
+        string = string.replace(",", ".");
 
-        for(char c: string.replace(",", ".").toCharArray()) {
+        for(char c: string.toCharArray()) {
             if (Character.isDigit(c)) numberString.append(c);
             else if (c == '.') {
                 if (numberString.toString().contains(".")) break;
@@ -109,7 +110,11 @@ public final class StringUtil {
             else break;
         }
 
-        return numberString.toString();
+        String filteredString = numberString.toString();
+        if (filteredString.endsWith("."))
+            filteredString = filteredString.substring(0, filteredString.length() - 1);
+
+        return filteredString;
     }
 
     public static String filterLettersFromString(String string) {

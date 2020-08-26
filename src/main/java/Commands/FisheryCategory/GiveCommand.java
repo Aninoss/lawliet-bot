@@ -78,7 +78,10 @@ public class GiveCommand extends FisheryAbstract {
                 ))).get();
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
+                if (fisheryUser0.getCoins() <= 0)
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("nocoins"))).get();
+                else
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
             }
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();

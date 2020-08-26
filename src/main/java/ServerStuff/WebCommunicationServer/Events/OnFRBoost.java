@@ -1,5 +1,6 @@
 package ServerStuff.WebCommunicationServer.Events;
 
+import MySQL.Modules.FeatureRequests.DBFeatureRequests;
 import ServerStuff.WebCommunicationServer.EventAbstract;
 import ServerStuff.WebCommunicationServer.WebComServer;
 import org.json.JSONObject;
@@ -24,7 +25,7 @@ public class OnFRBoost extends EventAbstract {
 
         boolean success = boostRemaining > 0;
         if (success) {
-            //TODO Submit Boost
+            DBFeatureRequests.insertBoost(entryId, userId);
             boostRemaining--;
         }
 

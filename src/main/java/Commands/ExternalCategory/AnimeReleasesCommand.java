@@ -24,7 +24,7 @@ import java.util.Locale;
         withLoadingBar = true,
         emoji = "\uD83D\uDCFA",
         executable = true,
-        aliases = {"animerelease"}
+        aliases = { "animerelease" }
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 
@@ -69,7 +69,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+        slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         boolean first = !slot.getArgs().isPresent();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey().get());
 

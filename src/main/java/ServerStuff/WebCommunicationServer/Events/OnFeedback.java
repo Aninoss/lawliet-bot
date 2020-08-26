@@ -25,9 +25,6 @@ public class OnFeedback extends EventAbstract {
     protected JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
         String cause = requestJSON.getString("cause");
         String reason = requestJSON.getString("reason");
-        Optional<String> usernameDiscriminatedOpt = Optional.ofNullable(
-                requestJSON.has("username_discriminated") ? requestJSON.getString("username_discriminated") : null
-        );
         Optional<Long> serverIdOpt = Optional.ofNullable(
                 requestJSON.has("server_id") ? requestJSON.getLong("server_id") : null
         );
@@ -36,8 +33,8 @@ public class OnFeedback extends EventAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setTitle(cause)
+                .setAuthor("BOT KICK FEEDBACK")
                 .setDescription(reason);
-        usernameDiscriminatedOpt.ifPresent(eb::setAuthor);
         serverIdOpt.ifPresent(serverId -> {
             try {
                 CommandLogger.getInstance().saveLog(serverId, false);

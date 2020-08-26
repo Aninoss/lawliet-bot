@@ -67,10 +67,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
             markNoInterest(event.getServerTextChannel().get());
             return true;
         }
-        if (userBean.getFish() == 0) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
-            return false;
-        }
+
         if (value >= 1) {
             long coins = ExchangeRate.getInstance().get(0) * value;
             EmbedBuilder eb = userBean.changeValues(-value, coins);
@@ -78,10 +75,15 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("done")));
             event.getChannel().sendMessage(eb).get();
             return true;
-        } else if (value == 0)
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, getString("nofish")));
-        else if (value == -1)
+        } else if (value == 0) {
+            if (userBean.getFish() <= 0)
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("nofish"))).get();
+            else
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
+        } else if (value == -1) {
             sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
+        }
+
         return false;
     }
 

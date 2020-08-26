@@ -46,7 +46,7 @@ public class DiscordApiCollection {
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
             try {
-                Thread.sleep(12 * 30 * 1000);
+                Thread.sleep(12 * 60 * 1000);
                 if (!allShardsConnected()) {
                     LOGGER.error("EXIT - Could not boot up");
                     System.exit(-1);

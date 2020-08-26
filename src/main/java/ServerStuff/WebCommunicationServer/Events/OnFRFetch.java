@@ -40,6 +40,7 @@ public class OnFRFetch extends EventAbstract {
             DBFeatureRequests.fetchEntries(userId, type).forEach(frEntry -> {
                 JSONObject jsonEntry = new JSONObject();
                 jsonEntry.put("id", frEntry.getId());
+                jsonEntry.put("title", frEntry.getTitle());
                 jsonEntry.put("description", frEntry.getDescription());
                 jsonEntry.put("public", frEntry.isPublicEntry());
                 jsonEntry.put("boosts", frEntry.getBoosts());
@@ -55,14 +56,14 @@ public class OnFRFetch extends EventAbstract {
         if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
             return 0;
 
-        return PatreonCache.getInstance().getPatreonLevel(userId);
+        return PatreonCache.getInstance().getPatreonLevel(userId) + 1;
     }
 
     public static int getBoostsUsed(long userId) throws SQLException {
         if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
             return 0;
 
-        return DBFeatureRequests.fetchBoostsThisMonth(userId);
+        return DBFeatureRequests.fetchBoostsThisWeek(userId);
     }
 
 }

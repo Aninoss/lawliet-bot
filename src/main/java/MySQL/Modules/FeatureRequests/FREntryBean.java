@@ -1,15 +1,16 @@
 package MySQL.Modules.FeatureRequests;
 
-public class FREntry {
+public class FREntryBean {
 
     private final int id;
     private final boolean publicEntry;
-    private final String description;
+    private final String description, title;
     private final int boosts;
 
-    public FREntry(int id, boolean publicEntry, String description, int boosts) {
+    public FREntryBean(int id, boolean publicEntry, String title, String description, int boosts) {
         this.id = id;
         this.publicEntry = publicEntry;
+        this.title = title;
         this.description = description;
         this.boosts = boosts;
     }
@@ -20,6 +21,10 @@ public class FREntry {
 
     public boolean isPublicEntry() {
         return publicEntry;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public String getDescription() {
