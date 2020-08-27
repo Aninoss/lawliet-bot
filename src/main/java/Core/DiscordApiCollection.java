@@ -81,7 +81,7 @@ public class DiscordApiCollection {
             while (Bot.isRunning()) {
                 Thread.sleep(10 * 1000);
                 int n = api.getCurrentShard();
-                if (isAlive[n]) {
+                if (shardIsConnected(n) && isAlive[n]) {
                     errorCounter[n] = 0;
                     isAlive[n] = false;
                     hasReconnected[n] = false;
@@ -107,6 +107,10 @@ public class DiscordApiCollection {
             LOGGER.error("EXIT - Interrupted", e);
             System.exit(-1);
         }
+    }
+
+    public boolean shardIsConnected(int n) {
+        return n < apiList.length && apiList[n] != null;
     }
 
     public void reconnectShard(int n) {
