@@ -66,7 +66,9 @@ public class Console {
                                 break;
 
                             case "connected":
-                                LOGGER.info("All shards connected: {}", DiscordApiCollection.getInstance().allShardsConnected());
+                                for(int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {
+                                    LOGGER.info("Shard {}: {}", i, DiscordApiCollection.getInstance().shardIsConnected(i));
+                                }
                                 break;
 
                             case "threads":
