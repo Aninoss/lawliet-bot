@@ -651,19 +651,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     return true;
 
                 Role r = rOpt.get();
-                for (Reaction reaction : message.getReactions()) {
-                    List<User> userList = reaction.getUsers().get();
-
-                    for (User userCheck : userList) {
-                        if (!message.getServer().get().getMemberById(userCheck.getId()).isPresent() &&
-                                userCheck.getId() != user.getId() && message.getServerTextChannel().get().canYouRemoveReactionsOfOthers()
-                        ) {
-                            reaction.removeUser(userCheck).get();
-                        }
-                    }
-                }
-
-                if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) event.getUser().addRole(r).get();
+                if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
+                    event.getUser().addRole(r).get();
                 return true;
             }
         }
