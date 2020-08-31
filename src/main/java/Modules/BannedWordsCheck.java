@@ -118,7 +118,7 @@ public class BannedWordsCheck {
         input = input.replace("7","t");
         input = input.replace("0","o");
         input = input.replace("9","g");
-        input = input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}]", strict ? " " : "");
+        input = input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", strict ? " " : "");
 
         return " " + input + " ";
     }

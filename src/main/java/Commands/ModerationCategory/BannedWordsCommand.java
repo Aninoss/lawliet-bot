@@ -108,7 +108,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
         input = input.replace("7","t");
         input = input.replace("0","o");
         input = input.replace("9","g");
-        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}]", " ").toLowerCase();
+        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", " ").toLowerCase();
     }
 
     @Override
