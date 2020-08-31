@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83D\uDDD1",
         userPermissions = Permission.KICK_MEMBERS,
         executable = false,
-        aliases = {"unwarn"}
+        aliases = { "unwarn", "removewarn" }
 )
 public class WarnRemoveCommand extends Command implements OnReactionAddListener {
 

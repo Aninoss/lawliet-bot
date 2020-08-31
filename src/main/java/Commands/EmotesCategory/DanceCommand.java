@@ -45,7 +45,8 @@ public class DanceCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736255695296528484/736256109261881344/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255845733498900/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/745278813138583702/dance.gif",
-                "https://media.discordapp.net/attachments/736255695296528484/745279078990348308/dance.gif"
+                "https://media.discordapp.net/attachments/736255695296528484/745279078990348308/dance.gif",
+                "https://media.discordapp.net/attachments/736255695296528484/750018053256904806/dance.gif"
         };
     }
 
