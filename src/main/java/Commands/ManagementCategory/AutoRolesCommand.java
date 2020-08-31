@@ -88,6 +88,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListener {
                     setState(0);
                     return true;
                 }
+                return false;
 
             case 2:
                 return roleNavigationHelper.removeData(i, 0);

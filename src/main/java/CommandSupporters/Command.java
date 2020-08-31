@@ -659,6 +659,7 @@ public abstract class Command {
 
     public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }
     public void blockLoading() { loadingBlock = true; }
+    public int getState() { return state; }
     public Instant getStartTime() { return startTime; }
     public void setStartTime(Instant startTime) { this.startTime = startTime; }
 
