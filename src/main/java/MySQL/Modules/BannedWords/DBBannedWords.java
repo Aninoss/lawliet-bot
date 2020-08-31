@@ -18,7 +18,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     protected BannedWordsBean loadBean(Long serverId) throws Exception {
         BannedWordsBean bannedWordsBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, strict FROM BannedWords WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM BannedWords WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.execute();
 
@@ -27,7 +27,6 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
             bannedWordsBean = new BannedWordsBean(
                     DBServer.getInstance().getBean(serverId),
                     resultSet.getBoolean(1),
-                    resultSet.getBoolean(2),
                     getIgnoredUsers(serverId),
                     getLogReceivers(serverId),
                     getWords(serverId)
@@ -35,7 +34,6 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
         } else {
             bannedWordsBean = new BannedWordsBean(
                     DBServer.getInstance().getBean(serverId),
-                    false,
                     false,
                     getIgnoredUsers(serverId),
                     getLogReceivers(serverId),
@@ -61,10 +59,9 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
 
     @Override
     protected void saveBean(BannedWordsBean bannedWordsBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO BannedWords (serverId, active, strict) VALUES (?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO BannedWords (serverId, active) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, bannedWordsBean.getServerId());
             preparedStatement.setBoolean(2, bannedWordsBean.isActive());
-            preparedStatement.setBoolean(3, bannedWordsBean.isStrict());
         });
     }
 

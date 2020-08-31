@@ -30,7 +30,7 @@ public class BannedWordsCheck {
         Locale locale = bannedWordsBean.getServerBean().getLocale();
 
         if (bannedWordsBean.isActive() &&
-                stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords()), bannedWordsBean.isStrict()) &&
+                stringContainsWord(input, new ArrayList<>(bannedWordsBean.getWords())) &&
                 !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
                 !PermissionUtil.hasAdminPermissions(server, message.getUserAuthor().get())
         ) {
@@ -94,21 +94,16 @@ public class BannedWordsCheck {
         return true;
     }
 
-    private static boolean stringContainsWord(String input, ArrayList<String> badWords, boolean strict) {
-        input = " " + translateString(input, strict ? " " : "") + " ";
+    private static boolean stringContainsWord(String input, ArrayList<String> badWords) {
+        input = " " + translateString(input) + " ";
         for(String word: badWords) {
-            if (strict) {
-                if (input.contains(" " + word + " "))
-                    return true;
-            } else {
-                if (input.contains(word))
-                    return true;
-            }
+            if (input.contains(" " + word + " "))
+                return true;
         }
         return false;
     }
 
-    public static String translateString(String input, String nonLanguageCharacter) {
+    public static String translateString(String input) {
         input = input.replace("1","i");
         input = input.replace("!","i");
         input = input.replace("3","e");
@@ -118,7 +113,7 @@ public class BannedWordsCheck {
         input = input.replace("7","t");
         input = input.replace("0","o");
         input = input.replace("9","g");
-        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", nonLanguageCharacter);
+        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", " ");
     }
 
     private static int getLongestWordCount(ArrayList<String> badWords) {

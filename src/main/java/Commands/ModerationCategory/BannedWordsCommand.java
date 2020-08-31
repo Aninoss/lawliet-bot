@@ -86,7 +86,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 }
 
             case 3:
-                String[] wordArray = BannedWordsCheck.translateString(inputString, " ").split(" ");
+                String[] wordArray = BannedWordsCheck.translateString(inputString).split(" ");
                 List<String> wordList = Arrays
                         .stream(wordArray)
                         .filter(str -> str.length() > 0)
@@ -114,23 +114,18 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                         return true;
 
                     case 1:
-                        bannedWordsBean.toggleStrict();
-                        setLog(LogStatus.SUCCESS, getString("strictset", !bannedWordsBean.isStrict()));
-                        return true;
-
-                    case 2:
                         setState(1);
                         return true;
 
-                    case 3:
+                    case 2:
                         setState(2);
                         return true;
 
-                    case 4:
+                    case 3:
                         wordsNavigationHelper.startDataAdd(3);
                         return true;
 
-                    case 5:
+                    case 4:
                         wordsNavigationHelper.startDataRemove(4);
                         return true;
 
@@ -184,7 +179,6 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
-                       .addField(getString("state0_mstrict"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isStrict()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mwords"), getWordsString(), true);
