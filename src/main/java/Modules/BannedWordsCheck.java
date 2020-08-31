@@ -95,7 +95,7 @@ public class BannedWordsCheck {
     }
 
     private static boolean stringContainsWord(String input, ArrayList<String> badWords, boolean strict) {
-        input = translateString(input, strict);
+        input = " " + translateString(input, strict ? " " : "") + " ";
         for(String word: badWords) {
             if (strict) {
                 if (input.contains(" " + word + " "))
@@ -108,7 +108,7 @@ public class BannedWordsCheck {
         return false;
     }
 
-    private static String translateString(String input, boolean strict) {
+    public static String translateString(String input, String nonLanguageCharacter) {
         input = input.replace("1","i");
         input = input.replace("!","i");
         input = input.replace("3","e");
@@ -118,9 +118,7 @@ public class BannedWordsCheck {
         input = input.replace("7","t");
         input = input.replace("0","o");
         input = input.replace("9","g");
-        input = input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", strict ? " " : "");
-
-        return " " + input + " ";
+        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", nonLanguageCharacter);
     }
 
     private static int getLongestWordCount(ArrayList<String> badWords) {

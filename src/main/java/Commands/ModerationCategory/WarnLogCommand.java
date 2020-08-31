@@ -67,7 +67,8 @@ public class WarnLogCommand extends Command {
             if (latestWarningsString.isEmpty()) latestWarningsString = TextManager.getString(getLocale(), TextManager.GENERAL, "empty");
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
-                    .setAuthor(user)
+                    .setTitle("")
+                    .setAuthor(getString("author", getEmoji(), StringUtil.escapeMarkdown(user.getDisplayName(server))))
                     .setThumbnail(user.getAvatar().getUrl().toString());
             eb.addField(getString("latest"), latestWarningsString, false);
             eb.addField(getString("amount"), getString("amount_template",

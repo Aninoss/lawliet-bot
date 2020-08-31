@@ -10,6 +10,7 @@ import Constants.Response;
 import Core.*;
 import Core.Mention.MentionUtil;
 import Core.Utils.StringUtil;
+import Modules.BannedWordsCheck;
 import MySQL.Modules.BannedWords.BannedWordsBean;
 import MySQL.Modules.BannedWords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -85,7 +86,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 }
 
             case 3:
-                String[] wordArray = transform(inputString).split(" ");
+                String[] wordArray = BannedWordsCheck.translateString(inputString, " ").split(" ");
                 List<String> wordList = Arrays
                         .stream(wordArray)
                         .filter(str -> str.length() > 0)
@@ -96,19 +97,6 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
             default:
                 return null;
         }
-    }
-
-    private String transform(String input) {
-        input = input.replace("1","i");
-        input = input.replace("!","i");
-        input = input.replace("3","e");
-        input = input.replace("4","a");
-        input = input.replace("@","a");
-        input = input.replace("5","s");
-        input = input.replace("7","t");
-        input = input.replace("0","o");
-        input = input.replace("9","g");
-        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", " ").toLowerCase();
     }
 
     @Override
