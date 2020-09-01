@@ -15,10 +15,10 @@ import java.util.*;
 
 public class PermissionCheckRuntime {
 
-    private static PermissionCheckRuntime instance = new PermissionCheckRuntime();
+    private static final PermissionCheckRuntime instance = new PermissionCheckRuntime();
     private static final int PERMISSION_ROLE_POS = -1;
 
-    private Map<Long, Map<Integer, Instant>> errorTimes = new HashMap<>();
+    private final Map<Long, Map<Integer, Instant>> errorTimes = new HashMap<>();
 
     private PermissionCheckRuntime() {}
     public static PermissionCheckRuntime getInstance() {
