@@ -18,6 +18,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class MentionUtil {
@@ -256,33 +257,52 @@ public class MentionUtil {
         return list;
     }
 
-    public static Mention getMentionedString(Locale locale, Message message, String followedString) {
-        int counted = 0;
-        boolean multi = false;
-        Server server = message.getServer().get();
-
-        MentionList<User> userMention = MentionUtil.getUsers(message, followedString);
-        followedString = userMention.getResultMessageString();
-        MentionList<Role> roleMention = MentionUtil.getRoles(message, followedString);
-        followedString = roleMention.getResultMessageString();
+    private static Mention getMentionStringOfMentions(ArrayList<String> mentions, Locale locale, String filteredOriginalText, boolean multi, boolean containedBlockedUser) {
+        if (mentions.size() > 1 && !multi) multi = true;
 
         StringBuilder sb = new StringBuilder();
-
-        for(User user: userMention.getList()) {
-            sb.append("**").append(StringUtil.escapeMarkdown(user.getDisplayName(server))).append("**, ");
-            counted++;
+        for(int i = 0; i < mentions.size(); i++) {
+            if (i >= 1) {
+                sb.append((i < mentions.size() - 1) ?
+                        ", " :
+                        " " + TextManager.getString(locale,TextManager.GENERAL,"and") + " "
+                );
+            }
+            sb.append("**").append(mentions.get(i)).append("**");
         }
 
-        for(Role role: roleMention.getList()) {
-            sb.append("**").append(StringUtil.escapeMarkdown(role.getName())).append("**, ");
-            counted++;
-            multi = true;
-        }
+        return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser);
+    }
 
+    public static Mention getMentionedString(Locale locale, Message message, String followedString, User blockedUser) {
+        Server server = message.getServer().get();
+        boolean multi = false;
+        AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
+        final ArrayList<String> mentions = new ArrayList<>();
+
+        /* add usernames */
+        MentionList<User> userMention = MentionUtil.getUsers(message, followedString);
+        userMention.getList().forEach(user -> {
+            if (blockedUser != null && user.getId() == blockedUser.getId()) {
+                containedBlockedUser.set(true);
+            } else {
+                mentions.add(StringUtil.escapeMarkdown(user.getDisplayName(server)));
+            }
+        });
+        followedString = userMention.getResultMessageString();
+
+        /* add role names */
+        MentionList<Role> roleMention = MentionUtil.getRoles(message, followedString);
+        roleMention.getList().forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
+        followedString = roleMention.getResultMessageString();
+
+        /* add everyone mention */
         if (message.mentionsEveryone() || followedString.contains("everyone") || followedString.contains("all") || followedString.contains("@here")) {
-            if (counted == 0) sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_start")).append("**, ");
-            else sb.append("**").append(TextManager.getString(locale,TextManager.GENERAL,"everyone_end")).append("**, ");
-            counted++;
+            if (mentions.isEmpty())
+                mentions.add(TextManager.getString(locale,TextManager.GENERAL,"everyone_start"));
+            else
+                mentions.add(TextManager.getString(locale,TextManager.GENERAL,"everyone_end"));
+
             multi = true;
             followedString = followedString.replace("@everyone", "")
                     .replace("everyone", "")
@@ -290,78 +310,37 @@ public class MentionUtil {
                     .replace("@here", "");
         }
 
-        if (counted == 0) return null;
-        if (counted > 1) multi = true;
-
-        String string = sb.toString();
-        string = string.substring(0,string.length()-2);
-
-        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
-
-        return new Mention(string, followedString, multi);
+        return getMentionStringOfMentions(mentions, locale, followedString, multi, containedBlockedUser.get());
     }
 
-    public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) throws IOException {
-        int counted = 0;
+    public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) {
         boolean multi = false;
-        StringBuilder sb = new StringBuilder();
+        final ArrayList<String> mentions = new ArrayList<>();
 
-        for(User user: userList) {
-            sb.append("**").append(StringUtil.escapeMarkdown(user.getDisplayName(server))).append("**, ");
-            counted++;
-        }
+        /* add usernames */
+        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getDisplayName(server))));
 
-        if (counted == 0) throw new IOException();
-        if (counted > 1) multi = true;
-
-        String string = sb.toString();
-        string = string.substring(0,string.length()-2);
-
-        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
-
-        return new Mention(string, null, multi);
+        return getMentionStringOfMentions(mentions, locale, null, multi, false);
     }
 
-    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, Server server, List<User> userList) throws IOException {
-        int counted = 0;
+    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) throws IOException {
         boolean multi = false;
-        StringBuilder sb = new StringBuilder();
+        final ArrayList<String> mentions = new ArrayList<>();
 
-        for(User user: userList) {
-            sb.append("**").append(StringUtil.escapeMarkdown(user.getDiscriminatedName())).append("**, ");
-            counted++;
-        }
+        /* add usernames */
+        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getDiscriminatedName())));
 
-        if (counted == 0) throw new IOException();
-        if (counted > 1) multi = true;
-
-        String string = sb.toString();
-        string = string.substring(0,string.length()-2);
-
-        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
-
-        return new Mention(string, null, multi);
+        return getMentionStringOfMentions(mentions, locale, null, multi, false);
     }
 
-    public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) throws IOException {
-        int counted = 0;
+    public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) {
         boolean multi = false;
-        StringBuilder sb = new StringBuilder();
+        final ArrayList<String> mentions = new ArrayList<>();
 
-        for(Role role: roleList) {
-            sb.append("**").append(StringUtil.escapeMarkdown(role.getName())).append("**, ");
-            counted++;
-        }
+        /* add usernames */
+        roleList.forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
 
-        if (counted == 0) throw new IOException();
-        if (counted > 1) multi = true;
-
-        String string = sb.toString();
-        string = string.substring(0,string.length()-2);
-
-        if (string.contains(", ")) string = StringUtil.replaceLast(string,", "," "+TextManager.getString(locale,TextManager.GENERAL,"and")+" ");
-
-        return new Mention(string, null, multi);
+        return getMentionStringOfMentions(mentions, locale, null, multi, false);
     }
 
     public static Optional<Role> getRoleByTag(Server server, String tag) {

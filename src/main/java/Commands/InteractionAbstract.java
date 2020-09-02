@@ -11,7 +11,6 @@ import Core.Utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.util.Locale;
 
 public abstract class InteractionAbstract extends Command {
@@ -28,25 +27,27 @@ public abstract class InteractionAbstract extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        Mention mention = MentionUtil.getMentionedString(getLocale(), message, followedString);
-        if (mention != null && mention.toString().equals( "**"+event.getMessage().getAuthor().getDisplayName()+"**")) {
+        Mention mention = MentionUtil.getMentionedString(getLocale(), message, followedString, event.getMessage().getAuthor().asUser().get());
+        boolean mentionPresent = !mention.getMentionText().isEmpty();
+
+        if (!mentionPresent && mention.containedBlockedUser()) {
             message.getChannel().sendMessage(
                     EmbedFactory.getCommandEmbedStandard(this,
-                        TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
-                    .setImage("https://media1.giphy.com/media/od5H3PmEG5EVq/giphy.gif?cid=790b76115ce968cf4a364a6845982172&rid=giphy.gif")).get();
+                            TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
+                            .setImage("https://media.discordapp.net/attachments/736277561373491265/736277600053493770/hug.gif")).get();
             return false;
         }
 
         String quote = "";
-        if (mention != null)
+        if (mentionPresent)
             followedString = mention.getFilteredOriginalText().get();
         if (followedString.length() > 0)
             quote = "\n\n> " + followedString.replace("\n", "\n> ");
 
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
         EmbedBuilder eb;
-        if (mention != null) {
-            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.toString(), "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
+        if (mentionPresent) {
+            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                     .setImage(gifUrl);
         } else {
             eb = EmbedFactory.getCommandEmbedStandard(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)

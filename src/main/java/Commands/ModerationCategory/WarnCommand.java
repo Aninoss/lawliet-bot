@@ -53,8 +53,8 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         moderationBean = DBModeration.getInstance().getBean(event.getServer().get().getId());
 
         if (userList.size() > 1 || moderationBean.isQuestion()) {
-            Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), event.getServer().get(), userList);
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.toString(), reason));
+            Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getMentionText(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);
             for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
@@ -97,13 +97,13 @@ public class WarnCommand extends Command implements OnReactionAddListener {
             if (!canProcess(channel.getServer(), executer, user)) usersErrorList.add(user);
         }
         if (usersErrorList.size() > 0) {
-            Mention mentionError = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), usersErrorList);
-            postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.toString()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
+            Mention mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), usersErrorList);
+            postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
             return false;
         }
 
-        Mention mention = MentionUtil.getMentionedStringOfUsers(getLocale(), channel.getServer(), userList);
-        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.toString(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
+        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getMentionText(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {
             try {
@@ -119,7 +119,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
 
         Mod.postLog(this, actionEmbed, moderationBean);
 
-        EmbedBuilder successEb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.toString()));
+        EmbedBuilder successEb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
         postMessage(channel, successEb);
 

@@ -15,10 +15,8 @@ import java.util.stream.Stream;
 
 public class MuteManager {
 
-    private static MuteManager instance = new MuteManager();
-
+    private static final MuteManager instance = new MuteManager();
     private MuteManager() {}
-
     public static MuteManager getInstance() {
         return instance;
     }

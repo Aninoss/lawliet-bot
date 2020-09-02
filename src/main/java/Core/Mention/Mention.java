@@ -3,18 +3,19 @@ package Core.Mention;
 import java.util.Optional;
 
 public class Mention {
-    private final String string, filteredOriginalText;
-    private final boolean multiple;
 
-    public Mention(String string, String filteredOriginalText, boolean multiple) {
-        this.string = string;
+    private final String filteredOriginalText, mentionText;
+    private final boolean multiple, containedBlockedUser;
+
+    public Mention(String mentionText, String filteredOriginalText, boolean multiple, boolean containedBlockedUser) {
+        this.mentionText = mentionText;
         this.filteredOriginalText = filteredOriginalText;
         this.multiple = multiple;
+        this.containedBlockedUser = containedBlockedUser;
     }
 
-    @Override
-    public String toString() {
-        return string;
+    public String getMentionText() {
+        return mentionText;
     }
 
     public Optional<String> getFilteredOriginalText() {
@@ -24,4 +25,9 @@ public class Mention {
     public boolean isMultiple() {
         return multiple;
     }
+
+    public boolean containedBlockedUser() {
+        return containedBlockedUser;
+    }
+
 }
