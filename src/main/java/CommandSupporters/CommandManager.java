@@ -297,7 +297,10 @@ public class CommandManager {
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
         for (int i=list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
-            if ((event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) && (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)) {
+            if (command != null &&
+                    (event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) &&
+                    (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)
+            ) {
                 if (command instanceof OnForwardedRecievedListener) ((OnForwardedRecievedListener)command).onNewActivityOverwrite();
                 else if (command instanceof OnNavigationListener) ((OnNavigationListener)command).onNewActivityOverwrite();
                 break;
