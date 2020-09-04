@@ -10,9 +10,8 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
     public abstract boolean onReactionRemove(ReactionRemoveEvent event) throws Throwable;
 
     public static void onReactionRemoveStatic(ReactionRemoveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (event.getUser().isBot() ||
-                (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
-        ) return;
+        if (!event.getMessage().isPresent() && !event.getChannel().canYouReadMessageHistory())
+            return;
 
         execute(event, listenerList,
                 listener -> ((ReactionRemoveAbstract) listener).onReactionRemove(event)

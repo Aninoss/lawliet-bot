@@ -7,13 +7,9 @@ import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class ServerMemberJoinFisheryOnServerStatus extends ServerMemberJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinFisheryOnServerStatus.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

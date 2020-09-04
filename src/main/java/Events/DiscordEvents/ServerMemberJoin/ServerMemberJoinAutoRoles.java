@@ -14,7 +14,7 @@ import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.Locale;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true)
 public class ServerMemberJoinAutoRoles extends ServerMemberJoinAbstract {
 
     @Override

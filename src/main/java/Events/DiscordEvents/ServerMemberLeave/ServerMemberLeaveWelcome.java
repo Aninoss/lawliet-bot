@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true)
 public class ServerMemberLeaveWelcome extends ServerMemberLeaveAbstract {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeaveWelcome.class);

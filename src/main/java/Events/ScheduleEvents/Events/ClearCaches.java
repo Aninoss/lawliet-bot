@@ -20,7 +20,6 @@ public class ClearCaches implements ScheduleEventInterface {
         PornImageCache.getInstance().reset();
         DBUpvotes.getInstance().cleanUp();
         ServerPatreonBoostCache.getInstance().reset();
-        PatreonCache.getInstance().reset();
     }
 
 }

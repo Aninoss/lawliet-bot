@@ -13,16 +13,12 @@ import MySQL.Modules.Server.DBServer;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Locale;
 
 @DiscordEvent
 public class ServerMemberJoinFisheryRoles extends ServerMemberJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinFisheryRoles.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

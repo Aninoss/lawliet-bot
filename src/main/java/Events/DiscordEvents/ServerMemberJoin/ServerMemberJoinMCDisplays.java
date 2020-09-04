@@ -8,7 +8,7 @@ import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@DiscordEvent(allowBannedUser = true)
+@DiscordEvent(allowBannedUser = true, allowBots = true)
 public class ServerMemberJoinMCDisplays extends ServerMemberJoinAbstract {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinMCDisplays.class);

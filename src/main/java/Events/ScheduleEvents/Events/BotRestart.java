@@ -10,7 +10,6 @@ import MySQL.DBBotStats;
 import MySQL.DBMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -49,7 +48,7 @@ public class BotRestart implements ScheduleEventInterface {
     private void saveDailyUniqueUsersStats() {
         if (DiscordApiCollection.getInstance().getStartingTime().isBefore(Instant.now().minus(23, ChronoUnit.HOURS))) {
             try {
-                DBBotStats.addStatUniqueUsers();
+                DBBotStats.saveStatsUniqueUsers();
             } catch (Exception e) {
                 LOGGER.error("Could not post unique users stats", e);
             }

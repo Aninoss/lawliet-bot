@@ -9,7 +9,7 @@ import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 
 import java.util.Locale;
 
-@DiscordEvent(allowBannedUser = true)
+@DiscordEvent(allowBannedUser = true, allowBots = true)
 public class ServerMemberLeaveMCDisplays extends ServerMemberLeaveAbstract {
 
     @Override

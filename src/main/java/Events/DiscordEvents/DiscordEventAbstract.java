@@ -25,6 +25,8 @@ public abstract class DiscordEventAbstract {
 
     public boolean isAllowingBannedUser() { return discordEvent.allowBannedUser(); }
 
+    public boolean isAllowingBots() { return discordEvent.allowBots(); }
+
     protected static <T extends Event> void execute(T event, ArrayList<DiscordEventAbstract> listenerList, EventExecution function) {
         if (!DiscordApiCollection.getInstance().allShardsConnected())
             return;

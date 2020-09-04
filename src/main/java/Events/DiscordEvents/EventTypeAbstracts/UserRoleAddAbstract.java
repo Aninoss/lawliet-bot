@@ -14,8 +14,6 @@ public abstract class UserRoleAddAbstract extends DiscordEventAbstract {
     public abstract boolean onUserRoleAdd(UserRoleAddEvent event) throws Throwable;
 
     public static void onUserRoleAddStatic(UserRoleAddEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (event.getUser().isBot()) return;
-
         execute(event, listenerList,
                 listener -> ((UserRoleAddAbstract) listener).onUserRoleAdd(event)
         );

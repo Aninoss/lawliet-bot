@@ -7,13 +7,9 @@ import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryServerBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class ServerMemberLeaveFisheryOnServerStatus extends ServerMemberLeaveAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeaveFisheryOnServerStatus.class);
 
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {

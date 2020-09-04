@@ -14,8 +14,6 @@ public abstract class UserRoleRemoveAbstract extends DiscordEventAbstract {
     public abstract boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable;
 
     public static void onUserRoleRemoveStatic(UserRoleRemoveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (event.getUser().isBot()) return;
-
         execute(event, listenerList,
                 listener -> ((UserRoleRemoveAbstract) listener).onUserRoleRemove(event)
         );

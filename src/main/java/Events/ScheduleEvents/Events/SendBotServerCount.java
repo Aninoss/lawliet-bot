@@ -8,7 +8,7 @@ import ServerStuff.*;
 
 import java.time.temporal.ChronoUnit;
 
-@ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
+@ScheduleEventFixedRate(rateValue = 5, rateUnit = ChronoUnit.MINUTES)
 public class SendBotServerCount implements ScheduleEventInterface {
 
     @Override

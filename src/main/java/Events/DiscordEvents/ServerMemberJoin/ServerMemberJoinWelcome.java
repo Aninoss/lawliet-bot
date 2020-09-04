@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true)
 public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinWelcome.class);

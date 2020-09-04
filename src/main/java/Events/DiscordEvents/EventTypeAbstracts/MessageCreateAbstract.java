@@ -24,11 +24,6 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
 
 
     public static void onMessageCreateStatic(MessageCreateEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (!event.getMessage().getUserAuthor().isPresent() ||
-                event.getMessage().getAuthor().isYourself() ||
-                event.getMessage().getUserAuthor().get().isBot()
-        ) return;
-
         if (!event.getServer().isPresent()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle("❌ NOT SUPPORTED".toUpperCase())

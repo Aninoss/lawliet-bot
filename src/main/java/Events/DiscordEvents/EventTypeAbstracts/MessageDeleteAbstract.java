@@ -10,12 +10,8 @@ public abstract class MessageDeleteAbstract extends DiscordEventAbstract {
     public abstract boolean onMessageDelete(MessageDeleteEvent event) throws Throwable;
 
     public static void onMessageDeleteStatic(MessageDeleteEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (!event.getMessage().isPresent() ||
-                !event.getMessage().get().getUserAuthor().isPresent() ||
-                event.getMessage().get().getAuthor().isYourself() ||
-                !event.getServer().isPresent() ||
-                event.getMessage().get().getUserAuthor().get().isBot()
-        ) return;
+        if (!event.getServer().isPresent())
+            return;
 
         execute(event, listenerList,
                 listener -> ((MessageDeleteAbstract) listener).onMessageDelete(event)
