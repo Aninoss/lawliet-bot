@@ -3,7 +3,8 @@ package Core;
 import Constants.Settings;
 import Core.Utils.BotUtil;
 import Core.Utils.StringUtil;
-import DiscordEvents.DiscordEventManager;
+import Events.DiscordEvents.DiscordEventManager;
+import Events.ScheduleEvents.ScheduleEventManager;
 import MySQL.DBMain;
 import MySQL.Modules.AutoChannel.DBAutoChannel;
 import MySQL.Modules.FisheryUsers.DBFishery;
@@ -18,7 +19,6 @@ import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ public class Connector {
             FontContainer.getInstance().init();
             DBMain.getInstance().connect();
             cleanAllTempFiles();
-            if (Bot.isProductionMode()) initializeUpdate();
+            initializeUpdate();
             connect();
         } catch (Throwable e) {
             LOGGER.error("EXIT - Exception in main method", e);
@@ -50,7 +50,13 @@ public class Connector {
     }
 
     private static void cleanAllTempFiles() {
-        Arrays.stream(new File("temp").listFiles()).forEach(File::delete);
+        File[] files = new File("temp").listFiles();
+        if (files != null)
+            Arrays.stream(files).forEach(file -> {
+                if (!file.delete()) {
+                    LOGGER.error("Temp file {} could not be removed!", file.getName());
+                }
+            });
     }
 
     private static void initializeUpdate() {
@@ -124,20 +130,17 @@ public class Connector {
                 updateActivity();
                 DBFishery.getInstance().cleanUp();
                 new WebComServer(15744);
-
-                new CustomThread(() -> DBFishery.getInstance().startVCObserver(), "vc_observer", 1).start();
+                DBFishery.getInstance().startVCObserver();
 
                 LOGGER.info("All shards connected successfully");
-
-                if (Bot.isProductionMode())
-                    new CustomThread(() -> Clock.getInstance().start(), "clock", 1).start();
-                DBTracker.getInstance().init();
+                new ScheduleEventManager().start();
+                DBTracker.getInstance().start();
             } else {
                 updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
             }
         }
 
-        DiscordEventManager.getInstance().addApi(api);
+        new DiscordEventManager().registerApi(api);
         api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
     }
 

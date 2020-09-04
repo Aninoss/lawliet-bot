@@ -2,6 +2,7 @@ package MySQL.Modules.FisheryUsers;
 
 import Constants.FisheryStatus;
 import Core.Bot;
+import Core.CustomThread;
 import Core.DiscordApiCollection;
 import Core.IntervalBlock;
 import MySQL.DBBeanGenerator;
@@ -35,6 +36,8 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
     private final int VC_CHECK_INTERVAL_MIN = 1;
+
+    private boolean vcObserverStarted = false;
 
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {
@@ -305,27 +308,32 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     public void startVCObserver() {
-        IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
-        while (intervalBlock.block()) {
-            LOGGER.debug("VC Observer - Start");
-            DiscordApiCollection.getInstance().getServers().stream()
-                    .filter(server -> {
-                        try {
-                            return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
-                        } catch (Throwable e) {
-                            LOGGER.error("Could not get server bean", e);
-                        }
-                        return false;
-                    })
-                    .forEach(server -> {
-                        try {
-                            manageVCFish(server);
-                        } catch (Throwable e) {
-                            LOGGER.error("Could not manage vc fish observer", e);
-                        }
-                    });
-            LOGGER.debug("VC Observer - End");
-        }
+        if (vcObserverStarted) return;
+        vcObserverStarted = true;
+
+        new CustomThread(() -> {
+            IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
+            while (intervalBlock.block()) {
+                LOGGER.debug("VC Observer - Start");
+                DiscordApiCollection.getInstance().getServers().stream()
+                        .filter(server -> {
+                            try {
+                                return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                            } catch (Throwable e) {
+                                LOGGER.error("Could not get server bean", e);
+                            }
+                            return false;
+                        })
+                        .forEach(server -> {
+                            try {
+                                manageVCFish(server);
+                            } catch (Throwable e) {
+                                LOGGER.error("Could not manage vc fish observer", e);
+                            }
+                        });
+                LOGGER.debug("VC Observer - End");
+            }
+        }, "vc_observer", 1).start();
     }
 
     private void manageVCFish(Server server) throws ExecutionException, SQLException {

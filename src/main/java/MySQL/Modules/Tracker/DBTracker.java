@@ -1,8 +1,6 @@
 package MySQL.Modules.Tracker;
 
-import Core.Bot;
 import Core.CustomThread;
-import Core.DiscordApiCollection;
 import MySQL.DBCached;
 import MySQL.DBDataLoad;
 import MySQL.DBMain;
@@ -26,8 +24,12 @@ public class DBTracker extends DBCached {
     private DBTracker() {}
 
     private TrackerBean trackerBean = null;
+    private boolean started = false;
 
-    public void init() {
+    public void start() {
+        if (started) return;
+        started = true;
+
         Thread t = new CustomThread(() -> {
             try {
                 getBean();
@@ -109,7 +111,7 @@ public class DBTracker extends DBCached {
         if (trackerBean != null) {
             trackerBean.stop();
             trackerBean = null;
-            init();
+            start();
         }
     }
 

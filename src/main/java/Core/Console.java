@@ -26,8 +26,10 @@ import java.util.concurrent.ExecutionException;
 public class Console {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
+
     private static final Console instance = new Console();
     private double maxMemory = 0;
+    private boolean started = false;
 
     private Console() {}
 
@@ -36,9 +38,10 @@ public class Console {
     }
 
     public void start() {
+        if (started) return;
+        started = true;
+
         new CustomThread(this::manageConsole, "console", 1).start();
-        new CustomThread(this::startAutoPrint, "console_autostats", 1).start();
-        new CustomThread(this::trackMemory, "console_memorytracker", 1).start();
     }
 
     private void manageConsole() {
@@ -271,34 +274,7 @@ public class Console {
         }
     }
 
-    private void startAutoPrint() {
-        try {
-            while (true) {
-                Thread.sleep(60 * 1000);
-                System.out.println(getStats());
-            }
-        } catch (InterruptedException e) {
-            LOGGER.error("Interrupted", e);
-        }
-    }
-
-    private void trackMemory() {
-        try {
-            while (true) {
-                double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
-                double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
-                if (memoryUsed > maxMemory) {
-                    maxMemory = memoryUsed;
-                    LOGGER.debug("Max Memory: {} / {}", memoryUsed, memoryTotal);
-                }
-                Thread.sleep(500);
-            }
-        } catch (InterruptedException e) {
-            LOGGER.error("Interrupted", e);
-        }
-    }
-
-    private String getStats() {
+    public String getStats() {
         StringBuilder sb = new StringBuilder("\n--- STATS ---\n");
 
         //Memory
@@ -334,5 +310,9 @@ public class Console {
     }
 
     public double getMaxMemory() { return maxMemory; }
+
+    public void setMaxMemory(double maxMemory) {
+        this.maxMemory = maxMemory;
+    }
 
 }

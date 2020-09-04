@@ -2,12 +2,9 @@ package MySQL;
 
 import Core.Bot;
 import Core.CustomThread;
-import Core.ExceptionHandler;
 import Core.SecretManager;
 import MySQL.Interfaces.SQLConsumer;
-import MySQL.Modules.AutoChannel.DBAutoChannel;
 import com.mysql.cj.jdbc.MysqlDataSource;
-import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class DBMain implements DriverAction {
 
@@ -38,14 +34,14 @@ public class DBMain implements DriverAction {
         LOGGER.info("Connecting with database");
 
         final MysqlDataSource rv = new MysqlDataSource();
-        rv.setServerName(Bot.isProductionMode() ? "127.0.0.1" : SecretManager.getString("database.ip"));
+        rv.setServerName("127.0.0.1");
         rv.setPortNumber(3306);
         rv.setDatabaseName(SecretManager.getString("database.database"));
         rv.setAllowMultiQueries(false);
         rv.setAutoReconnect(true);
         rv.setCharacterEncoding("UTF-8");
-        rv.setUser(SecretManager.getString("database.username"));
-        rv.setPassword(SecretManager.getString("database.password"));
+        rv.setUser(Bot.isProductionMode() ? SecretManager.getString("database.username") : "root");
+        if (Bot.isProductionMode()) rv.setPassword(SecretManager.getString("database.password"));
         rv.setServerTimezone(TimeZone.getDefault().getID());
         connect = rv.getConnection();
     }
