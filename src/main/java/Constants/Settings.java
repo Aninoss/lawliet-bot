@@ -16,6 +16,7 @@ public interface Settings {
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
     String FEEDBACK_WEBSITE = "https://lawlietbot.xyz/feedback/%d";
     String PATREON_PAGE = "https://www.patreon.com/lawlietbot";
+    String FEATURE_REQUESTS_WEBSITE = "https://lawlietbot.xyz/featurerequests";
     String CURRENCY = "\uD83D\uDC1F";
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";
@@ -30,5 +31,6 @@ public interface Settings {
     Color PATREON_COLOR = new Color(249, 104, 84);
     boolean GIVEAWAY_RUNNING = false;
     int FISHERY_DESPAWN_MINUTES = 5;
+    int TRACKER_SHARDS = 2;
 
 }

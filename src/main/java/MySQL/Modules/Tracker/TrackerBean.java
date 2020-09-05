@@ -6,6 +6,7 @@ import CommandSupporters.CommandContainer;
 import CommandSupporters.CommandManager;
 import Commands.ManagementCategory.TrackerCommand;
 import Constants.Permission;
+import Constants.Settings;
 import Core.*;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -32,25 +33,36 @@ public class TrackerBean extends Observable {
         if (active) return;
         active = true;
 
-        new CustomThread(() -> {
-            IntervalBlock intervalBlock = new IntervalBlock(1, ChronoUnit.MINUTES);
-            try {
-                while (intervalBlock.block() && active) {
-                    LOGGER.info("Tracker Start");
-                    for (ArrayList<TrackerBeanSlot> trackerBeanSlots : getGroupedByCommandTrigger()) {
-                        if (trackerBeanSlots.size() > 0) manageTrackerCommand(trackerBeanSlots);
-                    }
-                    LOGGER.info("Tracker End");
-                }
-            } catch (InterruptedException e) {
-                LOGGER.error("All trackers interrupted", e);
-            }
-        }, "trackers", 1).start();
+        for (int i = 0; i < Settings.TRACKER_SHARDS; i++) {
+            final int trackerShard = i;
+            new CustomThread(() -> {
+                manageTrackerShard(trackerShard);
+            }, "trackers_" + i).start();
+        }
     }
 
-    private void manageTrackerCommand(ArrayList<TrackerBeanSlot> trackerBeanSlots) throws InterruptedException {
-        for(TrackerBeanSlot slot : trackerBeanSlots) {
-            if (!slot.getNextRequest().isAfter(Instant.now())) {
+    private void manageTrackerShard(int trackerShard) {
+        IntervalBlock intervalBlock = new IntervalBlock(1, ChronoUnit.MINUTES);
+        try {
+            while (intervalBlock.block() && active) {
+                LOGGER.info("Tracker Start " + trackerShard);
+                for (ArrayList<TrackerBeanSlot> trackerBeanSlots : getGroupedByCommandTrigger()) {
+                    if (trackerBeanSlots.size() > 0) {
+                        manageTrackerCommand(trackerBeanSlots, trackerShard);
+                    }
+                }
+                LOGGER.info("Tracker End " + trackerShard);
+            }
+        } catch (InterruptedException e) {
+            LOGGER.error("All trackers interrupted", e);
+        }
+    }
+
+    private void manageTrackerCommand(ArrayList<TrackerBeanSlot> trackerBeanSlots, int trackerShard) throws InterruptedException {
+        for (TrackerBeanSlot slot : trackerBeanSlots) {
+            if (!slot.getNextRequest().isAfter(Instant.now()) &&
+                    trackerIsForShard(slot, trackerShard)
+            ) {
                 try {
                     manageTracker(slot);
                 } catch (InterruptedException e) {
@@ -62,11 +74,15 @@ public class TrackerBean extends Observable {
         }
     }
 
+    private boolean trackerIsForShard(TrackerBeanSlot slot, int trackerShard) {
+        return slot.getServerId() % Settings.TRACKER_SHARDS == trackerShard;
+    }
+
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {
         OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix());
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
         if (channelOpt.isPresent() &&
-                PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), TrackerCommand.class, channelOpt.get(),  Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)
+                PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), TrackerCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)
         ) {
             switch (command.onTrackerRequest(slot)) {
                 case STOP:
@@ -92,7 +108,9 @@ public class TrackerBean extends Observable {
         }
     }
 
-    public void stop() { active = false; }
+    public void stop() {
+        active = false;
+    }
 
 
 
@@ -102,7 +120,7 @@ public class TrackerBean extends Observable {
     public ArrayList<ArrayList<TrackerBeanSlot>> getGroupedByCommandTrigger() {
         ArrayList<ArrayList<TrackerBeanSlot>> trackerCommandTriggerList = new ArrayList<>();
 
-        for(Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
+        for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
             String commandTrigger = Command.getClassTrigger((Class<? extends Command>) clazz);
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
@@ -116,6 +134,8 @@ public class TrackerBean extends Observable {
         return trackerCommandTriggerList;
     }
 
-    public CustomObservableMap<Pair<Long, String>, TrackerBeanSlot> getMap() { return slots; }
+    public CustomObservableMap<Pair<Long, String>, TrackerBeanSlot> getMap() {
+        return slots;
+    }
 
 }

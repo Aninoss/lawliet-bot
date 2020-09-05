@@ -103,10 +103,11 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
-                for(int i = 0; i < Math.min(10, postBundle.getPosts().size()); i++) {
+                for(int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNsfw()) {
-                        if (slot.getArgs().isPresent() || i == 0) channel.sendMessage(getEmbed(post));
+                        if (slot.getArgs().isPresent() || i == 0)
+                            channel.sendMessage(getEmbed(post));
                         containsOnlyNsfw = false;
                     }
                 }

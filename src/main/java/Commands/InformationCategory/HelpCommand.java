@@ -365,7 +365,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         Settings.SERVER_INVITE_URL,
                         Settings.BOT_INVITE_URL,
                         Settings.UPVOTE_URL,
-                        Settings.PATREON_PAGE
+                        Settings.PATREON_PAGE,
+                        Settings.FEATURE_REQUESTS_WEBSITE
                 ), true);
         if (Settings.GIVEAWAY_RUNNING) eb.addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), false);
         return eb;
