@@ -124,7 +124,7 @@ public class DiscordApiCollection {
             }
             RunningCommandManager.getInstance().clearShard(n);
             api.disconnect();
-            Connector.reconnectApi(api.getCurrentShard());
+            DiscordConnector.getInstance().reconnectApi(api.getCurrentShard());
             hasReconnected[n] = false;
             errorCounter[n] = 0;
         }

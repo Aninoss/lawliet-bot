@@ -1,15 +1,14 @@
 package ServerStuff;
 
 import Constants.Settings;
-import Core.Internet.HttpRequest;
 import Core.Internet.HttpProperty;
+import Core.Internet.HttpRequest;
 import Core.Internet.HttpResponse;
 import Core.SecretManager;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class Botsfordiscord {
@@ -25,7 +24,7 @@ public class Botsfordiscord {
                     new HttpProperty("Authorization", SecretManager.getString("botsfordiscord.token"))
             };
             HttpResponse httpResponse = HttpRequest.getData("https://botsfordiscord.com/api/bot/" + Settings.LAWLIET_ID, jsonObject.toString(), properties).get();
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not post Botsfordiscord request", e);
         }
     }

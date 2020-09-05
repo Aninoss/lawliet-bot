@@ -1,34 +1,28 @@
 package ServerStuff;
 
 import Constants.Settings;
-import Core.Bot;
 import Core.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class TopGG {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(TopGG.class);
     private static final TopGG ourInstance = new TopGG();
-    private DiscordBotListAPI dblApi;
+    private final DiscordBotListAPI dblApi;
 
     public static TopGG getInstance() {
         return ourInstance;
     }
 
     private TopGG() {
-        try {
-            dblApi = new DiscordBotListAPI.Builder()
-                    .token(SecretManager.getString("discordbots.token"))
-                    .botId(String.valueOf(Settings.LAWLIET_ID))
-                    .build();
-        } catch (IOException e) {
-            LOGGER.error("Could not connect with top.gg", e);
-        }
+        dblApi = new DiscordBotListAPI.Builder()
+                .token(SecretManager.getString("discordbots.token"))
+                .botId(String.valueOf(Settings.LAWLIET_ID))
+                .build();
     }
 
     public void updateServerCount(int totalServerSize) {

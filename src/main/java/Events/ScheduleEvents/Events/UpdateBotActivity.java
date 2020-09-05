@@ -1,6 +1,6 @@
 package Events.ScheduleEvents.Events;
 
-import Core.Connector;
+import Core.DiscordConnector;
 import Events.ScheduleEvents.ScheduleEventFixedRate;
 import Events.ScheduleEvents.ScheduleEventInterface;
 
@@ -11,7 +11,7 @@ public class UpdateBotActivity implements ScheduleEventInterface {
 
     @Override
     public void run() throws Throwable {
-        Connector.updateActivity();
+        DiscordConnector.getInstance().updateActivity();
     }
 
 }
