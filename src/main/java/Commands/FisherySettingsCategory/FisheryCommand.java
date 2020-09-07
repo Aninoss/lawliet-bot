@@ -158,7 +158,6 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Settings.EMPTY_EMOJI, false)
-                        //.addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryTreasureChests())), getString("state0_mtreasurechests_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryReminders())), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(serverBean.hasFisheryCoinsGivenLimit())), getString("state0_mcoinsgivenlimit_desc"), true)

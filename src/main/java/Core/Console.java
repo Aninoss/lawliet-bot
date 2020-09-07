@@ -74,6 +74,15 @@ public class Console {
                                 }
                                 break;
 
+                            case "reconnect":
+                                try {
+                                    int shardId = Integer.parseInt(arg);
+                                    DiscordApiCollection.getInstance().reconnectShard(shardId);
+                                } catch (Throwable e) {
+                                    LOGGER.error("Could not reconnect shard", e);
+                                }
+                                break;
+
                             case "threads":
                                 try {
                                     StringBuilder sb = new StringBuilder();
