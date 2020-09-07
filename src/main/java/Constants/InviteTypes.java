@@ -12,5 +12,6 @@ public enum InviteTypes {
     BOTSFORDISCORD_COM,
     DISCORD_BOATS,
     TOP_BOTS_XYZ,
+    WEBSITE_DISCORD_SERVERS_ME
 
 }
