@@ -41,7 +41,9 @@ public class FisheryUserBean extends BeanWithServer {
     private Boolean onServer = null;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
-    private long hiddenCoins = 0, messagesThisHour = 0;
+    private long hiddenCoins = 0;
+    private long messagesThisHour = 0;
+    private long coinsGiven = 0;
     private String lastContent = null;
 
     FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
@@ -56,7 +58,8 @@ public class FisheryUserBean extends BeanWithServer {
         this.fisheryHourlyIncomeMap = fisheryHourlyIncomeMap;
         this.powerUpMap = powerUpMap;
 
-        for(int i = 0; i < 6; i++) this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverBean.getServerId(), userId, i, 0));
+        for(int i = 0; i < 6; i++)
+            this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverBean.getServerId(), userId, i, 0));
     }
 
     public FisheryUserBean(ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
@@ -64,8 +67,6 @@ public class FisheryUserBean extends BeanWithServer {
         setFisheryServerBean(fisheryServerBean);
     }
 
-
-    /* Getters */
 
     public long getUserId() { return userId; }
 
@@ -88,6 +89,26 @@ public class FisheryUserBean extends BeanWithServer {
     public long getCoins() { return coins - hiddenCoins; }
 
     public long getCoinsRaw() { return coins; }
+
+    public long getCoinsGiven() { return coinsGiven; }
+
+    public long getTotalProgressIndex() {
+        long sum = 0;
+        for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
+            sum += FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+        }
+        return sum;
+    }
+
+    public long getCoinsGivenMax() {
+        long sum = 0;
+        for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
+            sum += 15000L * FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+            if (sum >= Settings.MAX)
+                return Settings.MAX;
+        }
+        return sum;
+    }
 
     public int getRank() {
         try {
@@ -145,8 +166,6 @@ public class FisheryUserBean extends BeanWithServer {
 
     public boolean isBanned() { return banned; }
 
-
-    /* Setters */
 
     void setFisheryServerBean(FisheryServerBean fisheryServerBean) {
         if (this.fisheryServerBean == null) {
@@ -261,6 +280,7 @@ public class FisheryUserBean extends BeanWithServer {
                 if (fishIncome != null) fishIncome += fish;
                 getCurrentFisheryHourlyIncome().add(fish);
             }
+            reminderSent = true;
             checkValuesBound();
             setChanged();
         }
@@ -277,8 +297,16 @@ public class FisheryUserBean extends BeanWithServer {
     public void addCoins(long coins) {
         if (coins != 0) {
             this.coins += coins;
+            reminderSent = true;
             checkValuesBound();
             setChanged();
+        }
+    }
+
+    public void addCoinsGiven(long coins) {
+        if (coins > 0) {
+            this.coinsGiven += coins;
+            checkValuesBound();
         }
     }
 
@@ -382,6 +410,8 @@ public class FisheryUserBean extends BeanWithServer {
 
         if (dailyStreak > Settings.MAX) dailyStreak = Settings.MAX;
         if (dailyStreak < 0) dailyStreak = 0;
+
+        if (coinsGiven > Settings.MAX) coinsGiven = Settings.MAX;
     }
 
     public void levelUp(int powerUpId) {
@@ -400,16 +430,6 @@ public class FisheryUserBean extends BeanWithServer {
             checkValuesBound();
             setChanged();
         }
-    }
-
-    public void increaseDailyStreak() {
-        dailyStreak++;
-        setChanged();
-    }
-
-    public void resetDailyStreak() {
-        dailyStreak = 0;
-        setChanged();
     }
 
     public void addUpvote(int upvotes) {

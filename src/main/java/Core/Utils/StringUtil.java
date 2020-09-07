@@ -356,6 +356,10 @@ public final class StringUtil {
                 .replace("~", "\\~");
     }
 
+    public static String escapeMarkdownInField(String str) {
+        return str.replace("`", "");
+    }
+
     public static String generateHeartBar(int health, int healthMax, boolean lostHealth) {
         StringBuilder sb = new StringBuilder();
 

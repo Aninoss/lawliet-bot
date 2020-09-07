@@ -96,14 +96,19 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         return true;
 
                     case 2:
-                        channelNavigationHelper.startDataAdd(1);
+                        serverBean.toggleFisheryCoinsGivenLimit();
+                        setLog(LogStatus.SUCCESS, getString("coinsgivenset", serverBean.hasFisheryCoinsGivenLimit()));
                         return true;
 
                     case 3:
-                        channelNavigationHelper.startDataRemove(2);
+                        channelNavigationHelper.startDataAdd(1);
                         return true;
 
                     case 4:
+                        channelNavigationHelper.startDataRemove(2);
+                        return true;
+
+                    case 5:
                         if (serverBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             serverBean.setFisheryStatus(FisheryStatus.ACTIVE);
                             stopLock = true;
@@ -113,7 +118,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         return true;
 
-                    case 5:
+                    case 6:
                         if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
@@ -152,9 +157,11 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 setOptions(getString("state0_options_"+ serverBean.getFisheryStatus().ordinal()).split("\n"));
 
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
-                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**", true)
-                        .addField(getString("state0_mtreasurechests"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryTreasureChests()), true)
-                        .addField(getString("state0_mreminders"), StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisheryReminders()), true)
+                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Settings.EMPTY_EMOJI, false)
+                        //.addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI, false)
+                        .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryTreasureChests())), getString("state0_mtreasurechests_desc"), true)
+                        .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryReminders())), getString("state0_mreminders_desc"), true)
+                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(serverBean.hasFisheryCoinsGivenLimit())), getString("state0_mcoinsgivenlimit_desc"), true)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false);
 
             case 1: return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
@@ -169,7 +176,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     @Override
     public int getMaxReactionNumber() {
-        return 6;
+        return 7;
     }
 
     @Override

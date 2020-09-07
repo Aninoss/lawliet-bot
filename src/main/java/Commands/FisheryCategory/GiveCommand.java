@@ -2,6 +2,7 @@ package Commands.FisheryCategory;
 
 import CommandListeners.CommandProperties;
 import Commands.FisheryAbstract;
+import Constants.LogStatus;
 import Constants.Permission;
 import Core.EmbedFactory;
 import Core.Mention.MentionList;
@@ -11,6 +12,7 @@ import Core.Utils.StringUtil;
 import MySQL.Modules.FisheryUsers.DBFishery;
 import MySQL.Modules.FisheryUsers.FisheryUserBean;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -50,6 +52,7 @@ public class GiveCommand extends FisheryAbstract {
         User user0 = event.getMessage().getUserAuthor().get();
         User user1 = list.get(0);
 
+        /* For DisCom - Die Discord Community */
         if (server.getId() == 418223406698332173L) {
             Role role = server.getRoleById(660459523676438528L).get();
             if (!role.hasUser(user0)) return false;
@@ -58,6 +61,18 @@ public class GiveCommand extends FisheryAbstract {
         FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());
         FisheryUserBean fisheryUser1 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user1.getId());
         long value = Math.min(MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins()), fisheryUser0.getCoins());
+        long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
+
+        boolean limitCapped = false;
+        if (fisheryUser0.getServerBean().hasFisheryCoinsGivenLimit() && value >= cap) {
+            if (cap > 0) {
+                value = cap;
+                limitCapped = true;
+            } else {
+                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))))).get();
+                return false;
+            }
+        }
 
         if (value != -1) {
             if (value >= 1) {
@@ -66,8 +81,9 @@ public class GiveCommand extends FisheryAbstract {
 
                 fisheryUser0.addCoins(-value);
                 fisheryUser1.addCoins(value);
+                fisheryUser1.addCoinsGiven(value);
 
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("successful",
+                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("successful",
                         StringUtil.numToString(getLocale(), value),
                         user1.getMentionTag(),
                         user0.getMentionTag(),
@@ -75,7 +91,12 @@ public class GiveCommand extends FisheryAbstract {
                         StringUtil.numToString(getLocale(), coins0Pre - value),
                         StringUtil.numToString(getLocale(), coins1Pre),
                         StringUtil.numToString(getLocale(), coins1Pre + value)
-                ))).get();
+                ));
+
+                if (limitCapped)
+                    EmbedFactory.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))));
+
+                event.getChannel().sendMessage(eb).get();
                 return true;
             } else {
                 if (fisheryUser0.getCoins() <= 0)

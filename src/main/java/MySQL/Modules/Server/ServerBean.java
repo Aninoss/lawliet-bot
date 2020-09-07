@@ -16,11 +16,13 @@ public class ServerBean extends Observable {
     private String prefix, webhookUrl;
     private Locale locale;
     private FisheryStatus fisheryStatus;
-    private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders, commandAuthorMessageRemove;
+    private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders, commandAuthorMessageRemove, fisheryCoinsGivenLimit;
     private Long fisheryAnnouncementChannelId;
     private Integer fisheryVcHoursCap = null;
 
-    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles, Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, int fisheryVcHoursCap, String webhookUrl, boolean commandAuthorMessageRemove) {
+    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
+                      Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
+                      int fisheryVcHoursCap, String webhookUrl, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit) {
         this.serverId = serverId;
         this.fisheryRoleMin = fisheryRoleMin;
         this.fisheryRoleMax = fisheryRoleMax;
@@ -35,6 +37,7 @@ public class ServerBean extends Observable {
         else this.fisheryVcHoursCap = fisheryVcHoursCap;
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
+        this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;
     }
 
 
@@ -44,7 +47,9 @@ public class ServerBean extends Observable {
         return serverId;
     }
 
-    public Optional<Server> getServer() { return DiscordApiCollection.getInstance().getServerById(serverId); }
+    public Optional<Server> getServer() {
+        return DiscordApiCollection.getInstance().getServerById(serverId);
+    }
 
     public long getFisheryRoleMin() {
         return fisheryRoleMin;
@@ -98,7 +103,13 @@ public class ServerBean extends Observable {
         return DBServer.getInstance().containsServerId(serverId);
     }
 
-    public boolean isCommandAuthorMessageRemove() { return commandAuthorMessageRemove; }
+    public boolean isCommandAuthorMessageRemove() {
+        return commandAuthorMessageRemove;
+    }
+
+    public boolean hasFisheryCoinsGivenLimit() {
+        return fisheryCoinsGivenLimit;
+    }
 
     /* Setters */
 
@@ -185,6 +196,12 @@ public class ServerBean extends Observable {
 
     public void setCommandAuthorMessageRemove(boolean active) {
         if (this.isCommandAuthorMessageRemove() != active) toggleCommandAuthorMessageRemove();
+    }
+
+    public void toggleFisheryCoinsGivenLimit() {
+        this.fisheryCoinsGivenLimit = !this.fisheryCoinsGivenLimit;
+        setChanged();
+        notifyObservers();
     }
 
 }
