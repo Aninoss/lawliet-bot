@@ -1,6 +1,5 @@
 package ServerStuff.WebCommunicationServer.Events;
 
-import CommandSupporters.CommandLogger.CommandLogger;
 import Core.DiscordApiCollection;
 import Core.EmbedFactory;
 import ServerStuff.WebCommunicationServer.EventAbstract;
@@ -10,7 +9,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Optional;
 
 public class OnFeedback extends EventAbstract {
@@ -35,14 +33,6 @@ public class OnFeedback extends EventAbstract {
                 .setTitle(cause)
                 .setAuthor("BOT KICK FEEDBACK")
                 .setDescription(reason);
-        serverIdOpt.ifPresent(serverId -> {
-            try {
-                CommandLogger.getInstance().saveLog(serverId, false);
-            } catch (IOException e) {
-                LOGGER.error("Could not save log", e);
-            }
-            eb.setFooter(String.valueOf(serverId));
-        });
 
         DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
 

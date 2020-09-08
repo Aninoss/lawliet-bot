@@ -34,7 +34,6 @@ public class CommandContainer {
 
     private final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
     private final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
-    //private final ArrayList<Class<? extends Command>> commandList = new ArrayList<>();
     private final ArrayList<Class<? extends OnReactionAddStaticListener>> staticReactionAddCommands = new ArrayList<>();
     private final ArrayList<Class<? extends OnReactionRemoveStaticListener>> staticReactionRemoveCommands = new ArrayList<>();
     private final ArrayList<Class<? extends OnTrackerRequestListener>> trackerCommands = new ArrayList<>();

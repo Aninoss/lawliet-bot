@@ -45,13 +45,11 @@ public class TrackerBean extends Observable {
         IntervalBlock intervalBlock = new IntervalBlock(1, ChronoUnit.MINUTES);
         try {
             while (intervalBlock.block() && active) {
-                LOGGER.info("Tracker Start " + trackerShard);
                 for (ArrayList<TrackerBeanSlot> trackerBeanSlots : getGroupedByCommandTrigger()) {
                     if (trackerBeanSlots.size() > 0) {
                         manageTrackerCommand(trackerBeanSlots, trackerShard);
                     }
                 }
-                LOGGER.info("Tracker End " + trackerShard);
             }
         } catch (InterruptedException e) {
             LOGGER.error("All trackers interrupted", e);

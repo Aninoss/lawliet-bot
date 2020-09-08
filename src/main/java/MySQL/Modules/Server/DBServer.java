@@ -31,7 +31,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
         ServerBean serverBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, webhookUrl, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.execute();
 
@@ -49,9 +49,8 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
                     resultSet.getLong(8),
                     resultSet.getLong(9),
                     resultSet.getInt(10),
-                    resultSet.getString(11),
-                    resultSet.getBoolean(12),
-                    resultSet.getBoolean(13)
+                    resultSet.getBoolean(11),
+                    resultSet.getBoolean(12)
 
             );
         } else {
@@ -67,7 +66,6 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
                     50000,
                     800000000,
                     0,
-                    null,
                     false,
                     true
             );
@@ -85,7 +83,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     }
 
     private void insertBean(ServerBean serverBean) throws SQLException, InterruptedException {
-        DBMain.getInstance().update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, webhookUrl, commandAuthorMessageRemove, fisheryCoinsGivenLimit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverBean.getServerId());
             preparedStatement.setString(2, serverBean.getPrefix());
             preparedStatement.setString(3, serverBean.getLocale().getDisplayName());
@@ -105,18 +103,14 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
             if (VCHoursOpt.isPresent()) preparedStatement.setInt(11, VCHoursOpt.get());
             else preparedStatement.setNull(11, Types.INTEGER);
 
-            Optional<String> webhookOpt = serverBean.getWebhookUrl();
-            if (webhookOpt.isPresent()) preparedStatement.setString(12, webhookOpt.get());
-            else preparedStatement.setNull(12, Types.VARCHAR);
-
-            preparedStatement.setBoolean(13, serverBean.isCommandAuthorMessageRemove());
-            preparedStatement.setBoolean(14, serverBean.hasFisheryCoinsGivenLimit());
+            preparedStatement.setBoolean(12, serverBean.isCommandAuthorMessageRemove());
+            preparedStatement.setBoolean(13, serverBean.hasFisheryCoinsGivenLimit());
         });
     }
 
     @Override
     protected void saveBean(ServerBean serverBean) {
-        DBMain.getInstance().asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, webhookUrl = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
             preparedStatement.setLong(11, serverBean.getServerId());
 
             preparedStatement.setString(1, serverBean.getPrefix());
@@ -137,13 +131,9 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
             if (VCHoursOpt.isPresent()) preparedStatement.setInt(10, VCHoursOpt.get());
             else preparedStatement.setNull(10, Types.INTEGER);
 
-            Optional<String> webhookOpt = serverBean.getWebhookUrl();
-            if (webhookOpt.isPresent()) preparedStatement.setString(11, webhookOpt.get());
-            else preparedStatement.setNull(11, Types.VARCHAR);
-
-            preparedStatement.setBoolean(12, serverBean.isCommandAuthorMessageRemove());
-            preparedStatement.setBoolean(13, serverBean.hasFisheryCoinsGivenLimit());
-            preparedStatement.setLong(14, serverBean.getServerId());
+            preparedStatement.setBoolean(11, serverBean.isCommandAuthorMessageRemove());
+            preparedStatement.setBoolean(12, serverBean.hasFisheryCoinsGivenLimit());
+            preparedStatement.setLong(13, serverBean.getServerId());
         });
     }
 

@@ -1,25 +1,20 @@
 package Core;
 
 import CommandSupporters.CommandContainer;
-import Constants.Settings;
-import Core.Internet.HttpRequest;
-import Core.Internet.HttpProperty;
-import Core.Internet.HttpResponse;
 import CommandSupporters.RunningCommands.RunningCommandManager;
+import Constants.Settings;
+import Core.Internet.HttpProperty;
+import Core.Internet.HttpRequest;
+import Core.Internet.HttpResponse;
 import Core.Utils.InternetUtil;
-import Core.Utils.PermissionUtil;
-import MySQL.Modules.Server.DBServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.entity.webhook.Webhook;
-import org.javacord.api.entity.webhook.WebhookBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -366,71 +361,6 @@ public class DiscordApiCollection {
         return Optional.empty();
     }
 
-    public Optional<Webhook> getOwnWebhook(Server server) {
-        if (!PermissionUtil.userHasServerPermission(server, getYourself(), PermissionType.MANAGE_WEBHOOKS))
-            return Optional.empty();
-
-        try {
-            List<Webhook> webhookList = server.getWebhooks().get().stream().filter(webhook -> webhook.getCreator().isPresent() && webhook.getCreator().get().isYourself()).collect(Collectors.toList());
-            if (webhookList.size() > 0) return Optional.of(webhookList.get(0));
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not fetch webhook", e);
-        }
-
-        return Optional.empty();
-    }
-
-    public void insertWebhook(Server server) {
-        if (!getOwnWebhook(server).isPresent()) {
-            User yourself = getYourself();
-
-            try {
-                if (PermissionUtil.userHasServerPermission(server, yourself, PermissionType.MANAGE_WEBHOOKS) && server.getWebhooks().get().size() >= 10)
-                    return;
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Exception", e);
-            }
-
-            ServerTextChannel finalChannel = null;
-            if (server.getSystemChannel().isPresent() && PermissionUtil.userHasChannelPermission(server.getSystemChannel().get(), yourself, PermissionType.MANAGE_WEBHOOKS))
-                finalChannel = server.getSystemChannel().get();
-
-            else {
-                for (ServerTextChannel channel: server.getTextChannels()) {
-                    if (PermissionUtil.userHasChannelPermission(channel, yourself, PermissionType.MANAGE_WEBHOOKS)) {
-                        finalChannel = channel;
-                        break;
-                    }
-                }
-            }
-
-            if (finalChannel != null) {
-                WebhookBuilder webhookBuilder = finalChannel.createWebhookBuilder();
-                webhookBuilder.setAvatar(yourself.getAvatar())
-                        .setName(yourself.getName());
-                try {
-                    Webhook webhook = webhookBuilder.create().get();
-                    if (webhook.getToken().isPresent()) {
-                        String url = String.format("https://discordapp.com/api/webhooks/%s/%s", webhook.getId(), webhook.getToken().get());
-                        DBServer.getInstance().getBean(server.getId()).setWebhookUrl(url);
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    //Ignore
-                }
-            }
-        }
-    }
-
-    public void clearOwnWebhooks(Server server) {
-        try {
-            server.getWebhooks().get().stream()
-                    .filter(webhook -> webhook.getCreator().isPresent() && webhook.getCreator().get().isYourself())
-                    .forEach(Webhook::delete);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not fetch webhooks", e);
-        }
-    }
-
     public CompletableFuture<HttpResponse> removeWebhook(String webhookUrl) throws IOException {
         String[] segments = webhookUrl.split("/");
         String webhookId = segments[segments.length - 2];
@@ -455,4 +385,5 @@ public class DiscordApiCollection {
     public Instant getStartingTime() {
         return startingTime;
     }
+
 }

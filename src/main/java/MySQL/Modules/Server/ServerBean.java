@@ -13,21 +13,24 @@ public class ServerBean extends Observable {
 
     private final long serverId;
     private long fisheryRoleMin, fisheryRoleMax;
-    private String prefix, webhookUrl;
+    private String prefix;
     private Locale locale;
     private FisheryStatus fisheryStatus;
-    private boolean fisherySingleRoles, fisheryTreasureChests, fisheryReminders, commandAuthorMessageRemove, fisheryCoinsGivenLimit;
+    private boolean fisherySingleRoles;
+    private boolean fisheryTreasureChests;
+    private boolean fisheryReminders;
+    private boolean commandAuthorMessageRemove;
+    private boolean fisheryCoinsGivenLimit;
     private Long fisheryAnnouncementChannelId;
-    private Integer fisheryVcHoursCap = null;
+    private Integer fisheryVcHoursCap;
 
     public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
                       Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
-                      int fisheryVcHoursCap, String webhookUrl, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit) {
+                      int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit) {
         this.serverId = serverId;
         this.fisheryRoleMin = fisheryRoleMin;
         this.fisheryRoleMax = fisheryRoleMax;
         this.prefix = prefix;
-        this.webhookUrl = webhookUrl;
         this.locale = locale;
         this.fisheryStatus = fisheryStatus;
         this.fisherySingleRoles = fisherySingleRoles;
@@ -61,10 +64,6 @@ public class ServerBean extends Observable {
 
     public String getPrefix() {
         return prefix;
-    }
-
-    public Optional<String> getWebhookUrl() {
-        return Optional.ofNullable(webhookUrl);
     }
 
     public Locale getLocale() {
@@ -125,14 +124,6 @@ public class ServerBean extends Observable {
     public void setPrefix(String prefix) {
         if (this.prefix == null || !this.prefix.equals(prefix)) {
             this.prefix = prefix;
-            setChanged();
-            notifyObservers();
-        }
-    }
-
-    public void setWebhookUrl(String webhookUrl) {
-        if (this.webhookUrl == null || !this.webhookUrl.equals(webhookUrl)) {
-            this.webhookUrl = webhookUrl;
             setChanged();
             notifyObservers();
         }

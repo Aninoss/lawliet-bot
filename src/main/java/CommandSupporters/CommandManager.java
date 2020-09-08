@@ -3,8 +3,6 @@ package CommandSupporters;
 import CommandListeners.OnForwardedRecievedListener;
 import CommandListeners.OnNavigationListener;
 import CommandListeners.OnReactionAddListener;
-import CommandSupporters.CommandLogger.CommandLogger;
-import CommandSupporters.CommandLogger.CommandUsage;
 import CommandSupporters.Cooldown.Cooldown;
 import CommandSupporters.RunningCommands.RunningCommandManager;
 import Commands.InformationCategory.HelpCommand;
@@ -25,6 +23,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -74,15 +73,11 @@ public class CommandManager {
                 else
                     command.onRecievedSuper(event, followedString);
 
-                CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.SUCCESS));
                 maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
-                CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.EXCEPTION));
                 ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();
-        } else {
-            CommandLogger.getInstance().add(event.getServer().get().getId(), new CommandUsage(event.getMessageContent(), CommandUsage.Result.FALSE));
         }
     }
 
