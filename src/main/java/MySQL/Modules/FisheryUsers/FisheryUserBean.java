@@ -44,6 +44,7 @@ public class FisheryUserBean extends BeanWithServer {
     private long hiddenCoins = 0;
     private long messagesThisHour = 0;
     private long coinsGiven = 0;
+    private Long coinsGivenMax = null;
     private String lastContent = null;
 
     FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
@@ -101,13 +102,17 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     public long getCoinsGivenMax() {
-        long sum = 0;
-        for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
-            sum += 15000L * FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
-            if (sum >= Settings.MAX)
-                return Settings.MAX;
+        if (coinsGivenMax == null) {
+            long sum = 0;
+            for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
+                sum += 15000L * FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+                if (sum >= Settings.MAX)
+                    return Settings.MAX;
+            }
+            coinsGivenMax = sum;
         }
-        return sum;
+
+        return coinsGivenMax;
     }
 
     public int getRank() {

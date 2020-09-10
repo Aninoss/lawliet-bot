@@ -21,7 +21,9 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "disconnect was called already",
             "java.util.concurrent.RejectedExecutionException",
             "Received a 502 response from Discord",
-            "org.javacord.api.exception.UnknownMessageException"
+            "org.javacord.api.exception.UnknownMessageException",
+            "Cannot send messages to this user",
+            "timeout"
     };
 
     public ExceptionFilter() {}

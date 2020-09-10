@@ -35,7 +35,9 @@ public class DiscordApiCollection {
 
     private DiscordApi[] apiList = new DiscordApi[0];
     private int[] errorCounter;
-    private boolean[] hasReconnected, isAlive;
+    private boolean[] hasReconnected;
+    private boolean[] isAlive;
+    private boolean started = false;
     private final Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
@@ -67,6 +69,8 @@ public class DiscordApiCollection {
             new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1)
                     .start();
         }
+        if (allShardsConnected())
+            started = true;
     }
 
     private void keepApiAlive(DiscordApi api) {
@@ -125,7 +129,12 @@ public class DiscordApiCollection {
         }
     }
 
+    public boolean isStarted() {
+        return started;
+    }
+
     public void stop() {
+        started = false;
         for(DiscordApi api: apiList) {
             if (api != null) {
                 try {

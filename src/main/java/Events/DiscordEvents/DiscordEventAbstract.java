@@ -28,7 +28,7 @@ public abstract class DiscordEventAbstract {
     public boolean isAllowingBots() { return discordEvent.allowBots(); }
 
     protected static <T extends Event> void execute(T event, ArrayList<DiscordEventAbstract> listenerList, EventExecution function) {
-        if (!DiscordApiCollection.getInstance().allShardsConnected())
+        if (!DiscordApiCollection.getInstance().isStarted())
             return;
 
         for(EventPriority priority : EventPriority.values())
