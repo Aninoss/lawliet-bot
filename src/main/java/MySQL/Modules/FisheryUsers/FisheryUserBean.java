@@ -352,7 +352,7 @@ public class FisheryUserBean extends BeanWithServer {
                 .orElse(null);
     }
 
-    private EmbedBuilder generateUserChangeEmbed(Server server, User user, Locale locale, long fishAdd, long coinsAdd,
+    private synchronized EmbedBuilder generateUserChangeEmbed(Server server, User user, Locale locale, long fishAdd, long coinsAdd,
                                                  long rank, long rankPrevious, long fishIncomePrevious, long fishPrevious, long coinsPrevious, Long newDailyStreak, long dailyStreakPrevious
     ) {
         boolean patron = PatreonCache.getInstance().getPatreonLevel(userId) >= 1;

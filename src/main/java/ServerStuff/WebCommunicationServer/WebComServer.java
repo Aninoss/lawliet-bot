@@ -27,6 +27,7 @@ public class WebComServer {
     private static final String EVENT_FR_CAN_POST = "fr_can_post";
     private static final String EVENT_FR_POST = "fr_post";
     private static final String EVENT_TOPGG = "topgg";
+    private static final String EVENT_TOPGG_ANINOSS = "topgg_aninoss";
     private static final String EVENT_DONATEBOT_IO = "donatebot.io";
     private static final String EVENT_FEEDBACK = "feedback";
     private static final String EVENT_INVITE = "invite";
@@ -53,6 +54,7 @@ public class WebComServer {
                     webComServer.addEventListener(EVENT_FR_POST, JSONObject.class, new OnFRPost(this, EVENT_FR_POST));
 
                     webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG(this, EVENT_TOPGG));
+                    webComServer.addEventListener(EVENT_TOPGG_ANINOSS, JSONObject.class, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
                     webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
                     webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback(this, EVENT_FEEDBACK));
                     webComServer.addEventListener(EVENT_INVITE, JSONObject.class, new OnInvite(this, EVENT_INVITE));
