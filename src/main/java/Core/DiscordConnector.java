@@ -49,7 +49,7 @@ public class DiscordConnector {
 
         apiBuilder.loginAllShards()
                 .forEach(shardFuture -> {
-                            if (shardFuture.thenAccept(api -> onApiJoin(api, true))
+                            if (shardFuture.thenAccept(this::onApiJoin)
                                     .isCompletedExceptionally()) {
                                 LOGGER.error("EXIT - Error while connecting to the Discord servers!");
                                 System.exit(-1);
@@ -68,14 +68,14 @@ public class DiscordConnector {
                     .setCurrentShard(shardId);
 
             DiscordApi api = apiBuilder.login().get();
-            onApiJoin(api, false);
+            onApiJoin(api);
         } catch (Throwable e) {
             LOGGER.error("EXIT - Exception when reconnecting shard {}", shardId, e);
             System.exit(-1);
         }
     }
 
-    public void onApiJoin(DiscordApi api, boolean startup) {
+    public void onApiJoin(DiscordApi api) {
         api.setAutomaticMessageCacheCleanupEnabled(true);
         api.setMessageCacheSize(30, 30 * 60);
 
@@ -85,7 +85,7 @@ public class DiscordConnector {
         LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
         if (DiscordApiCollection.getInstance().allShardsConnected()) {
-            if (startup) {
+            if (!DiscordApiCollection.getInstance().isStarted()) {
                 updateActivity();
                 DBFishery.getInstance().cleanUp();
                 new WebComServer(15744);
@@ -93,6 +93,7 @@ public class DiscordConnector {
                 new ScheduleEventManager().start();
                 DBTracker.getInstance().start();
 
+                DiscordApiCollection.getInstance().setStarted();
                 LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
             } else {
                 updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());

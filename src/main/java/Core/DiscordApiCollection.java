@@ -69,6 +69,9 @@ public class DiscordApiCollection {
             new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1)
                     .start();
         }
+    }
+
+    public void setStarted() {
         if (allShardsConnected())
             started = true;
     }
