@@ -245,8 +245,8 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), false)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMax())), false);
+                        .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
+                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMax())), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));

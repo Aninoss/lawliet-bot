@@ -34,6 +34,7 @@ public class PermissionUtil {
     }
 
     public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {
+        userPermissions |= Permission.READ_MESSAGES;
         ArrayList<Integer> missingPermissions = new ArrayList<>();
         if (hasAdminPermissions(server, user)) return missingPermissions;
 
