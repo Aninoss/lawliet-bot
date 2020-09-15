@@ -51,7 +51,8 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
             return false;
         }
 
-        event.getChannel().sendMessage(getEmbed(streamOpt.get())).get();
+        EmbedBuilder eb = EmbedFactory.addTrackerNote(getLocale(), getEmbed(streamOpt.get()), getPrefix(), getTrigger());
+        event.getChannel().sendMessage(eb).get();
         return true;
     }
 
