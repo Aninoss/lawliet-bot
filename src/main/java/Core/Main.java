@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -18,7 +17,7 @@ public class Main {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws Throwable {
         boolean production = args.length >= 1 && args[0].equals("production");
         Bot.setDebug(production);
         Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
@@ -28,6 +27,7 @@ public class Main {
         DBMain.getInstance().connect();
         cleanAllTempFiles();
         initializeUpdate();
+
         DiscordConnector.getInstance().connect();
     }
 

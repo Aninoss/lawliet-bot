@@ -86,15 +86,7 @@ public class DiscordConnector {
 
         if (DiscordApiCollection.getInstance().allShardsConnected()) {
             if (!DiscordApiCollection.getInstance().isStarted()) {
-                updateActivity();
-                DBFishery.getInstance().cleanUp();
-                new WebComServer(15744);
-                DBFishery.getInstance().startVCObserver();
-                new ScheduleEventManager().start();
-                DBTracker.getInstance().start();
-
-                DiscordApiCollection.getInstance().setStarted();
-                LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+                onConnectionCompleted();
             } else {
                 updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
             }
@@ -102,6 +94,18 @@ public class DiscordConnector {
 
         discordEventManager.registerApi(api);
         api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
+    }
+
+    private void onConnectionCompleted() {
+        updateActivity();
+        DBFishery.getInstance().cleanUp();
+        new WebComServer(15744);
+        DBFishery.getInstance().startVCObserver();
+        new ScheduleEventManager().start();
+        DBTracker.getInstance().start();
+
+        DiscordApiCollection.getInstance().setStarted();
+        LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
     public void updateActivity() {
