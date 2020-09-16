@@ -20,7 +20,7 @@ public abstract class GelbooruAbstract extends PornPredefinedAbstract {
 
     @Override
     protected String getImageTemplate() {
-        return "https://furry.booru.org/samples/%d/sample_%f";
+        return "https://img2.gelbooru.com/images/%d/%f";
     }
 
     @Override
