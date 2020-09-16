@@ -1,12 +1,13 @@
 package Commands.ModerationCategory;
 
-import CommandListeners.*;
+import CommandListeners.CommandProperties;
 import CommandSupporters.Command;
 import Constants.Permission;
 import Core.CustomThread;
 import Core.EmbedFactory;
 import Core.TextManager;
 import Core.Utils.StringUtil;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -25,7 +26,7 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83D\uDDD1\uFE0F",
-        maxCalculationTimeSec = 5 * 60,
+        maxCalculationTimeSec = 3 * 60,
         executable = false
 )
 public class ClearCommand extends Command {
@@ -43,10 +44,12 @@ public class ClearCommand extends Command {
             int deleted = 0;
             boolean skipped = false;
 
-            while(count > 0) {
+            while(count > 0 && !skipped) {
                 //Check for message date and therefore permissions
                 MessageSet messageSet = event.getMessage().getMessagesBefore(Math.min(100, count)).get();
-                if (messageSet.size() < 100) count = messageSet.size();
+                if (messageSet.size() < 100)
+                    count = messageSet.size();
+
                 ArrayList<Message> messagesDelete = new ArrayList<>();
                 for (Message message : messageSet.descendingSet()) {
                     if (message.getCreationTimestamp().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
@@ -70,18 +73,10 @@ public class ClearCommand extends Command {
             }
 
             String key = skipped ? "finished_too_old" : "finished_description";
-            Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString(key, deleted != 1, String.valueOf(deleted)))
+            Message confirmationMessage = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString(key, deleted != 1, String.valueOf(deleted)))
                     .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
-            Thread t = new CustomThread(() -> {
-                try {
-                    Thread.sleep(8000);
-                    Message[] messagesArray = new Message[]{m, event.getMessage()};
-                    event.getChannel().bulkDelete(messagesArray);
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
-                }
-            }, "clear_countdown", 1);
-            t.start();
+
+            startCountdown(event.getServerTextChannel().get(), new Message[]{ confirmationMessage, event.getMessage() });
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -89,4 +84,16 @@ public class ClearCommand extends Command {
             return false;
         }
     }
+
+    private void startCountdown(ServerTextChannel channel, Message[] messagesArray) {
+        new CustomThread(() -> {
+            try {
+                Thread.sleep(8000);
+                channel.bulkDelete(messagesArray);
+            } catch (InterruptedException e) {
+                LOGGER.error("Interrupted", e);
+            }
+        }, "clear_countdown", 1).start();
+    }
+
 }
