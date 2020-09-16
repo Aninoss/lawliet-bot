@@ -176,7 +176,8 @@ public abstract class PornAbstract extends Command {
                     .setFooter(TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(getLocale(), pornImage.getScore())));
 
             getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
-            channel.sendMessage(eb).get();
+            if (channel.getCurrentCachedInstance().isPresent())
+                channel.sendMessage(eb).get();
         } else {
             StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
             for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
@@ -184,7 +185,9 @@ public abstract class PornAbstract extends Command {
             }
 
             getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
-            channel.sendMessage(sb.toString()).get();
+
+            if (channel.getCurrentCachedInstance().isPresent())
+                channel.sendMessage(sb.toString()).get();
         }
     }
 
