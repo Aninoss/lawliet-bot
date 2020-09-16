@@ -72,7 +72,8 @@ public class BlushCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736260129418248242/736260558734622782/blush.gif",
                 "https://media.discordapp.net/attachments/736260129418248242/736260566364061746/blush.gif",
                 "https://media.discordapp.net/attachments/736260129418248242/736260573729259550/blush.gif",
-                "https://media.discordapp.net/attachments/736260129418248242/750018308144758865/blush.gif"
+                "https://media.discordapp.net/attachments/736260129418248242/750018308144758865/blush.gif",
+                "https://media.discordapp.net/attachments/736260129418248242/755840615354335262/blush.gif"
         };
     }
 

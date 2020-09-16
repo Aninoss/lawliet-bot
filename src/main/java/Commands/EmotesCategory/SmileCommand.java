@@ -97,7 +97,8 @@ public class SmileCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736256980020101160/736258227104251964/happy.gif",
                 "https://media.discordapp.net/attachments/736256980020101160/736258306334654604/happy.gif",
                 "https://media.discordapp.net/attachments/736256980020101160/739030111600509018/smile.gif",
-                "https://media.discordapp.net/attachments/736256980020101160/743053465261179002/smile.gif"
+                "https://media.discordapp.net/attachments/736256980020101160/743053465261179002/smile.gif",
+                "https://media.discordapp.net/attachments/736256980020101160/755840479375131064/smile.gif"
         };
     }
 

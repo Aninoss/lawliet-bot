@@ -213,6 +213,7 @@ public class CommandContainer {
         commandList.add(RealLifeBoobsCommand.class);
         commandList.add(RealLifeAssCommand.class);
         commandList.add(HentaiCommand.class);
+        commandList.add(HentaiBlowjobCommand.class);
         commandList.add(AhegaoCommand.class);
         commandList.add(TrapCommand.class);
         commandList.add(FutaCommand.class);

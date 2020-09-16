@@ -70,7 +70,8 @@ public class NomCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736273366784278558/736273681994612866/nom.gif",
                 "https://media.discordapp.net/attachments/736273366784278558/736273689569394688/nom.gif",
                 "https://media.discordapp.net/attachments/736273366784278558/736646632791081020/nom.gif",
-                "https://media.discordapp.net/attachments/736273366784278558/739030221096747069/nom.gif"
+                "https://media.discordapp.net/attachments/736273366784278558/739030221096747069/nom.gif",
+                "https://media.discordapp.net/attachments/736273366784278558/755840757901820054/nom.gif"
         };
     }
 
