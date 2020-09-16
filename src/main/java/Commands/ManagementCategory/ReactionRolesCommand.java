@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 )
 public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
-    private static final int MAX_LINKS = 18;
+    private static final int MAX_LINKS = 20;
     private final static int
             ADD_OR_EDIT = 0,
             ADD_MESSAGE = 1,
