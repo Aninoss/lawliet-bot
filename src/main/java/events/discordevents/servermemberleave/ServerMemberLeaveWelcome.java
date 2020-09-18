@@ -1,6 +1,6 @@
 package events.discordevents.servermemberleave;
 
-import commands.commandrunnables.managementcategory.WelcomeCommand;
+import commands.runnables.managementcategory.WelcomeCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;

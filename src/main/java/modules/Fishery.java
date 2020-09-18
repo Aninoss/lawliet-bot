@@ -1,6 +1,6 @@
 package modules;
 
-import commands.commandrunnables.fisherysettingscategory.FisheryCommand;
+import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Category;
 import constants.FisheryCategoryInterface;
 import constants.Settings;

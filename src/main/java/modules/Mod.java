@@ -2,7 +2,7 @@ package modules;
 
 import commands.Command;
 import commands.CommandManager;
-import commands.commandrunnables.moderationcategory.ModSettingsCommand;
+import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
 import constants.Permission;
 import core.EmbedFactory;

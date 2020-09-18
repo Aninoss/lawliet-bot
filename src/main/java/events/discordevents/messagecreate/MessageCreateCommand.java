@@ -1,11 +1,11 @@
 package events.discordevents.messagecreate;
 
-import commands.commandlisteners.OnForwardedRecievedListener;
-import commands.commandlisteners.OnNavigationListener;
+import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnNavigationListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import commands.commandrunnables.gimmickscategory.QuoteCommand;
+import commands.runnables.gimmickscategory.QuoteCommand;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;

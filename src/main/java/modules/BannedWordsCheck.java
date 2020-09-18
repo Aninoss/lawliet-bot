@@ -1,7 +1,7 @@
 package modules;
 
 import commands.CommandManager;
-import commands.commandrunnables.moderationcategory.BannedWordsCommand;
+import commands.runnables.moderationcategory.BannedWordsCommand;
 import constants.Category;
 import core.DiscordApiCollection;
 import core.EmbedFactory;

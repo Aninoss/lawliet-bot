@@ -1,6 +1,6 @@
 package events.discordevents.reactionadd;
 
-import commands.commandlisteners.OnReactionAddStaticListener;
+import commands.listeners.OnReactionAddStaticListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;

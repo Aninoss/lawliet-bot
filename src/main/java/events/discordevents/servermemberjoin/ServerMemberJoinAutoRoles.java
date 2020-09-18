@@ -1,6 +1,6 @@
 package events.discordevents.servermemberjoin;
 
-import commands.commandrunnables.managementcategory.AutoRolesCommand;
+import commands.runnables.managementcategory.AutoRolesCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerMemberJoinAbstract;

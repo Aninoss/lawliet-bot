@@ -1,6 +1,6 @@
 package events.discordevents.servervoicechannelchangeuserlimit;
 
-import commands.commandrunnables.managementcategory.AutoChannelCommand;
+import commands.runnables.managementcategory.AutoChannelCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;

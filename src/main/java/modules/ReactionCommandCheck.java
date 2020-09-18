@@ -1,7 +1,7 @@
 package modules;
 
-import commands.commandlisteners.OnNavigationListener;
-import commands.commandlisteners.OnReactionAddListener;
+import commands.listeners.OnNavigationListener;
+import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import commands.CommandContainer;
 import core.ExceptionHandler;

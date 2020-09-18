@@ -1,7 +1,7 @@
 package core;
 
 import commands.CommandContainer;
-import commands.commandrunningchecker.RunningCheckerManager;
+import commands.runningchecker.RunningCheckerManager;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;

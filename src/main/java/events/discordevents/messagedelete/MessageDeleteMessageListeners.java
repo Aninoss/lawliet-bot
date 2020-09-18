@@ -1,8 +1,8 @@
 package events.discordevents.messagedelete;
 
-import commands.commandlisteners.OnForwardedRecievedListener;
-import commands.commandlisteners.OnNavigationListener;
-import commands.commandlisteners.OnReactionAddListener;
+import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnNavigationListener;
+import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import commands.CommandContainer;
 import events.discordevents.DiscordEvent;

@@ -1,11 +1,11 @@
 package commands;
 
-import commands.commandlisteners.OnForwardedRecievedListener;
-import commands.commandlisteners.OnNavigationListener;
-import commands.commandlisteners.OnReactionAddListener;
-import commands.commandcooldown.Cooldown;
-import commands.commandrunningchecker.RunningCheckerManager;
-import commands.commandrunnables.informationcategory.HelpCommand;
+import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnNavigationListener;
+import commands.listeners.OnReactionAddListener;
+import commands.cooldownchecker.CooldownManager;
+import commands.runningchecker.RunningCheckerManager;
+import commands.runnables.informationcategory.HelpCommand;
 import constants.Permission;
 import constants.Settings;
 import core.*;
@@ -125,13 +125,13 @@ public class CommandManager {
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2) return true;
 
-        Optional<Integer> waitingSec = Cooldown.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
+        Optional<Integer> waitingSec = CooldownManager.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
         if (!waitingSec.isPresent()) {
             return true;
         }
 
         User user = event.getMessageAuthor().asUser().get();
-        if (Cooldown.getInstance().isFree(user.getId())) {
+        if (CooldownManager.getInstance().isFree(user.getId())) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
             if (event.getChannel().canYouEmbedLinks()) {

@@ -1,6 +1,6 @@
 package events.scheduleevents.events;
 
-import commands.commandrunningchecker.RunningCheckerManager;
+import commands.runningchecker.RunningCheckerManager;
 import core.PatreonCache;
 import core.ServerPatreonBoostCache;
 import events.scheduleevents.ScheduleEventDaily;

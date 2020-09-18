@@ -1,6 +1,6 @@
 package events.discordevents.reactionremove;
 
-import commands.commandlisteners.OnReactionRemoveStaticListener;
+import commands.listeners.OnReactionRemoveStaticListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;

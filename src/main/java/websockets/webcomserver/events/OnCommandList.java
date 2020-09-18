@@ -1,6 +1,6 @@
 package websockets.webcomserver.events;
 
-import commands.commandlisteners.OnTrackerRequestListener;
+import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;

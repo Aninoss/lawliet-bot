@@ -1,6 +1,6 @@
 package events.scheduleevents.events;
 
-import commands.commandcooldown.Cooldown;
+import commands.cooldownchecker.CooldownManager;
 import events.scheduleevents.ScheduleEventFixedRate;
 import events.scheduleevents.ScheduleEventInterface;
 
@@ -11,7 +11,7 @@ public class CleanCooldownList implements ScheduleEventInterface {
 
     @Override
     public void run() throws Throwable {
-        Cooldown.getInstance().clean();
+        CooldownManager.getInstance().clean();
     }
 
 }

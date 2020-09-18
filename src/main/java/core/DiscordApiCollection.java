@@ -1,7 +1,7 @@
 package core;
 
 import commands.CommandContainer;
-import commands.commandrunningchecker.RunningCheckerManager;
+import commands.runningchecker.RunningCheckerManager;
 import constants.Settings;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;

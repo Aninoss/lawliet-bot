@@ -1,10 +1,10 @@
 package mysql.modules.tracker;
 
-import commands.commandlisteners.OnTrackerRequestListener;
+import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import commands.commandrunnables.managementcategory.TrackerCommand;
+import commands.runnables.managementcategory.TrackerCommand;
 import constants.Permission;
 import constants.Settings;
 import core.*;
