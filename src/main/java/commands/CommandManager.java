@@ -3,8 +3,8 @@ package commands;
 import commands.commandlisteners.OnForwardedRecievedListener;
 import commands.commandlisteners.OnNavigationListener;
 import commands.commandlisteners.OnReactionAddListener;
-import commands.cooldown.Cooldown;
-import commands.runningcommands.RunningCommandManager;
+import commands.commandcooldown.Cooldown;
+import commands.commandrunningchecker.RunningCheckerManager;
 import commands.commandrunnables.informationcategory.HelpCommand;
 import constants.Permission;
 import constants.Settings;
@@ -99,7 +99,7 @@ public class CommandManager {
 
     private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         boolean patreonBonus = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2;
-        if (RunningCommandManager.getInstance().canUserRunCommand(
+        if (RunningCheckerManager.getInstance().canUserRunCommand(
                 event.getMessage().getUserAuthor().get().getId(),
                 event.getApi().getCurrentShard(),
                 command.getMaxCalculationTimeSec(),

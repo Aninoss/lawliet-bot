@@ -1,4 +1,4 @@
-package commands.cooldown;
+package commands.commandcooldown;
 
 import java.time.Duration;
 import java.time.Instant;

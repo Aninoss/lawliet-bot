@@ -1,6 +1,6 @@
 package events.scheduleevents.events;
 
-import commands.runningcommands.RunningCommandManager;
+import commands.commandrunningchecker.RunningCheckerManager;
 import core.PatreonCache;
 import core.ServerPatreonBoostCache;
 import events.scheduleevents.ScheduleEventDaily;
@@ -16,7 +16,7 @@ public class ClearCaches implements ScheduleEventInterface {
     public void run() throws Throwable {
         PatreonCache.getInstance().reset();
         SubredditContainer.getInstance().reset();
-        RunningCommandManager.getInstance().clear();
+        RunningCheckerManager.getInstance().clear();
         PornImageCache.getInstance().reset();
         DBUpvotes.getInstance().cleanUp();
         ServerPatreonBoostCache.getInstance().reset();

@@ -1,6 +1,6 @@
 package events.scheduleevents.events;
 
-import commands.cooldown.Cooldown;
+import commands.commandcooldown.Cooldown;
 import events.scheduleevents.ScheduleEventFixedRate;
 import events.scheduleevents.ScheduleEventInterface;
 

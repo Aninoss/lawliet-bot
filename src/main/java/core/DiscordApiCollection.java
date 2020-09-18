@@ -1,7 +1,7 @@
 package core;
 
 import commands.CommandContainer;
-import commands.runningcommands.RunningCommandManager;
+import commands.commandrunningchecker.RunningCheckerManager;
 import constants.Settings;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
@@ -124,7 +124,7 @@ public class DiscordApiCollection {
             } catch (Exception e) {
                 LOGGER.error("Exception", e);
             }
-            RunningCommandManager.getInstance().clearShard(n);
+            RunningCheckerManager.getInstance().clearShard(n);
             api.disconnect();
             DiscordConnector.getInstance().reconnectApi(api.getCurrentShard());
             hasReconnected[n] = false;

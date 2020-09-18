@@ -1,7 +1,7 @@
 package core;
 
 import commands.CommandContainer;
-import commands.runningcommands.RunningCommandManager;
+import commands.commandrunningchecker.RunningCheckerManager;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
@@ -305,7 +305,7 @@ public class Console {
         sb.append("Activities: ").append(CommandContainer.getInstance().getActivitiesSize()).append("\n");
 
         //Running Commands
-        sb.append("Running Commands: ").append(RunningCommandManager.getInstance().getRunningCommandsMap().size()).append("\n");
+        sb.append("Running Commands: ").append(RunningCheckerManager.getInstance().getRunningCommandsMap().size()).append("\n");
 
         //CPU Usage
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);

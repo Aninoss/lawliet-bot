@@ -1,4 +1,4 @@
-package commands.cooldown;
+package commands.commandcooldown;
 
 import java.util.HashMap;
 import java.util.Optional;

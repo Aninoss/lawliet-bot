@@ -1,8 +1,8 @@
-package commands.runningcommands;
+package commands.commandrunningchecker;
 
 import java.time.Instant;
 
-public class RunningCommand {
+public class RunningCheckerSlot {
 
     private final long userId;
     private final Thread thread;
@@ -10,7 +10,7 @@ public class RunningCommand {
     private final Instant instant;
     private final int maxCalculationTimeSec;
 
-    public RunningCommand(long userId, int shardId, int maxCalculationTimeSec) {
+    public RunningCheckerSlot(long userId, int shardId, int maxCalculationTimeSec) {
         this.userId = userId;
         this.thread = Thread.currentThread();
         this.shardId = shardId;
