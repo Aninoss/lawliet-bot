@@ -6,7 +6,7 @@ import Core.DiscordApiCollection;
 import Core.Utils.SystemUtil;
 import Events.ScheduleEvents.ScheduleEventHourly;
 import Events.ScheduleEvents.ScheduleEventInterface;
-import MySQL.DBBotStats;
+import MySQL.Modules.BotStats.DBBotStats;
 import MySQL.DBMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +47,7 @@ public class BotRestart implements ScheduleEventInterface {
 
     private void saveDailyUniqueUsersStats() {
         if (DiscordApiCollection.getInstance().getStartingTime().isBefore(Instant.now().minus(23, ChronoUnit.HOURS))) {
-            try {
-                DBBotStats.saveStatsUniqueUsers();
-            } catch (Exception e) {
-                LOGGER.error("Could not post unique users stats", e);
-            }
+            DBBotStats.saveStatsUniqueUsers();
         }
     }
 

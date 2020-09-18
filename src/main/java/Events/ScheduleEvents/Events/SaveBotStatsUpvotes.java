@@ -3,7 +3,7 @@ package Events.ScheduleEvents.Events;
 import Core.Bot;
 import Events.ScheduleEvents.ScheduleEventDaily;
 import Events.ScheduleEvents.ScheduleEventInterface;
-import MySQL.DBBotStats;
+import MySQL.Modules.BotStats.DBBotStats;
 
 @ScheduleEventDaily
 public class SaveBotStatsUpvotes implements ScheduleEventInterface {

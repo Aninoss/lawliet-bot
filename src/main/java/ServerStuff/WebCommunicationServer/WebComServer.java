@@ -31,6 +31,7 @@ public class WebComServer {
     private static final String EVENT_DONATEBOT_IO = "donatebot.io";
     private static final String EVENT_FEEDBACK = "feedback";
     private static final String EVENT_INVITE = "invite";
+    private static final String EVENT_SERVERSTATS = "serverstats";
 
     public WebComServer(int port) {
         new CustomThread(() -> {
@@ -52,6 +53,7 @@ public class WebComServer {
                     webComServer.addEventListener(EVENT_FR_BOOST, JSONObject.class, new OnFRBoost(this, EVENT_FR_BOOST));
                     webComServer.addEventListener(EVENT_FR_CAN_POST, JSONObject.class, new OnFRCanPost(this, EVENT_FR_CAN_POST));
                     webComServer.addEventListener(EVENT_FR_POST, JSONObject.class, new OnFRPost(this, EVENT_FR_POST));
+                    webComServer.addEventListener(EVENT_SERVERSTATS, JSONObject.class, new OnServerStats(this, EVENT_SERVERSTATS));
 
                     webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG(this, EVENT_TOPGG));
                     webComServer.addEventListener(EVENT_TOPGG_ANINOSS, JSONObject.class, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));

@@ -4,7 +4,7 @@ import Core.Bot;
 import Core.DiscordApiCollection;
 import Events.ScheduleEvents.ScheduleEventDaily;
 import Events.ScheduleEvents.ScheduleEventInterface;
-import MySQL.DBBotStats;
+import MySQL.Modules.BotStats.DBBotStats;
 
 @ScheduleEventDaily
 public class SaveBotStatsServerCount implements ScheduleEventInterface {

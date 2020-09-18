@@ -133,7 +133,9 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
     private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
         removeMessageForwarder();
         removeReactionListener();
-        sendMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("nointerest_description", StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()), getString("nointerest_title")));
+
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nointerest_description", StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        sendMessage(channel, eb);
     }
 
     @Override
