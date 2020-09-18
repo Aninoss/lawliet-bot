@@ -1,0 +1,38 @@
+package events.discordevents.servervoicechannelmemberleave;
+
+import commands.commandslots.managementcategory.AutoChannelCommand;
+import constants.Permission;
+import core.PermissionCheckRuntime;
+import events.discordevents.DiscordEvent;
+import events.discordevents.eventtypeabstracts.ServerVoiceChannelMemberLeaveAbstract;
+import mysql.modules.autochannel.AutoChannelBean;
+import mysql.modules.autochannel.DBAutoChannel;
+import mysql.modules.server.DBServer;
+import mysql.modules.server.ServerBean;
+import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
+
+import java.util.ArrayList;
+
+@DiscordEvent
+public class ServerVoiceChannelMemberLeaveAutoChannel extends ServerVoiceChannelMemberLeaveAbstract {
+
+    @Override
+    public boolean onServerVoiceChannelMemberLeave(ServerVoiceChannelMemberLeaveEvent event) throws Throwable {
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
+
+        for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannels())) {
+            if (event.getChannel().getId() == childChannelId) {
+                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
+                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                    if (event.getChannel().getConnectedUsers().size() == 0) {
+                        event.getChannel().delete();
+                    }
+                }
+                break;
+            }
+        }
+
+        return true;
+    }
+
+}

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: Core.Main
+Main-Class: core.Main
 Class-Path: log4j-api-2.13.1.jar nv-websocket-client-2.6.jar jackson-dat
  abind-2.9.7.jar netty-codec-4.1.32.Final.jar javafx-base-14-win.jar log
  ging-interceptor-3.9.1.jar listenablefuture-9999.0-empty-to-avoid-confl
