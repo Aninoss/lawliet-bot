@@ -1,7 +1,7 @@
 package commands;
 
 import commands.commandlisteners.*;
-import commands.commandslots.informationcategory.HelpCommand;
+import commands.commandrunnables.informationcategory.HelpCommand;
 import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;

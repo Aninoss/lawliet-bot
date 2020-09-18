@@ -4,7 +4,7 @@ import commands.commandlisteners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import commands.commandslots.managementcategory.TrackerCommand;
+import commands.commandrunnables.managementcategory.TrackerCommand;
 import constants.Permission;
 import constants.Settings;
 import core.*;

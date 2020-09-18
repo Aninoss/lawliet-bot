@@ -1,7 +1,7 @@
 package modules;
 
 import commands.CommandManager;
-import commands.commandslots.moderationcategory.SelfPromotionBlockCommand;
+import commands.commandrunnables.moderationcategory.SelfPromotionBlockCommand;
 import constants.Category;
 import constants.Settings;
 import core.DiscordApiCollection;

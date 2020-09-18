@@ -1,6 +1,6 @@
 package modules;
 
-import commands.commandslots.managementcategory.MemberCountDisplayCommand;
+import commands.commandrunnables.managementcategory.MemberCountDisplayCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;

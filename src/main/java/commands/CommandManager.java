@@ -5,7 +5,7 @@ import commands.commandlisteners.OnNavigationListener;
 import commands.commandlisteners.OnReactionAddListener;
 import commands.cooldown.Cooldown;
 import commands.runningcommands.RunningCommandManager;
-import commands.commandslots.informationcategory.HelpCommand;
+import commands.commandrunnables.informationcategory.HelpCommand;
 import constants.Permission;
 import constants.Settings;
 import core.*;

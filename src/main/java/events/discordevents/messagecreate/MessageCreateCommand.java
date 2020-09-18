@@ -5,7 +5,7 @@ import commands.commandlisteners.OnNavigationListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import commands.commandslots.gimmickscategory.QuoteCommand;
+import commands.commandrunnables.gimmickscategory.QuoteCommand;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;

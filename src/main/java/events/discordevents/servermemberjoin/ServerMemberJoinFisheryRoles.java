@@ -1,6 +1,6 @@
 package events.discordevents.servermemberjoin;
 
-import commands.commandslots.fisherysettingscategory.FisheryCommand;
+import commands.commandrunnables.fisherysettingscategory.FisheryCommand;
 import constants.FisheryCategoryInterface;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;

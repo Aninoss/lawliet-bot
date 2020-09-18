@@ -1,6 +1,6 @@
 package events.discordevents.servervoicechannelmemberjoin;
 
-import commands.commandslots.managementcategory.AutoChannelCommand;
+import commands.commandrunnables.managementcategory.AutoChannelCommand;
 import constants.Permission;
 import core.DiscordApiCollection;
 import core.PermissionCheckRuntime;

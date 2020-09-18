@@ -1,6 +1,6 @@
 package events.discordevents.servervoicechannelmemberleave;
 
-import commands.commandslots.managementcategory.AutoChannelCommand;
+import commands.commandrunnables.managementcategory.AutoChannelCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
