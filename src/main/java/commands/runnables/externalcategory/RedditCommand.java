@@ -91,14 +91,14 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         ServerTextChannel channel = slot.getChannel().get();
-        if (!slot.getCommandKey().isPresent() || slot.getCommandKey().get().length() == 0) {
+        if (slot.getCommandKey().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedFactory.addTrackerRemoveLog(eb, getLocale());
             channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
-            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey().get(), slot.getArgs().orElse(null));
+            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey(), slot.getArgs().orElse(null));
 
             boolean containsOnlyNsfw = true;
 
@@ -125,7 +125,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 if (!slot.getArgs().isPresent()) {
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().get()));
+                            .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));
                     EmbedFactory.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;

@@ -1,14 +1,16 @@
 package mysql.modules.tracker;
 
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.managementcategory.TrackerCommand;
 import constants.Permission;
 import constants.Settings;
-import core.*;
-import javafx.util.Pair;
+import core.CustomObservableList;
+import core.CustomThread;
+import core.IntervalBlock;
+import core.PermissionCheckRuntime;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.slf4j.Logger;
@@ -16,17 +18,19 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Optional;
 
 public class TrackerBean extends Observable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(TrackerBean.class);
 
-    private final CustomObservableMap<Pair<Long, String>, TrackerBeanSlot> slots;
+    private final CustomObservableList<TrackerBeanSlot> slots;
     private boolean active = false;
 
-    public TrackerBean(@NonNull HashMap<Pair<Long, String>, TrackerBeanSlot> slots) {
-        this.slots = new CustomObservableMap<>(slots);
+    public TrackerBean(@NonNull ArrayList<TrackerBeanSlot> slots) {
+        this.slots = new CustomObservableList<>(slots);
     }
 
     public void start() {
@@ -112,7 +116,6 @@ public class TrackerBean extends Observable {
 
 
 
-
     /* Getters */
 
     public ArrayList<ArrayList<TrackerBeanSlot>> getGroupedByCommandTrigger() {
@@ -122,7 +125,7 @@ public class TrackerBean extends Observable {
             String commandTrigger = Command.getClassTrigger((Class<? extends Command>) clazz);
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
-            getMap().values().stream()
+            getSlots().stream()
                     .filter(slot -> slot.getCommandTrigger().equalsIgnoreCase(commandTrigger) && slot.isActive())
                     .forEach(groupedSlots::add);
 
@@ -132,7 +135,7 @@ public class TrackerBean extends Observable {
         return trackerCommandTriggerList;
     }
 
-    public CustomObservableMap<Pair<Long, String>, TrackerBeanSlot> getMap() {
+    public CustomObservableList<TrackerBeanSlot> getSlots() {
         return slots;
     }
 

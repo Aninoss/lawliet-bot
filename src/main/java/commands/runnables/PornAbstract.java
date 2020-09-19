@@ -145,13 +145,13 @@ public abstract class PornAbstract extends Command {
         }
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(slot.getServerId()).getKeywords());
-        ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, slot.getCommandKey().orElse(""), 1, new ArrayList<>());
+        ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>());
 
         if (pornImages.size() == 0) {
             if (!slot.getArgs().isPresent() && this instanceof PornSearchAbstract) {
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey().orElse("")));
+                        .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));
                 EmbedFactory.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessage(eb).get();
                 return TrackerResult.STOP_AND_DELETE;
@@ -160,7 +160,7 @@ public abstract class PornAbstract extends Command {
             }
         }
 
-        post(pornImages, slot.getCommandKey().orElse(""), channel, !pornImages.get(0).isVideo(), 1);
+        post(pornImages, slot.getCommandKey(), channel, !pornImages.get(0).isVideo(), 1);
         slot.setArgs("found");
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         return TrackerResult.CONTINUE_AND_SAVE;

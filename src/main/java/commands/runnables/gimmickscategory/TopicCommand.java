@@ -51,7 +51,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         final int MAX_MINUTES = 10080;
-        String key = slot.getCommandKey().get();
+        String key = slot.getCommandKey();
 
         long minutes = StringUtil.filterLongFromString(key);
         if (minutes > MAX_MINUTES || minutes < 1) {

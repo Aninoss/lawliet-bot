@@ -1,29 +1,35 @@
 package commands.runnables.managementcategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnNavigationListener;
+import commands.listeners.OnTrackerRequestListener;
 import constants.*;
-import core.*;
+import core.DiscordApiCollection;
+import core.EmbedFactory;
+import core.TextManager;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
 import mysql.modules.tracker.DBTracker;
+import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
-import javafx.util.Pair;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -36,11 +42,22 @@ import java.util.stream.Collectors;
 )
 public class TrackerCommand extends Command implements OnNavigationListener {
 
-    private ArrayList<EmojiConnection> emojiConnections;
-    private long serverId, channelId;
-    private ArrayList<TrackerBeanSlot> trackerSlots;
-    private String commandTrigger, commandCategory;
-    private boolean override;
+    private final static Logger LOGGER = LoggerFactory.getLogger(TrackerCommand.class);
+
+    private final int
+            STATE_ADD = 1,
+            STATE_REMOVE = 2,
+            STATE_KEY = 3,
+            STATE_SUCCESS = 4;
+
+    private final int LIMIT_CHANNEL = 10;
+    private final int LIMIT_SERVER = 30;
+
+    private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
+    private long serverId;
+    private long channelId;
+    private TrackerBean trackerBean;
+    private Command commandCache;
 
     public TrackerCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -50,14 +67,15 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         serverId = event.getServer().get().getId();
         channelId = event.getServerTextChannel().get().getId();
-        controll(followedString, 0);
+        trackerBean = DBTracker.getInstance().getBean();
+        controll(followedString, true);
         return true;
     }
 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
-        if (state == 3) {
-            controll(inputString, state);
+        if (state != STATE_REMOVE) {
+            controll(inputString, false);
             return Response.TRUE;
         }
         return null;
@@ -74,22 +92,22 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                             return false;
 
                         case 1:
-                            setState(0);
+                            setState(DEFAULT_STATE);
                             return true;
 
                         case 2:
-                            setState(0);
+                            setState(DEFAULT_STATE);
                             return true;
 
                         case 3:
-                            setState(1);
+                            setState(STATE_ADD);
                             return true;
 
                         default:
                     }
                 }
 
-                controll(emojiConnection.getConnection(), state);
+                controll(emojiConnection.getConnection(), false);
                 return true;
             }
         }
@@ -97,187 +115,195 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         return false;
     }
 
-    private void controll(String searchTerm, int state) throws Throwable {
+    private void controll(String searchTerm, boolean firstTime) throws Throwable {
         while(true) {
-            if (searchTerm.replace(" ", "").length() == 0) return;
+            if (searchTerm.replace(" ", "").isEmpty()) return;
             String arg = searchTerm.split(" ")[0].toLowerCase();
 
-            switch (state) {
-                case 0:
-                    if (arg.equalsIgnoreCase("add")) {
-                        updateTrackerList();
-                        if (trackerSlots.size() < 6) {
-                            state = 1;
-                            setState(1);
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("state0_toomanytracker", "6"));
-                            return;
-                        }
-                    }
-                    else if (arg.equalsIgnoreCase("remove")) {
-                        updateTrackerList();
-                        if (trackerSlots.size() > 0) {
-                            state = 2;
-                            setState(2);
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("state0_notracker"));
-                            return;
-                        }
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
-                        return;
-                    }
-                    break;
-
-                case 1:
-                    boolean found = false;
-                    for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
-                        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByClass((Class<? extends Command>)clazz, getLocale(), getPrefix());
-                        String trigger = ((Command) command).getTrigger();
-                        String category = ((Command) command).getCategory();
-
-                        if (trigger.equalsIgnoreCase(arg)) {
-                            updateTrackerList();
-                            TrackerBeanSlot slot = getTracker(arg);
-                            override = slot != null;
-                            if (override) {
-                                if (!command.trackerUsesKey()) {
-                                    setLog(LogStatus.FAILURE, getString("state1_alreadytracking"));
-                                    return;
-                                }
-                            }
-                            this.commandTrigger = trigger;
-                            this.commandCategory = category;
-                            if (!command.trackerUsesKey()) {
-                                addTracker(null);
-                            } else {
-                                updateTrackerList();
-                                state = 3;
-                                setState(3);
-                            }
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
-                        return;
-                    }
-                    break;
-
-                case 2:
-                    TrackerBeanSlot slotRemove = getTracker(arg);
-                    if (slotRemove != null) {
-                        slotRemove.delete();
-                        updateTrackerList();
-                        setLog(LogStatus.SUCCESS, getString("state2_removed", arg));
-                        if (trackerSlots.size() == 0) {
-                            setState(0);
-                        }
-                        return;
-                    }
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", arg));
-                    return;
-
-                case 3:
-                    addTracker(searchTerm);
-                    return;
-
-                default:
-            }
-
+            if (!processArg(arg, firstTime)) return;
             searchTerm = StringUtil.trimString(searchTerm.substring(arg.length()));
         }
     }
 
-    private void addTracker(String key) throws Throwable {
-        TrackerBeanSlot slot = new TrackerBeanSlot(
-                DBServer.getInstance().getBean(serverId),
-                channelId,
-                commandTrigger,
-                null,
-                key,
-                Instant.now(),
-                null
-        );
-        DBTracker.getInstance().getBean().getMap().put(new Pair<>(channelId, commandTrigger), slot);
-        setState(1);
-        setLog(LogStatus.SUCCESS, getString("state3_added", override, commandTrigger));
-    }
-
-    private void updateTrackerList() throws Throwable {
-        trackerSlots = DBTracker.getInstance().getBean().getMap().values().stream()
-                .filter(slot -> slot.getChannelId() == channelId)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    private TrackerBeanSlot getTracker(String trigger) {
-        for(TrackerBeanSlot slot: trackerSlots) {
-            if (slot.getCommandTrigger().equalsIgnoreCase(trigger)) {
-                return slot;
-            }
-        }
-        return null;
-
-    }
-
-    @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
-        ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
+    private boolean processArg(String arg, boolean firstTime) throws ExecutionException {
+        int state = getState();
         switch (state) {
-            case 0:
-                setOptions(getString("state0_options").split("\n"));
-                emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0], "add"));
-                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[1], "remove"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+            case DEFAULT_STATE:
+                return processMain(arg);
 
-            case 1:
-                String[] opt = new String[CommandContainer.getInstance().getTrackerCommands().size()];
-                setOptions(opt);
-                emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                for (int i = 0; i < opt.length; i++) {
-                    Class<? extends OnTrackerRequestListener> clazz = CommandContainer.getInstance().getTrackerCommands().get(i);
-                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, getLocale(), getPrefix());
-                    String trigger = command.getTrigger();
-                    String nsfw = command.isNsfw() ? " " + getString("nsfw") : "";
-                    opt[i] = trigger + nsfw + " - " + TextManager.getString(getLocale(), command.getCategory(), trigger + "_description");
-                    emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
-                }
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+            case STATE_ADD:
+                return processAdd(arg, firstTime);
 
-            case 2:
-                setOptions(new String[trackerSlots.size()]);
-                emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                for (int i=0; i < getOptions().length; i++) {
-                    Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix());
-                    String trigger = command.getTrigger();
-                    getOptions()[i] = getString("slot", trackerSlots.get(i).getCommandKey().isPresent(),
-                            trigger,
-                            TextManager.getString(getLocale(), command.getCategory(), trigger + "_description"),
-                            StringUtil.escapeMarkdown(StringUtil.shortenString(trackerSlots.get(i).getCommandKey().orElse(""), 200))
-                            );
-                    emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], trigger));
-                }
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+            case STATE_REMOVE:
+                return processRemove(arg, firstTime);
 
-            case 3:
-                emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(channel, "back"));
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), commandCategory,  commandTrigger + "_trackerkey"), getString("state3_title"));
-                if (override) EmbedFactory.addLog(eb, null, getString("state3_override"));
-
-                return eb;
-
-            case 4:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"));
+            case STATE_KEY:
+                return processKey(arg, firstTime);
 
             default:
-                return null;
+                return false;
         }
+    }
+
+    private boolean processMain(String arg) {
+        switch (arg) {
+            case "add":
+                if (enoughSpaceForNewTrackers()) {
+                    setState(STATE_ADD);
+                    return true;
+                } else {
+                    return false;
+                }
+
+            case "remove":
+                if (getTrackersInChannel().size() > 0) {
+                    setState(STATE_REMOVE);
+                    return true;
+                } else {
+                    setLog(LogStatus.FAILURE, getString("notracker"));
+                    return false;
+                }
+
+            default:
+                return false;
+        }
+    }
+
+    private boolean processAdd(String arg, boolean firstTime) throws ExecutionException {
+        if (!enoughSpaceForNewTrackers())
+            return false;
+
+        Optional<Command> commandOpt = getAllTrackerCommands().stream()
+                .filter(command -> command.getTrigger().equalsIgnoreCase(arg))
+                .findFirst();
+
+        if (commandOpt.isEmpty()) {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
+            return false;
+        }
+
+        Command command = commandOpt.get();
+        if (trackerSlotExists(command.getTrigger(), "")) {
+            setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
+            return false;
+        }
+
+        OnTrackerRequestListener trackerCommand = (OnTrackerRequestListener)command;
+        if (trackerCommand.trackerUsesKey()) {
+            commandCache = command;
+            setState(STATE_KEY);
+            return true;
+        } else {
+            addTracker(command, "", firstTime);
+            return false;
+        }
+    }
+
+    private boolean processRemove(String arg, boolean firstTime) throws ExecutionException {
+        List<TrackerBeanSlot> trackerSlots = getTrackersInChannel();
+
+        if (!StringUtil.stringIsInt(arg))
+            return false;
+
+        int index = Integer.parseInt(arg);
+        if (index < 0 || index >= trackerSlots.size())
+            return false;
+
+        TrackerBeanSlot slotRemove = trackerSlots.get(index);
+        slotRemove.delete();
+        setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
+        if (getTrackersInChannel().size() == 0) {
+            setState(0);
+        }
+
+        return false;
+    }
+
+    private boolean processKey(String arg, boolean firstTime) throws ExecutionException {
+        if (!enoughSpaceForNewTrackers())
+            return false;
+
+        if (trackerSlotExists(commandCache.getTrigger(), arg)) {
+            setLog(LogStatus.FAILURE, getString("state3_alreadytracking", arg));
+            return false;
+        }
+
+        addTracker(commandCache, arg, firstTime);
+        return false;
+    }
+
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder onDrawMain(DiscordApi api) throws Throwable {
+        ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
+        setOptions(getString("state0_options").split("\n"));
+
+        emojiConnections = new ArrayList<>();
+        emojiConnections.add(new BackEmojiConnection(channel, "back"));
+        emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0], "add"));
+        emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[1], "remove"));
+
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+    }
+
+    @Draw(state = STATE_ADD)
+    public EmbedBuilder onDrawAdd(DiscordApi api) throws Throwable {
+        emojiConnections = new ArrayList<>();
+        emojiConnections.add(new BackEmojiConnection(getStarterMessage().getServerTextChannel().get(), "back"));
+
+        List<Command> trackerCommands = getAllTrackerCommands();
+
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+
+        for(String category : Category.LIST) {
+            StringBuilder sb = new StringBuilder();
+            trackerCommands.stream()
+                    .filter(command -> command.getCategory().equals(category))
+                    .forEach(command -> {
+                        String nsfwEmoji = DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag();
+                        sb.append(getString("slot_add", command.isNsfw(), command.getTrigger(), nsfwEmoji))
+                                .append("\n");
+                    });
+
+            if (sb.length() > 0)
+                eb.addField(TextManager.getString(getLocale(), TextManager.COMMANDS, category), sb.toString(), true);
+        }
+
+        return eb;
+    }
+
+    @Draw(state = STATE_REMOVE)
+    public EmbedBuilder onDrawRemove(DiscordApi api) throws Throwable {
+        emojiConnections = new ArrayList<>();
+        emojiConnections.add(new BackEmojiConnection(getStarterMessage().getServerTextChannel().get(), "back"));
+
+        List<TrackerBeanSlot> trackerSlots = getTrackersInChannel();
+        setOptions(new String[trackerSlots.size()]);
+
+        for (int i = 0; i < getOptions().length; i++) {
+            Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix());
+            String trigger = command.getTrigger();
+
+            getOptions()[i] = getString("slot_remove", trackerSlots.get(i).getCommandKey().length() > 0,
+                    trigger,
+                    StringUtil.escapeMarkdown(StringUtil.shortenString(trackerSlots.get(i).getCommandKey(), 200))
+            );
+            emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], String.valueOf(i)));
+        }
+
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+    }
+
+    @Draw(state = STATE_KEY)
+    public EmbedBuilder onDrawKey(DiscordApi api) throws Throwable {
+        emojiConnections = new ArrayList<>();
+        emojiConnections.add(new BackEmojiConnection(getStarterMessage().getServerTextChannel().get(), "back"));
+        return EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), commandCache.getCategory(),  commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
+    }
+
+    @Draw(state = STATE_SUCCESS)
+    public EmbedBuilder onDrawSuccess(DiscordApi api) throws Throwable {
+        removeNavigation();
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"));
     }
 
     @Override
@@ -285,6 +311,71 @@ public class TrackerCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return CommandContainer.getInstance().getTrackerCommands().size();
+        return LIMIT_CHANNEL;
     }
+
+    private void addTracker(Command command, String commandKey, boolean firstTime) throws ExecutionException {
+        TrackerBeanSlot slot = new TrackerBeanSlot(
+                DBServer.getInstance().getBean(serverId),
+                channelId,
+                command.getTrigger(),
+                null,
+                commandKey,
+                Instant.now(),
+                null
+        );
+        trackerBean.getSlots().add(slot);
+        if (firstTime) {
+            setState(STATE_SUCCESS);
+        } else {
+            setState(STATE_ADD);
+            setLog(LogStatus.SUCCESS, getString("state3_added", command.getTrigger()));
+        }
+    }
+
+    private List<Command> getAllTrackerCommands() {
+        return CommandContainer.getInstance().getTrackerCommands().stream()
+                .map(clazz -> {
+                    try {
+                        return CommandManager.createCommandByClass((Class<? extends Command>)clazz, getLocale(), getPrefix());
+                    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                        LOGGER.error("Error while creating command class", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private boolean trackerSlotExists(String commandTrigger, String commandKey) {
+        return getTrackersInChannel().stream()
+                .anyMatch(slot -> slot.getCommandTrigger().equals(commandTrigger) && slot.getCommandKey().equalsIgnoreCase(commandKey));
+    }
+
+    private boolean enoughSpaceForNewTrackers() {
+        if (getTrackersInChannel().size() < LIMIT_CHANNEL) {
+            if (getTrackersInServer().size() < LIMIT_SERVER) {
+                return true;
+            } else {
+                setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));
+                return false;
+            }
+        } else {
+            setLog(LogStatus.FAILURE, getString("toomuch_channel", String.valueOf(LIMIT_CHANNEL)));
+            return false;
+        }
+    }
+
+    private List<TrackerBeanSlot> getTrackersInChannel() {
+        return trackerBean.getSlots().stream()
+                .filter(slot -> slot.getChannelId() == channelId)
+                .collect(Collectors.toList());
+    }
+
+    private List<TrackerBeanSlot> getTrackersInServer() {
+        return trackerBean.getSlots().stream()
+                .filter(slot -> slot.getServerId() == serverId)
+                .collect(Collectors.toList());
+    }
+
 }

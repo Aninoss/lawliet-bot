@@ -2,11 +2,11 @@ package mysql.modules.tracker;
 
 import mysql.BeanWithServer;
 import mysql.modules.server.ServerBean;
-import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class TrackerBeanSlot extends BeanWithServer {
         this.channelId = channelId;
         this.messageId = messageId;
         this.commandTrigger = commandTrigger;
-        this.commandKey = commandKey;
+        this.commandKey = commandKey != null ? commandKey : "";
         this.args = args;
         this.nextRequest = nextRequest;
     }
@@ -55,7 +55,7 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     public String getCommandTrigger() { return commandTrigger; }
 
-    public Optional<String> getCommandKey() { return Optional.ofNullable(commandKey); }
+    public String getCommandKey() { return commandKey; }
 
     public Optional<String> getArgs() { return Optional.ofNullable(args); }
 
@@ -87,7 +87,7 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     public void delete() {
         try {
-            DBTracker.getInstance().getBean().getMap().remove(new Pair<>(channelId, commandTrigger));
+            DBTracker.getInstance().getBean().getSlots().remove(this);
         } catch (SQLException e) {
             LOGGER.error("Could not remove tracker", e);
         }

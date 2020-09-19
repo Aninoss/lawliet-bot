@@ -71,7 +71,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         boolean first = !slot.getArgs().isPresent();
-        PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey().get());
+        PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
         ServerTextChannel channel = slot.getChannel().get();
         for(int i = Math.min(4, postBundle.getPosts().size() - 1); i >= 0; i--) {
@@ -82,7 +82,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(getString("no_results", StringUtil.shortenString(slot.getCommandKey().get(), 200)));
+                    .setDescription(getString("no_results", StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.getChannel().get().sendMessage(eb).get();
         }
 

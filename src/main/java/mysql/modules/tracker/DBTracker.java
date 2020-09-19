@@ -5,13 +5,12 @@ import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.modules.server.DBServer;
-import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -42,9 +41,8 @@ public class DBTracker extends DBCached {
 
     public synchronized TrackerBean getBean() throws SQLException {
         if (trackerBean == null) {
-            HashMap<Pair<Long, String>, TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "1", preparedStatement -> {})
-                    .getHashMap(
-                            slot -> new Pair<>(slot.getChannelId(), slot.getCommandTrigger()),
+            ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "1", preparedStatement -> {})
+                    .getArrayList(
                             resultSet -> {
                                 try {
                                     return new TrackerBeanSlot(
@@ -62,13 +60,12 @@ public class DBTracker extends DBCached {
                                 return null;
                             }
                     );
-            slots.entrySet().removeIf(set -> !set.getValue().getServer().isPresent());
 
             trackerBean = new TrackerBean(slots);
-            trackerBean.getMap()
-                    .addMapAddListener(this::insertTracker)
-                    .addMapUpdateListener(this::insertTracker)
-                    .addMapRemoveListener(this::removeTracker);
+            trackerBean.getSlots()
+                    .addListAddListener(changeSlots -> { changeSlots.forEach(this::insertTracker); })
+                    .addListUpdateListener(this::insertTracker)
+                    .addListRemoveListener(changeSlots -> { changeSlots.forEach(this::removeTracker); });
 
             trackerBean.start();
             LOGGER.info("Tracker started");
@@ -78,6 +75,13 @@ public class DBTracker extends DBCached {
     }
 
     protected void insertTracker(TrackerBeanSlot slot) {
+        try {
+            if (!getBean().getSlots().contains(slot))
+                return;
+        } catch (SQLException throwables) {
+            LOGGER.error("Cound not load tracker bean", throwables);
+        }
+
         DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getServerId());
             preparedStatement.setLong(2, slot.getChannelId());
@@ -87,10 +91,7 @@ public class DBTracker extends DBCached {
             if (messageIdOpt.isPresent()) preparedStatement.setLong(4, messageIdOpt.get());
             else preparedStatement.setNull(4, Types.BIGINT);
 
-            Optional<String> commandKeyOpt = slot.getCommandKey();
-            if (commandKeyOpt.isPresent()) preparedStatement.setString(5, commandKeyOpt.get());
-            else preparedStatement.setNull(5, Types.VARCHAR);
-
+            preparedStatement.setString(5, slot.getCommandKey());
             preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getNextRequest()));
 
             Optional<String> argsOpt = slot.getArgs();
@@ -100,9 +101,10 @@ public class DBTracker extends DBCached {
     }
 
     protected void removeTracker(TrackerBeanSlot slot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ?;", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
             preparedStatement.setLong(1, slot.getChannelId());
             preparedStatement.setString(2, slot.getCommandTrigger());
+            preparedStatement.setString(3, slot.getCommandKey());
         });
     }
 

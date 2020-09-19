@@ -84,7 +84,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
 
         Optional<TwitchStream> streamOpt;
         try {
-            streamOpt = TwitchController.getInstance().getStream(slot.getCommandKey().get());
+            streamOpt = TwitchController.getInstance().getStream(slot.getCommandKey());
         } catch (Exception e) {
             if (slot.getArgs().isEmpty())
                 streamOpt = Optional.empty();
@@ -95,7 +95,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", slot.getCommandKey().get()));
+                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", slot.getCommandKey()));
             EmbedFactory.addTrackerRemoveLog(eb, getLocale());
             channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
