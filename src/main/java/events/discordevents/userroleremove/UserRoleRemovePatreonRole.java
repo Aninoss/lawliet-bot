@@ -18,7 +18,7 @@ public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
     @Override
     public boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable {
         if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
-            for(long roleId : Settings.DONATION_ROLE_IDS) {
+            for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
                     LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                     DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName()));

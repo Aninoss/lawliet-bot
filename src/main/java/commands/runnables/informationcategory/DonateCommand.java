@@ -1,7 +1,7 @@
 package commands.runnables.informationcategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
         trigger = "donate",
         emoji = "\uD83D\uDCB8",
         executable = true,
-        aliases = {"patreon", "donation", "premium"}
+        aliases = { "patreon", "donation", "premium" }
 )
 public class DonateCommand extends Command {
 

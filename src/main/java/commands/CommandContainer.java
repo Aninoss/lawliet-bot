@@ -91,6 +91,7 @@ public class CommandContainer {
 
         //INFORMATION
         commandList.add(HelpCommand.class);
+        commandList.add(PatreonCommand.class);
         if (Settings.GIVEAWAY_RUNNING) commandList.add(SignUpCommand.class);
         commandList.add(FAQCommand.class);
         commandList.add(ServerInfoCommand.class);
@@ -102,7 +103,6 @@ public class CommandContainer {
         commandList.add(StatsCommand.class);
         commandList.add(InviteCommand.class);
         commandList.add(UpvoteCommand.class);
-        commandList.add(DonateCommand.class);
 
         //FISHERY SETTINGS
         commandList.add(FisheryCommand.class);

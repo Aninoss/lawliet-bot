@@ -29,12 +29,12 @@ public class PatreonCache {
                         @Override
                         public Integer load(@NonNull Long userId) throws SQLException {
                             if (DiscordApiCollection.getInstance().getOwner().getId() == userId)
-                                return Settings.DONATION_ROLE_IDS.length;
+                                return Settings.PATREON_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 
                             Server supportServer = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID).get();
-                            for (int i = 0; i < Settings.DONATION_ROLE_IDS.length; i++) {
-                                if (supportServer.getRoleById(Settings.DONATION_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
+                            for (int i = 0; i < Settings.PATREON_ROLE_IDS.length; i++) {
+                                if (supportServer.getRoleById(Settings.PATREON_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
                                     return i + 1;
                             }
 

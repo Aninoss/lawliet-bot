@@ -18,7 +18,7 @@ public class ServerMemberJoinPatreon extends ServerMemberJoinAbstract {
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
         if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
-            for(long roleId : Settings.DONATION_ROLE_IDS) {
+            for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getServer().getRoles(event.getUser()).stream().anyMatch(role -> role.getId() == roleId)) {
                     LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                     DiscordApiCollection.getInstance().getOwner().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName()));
