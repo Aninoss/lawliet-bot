@@ -52,6 +52,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
 
     private final int LIMIT_CHANNEL = 10;
     private final int LIMIT_SERVER = 30;
+    private final int LIMIT_KEY_LENGTH = 500;
 
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private long serverId;
@@ -222,6 +223,11 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     private boolean processKey(String arg, boolean firstTime) throws ExecutionException {
         if (!enoughSpaceForNewTrackers())
             return false;
+
+        if (arg.length() > LIMIT_KEY_LENGTH) {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
+            return false;
+        }
 
         if (trackerSlotExists(commandCache.getTrigger(), arg)) {
             setLog(LogStatus.FAILURE, getString("state3_alreadytracking", arg));
