@@ -23,7 +23,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "Received a 502 response from Discord",
             "org.javacord.api.exception.UnknownMessageException",
             "Cannot send messages to this user",
-            "timeout"
+            "timeout",
+            "connect timed out"
     };
 
     public ExceptionFilter() {}

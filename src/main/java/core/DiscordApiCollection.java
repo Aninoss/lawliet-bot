@@ -258,7 +258,7 @@ public class DiscordApiCollection {
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
             }
-            return getHomeServer();
+            throw new RuntimeException("Home server not connected");
         }
         return serverOptional.get();
     }

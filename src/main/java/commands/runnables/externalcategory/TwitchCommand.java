@@ -1,8 +1,8 @@
 package commands.runnables.externalcategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import commands.Command;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
@@ -16,6 +16,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -81,7 +82,16 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         slot.setNextRequest(Instant.now().plus(5, ChronoUnit.MINUTES));
         final ServerTextChannel channel = slot.getChannel().get();
 
-        Optional<TwitchStream> streamOpt = TwitchController.getInstance().getStream(slot.getCommandKey().get());
+        Optional<TwitchStream> streamOpt;
+        try {
+            streamOpt = TwitchController.getInstance().getStream(slot.getCommandKey().get());
+        } catch (Exception e) {
+            if (slot.getArgs().isEmpty())
+                streamOpt = Optional.empty();
+            else
+                throw e;
+        }
+
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
