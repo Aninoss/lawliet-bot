@@ -335,24 +335,22 @@ public class DiscordApiCollection {
         return Arrays.asList(apiList);
     }
 
-    public CustomEmoji getHomeEmojiById(long id) {
-        Server server = getHomeServer();
-        if (server.getCustomEmojiById(id).isPresent()) {
-            return server.getCustomEmojiById(id).get();
+    public KnownCustomEmoji getHomeEmojiById(long emojiId) {
+        try {
+            return EmojiCache.getInstance().getHomeEmojiById(emojiId);
+        } catch (ExecutionException e) {
+            LOGGER.error("Emoji with id {} not found", emojiId);
+            return null;
         }
-        return null;
     }
 
-    public KnownCustomEmoji getHomeEmojiByName(String name) {
-        Server server = getHomeServer();
-        if (server.getCustomEmojisByName(name).size() > 0) {
-            KnownCustomEmoji[] knownCustomEmojis = new KnownCustomEmoji[0];
-            return server.getCustomEmojisByName(name).toArray(knownCustomEmojis)[0];
-        } return null;
-    }
-
-    public CustomEmoji getHomeEmojiById(String id) {
-        return getHomeEmojiById(Long.parseLong(id));
+    public KnownCustomEmoji getHomeEmojiByName(String emojiName) {
+        try {
+            return EmojiCache.getInstance().getHomeEmojiByName(emojiName);
+        } catch (ExecutionException e) {
+            LOGGER.error("Emoji with name {} not found", emojiName);
+            return null;
+        }
     }
 
     public CustomEmoji getBackEmojiCustom() {
