@@ -43,7 +43,9 @@ public class DiscordConnector {
 
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
-                .setRecommendedTotalShards().join();
+                .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
+                .setRecommendedTotalShards()
+                .join();
 
         int totalShards = apiBuilder.getTotalShards();
         DiscordApiCollection.getInstance().init(totalShards);
