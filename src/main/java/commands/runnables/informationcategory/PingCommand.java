@@ -7,7 +7,6 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.time.Instant;
 import java.util.Locale;
 
