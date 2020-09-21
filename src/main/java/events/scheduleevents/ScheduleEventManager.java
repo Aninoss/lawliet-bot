@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 public class ScheduleEventManager {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleEventManager.class);
+    private final int DELAY = 1000;
 
     private boolean started = false;
     private final Reflections reflections = new Reflections("events/scheduleevents");
@@ -52,7 +53,7 @@ public class ScheduleEventManager {
         ScheduleEventFixedRate fixedRateAnnotation = listener.getClass().getAnnotation(ScheduleEventFixedRate.class);
         if (fixedRateAnnotation != null) {
             long millis = Duration.of(fixedRateAnnotation.rateValue(), fixedRateAnnotation.rateUnit()).toMillis();
-            timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis, millis);
+            timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis + DELAY, millis);
         }
     }
 
@@ -60,7 +61,7 @@ public class ScheduleEventManager {
         ScheduleEventHourly fixedRateHourly = listener.getClass().getAnnotation(ScheduleEventHourly.class);
         if (fixedRateHourly != null) {
             long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextHour(Instant.now()));
-            timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis, 60 * 60 * 1000);
+            timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis + DELAY, 60 * 60 * 1000);
         }
     }
 
@@ -68,7 +69,7 @@ public class ScheduleEventManager {
         ScheduleEventDaily fixedRateDaily = listener.getClass().getAnnotation(ScheduleEventDaily.class);
         if (fixedRateDaily != null) {
             long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextDay(Instant.now()));
-            timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis, 24 * 60 * 60 * 1000);
+            timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis + DELAY, 24 * 60 * 60 * 1000);
         }
     }
 
