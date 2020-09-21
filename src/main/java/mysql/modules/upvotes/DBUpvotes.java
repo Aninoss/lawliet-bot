@@ -57,7 +57,7 @@ public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
 
     public void cleanUp() {
         try {
-            Statement statement = DBMain.getInstance().statement("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
+            Statement statement = DBMain.getInstance().statementExecuted("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
             statement.close();
         } catch (SQLException e) {
             LOGGER.error("Could not remove Upvote", e);

@@ -12,7 +12,7 @@ public class DBKeySetLoad<T> {
    private Statement statement;
 
     public DBKeySetLoad(String table, String keyColumn) throws SQLException {
-        statement = DBMain.getInstance().statement(String.format("SELECT %s FROM %s;", keyColumn, table));
+        statement = DBMain.getInstance().statementExecuted(String.format("SELECT %s FROM %s;", keyColumn, table));
     }
 
     public ArrayList<T> get(SQLFunction<ResultSet, T> function) throws SQLException {

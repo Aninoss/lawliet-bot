@@ -63,7 +63,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
     public synchronized int getCurrentSurveyId() throws SQLException {
         if (currentSurveyId == null) {
-            Statement statement = DBMain.getInstance().statement("SELECT surveyId FROM SurveyDates ORDER BY start DESC LIMIT 1;");
+            Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC LIMIT 1;");
             ResultSet resultSet = statement.getResultSet();
 
             if (resultSet.next())

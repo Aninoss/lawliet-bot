@@ -126,7 +126,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         }
     }
 
-    private boolean processArg(String arg, boolean firstTime) throws ExecutionException {
+    private boolean processArg(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InstantiationException, InvocationTargetException {
         int state = getState();
         switch (state) {
             case DEFAULT_STATE:
@@ -170,20 +170,22 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         }
     }
 
-    private boolean processAdd(String arg, boolean firstTime) throws ExecutionException {
+    private boolean processAdd(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (!enoughSpaceForNewTrackers())
             return false;
 
-        Optional<Command> commandOpt = getAllTrackerCommands().stream()
-                .filter(command -> command.getTrigger().equalsIgnoreCase(arg))
-                .findFirst();
-
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
         if (commandOpt.isEmpty()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
             return false;
         }
 
         Command command = commandOpt.get();
+        if (command.isNsfw() && !DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
+            return false;
+        }
+
         if (trackerSlotExists(command.getTrigger(), "")) {
             setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
             return false;
@@ -286,7 +288,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         setOptions(new String[trackerSlots.size()]);
 
         for (int i = 0; i < getOptions().length; i++) {
-            Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix());
+            Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix()).get();
             String trigger = command.getTrigger();
 
             getOptions()[i] = getString("slot_remove", trackerSlots.get(i).getCommandKey().length() > 0,

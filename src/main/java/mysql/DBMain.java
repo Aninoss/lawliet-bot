@@ -1,14 +1,12 @@
 package mysql;
 
+import com.mysql.cj.jdbc.MysqlDataSource;
 import core.Bot;
 import core.CustomThread;
 import core.SecretManager;
 import mysql.interfaces.SQLConsumer;
-import com.mysql.cj.jdbc.MysqlDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -21,16 +19,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class DBMain implements DriverAction {
 
-    private static DBMain ourInstance = new DBMain();
+    private static final DBMain ourInstance = new DBMain();
     public static DBMain getInstance() { return ourInstance; }
     private DBMain() {}
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
 
-    private ArrayList<DBCached> caches = new ArrayList<>();
+    private final ArrayList<DBCached> caches = new ArrayList<>();
 
-    public void connect() throws IOException, SQLException {
+    public void connect() throws SQLException {
         LOGGER.info("Connecting with database");
 
         final MysqlDataSource rv = new MysqlDataSource();
@@ -64,7 +62,7 @@ public class DBMain implements DriverAction {
         return connect.prepareStatement(sql);
     }
 
-    public Statement statement(String sql) throws SQLException {
+    public Statement statementExecuted(String sql) throws SQLException {
         Statement statement = connect.createStatement();
         statement.execute(sql);
         return statement;
@@ -98,7 +96,7 @@ public class DBMain implements DriverAction {
                 future.complete(update(sql, preparedStatementConsumer));
             } catch (SQLException | InterruptedException throwables) {
                 future.completeExceptionally(throwables);
-                LOGGER.error("Exception", throwables);
+                LOGGER.error("Exception for query: " + sql, throwables);
             }
         }, "sql_update", 1);
         t.start();
@@ -106,15 +104,11 @@ public class DBMain implements DriverAction {
         return future;
     }
 
-    public Statement statement() throws SQLException {
-        return connect.createStatement();
-    }
-
     public boolean checkConnection() {
         boolean success = false;
 
         try {
-            Statement statement = statement("SELECT 1;");
+            Statement statement = statementExecuted("SELECT 1;");
             ResultSet resultSet = statement.getResultSet();
             if (resultSet.next() && resultSet.getInt(1) == 1) success = true;
             resultSet.close();

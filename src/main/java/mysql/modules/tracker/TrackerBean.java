@@ -81,7 +81,7 @@ public class TrackerBean extends Observable {
     }
 
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {
-        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix());
+        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix()).get();
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
         if (channelOpt.isPresent() &&
                 PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), TrackerCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)

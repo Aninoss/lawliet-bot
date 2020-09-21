@@ -404,10 +404,10 @@ public class CommandManager {
         t.start();
     }
 
-    public static Command createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(trigger);
-        if (clazz == null) return null;
-        return createCommandByClass(clazz, locale, prefix);
+        if (clazz == null) return Optional.empty();
+        return Optional.of(createCommandByClass(clazz, locale, prefix));
     }
 
     public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
@@ -419,7 +419,7 @@ public class CommandManager {
             if (s.getParameterCount() == 2)
                 return (Command) s.newInstance(locale, prefix);
         }
-        return null;
+        throw new RuntimeException("Invalid class");
     }
 
 }

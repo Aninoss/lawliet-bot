@@ -39,7 +39,7 @@ public class DBGiveaway {
     public static ArrayList<Pair<Long, Long>> getGiveawaySlots() throws SQLException {
         ArrayList<Pair<Long, Long>> slots = new ArrayList<>();
 
-        Statement statement = DBMain.getInstance().statement("SELECT serverId, userId FROM Giveaway ORDER BY RAND();");
+        Statement statement = DBMain.getInstance().statementExecuted("SELECT serverId, userId FROM Giveaway ORDER BY RAND();");
         ResultSet resultSet = statement.getResultSet();
         while(resultSet.next())
             slots.add(new Pair<>(resultSet.getLong(1), resultSet.getLong(2)));

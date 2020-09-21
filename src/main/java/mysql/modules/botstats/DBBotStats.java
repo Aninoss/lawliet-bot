@@ -48,7 +48,7 @@ public class DBBotStats {
     public static List<BotStatsServersSlot> getMonthlyServerStats() throws SQLException {
         ArrayList<BotStatsServersSlot> slots = new ArrayList<>();
 
-        Statement statement = DBMain.getInstance().statement("SELECT (MONTH(`date`) - 1) AS mon, YEAR(`date`) AS yea, MAX(`count`), MIN(`date`) AS dat FROM StatsServerCount GROUP BY mon, yea ORDER BY dat DESC LIMIT 13;");
+        Statement statement = DBMain.getInstance().statementExecuted("SELECT (MONTH(`date`) - 1) AS mon, YEAR(`date`) AS yea, MAX(`count`), MIN(`date`) AS dat FROM StatsServerCount GROUP BY mon, yea ORDER BY dat DESC LIMIT 13;");
         ResultSet resultSet = statement.getResultSet();
 
         while(resultSet.next()) {

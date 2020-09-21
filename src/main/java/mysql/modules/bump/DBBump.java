@@ -20,7 +20,7 @@ public class DBBump {
         Instant instant = null;
 
         String sql = "SELECT next FROM Bump;";
-        Statement statement = DBMain.getInstance().statement(sql);
+        Statement statement = DBMain.getInstance().statementExecuted(sql);
         ResultSet resultSet = statement.getResultSet();
 
         if (resultSet.next())

@@ -7,7 +7,6 @@ import mysql.DBMain;
 import mysql.modules.server.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
