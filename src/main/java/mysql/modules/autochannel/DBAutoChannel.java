@@ -1,13 +1,10 @@
 package mysql.modules.autochannel;
 
-import core.CustomThread;
-import core.DiscordApiCollection;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
 import mysql.modules.server.DBServer;
-import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +14,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
 
@@ -58,7 +54,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         resultSet.close();
         preparedStatement.close();
 
-        autoChannelBean.getChildChannels()
+        autoChannelBean.getChildChannelIds()
                 .addListAddListener(list -> list.forEach(channelId -> addChildChannel(autoChannelBean.getServerId(), channelId)))
                 .addListRemoveListener(list -> list.forEach(channelId -> removeChildChannel(autoChannelBean.getServerId(), channelId)));
 
@@ -100,29 +96,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         });
     }
 
-    public void synchronize(DiscordApi api) {
-        new CustomThread(() -> {
-            try {
-                getAllChildChannelServerIds().stream()
-                        .filter(serverId -> DiscordApiCollection.getInstance().getResponsibleShard(serverId) == api.getCurrentShard())
-                        .map(api::getServerById)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .forEach(server -> {
-                            try {
-                                getBean(server.getId()).getChildChannels()
-                                        .removeIf(childChannelId -> !server.getVoiceChannelById(childChannelId).isPresent());
-                            } catch (ExecutionException e) {
-                                LOGGER.error("Could not get bean", e);
-                            }
-                        });
-            } catch (SQLException e) {
-                LOGGER.error("Error in auto channel synchronization");
-            }
-        }, "autochannel_synchro_shard_" + api.getCurrentShard(), 1).start();
-    }
-
-    private ArrayList<Long> getAllChildChannelServerIds() throws SQLException {
+    public ArrayList<Long> getAllChildChannelServerIds() throws SQLException {
         return new DBKeySetLoad<Long>("AutoChannelChildChannels", "serverId")
                 .get(resultSet -> resultSet.getLong(1));
     }

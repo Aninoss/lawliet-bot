@@ -4,19 +4,19 @@ import constants.Settings;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
-import modules.AutoRolesRepair;
 import modules.BumpReminder;
+import modules.repair.AutoChannelRepair;
+import modules.repair.AutoRolesRepair;
 import mysql.DBMain;
-import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.tracker.DBTracker;
-import websockets.webcomserver.WebComServer;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websockets.webcomserver.WebComServer;
 
 import java.util.Calendar;
 
@@ -84,8 +84,7 @@ public class DiscordConnector {
         api.setMessageCacheSize(30, 30 * 60);
 
         DiscordApiCollection.getInstance().insertApi(api);
-        DBAutoChannel.getInstance().synchronize(api);
-
+        startRepairProcesses(api);
         LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
         if (DiscordApiCollection.getInstance().allShardsConnected()) {
@@ -100,15 +99,19 @@ public class DiscordConnector {
         api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
     }
 
+    private void startRepairProcesses(DiscordApi api) {
+        new AutoChannelRepair(api).start();
+        new AutoRolesRepair(api).start();
+    }
+
     private void onConnectionCompleted() {
         updateActivity();
         DBFishery.getInstance().cleanUp();
-        new WebComServer(15744);
         DBFishery.getInstance().startVCObserver();
+        new WebComServer(15744);
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();
         if (Bot.isProductionMode()) BumpReminder.getInstance().start();
-        new AutoRolesRepair().start();
 
         DiscordApiCollection.getInstance().setStarted();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
@@ -140,7 +143,6 @@ public class DiscordConnector {
             api.updateActivity(ActivityType.WATCHING, "BOT RESTARTS SOON");
         }
     }
-
 
     private void onSessionResume(DiscordApi api) {
         LOGGER.debug("Connection has been reestablished!");

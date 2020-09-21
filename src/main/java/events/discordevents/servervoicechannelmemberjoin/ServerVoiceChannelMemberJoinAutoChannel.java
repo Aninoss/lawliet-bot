@@ -97,10 +97,10 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                     return true;
                 }
 
-                autoChannelBean.getChildChannels().add(vc.getId());
+                autoChannelBean.getChildChannelIds().add(vc.getId());
                 if (!userIsConnected(vc, event.getUser())) {
                     vc.delete().get();
-                    autoChannelBean.getChildChannels().remove(vc.getId());
+                    autoChannelBean.getChildChannelIds().remove(vc.getId());
                 }
             }
         }

@@ -14,7 +14,7 @@ public class ServerChannelDeleteAutoChannel extends ServerChannelDeleteAbstract 
         if (event.getChannel().getType() == ChannelType.SERVER_VOICE_CHANNEL) {
             DBAutoChannel.getInstance()
                     .getBean(event.getServer().getId())
-                    .getChildChannels()
+                    .getChildChannelIds()
                     .removeIf(childChannelId -> childChannelId == null || childChannelId == event.getChannel().getId());
         }
 

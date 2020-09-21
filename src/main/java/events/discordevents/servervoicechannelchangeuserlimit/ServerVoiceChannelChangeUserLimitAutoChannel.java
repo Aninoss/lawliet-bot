@@ -25,7 +25,7 @@ public class ServerVoiceChannelChangeUserLimitAutoChannel extends ServerVoiceCha
     @Override
     public boolean onServerVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
-        for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannels())) {
+        for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getId() == childChannelId) {
                 autoChannelBean.getParentChannel().ifPresent(channel -> {
                     int childUserLimit = event.getNewUserLimit().orElse(-1);

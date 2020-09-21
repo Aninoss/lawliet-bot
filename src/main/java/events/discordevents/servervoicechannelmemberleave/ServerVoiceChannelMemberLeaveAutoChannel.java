@@ -20,7 +20,7 @@ public class ServerVoiceChannelMemberLeaveAutoChannel extends ServerVoiceChannel
     public boolean onServerVoiceChannelMemberLeave(ServerVoiceChannelMemberLeaveEvent event) throws Throwable {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
 
-        for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannels())) {
+        for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getId() == childChannelId) {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL | Permission.CONNECT)) {

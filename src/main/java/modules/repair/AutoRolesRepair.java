@@ -1,12 +1,12 @@
-package modules;
+package modules.repair;
 
 import commands.runnables.managementcategory.AutoRolesCommand;
 import core.CustomObservableList;
 import core.CustomThread;
-import core.DiscordApiCollection;
 import core.PermissionCheckRuntime;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
+import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -14,7 +14,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -25,18 +24,19 @@ public class AutoRolesRepair implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(AutoRolesRepair.class);
 
-    private boolean started = false;
+    private final DiscordApi api;
+
+    public AutoRolesRepair(DiscordApi api) {
+        this.api = api;
+    }
 
     public void start() {
-        if (started) return;
-        started = true;
-
         new CustomThread(this, "autoroles_repair", 1).start();
     }
 
     @Override
     public void run() {
-        for(Server server : DiscordApiCollection.getInstance().getServers()) {
+        for(Server server : api.getServers()) {
             try {
                 AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().getBean(server.getId());
                 Locale locale = autoRolesBean.getServerBean().getLocale();
