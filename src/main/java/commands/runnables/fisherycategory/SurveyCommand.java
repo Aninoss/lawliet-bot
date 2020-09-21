@@ -39,7 +39,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        sendMessages(event.getServerTextChannel().get(), false);
+        sendMessages(event.getServerTextChannel().get(), event.getMessageAuthor().asUser().get(), false);
         return true;
     }
 
@@ -115,7 +115,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
     }
 
-    private Message sendMessages(ServerTextChannel channel, boolean tracker) throws InterruptedException, IOException, SQLException, ExecutionException {
+    private Message sendMessages(ServerTextChannel channel, User userRequested, boolean tracker) throws InterruptedException, IOException, SQLException, ExecutionException {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyBean lastSurvey = DBSurvey.getInstance().getBean(currentSurvey.getSurveyId() - 1);
 
@@ -124,7 +124,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey);
-        if (!tracker) EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+        if (!tracker) EmbedFactory.addTrackerNoteLog(getLocale(), channel.getServer(), userRequested, eb, getPrefix(), getTrigger());
         Message message = channel.sendMessage(eb).get();
 
         for(int i = 0; i < 2; i++) {
@@ -204,7 +204,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
         slot.getMessage().ifPresent(Message::delete);
 
-        slot.setMessageId(sendMessages(channel, true).getId());
+        slot.setMessageId(sendMessages(channel, null, true).getId());
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 

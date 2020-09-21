@@ -1,9 +1,13 @@
 package core;
 
 import commands.Command;
+import commands.runnables.managementcategory.TrackerCommand;
 import constants.LogStatus;
 import constants.Settings;
+import core.utils.PermissionUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 
 import java.awt.*;
 import java.util.Locale;
@@ -85,6 +89,13 @@ public class EmbedFactory {
         return addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker_remove"));
     }
 
+    public static EmbedBuilder addTrackerNoteLog(Locale locale, Server server, User user, EmbedBuilder eb, String prefix, String trigger) {
+        if (PermissionUtil.getMissingPermissionListForUser(server, null, user, Command.getClassProperties(TrackerCommand.class).userPermissions()).isEmpty()) {
+            EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
+        }
+        return eb;
+    }
+
     public static EmbedBuilder addLog(EmbedBuilder eb, LogStatus logStatus, String log) {
         if (log != null && log.length() > 0) {
             String add = "";
@@ -115,10 +126,6 @@ public class EmbedFactory {
         }
 
         return eb;
-    }
-
-    public static EmbedBuilder addTrackerNote(Locale locale, EmbedBuilder eb, String prefix, String trigger) {
-        return EmbedFactory.addLog(eb, null, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
     }
 
 }

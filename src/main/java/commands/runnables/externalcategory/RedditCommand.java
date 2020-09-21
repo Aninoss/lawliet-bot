@@ -51,7 +51,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 }
 
                 EmbedBuilder eb = getEmbed(post);
-                EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+                EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else {

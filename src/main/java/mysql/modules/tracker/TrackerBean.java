@@ -122,7 +122,7 @@ public class TrackerBean extends Observable {
         ArrayList<ArrayList<TrackerBeanSlot>> trackerCommandTriggerList = new ArrayList<>();
 
         for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
-            String commandTrigger = Command.getClassTrigger((Class<? extends Command>) clazz);
+            String commandTrigger = Command.getClassProperties((Class<? extends Command>) clazz).trigger();
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
             getSlots().stream()

@@ -33,7 +33,7 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
-        EmbedBuilder eb = EmbedFactory.addTrackerNote(getLocale(), getEmbed(post), getPrefix(), getTrigger());
+        EmbedBuilder eb = EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(post), getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
 
         return true;

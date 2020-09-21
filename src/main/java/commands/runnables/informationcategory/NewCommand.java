@@ -15,6 +15,8 @@ import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         //Ohne Argumente
         if (followedString.length() == 0) {
             List<VersionBeanSlot> versions = versionBean.getCurrentVersions(3);
-            event.getChannel().sendMessage(getEmbedNormal(versions, true)).get();
+            event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, true)).get();
             return true;
         } else {
             //Anzahl
@@ -53,7 +55,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                 if (i >= 1) {
                     if (i <= 10) {
                         List<VersionBeanSlot> versions = versionBean.getCurrentVersions(i);
-                        event.getChannel().sendMessage(getEmbedNormal(versions, false)).get();
+                        event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, false)).get();
                         return true;
                     } else {
                         event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -70,7 +72,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                 List<VersionBeanSlot> versions = versionBean.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
-                    event.getChannel().sendMessage(getEmbedNormal(versions, false)).get();
+                    event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, false)).get();
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
@@ -81,9 +83,9 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         }
     }
 
-    private EmbedBuilder getEmbedNormal(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
+    private EmbedBuilder getEmbedNormal(Server server, User user, List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
-        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+        EmbedFactory.addTrackerNoteLog(getLocale(), server, user, eb, getPrefix(), getTrigger());
         return eb;
     }
 

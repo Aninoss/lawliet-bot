@@ -37,7 +37,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         PostBundle<AnimeReleasePost> posts = AnimeReleaseDownloader.getPosts(getLocale(), null, followedString);
 
         if (posts.getPosts().size() > 0) {
-            EmbedBuilder eb = EmbedFactory.addTrackerNote(getLocale(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
+            EmbedBuilder eb = EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
             event.getChannel().sendMessage(eb).get();
             return true;
         } else {

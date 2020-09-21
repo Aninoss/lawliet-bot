@@ -32,7 +32,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addTrackerNote(getLocale(), eb, getPrefix(), getTrigger());
+        EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }

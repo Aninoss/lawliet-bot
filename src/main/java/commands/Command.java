@@ -668,8 +668,8 @@ public abstract class Command {
         return thread;
     }
 
-    public static String getClassTrigger(Class<? extends Command> c) {
-        return c.getAnnotation(CommandProperties.class).trigger();
+    public static CommandProperties getClassProperties(Class<? extends Command> c) {
+        return c.getAnnotation(CommandProperties.class);
     }
 
 
