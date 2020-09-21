@@ -31,7 +31,7 @@ public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
                 .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
                 .setDescription(text);
         try {
-            if (channel.canYouWrite() && channel.canYouEmbedLinks())
+            if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
                 channel.sendMessage(eb).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not send server join message", e);

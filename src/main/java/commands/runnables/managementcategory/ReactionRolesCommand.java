@@ -35,6 +35,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -344,9 +345,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
             case 7:
                 if (emojiConnections.size() > 0) {
-                    sendMessage();
-                    setState(SENT);
-                    removeNavigation();
+                    if (sendMessage()) {
+                        setState(SENT);
+                        removeNavigation();
+                    }
                     return true;
                 }
                 return false;
@@ -402,7 +404,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         return false;
     }
 
-    private void sendMessage() throws ExecutionException, InterruptedException {
+    private boolean sendMessage() throws ExecutionException, InterruptedException {
         Message m;
         if (!editMode) {
             if (checkWriteInChannelWithLog(channel)) {
@@ -412,9 +414,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         emojiConnection.addReaction(m);
                     }
                 }
-            }
+                return true;
+            } else return false;
         } else {
-            editMessage.edit(getMessageEmbed(false));
+            editMessage.edit(getMessageEmbed(false)).exceptionally(ExceptionLogger.get());
             m = editMessage;
             for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                 boolean exist = false;
@@ -436,6 +439,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 }
                 if (!exist) reaction.remove();
             }
+            return true;
         }
     }
 

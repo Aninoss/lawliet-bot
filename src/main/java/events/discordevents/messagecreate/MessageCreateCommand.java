@@ -67,7 +67,13 @@ public class MessageCreateCommand extends MessageCreateAbstract {
             if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
                 commandTrigger = newContent.split("<")[0].toLowerCase();
 
-            String followedString = StringUtil.trimString(newContent.substring(commandTrigger.length()));
+            String followedString;
+            try {
+                followedString = StringUtil.trimString(newContent.substring(commandTrigger.length()));
+            } catch (StringIndexOutOfBoundsException e) {
+                LOGGER.error("String parsing error on server {}: {}", event.getServer().get().getId(), event.getMessageContent());
+                return true;
+            }
 
             if (commandTrigger.length() > 0) {
                 if (checkForSqlInjection(event)) return false;

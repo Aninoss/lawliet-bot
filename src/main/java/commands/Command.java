@@ -548,7 +548,7 @@ public abstract class Command {
     }
 
     public boolean checkWriteInChannelWithLog(ServerTextChannel channel) {
-        if (channel.canYouWrite() && channel.canYouEmbedLinks()) return true;
+        if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) return true;
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName()));
         return false;
     }

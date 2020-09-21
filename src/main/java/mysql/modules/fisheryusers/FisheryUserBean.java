@@ -117,9 +117,13 @@ public class FisheryUserBean extends BeanWithServer {
 
     public int getRank() {
         try {
-            return (int) (fisheryServerBean.getUsers().values().stream()
-                    .filter(user -> user.isOnServer() && userIsRankedHigherThanMe(user))
-                    .count() + 1);
+            int count = 1;
+            for(FisheryUserBean userBean : new ArrayList<>(fisheryServerBean.getUsers().values())) {
+                if (userBean.isOnServer() && userIsRankedHigherThanMe(userBean)) {
+                    count++;
+                }
+            }
+            return count;
         } catch (ConcurrentModificationException e) {
             LOGGER.error("Concurrent modification exception", e);
             return 0;
@@ -139,10 +143,9 @@ public class FisheryUserBean extends BeanWithServer {
                 long n = 0;
 
                 Instant effectiveInstant = currentHourInstance.minus(7, ChronoUnit.DAYS);
-                for (Iterator<FisheryHourlyIncomeBean> iterator = fisheryHourlyIncomeMap.values().iterator(); iterator.hasNext(); ) {
-                    FisheryHourlyIncomeBean fisheryHourlyIncomeBean = iterator.next();
-                    if (fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant)) iterator.remove();
-                    else n += fisheryHourlyIncomeBean.getFishIncome();
+                for (FisheryHourlyIncomeBean fisheryHourlyIncomeBean : fisheryHourlyIncomeMap.values()) {
+                    if (!fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant))
+                        n += fisheryHourlyIncomeBean.getFishIncome();
                 }
 
                 fishIncome = n;
