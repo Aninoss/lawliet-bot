@@ -1,6 +1,7 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.PornSearchAbstract;
 
 import java.util.Locale;
@@ -14,7 +15,7 @@ import java.util.Locale;
         withLoadingBar = true,
         aliases = { "furrybooru", "yiff" }
 )
-public class FurryCommand extends PornSearchAbstract {
+public class FurryCommand extends PornSearchAbstract implements OnTrackerRequestListener {
 
     public FurryCommand(Locale locale, String prefix) {
         super(locale, prefix);

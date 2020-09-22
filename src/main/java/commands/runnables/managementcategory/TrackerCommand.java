@@ -121,12 +121,12 @@ public class TrackerCommand extends Command implements OnNavigationListener {
             if (searchTerm.replace(" ", "").isEmpty()) return;
             String arg = searchTerm.split(" ")[0].toLowerCase();
 
-            if (!processArg(arg, firstTime)) return;
+            if (!processArg(arg, searchTerm, firstTime)) return;
             searchTerm = StringUtil.trimString(searchTerm.substring(arg.length()));
         }
     }
 
-    private boolean processArg(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    private boolean processArg(String arg, String argComplete, boolean firstTime) throws ExecutionException, IllegalAccessException, InstantiationException, InvocationTargetException {
         int state = getState();
         switch (state) {
             case DEFAULT_STATE:
@@ -139,7 +139,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 return processRemove(arg, firstTime);
 
             case STATE_KEY:
-                return processKey(arg, firstTime);
+                return processKey(argComplete, firstTime);
 
             default:
                 return false;
@@ -175,7 +175,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
             return false;
 
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
-        if (commandOpt.isEmpty()) {
+        if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnTrackerRequestListener)) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
             return false;
         }

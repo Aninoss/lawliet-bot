@@ -1,7 +1,11 @@
 package modules.repair;
 
+import commands.runnables.managementcategory.AutoChannelCommand;
+import constants.Permission;
 import core.CustomThread;
 import core.DiscordApiCollection;
+import core.PermissionCheckRuntime;
+import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
@@ -9,6 +13,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -48,8 +53,9 @@ public class AutoChannelRepair implements Runnable {
     }
 
     private void deleteEmptyVoiceChannels(Server server) throws ExecutionException {
-        DBAutoChannel.getInstance().getBean(server.getId()).getChildChannelIds().transform(server::getVoiceChannelById, DiscordEntity::getId).stream()
-                .filter(vc -> vc.getConnectedUsers().isEmpty())
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(server.getId());
+        autoChannelBean.getChildChannelIds().transform(server::getVoiceChannelById, DiscordEntity::getId).stream()
+                .filter(vc -> vc.getConnectedUsers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getServerBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL | Permission.CONNECT))
                 .forEach(vc -> vc.delete().exceptionally(ExceptionLogger.get()));
     }
 

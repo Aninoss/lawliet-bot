@@ -1,6 +1,7 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.PornSearchAbstract;
 
 import java.util.Locale;
@@ -14,7 +15,7 @@ import java.util.Locale;
         withLoadingBar = true,
         aliases = {"gel", "gbooru", "gelbooru"}
 )
-public class GelbooruCommand extends PornSearchAbstract {
+public class GelbooruCommand extends PornSearchAbstract implements OnTrackerRequestListener {
 
     public GelbooruCommand(Locale locale, String prefix) {
         super(locale, prefix);

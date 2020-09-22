@@ -12,7 +12,7 @@ public class RandomPicker {
 
     private final HashMap<String, HashMap<Long, ArrayList<Integer>>> picks = new HashMap<>();
 
-    public int pick(String tag, long serverId, int size) {
+    public synchronized int pick(String tag, long serverId, int size) {
         HashMap<Long, ArrayList<Integer>> tagPicks = picks.computeIfAbsent(tag, k -> new HashMap<>());
         ArrayList<Integer> serverPicks = tagPicks.computeIfAbsent(serverId, k -> new ArrayList<>());
 
