@@ -99,20 +99,20 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
             PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey(), slot.getArgs().orElse(null));
-
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
                 for(int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNsfw()) {
-                        if (slot.getArgs().isPresent() || i == 0)
-                            channel.sendMessage(getEmbed(post));
+                        channel.sendMessage(getEmbed(post));
                         containsOnlyNsfw = false;
+                        if (slot.getArgs().isEmpty())
+                            break;
                     }
                 }
 
-                if (containsOnlyNsfw && !slot.getArgs().isPresent()) {
+                if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
                     EmbedFactory.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb).get();
@@ -122,7 +122,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 slot.setArgs(postBundle.getNewestPost());
                 return TrackerResult.CONTINUE_AND_SAVE;
             } else {
-                if (!slot.getArgs().isPresent()) {
+                if (slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));

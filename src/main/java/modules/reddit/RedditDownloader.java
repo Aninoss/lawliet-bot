@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +49,7 @@ public class RedditDownloader {
             return null;
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = URLEncoder.encode(sub, "UTF-8");
+        sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
 
         Subreddit subreddit = SubredditContainer.getInstance().get(sub);
         String postReference = subreddit.getPostReference();
@@ -57,7 +58,7 @@ public class RedditDownloader {
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
 
         HttpResponse httpResponse = InternetCache.getDataShortLived(downloadUrl).get();
-        if (!httpResponse.getContent().isPresent()) {
+        if (httpResponse.getContent().isEmpty()) {
             return null;
         }
 
@@ -76,7 +77,7 @@ public class RedditDownloader {
         if (!tempData.isNull("after")) postReference = tempData.getString("after");
         else postReference = "";
 
-        JSONArray postData = tempData.getJSONArray("children");
+        JSONArray postData = filterPostData(tempData.getJSONArray("children"));
         if (postData.length() <= 0) {
             return null;
         }
@@ -91,15 +92,17 @@ public class RedditDownloader {
             return null;
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = URLEncoder.encode(sub, "UTF-8");
+        sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
-        if (!httpResponse.getContent().isPresent()) return null;
+        if (httpResponse.getContent().isEmpty())
+            return null;
 
         String dataString = httpResponse.getContent().get();
-        if (!dataString.startsWith("{")) return null;
+        if (!dataString.startsWith("{"))
+            return null;
 
         JSONObject root = new JSONObject(dataString);
         if (root.has("error") && root.getInt("error") == 429) {
@@ -107,41 +110,50 @@ public class RedditDownloader {
             return null;
         }
 
-        JSONArray postData = root.getJSONObject("data").getJSONArray("children");
+        JSONArray postData = filterPostData(root.getJSONObject("data").getJSONArray("children"));
         if (postData.length() <= 0) return null;
 
+        ArrayList<String> postedIdList = new ArrayList<>();
+        if (arg != null) postedIdList.addAll(Arrays.asList(arg.split("\\|")));
+
+        return trackerProcess(locale, postData, postedIdList);
+    }
+
+    private static PostBundle<RedditPost> trackerProcess(Locale locale, JSONArray postData, ArrayList<String> postedIdList) {
         ArrayList<RedditPost> redditPosts = new ArrayList<>();
-        StringBuilder newArg = new StringBuilder();
-        String[] postedArray;
-        if (arg != null) postedArray = arg.split("\\|");
-        else postedArray = new String[0];
-        boolean stop = false;
-
-        for (int i = postData.length() - 1; i >= 0; i--) {
+        for (int i = 0; i < postData.length() - 1; i++) {
             String name = postData.getJSONObject(i).getJSONObject("data").getString("name");
-            if (i < postData.length() - 1) newArg.append("|");
-            newArg.append(name);
 
-            if (postedArray.length > 0 && name.equalsIgnoreCase(postedArray[postedArray.length-1])) stop = true;
+            if (!postedIdList.contains(name)) {
+                RedditPost post = getPost(locale, postData.getJSONObject(i).getJSONObject("data"));
+                if (post == null) return null;
 
-            if (!stop) {
-                boolean newPost = true;
-                for (String postedName : postedArray) {
-                    if (postedName.equalsIgnoreCase(name)) {
-                        newPost = false;
-                        break;
-                    }
-                }
-
-                if (newPost) {
-                    RedditPost post = getPost(locale, postData.getJSONObject(i).getJSONObject("data"));
-                    if (post == null) return null;
-                    redditPosts.add(post);
-                }
+                redditPosts.add(post);
+                postedIdList.add(name);
             }
         }
 
+        while (postedIdList.size() > 100)
+            postedIdList.remove(0);
+
+        StringBuilder newArg = new StringBuilder();
+        for(int i = 0; i < postedIdList.size(); i++) {
+            if (i > 0) newArg.append("|");
+            newArg.append(postedIdList.get(i));
+        }
+
         return new PostBundle<>(redditPosts, newArg.toString());
+    }
+
+    private static JSONArray filterPostData(JSONArray postData) {
+        JSONArray newArray = new JSONArray();
+        for (int i = 0; i < postData.length() - 1; i++) {
+            JSONObject data = postData.getJSONObject(i);
+            if (!data.getJSONObject("data").getBoolean("stickied"))
+                newArray.put(data);
+        }
+
+        return newArray;
     }
 
     public static boolean checkRedditConnection() {
@@ -204,7 +216,7 @@ public class RedditDownloader {
 
         if (postSource && !source.equals(url)) {
             String linkText = TextManager.getString(locale, Category.EXTERNAL, "reddit_linktext", source);
-            description = StringUtil.shortenString(description, 2048-linkText.length());
+            description = StringUtil.shortenString(description, 2048 - linkText.length());
             if (!description.equals("")) description += "\n\n";
             description += linkText;
         } else description = StringUtil.shortenString(description, 2048);
@@ -214,4 +226,5 @@ public class RedditDownloader {
 
         return post;
     }
+
 }
