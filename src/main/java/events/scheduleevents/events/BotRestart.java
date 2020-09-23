@@ -46,7 +46,7 @@ public class BotRestart implements ScheduleEventInterface {
     }
 
     private void saveDailyUniqueUsersStats() {
-        if (DiscordApiCollection.getInstance().getStartingTime().isBefore(Instant.now().minus(23, ChronoUnit.HOURS))) {
+        if (DiscordApiCollection.getInstance().getStartingTime().isBefore(Instant.now().minus(20, ChronoUnit.HOURS))) {
             DBBotStats.saveStatsUniqueUsers();
         }
     }
