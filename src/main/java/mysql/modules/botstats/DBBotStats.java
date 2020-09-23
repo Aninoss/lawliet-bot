@@ -32,7 +32,7 @@ public class DBBotStats {
         DBMain.getInstance().asyncUpdate("INSERT INTO StatsUpvotes VALUES(NOW(), ?, ?);", preparedStatement -> {
             try {
                 preparedStatement.setInt(1, TopGG.getInstance().getTotalUpvotes());
-                preparedStatement.setInt(1, TopGG.getInstance().getMonthlyUpvotes());
+                preparedStatement.setInt(2, TopGG.getInstance().getMonthlyUpvotes());
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Error while fetching topgg upvotes", e);
             }
