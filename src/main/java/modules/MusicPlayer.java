@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.LavaplayerAudioSource;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.audio.AudioConnection;
@@ -15,17 +16,50 @@ import org.javacord.api.audio.AudioSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class MusicPlayer {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MusicPlayer.class);
 
     private static final MusicPlayer ourInstance = new MusicPlayer();
-    public static MusicPlayer getInstance() { return ourInstance; }
+
+    public static MusicPlayer getInstance() {
+        return ourInstance;
+    }
 
     private final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 
     private MusicPlayer() {
         playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+    }
+
+    public Optional<AudioTrackInfo> meta(String url) throws ExecutionException, InterruptedException {
+        AtomicReference<Optional<AudioTrackInfo>> trackInfoAtomic = new AtomicReference<>(Optional.empty());
+
+        playerManager.loadItem(url, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                trackInfoAtomic.set(Optional.of(track.getInfo()));
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+            }
+
+            @Override
+            public void noMatches() {
+            }
+
+            @Override
+            public void loadFailed(FriendlyException throwable) {
+                LOGGER.error("Could not load music track", throwable);
+            }
+        }).get();
+
+        return trackInfoAtomic.get();
     }
 
     public void play(AudioConnection audioConnection, String url) {

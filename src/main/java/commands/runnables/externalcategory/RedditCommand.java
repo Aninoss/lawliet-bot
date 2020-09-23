@@ -15,6 +15,7 @@ import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -105,7 +106,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 for(int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNsfw()) {
-                        channel.sendMessage(getEmbed(post));
+                        channel.sendMessage(getEmbed(post)).exceptionally(ExceptionLogger.get());
                         containsOnlyNsfw = false;
                         if (slot.getArgs().isEmpty())
                             break;
