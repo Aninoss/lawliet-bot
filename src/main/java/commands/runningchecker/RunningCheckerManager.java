@@ -18,7 +18,7 @@ public class RunningCheckerManager {
 
     private final HashMap<Long, ArrayList<RunningCheckerSlot>> runningCommandsMap = new HashMap<>();
 
-    public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec, int maxAmount) {
+    public boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec, int maxAmount) {
         ArrayList<RunningCheckerSlot> runningCommandsList = runningCommandsMap.computeIfAbsent(userId, k -> new ArrayList<>());
         stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 

@@ -1,12 +1,12 @@
 package modules.twitch;
 
-import core.internet.HttpProperty;
-import core.internet.HttpRequest;
-import core.SecretManager;
-import core.utils.InternetUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import core.SecretManager;
+import core.internet.HttpProperty;
+import core.internet.HttpRequest;
+import core.utils.InternetUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,7 +26,7 @@ public class TwitchController {
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public Optional<TwitchUser> load(@NonNull String channelName) throws ExecutionException, InterruptedException, UnsupportedEncodingException {
+                        public Optional<TwitchUser> load(@NonNull String channelName) throws InterruptedException, UnsupportedEncodingException, ExecutionException {
                             return getTwitchUser(channelName);
                         }
                     });
@@ -70,8 +70,13 @@ public class TwitchController {
         return new TwitchStream(twitchUser, previewImage, game, status, viewers, followers);
     }
 
-    private Optional<TwitchUser> getTwitchUser(String channelName) throws ExecutionException, InterruptedException, UnsupportedEncodingException {
-        JSONObject data = fetchApi("https://api.twitch.tv/kraken/users?login=" + InternetUtil.encodeForURL(channelName));
+    private Optional<TwitchUser> getTwitchUser(String channelName) throws InterruptedException, UnsupportedEncodingException, ExecutionException {
+        JSONObject data;
+        data = fetchApi("https://api.twitch.tv/kraken/users?login=" + InternetUtil.encodeForURL(channelName));
+
+        if (!data.has("users"))
+            return Optional.empty();
+
         JSONArray users = data.getJSONArray("users");
 
         if (users.length() == 0)
@@ -89,9 +94,8 @@ public class TwitchController {
                 new HttpProperty("Client-ID", SecretManager.getString("twitch.clientid"))
         };
 
-        String content = HttpRequest.getData(url, properties)
-                .get().getContent().get();
-        return new JSONObject(content);
+        return HttpRequest.getData(url, properties)
+                .get().getContent().map(JSONObject::new).orElse(new JSONObject());
     }
 
 }
