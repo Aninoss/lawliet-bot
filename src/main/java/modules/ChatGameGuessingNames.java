@@ -15,6 +15,7 @@ public class ChatGameGuessingNames {
     public int check(int val) {
         if (val == num) {
             this.num = r.nextInt(100000) + 1;
+            tries = 0;
             return 0;
         }
 

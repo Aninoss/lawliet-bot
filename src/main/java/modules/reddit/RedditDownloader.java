@@ -148,9 +148,10 @@ public class RedditDownloader {
     private static JSONArray filterPostData(JSONArray postData) {
         JSONArray newArray = new JSONArray();
         for (int i = 0; i < postData.length() - 1; i++) {
-            JSONObject data = postData.getJSONObject(i);
-            if (!data.getJSONObject("data").getBoolean("stickied"))
-                newArray.put(data);
+            JSONObject entry = postData.getJSONObject(i);
+            JSONObject data = entry.getJSONObject("data");
+            if (!data.has("stickied") || !data.getBoolean("stickied"))
+                newArray.put(entry);
         }
 
         return newArray;
