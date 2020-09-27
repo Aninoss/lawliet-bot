@@ -13,6 +13,7 @@ import mysql.modules.server.DBServer;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.List;
 import java.util.Locale;
@@ -42,11 +43,13 @@ public class ServerMemberJoinFisheryRoles extends ServerMemberJoinAbstract {
         if (level > 0) {
             if (fisheryServerBean.getServerBean().isFisherySingleRoles()) {
                 Role role = roles.get(level - 1);
-                if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) role.addUser(event.getUser()).get();
+                if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role))
+                    role.addUser(event.getUser()).exceptionally(ExceptionLogger.get());
             } else {
                 for (int i = 0; i <= level - 1; i++) {
                     Role role = roles.get(i);
-                    if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) role.addUser(event.getUser()).get();
+                    if (role != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role))
+                        role.addUser(event.getUser()).exceptionally(ExceptionLogger.get());
                 }
             }
         }

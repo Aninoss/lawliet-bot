@@ -6,6 +6,8 @@ import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import modules.BannedWordsCheck;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.time.Instant;
+
 @DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true)
 public class MessageCreateBannedWords extends MessageCreateAbstract {
 

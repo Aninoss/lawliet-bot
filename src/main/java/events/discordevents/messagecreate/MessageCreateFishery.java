@@ -13,7 +13,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Random;
 
-@DiscordEvent()
+@DiscordEvent
 public class MessageCreateFishery extends MessageCreateAbstract {
 
     @Override

@@ -220,6 +220,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
         switch (state) {
             case 0:
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
+                eb.setTitle(getEmoji() + " " + getString("title") + Settings.EMPTY_EMOJI.repeat(22)); //TODO Just temporary
 
                 eb.addField(getString("beginning_title"), getString("beginning"));
 

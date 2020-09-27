@@ -7,6 +7,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.UserRoleAddAbstract;
 import org.javacord.api.event.server.role.UserRoleAddEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,7 @@ public class UserRoleAddPatreonRole extends UserRoleAddAbstract {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
                     LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    DiscordApiCollection.getInstance().getOwner().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName()));
+                    DiscordApiCollection.getInstance().getOwner().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
                     PatreonCache.getInstance().resetUser(event.getUser().getId());
                     break;
                 }

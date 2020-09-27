@@ -1,8 +1,8 @@
 package commands.runnables.externalcategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import commands.Command;
 import constants.Category;
 import constants.TrackerResult;
 import core.EmbedFactory;
@@ -16,6 +16,8 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +30,8 @@ import java.util.Locale;
     executable = false
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(RedditCommand.class);
 
     public RedditCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -72,7 +76,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), "")
                 .setTimestamp(post.getInstant())
                 .setImage(post.getImage())
-                .setUrl(post.getLink());
+                .setUrl(post.getUrl());
 
         String flairText = "";
         String flair = post.getFlair();
@@ -91,15 +95,15 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        ServerTextChannel channel = slot.getChannel().get();
         if (slot.getCommandKey().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedFactory.addTrackerRemoveLog(eb, getLocale());
-            channel.sendMessage(eb).get();
+            slot.getChannel().get().sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
             PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey(), slot.getArgs().orElse(null));
+            ServerTextChannel channel = slot.getChannel().get();
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {

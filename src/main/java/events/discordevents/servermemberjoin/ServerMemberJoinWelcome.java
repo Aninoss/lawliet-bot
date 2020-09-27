@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @DiscordEvent(allowBots = true)
 public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
@@ -78,38 +77,34 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
             InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
             User user = event.getUser();
-            try {
-                if (image != null) {
-                    channel.sendMessage(
-                            StringUtil.defuseMassPing(
-                                    Welcome.resolveVariables(
-                                            welcomeMessageBean.getWelcomeText(),
-                                            StringUtil.escapeMarkdown(server.getName()),
-                                            user.getMentionTag(),
-                                            StringUtil.escapeMarkdown(user.getName()),
-                                            StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                            StringUtil.numToString(locale, server.getMemberCount())
-                                    )
-                            ),
-                            image,
-                            "welcome.png"
-                    ).get();
-                } else {
-                    channel.sendMessage(
-                            StringUtil.defuseMassPing(
-                                    Welcome.resolveVariables(
-                                            welcomeMessageBean.getWelcomeText(),
-                                            StringUtil.escapeMarkdown(server.getName()),
-                                            user.getMentionTag(),
-                                            StringUtil.escapeMarkdown(user.getName()),
-                                            StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                            StringUtil.numToString(locale, server.getMemberCount())
-                                    )
-                            )
-                    ).get();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Exception", e);
+            if (image != null) {
+                channel.sendMessage(
+                        StringUtil.defuseMassPing(
+                                Welcome.resolveVariables(
+                                        welcomeMessageBean.getWelcomeText(),
+                                        StringUtil.escapeMarkdown(server.getName()),
+                                        user.getMentionTag(),
+                                        StringUtil.escapeMarkdown(user.getName()),
+                                        StringUtil.escapeMarkdown(user.getDiscriminatedName()),
+                                        StringUtil.numToString(locale, server.getMemberCount())
+                                )
+                        ),
+                        image,
+                        "welcome.png"
+                ).exceptionally(ExceptionLogger.get());
+            } else {
+                channel.sendMessage(
+                        StringUtil.defuseMassPing(
+                                Welcome.resolveVariables(
+                                        welcomeMessageBean.getWelcomeText(),
+                                        StringUtil.escapeMarkdown(server.getName()),
+                                        user.getMentionTag(),
+                                        StringUtil.escapeMarkdown(user.getName()),
+                                        StringUtil.escapeMarkdown(user.getDiscriminatedName()),
+                                        StringUtil.numToString(locale, server.getMemberCount())
+                                )
+                        )
+                ).exceptionally(ExceptionLogger.get());
             }
         }
     }

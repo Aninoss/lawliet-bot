@@ -188,7 +188,7 @@ public class RedditDownloader {
             post.setFlair(flair.toString());
         description = data.getString("selftext");
         url = data.getString("url");
-        post.setLink(url);
+        post.setUrl(url);
         source = "https://www.reddit.com" + data.getString("permalink");
         thumbnail = data.getString("thumbnail");
         if (url.contains("//")) {
@@ -199,7 +199,7 @@ public class RedditDownloader {
 
         if (data.has("post_hint") && data.getString("post_hint").equals("image")) {
             post.setImage(url);
-            post.setLink(source);
+            post.setUrl(source);
             postSource = false;
             domain = "reddit.com";
         } else {
@@ -208,7 +208,7 @@ public class RedditDownloader {
             } else {
                 if (InternetUtil.urlContainsImage(url)) {
                     post.setImage(url);
-                    post.setLink(source);
+                    post.setUrl(source);
                     postSource = false;
                     domain = "reddit.com";
                 } else if (thumbnail.toLowerCase().startsWith("http")) post.setThumbnail(thumbnail);

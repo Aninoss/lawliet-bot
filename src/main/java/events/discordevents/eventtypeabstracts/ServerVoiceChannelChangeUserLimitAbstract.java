@@ -14,7 +14,7 @@ public abstract class ServerVoiceChannelChangeUserLimitAbstract extends DiscordE
     public abstract boolean onServerVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable;
 
     public static void onServerVoiceChannelChangeUserLimitStatic(ServerVoiceChannelChangeUserLimitEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(event, listenerList,
+        execute(listenerList, true,
                 listener -> ((ServerVoiceChannelChangeUserLimitAbstract) listener).onServerVoiceChannelChangeUserLimit(event)
         );
     }

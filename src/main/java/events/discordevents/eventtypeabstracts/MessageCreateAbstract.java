@@ -3,6 +3,7 @@ package events.discordevents.eventtypeabstracts;
 import constants.Settings;
 import core.EmbedFactory;
 import events.discordevents.DiscordEventAbstract;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
@@ -24,9 +25,10 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
 
 
     public static void onMessageCreateStatic(MessageCreateEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (listenerList.isEmpty()) return;
+        User user = event.getMessageAuthor().asUser().orElse(null);
+        if (user == null || user.isYourself()) return;
 
-        if (!event.getServer().isPresent()) {
+        if (event.getServer().isEmpty() && !user.isBot()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle("❌ NOT SUPPORTED".toUpperCase())
                     .setDescription(String.format("Commands via dm aren't supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", Settings.BOT_INVITE_URL)));
@@ -34,7 +36,7 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         }
 
         Instant startTime = Instant.now();
-        execute(event, listenerList,
+        execute(listenerList, user, false,
                 listener -> {
                     ((MessageCreateAbstract) listener).setStartTime(startTime);
                     return ((MessageCreateAbstract) listener).onMessageCreate(event);

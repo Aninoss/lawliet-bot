@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class PornImageCacheSearchKey {
 
-    private ArrayList<String> imageURLs = new ArrayList<>();
+    private final ArrayList<String> imageURLs = new ArrayList<>();
 
     public boolean contains(String imageURL) {
         return imageURLs.contains(imageURL);
@@ -15,8 +15,8 @@ public class PornImageCacheSearchKey {
     }
 
     public synchronized void add(String imageURL) {
-        imageURLs.remove(imageURL);
-        imageURLs.add(imageURL);
+        if (!imageURLs.contains(imageURL))
+            imageURLs.add(imageURL);
     }
 
 }

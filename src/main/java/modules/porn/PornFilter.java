@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PornFilter {
 
-    public static synchronized PornImageMeta filter(String domain, String searchKey, ArrayList<PornImageMeta> pornImages, ArrayList<String> usedResult) throws ExecutionException {
+    public static PornImageMeta filter(String domain, String searchKey, ArrayList<PornImageMeta> pornImages, ArrayList<String> usedResult) throws ExecutionException {
         if (pornImages.size() == 0) return null;
 
         /* Delete global duplicate images */

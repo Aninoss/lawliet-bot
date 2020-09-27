@@ -12,7 +12,8 @@ import java.util.Locale;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true
+        withLoadingBar = true,
+        aliases = {"r1porn"}
 )
 public class RealLifePornCommand extends RealbooruAbstract implements OnTrackerRequestListener {
 

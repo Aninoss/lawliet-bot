@@ -1,6 +1,7 @@
 package events.discordevents.messagecreate;
 
-import events.discordevents.*;
+import events.discordevents.DiscordEvent;
+import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import modules.SPCheck;
 import org.javacord.api.event.message.MessageCreateEvent;

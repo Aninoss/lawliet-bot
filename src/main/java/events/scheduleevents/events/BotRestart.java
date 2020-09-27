@@ -30,7 +30,6 @@ public class BotRestart implements ScheduleEventInterface {
             if (hour == Settings.UPDATE_HOUR && readyForRestart) {
                 readyForRestart = false;
                 backupDatabase();
-                saveDailyUniqueUsersStats();
 
                 if (Bot.hasUpdate()) {
                     LOGGER.info("EXIT - Restarting for update...");
@@ -42,12 +41,6 @@ public class BotRestart implements ScheduleEventInterface {
             } else if (hour < Settings.UPDATE_HOUR) {
                 readyForRestart = true;
             }
-        }
-    }
-
-    private void saveDailyUniqueUsersStats() {
-        if (DiscordApiCollection.getInstance().getStartingTime().isBefore(Instant.now().minus(20, ChronoUnit.HOURS))) {
-            DBBotStats.saveStatsUniqueUsers();
         }
     }
 

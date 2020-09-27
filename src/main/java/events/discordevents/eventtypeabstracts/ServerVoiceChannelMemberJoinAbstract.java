@@ -10,7 +10,7 @@ public abstract class ServerVoiceChannelMemberJoinAbstract extends DiscordEventA
     public abstract boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable;
 
     public static void onServerVoiceChannelMemberJoinStatic(ServerVoiceChannelMemberJoinEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(event, listenerList,
+        execute(listenerList, event.getUser(), true,
                 listener -> ((ServerVoiceChannelMemberJoinAbstract) listener).onServerVoiceChannelMemberJoin(event)
         );
     }

@@ -24,8 +24,8 @@ public class PingCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        Instant creationTime = getStartTime();
-        long milisInternal = TimeUtil.getMilisBetweenInstants(creationTime, Instant.now());
+        Instant startTime = (Instant) getAttachments().get("starting_time");
+        long milisInternal = TimeUtil.getMilisBetweenInstants(startTime, Instant.now());
         long milisGateway = event.getApi().getLatestGatewayLatency().toMillis();
         long milisRest = event.getApi().measureRestLatency().get().toMillis();
 

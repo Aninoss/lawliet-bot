@@ -2,10 +2,10 @@ package modules;
 
 import commands.runnables.managementcategory.MemberCountDisplayCommand;
 import constants.Permission;
+import core.CustomThread;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,24 +25,25 @@ public class MemberCountDisplay {
     public static void manage(Locale locale, Server server) throws ExecutionException {
         ArrayList<mysql.modules.membercountdisplays.MemberCountDisplay> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
         for (mysql.modules.membercountdisplays.MemberCountDisplay display : displays) {
-            try {
+            new CustomThread(() -> {
                 synchronized (server) {
-                    Optional<ServerVoiceChannel> vcOpt = display.getVoiceChannel();
-                    if (vcOpt.isPresent()) {
-                        ServerVoiceChannel voiceChannel = vcOpt.get();
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
-                            String newVCName = getNewVCName(server, locale, display.getMask());
-                            if (!newVCName.equals(voiceChannel.getName())) {
-                                voiceChannel.createUpdater()
-                                        .setName(newVCName)
-                                        .update().get();
+                    display.getVoiceChannel().ifPresent(voiceChannel -> {
+                        try {
+                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                                String newVCName = getNewVCName(server, locale, display.getMask());
+                                if (!newVCName.equals(voiceChannel.getName())) {
+                                    voiceChannel.createUpdater()
+                                            .setName(newVCName)
+                                            .update()
+                                            .get(10, TimeUnit.SECONDS);
+                                }
                             }
+                        } catch (Throwable e) {
+                            LOGGER.error("Error in mc display", e);
                         }
-                    }
+                    });
                 }
-            } catch (Throwable throwable) {
-                LOGGER.error("Error in mcdisplay", throwable);
-            }
+            }, "mc_display", 1).start();
         }
     }
 
@@ -51,7 +52,8 @@ public class MemberCountDisplay {
         long botMembers = server.getMembers().stream().filter(User::isBot).count();
         int boosts = server.getBoostCount();
 
-        return replaceVariables(name,
+        return replaceVariables(
+                name,
                 StringUtil.numToString(locale, members),
                 StringUtil.numToString(locale, members - botMembers),
                 StringUtil.numToString(locale, botMembers),
@@ -65,4 +67,5 @@ public class MemberCountDisplay {
                 .replaceAll("(?i)" + Pattern.quote("%bots"), Matcher.quoteReplacement(arg3))
                 .replaceAll("(?i)" + Pattern.quote("%boosts"), Matcher.quoteReplacement(arg4));
     }
+
 }

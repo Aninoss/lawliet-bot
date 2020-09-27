@@ -1,17 +1,17 @@
 package events.discordevents.messagecreate;
 
-import commands.listeners.OnForwardedRecievedListener;
-import commands.listeners.OnNavigationListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnNavigationListener;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.ExceptionHandler;
-import core.mention.MentionUtil;
 import core.TextManager;
+import core.mention.MentionUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
@@ -62,7 +62,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
             if (prefixFound > 0 && manageForwardedMessages(event)) return true;
 
             String newContent = StringUtil.trimString(content.substring(prefixes[prefixFound].length()));
-            while (newContent.contains("  ")) newContent = newContent.replaceAll(" {2}", " ");
+            if (newContent.contains("  ")) newContent = newContent.replace("  ", " ");
             String commandTrigger = newContent.split(" ")[0].toLowerCase();
             if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
                 commandTrigger = newContent.split("<")[0].toLowerCase();

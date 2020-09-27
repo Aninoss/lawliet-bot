@@ -12,7 +12,7 @@ import java.util.Locale;
         nsfw = true,
         requiresEmbeds = false,
         withLoadingBar = true,
-        aliases = {"rbooru", "realbooru"}
+        aliases = {"rbooru", "realbooru", "rlbooru"}
 )
 public class RealbooruCommand extends PornSearchAbstract {
 

@@ -1,6 +1,5 @@
 package mysql.modules.botstats;
 
-import commands.CommandUsers;
 import mysql.DBMain;
 import websockets.TopGG;
 import org.slf4j.Logger;
@@ -37,12 +36,6 @@ public class DBBotStats {
                 LOGGER.error("Error while fetching topgg upvotes", e);
             }
         });
-    }
-
-    public static void saveStatsUniqueUsers() {
-        DBMain.getInstance().asyncUpdate("INSERT INTO StatsUniqueUsers VALUES(NOW(), ?);",
-                preparedStatement -> preparedStatement.setInt(1, CommandUsers.getInstance().checkDailyUniqueUsers())
-        );
     }
 
     public static List<BotStatsServersSlot> getMonthlyServerStats() throws SQLException {

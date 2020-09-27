@@ -10,6 +10,7 @@ import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelChangeUserLimitEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +38,9 @@ public class ServerVoiceChannelChangeUserLimitAutoChannel extends ServerVoiceCha
                             Locale locale = serverBean.getLocale();
 
                             if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
-                                event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().get();
+                                event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().exceptionally(ExceptionLogger.get());
                             }
-                        } catch (InterruptedException | ExecutionException e) {
+                        } catch (ExecutionException e) {
                             LOGGER.error("Exception", e);
                         }
                     }

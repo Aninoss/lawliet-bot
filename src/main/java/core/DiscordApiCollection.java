@@ -6,7 +6,6 @@ import constants.Settings;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
-import core.utils.InternetUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -92,16 +91,9 @@ public class DiscordApiCollection {
 
                     errorCounter[n]++;
                     if (errorCounter[n] >= 4) {
-                        if (hasReconnected[n]) {
-                            LOGGER.error("EXIT - Shard {} offline for too long. Force software restart.\nMAX MEMORY: {}", n, Console.getInstance().getMaxMemory());
-                            LOGGER.info("Internet Connection: {}", InternetUtil.checkConnection());
-                            System.exit(-1);
-                        } else {
-                            LOGGER.warn("Shard {} temporarely offline", n);
-                            reconnectShard(n);
-                            hasReconnected[n] = true;
-                            break;
-                        }
+                        LOGGER.warn("Shard {} temporarely offline", n);
+                        reconnectShard(n);
+                        break;
                     }
                 }
             }

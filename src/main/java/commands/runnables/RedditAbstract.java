@@ -43,7 +43,7 @@ public abstract class RedditAbstract extends Command {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())
-                .setUrl(post.getLink())
+                .setUrl(post.getUrl())
                 .setTimestamp(post.getInstant());
 
         eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(getLocale(), post.getScore()), StringUtil.numToString(getLocale(), post.getComments())));

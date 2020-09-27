@@ -10,7 +10,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import java.util.Locale;
 
-@DiscordEvent()
+@DiscordEvent
 public class MessageCreateChatGameGuessingNumber extends MessageCreateAbstract {
 
     @Override

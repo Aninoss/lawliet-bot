@@ -1,8 +1,10 @@
 package commands.runnables;
 
-import commands.listeners.OnReactionAddListener;
 import commands.Command;
-import core.*;
+import commands.listeners.OnReactionAddListener;
+import constants.Settings;
+import core.EmbedFactory;
+import core.TextManager;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -43,6 +45,8 @@ public abstract class ListAbstract extends Command implements OnReactionAddListe
     private EmbedBuilder getEmbed(ServerTextChannel channel) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
                 .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
+
+        eb.setTitle(getEmoji() + " " + getString("title") + Settings.EMPTY_EMOJI.repeat(20)); //TODO Just temporary
 
         for(int i = page * entriesPerPage; i < Math.min(size, page * entriesPerPage + entriesPerPage); i++) {
             Pair<String, String> entry = getEntry(channel, i);

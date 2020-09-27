@@ -8,10 +8,9 @@ import events.discordevents.eventtypeabstracts.ServerJoinAbstract;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.server.ServerJoinEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutionException;
 
 @DiscordEvent
 public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
@@ -30,12 +29,8 @@ public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
                 .setAuthor(DiscordApiCollection.getInstance().getYourself())
                 .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
                 .setDescription(text);
-        try {
-            if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
-                channel.sendMessage(eb).get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not send server join message", e);
-        }
+        if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
+            channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
     }
 
 }

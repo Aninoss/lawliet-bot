@@ -1,13 +1,11 @@
 package core;
 
-import constants.Settings;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
 import modules.repair.AutoChannelRepair;
 import modules.repair.AutoRolesRepair;
-import mysql.DBMain;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
@@ -17,8 +15,6 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.WebComServer;
-
-import java.util.Calendar;
 
 public class DiscordConnector {
 
@@ -126,22 +122,8 @@ public class DiscordConnector {
     }
 
     public void updateActivity(DiscordApi api, int serverNumber) {
-        Calendar calendar = Calendar.getInstance();
-        boolean isRestartPending = calendar.get(Calendar.HOUR_OF_DAY) == Settings.UPDATE_HOUR &&
-                Bot.hasUpdate();
-
-        if (!isRestartPending) {
-            if (DBMain.getInstance().checkConnection()) {
-                api.updateStatus(UserStatus.ONLINE);
-                api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
-            } else {
-                api.updateStatus(UserStatus.DO_NOT_DISTURB);
-                api.updateActivity(ActivityType.WATCHING, "ERROR - DATABASE DOWN");
-            }
-        } else {
-            api.updateStatus(UserStatus.DO_NOT_DISTURB);
-            api.updateActivity(ActivityType.WATCHING, "BOT RESTARTS SOON");
-        }
+        api.updateStatus(UserStatus.ONLINE);
+        api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
     }
 
     private void onSessionResume(DiscordApi api) {

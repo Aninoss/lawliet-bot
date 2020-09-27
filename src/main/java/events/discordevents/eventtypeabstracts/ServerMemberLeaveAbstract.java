@@ -10,7 +10,7 @@ public abstract class ServerMemberLeaveAbstract extends DiscordEventAbstract {
     public abstract boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable;
 
     public static void onServerMemberLeaveStatic(ServerMemberLeaveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(event, listenerList,
+        execute(listenerList, event.getUser(), true,
                 listener -> ((ServerMemberLeaveAbstract) listener).onServerMemberLeave(event)
         );
     }

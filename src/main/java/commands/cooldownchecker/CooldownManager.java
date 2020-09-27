@@ -15,7 +15,7 @@ public class CooldownManager {
 
     private final HashMap<Long, CooldownData> cooldownDataMap = new HashMap<>();
 
-    public synchronized Optional<Integer> getWaitingSec(long userId, int cooldown) {
+    public Optional<Integer> getWaitingSec(long userId, int cooldown) {
         return cooldownDataMap.computeIfAbsent(userId, uid -> new CooldownData()).getWaitingSec(cooldown);
     }
 
@@ -25,7 +25,7 @@ public class CooldownManager {
         return true;
     }
 
-    public synchronized void clean() {
+    public void clean() {
         cooldownDataMap.entrySet().removeIf(set -> set == null || !set.getValue().isEmpty());
     }
 

@@ -13,7 +13,7 @@ import java.util.Locale;
         requiresEmbeds = false,
         patreonRequired = true,
         withLoadingBar = true,
-        aliases = {"boobs"}
+        aliases = {"boobs", "r1boobs"}
 )
 public class RealLifeBoobsCommand extends RealbooruAbstract {
 

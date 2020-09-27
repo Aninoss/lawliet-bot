@@ -2,6 +2,7 @@ package commands;
 
 import commands.listeners.*;
 import commands.runnables.informationcategory.HelpCommand;
+import commands.runnables.informationcategory.PingCommand;
 import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;
@@ -48,10 +49,10 @@ public abstract class Command {
     private LogStatus logStatus = null;
     private String log;
     private String[] options;
-    private Instant startTime;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
     private int state = DEFAULT_STATE, page = 0, pageMax = 0;
     private final Thread thread;
+    private final HashMap<Object, Object> attachments = new HashMap<>();
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
 
@@ -67,6 +68,7 @@ public abstract class Command {
     protected abstract boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable;
 
     public void onRecievedSuper(MessageCreateEvent event, String followedString) {
+        if (this instanceof PingCommand) getAttachments().put(13, Instant.now());
         updateThreadName();
 
         starterMessage = event.getMessage();
@@ -651,8 +653,6 @@ public abstract class Command {
     public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }
     public void blockLoading() { loadingBlock = true; }
     public int getState() { return state; }
-    public Instant getStartTime() { return startTime; }
-    public void setStartTime(Instant startTime) { this.startTime = startTime; }
 
     public String[] getOptions() { return options; }
     public void setOptions(String[] options) {
@@ -666,6 +666,10 @@ public abstract class Command {
 
     public Thread getThread() {
         return thread;
+    }
+
+    public HashMap<Object, Object> getAttachments() {
+        return attachments;
     }
 
     public static CommandProperties getClassProperties(Class<? extends Command> c) {

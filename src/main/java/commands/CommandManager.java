@@ -4,6 +4,7 @@ import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddListener;
 import commands.cooldownchecker.CooldownManager;
+import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
 import commands.runnables.informationcategory.HelpCommand;
 import constants.Permission;
@@ -53,7 +54,6 @@ public class CommandManager {
                 checkRunningCommands(event, command)
         ) {
             DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
-            CommandUsers.getInstance().addUsage(event.getMessageAuthor().getId());
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
             manageSlowCommandLoadingReaction(command);
             if (command.isPatreonRequired() && (command.getUserPermissions() & Permission.MANAGE_SERVER) != 0) {
@@ -67,7 +67,7 @@ public class CommandManager {
                         ServerPatreonBoostCache.getInstance().get(event.getServer().get().getId()))
                     event.getMessage().delete();
 
-                command.setStartTime(startTime);
+                if (command instanceof PingCommand) command.getAttachments().put("starting_time", startTime);
                 if (command instanceof OnNavigationListener)
                     command.onNavigationMessageSuper(event, followedString, true);
                 else
@@ -98,12 +98,11 @@ public class CommandManager {
     }
 
     private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        boolean patreonBonus = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2;
+        if (command instanceof PingCommand) command.getAttachments().put(0, Instant.now());
         if (RunningCheckerManager.getInstance().canUserRunCommand(
                 event.getMessage().getUserAuthor().get().getId(),
                 event.getApi().getCurrentShard(),
-                command.getMaxCalculationTimeSec(),
-                patreonBonus ? 2 : 1
+                command.getMaxCalculationTimeSec()
         )) {
             return true;
         }
@@ -149,7 +148,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkPatreon(MessageCreateEvent event, Command command) throws SQLException, ExecutionException, InterruptedException {
+    private static boolean checkPatreon(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (!command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 0) {
             return true;
         }
@@ -242,9 +241,9 @@ public class CommandManager {
             try {
                 Thread.sleep(SEC_UNTIL_REMOVAL * 1000);
                 if (event.getChannel().canYouManageMessages())
-                    event.getChannel().bulkDelete(message, event.getMessage()).exceptionally(ExceptionLogger.get());
+                    event.getChannel().bulkDelete(message, event.getMessage());
                 else
-                    message.delete().exceptionally(ExceptionLogger.get());
+                    message.delete();
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
             }

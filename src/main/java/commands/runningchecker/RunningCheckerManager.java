@@ -1,6 +1,7 @@
 package commands.runningchecker;
 
 import core.CustomThread;
+import core.PatreonCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +19,11 @@ public class RunningCheckerManager {
 
     private final HashMap<Long, ArrayList<RunningCheckerSlot>> runningCommandsMap = new HashMap<>();
 
-    public boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec, int maxAmount) {
+    public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec) {
         ArrayList<RunningCheckerSlot> runningCommandsList = runningCommandsMap.computeIfAbsent(userId, k -> new ArrayList<>());
         stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 
-        if (runningCommandsList.size() < maxAmount) {
+        if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(userId)) {
             final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec);
             runningCommandsList.add(runningCheckerSlot);
 
@@ -42,6 +43,10 @@ public class RunningCheckerManager {
         }
 
         return false;
+    }
+
+    private int getMaxAmount(long userId) {
+        return PatreonCache.getInstance().getPatreonLevel(userId) >= 2 ? 2 : 1;
     }
 
     private void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {
