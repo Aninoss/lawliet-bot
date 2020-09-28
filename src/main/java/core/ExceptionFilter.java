@@ -24,7 +24,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "org.javacord.api.exception.UnknownMessageException",
             "Cannot send messages to this user",
             "timeout",
-            "connect timed out"
+            "connect timed out",
+            "java.util.concurrent.TimeoutException"
     };
 
     public ExceptionFilter() {}

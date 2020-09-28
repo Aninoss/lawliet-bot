@@ -1,6 +1,7 @@
 package mysql.modules.tracker;
 
 import core.CustomThread;
+import core.TrackerManager;
 import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
@@ -28,14 +29,13 @@ public class DBTracker extends DBCached {
         if (started) return;
         started = true;
 
-        Thread t = new CustomThread(() -> {
+        new CustomThread(() -> {
             try {
                 getBean();
             } catch (SQLException e) {
                 LOGGER.error("Could not get bean", e);
             }
-        }, "tracker_init");
-        t.start();
+        }, "tracker_init").start();
     }
 
     public synchronized TrackerBean getBean() throws SQLException {
@@ -66,7 +66,7 @@ public class DBTracker extends DBCached {
                     .addListUpdateListener(this::insertTracker)
                     .addListRemoveListener(changeSlots -> { changeSlots.forEach(this::removeTracker); });
 
-            trackerBean.start();
+            TrackerManager.getInstance().start();
             LOGGER.info("Tracker started");
         }
 
@@ -110,7 +110,7 @@ public class DBTracker extends DBCached {
     @Override
     public void clear() {
         if (trackerBean != null) {
-            trackerBean.stop();
+            TrackerManager.getInstance().stop();
             trackerBean = null;
             start();
         }
