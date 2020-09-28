@@ -149,7 +149,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 removeNavigationWithMessage();
                 return false;
             } else if (i >= 0) {
-                buy(i, event.getUser(), true);
+                buy(i, event.getUser().get(), true);
                 return true;
             }
             return false;

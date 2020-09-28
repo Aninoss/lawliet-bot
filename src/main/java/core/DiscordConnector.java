@@ -1,6 +1,5 @@
 package core;
 
-import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
@@ -10,7 +9,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.activity.ActivityType;
+import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +40,8 @@ public class DiscordConnector {
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                 .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
+                .setAllIntentsExcept(getTurnedOffIntents())
+                .setWaitForUsersOnStartup(true)
                 .setRecommendedTotalShards()
                 .join();
 
@@ -64,6 +65,9 @@ public class DiscordConnector {
         try {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                     .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
+                    .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
+                    .setAllIntentsExcept(getTurnedOffIntents())
+                    .setWaitForUsersOnStartup(true)
                     .setTotalShards(DiscordApiCollection.getInstance().size())
                     .setCurrentShard(shardId);
 
@@ -73,6 +77,13 @@ public class DiscordConnector {
             LOGGER.error("EXIT - Exception when reconnecting shard {}", shardId, e);
             System.exit(-1);
         }
+    }
+
+    private Intent[] getTurnedOffIntents() {
+        return new Intent[] {
+                Intent.DIRECT_MESSAGE_TYPING,
+                Intent.GUILD_MESSAGE_TYPING
+        };
     }
 
     public void onApiJoin(DiscordApi api) {
@@ -123,7 +134,7 @@ public class DiscordConnector {
 
     public void updateActivity(DiscordApi api, int serverNumber) {
         api.updateStatus(UserStatus.ONLINE);
-        api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
+        //api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
     }
 
     private void onSessionResume(DiscordApi api) {

@@ -165,11 +165,11 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
 
         //Update VoteInfo
         VoteInfo voteInfo = getValuesFromMessage(message);
-        User user = event.getUser();
+        User user = event.getUser().get();
 
         if (event.getEmoji().getMentionTag().equalsIgnoreCase("❌") &&
                 voteInfo.getCreatorId().isPresent() &&
-                voteInfo.getCreatorId().get() == event.getUser().getId() &&
+                voteInfo.getCreatorId().get() == event.getUserId() &&
                 message.getReactions().size() > 0
         ) {
             message.edit(getEmbed(voteInfo, false)).get();

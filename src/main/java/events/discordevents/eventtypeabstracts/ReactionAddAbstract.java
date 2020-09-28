@@ -13,7 +13,7 @@ public abstract class ReactionAddAbstract extends DiscordEventAbstract {
         if (event.getMessage().isEmpty() && !event.getChannel().canYouReadMessageHistory())
             return;
 
-        execute(listenerList, event.getUser(), false,
+        execute(listenerList, event.getUser().get(), false,
                 listener -> ((ReactionAddAbstract) listener).onReactionAdd(event)
         );
     }

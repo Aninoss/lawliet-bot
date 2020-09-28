@@ -75,16 +75,16 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                     SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
 
                     if (message.getCreationTimestamp().isAfter(surveyBean.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
-                        if (hit == 1) surveyBean.getFirstVotes().put(event.getUser().getId(), new SurveyFirstVote(event.getUser().getId(), i));
+                        if (hit == 1) surveyBean.getFirstVotes().put(event.getUserId(), new SurveyFirstVote(event.getUserId(), i));
                         else {
-                            if (surveyBean.getFirstVotes().containsKey(event.getUser().getId()))
+                            if (surveyBean.getFirstVotes().containsKey(event.getUserId()))
                                 surveyBean.getSecondVotes().put(
-                                        new Pair<>(event.getServer().get().getId(), event.getUser().getId()),
-                                        new SurveySecondVote(event.getServer().get().getId(), event.getUser().getId(), i)
+                                        new Pair<>(event.getServer().get().getId(), event.getUserId()),
+                                        new SurveySecondVote(event.getServer().get().getId(), event.getUserId(), i)
                                 );
                             else {
                                 EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                                event.getUser().sendMessage(eb);
+                                event.getUser().get().sendMessage(eb);
                                 return;
                             }
                         }
@@ -92,9 +92,9 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
                         String[] voteStrings = new String[2];
 
-                        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUser().getId()).getVote()];
+                        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUserId()).getVote()];
 
-                        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUser().getId());
+                        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUserId());
 
                         if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                         else voteStrings[1] = "";
@@ -107,7 +107,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                                 .addField(surveyQuestion.getQuestion(), voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
 
-                        event.getUser().sendMessage(eb);
+                        event.getUser().get().sendMessage(eb);
                     }
                     break;
                 }

@@ -144,15 +144,15 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                 if (i == 0 && currentName != null && currentVC != null) {
                     try {
                         ServerVoiceChannelUpdater updater = currentVC.createUpdater();
-                        for (Role role : currentVC.getOverwrittenRolePermissions().keySet()) {
-                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(role).toBuilder();
+                        for (Long roleId : currentVC.getOverwrittenRolePermissions().keySet()) {
+                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(roleId).toBuilder();
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
-                            updater.addPermissionOverwrite(role, permissions.build());
+                            updater.addPermissionOverwrite(event.getServer().get().getRoleById(roleId).get(), permissions.build());
                         }
-                        for (User user : currentVC.getOverwrittenUserPermissions().keySet()) {
-                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(user).toBuilder();
+                        for (Long userId : currentVC.getOverwrittenUserPermissions().keySet()) {
+                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(userId).toBuilder();
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
-                            updater.addPermissionOverwrite(user, permissions.build());
+                            updater.addPermissionOverwrite(event.getServer().get().getMemberById(userId).get(), permissions.build());
                         }
 
                         Role everyoneRole = event.getServer().get().getEveryoneRole();

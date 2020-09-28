@@ -184,7 +184,7 @@ public class Console {
 
                             case "server":
                                 long serverId = Long.parseLong(arg);
-                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount() + " | Owner: " + server.getOwner().getDiscriminatedName()));
+                                DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount() + " | Owner: " + server.getOwner().get().getDiscriminatedName()));
                                 break;
 
                             case "clear":

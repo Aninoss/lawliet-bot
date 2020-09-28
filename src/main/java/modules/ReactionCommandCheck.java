@@ -16,7 +16,7 @@ public class ReactionCommandCheck {
     public static boolean manage(SingleReactionEvent event) {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {
             if (command != null && event.getMessageId() == command.getReactionMessageID()) {
-                if (event.getUser().getId() == command.getReactionUserID()) {
+                if (event.getUserId() == command.getReactionUserID()) {
                     try {
                         if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
                         if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
@@ -25,7 +25,7 @@ public class ReactionCommandCheck {
                     }
                 } else {
                     if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent())
-                        event.getReaction().get().removeUser(event.getUser());
+                        event.getReaction().get().removeUser(event.getUser().get());
                 }
 
                 return false;

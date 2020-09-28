@@ -44,7 +44,7 @@ public class PermissionCheckRuntime {
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getClassProperties(c).trigger(), channel != null ? (channel.asServerTextChannel().isPresent() ? "#" : "") + StringUtil.escapeMarkdown(channel.getName()) : "", permissionsList));
 
-            server.getOwner().sendMessage(eb);
+            server.getOwner().get().sendMessage(eb);
             setErrorInstant(server, permissions);
         }
 
@@ -71,7 +71,7 @@ public class PermissionCheckRuntime {
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getClassProperties(c).trigger(), rolesList));
 
-            server.getOwner().sendMessage(eb);
+            server.getOwner().get().sendMessage(eb);
             setErrorInstant(server, PERMISSION_ROLE_POS);
         }
 

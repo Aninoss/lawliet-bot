@@ -138,7 +138,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             removeReactionListener(getReactionMessage());
 
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
-            command.setReactionUserID(event.getUser().getId());
+            command.setReactionUserID(event.getUserId());
             command.blockLoading();
 
             CommandManager.manage(createEvent, command, String.valueOf(coinsInput), Instant.now());

@@ -47,7 +47,7 @@ public class UserInfoCommand extends Command {
             int typeN = 0;
             if (!user.isBot()) {
                 typeN = 1;
-                if (server.getOwner().getId() == user.getId()) typeN = 2;
+                if (server.getOwner().get().getId() == user.getId()) typeN = 2;
                 if (user.isBotOwner()) typeN = 3;
             }
 

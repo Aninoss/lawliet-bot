@@ -13,7 +13,7 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
         if (event.getMessage().isEmpty() && !event.getChannel().canYouReadMessageHistory())
             return;
 
-        execute(listenerList, event.getUser(), false,
+        execute(listenerList, event.getUser().get(), false,
                 listener -> ((ReactionRemoveAbstract) listener).onReactionRemove(event)
         );
     }

@@ -76,7 +76,6 @@ public class DiscordApiCollection {
     }
 
     private void keepApiAlive(DiscordApi api) {
-        api.addUserStartTypingListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
         api.addMessageCreateListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
         try {
             while (Bot.isRunning()) {
