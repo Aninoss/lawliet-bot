@@ -4,10 +4,10 @@ import constants.FRPanelType;
 import core.PatreonCache;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.featurerequests.DBFeatureRequests;
-import websockets.webcomserver.EventAbstract;
-import websockets.webcomserver.WebComServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import websockets.webcomserver.EventAbstract;
+import websockets.webcomserver.WebComServer;
 
 import java.sql.SQLException;
 
@@ -35,20 +35,24 @@ public class OnFRFetch extends EventAbstract {
                 responseJSON.put("boosts_remaining", Math.max(0, boostsTotal - boostsUsed));
         }
 
-        for(FRPanelType type : FRPanelType.values()) {
-            JSONArray jsonEntriesArray = new JSONArray();
+
+        JSONArray jsonEntriesArray = new JSONArray();
+        FRPanelType[] types = new FRPanelType[]{FRPanelType.PENDING, FRPanelType.REJECTED};
+        for(FRPanelType type : types) {
             DBFeatureRequests.fetchEntries(userId, type).forEach(frEntry -> {
-                JSONObject jsonEntry = new JSONObject();
-                jsonEntry.put("id", frEntry.getId());
-                jsonEntry.put("title", frEntry.getTitle());
-                jsonEntry.put("description", frEntry.getDescription());
-                jsonEntry.put("public", frEntry.isPublicEntry());
-                jsonEntry.put("boosts", frEntry.getBoosts());
+                JSONObject jsonEntry = new JSONObject()
+                        .put("id", frEntry.getId())
+                        .put("title", frEntry.getTitle())
+                        .put("description", frEntry.getDescription())
+                        .put("public", frEntry.isPublicEntry())
+                        .put("boosts", frEntry.getBoosts())
+                        .put("type", type.name())
+                        .put("date", frEntry.getDate().toEpochDay());
                 jsonEntriesArray.put(jsonEntry);
             });
-            responseJSON.put(type.name(), jsonEntriesArray);
         }
 
+        responseJSON.put("data", jsonEntriesArray);
         return responseJSON;
     }
 

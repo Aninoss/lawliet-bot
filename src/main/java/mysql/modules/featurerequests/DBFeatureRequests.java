@@ -12,12 +12,11 @@ public class DBFeatureRequests {
     public static ArrayList<FREntryBean> fetchEntries(long userId, FRPanelType type) throws SQLException {
         ArrayList<FREntryBean> list = new ArrayList<>();
 
-        String sql = "SELECT id, public, title, description, COUNT(`boostDatetime`) AS `boosts`\n" +
+        String sql = "SELECT id, public, title, description, COUNT(`boostDatetime`) AS `boosts`, date\n" +
                 "FROM FeatureRequests\n" +
                 "LEFT JOIN FeatureRequestBoosts USING (`id`)\n" +
                 "WHERE `type` = ? AND (`public` = 1 OR `userId` = ?)\n" +
-                "GROUP BY `id`\n" +
-                "ORDER BY `boosts` DESC;";
+                "GROUP BY `id`;";
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement(sql);
         preparedStatement.setString(1, type.name());
@@ -31,7 +30,8 @@ public class DBFeatureRequests {
                     resultSet.getBoolean(2),
                     resultSet.getString(3),
                     resultSet.getString(4),
-                    resultSet.getInt(5)
+                    resultSet.getInt(5),
+                    resultSet.getDate(6).toLocalDate()
             ));
         }
 

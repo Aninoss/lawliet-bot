@@ -18,15 +18,16 @@ import websockets.webcomserver.WebComServer;
 public class DiscordConnector {
 
     private static final DiscordConnector ourInstance = new DiscordConnector();
-
     public static DiscordConnector getInstance() {
         return ourInstance;
     }
-
-    private DiscordConnector() {
-    }
+    private DiscordConnector() {}
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
+    private final Intent[] TURNED_OFF_INTENTS = new Intent[] {
+            Intent.DIRECT_MESSAGE_TYPING,
+            Intent.GUILD_MESSAGE_TYPING
+    };
 
     private final DiscordEventManager discordEventManager = new DiscordEventManager();
     private boolean connected = false;
@@ -40,7 +41,7 @@ public class DiscordConnector {
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                 .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                .setAllIntentsExcept(getTurnedOffIntents())
+                .setAllIntentsExcept(TURNED_OFF_INTENTS)
                 .setWaitForUsersOnStartup(true)
                 .setRecommendedTotalShards()
                 .join();
@@ -66,7 +67,7 @@ public class DiscordConnector {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                     .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                     .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                    .setAllIntentsExcept(getTurnedOffIntents())
+                    .setAllIntentsExcept(TURNED_OFF_INTENTS)
                     .setWaitForUsersOnStartup(true)
                     .setTotalShards(DiscordApiCollection.getInstance().size())
                     .setCurrentShard(shardId);
@@ -77,13 +78,6 @@ public class DiscordConnector {
             LOGGER.error("EXIT - Exception when reconnecting shard {}", shardId, e);
             System.exit(-1);
         }
-    }
-
-    private Intent[] getTurnedOffIntents() {
-        return new Intent[] {
-                Intent.DIRECT_MESSAGE_TYPING,
-                Intent.GUILD_MESSAGE_TYPING
-        };
     }
 
     public void onApiJoin(DiscordApi api) {
