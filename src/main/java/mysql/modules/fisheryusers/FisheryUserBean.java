@@ -341,7 +341,7 @@ public class FisheryUserBean extends BeanWithServer {
         /* Update Changes */
         addFish(fishAdd);
         addCoins(coinsAdd);
-        if (newDailyStreak != null) dailyStreak = newDailyStreak;
+        setDailyStreak(newDailyStreak);
 
         long rank = getRank();
 
