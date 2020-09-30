@@ -2,7 +2,7 @@ package commands.runnables.externalcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import modules.MusicPlayer;
+import modules.YouTubePlayer;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -29,7 +29,7 @@ public class PlayCommand extends Command {
         if (voiceChannelOpt.isPresent()) {
             ServerVoiceChannel voiceChannel = voiceChannelOpt.get();
             AudioConnection audioConnection = voiceChannel.connect().get();
-            MusicPlayer.getInstance().play(audioConnection, followedString);
+            YouTubePlayer.getInstance().play(audioConnection, followedString);
             return true;
         }
 

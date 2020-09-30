@@ -1,29 +1,33 @@
 package commands.runnables.externalcategory;
 
-import commands.listeners.CommandProperties;
-
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
-import constants.Permission;
-import core.*;
+import commands.listeners.CommandProperties;
+import core.Bot;
+import core.EmbedFactory;
+import core.TextManager;
 import core.utils.StringUtil;
-import modules.YouTubeDownloader;
+import core.utils.SystemUtil;
+import modules.YouTubePlayer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
-
+import org.javacord.api.util.logging.ExceptionLogger;
 import java.io.File;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "ytmp3",
-        withLoadingBar = true,
-        emoji = "\uD83C\uDFB5",
-        botPermissions = Permission.ATTACH_FILES,
-        userPermissions = Permission.ATTACH_FILES,
+        emoji = "\uD83D\uDCE5",
         executable = false,
-        aliases = {"youtubemp3", "yt"}
+        patreonRequired = true,
+        maxCalculationTimeSec = 60,
+        aliases = { "youtube", "yt", "youtubemp3" }
 )
 public class YouTubeMP3Command extends Command {
+
+    private final static int MINUTES_CAP = 30;
 
     public YouTubeMP3Command(Locale locale, String prefix) {
         super(locale, prefix);
@@ -31,41 +35,64 @@ public class YouTubeMP3Command extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        followedString = followedString.replace("<", "").replace(">", "");
 
-        if (!followedString.isEmpty()) {
-            Optional<String> videoIdOptional = YouTubeDownloader.getVideoID(followedString);
-
-            if (videoIdOptional.isPresent()) {
-                String videoId = videoIdOptional.get();
-                if (videoId.equalsIgnoreCase("%toolong")) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("toolong_desc"), getString("toolong_title"))).get();
-                    return false;
-                }
-
-                if (videoId.equalsIgnoreCase("%error")) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("error_desc"), getString("error_title"))).get();
-                    return false;
-                }
-
-                String loadingEmoji = StringUtil.getLoadingReaction(event.getServerTextChannel().get());
-                Message message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("loading", loadingEmoji))).get();
-
-                try {
-                    File audioFile = YouTubeDownloader.downloadAudio(videoId);
-                    event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), EmbedFactory.getCommandEmbedStandard(this, getString("finished")), audioFile).get();
-                    return true;
-                } catch (Throwable e) {
-                    throw e;
-                } finally {
-                    message.delete().get();
-                }
-            }
-
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("invalid", followedString))).get();
-            return false;
-        } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("noargs"))).get();
+        if (followedString.isEmpty()) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
             return false;
         }
+
+        if (followedString.contains("&"))
+            followedString = followedString.split("&")[0];
+
+        Optional<AudioTrackInfo> metaOpt = YouTubePlayer.getInstance().meta(followedString);
+        if (metaOpt.isEmpty() || metaOpt.get().isStream) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString))).get();
+            return false;
+        }
+
+        AudioTrackInfo meta = metaOpt.get();
+        if (meta.length >= MINUTES_CAP * 60_000) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP)))).get();
+            return false;
+        }
+
+        Message message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
+        SystemUtil.executeProcessSilent(Bot.isProductionMode() ? "./ytmp3.sh" : "ytmp3.bat", meta.identifier);
+
+        File mp3File = new File(String.format("temp/%s.mp3", meta.identifier));
+        if (!mp3File.exists()) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    getString("error"),
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "error")
+            )).get();
+            return false;
+        }
+
+        return handleFile(event, message, meta, mp3File);
     }
+
+    private boolean handleFile(MessageCreateEvent event, Message message, AudioTrackInfo meta, File mp3File) throws InterruptedException {
+        String newFileName = meta.title.replace(" ", "_").replaceAll("\\W+", "");
+        File newMp3File = new File(String.format("temp/%s.mp3", newFileName));
+
+        if (newFileName.length() > 0 && mp3File.renameTo(newMp3File))
+            mp3File = newMp3File;
+
+        try {
+            event.getMessage().getUserAuthor().get().sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)), mp3File).get();
+        } catch (ExecutionException e) {
+            mp3File.delete();
+            message.edit(EmbedFactory.getCommandEmbedError(this,
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"),
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "error")
+            )).exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
+        mp3File.delete();
+        message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("success"))).exceptionally(ExceptionLogger.get());
+        return true;
+    }
+
 }

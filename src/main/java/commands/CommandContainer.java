@@ -195,11 +195,11 @@ public class CommandContainer {
         commandList.add(MemeCommand.class);
         commandList.add(WholesomeCommand.class);
         commandList.add(TwitchCommand.class);
+        commandList.add(YouTubeMP3Command.class);
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
         commandList.add(Waifu2xCommand.class);
         commandList.add(DadJokeCommand.class);
-        //commandList.add(YouTubeMP3Command.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);

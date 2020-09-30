@@ -21,3 +21,4 @@ modules.xml
 *.sql
 /temp/
 *.mp3
+*.exe

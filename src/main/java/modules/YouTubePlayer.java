@@ -20,19 +20,19 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class MusicPlayer {
+public class YouTubePlayer {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MusicPlayer.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(YouTubePlayer.class);
 
-    private static final MusicPlayer ourInstance = new MusicPlayer();
+    private static final YouTubePlayer ourInstance = new YouTubePlayer();
 
-    public static MusicPlayer getInstance() {
+    public static YouTubePlayer getInstance() {
         return ourInstance;
     }
 
     private final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 
-    private MusicPlayer() {
+    private YouTubePlayer() {
         playerManager.registerSourceManager(new YoutubeAudioSourceManager());
     }
 

@@ -1,5 +1,6 @@
 package core;
 
+import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
@@ -9,6 +10,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
@@ -128,7 +130,7 @@ public class DiscordConnector {
 
     public void updateActivity(DiscordApi api, int serverNumber) {
         api.updateStatus(UserStatus.ONLINE);
-        //api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
+        api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
     }
 
     private void onSessionResume(DiscordApi api) {
