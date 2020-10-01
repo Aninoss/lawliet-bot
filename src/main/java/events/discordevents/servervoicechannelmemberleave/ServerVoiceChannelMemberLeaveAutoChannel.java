@@ -12,7 +12,7 @@ import mysql.modules.server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
 import java.util.ArrayList;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true)
 public class ServerVoiceChannelMemberLeaveAutoChannel extends ServerVoiceChannelMemberLeaveAbstract {
 
     @Override
