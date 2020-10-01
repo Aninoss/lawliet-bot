@@ -65,8 +65,8 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
             String str = StringUtil.getEmojiForBoolean(i == 1);
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 boolean active = i == 1;
-                DBAutoClaim.getInstance().getBean(event.getUserId()).setActive(active);
-                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set", active, event.getUser().get().getMentionTag()))).get();
+                DBAutoClaim.getInstance().getBean(event.getUser().getId()).setActive(active);
+                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set", active, event.getUser().getMentionTag()))).get();
                 removeReactionListener(getReactionMessage());
                 return;
             }

@@ -59,7 +59,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
                 //Transfer permissions
                 Permissions botPermission = null;
-                for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
+                /*for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
                     if (DiscordApiCollection.getInstance().getYourself().getId() == entry.getKey()) {
                         botPermission = entry.getValue();
                     }
@@ -67,6 +67,15 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 }
                 for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
                     vcb.addPermissionOverwrite(event.getServer().getRoleById(entry.getKey()).get(), entry.getValue());
+                }*/
+                for (Map.Entry<User, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
+                    if (DiscordApiCollection.getInstance().getYourself().getId() == entry.getKey().getId()) {
+                        botPermission = entry.getValue();
+                    }
+                    vcb.addPermissionOverwrite(event.getServer().getMemberById(entry.getKey().getId()).get(), entry.getValue());
+                }
+                for (Map.Entry<Role, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
+                    vcb.addPermissionOverwrite(event.getServer().getRoleById(entry.getKey().getId()).get(), entry.getValue());
                 }
 
                 PermissionsBuilder botPermsBuilder;

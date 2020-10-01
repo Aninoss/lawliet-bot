@@ -11,7 +11,6 @@ import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +25,9 @@ public class DiscordConnector {
     private DiscordConnector() {}
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
-    private final Intent[] TURNED_OFF_INTENTS = new Intent[] {
-            //Intent.GUILD_PRESENCES
-    };
+    /*private final Intent[] TURNED_OFF_INTENTS = new Intent[] {
+            Intent.GUILD_PRESENCES
+    };*/ //TODO Javacord 3.1.x
 
     private final DiscordEventManager discordEventManager = new DiscordEventManager();
     private boolean connected = false;
@@ -42,8 +41,8 @@ public class DiscordConnector {
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                 .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                .setAllIntentsExcept(TURNED_OFF_INTENTS)
-                .setWaitForUsersOnStartup(true)
+                //.setAllIntentsExcept(TURNED_OFF_INTENTS) //TODO Javacord 3.1.x
+                //.setWaitForUsersOnStartup(true) //TODO Javacord 3.1.x
                 .setRecommendedTotalShards()
                 .join();
 
@@ -68,8 +67,8 @@ public class DiscordConnector {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                     .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                     .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                    .setAllIntentsExcept(TURNED_OFF_INTENTS)
-                    .setWaitForUsersOnStartup(true)
+                    //.setAllIntentsExcept(TURNED_OFF_INTENTS) //TODO Javacord 3.1.x
+                    //.setWaitForUsersOnStartup(true) //TODO Javacord 3.1.x
                     .setTotalShards(DiscordApiCollection.getInstance().size())
                     .setCurrentShard(shardId);
 

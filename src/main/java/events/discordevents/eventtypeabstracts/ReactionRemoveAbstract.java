@@ -1,6 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
@@ -19,14 +18,15 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
         if (event.getMessage().isEmpty() && !event.getChannel().canYouReadMessageHistory())
             return;
 
-        //TODO debug
-        User user;
-        if (event.getServer().isPresent() && event.getUser().isEmpty()) {
-            user = DiscordApiCollection.getInstance().fetchUserById(event.getServer().get(), event.getUserId()).get();
-            LOGGER.info("### USER FETCHED {} ###", user.getId());
+        //todo debug
+        User user = event.getUser();
+        /*user user;
+        if (event.getserver().ispresent() && event.getuser().isempty()) {
+            user = discordapicollection.getinstance().fetchuserbyid(event.getserver().get(), event.getuser().getid()).get();
+            logger.info("### user fetched {} ###", user.getid());
         } else {
-            user = event.getUser().get();
-        }
+            user =  event.getUser();
+        }*/
 
         execute(listenerList, user, false,
                 listener -> ((ReactionRemoveAbstract) listener).onReactionRemove(event)

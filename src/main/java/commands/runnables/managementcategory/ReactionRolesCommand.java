@@ -371,7 +371,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             setState(CONFIGURE_MESSAGE);
             return true;
         }
-        event.getMessage().get().removeReactionByEmoji(event.getUser().get(), event.getEmoji());
+        event.getMessage().get().removeReactionByEmoji( event.getUser(), event.getEmoji());
         return calculateEmoji(event.getEmoji());
     }
 
@@ -616,13 +616,13 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        User user = event.getUser().get();
+        User user =  event.getUser();
 
         if (event.getEmoji().isUnicodeEmoji() &&
                 event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
-                PermissionUtil.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(), event.getUser().get(), getUserPermissions()).isEmpty()
+                PermissionUtil.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(),  event.getUser(), getUserPermissions()).isEmpty()
         ) {
-            event.getUser().get().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getLink().toString())));
+             event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getLink().toString())));
         }
 
         if (!block.contains(user.getId())) {
@@ -656,7 +656,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
                 Role r = rOpt.get();
                 if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
-                    event.getUser().get().addRole(r).get();
+                     event.getUser().addRole(r).get();
                 return true;
             }
         }
@@ -669,9 +669,9 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
             if (rOpt.isPresent()) {
                 Role r = rOpt.get();
-                if (r.hasUser(event.getUser().get()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
+                if (r.hasUser( event.getUser()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
                     if (!removeRole) return true;
-                    r.removeUser(event.getUser().get()).get();
+                    r.removeUser( event.getUser()).get();
                 }
             }
         }
@@ -689,7 +689,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     if (!rOpt.isPresent()) return;
                     Role r = rOpt.get();
                     try {
-                        User user = event.getUser().get();
+                        User user =  event.getUser();
                         if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
                             user.removeRole(r).get();
                     } catch (ExecutionException e) {

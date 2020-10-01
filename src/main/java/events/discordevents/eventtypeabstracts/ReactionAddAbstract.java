@@ -1,6 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -20,13 +19,14 @@ public abstract class ReactionAddAbstract extends DiscordEventAbstract {
             return;
 
         //TODO debug
-        User user;
+        User user = event.getUser();
+        /*User user;
         if (event.getServer().isPresent() && event.getUser().isEmpty()) {
-            user = DiscordApiCollection.getInstance().fetchUserById(event.getServer().get(), event.getUserId()).get();
+            user = DiscordApiCollection.getInstance().fetchUserById(event.getServer().get(), event.getUser().getId()).get();
             LOGGER.info("### USER FETCHED {} ###", user.getId());
         } else {
-            user = event.getUser().get();
-        }
+            user =  event.getUser();
+        }*/
 
         execute(listenerList, user, false,
                 listener -> ((ReactionAddAbstract) listener).onReactionAdd(event)

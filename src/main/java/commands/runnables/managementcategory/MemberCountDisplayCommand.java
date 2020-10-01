@@ -144,7 +144,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                 if (i == 0 && currentName != null && currentVC != null) {
                     try {
                         ServerVoiceChannelUpdater updater = currentVC.createUpdater();
-                        for (Long roleId : currentVC.getOverwrittenRolePermissions().keySet()) {
+                        /*for (Long roleId : currentVC.getOverwrittenRolePermissions().keySet()) {
                             PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(roleId).toBuilder();
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                             updater.addPermissionOverwrite(event.getServer().get().getRoleById(roleId).get(), permissions.build());
@@ -153,6 +153,16 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                             PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(userId).toBuilder();
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                             updater.addPermissionOverwrite(event.getServer().get().getMemberById(userId).get(), permissions.build());
+                        }*/
+                        for (Role role : currentVC.getOverwrittenRolePermissions().keySet()) {
+                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(role.getId()).toBuilder();
+                            permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
+                            updater.addPermissionOverwrite(event.getServer().get().getRoleById(role.getId()).get(), permissions.build());
+                        }
+                        for (User user : currentVC.getOverwrittenUserPermissions().keySet()) {
+                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(user.getId()).toBuilder();
+                            permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
+                            updater.addPermissionOverwrite(event.getServer().get().getMemberById(user.getId()).get(), permissions.build());
                         }
 
                         Role everyoneRole = event.getServer().get().getEveryoneRole();

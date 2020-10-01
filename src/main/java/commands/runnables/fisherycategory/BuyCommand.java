@@ -149,7 +149,8 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 removeNavigationWithMessage();
                 return false;
             } else if (i >= 0) {
-                buy(i, event.getUser().get(), true);
+                //buy(i,  event.getUser(), true); //TODO Javacord 3.1.x
+                buy(i, event.getUser(), true);
                 return true;
             }
             return false;
