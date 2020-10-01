@@ -42,7 +42,6 @@ public class UserInfoCommand extends Command {
         }
 
         for(User user: list) {
-
             String[] type = getString("type").split("\n");
             int typeN = 0;
             if (!user.isBot()) {

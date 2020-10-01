@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.javacord</groupId>
             <artifactId>javacord</artifactId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -79,11 +79,6 @@
             <groupId>com.corundumstudio.socketio</groupId>
             <artifactId>netty-socketio</artifactId>
             <version>1.7.17</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.sealedtx</groupId>
-            <artifactId>java-youtube-downloader</artifactId>
-            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

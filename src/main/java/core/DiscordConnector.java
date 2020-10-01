@@ -27,8 +27,7 @@ public class DiscordConnector {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
     private final Intent[] TURNED_OFF_INTENTS = new Intent[] {
-            Intent.DIRECT_MESSAGE_TYPING,
-            Intent.GUILD_MESSAGE_TYPING
+            //Intent.GUILD_PRESENCES
     };
 
     private final DiscordEventManager discordEventManager = new DiscordEventManager();

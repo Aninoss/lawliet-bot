@@ -34,7 +34,7 @@ public class MentionUtil {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
         if (!content.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString()))
             list.remove(DiscordApiCollection.getInstance().getYourself());
-        list.removeIf(user -> users.stream().noneMatch(user1 -> user1.getId() == user.getId()));
+        list.removeIf(user -> !users.contains(user));
 
         for (User user : list)
             content = content
