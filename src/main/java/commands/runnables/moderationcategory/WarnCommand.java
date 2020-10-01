@@ -7,7 +7,7 @@ import constants.Permission;
 import core.EmbedFactory;
 import core.mention.Mention;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.Mod;

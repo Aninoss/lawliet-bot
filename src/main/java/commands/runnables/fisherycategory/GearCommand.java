@@ -6,7 +6,7 @@ import constants.Category;
 import constants.FisheryCategoryInterface;
 import constants.Permission;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.PatreonCache;
 import core.TextManager;
 import core.utils.StringUtil;

@@ -5,7 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.Command;
 import constants.Permission;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.RandomPicker;
 import modules.ImageCreator;
 import org.javacord.api.entity.DiscordEntity;

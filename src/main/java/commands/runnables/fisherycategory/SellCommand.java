@@ -7,7 +7,7 @@ import commands.runnables.FisheryAbstract;
 import constants.Permission;
 import constants.Response;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.ExchangeRate;

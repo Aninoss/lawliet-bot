@@ -13,7 +13,7 @@ import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.emojiconnection.EmojiConnection;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.PermissionUtil;
@@ -690,7 +690,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                     Role r = rOpt.get();
                     try {
                         User user = event.getUser().get();
-                        if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) user.removeRole(r).get();
+                        if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
+                            user.removeRole(r).get();
                     } catch (ExecutionException e) {
                         LOGGER.error("Could not remove role", e);
                     }

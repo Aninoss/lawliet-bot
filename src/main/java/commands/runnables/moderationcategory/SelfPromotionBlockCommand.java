@@ -7,7 +7,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;

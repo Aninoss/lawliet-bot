@@ -4,7 +4,7 @@ package commands.runnables;
 import commands.Command;
 import core.EmbedFactory;
 import core.mention.Mention;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.RandomPicker;
 import core.TextManager;
 import core.utils.StringUtil;

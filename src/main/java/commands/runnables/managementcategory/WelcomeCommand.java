@@ -8,7 +8,7 @@ import constants.Permission;
 import constants.Response;
 import constants.Settings;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.ImageCreator;

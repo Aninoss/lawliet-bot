@@ -1,7 +1,8 @@
-package core.mention;
+package core.utils;
 
 import core.DiscordApiCollection;
-import core.utils.StringUtil;
+import core.mention.Mention;
+import core.mention.MentionList;
 import core.TextManager;
 import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
@@ -31,8 +32,9 @@ public class MentionUtil {
 
     public static MentionList<User> getUsers(Message message, String content, Collection<User> users) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
-        if (!content.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString())) list.remove(DiscordApiCollection.getInstance().getYourself());
-        list.removeIf(user -> !users.contains(user));
+        if (!content.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString()))
+            list.remove(DiscordApiCollection.getInstance().getYourself());
+        list.removeIf(user -> users.stream().noneMatch(user1 -> user1.getId() == user.getId()));
 
         for (User user : list)
             content = content

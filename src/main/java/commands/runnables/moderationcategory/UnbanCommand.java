@@ -3,7 +3,7 @@ package commands.runnables.moderationcategory;
 import commands.listeners.CommandProperties;
 import constants.Permission;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Ban;
 import org.javacord.api.entity.server.Server;

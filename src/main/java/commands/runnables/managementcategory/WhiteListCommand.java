@@ -8,7 +8,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import mysql.modules.whitelistedchannels.WhiteListedChannelsBean;
 import org.javacord.api.DiscordApi;

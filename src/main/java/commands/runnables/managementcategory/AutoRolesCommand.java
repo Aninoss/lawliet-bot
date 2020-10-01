@@ -7,7 +7,7 @@ import commands.NavigationHelper;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import org.javacord.api.DiscordApi;

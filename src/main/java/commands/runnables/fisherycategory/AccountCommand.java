@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.Permission;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import mysql.modules.fisheryusers.DBFishery;
 import org.javacord.api.entity.message.Message;

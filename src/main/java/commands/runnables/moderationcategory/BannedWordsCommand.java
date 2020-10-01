@@ -8,7 +8,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.BannedWordsCheck;
 import mysql.modules.bannedwords.BannedWordsBean;

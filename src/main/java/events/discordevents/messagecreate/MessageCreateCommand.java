@@ -11,7 +11,7 @@ import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.ExceptionHandler;
 import core.TextManager;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;

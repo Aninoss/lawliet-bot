@@ -5,7 +5,7 @@ import commands.listeners.OnNavigationListener;
 import commands.Command;
 import constants.*;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;

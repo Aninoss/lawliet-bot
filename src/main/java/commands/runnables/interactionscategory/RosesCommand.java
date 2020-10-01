@@ -7,7 +7,7 @@ import core.EmbedFactory;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;

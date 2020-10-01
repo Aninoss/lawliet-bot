@@ -6,7 +6,7 @@ import commands.Command;
 import core.EmbedFactory;
 import core.internet.HttpRequest;
 import core.internet.HttpProperty;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.SecretManager;
 import core.TextManager;
 import org.javacord.api.entity.message.MessageAttachment;

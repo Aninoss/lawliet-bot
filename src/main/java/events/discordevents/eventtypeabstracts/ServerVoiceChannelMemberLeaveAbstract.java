@@ -10,9 +10,13 @@ public abstract class ServerVoiceChannelMemberLeaveAbstract extends DiscordEvent
     public abstract boolean onServerVoiceChannelMemberLeave(ServerVoiceChannelMemberLeaveEvent event) throws Throwable;
 
     public static void onServerVoiceChannelMemberLeaveStatic(ServerVoiceChannelMemberLeaveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(listenerList, event.getUser(), true,
+        execute(listenerList, true,
                 listener -> ((ServerVoiceChannelMemberLeaveAbstract) listener).onServerVoiceChannelMemberLeave(event)
-        );
+        ); //TODO temporary because of bug in Javacord
+
+        /*execute(listenerList, event.getUser(), true,
+                listener -> ((ServerVoiceChannelMemberLeaveAbstract) listener).onServerVoiceChannelMemberLeave(event)
+        );*/
     }
 
 }

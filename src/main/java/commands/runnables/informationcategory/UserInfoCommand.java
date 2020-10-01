@@ -3,7 +3,7 @@ package commands.runnables.informationcategory;
 import commands.listeners.CommandProperties;
 import commands.Command;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;

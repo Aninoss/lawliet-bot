@@ -5,7 +5,7 @@ import commands.Command;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.RandomPicker;
 import core.TextManager;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

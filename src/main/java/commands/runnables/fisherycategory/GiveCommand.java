@@ -6,7 +6,7 @@ import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;

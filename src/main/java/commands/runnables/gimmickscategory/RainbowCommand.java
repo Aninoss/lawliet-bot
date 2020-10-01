@@ -6,7 +6,7 @@ import commands.Command;
 import constants.Permission;
 import core.*;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.ImageCreator;
 import org.javacord.api.entity.message.Message;

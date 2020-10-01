@@ -8,7 +8,7 @@ import constants.Category;
 import constants.Permission;
 import core.CustomObservableList;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.mention.MentionList;
 import core.TextManager;
 import core.utils.StringUtil;

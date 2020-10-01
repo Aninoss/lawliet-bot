@@ -5,7 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.Command;
 import constants.Permission;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import modules.ImageCreator;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

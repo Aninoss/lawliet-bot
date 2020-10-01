@@ -6,7 +6,7 @@ import commands.runnables.informationcategory.PingCommand;
 import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;

@@ -129,7 +129,7 @@ public final class StringUtil {
     }
 
     public static String[] extractGroups(String string, String start, String end) {
-        ArrayList<String> groups = new ArrayList<String>();
+        ArrayList<String> groups = new ArrayList<>();
         while(string.contains(start) && string.contains(end))
         {
             int startIndex = string.indexOf(start) + start.length();

@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.Command;
 import core.EmbedFactory;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;

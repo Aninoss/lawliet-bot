@@ -7,7 +7,7 @@ import constants.Category;
 import constants.FisheryStatus;
 import constants.Settings;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;

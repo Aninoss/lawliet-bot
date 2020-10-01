@@ -6,7 +6,7 @@ import constants.Permission;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.mention.MentionList;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;

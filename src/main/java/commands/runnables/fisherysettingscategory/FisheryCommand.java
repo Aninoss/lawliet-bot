@@ -7,7 +7,7 @@ import commands.Command;
 import commands.NavigationHelper;
 import constants.*;
 import core.*;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryServerBean;

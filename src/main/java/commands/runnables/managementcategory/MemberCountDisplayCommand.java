@@ -9,7 +9,7 @@ import constants.Response;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.ListGen;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;

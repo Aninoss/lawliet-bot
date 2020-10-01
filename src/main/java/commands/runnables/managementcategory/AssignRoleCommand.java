@@ -6,7 +6,7 @@ import commands.Command;
 import constants.Permission;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
-import core.mention.MentionUtil;
+import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
