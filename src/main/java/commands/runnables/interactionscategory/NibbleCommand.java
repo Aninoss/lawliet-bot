@@ -1,13 +1,13 @@
 package commands.runnables.interactionscategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
-import core.mention.MentionList;
-import core.utils.MentionUtil;
 import core.RandomPicker;
 import core.TextManager;
+import core.mention.MentionList;
+import core.utils.MentionUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -58,7 +58,7 @@ public class NibbleCommand extends Command {
 
         if (user0.getId() != 397209883793162240L &&
                 user1.getId() != 397209883793162240L &&
-                DiscordApiCollection.getInstance().getOwner().getId() != user0.getId()
+                DiscordApiCollection.getInstance().getOwnerId() != user0.getId()
         ) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb).get();

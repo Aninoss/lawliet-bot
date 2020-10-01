@@ -156,7 +156,7 @@ public class PermissionUtil {
     }
 
     public static boolean hasAdminPermissions(Server server, User user) {
-        return server.getAllowedPermissions(user).contains(PermissionType.ADMINISTRATOR) || user.getId() == server.getOwner().get().getId();
+        return server.getAllowedPermissions(user).contains(PermissionType.ADMINISTRATOR) || user.getId() == server.getOwnerId();
     }
 
     public static boolean canYouKickUser(Server server, User user) {

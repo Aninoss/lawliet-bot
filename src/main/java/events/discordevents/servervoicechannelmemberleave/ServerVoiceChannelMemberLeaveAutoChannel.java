@@ -10,8 +10,6 @@ import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
 import java.util.ArrayList;
 
 @DiscordEvent
@@ -26,7 +24,7 @@ public class ServerVoiceChannelMemberLeaveAutoChannel extends ServerVoiceChannel
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
                     if (event.getChannel().getConnectedUsers().size() == 0) {
-                        event.getChannel().delete().exceptionally(ExceptionLogger.get());
+                        event.getChannel().delete(); //No error log
                     }
                 }
                 break;

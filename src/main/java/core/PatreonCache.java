@@ -28,7 +28,7 @@ public class PatreonCache {
                     new CacheLoader<Long, Integer>() {
                         @Override
                         public Integer load(@NonNull Long userId) throws SQLException {
-                            if (DiscordApiCollection.getInstance().getOwner().getId() == userId)
+                            if (DiscordApiCollection.getInstance().getOwnerId() == userId)
                                 return Settings.PATREON_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 

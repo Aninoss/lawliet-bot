@@ -60,7 +60,7 @@ public class RosesCommand extends Command {
 
         if (user0.getId() != SEELE_USER_ID &&
                 user1.getId() != SEELE_USER_ID &&
-                DiscordApiCollection.getInstance().getOwner().getId() != user0.getId()
+                DiscordApiCollection.getInstance().getOwnerId() != user0.getId()
         ) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb).get();

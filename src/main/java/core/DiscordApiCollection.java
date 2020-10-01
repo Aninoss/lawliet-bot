@@ -34,7 +34,6 @@ public class DiscordApiCollection {
 
     private DiscordApi[] apiList = new DiscordApi[0];
     private int[] errorCounter;
-    private boolean[] hasReconnected;
     private boolean[] isAlive;
     private boolean started = false;
     private final Instant startingTime = Instant.now();
@@ -59,7 +58,6 @@ public class DiscordApiCollection {
         apiList = new DiscordApi[shardNumber];
         errorCounter = new int[shardNumber];
         isAlive = new boolean[shardNumber];
-        hasReconnected = new boolean[shardNumber];
     }
 
     public void insertApi(DiscordApi api) {
@@ -84,12 +82,11 @@ public class DiscordApiCollection {
                 if (shardIsConnected(n) && isAlive[n]) {
                     errorCounter[n] = 0;
                     isAlive[n] = false;
-                    hasReconnected[n] = false;
                 } else {
                     LOGGER.debug("No data from shard {}", n);
 
                     errorCounter[n]++;
-                    if (errorCounter[n] >= 4) {
+                    if (errorCounter[n] >= 6) {
                         LOGGER.warn("Shard {} temporarely offline", n);
                         reconnectShard(n);
                         break;
@@ -118,7 +115,6 @@ public class DiscordApiCollection {
             RunningCheckerManager.getInstance().clearShard(n);
             api.disconnect();
             DiscordConnector.getInstance().reconnectApi(api.getCurrentShard());
-            hasReconnected[n] = false;
             errorCounter[n] = 0;
         }
     }
@@ -166,6 +162,15 @@ public class DiscordApiCollection {
                     //Ignore
                 }
             }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<User> fetchUserById(Server server, long userId) {
+        try {
+            return Optional.of(server.getApi().getUserById(userId).get());
+        } catch (InterruptedException | ExecutionException e) {
+            //Ignore
         }
         return Optional.empty();
     }
@@ -315,6 +320,10 @@ public class DiscordApiCollection {
         }
 
         throw new NullPointerException();
+    }
+
+    public long getOwnerId() {
+        return apiList[0].getOwnerId();
     }
 
     public User getYourself() {

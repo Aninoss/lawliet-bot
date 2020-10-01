@@ -31,8 +31,13 @@ import java.util.concurrent.ExecutionException;
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
 
     private static final DBFishery ourInstance = new DBFishery();
-    public static DBFishery getInstance() { return ourInstance; }
-    private DBFishery() { }
+
+    public static DBFishery getInstance() {
+        return ourInstance;
+    }
+
+    private DBFishery() {
+    }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
     private final int VC_CHECK_INTERVAL_MIN = 1;
@@ -290,7 +295,8 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     public void cleanUp() {
-        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;", preparedStatement -> {});
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;", preparedStatement -> {
+        });
     }
 
     public void removePowerPlant(long serverId) throws SQLException, InterruptedException {
@@ -342,29 +348,34 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         server.getBoostCount();
 
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
-            ArrayList<User> validUsers = new ArrayList<>();
-            for (User user : voiceChannel.getConnectedUsers()) {
-                if (!user.isBot() &&
-                        !user.isMuted(server) &&
-                        !user.isDeafened(server) &&
-                        !user.isSelfDeafened(server) &&
-                        !user.isSelfMuted(server) &&
-                        !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                ) {
-                    validUsers.add(user);
-                }
-            }
-
-            if (validUsers.size() > 1 &&
-                    (!server.getAfkChannel().isPresent() || voiceChannel.getId() != server.getAfkChannel().get().getId())
-            ) {
-                validUsers.forEach(user -> {
-                    try {
-                        serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Exception when registering vc", e);
+            try {
+                ArrayList<User> validUsers = new ArrayList<>();
+                for (long userId : voiceChannel.getConnectedUserIds()) {
+                    User user = server.getMemberById(userId).orElse(DiscordApiCollection.getInstance().fetchUserById(server, userId).get());
+                    if (!user.isBot() &&
+                            !user.isMuted(server) &&
+                            !user.isDeafened(server) &&
+                            !user.isSelfDeafened(server) &&
+                            !user.isSelfMuted(server) &&
+                            !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
+                    ) {
+                        validUsers.add(user);
                     }
-                });
+                }
+
+                if (validUsers.size() > 1 &&
+                        (server.getAfkChannel().isEmpty() || voiceChannel.getId() != server.getAfkChannel().get().getId())
+                ) {
+                    validUsers.forEach(user -> {
+                        try {
+                            serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
+                        } catch (ExecutionException e) {
+                            LOGGER.error("Exception when registering vc", e);
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error while fetching VC member list", e);
             }
         }
     }
