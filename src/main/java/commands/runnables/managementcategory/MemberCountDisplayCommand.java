@@ -155,12 +155,12 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                             updater.addPermissionOverwrite(event.getServer().get().getMemberById(userId).get(), permissions.build());
                         }*/
                         for (Role role : currentVC.getOverwrittenRolePermissions().keySet()) {
-                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(role.getId()).toBuilder();
+                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(role).toBuilder();
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                             updater.addPermissionOverwrite(event.getServer().get().getRoleById(role.getId()).get(), permissions.build());
                         }
                         for (User user : currentVC.getOverwrittenUserPermissions().keySet()) {
-                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(user.getId()).toBuilder();
+                            PermissionsBuilder permissions = currentVC.getOverwrittenPermissions().get(user).toBuilder();
                             permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                             updater.addPermissionOverwrite(event.getServer().get().getMemberById(user.getId()).get(), permissions.build());
                         }
