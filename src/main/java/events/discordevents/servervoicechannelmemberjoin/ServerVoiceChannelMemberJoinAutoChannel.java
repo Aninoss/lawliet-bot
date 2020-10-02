@@ -29,7 +29,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
     @Override
     public boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable {
-        if (!userIsConnected(event.getChannel(), event.getUser())) return true;
+        if (userIsNotConnected(event.getChannel(), event.getUser())) return true;
 
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
@@ -44,7 +44,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                     else break;
                 }
 
-                if (!userIsConnected(event.getChannel(), event.getUser())) return true;
+                if (userIsNotConnected(event.getChannel(), event.getUser())) return true;
 
                 //Create channel
                 ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
@@ -107,7 +107,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 }
 
                 autoChannelBean.getChildChannelIds().add(vc.getId());
-                if (!userIsConnected(vc, event.getUser())) {
+                if (userIsNotConnected(vc, event.getUser())) {
                     vc.delete().get();
                     autoChannelBean.getChildChannelIds().remove(vc.getId());
                 }
@@ -124,8 +124,8 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
         return name;
     }
 
-    private boolean userIsConnected(ServerVoiceChannel channel, User user) {
-        return user.getConnectedVoiceChannel(channel.getServer()).isPresent() && user.getConnectedVoiceChannel(channel.getServer()).get().getId() == channel.getId();
+    private boolean userIsNotConnected(ServerVoiceChannel channel, User user) {
+        return user.getConnectedVoiceChannel(channel.getServer()).isEmpty() || user.getConnectedVoiceChannel(channel.getServer()).get().getId() != channel.getId();
     }
 
 }

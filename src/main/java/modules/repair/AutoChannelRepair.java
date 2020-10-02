@@ -9,8 +9,8 @@ import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
+import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.server.Server;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class AutoChannelRepair implements Runnable {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(server.getId());
         autoChannelBean.getChildChannelIds().transform(server::getVoiceChannelById, DiscordEntity::getId).stream()
                 .filter(vc -> vc.getConnectedUsers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getServerBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL | Permission.CONNECT))
-                .forEach(vc -> vc.delete().exceptionally(ExceptionLogger.get()));
+                .forEach(ServerChannel::delete); //no log
     }
 
 }

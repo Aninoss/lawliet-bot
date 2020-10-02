@@ -58,7 +58,7 @@ public class RunningCheckerManager {
                 });
     }
 
-    public HashMap<Long, ArrayList<RunningCheckerSlot>> getRunningCommandsMap() {
+    public synchronized HashMap<Long, ArrayList<RunningCheckerSlot>> getRunningCommandsMap() {
         return new HashMap<>(runningCommandsMap);
     }
 
