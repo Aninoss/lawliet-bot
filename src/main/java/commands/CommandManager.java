@@ -7,6 +7,7 @@ import commands.cooldownchecker.CooldownManager;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
 import commands.runnables.informationcategory.HelpCommand;
+import constants.ExternalLinks;
 import constants.Permission;
 import constants.Settings;
 import core.*;
@@ -91,7 +92,7 @@ public class CommandManager {
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbed()
                     .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
-                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", Settings.BOT_INVITE_REMINDER_URL));
+                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", ExternalLinks.BOT_INVITE_REMINDER_URL));
 
             event.getChannel().sendMessage(eb).exceptionally(ExceptionLogger.get());
         }
@@ -153,12 +154,12 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", Settings.PATREON_PAGE);
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", ExternalLinks.PATREON_PAGE);
 
         if (event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbed()
                     .setColor(Settings.PATREON_COLOR)
-                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), Settings.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
             sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {

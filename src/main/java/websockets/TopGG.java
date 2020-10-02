@@ -1,6 +1,6 @@
 package websockets;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ public class TopGG {
     private TopGG() {
         dblApi = new DiscordBotListAPI.Builder()
                 .token(SecretManager.getString("discordbots.token"))
-                .botId(String.valueOf(Settings.LAWLIET_ID))
+                .botId(String.valueOf(AssetIds.LAWLIET_USER_ID))
                 .build();
     }
 
@@ -30,10 +30,10 @@ public class TopGG {
     }
 
     public int getTotalUpvotes() throws ExecutionException, InterruptedException {
-        return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getPoints();
+        return dblApi.getBot(String.valueOf(AssetIds.LAWLIET_USER_ID)).toCompletableFuture().get().getPoints();
     }
 
     public int getMonthlyUpvotes() throws ExecutionException, InterruptedException {
-        return dblApi.getBot(String.valueOf(Settings.LAWLIET_ID)).toCompletableFuture().get().getMonthlyPoints();
+        return dblApi.getBot(String.valueOf(AssetIds.LAWLIET_USER_ID)).toCompletableFuture().get().getMonthlyPoints();
     }
 }

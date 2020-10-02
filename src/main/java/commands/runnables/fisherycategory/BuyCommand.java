@@ -221,7 +221,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
         switch (state) {
             case 0:
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
-                eb.setTitle(getEmoji() + " " + getString("title") + Settings.EMPTY_EMOJI.repeat(22)); //TODO Just temporary
+                eb.setTitle(getEmoji() + " " + getString("title") + Emojis.EMPTY_EMOJI.repeat(22)); //TODO Just temporary
 
                 eb.addField(getString("beginning_title"), getString("beginning"));
 
@@ -248,7 +248,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                         description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(getLocale(), price), productDescription));
 
                         numberReactions++;
-                        eb.addField(Settings.EMPTY_EMOJI, description.toString());
+                        eb.addField(Emojis.EMPTY_EMOJI, description.toString());
                         i++;
                     }
                 }
@@ -267,7 +267,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                         fisheryUserBean.getServerBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(getLocale(), fisheryUserBean.getCoinsGivenMax()) : "∞"
                 );
 
-                eb.addField(Settings.EMPTY_EMOJI, StringUtil.shortenStringLine(status, 1024));
+                eb.addField(Emojis.EMPTY_EMOJI, StringUtil.shortenStringLine(status, 1024));
                 return eb;
 
             case 1:

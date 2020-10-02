@@ -1,5 +1,6 @@
 package events.discordevents.messagecreate;
 
+import constants.AssetIds;
 import constants.Locales;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -8,6 +9,7 @@ import modules.ChatGameGuessingNames;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+
 import java.util.Locale;
 
 @DiscordEvent
@@ -15,7 +17,7 @@ public class MessageCreateChatGameGuessingNumber extends MessageCreateAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        final long ANINOSS_SERVER_ID = 462405241955155979L;
+        final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
         final long GAME_CHANNEL_ID = 758285721877479504L;
 
         if (event.getServer().map(DiscordEntity::getId).orElse(0L) == ANINOSS_SERVER_ID && event.getChannel().getId() == GAME_CHANNEL_ID) {

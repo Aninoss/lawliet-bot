@@ -2,7 +2,7 @@ package commands.runnables.informationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Settings;
+import constants.ExternalLinks;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
@@ -44,7 +44,7 @@ public class DonateCommand extends Command {
         }
 
         if (donators.length() == 0) donators.append(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"));
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.PATREON_PAGE, Settings.DONATION_URL));
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", ExternalLinks.PATREON_PAGE, ExternalLinks.DONATION_URL));
         eb.addField(getString("donators"), donators.toString(), false);
         eb.setImage("https://cdn.discordapp.com/attachments/499629904380297226/589143402851991552/donate.png");
 

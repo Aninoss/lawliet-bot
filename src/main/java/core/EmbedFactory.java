@@ -2,8 +2,8 @@ package core;
 
 import commands.Command;
 import commands.runnables.managementcategory.TrackerCommand;
+import constants.Emojis;
 import constants.LogStatus;
-import constants.Settings;
 import core.utils.PermissionUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -122,7 +122,7 @@ public class EmbedFactory {
                         break;
                 }
             }
-            eb.addField(Settings.EMPTY_EMOJI, "`" + add + log + "`");
+            eb.addField(Emojis.EMPTY_EMOJI, "`" + add + log + "`");
         }
 
         return eb;

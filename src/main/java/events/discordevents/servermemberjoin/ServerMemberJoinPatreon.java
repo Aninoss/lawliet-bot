@@ -1,5 +1,6 @@
 package events.discordevents.servermemberjoin;
 
+import constants.AssetIds;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.PatreonCache;
@@ -18,7 +19,7 @@ public class ServerMemberJoinPatreon extends ServerMemberJoinAbstract {
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
+        if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getServer().getRoles(event.getUser()).stream().anyMatch(role -> role.getId() == roleId)) {
                     LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());

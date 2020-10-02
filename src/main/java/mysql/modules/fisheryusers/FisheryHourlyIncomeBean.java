@@ -42,7 +42,7 @@ public class FisheryHourlyIncomeBean {
 
     void add(long fish) {
         if (fish > 0) {
-            this.fishIncome = Math.min(Settings.MAX, this.fishIncome + fish);
+            this.fishIncome = Math.min(Settings.FISHERY_MAX, this.fishIncome + fish);
             changed = true;
         }
     }

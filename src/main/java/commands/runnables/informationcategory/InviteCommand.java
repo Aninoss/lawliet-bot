@@ -3,7 +3,7 @@ package commands.runnables.informationcategory;
 import commands.listeners.CommandProperties;
 
 import commands.Command;
-import constants.Settings;
+import constants.ExternalLinks;
 import core.EmbedFactory;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -23,7 +23,7 @@ public class InviteCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template", Settings.BOT_INVITE_URL))).get();
+        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template", ExternalLinks.BOT_INVITE_URL))).get();
         return true;
     }
     

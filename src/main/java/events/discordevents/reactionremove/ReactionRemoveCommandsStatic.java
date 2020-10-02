@@ -4,7 +4,7 @@ import commands.listeners.OnReactionRemoveStaticListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import constants.Settings;
+import constants.Emojis;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ReactionRemoveAbstract;
 import mysql.modules.server.DBServer;
@@ -39,7 +39,7 @@ public class ReactionRemoveCommandsStatic extends ReactionRemoveAbstract {
                 String title = embed.getTitle().get();
                 for (Class<? extends OnReactionRemoveStaticListener> clazz : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>)clazz, serverBean.getLocale(), serverBean.getPrefix());
-                    if (title.toLowerCase().startsWith(((OnReactionRemoveStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
+                    if (title.toLowerCase().startsWith(((OnReactionRemoveStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
                         ((OnReactionRemoveStaticListener)command).onReactionRemoveStatic(message, event);
 
                         return false;

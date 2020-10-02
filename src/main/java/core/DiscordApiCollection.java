@@ -2,7 +2,7 @@ package core;
 
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
-import constants.Settings;
+import constants.AssetIds;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
@@ -246,7 +246,7 @@ public class DiscordApiCollection {
     }
 
     public Server getHomeServer() {
-        long serverId = Settings.HOME_SERVER_ID;
+        long serverId = AssetIds.HOME_SERVER_ID;
         Optional<Server> serverOptional = getServerById(serverId);
         if (!serverOptional.isPresent()){
             try {
@@ -260,7 +260,7 @@ public class DiscordApiCollection {
     }
 
     public boolean apiHasHomeServer(DiscordApi api) {
-        long serverId = Settings.HOME_SERVER_ID;
+        long serverId = AssetIds.HOME_SERVER_ID;
         return getResponsibleShard(serverId) == api.getCurrentShard();
     }
 

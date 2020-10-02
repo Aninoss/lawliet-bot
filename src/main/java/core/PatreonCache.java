@@ -1,5 +1,6 @@
 package core;
 
+import constants.AssetIds;
 import constants.Settings;
 import mysql.modules.donators.DBDonators;
 import com.google.common.cache.CacheBuilder;
@@ -32,7 +33,7 @@ public class PatreonCache {
                                 return Settings.PATREON_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 
-                            Server supportServer = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID).get();
+                            Server supportServer = DiscordApiCollection.getInstance().getServerById(AssetIds.SUPPORT_SERVER_ID).get();
                             for (int i = 0; i < Settings.PATREON_ROLE_IDS.length; i++) {
                                 if (supportServer.getRoleById(Settings.PATREON_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
                                     return i + 1;

@@ -1,5 +1,6 @@
 package websockets.webcomserver.events;
 
+import constants.AssetIds;
 import constants.Locales;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
@@ -9,13 +10,13 @@ import modules.Fishery;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
-import websockets.webcomserver.EventAbstract;
-import websockets.webcomserver.WebComServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websockets.webcomserver.EventAbstract;
+import websockets.webcomserver.WebComServer;
 
 import java.util.Locale;
 
@@ -36,7 +37,7 @@ public class OnTopGGAninoss extends EventAbstract {
         String type = requestJSON.getString("type");
 
         if (type.equals("upvote")) {
-            final Server server = DiscordApiCollection.getInstance().getServerById(462405241955155979L).get();
+            final Server server = DiscordApiCollection.getInstance().getServerById(AssetIds.ANINOSS_SERVER_ID).get();
             final Locale locale = new Locale(Locales.DE);
             server.getMemberById(userId).ifPresent(user -> {
                 try {

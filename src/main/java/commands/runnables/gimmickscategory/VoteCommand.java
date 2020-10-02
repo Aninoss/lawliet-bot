@@ -2,10 +2,7 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.*;
 import commands.Command;
-import constants.LetterEmojis;
-import constants.LogStatus;
-import constants.Permission;
-import constants.Settings;
+import constants.*;
 import core.*;
 import modules.VoteInfo;
 import core.utils.StringUtil;
@@ -84,7 +81,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
             resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + (open ? Settings.EMPTY_EMOJI : ""))
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))
                 .addField(getString("topic"), voteInfo.getTopic(),false)
                 .addField(getString("choices"), answerText.toString(),false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")",resultsText.toString(),false);

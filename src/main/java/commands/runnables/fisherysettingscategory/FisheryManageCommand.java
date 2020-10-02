@@ -187,7 +187,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             default:
         }
         if (newValue < 0) newValue = 0;
-        if (newValue > Settings.MAX) newValue = Settings.MAX;
+        if (newValue > Settings.FISHERY_MAX) newValue = Settings.FISHERY_MAX;
 
         return newValue;
     }

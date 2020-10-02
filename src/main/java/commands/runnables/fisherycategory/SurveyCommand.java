@@ -104,7 +104,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                             voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).get().getName()) + ")\n";
                         }
 
-                        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("vote_description") + "\n" + Settings.EMPTY_EMOJI)
+                        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)
                                 .addField(surveyQuestion.getQuestion(), voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
 
@@ -167,14 +167,14 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
 
         eb.addField(getString("results_results", firstVotesTotal != 1, StringUtil.numToString(getLocale(), firstVotesTotal)), resultString.toString(), false);
-        eb.addField(Settings.EMPTY_EMOJI, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]).toUpperCase());
+        eb.addField(Emojis.EMPTY_EMOJI, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]).toUpperCase());
 
         return eb;
     }
 
     private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean) throws IOException {
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Settings.EMPTY_EMOJI);
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription"), getString("title") + Emojis.EMPTY_EMOJI);
 
         StringBuilder personalString = new StringBuilder();
         StringBuilder majorityString = new StringBuilder();

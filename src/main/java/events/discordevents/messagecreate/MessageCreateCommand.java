@@ -6,7 +6,7 @@ import commands.CommandManager;
 import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.runnables.gimmickscategory.QuoteCommand;
-import constants.Settings;
+import constants.ExternalLinks;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.ExceptionHandler;
@@ -124,7 +124,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
 
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setDescription(TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_banned", Settings.SERVER_INVITE_URL));
+                    .setDescription(TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_banned", ExternalLinks.SERVER_INVITE_URL));
 
             LOGGER.warn("### SQL Injection: {}", event.getMessageContent());
             event.getMessage().getUserAuthor().get().sendMessage(eb);

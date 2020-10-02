@@ -5,8 +5,8 @@ import commands.listeners.OnReactionAddListener;
 
 import commands.runnables.CasinoAbstract;
 import constants.Category;
+import constants.Emojis;
 import constants.LogStatus;
-import constants.Settings;
 import core.*;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -74,7 +74,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     }
 
     private String getChoiceString(ServerTextChannel channel, int pos) {
-        if (pos == 1 && selection[0] == -1) return Settings.EMPTY_EMOJI;
+        if (pos == 1 && selection[0] == -1) return Emojis.EMPTY_EMOJI;
 
         switch (selection[pos]) {
             case 0:
@@ -94,9 +94,9 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
         eb.addField(getString("yourbet"), getChoiceString(channel, 0), true);
         eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
-        eb.addField(Settings.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringUtil.numToString(coinsInput)));
+        eb.addField(Emojis.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringUtil.numToString(coinsInput)));
 
-        if (selection[0] == -1) eb.addField(Settings.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
+        if (selection[0] == -1) eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
 
         if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 

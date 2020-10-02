@@ -2,8 +2,8 @@ package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
+import constants.ExternalLinks;
 import constants.Permission;
-import constants.Settings;
 import core.EmbedFactory;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -39,7 +39,7 @@ public class ClaimCommand extends FisheryAbstract {
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nothing_description", Settings.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nothing_description", ExternalLinks.UPVOTE_URL));
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
@@ -48,7 +48,7 @@ public class ClaimCommand extends FisheryAbstract {
         } else {
             long fishes = Fishery.getClaimValue(userBean);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * upvotesUnclaimed)), Settings.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb);

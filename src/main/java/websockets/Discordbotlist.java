@@ -1,6 +1,6 @@
 package websockets;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.SecretManager;
@@ -23,7 +23,7 @@ public class Discordbotlist {
                     new HttpProperty("Content-Type", "application/json"),
                     new HttpProperty("Authorization", SecretManager.getString("discordbotlist.token"))
             };
-            HttpRequest.getData(String.format("https://discordbotlist.com/api/v1/bots/%s/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
+            HttpRequest.getData(String.format("https://discordbotlist.com/api/v1/bots/%s/stats", AssetIds.LAWLIET_USER_ID), jsonObject.toString(), properties).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not send data to Discordbotlist", e);
         }

@@ -2,8 +2,8 @@ package modules;
 
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Category;
+import constants.Emojis;
 import constants.FisheryCategoryInterface;
-import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
 import mysql.modules.fisheryusers.FisheryUserBean;
@@ -44,7 +44,7 @@ public class Fishery {
         ServerBean serverBean = DBServer.getInstance().getBean(serverId);
         Locale locale = serverBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbed()
-                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Settings.EMPTY_EMOJI)
+                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 

@@ -3,7 +3,7 @@ package modules;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.SelfPromotionBlockCommand;
 import constants.Category;
-import constants.Settings;
+import constants.ExternalLinks;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.utils.PermissionUtil;
@@ -133,7 +133,7 @@ public class SPCheck {
                 !message.getUserAuthor().get().isBot()
         ) {
             String content = message.getContent();
-            content = content.replaceAll("(?i)" + Pattern.quote(Settings.SERVER_INVITE_URL), "");
+            content = content.replaceAll("(?i)" + Pattern.quote(ExternalLinks.SERVER_INVITE_URL), "");
             if (contentContainsDiscordLink(content)) {
                 try {
                     for (RichInvite richInvite : server.getInvites().get()) {

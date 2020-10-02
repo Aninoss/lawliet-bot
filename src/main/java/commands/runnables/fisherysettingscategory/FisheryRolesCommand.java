@@ -116,7 +116,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                     long priceMin = StringUtil.filterLongFromString(parts[0]);
                     long priceMax = StringUtil.filterLongFromString(parts[1]);
 
-                    if (priceMin >= -1 && priceMax >= -1 && priceMin <= Settings.MAX && priceMax <= Settings.MAX) {
+                    if (priceMin >= -1 && priceMax >= -1 && priceMin <= Settings.FISHERY_MAX && priceMax <= Settings.FISHERY_MAX) {
                         if (priceMin == -1) priceMin = serverBean.getFisheryRoleMin();
                         if (priceMax == -1) priceMax = serverBean.getFisheryRoleMax();
                         serverBean.setFisheryRolePrices(priceMin, priceMax);
@@ -124,7 +124,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", "0", StringUtil.numToString(getLocale(), Settings.MAX)));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", "0", StringUtil.numToString(getLocale(), Settings.FISHERY_MAX)));
                         return Response.FALSE;
                     }
                 } else {

@@ -1,7 +1,7 @@
 package core;
 
+import constants.Emojis;
 import constants.Locales;
-import constants.Settings;
 import core.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,10 +62,10 @@ public class TextManager {
             }
 
             //Fill global variables
-            text = text.replace("%CURRENCY", Settings.CURRENCY);
-            text = text.replace("%COINS", Settings.COINS);
-            text = text.replace("%GROWTH", Settings.GROWTH);
-            text = text.replace("%DAILYSTREAK", Settings.DAILY_STREAK);
+            text = text.replace("%CURRENCY", Emojis.CURRENCY);
+            text = text.replace("%COINS", Emojis.COINS);
+            text = text.replace("%GROWTH", Emojis.GROWTH);
+            text = text.replace("%DAILYSTREAK", Emojis.DAILY_STREAK);
 
             return text;
         }

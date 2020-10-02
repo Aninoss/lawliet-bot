@@ -171,7 +171,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         if (active) label = "tutorial_start";
 
         CustomEmoji countdown = DiscordApiCollection.getInstance().getHomeEmojiById(729371766119727124L);
-        eb.addField(Settings.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput), countdown.getMentionTag()), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput), countdown.getMentionTag()), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

@@ -1,6 +1,6 @@
 package websockets;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
@@ -23,7 +23,7 @@ public class Discordbotsgg {
                     new HttpProperty("Content-Type", "application/json"),
                     new HttpProperty("Authorization", SecretManager.getString("discordbotsgg.token"))
             };
-            HttpResponse httpResponse = HttpRequest.getData(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", Settings.LAWLIET_ID), jsonObject.toString(), properties).get();
+            HttpResponse httpResponse = HttpRequest.getData(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", AssetIds.LAWLIET_USER_ID), jsonObject.toString(), properties).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not post request to Discordbots.gg", e);
         }

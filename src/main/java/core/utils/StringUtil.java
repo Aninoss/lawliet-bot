@@ -1,7 +1,7 @@
 package core.utils;
 
+import constants.AssetIds;
 import constants.Language;
-import constants.Settings;
 import core.DiscordApiCollection;
 import core.TextManager;
 import org.javacord.api.entity.channel.*;
@@ -248,7 +248,7 @@ public final class StringUtil {
                 .replaceAll("(?i)%#Channel", "#welcome")
                 .replaceAll("(?i)%MessageID", "557961653975515168")
                 .replaceAll("(?i)%ChannelID", "557953262305804310")
-                .replaceAll("(?i)%ServerID", String.valueOf(Settings.SUPPORT_SERVER_ID))
+                .replaceAll("(?i)%ServerID", String.valueOf(AssetIds.SUPPORT_SERVER_ID))
                 .replaceAll("(?i)%@User", "@" + StringUtil.escapeMarkdown(apiCollection.getOwner().getDiscriminatedName()))
                 .replaceAll("(?i)%@Bot", "@" + StringUtil.escapeMarkdown(apiCollection.getYourself().getDiscriminatedName()))
                 .replaceAll("(?i)%Prefix", "L.");

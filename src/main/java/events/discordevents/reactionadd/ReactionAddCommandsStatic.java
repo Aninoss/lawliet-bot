@@ -4,7 +4,7 @@ import commands.listeners.OnReactionAddStaticListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import constants.Settings;
+import constants.Emojis;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ReactionAddAbstract;
 import mysql.modules.server.DBServer;
@@ -39,7 +39,7 @@ public class ReactionAddCommandsStatic extends ReactionAddAbstract {
                 String title = embed.getTitle().get();
                 for (Class<? extends OnReactionAddStaticListener> clazz : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, serverBean.getLocale(), serverBean.getPrefix());
-                    if (title.toLowerCase().startsWith(((OnReactionAddStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Settings.EMPTY_EMOJI)) {
+                    if (title.toLowerCase().startsWith(((OnReactionAddStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
                         ((OnReactionAddStaticListener)command).onReactionAddStatic(message, event);
                         return false;
                     }

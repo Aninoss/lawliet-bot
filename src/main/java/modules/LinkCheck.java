@@ -1,5 +1,6 @@
 package modules;
 
+import constants.AssetIds;
 import core.DiscordApiCollection;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
@@ -15,7 +16,7 @@ public class LinkCheck {
         Server server = message.getServer().get();
         ServerTextChannel channel = message.getServerTextChannel().get();
 
-        if ((server.getId() == 462405241955155979L || server.getId() == 557953262305804308L || server.getId() == 692893461736718417L) &&
+        if ((server.getId() == AssetIds.ANINOSS_SERVER_ID || server.getId() == AssetIds.SUPPORT_SERVER_ID) &&
                 !channel.canEmbedLinks(message.getUserAuthor().get()) &&
                 InternetUtil.stringHasURL(message.getContent())
         ) {

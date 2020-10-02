@@ -2,6 +2,9 @@ package commands.runnables.informationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
+import constants.AssetIds;
+import constants.Emojis;
+import constants.ExternalLinks;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
@@ -32,9 +35,9 @@ public class PatreonCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("info", Settings.PATREON_PAGE))
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("info", ExternalLinks.PATREON_PAGE))
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/756955408115171348/Patreon_Banner_New.png")
-                .addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI);
+                .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI);
 
         StringBuilder sb = new StringBuilder();
         for(int i = 4; i >= 2; i--)
@@ -49,7 +52,7 @@ public class PatreonCommand extends Command {
 
     private String getPatreonUsersString(int patreonTier) {
         StringBuilder patreonUsers = new StringBuilder();
-        Role role = DiscordApiCollection.getInstance().getServerById(Settings.SUPPORT_SERVER_ID).get().getRoleById(Settings.PATREON_ROLE_IDS[patreonTier]).get();
+        Role role = DiscordApiCollection.getInstance().getServerById(AssetIds.SUPPORT_SERVER_ID).get().getRoleById(Settings.PATREON_ROLE_IDS[patreonTier]).get();
         role.getUsers().stream()
                 .filter(user -> Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(userIdBlock -> user.getId() == userIdBlock))
                 .forEach(user -> {

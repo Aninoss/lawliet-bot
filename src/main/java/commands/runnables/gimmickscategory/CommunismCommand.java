@@ -1,7 +1,8 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.RandomPicker;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -13,7 +14,7 @@ import java.util.Locale;
         trigger = "communism",
         emoji = "\uD83C\uDF39",
         executable = true,
-        exlusiveServers = { 462405241955155979L },
+        exlusiveServers = { AssetIds.ANINOSS_SERVER_ID },
         aliases = {"socialism"}
 )
 public class CommunismCommand extends Command {

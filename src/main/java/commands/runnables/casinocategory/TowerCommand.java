@@ -3,9 +3,9 @@ package commands.runnables.casinocategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
+import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
-import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.utils.StringUtil;
@@ -74,7 +74,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         };
 
         /* build tower */
-        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Settings.EMPTY_EMOJI + "\n") : "");
+        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.EMPTY_EMOJI + "\n") : "");
         for(int i = 0; i < Math.min(LEVEL_LIMIT, towerLevel) && !crashed; i++) {
             if (i == 0 && falling && towerLevel <= LEVEL_LIMIT) {
                 towerText.append(getString("base", EMPTY_EMOJI, towerEmojisAnimated[0], towerEmojisAnimated[1]))
@@ -87,7 +87,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         towerText.append(getString("template", EMPTY_EMOJI, towerEmojis[0], towerEmojis[1], GRASS_EMOJI));
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, towerText.toString());
-        eb.addField(Settings.EMPTY_EMOJI, getString("template_start", showMoreText,
+        eb.addField(Emojis.EMPTY_EMOJI, getString("template_start", showMoreText,
                 player.getDisplayName(server),
                 StringUtil.numToString(getLocale(), coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale()),

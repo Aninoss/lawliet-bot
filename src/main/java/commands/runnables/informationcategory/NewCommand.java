@@ -3,7 +3,7 @@ package commands.runnables.informationcategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
-import constants.Settings;
+import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
@@ -110,7 +110,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
 
-            if (slot.getServerId() != Settings.SUPPORT_SERVER_ID)
+            if (slot.getServerId() != AssetIds.SUPPORT_SERVER_ID)
                 slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));
             else {
                 Role role = slot.getServer().get().getRoleById(703879430799622155L).get();

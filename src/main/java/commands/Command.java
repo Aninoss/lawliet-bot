@@ -187,7 +187,7 @@ public abstract class Command {
                         if (navigationMessage != null) {
                             if (navigationMessage.getChannel().canYouUseExternalEmojis())
                                 navigationMessage.addReaction(DiscordApiCollection.getInstance().getBackEmojiCustom());
-                            else navigationMessage.addReaction(Settings.BACK_EMOJI);
+                            else navigationMessage.addReaction(Emojis.BACK_EMOJI);
                         }
                     }
                     if (i >= 0 && navigationMessage != null) {
@@ -246,7 +246,7 @@ public abstract class Command {
     }
 
     private int getIndex(SingleReactionEvent event) {
-        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Settings.BACK_EMOJI)) ||
+        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Emojis.BACK_EMOJI)) ||
                 (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(DiscordApiCollection.getInstance().getBackEmojiCustom().getMentionTag()))
         ) {
             return -1;
@@ -281,7 +281,7 @@ public abstract class Command {
             }
 
             String str = EmojiConnection.getOptionsString(channel, false, options.length > max ? max - 2 : -1, newOptions);
-            eb.addField(Settings.EMPTY_EMOJI, Settings.EMPTY_EMOJI);
+            eb.addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI);
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str);
         }
 

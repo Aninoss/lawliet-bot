@@ -3,8 +3,8 @@ package commands.runnables.informationcategory;
 import commands.listeners.CommandProperties;
 
 import commands.Command;
+import constants.ExternalLinks;
 import constants.Permission;
-import constants.Settings;
 import core.*;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
@@ -39,7 +39,7 @@ public class StatsCommand extends Command {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
                 getString("template",
                 DiscordApiCollection.getInstance().getOwner().getMentionTag(),
-                Settings.BOT_INVITE_URL,
+                ExternalLinks.BOT_INVITE_URL,
                 BotUtil.getCurrentVersion(),
                 TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
                 StringUtil.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),

@@ -5,10 +5,7 @@ import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddStaticListener;
 import commands.listeners.OnReactionRemoveStaticListener;
 import commands.Command;
-import constants.LogStatus;
-import constants.Permission;
-import constants.Response;
-import constants.Settings;
+import constants.*;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.emojiconnection.EmojiConnection;
@@ -553,9 +550,9 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private EmbedBuilder getMessageEmbed(boolean test) {
         String titleAdd = "";
         String identity = "";
-        if (!test) identity = Settings.EMPTY_EMOJI;
-        if (!removeRole && !test) titleAdd = Settings.EMPTY_EMOJI;
-        if (!multipleRoles && !test) titleAdd += Settings.EMPTY_EMOJI + Settings.EMPTY_EMOJI;
+        if (!test) identity = Emojis.EMPTY_EMOJI;
+        if (!removeRole && !test) titleAdd = Emojis.EMPTY_EMOJI;
+        if (!multipleRoles && !test) titleAdd += Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI;
         EmbedBuilder eb = EmbedFactory.getEmbed()
                 .setTitle(getEmoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
                 .setDescription(description)
@@ -582,7 +579,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         String title = embed.getTitle().get();
 
         int hiddenNumber = -1;
-        while(title.endsWith(Settings.EMPTY_EMOJI)) {
+        while(title.endsWith(Emojis.EMPTY_EMOJI)) {
             title = title.substring(0, title.length() - 1);
             hiddenNumber++;
         }
@@ -608,7 +605,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 String title = embed.getTitle().get();
-                return title.startsWith(getEmoji()) && title.endsWith(Settings.EMPTY_EMOJI);
+                return title.startsWith(getEmoji()) && title.endsWith(Emojis.EMPTY_EMOJI);
             }
         }
         return false;

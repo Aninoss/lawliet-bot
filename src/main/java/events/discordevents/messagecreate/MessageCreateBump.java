@@ -1,5 +1,6 @@
 package events.discordevents.messagecreate;
 
+import constants.AssetIds;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import modules.BumpReminder;
@@ -17,7 +18,7 @@ public class MessageCreateBump extends MessageCreateAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        final long ANINOSS_SERVER_ID = 462405241955155979L;
+        final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
 
         if (event.getServer().map(DiscordEntity::getId).orElse(0L) == ANINOSS_SERVER_ID && event.getMessageAuthor().getId() == 302050872383242240L) {
            List<Embed> embedList = event.getMessage().getEmbeds();

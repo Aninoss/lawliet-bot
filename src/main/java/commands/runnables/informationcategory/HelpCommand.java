@@ -159,11 +159,11 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         )
                         .setFooter(getString("command_args"))
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_helptext") + addNotExecutable)
-                        .addField(Settings.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
-                        .addField(Settings.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
+                        .addField(Emojis.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
+                        .addField(Emojis.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
 
                 if (command.getUserPermissions() != 0)
-                    eb.addField(Settings.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
+                    eb.addField(Emojis.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
 
                 return eb;
             }
@@ -233,17 +233,17 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 i++;
                 if (i >= 10) {
-                    if (stringBuilder.length() > 0) eb.addField(Settings.EMPTY_EMOJI, stringBuilder.toString(), true);
+                    if (stringBuilder.length() > 0) eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
                     stringBuilder = new StringBuilder();
                     i = 0;
                 }
             }
         }
         if (stringBuilder.length() > 0)
-            eb.addField(Settings.EMPTY_EMOJI, stringBuilder.toString(), true);
+            eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
 
         if (category.equals(Category.INTERACTIONS))
-            eb.addField(Settings.EMPTY_EMOJI, getString("interaction_nsfw_desc"))
+            eb.addField(Emojis.EMPTY_EMOJI, getString("interaction_nsfw_desc"))
                     .setDescription(getString("interactions_desc"));
         else
             eb.setDescription(getString("emotes_desc"));
@@ -275,10 +275,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 commands.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title").toUpperCase());
 
                 if (!canAccess) commands.append("~~");
-                if (command.isModCommand()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
-                if (command instanceof OnTrackerRequestListener) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
-                if (command.isNsfw()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
-                if (command.isPatreonRequired()) commands.append(Settings.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+                if (command.isModCommand()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                if (command instanceof OnTrackerRequestListener) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
+                if (command.isNsfw()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
+                if (command.isPatreonRequired()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
 
                 commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
                         .append(" - ")
@@ -287,11 +287,11 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
 
-                eb.addField(Settings.EMPTY_EMOJI, commands.toString());
+                eb.addField(Emojis.EMPTY_EMOJI, commands.toString());
             }
         }
 
-        eb.addField(Settings.EMPTY_EMOJI, getIconDescriptions());
+        eb.addField(Emojis.EMPTY_EMOJI, getIconDescriptions());
     }
 
     private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -325,7 +325,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             eb.addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true);
         }
 
-        eb.addField(Settings.EMPTY_EMOJI, getIconDescriptions());
+        eb.addField(Emojis.EMPTY_EMOJI, getIconDescriptions());
     }
 
     private String getIconDescriptions() {
@@ -334,7 +334,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(),
                 DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag(),
                 DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag(),
-                Settings.PATREON_PAGE
+                ExternalLinks.PATREON_PAGE
         );
     }
 
@@ -356,19 +356,19 @@ public class HelpCommand extends Command implements OnNavigationListener {
             }
         }
 
-        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Settings.EMPTY_EMOJI);
+        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Emojis.EMPTY_EMOJI);
         eb.setDescription(categoriesSB.toString());
 
         eb
                 .addField(getString("links_title"), getString("links_content",
-                        Settings.LAWLIET_WEBSITE,
-                        Settings.SERVER_INVITE_URL,
-                        Settings.BOT_INVITE_URL,
-                        Settings.UPVOTE_URL,
-                        Settings.PATREON_PAGE,
-                        Settings.FEATURE_REQUESTS_WEBSITE
+                        ExternalLinks.LAWLIET_WEBSITE,
+                        ExternalLinks.SERVER_INVITE_URL,
+                        ExternalLinks.BOT_INVITE_URL,
+                        ExternalLinks.UPVOTE_URL,
+                        ExternalLinks.PATREON_PAGE,
+                        ExternalLinks.FEATURE_REQUESTS_WEBSITE
                 ), true);
-        if (Settings.GIVEAWAY_RUNNING) eb.addField(getString("giveaway_title"), getString("giveaway_desc", Settings.SERVER_INVITE_URL), false);
+        if (Settings.GIVEAWAY_RUNNING) eb.addField(getString("giveaway_title"), getString("giveaway_desc", ExternalLinks.SERVER_INVITE_URL), false);
         return eb;
     }
 

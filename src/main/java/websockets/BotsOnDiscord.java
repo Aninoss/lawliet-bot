@@ -1,6 +1,6 @@
 package websockets;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.SecretManager;
@@ -22,7 +22,7 @@ public class BotsOnDiscord {
                     new HttpProperty("Content-Type", "application/json"),
                     new HttpProperty("Authorization", SecretManager.getString("bots.ondiscord.token"))
             };
-            HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + Settings.LAWLIET_ID + "/guilds", jsonObject.toString(), properties).get();
+            HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + AssetIds.LAWLIET_USER_ID + "/guilds", jsonObject.toString(), properties).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not send data to BotsOnDiscord", e);
         }

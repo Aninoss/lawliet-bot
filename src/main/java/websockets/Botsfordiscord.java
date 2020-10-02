@@ -1,6 +1,6 @@
 package websockets;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
@@ -23,7 +23,7 @@ public class Botsfordiscord {
                     new HttpProperty("Content-Type", "application/json"),
                     new HttpProperty("Authorization", SecretManager.getString("botsfordiscord.token"))
             };
-            HttpResponse httpResponse = HttpRequest.getData("https://botsfordiscord.com/api/bot/" + Settings.LAWLIET_ID, jsonObject.toString(), properties).get();
+            HttpResponse httpResponse = HttpRequest.getData("https://botsfordiscord.com/api/bot/" + AssetIds.LAWLIET_USER_ID, jsonObject.toString(), properties).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Could not post Botsfordiscord request", e);
         }

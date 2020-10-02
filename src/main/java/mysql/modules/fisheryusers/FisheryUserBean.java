@@ -106,8 +106,8 @@ public class FisheryUserBean extends BeanWithServer {
             long sum = 0;
             for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
                 sum += 15000L * FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
-                if (sum >= Settings.MAX)
-                    return Settings.MAX;
+                if (sum >= Settings.FISHERY_MAX)
+                    return Settings.FISHERY_MAX;
             }
             coinsGivenMax = sum;
         }
@@ -405,21 +405,21 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     private void checkValuesBound() {
-        if (fish > Settings.MAX) fish = Settings.MAX;
+        if (fish > Settings.FISHERY_MAX) fish = Settings.FISHERY_MAX;
         else if (fish < 0) fish = 0;
 
-        if (coins > Settings.MAX) coins = Settings.MAX;
+        if (coins > Settings.FISHERY_MAX) coins = Settings.FISHERY_MAX;
         else if (coins < 0) coins = 0;
 
         if (fishIncome != null) {
-            if (fishIncome > Settings.MAX) fishIncome = Settings.MAX;
+            if (fishIncome > Settings.FISHERY_MAX) fishIncome = Settings.FISHERY_MAX;
             else if (fishIncome < 0) fishIncome = 0L;
         }
 
-        if (dailyStreak > Settings.MAX) dailyStreak = Settings.MAX;
+        if (dailyStreak > Settings.FISHERY_MAX) dailyStreak = Settings.FISHERY_MAX;
         if (dailyStreak < 0) dailyStreak = 0;
 
-        if (coinsGiven > Settings.MAX) coinsGiven = Settings.MAX;
+        if (coinsGiven > Settings.FISHERY_MAX) coinsGiven = Settings.FISHERY_MAX;
     }
 
     public void levelUp(int powerUpId) {

@@ -1,6 +1,6 @@
 package core.emojiconnection;
 
-import constants.Settings;
+import constants.Emojis;
 import core.DiscordApiCollection;
 import org.javacord.api.entity.channel.TextChannel;
 
@@ -21,7 +21,7 @@ public class BackEmojiConnection extends EmojiConnection {
             setCustomEmoji(DiscordApiCollection.getInstance().getBackEmojiCustom());
             setCustom(true);
         } else {
-            setUnicodeEmoji(Settings.BACK_EMOJI);
+            setUnicodeEmoji(Emojis.BACK_EMOJI);
             setCustom(false);
         }
     }

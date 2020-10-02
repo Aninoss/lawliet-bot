@@ -2,7 +2,7 @@ package commands.runnables.informationcategory;
 
 import commands.listeners.CommandProperties;
 import commands.Command;
-import constants.Settings;
+import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.utils.StringUtil;
 import mysql.DBGiveaway;
@@ -28,14 +28,14 @@ public class SignUpCommand extends Command {
 
         if (success) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
-                    getString("success", Settings.SERVER_INVITE_URL,
+                    getString("success", ExternalLinks.SERVER_INVITE_URL,
                             event.getMessage().getUserAuthor().get().getMentionTag(),
                             StringUtil.escapeMarkdown(event.getServer().get().getName())
                     )
             )).get();
         } else {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                    getString("exists", Settings.SERVER_INVITE_URL),
+                    getString("exists", ExternalLinks.SERVER_INVITE_URL),
                     getString("exists_title")
             )).get();
         }

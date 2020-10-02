@@ -3,10 +3,7 @@ package commands.runnables.casinocategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
-import constants.Category;
-import constants.LogStatus;
-import constants.Permission;
-import constants.Settings;
+import constants.*;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
@@ -79,7 +76,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         String key = "tutorial";
         if (finished) key = "data";
 
-        eb.addField(Settings.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput)), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
@@ -96,7 +93,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
             else
                 sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d", gameCard.getId())).getMentionTag());
         }
-        sb.append(Settings.EMPTY_EMOJI);
+        sb.append(Emojis.EMPTY_EMOJI);
 
         return sb.toString();
     }

@@ -1,5 +1,6 @@
 package events.discordevents.userroleremove;
 
+import constants.AssetIds;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.PatreonCache;
@@ -18,7 +19,7 @@ public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
 
     @Override
     public boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable {
-        if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
+        if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
                     LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());

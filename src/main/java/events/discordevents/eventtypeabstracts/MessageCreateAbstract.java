@@ -1,6 +1,6 @@
 package events.discordevents.eventtypeabstracts;
 
-import constants.Settings;
+import constants.ExternalLinks;
 import core.EmbedFactory;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.entity.user.User;
@@ -31,7 +31,7 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         if (event.getServer().isEmpty() && !user.isBot()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                     .setTitle("❌ NOT SUPPORTED".toUpperCase())
-                    .setDescription(String.format("Commands via dm aren't supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", Settings.BOT_INVITE_URL)));
+                    .setDescription(String.format("Commands via dm aren't supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", ExternalLinks.BOT_INVITE_URL)));
             return;
         }
 

@@ -2,10 +2,7 @@ package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
-import constants.FisheryCategoryInterface;
-import constants.LogStatus;
-import constants.Permission;
-import constants.Settings;
+import constants.*;
 import core.EmbedFactory;
 import core.PatreonCache;
 import core.TextManager;
@@ -60,7 +57,7 @@ public class DailyCommand extends FisheryAbstract {
                 sb.append("\n").append(getString("point_donation", StringUtil.numToString(getLocale(), bonusDonation)));
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("codeblock", sb.toString()));
-            eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", Settings.PATREON_PAGE, Settings.UPVOTE_URL), false);
+            eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", ExternalLinks.PATREON_PAGE, ExternalLinks.UPVOTE_URL), false);
             if (breakStreak) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
             event.getChannel().sendMessage(eb).get();

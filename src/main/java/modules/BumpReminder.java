@@ -1,5 +1,6 @@
 package modules;
 
+import constants.AssetIds;
 import core.CustomThread;
 import core.DiscordApiCollection;
 import core.utils.TimeUtil;
@@ -44,7 +45,7 @@ public class BumpReminder {
         if (countdownRunning) return;
         countdownRunning = true;
 
-        final long ANINOSS_SERVER_ID = 462405241955155979L;
+        final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
         new CustomThread(() -> {

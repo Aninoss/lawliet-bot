@@ -1,6 +1,6 @@
 package websockets;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.DiscordApiCollection;
 import core.utils.StringUtil;
 import mysql.modules.donators.DBDonators;
@@ -21,7 +21,7 @@ public class DonationHandler {
     public static void addBonus(long userId, double usDollars) throws SQLException, InterruptedException {
         DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
 
-        Server server = apiCollection.getServerById(Settings.SUPPORT_SERVER_ID).get();
+        Server server = apiCollection.getServerById(AssetIds.SUPPORT_SERVER_ID).get();
         User user = null;
         String userName;
 

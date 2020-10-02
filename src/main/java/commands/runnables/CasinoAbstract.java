@@ -4,8 +4,8 @@ import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import commands.CommandManager;
 import constants.Category;
+import constants.Emojis;
 import constants.FisheryStatus;
-import constants.Settings;
 import core.EmbedFactory;
 import core.utils.MentionUtil;
 import core.TextManager;
@@ -129,7 +129,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
     protected EmbedBuilder addRetryOption(EmbedBuilder eb) {
         addReactionListener(getReactionMessage());
         message.addReaction(RETRY_EMOJI);
-        eb.addField(Settings.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI));
+        eb.addField(Emojis.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI));
         return eb;
     }
 

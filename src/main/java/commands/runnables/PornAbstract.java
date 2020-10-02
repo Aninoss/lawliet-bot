@@ -2,10 +2,7 @@ package commands.runnables;
 
 
 import commands.Command;
-import constants.Category;
-import constants.LogStatus;
-import constants.Settings;
-import constants.TrackerResult;
+import constants.*;
 import core.CustomThread;
 import core.EmbedFactory;
 import core.PatreonCache;
@@ -55,9 +52,9 @@ public abstract class PornAbstract extends Command {
             if (patreonLevel == 0 && (amount < 1 || amount > 20)) {
                 if (event.getChannel().canYouEmbedLinks()) {
                     event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", Settings.PATREON_PAGE, "30"))).get();
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30"))).get();
                 } else {
-                    event.getChannel().sendMessage("❌ " +TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", Settings.PATREON_PAGE, "30")).get();
+                    event.getChannel().sendMessage("❌ " +TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30")).get();
                 }
                 return false;
             }

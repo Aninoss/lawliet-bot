@@ -1,6 +1,6 @@
 package events.discordevents.servermemberleave;
 
-import constants.Settings;
+import constants.AssetIds;
 import core.DiscordApiCollection;
 import core.PatreonCache;
 import core.utils.StringUtil;
@@ -18,7 +18,7 @@ public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
 
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {
-        if (event.getServer().getId() == Settings.SUPPORT_SERVER_ID) {
+        if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             if (PatreonCache.getInstance().getPatreonLevel(event.getUser().getId()) > 0) {
                 LOGGER.info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                 DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT (LEFT SERVER): " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
