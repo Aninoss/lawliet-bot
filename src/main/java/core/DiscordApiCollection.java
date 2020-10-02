@@ -289,6 +289,17 @@ public class DiscordApiCollection {
         return serverList;
     }
 
+    public HashSet<Long> getUserIds() {
+        HashSet<Long> userSet = new HashSet<>();
+        getServers().forEach(server -> {
+            server.getMembers().forEach(user -> {
+                userSet.add(user.getId());
+            });
+        });
+
+        return userSet;
+    }
+
     public int getServerTotalSize() {
         waitForStartup();
 

@@ -1,5 +1,6 @@
 package websockets.webcomserver.events;
 
+import core.DiscordApiCollection;
 import mysql.modules.botstats.DBBotStats;
 import websockets.webcomserver.EventAbstract;
 import websockets.webcomserver.WebComServer;
@@ -26,6 +27,8 @@ public class OnServerStats extends EventAbstract {
         });
 
         mainJSON.put("data", arrayJSON);
+        mainJSON.put("servers", DiscordApiCollection.getInstance().getServers().size());
+        mainJSON.put("users", DiscordApiCollection.getInstance().getUserIds().size());
         return mainJSON;
     }
 
