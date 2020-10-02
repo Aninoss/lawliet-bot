@@ -624,6 +624,9 @@ public abstract class Command {
 
     public int getUserPermissions() {
         int perm = commandProperties.userPermissions();
+        if ((perm & Permission.ADMINISTRATOR) != 0)
+            return Permission.ADMINISTRATOR;
+
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {
             perm |= Permission.READ_MESSAGE_HISTORY;
         }
@@ -636,6 +639,9 @@ public abstract class Command {
 
     public int getBotPermissions() {
         int perm = commandProperties.botPermissions();
+        if ((perm & Permission.ADMINISTRATOR) != 0)
+            return Permission.ADMINISTRATOR;
+
         if (this instanceof OnReactionAddListener || this instanceof OnNavigationListener || this instanceof OnReactionAddStaticListener) {
             perm |= Permission.ADD_REACTIONS | Permission.READ_MESSAGE_HISTORY;
         }

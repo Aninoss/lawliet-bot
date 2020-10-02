@@ -1,6 +1,5 @@
 package events.discordevents;
 
-import core.CustomThread;
 import core.DiscordApiCollection;
 import mysql.modules.bannedusers.DBBannedUsers;
 import org.javacord.api.entity.user.User;
@@ -9,8 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class DiscordEventAbstract {
 
@@ -55,43 +52,15 @@ public abstract class DiscordEventAbstract {
 
     private static boolean runListenerPriority(ArrayList<DiscordEventAbstract> listenerList, EventExecution function,
                                                EventPriority priority, boolean banned, boolean bot, boolean multiThreadded) {
-        if (multiThreadded && false) {
-            List<DiscordEventAbstract> list = listenerList.stream()
-                    .filter(listener -> listener.getPriority() == priority && (!banned || listener.isAllowingBannedUser()) && (!bot || listener.isAllowingBots()))
-                    .collect(Collectors.toList());
-
-            final CustomThread[] threads = new CustomThread[list.size()];
-            final boolean[] cont = { true };
-
-            for (int i = 0; i < list.size(); i++) {
-                DiscordEventAbstract listener = list.get(i);
-                threads[i] = new CustomThread(() -> {
-                    if (!run(function, listener))
-                        cont[0] = false;
-                }, Thread.currentThread().getName());
-                threads[i].start();
+        for (DiscordEventAbstract listener : listenerList) {
+            if (listener.getPriority() == priority && (!banned || listener.isAllowingBannedUser()) &&
+                    (!bot || listener.isAllowingBots()) && !run(function, listener)
+            ) {
+                return false;
             }
-
-            for (CustomThread thread : threads) {
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
-                }
-            }
-
-            return cont[0];
-        } else {
-            for (DiscordEventAbstract listener : listenerList) {
-                if (listener.getPriority() == priority && (!banned || listener.isAllowingBannedUser()) &&
-                        (!bot || listener.isAllowingBots()) && !run(function, listener)
-                ) {
-                    return false;
-                }
-            }
-
-            return true;
         }
+
+        return true;
     }
 
     private static boolean userIsBanned(long userId) {

@@ -134,24 +134,25 @@ public class CommandContainer {
         commandList.add(TowerCommand.class);
 
         //EMOTES
-        commandList.add(DabCommand.class);
-        commandList.add(AwkwardCommand.class);
-        commandList.add(YesCommand.class);
-        commandList.add(NoCommand.class);
-        commandList.add(CryCommand.class);
-        commandList.add(DanceCommand.class);
-        commandList.add(SmileCommand.class);
         commandList.add(AngryCommand.class);
-        commandList.add(RunCommand.class);
+        commandList.add(AwkwardCommand.class);
         commandList.add(BlushCommand.class);
-        commandList.add(StareCommand.class);
-        commandList.add(SleepCommand.class);
-        commandList.add(NoseBleedCommand.class);
-        commandList.add(LaughCommand.class);
-        commandList.add(YawnCommand.class);
+        commandList.add(CryCommand.class);
+        commandList.add(DabCommand.class);
+        commandList.add(DanceCommand.class);
         commandList.add(FacepalmCommand.class);
-        commandList.add(SmugCommand.class);
+        commandList.add(LaughCommand.class);
+        commandList.add(NoCommand.class);
+        commandList.add(NoseBleedCommand.class);
+        commandList.add(RunCommand.class);
         commandList.add(ShrugCommand.class);
+        commandList.add(SipCommand.class);
+        commandList.add(SleepCommand.class);
+        commandList.add(SmileCommand.class);
+        commandList.add(SmugCommand.class);
+        commandList.add(StareCommand.class);
+        commandList.add(YawnCommand.class);
+        commandList.add(YesCommand.class);
 
         //INTERACTIONS
         commandList.add(MerkelCommand.class);
