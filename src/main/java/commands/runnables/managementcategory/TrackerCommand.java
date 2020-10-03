@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "🔔",
         executable = true,
-        aliases = { "tracker", "track", "tracking", "alert", "auto", "automate" }
+        aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize" }
 )
 public class TrackerCommand extends Command implements OnNavigationListener {
 

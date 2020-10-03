@@ -2,7 +2,6 @@ package core.utils;
 
 import core.TextManager;
 
-import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -15,8 +14,12 @@ public final class TimeUtil {
 
     private TimeUtil() {}
 
-    public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) throws IOException {
-        String str = DateTimeFormatter.ofPattern(TextManager.getString(locale, TextManager.GENERAL, "time_code", withClockTime)).format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
+    public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) {
+        String str = DateTimeFormatter
+                .ofPattern(TextManager.getString(locale, TextManager.GENERAL, "time_code", withClockTime))
+                .localizedBy(locale)
+                .format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
+
         if (withClockTime) {
             str += " " + TextManager.getString(locale, TextManager.GENERAL, "clock");
         }
@@ -24,7 +27,7 @@ public final class TimeUtil {
         return str;
     }
 
-    public static String getRemainingTimeString(Locale locale, Instant time0, Instant time1, boolean shorter) throws IOException {
+    public static String getRemainingTimeString(Locale locale, Instant time0, Instant time1, boolean shorter) {
         String remaining = "";
 
         long diff = Math.abs(Date.from(time0).getTime() - Date.from(time1).getTime()) + 1000 * 60;

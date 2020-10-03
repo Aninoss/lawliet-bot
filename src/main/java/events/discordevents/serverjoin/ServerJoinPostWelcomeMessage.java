@@ -8,14 +8,9 @@ import events.discordevents.eventtypeabstracts.ServerJoinAbstract;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.server.ServerJoinEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinPostWelcomeMessage.class);
 
     @Override
     public boolean onServerJoin(ServerJoinEvent event) throws Throwable {
@@ -30,7 +25,7 @@ public class ServerJoinPostWelcomeMessage extends ServerJoinAbstract {
                 .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
                 .setDescription(text);
         if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
-            channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
+            channel.sendMessage(eb);
     }
 
 }
