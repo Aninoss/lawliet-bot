@@ -195,7 +195,10 @@ public abstract class PornAbstract extends Command {
         for (int i = 0; i < amount; i++) {
             Thread t = new CustomThread(() -> {
                 try {
-                    PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults).ifPresent(pornImages::add);
+                    Optional<PornImage> pornImageOpt = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults);
+                    synchronized (this) {
+                        pornImageOpt.ifPresent(pornImages::add);
+                    }
                 } catch (IOException | InterruptedException | ExecutionException | ArrayIndexOutOfBoundsException e) {
                     LOGGER.error("Could not download porn image", e);
                 }

@@ -58,7 +58,7 @@ public class WarnLogCommand extends Command {
             for(ServerWarningsSlot serverWarningsSlot: slots) {
                 Optional<User> requestor = serverWarningsSlot.getRequesterUser();
                 Optional<String> reason = serverWarningsSlot.getReason();
-                String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", StringUtil.escapeMarkdown(requestor.get().getName()))) : getString("unknown_user");
+                String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", StringUtil.escapeMarkdown(requestor.get().getName()))) : TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user");
                 String timeDiffString = TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);
                 latestWarnings.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
             }
