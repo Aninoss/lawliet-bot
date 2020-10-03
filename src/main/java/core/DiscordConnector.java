@@ -97,7 +97,7 @@ public class DiscordConnector {
         }
 
         discordEventManager.registerApi(api);
-        api.addReconnectListener(event -> new CustomThread(() -> onSessionResume(event.getApi()), "reconnect").start());
+        api.addReconnectListener(event -> onSessionResume(event.getApi()));
     }
 
     private void startRepairProcesses(DiscordApi api) {

@@ -89,7 +89,7 @@ public class DiscordApiCollection {
                     if (errorCounter[n] >= 6) {
                         LOGGER.warn("Shard {} temporarely offline", n);
                         reconnectShard(n);
-                        break;
+                        return;
                     }
                 }
             }
