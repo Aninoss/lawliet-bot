@@ -54,7 +54,7 @@ public class GiveCommand extends FisheryAbstract {
 
         /* For DisCom - Die Discord Community */
         if (server.getId() == 418223406698332173L) {
-            Role role = server.getRoleById(660459523676438528L).get();
+            Role role = server.getRoleById(761962407990919168L).get();
             if (!role.hasUser(user0)) return false;
         }
 

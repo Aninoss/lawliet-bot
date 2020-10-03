@@ -33,12 +33,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @CommandProperties(
-        trigger = "tracker",
+        trigger = "alerts",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
-        emoji = "🔖",
+        emoji = "🔔",
         executable = true,
-        aliases = {"track", "tracking", "alert", "alerts", "auto", "automize"}
+        aliases = { "tracker", "track", "tracking", "alert", "auto", "automate" }
 )
 public class TrackerCommand extends Command implements OnNavigationListener {
 
