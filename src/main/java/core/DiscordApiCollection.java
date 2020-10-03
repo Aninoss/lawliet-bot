@@ -293,7 +293,7 @@ public class DiscordApiCollection {
         HashSet<Long> userSet = new HashSet<>();
         getServers().forEach(server -> {
             server.getMembers().forEach(user -> {
-                userSet.add(user.getId());
+                if (!user.isBot()) userSet.add(user.getId());
             });
         });
 

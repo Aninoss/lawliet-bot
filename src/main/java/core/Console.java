@@ -68,10 +68,12 @@ public class Console {
         tasks.put("delete_fishery_user", this::onDeleteFisheryUser);
         tasks.put("remove_fishery_user", this::onDeleteFisheryUser);
         tasks.put("server", this::onServer);
+        tasks.put("user", this::onUser);
         tasks.put("clear", this::onClear);
         tasks.put("fonts", this::onReloadFonts);
         tasks.put("backup", this::onBackup);
         tasks.put("servers", this::onServers);
+        tasks.put("users", this::onUsers);
         tasks.put("patreon", this::onPatreonStatus);
         tasks.put("internet", this::onInternetConnection);
         tasks.put("giveaway", this::onGiveaway);
@@ -135,6 +137,10 @@ public class Console {
         LOGGER.info("Donation stats of user {}: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
     }
 
+    private void onUsers(String[] args) {
+        LOGGER.info("Total users: " + DiscordApiCollection.getInstance().getUserIds().size());
+    }
+
     private void onServers(String[] args) {
         LOGGER.info("--- SERVERS ---");
         ArrayList<Server> servers = new ArrayList<>(DiscordApiCollection.getInstance().getServers());
@@ -169,6 +175,11 @@ public class Console {
     private void onClear(String[] args) {
         DBMain.getInstance().clearCache();
         LOGGER.info("Cache cleared!");
+    }
+
+    private void onUser(String[] args) {
+        long userId = Long.parseLong(args[1]);
+        DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> System.out.println(user.getDiscriminatedName()));
     }
 
     private void onServer(String[] args) {
