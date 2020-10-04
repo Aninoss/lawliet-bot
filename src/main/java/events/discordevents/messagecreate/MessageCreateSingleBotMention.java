@@ -15,8 +15,14 @@ public class MessageCreateSingleBotMention extends MessageCreateAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        if (StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiCollection.getInstance().getYourself().getMentionTag())) {
-            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        String prefix = serverBean.getPrefix();
+        String content = event.getMessageContent();
+
+        if (content.equalsIgnoreCase("i.") && prefix.equalsIgnoreCase("L."))
+            content = prefix;
+
+        if (prefix.equalsIgnoreCase(content) || StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiCollection.getInstance().getYourself().getMentionTag())) {
             String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_ping_help", serverBean.getPrefix());
             if (event.getChannel().canYouWrite()) event.getChannel().sendMessage(text).get();
 
