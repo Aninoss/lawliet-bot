@@ -5,7 +5,7 @@ import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
 import modules.repair.AutoChannelRepair;
-import modules.repair.AutoRolesRepair;
+import modules.repair.RolesRepair;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
@@ -102,7 +102,7 @@ public class DiscordConnector {
 
     private void startRepairProcesses(DiscordApi api) {
         new AutoChannelRepair(api).start();
-        new AutoRolesRepair(api).start();
+        new RolesRepair(api).start();
     }
 
     private void onConnectionCompleted() {

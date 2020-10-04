@@ -12,6 +12,7 @@ import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -72,6 +73,33 @@ public class FisheryUserBean extends BeanWithServer {
     public long getUserId() { return userId; }
 
     public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
+
+    public List<Role> getRoles() {
+        ArrayList<Role> userRoles = new ArrayList<>();
+        int level = getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
+        List<Role> allRoles = fisheryServerBean.getRoles();
+
+        if (level > allRoles.size()) {
+            level = allRoles.size();
+            setLevel(FisheryCategoryInterface.ROLE, level);
+        }
+
+        if (level > 0) {
+            if (fisheryServerBean.getServerBean().isFisherySingleRoles()) {
+                Role role = allRoles.get(level - 1);
+                if (role != null)
+                    userRoles.add(role);
+            } else {
+                for (int i = 0; i <= level - 1; i++) {
+                    Role role = allRoles.get(i);
+                    if (role != null)
+                        userRoles.add(role);
+                }
+            }
+        }
+
+        return userRoles;
+    }
 
     public FisheryServerBean getFisheryServerBean() { return fisheryServerBean; }
 
