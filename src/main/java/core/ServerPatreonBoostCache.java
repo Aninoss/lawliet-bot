@@ -35,7 +35,7 @@ public class ServerPatreonBoostCache {
 
                                 return server.getMembers().stream()
                                         .filter(user -> !user.isBot() && server.canManage(user))
-                                        .anyMatch(user -> PatreonCache.getInstance().getPatreonLevel(user.getId()) > 0);
+                                        .anyMatch(user -> PatreonCache.getInstance().getPatreonLevel(user.getId()) > 1);
                             }
 
                             return false;

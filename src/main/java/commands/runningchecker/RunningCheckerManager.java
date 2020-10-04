@@ -46,7 +46,7 @@ public class RunningCheckerManager {
     }
 
     private int getMaxAmount(long userId) {
-        return PatreonCache.getInstance().getPatreonLevel(userId) >= 2 ? 2 : 1;
+        return PatreonCache.getInstance().getPatreonLevel(userId) >= 3 ? 2 : 1;
     }
 
     private void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {

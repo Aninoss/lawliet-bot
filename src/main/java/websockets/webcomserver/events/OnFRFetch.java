@@ -60,7 +60,7 @@ public class OnFRFetch extends EventAbstract {
         if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
             return 0;
 
-        return PatreonCache.getInstance().getPatreonLevel(userId) + 1;
+        return Math.max(1, PatreonCache.getInstance().getPatreonLevel(userId));
     }
 
     public static int getBoostsUsed(long userId) throws SQLException {

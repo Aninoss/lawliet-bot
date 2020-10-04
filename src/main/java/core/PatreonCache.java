@@ -1,11 +1,10 @@
 package core;
 
-import constants.AssetIds;
-import constants.Settings;
-import mysql.modules.donators.DBDonators;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import constants.AssetIds;
+import constants.Settings;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ public class PatreonCache {
                                     return i + 1;
                             }
 
-                            if (DBDonators.getInstance().getBean().get(userId).isValid()) return 1;
                             return 0;
                         }
                     }

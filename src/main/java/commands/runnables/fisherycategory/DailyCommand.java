@@ -46,7 +46,7 @@ public class DailyCommand extends FisheryAbstract {
                 bonusCombo = (int) Math.round(fishes * 0.25);
             }
 
-            if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId()) > 0) {
+            if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId()) > 1) {
                 bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
             }
 

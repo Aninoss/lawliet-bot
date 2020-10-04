@@ -123,7 +123,7 @@ public class CommandManager {
     }
 
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 2) return true;
+        if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 3) return true;
 
         Optional<Integer> waitingSec = CooldownManager.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
         if (!waitingSec.isPresent()) {
@@ -150,7 +150,7 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (!command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 0) {
+        if (!command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 1) {
             return true;
         }
 

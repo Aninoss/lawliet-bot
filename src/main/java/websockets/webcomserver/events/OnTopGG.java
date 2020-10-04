@@ -53,7 +53,7 @@ public class OnTopGG extends EventAbstract {
                         int value = isWeekend ? 2 : 1;
                         FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
 
-                        if (PatreonCache.getInstance().getPatreonLevel(userId) >= 1 &&
+                        if (PatreonCache.getInstance().getPatreonLevel(userId) >= 2 &&
                                 DBAutoClaim.getInstance().getBean(userId).isActive()
                         ) {
                             userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);

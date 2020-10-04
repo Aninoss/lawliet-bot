@@ -262,7 +262,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 StringBuilder commands = new StringBuilder();
                 boolean canAccess = PermissionUtil.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
-                        !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 0;
+                        !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 1;
 
                 commands.append("**")
                         .append(LetterEmojis.LETTERS[i])

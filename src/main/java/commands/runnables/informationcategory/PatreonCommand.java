@@ -40,7 +40,7 @@ public class PatreonCommand extends Command {
                 .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI);
 
         StringBuilder sb = new StringBuilder();
-        for(int i = 4; i >= 2; i--)
+        for(int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 3; i--)
             sb.append(getPatreonUsersString(i));
         sb.append(getString("andmanymore"));
 
