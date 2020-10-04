@@ -49,6 +49,10 @@ public class SystemUtil {
         return -1;
     }
 
+    public void runJavaCode(String code) {
+
+    }
+
     public static void backupDB() {
         String filename = LocalDateTime.now().toString();
         SystemUtil.executeProcess("./backupdb.sh", filename);

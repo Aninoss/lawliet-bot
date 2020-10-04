@@ -43,6 +43,7 @@ public class Console {
     private double maxMemory = 0;
     private boolean started = false;
     private final HashMap<String, ConsoleTask> tasks = new HashMap<>();
+    private final StringBuilder codeBuilder = new StringBuilder();
 
     public void start() {
         if (started) return;
@@ -54,6 +55,8 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("eval", this::onEval);
+        tasks.put("eval_file", this::onEvalFile);
         tasks.put("quit", this::onQuit);
         tasks.put("stats", this::onStats);
         tasks.put("shards", this::onShards);
@@ -80,6 +83,21 @@ public class Console {
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_server", this::onSendChannel);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onEvalFile(String[] strings) throws Exception {
+        String filename = strings[1];
+        new CodeExecutor().evalFile(filename);
+    }
+
+    private void onEval(String[] args) throws Exception {
+        StringBuilder message = new StringBuilder();
+        for (int i = 1; i < args.length; i++) {
+            message.append(" ").append(args[i]);
+        }
+        String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
+
+        new CodeExecutor().eval(text);
     }
 
     private void onSendChannel(String[] args) {
