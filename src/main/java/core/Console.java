@@ -55,8 +55,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
-        tasks.put("eval", this::onEval);
-        tasks.put("eval_file", this::onEvalFile);
+        tasks.put("eval", this::onEvalFile);
         tasks.put("quit", this::onQuit);
         tasks.put("stats", this::onStats);
         tasks.put("shards", this::onShards);
@@ -86,18 +85,7 @@ public class Console {
     }
 
     private void onEvalFile(String[] strings) throws Exception {
-        String filename = strings[1];
-        new CodeExecutor().evalFile(filename);
-    }
-
-    private void onEval(String[] args) throws Exception {
-        StringBuilder message = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            message.append(" ").append(args[i]);
-        }
-        String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
-
-        new CodeExecutor().eval(text);
+        new CodeExecutor().evalFile("data/Runtime.java");
     }
 
     private void onSendChannel(String[] args) {
