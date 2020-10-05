@@ -5,9 +5,6 @@ import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
 import mysql.modules.server.DBServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +14,6 @@ import java.util.Optional;
 
 public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBAutoChannel.class);
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
     public static DBAutoChannel getInstance() { return ourInstance; }
     private DBAutoChannel() {}
