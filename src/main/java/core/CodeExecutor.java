@@ -3,6 +3,7 @@ package core;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -10,9 +11,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CodeExecutor {
+
+    private final String CODE_BASE = "import commands.*;\n" +
+            "import constants.*;\n" +
+            "import core.*;\n" +
+            "import modules.*;\n" +
+            "import mysql.*;\n" +
+            "import websockets.*;\n" +
+            "import org.javacord.api.*;\n" +
+            "public class CodeRuntime {\n" +
+            "    public static int run() {\n" +
+            "        %s\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "}";
 
     private String readCode(String sourcePath) throws FileNotFoundException {
         InputStream stream = new FileInputStream(sourcePath);
@@ -23,7 +39,7 @@ public class CodeExecutor {
 
     private Path saveSource(String source) throws IOException {
         String tmpProperty = System.getProperty("java.io.tmpdir");
-        Path sourcePath = Paths.get(tmpProperty, "Runtime.java");
+        Path sourcePath = Paths.get(tmpProperty, "CodeRuntime.java");
         Files.write(sourcePath, source.getBytes(UTF_8));
         return sourcePath;
     }
@@ -31,24 +47,30 @@ public class CodeExecutor {
     private Path compileSource(Path javaFile) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         compiler.run(null, null, null, javaFile.toFile().getAbsolutePath());
-        return javaFile.getParent().resolve("Runtime.class");
+        return javaFile.getParent().resolve("CodeRuntime.class");
     }
 
-    private void runClass(Path javaClass)
-            throws MalformedURLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private int runClass(Path javaClass)
+            throws MalformedURLException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         URL classUrl = javaClass.getParent().toFile().toURI().toURL();
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{classUrl});
-        Class<?> clazz = Class.forName("Runtime", true, classLoader);
-        clazz.newInstance();
+        Class<?> clazz = Class.forName("CodeRuntime", true, classLoader);
+        return (int)clazz.getMethod("run").invoke(null);
     }
 
-    public void evalFile(String filename) throws Exception {
+    public int evalFile(String filename) throws Exception {
         String source = readCode(filename);
         Path javaFile = saveSource(source);
         Path classFile = compileSource(javaFile);
-        runClass(classFile);
+        return runClass(classFile);
+    }
+
+    public int eval(String code) throws Exception {
+        String source = String.format(CODE_BASE, code);
+        Path javaFile = saveSource(source);
+        Path classFile = compileSource(javaFile);
+        return runClass(classFile);
     }
 
 }
-
 
