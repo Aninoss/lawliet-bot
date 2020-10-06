@@ -8,7 +8,7 @@ import java.util.Locale;
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
         executable = true,
-        aliases = {"praise"}
+        aliases = {"praise", "yaoipat", "yuripat"}
 )
 public class PatCommand extends InteractionAbstract {
 

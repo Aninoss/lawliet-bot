@@ -19,6 +19,7 @@ public class OnFRPost extends EventAbstract {
         long userId = requestJSON.getLong("user_id");
         String title = requestJSON.getString("title");
         String desc = requestJSON.getString("description");
+        boolean notify = requestJSON.getBoolean("notify");
 
         DBFeatureRequests.postFeatureRequest(userId, title, desc);
 
@@ -26,6 +27,7 @@ public class OnFRPost extends EventAbstract {
                 .setTitle(title)
                 .setAuthor("FEATURE REQUEST")
                 .setDescription(desc);
+        if (notify) eb.setFooter("Notify: " + userId);
         DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
 
         return new JSONObject();
