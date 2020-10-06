@@ -1,14 +1,14 @@
 package commands.runnables.moderationcategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
-import commands.Command;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.EmbedFactory;
-import core.utils.MentionUtil;
 import core.TextManager;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
@@ -19,8 +19,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,8 +33,6 @@ import java.util.Locale;
         aliases = {"modsettings"}
 )
 public class ModSettingsCommand extends Command implements OnNavigationListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ModSettingsCommand.class);
 
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;
@@ -243,7 +239,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
                         return true;
 
                     case 0:
-                        moderationBean.setAutoKick(autoBanTemp, 0);
+                        moderationBean.setAutoBan(autoBanTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
