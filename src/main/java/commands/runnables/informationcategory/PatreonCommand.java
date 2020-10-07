@@ -36,7 +36,7 @@ public class PatreonCommand extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("info", ExternalLinks.PATREON_PAGE))
-                .setImage("https://cdn.discordapp.com/attachments/499629904380297226/756955408115171348/Patreon_Banner_New.png")
+                .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
                 .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI);
 
         StringBuilder sb = new StringBuilder();
