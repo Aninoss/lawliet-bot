@@ -36,7 +36,8 @@ public class AnimeReleaseDownloader {
 
         for (AnimeReleasePost post : animeReleasePosts) {
             boolean ok = postPassesFilter(post, filter) &&
-                    (!post.getAnime().endsWith("(Russian)") || StringUtil.getLanguage(locale) == Language.RU);
+                    (!post.getAnime().endsWith("(Russian)") || StringUtil.getLanguage(locale) == Language.RU) &&
+                    (!post.getAnime().endsWith("(German Dub)") || StringUtil.getLanguage(locale) == Language.DE);
 
             if (ok) {
                 if (!currentUsedIds.contains(post.getId()) &&
