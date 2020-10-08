@@ -71,8 +71,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
             try {
                 followedString = StringUtil.trimString(newContent.substring(commandTrigger.length()));
             } catch (StringIndexOutOfBoundsException e) {
-                LOGGER.error("String parsing error on server {}: {}", event.getServer().get().getId(), event.getMessageContent());
-                return true;
+                followedString = "";
             }
 
             if (commandTrigger.length() > 0) {
