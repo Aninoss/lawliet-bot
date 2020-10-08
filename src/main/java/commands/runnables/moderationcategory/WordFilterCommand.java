@@ -10,7 +10,7 @@ import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.BannedWordsCheck;
+import modules.WordFilterCheck;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
     emoji = "️🚧️",
     executable = true
 )
-public class BannedWordsCommand extends Command implements OnNavigationListener {
+public class WordFilterCommand extends Command implements OnNavigationListener {
 
     private static final int MAX_WORDS = 20;
     private static final int MAX_LETTERS = 20;
@@ -43,7 +43,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
     private NavigationHelper<String> wordsNavigationHelper;
     private CustomObservableList<User> ignoredUsers, logReceivers;
 
-    public BannedWordsCommand(Locale locale, String prefix) {
+    public WordFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
@@ -86,7 +86,7 @@ public class BannedWordsCommand extends Command implements OnNavigationListener 
                 }
 
             case 3:
-                String[] wordArray = BannedWordsCheck.translateString(inputString).split(" ");
+                String[] wordArray = WordFilterCheck.translateString(inputString).split(" ");
                 List<String> wordList = Arrays
                         .stream(wordArray)
                         .filter(str -> str.length() > 0)

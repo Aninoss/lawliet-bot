@@ -1,7 +1,7 @@
 package modules;
 
 import commands.CommandManager;
-import commands.runnables.moderationcategory.SelfPromotionBlockCommand;
+import commands.runnables.moderationcategory.InviteFilterCommand;
 import constants.Category;
 import constants.ExternalLinks;
 import core.DiscordApiCollection;
@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
-public class SPCheck {
+public class InviteFilterCheck {
 
     public static boolean check(Message message) throws ExecutionException, InstantiationException, IllegalAccessException, InterruptedException, InvocationTargetException {
         Server server = message.getServer().get();
@@ -31,26 +31,26 @@ public class SPCheck {
         Locale locale = spBlockBean.getServerBean().getLocale();
 
         if (hasPostedSP(server, message, spBlockBean)) {
-            SelfPromotionBlockCommand selfPromotionBlockCommand = (SelfPromotionBlockCommand) CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, locale, spBlockBean.getServerBean().getPrefix());
+            InviteFilterCommand inviteFilterCommand = (InviteFilterCommand) CommandManager.createCommandByClass(InviteFilterCommand.class, locale, spBlockBean.getServerBean().getPrefix());
 
-            informMessageAuthor(spBlockBean, selfPromotionBlockCommand, locale, message, author);
+            informMessageAuthor(spBlockBean, inviteFilterCommand, locale, message, author);
 
             boolean successful = safeDeleteMessage(message);
             successful = successful && safeKick(spBlockBean, server, author);
             successful = successful && safeBan(spBlockBean, server, author);
 
-            informLogReceivers(spBlockBean, selfPromotionBlockCommand, locale, message, author, successful);
+            informLogReceivers(spBlockBean, inviteFilterCommand, locale, message, author, successful);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "spblock_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_content"), message.getContent(), true);;
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(inviteFilterCommand)
+                    .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                    .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                    .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true);;
 
-            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
-            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
+            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful", author.getMentionTag()));
+            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_failed", author.getMentionTag()));
 
-            Mod.postLog(CommandManager.createCommandByClass(SelfPromotionBlockCommand.class, spBlockBean.getServerBean().getLocale(), spBlockBean.getServerBean().getPrefix()), eb, server);
-            Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_title"), true);
+            Mod.postLog(CommandManager.createCommandByClass(InviteFilterCommand.class, spBlockBean.getServerBean().getLocale(), spBlockBean.getServerBean().getPrefix()), eb, server);
+            Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_title"), true);
 
             return false;
         }
@@ -58,14 +58,14 @@ public class SPCheck {
         return true;
     }
 
-    private static void informLogReceivers(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author, boolean successful) {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                .addField(TextManager.getString(locale, Category.MODERATION, "spblock_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_content"), message.getContent(), true);
+    private static void informLogReceivers(SPBlockBean spBlockBean, InviteFilterCommand inviteFilterCommand, Locale locale, Message message, User author, boolean successful) {
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(inviteFilterCommand)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true);
 
-        if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful", author.getMentionTag()));
-        else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_failed", author.getMentionTag()));
+        if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful", author.getMentionTag()));
+        else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_failed", author.getMentionTag()));
 
         spBlockBean.getLogReceiverUserIds().transform(message.getServer().get()::getMemberById, DiscordEntity::getId).forEach(user -> {
             try {
@@ -79,7 +79,7 @@ public class SPCheck {
     private static boolean safeBan(SPBlockBean spBlockBean, Server server, User author) throws InterruptedException {
         if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER) {
             try {
-                server.banUser(author, 0, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_auditlog_sp")).get();
+                server.banUser(author, 0, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp")).get();
             } catch (ExecutionException e) {
                 return false;
                 //Ignore
@@ -92,7 +92,7 @@ public class SPCheck {
     private static boolean safeKick(SPBlockBean spBlockBean, Server server, User author) throws InterruptedException {
         if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER) {
             try {
-                server.kickUser(author, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "spblock_auditlog_sp")).get();
+                server.kickUser(author, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp")).get();
             } catch (ExecutionException e) {
                 return false;
                 //Ignore
@@ -102,12 +102,12 @@ public class SPCheck {
         return true;
     }
 
-    private static void informMessageAuthor(SPBlockBean spBlockBean, SelfPromotionBlockCommand selfPromotionBlockCommand, Locale locale, Message message, User author) throws InterruptedException {
-        EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(selfPromotionBlockCommand)
-                .addField(TextManager.getString(locale, Category.MODERATION, "spblock_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spblock_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "spblock_log_content"), message.getContent(), true)
-                .setDescription(TextManager.getString(locale, Category.MODERATION, "spblock_log_successful_user"));
+    private static void informMessageAuthor(SPBlockBean spBlockBean, InviteFilterCommand inviteFilterCommand, Locale locale, Message message, User author) throws InterruptedException {
+        EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(inviteFilterCommand)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true)
+                .setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful_user"));
         try {
             author.sendMessage(ebUser).get();
         } catch (ExecutionException e) {

@@ -1,27 +1,30 @@
 package commands.runnables.managementcategory;
 
+import com.vdurmont.emoji.EmojiParser;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddStaticListener;
 import commands.listeners.OnReactionRemoveStaticListener;
-import commands.Command;
-import constants.*;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Permission;
+import constants.Response;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.PermissionCheckRuntime;
+import core.TextManager;
 import core.emojiconnection.EmojiConnection;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
-import core.PermissionCheckRuntime;
-import core.TextManager;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
-import com.vdurmont.emoji.EmojiParser;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
@@ -157,7 +160,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             AtomicBoolean updateEmoji = new AtomicBoolean(false);
             AtomicBoolean updateRole = new AtomicBoolean(false);
 
-            inputStringNoEmoji = filterEmojis(inputString, updateEmoji);
+            inputStringNoEmoji = filterEmojis(event.getMessage(), inputString, updateEmoji);
             Optional<String> filterRolesResult = filterRoles(event, inputString, inputStringNoEmoji, updateRole);
 
             if (filterRolesResult.isPresent()) inputString = filterRolesResult.get();
@@ -189,8 +192,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         return Optional.of(inputString);
     }
 
-    private String filterEmojis(String inputString, AtomicBoolean updateEmoji) throws InterruptedException {
-        List<KnownCustomEmoji> customEmojis = MentionUtil.getCustomEmojiByTag(inputString);
+    private String filterEmojis(Message message, String inputString, AtomicBoolean updateEmoji) throws InterruptedException {
+        List<CustomEmoji> customEmojis = message.getCustomEmojis();
         if (customEmojis.size() > 0) {
             updateEmoji.set(calculateEmoji(customEmojis.get(0)));
             return inputString.replaceFirst(customEmojis.get(0).getMentionTag(), "");

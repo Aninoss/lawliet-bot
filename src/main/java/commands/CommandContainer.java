@@ -84,8 +84,8 @@ public class CommandContainer {
         commandList.add(WarnRemoveCommand.class);
         commandList.add(ChannelMuteCommand.class);
         commandList.add(ChannelUnmuteCommand.class);
-        commandList.add(SelfPromotionBlockCommand.class);
-        commandList.add(BannedWordsCommand.class);
+        commandList.add(InviteFilterCommand.class);
+        commandList.add(WordFilterCommand.class);
         commandList.add(ClearCommand.class);
         commandList.add(FullClearCommand.class);
 

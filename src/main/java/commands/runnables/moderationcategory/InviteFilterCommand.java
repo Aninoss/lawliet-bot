@@ -25,19 +25,20 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 @CommandProperties(
-    trigger = "spblock",
-    botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
-    userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
-    emoji = "️🛡️",
-    executable = true
+        trigger = "invitefilter",
+        botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+        userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+        emoji = "✉️",
+        executable = true,
+        aliases = { "spblock", "inviteblock", "spfilter" }
 )
-public class SelfPromotionBlockCommand extends Command implements OnNavigationListener {
+public class InviteFilterCommand extends Command implements OnNavigationListener {
     
     private SPBlockBean spBlockBean;
     private CustomObservableList<User> ignoredUsers, logReceivers;
     private CustomObservableList<ServerTextChannel> ignoredChannels;
 
-    public SelfPromotionBlockCommand(Locale locale, String prefix) {
+    public InviteFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
