@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
         executable = true,
         aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize" }
 )
-public class TrackerCommand extends Command implements OnNavigationListener {
+public class AlertsCommand extends Command implements OnNavigationListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TrackerCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AlertsCommand.class);
 
     private final int
             STATE_ADD = 1,
@@ -59,8 +59,9 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     private long channelId;
     private TrackerBean trackerBean;
     private Command commandCache;
+    private boolean cont = true;
 
-    public TrackerCommand(Locale locale, String prefix) {
+    public AlertsCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
@@ -76,8 +77,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state != STATE_REMOVE) {
-            controll(inputString, false);
-            return Response.TRUE;
+            return controll(inputString, false);
         }
         return null;
     }
@@ -116,17 +116,23 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         return false;
     }
 
-    private void controll(String searchTerm, boolean firstTime) throws Throwable {
+    private Response controll(String searchTerm, boolean firstTime) throws Throwable {
         while(true) {
-            if (searchTerm.replace(" ", "").isEmpty()) return;
+            if (searchTerm.replace(" ", "").isEmpty())
+                return Response.TRUE;
             String arg = searchTerm.split(" ")[0].toLowerCase();
 
-            if (!processArg(arg, searchTerm, firstTime)) return;
+            Response currentResponse = processArg(arg, searchTerm, firstTime);
+
+            if (currentResponse == Response.FALSE) return Response.FALSE;
+            if (currentResponse == null) return null;
+            if (!cont) return currentResponse;
+
             searchTerm = StringUtil.trimString(searchTerm.substring(arg.length()));
         }
     }
 
-    private boolean processArg(String arg, String argComplete, boolean firstTime) throws ExecutionException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    private Response processArg(String arg, String argComplete, boolean firstTime) throws ExecutionException, IllegalAccessException, InstantiationException, InvocationTargetException {
         int state = getState();
         switch (state) {
             case DEFAULT_STATE:
@@ -136,81 +142,81 @@ public class TrackerCommand extends Command implements OnNavigationListener {
                 return processAdd(arg, firstTime);
 
             case STATE_REMOVE:
-                return processRemove(arg, firstTime);
+                return processRemove(arg);
 
             case STATE_KEY:
                 return processKey(argComplete, firstTime);
 
             default:
-                return false;
+                return null;
         }
     }
 
-    private boolean processMain(String arg) {
+    private Response processMain(String arg) {
         switch (arg) {
             case "add":
                 if (enoughSpaceForNewTrackers()) {
                     setState(STATE_ADD);
-                    return true;
+                    return Response.TRUE;
                 } else {
-                    return false;
+                    return Response.FALSE;
                 }
 
             case "remove":
                 if (getTrackersInChannel().size() > 0) {
                     setState(STATE_REMOVE);
-                    return true;
+                    return Response.TRUE;
                 } else {
                     setLog(LogStatus.FAILURE, getString("notracker"));
-                    return false;
+                    return Response.FALSE;
                 }
 
             default:
-                return false;
+                return null;
         }
     }
 
-    private boolean processAdd(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private Response processAdd(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (!enoughSpaceForNewTrackers())
-            return false;
+            return Response.FALSE;
 
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
         if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnTrackerRequestListener)) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
-            return false;
+            return null;
         }
 
         Command command = commandOpt.get();
         if (command.isNsfw() && !DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
-            return false;
+            return Response.FALSE;
         }
 
         if (trackerSlotExists(command.getTrigger(), "")) {
             setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
-            return false;
+            return Response.FALSE;
         }
 
         OnTrackerRequestListener trackerCommand = (OnTrackerRequestListener)command;
         if (trackerCommand.trackerUsesKey()) {
             commandCache = command;
             setState(STATE_KEY);
-            return true;
+            return Response.TRUE;
         } else {
             addTracker(command, "", firstTime);
-            return false;
+            return Response.TRUE;
         }
     }
 
-    private boolean processRemove(String arg, boolean firstTime) throws ExecutionException {
+    private Response processRemove(String arg) throws ExecutionException {
         List<TrackerBeanSlot> trackerSlots = getTrackersInChannel();
 
         if (!StringUtil.stringIsInt(arg))
-            return false;
+            return null;
 
         int index = Integer.parseInt(arg);
         if (index < 0 || index >= trackerSlots.size())
-            return false;
+            return null;
 
         TrackerBeanSlot slotRemove = trackerSlots.get(index);
         slotRemove.delete();
@@ -219,25 +225,26 @@ public class TrackerCommand extends Command implements OnNavigationListener {
             setState(0);
         }
 
-        return false;
+        return Response.FALSE;
     }
 
-    private boolean processKey(String arg, boolean firstTime) throws ExecutionException {
+    private Response processKey(String arg, boolean firstTime) throws ExecutionException {
         if (!enoughSpaceForNewTrackers())
-            return false;
+            return Response.FALSE;
 
         if (arg.length() > LIMIT_KEY_LENGTH) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
-            return false;
+            return Response.FALSE;
         }
 
         if (trackerSlotExists(commandCache.getTrigger(), arg)) {
             setLog(LogStatus.FAILURE, getString("state3_alreadytracking", arg));
-            return false;
+            return Response.FALSE;
         }
 
         addTracker(commandCache, arg, firstTime);
-        return false;
+        cont = false;
+        return Response.TRUE;
     }
 
     @Draw(state = DEFAULT_STATE)
@@ -311,7 +318,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
     @Draw(state = STATE_SUCCESS)
     public EmbedBuilder onDrawSuccess(DiscordApi api) throws Throwable {
         removeNavigation();
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"));
+        return EmbedFactory.getCommandEmbedStandard(this, getString("state3_added", commandCache.getTrigger()));
     }
 
     @Override
@@ -334,6 +341,7 @@ public class TrackerCommand extends Command implements OnNavigationListener {
         );
         trackerBean.getSlots().add(slot);
         if (firstTime) {
+            commandCache = command;
             setState(STATE_SUCCESS);
         } else {
             setState(STATE_ADD);

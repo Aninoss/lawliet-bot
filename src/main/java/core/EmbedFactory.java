@@ -1,7 +1,7 @@
 package core;
 
 import commands.Command;
-import commands.runnables.managementcategory.TrackerCommand;
+import commands.runnables.managementcategory.AlertsCommand;
 import constants.Emojis;
 import constants.LogStatus;
 import core.utils.PermissionUtil;
@@ -90,7 +90,7 @@ public class EmbedFactory {
     }
 
     public static EmbedBuilder addTrackerNoteLog(Locale locale, Server server, User user, EmbedBuilder eb, String prefix, String trigger) {
-        if (PermissionUtil.getMissingPermissionListForUser(server, null, user, Command.getClassProperties(TrackerCommand.class).userPermissions()).isEmpty()) {
+        if (PermissionUtil.getMissingPermissionListForUser(server, null, user, Command.getClassProperties(AlertsCommand.class).userPermissions()).isEmpty()) {
             EmbedFactory.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
         }
         return eb;

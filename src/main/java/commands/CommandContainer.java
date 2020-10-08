@@ -62,7 +62,7 @@ public class CommandContainer {
         commandList.add(WhiteListCommand.class);
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
-        commandList.add(TrackerCommand.class);
+        commandList.add(AlertsCommand.class);
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
@@ -72,7 +72,7 @@ public class CommandContainer {
         commandList.add(RevokeRoleCommand.class);
         commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
-        commandList.add(StarterDeleteCommand.class);
+        commandList.add(TriggerDeleteCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

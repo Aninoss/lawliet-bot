@@ -1,12 +1,13 @@
 package commands;
 
+import commands.cooldownchecker.CooldownManager;
 import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddListener;
-import commands.cooldownchecker.CooldownManager;
-import commands.runnables.informationcategory.PingCommand;
-import commands.runningchecker.RunningCheckerManager;
 import commands.runnables.informationcategory.HelpCommand;
+import commands.runnables.informationcategory.PingCommand;
+import commands.runnables.managementcategory.TriggerDeleteCommand;
+import commands.runningchecker.RunningCheckerManager;
 import constants.ExternalLinks;
 import constants.Permission;
 import constants.Settings;
@@ -16,6 +17,7 @@ import core.utils.StringUtil;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.commandusages.DBCommandUsages;
 import mysql.modules.server.DBServer;
+import mysql.modules.server.ServerBean;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -63,10 +65,7 @@ public class CommandManager {
 
             try {
                 sendOverwrittenSignals(event);
-
-                if (DBServer.getInstance().getBean(event.getServer().get().getId()).isCommandAuthorMessageRemove() &&
-                        ServerPatreonBoostCache.getInstance().get(event.getServer().get().getId()))
-                    event.getMessage().delete();
+                checkTriggerDelete(event);
 
                 if (command instanceof PingCommand) command.getAttachments().put("starting_time", startTime);
                 if (command instanceof OnNavigationListener)
@@ -79,6 +78,16 @@ public class CommandManager {
                 ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();
+        }
+    }
+
+    private static void checkTriggerDelete(MessageCreateEvent event) throws ExecutionException {
+        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        if (serverBean.isCommandAuthorMessageRemove() &&
+                ServerPatreonBoostCache.getInstance().get(event.getServer().get().getId()) &&
+                PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), TriggerDeleteCommand.class, event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)
+        ) {
+            event.getMessage().delete(); //no log
         }
     }
 

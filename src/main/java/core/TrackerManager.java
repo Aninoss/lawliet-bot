@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
-import commands.runnables.managementcategory.TrackerCommand;
+import commands.runnables.managementcategory.AlertsCommand;
 import constants.Permission;
 import constants.Settings;
 import mysql.modules.tracker.DBTracker;
@@ -81,7 +81,7 @@ public class TrackerManager {
         OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix()).get();
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
         if (channelOpt.isPresent() &&
-                PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), TrackerCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)
+                PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)
         ) {
             switch (command.onTrackerRequest(slot)) {
                 case STOP:

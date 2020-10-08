@@ -14,20 +14,20 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.util.Locale;
 
 @CommandProperties(
-        trigger = "starterdelete",
+        trigger = "triggerdelete",
         userPermissions = Permission.MANAGE_SERVER | Permission.MANAGE_MESSAGES,
         emoji = "\uD83D\uDDD1",
         executable = true,
         patreonRequired = true,
-        aliases = {"starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove"}
+        aliases = {"triggerremove", "starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove", "starterdelete"}
 )
-public class StarterDeleteCommand extends Command implements OnReactionAddListener {
+public class TriggerDeleteCommand extends Command implements OnReactionAddListener {
 
     private Message message;
 
     private final String[] activeArgs = new String[]{"off", "on"};
 
-    public StarterDeleteCommand(Locale locale, String prefix) {
+    public TriggerDeleteCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
