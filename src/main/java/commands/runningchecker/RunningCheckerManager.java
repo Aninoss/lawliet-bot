@@ -4,7 +4,6 @@ import core.CustomThread;
 import core.PatreonCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,23 +25,29 @@ public class RunningCheckerManager {
         if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(userId)) {
             final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec);
             runningCommandsList.add(runningCheckerSlot);
-
-            final Thread currentThread = Thread.currentThread();
-            new CustomThread(() -> {
-                try {
-                    currentThread.join();
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
-                }
-                runningCommandsList.remove(runningCheckerSlot);
-                if (runningCommandsList.size() == 0)
-                    runningCommandsMap.remove(userId);
-            }, "command_state_observer_thread", 1).start();
+            removeOnThreadEnd(runningCommandsList, runningCheckerSlot, userId);
 
             return true;
         }
 
         return false;
+    }
+
+    private void removeOnThreadEnd(ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
+        final Thread currentThread = Thread.currentThread();
+        new CustomThread(() -> {
+            try {
+                currentThread.join();
+            } catch (InterruptedException e) {
+                LOGGER.error("Interrupted", e);
+            }
+
+            synchronized (RunningCheckerManager.getInstance()) {
+                runningCommandsList.remove(runningCheckerSlot);
+                if (runningCommandsList.isEmpty())
+                    runningCommandsMap.remove(userId);
+            }
+        }, "command_state_observer_thread", 1).start();
     }
 
     private int getMaxAmount(long userId) {
