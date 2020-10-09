@@ -28,11 +28,12 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 @CommandProperties(
-    trigger = "bannedwords",
-    botPermissions = Permission.MANAGE_MESSAGES,
-    userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
-    emoji = "️🚧️",
-    executable = true
+        trigger = "wordfilter",
+        botPermissions = Permission.MANAGE_MESSAGES,
+        userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
+        emoji = "️🚧️",
+        executable = true,
+        aliases = { "wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords" }
 )
 public class WordFilterCommand extends Command implements OnNavigationListener {
 

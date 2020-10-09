@@ -30,7 +30,7 @@ import java.util.Locale;
         userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         emoji = "✉️",
         executable = true,
-        aliases = { "spblock", "inviteblock", "spfilter" }
+        aliases = { "invitesfilter", "spblock", "inviteblock", "spfilter", "invitesblock" }
 )
 public class InviteFilterCommand extends Command implements OnNavigationListener {
     

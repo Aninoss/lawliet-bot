@@ -41,14 +41,14 @@ public class WordFilterCheck {
             informLogReceivers(bannedWordsBean, wordFilterCommand, locale, message, author, successful);
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(wordFilterCommand)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true);
+                    .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                    .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true);
 
-            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful", author.getMentionTag()));
-            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
+            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful", author.getMentionTag()));
+            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_failed", author.getMentionTag()));
 
             Mod.postLog(CommandManager.createCommandByClass(WordFilterCommand.class, locale, bannedWordsBean.getServerBean().getPrefix()), eb, server);
-            Mod.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "bannedwords_title"), true);
+            Mod.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "wordfilter_title"), true);
 
             return false;
         }
@@ -58,10 +58,10 @@ public class WordFilterCheck {
 
     private static void informLogReceivers(BannedWordsBean bannedWordsBean, WordFilterCommand wordFilterCommand, Locale locale, Message message, User author, boolean successful) throws InterruptedException {
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(wordFilterCommand)
-                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true);
-        if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful", author.getMentionTag()));
-        else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_failed", author.getMentionTag()));
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true);
+        if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful", author.getMentionTag()));
+        else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_failed", author.getMentionTag()));
 
         for(User user: bannedWordsBean.getLogReceiverUserIds().transform(message.getServer().get()::getMemberById, DiscordEntity::getId)) {
             try {
@@ -74,9 +74,9 @@ public class WordFilterCheck {
 
     private static void informMessageAuthor(WordFilterCommand wordFilterCommand, Locale locale, Message message, User author) throws InterruptedException {
         EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(wordFilterCommand)
-                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_content"), message.getContent(), true)
-                .setDescription(TextManager.getString(locale, Category.MODERATION, "bannedwords_log_successful_user"));
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true)
+                .setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful_user"));
         try {
             author.sendMessage(ebUser).get();
         } catch (ExecutionException e) {
