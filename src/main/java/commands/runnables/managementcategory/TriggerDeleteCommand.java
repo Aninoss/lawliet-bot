@@ -19,7 +19,7 @@ import java.util.Locale;
         emoji = "\uD83D\uDDD1",
         executable = true,
         patreonRequired = true,
-        aliases = {"triggerremove", "starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove", "starterdelete"}
+        aliases = { "triggerremove", "starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove", "starterdelete" }
 )
 public class TriggerDeleteCommand extends Command implements OnReactionAddListener {
 
