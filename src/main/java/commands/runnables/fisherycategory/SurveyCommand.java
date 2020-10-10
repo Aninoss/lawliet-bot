@@ -184,6 +184,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
         eb.addField(getString("majority"), majorityString.toString(), false);
+        EmbedFactory.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), surveyBean.getNextInstant(), false)));
 
         return eb;
     }

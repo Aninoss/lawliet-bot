@@ -5,10 +5,13 @@ import core.DiscordApiCollection;
 import core.FileManager;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,6 +52,10 @@ public class SurveyBean extends Observable {
         } while(localDate.getDayOfWeek() != DayOfWeek.MONDAY && localDate.getDayOfWeek() != DayOfWeek.THURSDAY);
 
         return localDate;
+    }
+
+    public Instant getNextInstant() {
+        return getNextDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
     }
 
 

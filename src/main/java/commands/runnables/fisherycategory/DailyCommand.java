@@ -70,7 +70,7 @@ public class DailyCommand extends FisheryAbstract {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claimed_desription"));
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
-            EmbedFactory.addLog(eb, null, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
+            EmbedFactory.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
             event.getChannel().sendMessage(eb).get();
             return false;
         }

@@ -3,6 +3,7 @@ package commands.runnables.fisherycategory;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.ExternalLinks;
+import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
 import core.utils.StringUtil;
@@ -59,9 +60,9 @@ public class ClaimCommand extends FisheryAbstract {
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) throws IOException {
         if (nextUpvote.isAfter(Instant.now()))
-            EmbedFactory.addLog(eb, null, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
+            EmbedFactory.addLog(eb, LogStatus.TIME, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
         else
-            EmbedFactory.addLog(eb, null, getString("next_now"));
+            EmbedFactory.addLog(eb, LogStatus.TIME, getString("next_now"));
     }
 
 }

@@ -120,6 +120,10 @@ public class EmbedFactory {
                     case WARNING:
                         add = "⚠️️ ";
                         break;
+
+                    case TIME:
+                        add = "⏲️ ";
+                        break;
                 }
             }
             eb.addField(Emojis.EMPTY_EMOJI, "`" + add + log + "`");

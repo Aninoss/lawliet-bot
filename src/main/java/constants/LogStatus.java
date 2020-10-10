@@ -6,6 +6,7 @@ public enum LogStatus {
     FAILURE,
     WIN,
     LOSE,
-    WARNING
+    WARNING,
+    TIME
 
 }
