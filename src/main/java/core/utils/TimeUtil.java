@@ -48,7 +48,7 @@ public final class TimeUtil {
         return remaining;
     }
 
-    public static Instant setInstantToNextHour(Instant instant) {
+    public static Instant instantToNextHour(Instant instant) {
         LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
         LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
         return roundCeiling.toInstant(ZoneOffset.UTC);
@@ -130,6 +130,10 @@ public final class TimeUtil {
     public static long getMilisBetweenInstants(Instant instantBefore, Instant instantAfter) {
         Duration duration = Duration.between(instantBefore, instantAfter);
         return Math.max(1, duration.getSeconds() * 1000 + duration.getNano() / 1000000);
+    }
+
+    public static Instant localDateToInstant(LocalDate date) {
+        return date.atStartOfDay(ZoneId.systemDefault()).toInstant();
     }
 
 }

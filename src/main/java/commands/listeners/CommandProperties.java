@@ -5,6 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandProperties {
+
     String trigger();
     String[] aliases() default {};
     String emoji();
@@ -20,4 +21,6 @@ public @interface CommandProperties {
     long[] exlusiveServers() default {};
     long[] exlusiveUsers() default {};
     boolean turnOffTimeout() default false;
+    int[] releaseDate() default {};
+
 }

@@ -26,6 +26,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -273,6 +274,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 if (!canAccess) commands.append("~~");
 
                 commands.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title").toUpperCase());
+                if (command.getReleaseDate().isAfter(LocalDate.now()))
+                    commands.append(" ").append(getString("beta"));
 
                 if (!canAccess) commands.append("~~");
                 if (command.isModCommand()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());

@@ -9,11 +9,13 @@ import commands.runnables.informationcategory.PingCommand;
 import commands.runnables.managementcategory.TriggerDeleteCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.ExternalLinks;
+import constants.LogStatus;
 import constants.Permission;
 import constants.Settings;
 import core.*;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.commandusages.DBCommandUsages;
 import mysql.modules.server.DBServer;
@@ -33,6 +35,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -42,7 +45,7 @@ import java.util.concurrent.ExecutionException;
 public class CommandManager {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
-    private final static int SEC_UNTIL_REMOVAL = 8;
+    private final static int SEC_UNTIL_REMOVAL = 20;
 
     public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
@@ -54,6 +57,7 @@ public class CommandManager {
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
                 checkPatreon(event, command) &&
+                checkReleased(event, command) &&
                 checkRunningCommands(event, command)
         ) {
             DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
@@ -153,6 +157,29 @@ public class CommandManager {
             }
 
             Thread.sleep(5000);
+        }
+
+        return false;
+    }
+
+    private static boolean checkReleased(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
+        LocalDate releaseDate = command.getReleaseDate();
+        if (!releaseDate.isAfter(LocalDate.now()) || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 1) {
+            return true;
+        }
+
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description", ExternalLinks.PATREON_PAGE);
+        String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(command.getLocale(), Instant.now(), TimeUtil.localDateToInstant(releaseDate), false));
+
+        if (event.getChannel().canYouEmbedLinks()) {
+            EmbedBuilder eb = EmbedFactory.getEmbed()
+                    .setColor(Settings.PATREON_COLOR)
+                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                    .setDescription(desc);
+            EmbedFactory.addLog(eb, LogStatus.TIME, waitTime);
+            sendError(event, command.getLocale(), eb);
+        } else if (event.getChannel().canYouWrite()) {
+            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`");
         }
 
         return false;

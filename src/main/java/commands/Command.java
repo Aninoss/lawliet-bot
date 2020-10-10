@@ -28,6 +28,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -654,6 +655,11 @@ public abstract class Command {
 
         return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId)) &&
                 ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId));
+    }
+
+    public LocalDate getReleaseDate() {
+        int[] releaseDateArray = commandProperties.releaseDate();
+        return releaseDateArray.length == 3 ? LocalDate.of(releaseDateArray[0], releaseDateArray[1], releaseDateArray[2]) : LocalDate.now();
     }
 
     public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }

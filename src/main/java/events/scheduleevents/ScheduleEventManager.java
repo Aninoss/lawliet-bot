@@ -60,7 +60,7 @@ public class ScheduleEventManager {
     private void attachHourly(ScheduleEventInterface listener) {
         ScheduleEventHourly fixedRateHourly = listener.getClass().getAnnotation(ScheduleEventHourly.class);
         if (fixedRateHourly != null) {
-            long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextHour(Instant.now()));
+            long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.instantToNextHour(Instant.now()));
             timer.scheduleAtFixedRate(new ScheduleEventAdapter(listener), millis + DELAY, 60 * 60 * 1000);
         }
     }
