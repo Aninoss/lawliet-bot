@@ -108,6 +108,11 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                                 .addField(surveyQuestion.getQuestion(), voteStrings[0])
                                 .addField(getString("majority"), voteStrings[1]);
 
+                        //TODO Remove next monday
+                        if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) >= 12) {
+                            EmbedFactory.addLog(eb, LogStatus.WARNING, getString("warning"));
+                        }
+
                         event.getUser().sendMessage(eb);
                     }
                     break;
