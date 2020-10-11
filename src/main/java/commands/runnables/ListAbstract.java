@@ -39,7 +39,6 @@ public abstract class ListAbstract extends Command implements OnReactionAddListe
         message = channel.sendMessage(getEmbed(channel)).get();
         if (getPageSize() <= 1) message = null;
         else for(String reactionString: SCROLL_EMOJIS) message.addReaction(reactionString);
-
     }
 
     private EmbedBuilder getEmbed(ServerTextChannel channel) throws Throwable {

@@ -159,7 +159,8 @@ public class SurveyResults implements ScheduleEventInterface {
                 eb.addField(TextManager.getString(locale, Category.FISHERY, "survey_results_message_wonlost", i), sb.toString());
         }
 
-        user.sendMessage(eb).get();
+        if (lastSurvey.hasNotificationUserId(user.getId()))
+            user.sendMessage(eb).get();
     }
 
 }

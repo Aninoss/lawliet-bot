@@ -1,5 +1,6 @@
 package mysql.modules.survey;
 
+import core.CustomObservableList;
 import core.CustomObservableMap;
 import core.DiscordApiCollection;
 import core.FileManager;
@@ -20,12 +21,15 @@ public class SurveyBean extends Observable {
     private final LocalDate startDate;
     private final CustomObservableMap<Long, SurveyFirstVote> firstVotes;
     private final CustomObservableMap<Pair<Long, Long>, SurveySecondVote> secondVotes; /* Pair: serverId, userId */
+    private final CustomObservableList<Long> notificationUserIds;
 
-    public SurveyBean(int surveyId, LocalDate startDate, @NonNull HashMap<Long, SurveyFirstVote> firstVotes, @NonNull HashMap<Pair<Long, Long>, SurveySecondVote> secondVotes) {
+    public SurveyBean(int surveyId, LocalDate startDate, @NonNull HashMap<Long, SurveyFirstVote> firstVotes,
+                      @NonNull HashMap<Pair<Long, Long>, SurveySecondVote> secondVotes, @NonNull ArrayList<Long> notificationUserIds) {
         this.surveyId = surveyId;
         this.startDate = startDate;
         this.firstVotes = new CustomObservableMap<>(firstVotes);
         this.secondVotes = new CustomObservableMap<>(secondVotes);
+        this.notificationUserIds = new CustomObservableList<>(notificationUserIds);
     }
 
 
@@ -50,6 +54,22 @@ public class SurveyBean extends Observable {
         } while(localDate.getDayOfWeek() != DayOfWeek.MONDAY && localDate.getDayOfWeek() != DayOfWeek.THURSDAY);
 
         return localDate;
+    }
+
+    public CustomObservableList<Long> getNotificationUserIds() {
+        return notificationUserIds;
+    }
+
+    public boolean hasNotificationUserId(long userId) {
+        return notificationUserIds.contains(userId);
+    }
+
+    public void toggleNotificationUserId(long userId) {
+        if (hasNotificationUserId(userId)) {
+            notificationUserIds.remove(userId);
+        } else {
+            notificationUserIds.add(userId);
+        }
     }
 
 
