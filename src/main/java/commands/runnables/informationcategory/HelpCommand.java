@@ -119,6 +119,12 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
+        boolean noArgs = false;
+        if (getAttachments().containsKey("noargs")) {
+            getAttachments().remove("noargs");
+            noArgs = true;
+        }
+
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
@@ -165,6 +171,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 if (command.getUserPermissions() != 0)
                     eb.addField(Emojis.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
+                if (noArgs)
+                    EmbedFactory.addLog(eb, LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
 
                 return eb;
             }

@@ -6,6 +6,7 @@ import commands.CommandManager;
 import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.runnables.gimmickscategory.QuoteCommand;
+import commands.runnables.informationcategory.HelpCommand;
 import constants.ExternalLinks;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
@@ -82,6 +83,12 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                 clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                    if (!command.isExecutable() && followedString.isEmpty()) {
+                        followedString = command.getTrigger();
+                        command = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
+                        command.getAttachments().put("noargs", true);
+                    }
+
                     try {
                         CommandManager.manage(event, command, followedString, getStartTime());
                     } catch (Throwable e) {

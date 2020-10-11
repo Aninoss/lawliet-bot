@@ -13,7 +13,7 @@ import java.util.Locale;
         executable = false,
         patreonRequired = true,
         turnOffTimeout = true,
-        aliases = { "takerole" }
+        aliases = { "takerole", "revoke" }
 )
 public class RevokeRoleCommand extends AssignRoleCommand {
 

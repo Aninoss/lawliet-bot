@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
         executable = false,
         patreonRequired = true,
         turnOffTimeout = true,
-        aliases = { "giverole" }
+        aliases = { "giverole", "assign" }
 )
 public class AssignRoleCommand extends Command implements OnReactionAddListener {
 
