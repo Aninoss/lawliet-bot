@@ -80,27 +80,23 @@ public class SurveyResults implements ScheduleEventInterface {
 
         LOGGER.info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
 
-        try {
-            for (long userId : secondVotesMap.keySet()) {
-                try {
-                    User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
-                    if (user != null) {
-                        LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
-                        manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Exception while managing user {}", userId, e);
+        for (long userId : secondVotesMap.keySet()) {
+            try {
+                User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
+                if (user != null) {
+                    LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
+                    if (manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent))
+                        Thread.sleep(500);
                 }
-                Thread.sleep(500);
+            } catch (Exception e) {
+                LOGGER.error("Exception while managing user {}", userId, e);
             }
-        } catch (InterruptedException e) {
-            LOGGER.error("Interrupted", e);
         }
 
         LOGGER.info("Survey results finished");
     }
 
-    private void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException, InterruptedException, ExecutionException {
+    private boolean manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException, InterruptedException, ExecutionException {
         Locale localeGerman = new Locale(Locales.DE);
 
         HashMap<Long, Long> coinsWinMap = new HashMap<>();
@@ -142,7 +138,7 @@ public class SurveyResults implements ScheduleEventInterface {
                         String.valueOf(percent)
                 ));
 
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             StringBuilder sb = new StringBuilder();
             int finalI = i;
             secondVotes.stream()
@@ -159,8 +155,11 @@ public class SurveyResults implements ScheduleEventInterface {
                 eb.addField(TextManager.getString(locale, Category.FISHERY, "survey_results_message_wonlost", i), sb.toString());
         }
 
-        if (lastSurvey.hasNotificationUserId(user.getId()))
+        if (lastSurvey.hasNotificationUserId(user.getId())) {
             user.sendMessage(eb).get();
+            return true;
+        }
+        return false;
     }
 
 }

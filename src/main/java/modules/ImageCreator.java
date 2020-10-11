@@ -158,7 +158,7 @@ public class ImageCreator {
             try {
                 profilePicture = user.getAvatar().asBufferedImage().get();
             } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Could not download user avatar", e);
+                //Ignore
             }
             BufferedImage result = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 

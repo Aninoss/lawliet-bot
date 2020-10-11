@@ -254,21 +254,27 @@ public class CommandContainer {
 
     public void clearShard(int shardId) {
         for(Command command: new ArrayList<>(commandsReaction)) {
-            DiscordApi api;
-            if (command instanceof OnReactionAddListener) api = ((OnReactionAddListener)command).getReactionMessage().getApi();
-            else api = command.getNavigationMessage().getApi();
-            if (api.getCurrentShard() == shardId) {
-                command.stopCountdown();
-                commandsReaction.remove(command);
+            if (command != null) {
+                DiscordApi api;
+                if (command instanceof OnReactionAddListener)
+                    api = ((OnReactionAddListener) command).getReactionMessage().getApi();
+                else api = command.getNavigationMessage().getApi();
+                if (api.getCurrentShard() == shardId) {
+                    command.stopCountdown();
+                    commandsReaction.remove(command);
+                }
             }
         }
         for(Command command: new ArrayList<>(commandsMessageForward)) {
-            DiscordApi api;
-            if (command instanceof OnForwardedRecievedListener) api = ((OnForwardedRecievedListener)command).getForwardedMessage().getApi();
-            else api = command.getNavigationMessage().getApi();
-            if (api.getCurrentShard() == shardId) {
-                command.stopCountdown();
-                commandsReaction.remove(command);
+            if (command != null) {
+                DiscordApi api;
+                if (command instanceof OnForwardedRecievedListener)
+                    api = ((OnForwardedRecievedListener) command).getForwardedMessage().getApi();
+                else api = command.getNavigationMessage().getApi();
+                if (api.getCurrentShard() == shardId) {
+                    command.stopCountdown();
+                    commandsReaction.remove(command);
+                }
             }
         }
     }

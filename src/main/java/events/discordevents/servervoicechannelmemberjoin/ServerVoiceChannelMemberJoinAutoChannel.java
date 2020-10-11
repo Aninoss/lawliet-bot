@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @DiscordEvent
@@ -125,7 +126,8 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
     }
 
     private boolean userIsNotConnected(ServerVoiceChannel channel, User user) {
-        return user.getConnectedVoiceChannel(channel.getServer()).isEmpty() || user.getConnectedVoiceChannel(channel.getServer()).get().getId() != channel.getId();
+        Optional<ServerVoiceChannel> channelOpt = user.getConnectedVoiceChannel(channel.getServer());
+        return channelOpt.isEmpty() || channelOpt.get().getId() != channel.getId();
     }
 
 }

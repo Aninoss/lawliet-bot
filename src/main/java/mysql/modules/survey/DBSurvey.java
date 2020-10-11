@@ -35,7 +35,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
                     resultSet.getDate(1).toLocalDate(),
                     getFirstVotes(surveyId),
                     getSecondVotes(surveyId),
-                    getNotificationUserIds(surveyId)
+                    getNotificationUserIds()
             );
         } else {
             surveyBean = new SurveyBean(
@@ -57,8 +57,8 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
                 .addMapAddListener(secondVote -> addSecondVote(surveyId, secondVote))
                 .addMapRemoveListener(secondVote -> removeSecondVote(surveyId, secondVote));
         surveyBean.getNotificationUserIds()
-                .addListAddListener(list -> list.forEach(userId -> addNotificationUserId(surveyId, userId)))
-                .addListRemoveListener(list -> list.forEach(userId -> removeNotificationUserId(surveyId, userId)));
+                .addListAddListener(list -> list.forEach(this::addNotificationUserId))
+                .addListRemoveListener(list -> list.forEach(this::removeNotificationUserId));
 
         return surveyBean;
     }
@@ -139,23 +139,21 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
         });
     }
 
-    private ArrayList<Long> getNotificationUserIds(int surveyId) throws SQLException {
-        return new DBDataLoad<Long>("SurveyNotifications", "userId", "surveyId = ?",
-                preparedStatement -> preparedStatement.setInt(1, surveyId)
+    private ArrayList<Long> getNotificationUserIds() throws SQLException {
+        return new DBDataLoad<Long>("SurveyNotifications", "userId", "1",
+                preparedStatement -> {}
         ).getArrayList(resultSet -> resultSet.getLong(1));
     }
 
-    private void addNotificationUserId(int surveyId, long userId) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyNotifications (surveyId, userId) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setInt(1, surveyId);
-            preparedStatement.setLong(2, userId);
+    private void addNotificationUserId(long userId) {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyNotifications (userId) VALUES (?);", preparedStatement -> {
+            preparedStatement.setLong(1, userId);
         });
     }
 
-    private void removeNotificationUserId(int surveyId, long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SurveyNotifications WHERE surveyId = ? AND userId = ?;", preparedStatement -> {
-            preparedStatement.setInt(1, surveyId);
-            preparedStatement.setLong(2, userId);
+    private void removeNotificationUserId(long userId) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM SurveyNotifications WHERE userId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, userId);
         });
     }
 
