@@ -18,6 +18,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -46,7 +47,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        sendMessages(event.getServerTextChannel().get(), event.getMessageAuthor().asUser().get(), false);
+        sendMessages(event.getServerTextChannel().get(), event.getMessageAuthor().asUser().get(), false, event.getMessage().getUserAuthor().get());
         return true;
     }
 
@@ -155,12 +156,12 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
     }
 
-    private Message sendMessages(ServerTextChannel channel, User userRequested, boolean tracker) throws InterruptedException, IOException, SQLException, ExecutionException {
+    private Message sendMessages(ServerTextChannel channel, User userRequested, boolean tracker, User user) throws InterruptedException, IOException, SQLException, ExecutionException {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyBean lastSurvey = DBSurvey.getInstance().getBean(currentSurvey.getSurveyId() - 1);
 
         //Results Message
-        channel.sendMessage(getResultsEmbed(lastSurvey));
+        channel.sendMessage(getResultsEmbed(lastSurvey, channel.getServer(), user));
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey);
@@ -179,7 +180,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         return message;
     }
 
-    private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey) throws IOException {
+    private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey, Server server, User user) throws IOException {
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("results_title"));
@@ -208,7 +209,20 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
 
         eb.addField(getString("results_results", firstVotesTotal != 1, StringUtil.numToString(getLocale(), firstVotesTotal)), resultString.toString(), false);
-        eb.addField(Emojis.EMPTY_EMOJI, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]).toUpperCase());
+
+        boolean individual = false;
+        if (server != null && user != null && lastSurvey.getWon() != 2) {
+            SurveySecondVote secondVote = lastSurvey.getSecondVotes().get(new Pair<>(server.getId(), user.getId()));
+            if (secondVote != null) {
+                individual = true;
+                boolean won = lastSurvey.getWon() == 2 || lastSurvey.getWon() == secondVote.getVote();
+                EmbedFactory.addLog(eb, won ? LogStatus.WIN : LogStatus.LOSE, getString("results_status", won));
+            }
+        }
+
+        if (!individual) {
+            EmbedFactory.addLog(eb, null, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]));
+        }
 
         return eb;
     }
@@ -247,7 +261,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
         slot.getMessage().ifPresent(Message::delete);
 
-        slot.setMessageId(sendMessages(channel, null, true).getId());
+        slot.setMessageId(sendMessages(channel, null, true, null).getId());
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
