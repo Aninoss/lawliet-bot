@@ -4,6 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import constants.Permission;
+import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
@@ -11,12 +12,16 @@ import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import mysql.modules.reminders.DBReminders;
+import mysql.modules.reminders.RemindersBean;
+import mysql.modules.server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -33,6 +38,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
     private final String CANCEL_EMOJI = "❌";
 
     private Message message = null;
+    private RemindersBean remindersBean = null;
 
     public ReminderCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -94,14 +100,38 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
 
         message = event.getChannel().sendMessage(eb).get();
         message.addReaction(CANCEL_EMOJI).get();
+        insertReminderBean(channel, minutes, messageText);
 
         return true;
+    }
+
+    private void insertReminderBean(ServerTextChannel channel, long minutes, String messageText) throws Exception {
+        CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().loadBean();
+
+        remindersBean = new RemindersBean(
+                DBServer.getInstance().getBean(channel.getServer().getId()),
+                generateNewId(remindersBeans),
+                channel.getId(),
+                Instant.now().plus(minutes, ChronoUnit.MINUTES),
+                messageText
+        );
+
+        remindersBeans.put(remindersBean.getId(), remindersBean);
+    }
+
+    private int generateNewId(CustomObservableMap<Integer, RemindersBean> remindersBeans) {
+        int value = 0;
+        while (remindersBeans.containsKey(value)) {
+            value++;
+        }
+        return value;
     }
 
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals(CANCEL_EMOJI)) {
             removeReactionListener();
+            DBReminders.getInstance().loadBean().remove(remindersBean.getId());
             message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("canceled"))).get();
         }
     }

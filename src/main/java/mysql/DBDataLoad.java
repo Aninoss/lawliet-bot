@@ -2,6 +2,8 @@ package mysql;
 
 import mysql.interfaces.SQLConsumer;
 import mysql.interfaces.SQLFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DBDataLoad<T> {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBDataLoad.class);
 
    private final PreparedStatement preparedStatement;
 
@@ -28,8 +32,12 @@ public class DBDataLoad<T> {
         ArrayList<T> list = new ArrayList<>();
 
         while (resultSet.next()) {
-            T value = function.apply(resultSet);
-            if (value != null) list.add(function.apply(resultSet));
+            try {
+                T value = function.apply(resultSet);
+                if (value != null) list.add(function.apply(resultSet));
+            } catch (Throwable e) {
+                LOGGER.error("Exception", e);
+            }
         }
 
         resultSet.close();
@@ -43,8 +51,12 @@ public class DBDataLoad<T> {
         HashMap<U, T> map = new HashMap<>();
 
         while (resultSet.next()) {
-            T value = function.apply(resultSet);
-            if (value != null) map.put(getKeyFuntion.apply(value), value);
+            try {
+                T value = function.apply(resultSet);
+                if (value != null) map.put(getKeyFuntion.apply(value), value);
+            } catch (Throwable e) {
+                LOGGER.error("Exception", e);
+            }
         }
 
         resultSet.close();
