@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "📜",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"fishingroles", "fishroles", "fisheryr"}
 )
 public class FisheryRolesCommand extends Command implements OnNavigationListener {

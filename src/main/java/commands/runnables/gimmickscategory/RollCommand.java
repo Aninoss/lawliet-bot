@@ -15,7 +15,7 @@ import java.util.Random;
 @CommandProperties(
         trigger = "roll",
         emoji = "\uD83C\uDFB2",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"dice", "diceroll"}
 )
 public class RollCommand extends Command {

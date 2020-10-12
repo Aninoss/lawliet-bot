@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "hangman",
         emoji = "\uD83D\uDD21",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"hm"}
 )
 public class HangmanCommand extends CasinoAbstract implements OnForwardedRecievedListener, OnReactionAddListener {

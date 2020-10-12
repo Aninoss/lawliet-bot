@@ -1,19 +1,18 @@
 package commands.runnables.externalcategory;
 
-import commands.listeners.CommandProperties;
-
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
 import constants.TrackerResult;
-import core.*;
+import core.EmbedFactory;
+import modules.PostBundle;
 import modules.animenews.AnimeNewsDownloader;
 import modules.animenews.AnimeNewsPost;
-import modules.PostBundle;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import java.io.IOException;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -22,7 +21,7 @@ import java.util.Locale;
     trigger = "animenews",
     withLoadingBar = true,
     emoji = "\uD83D\uDCF0",
-    executable = true
+    executableWithoutArgs = true
 )
 public class AnimeNewsCommand extends Command implements OnTrackerRequestListener {
 
@@ -39,15 +38,13 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         return true;
     }
 
-    private EmbedBuilder getEmbed(AnimeNewsPost post) throws IOException {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
+    private EmbedBuilder getEmbed(AnimeNewsPost post) {
+        return EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
                 .setAuthor(post.getAuthor())
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())
                 .setUrl(post.getLink())
                 .setTimestamp(post.getInstant());
-
-        return eb;
     }
 
     @Override

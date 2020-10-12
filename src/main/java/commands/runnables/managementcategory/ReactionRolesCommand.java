@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         botPermissions = Permission.MANAGE_ROLES | Permission.READ_MESSAGE_HISTORY,
         userPermissions = Permission.MANAGE_ROLES,
         emoji = "☑️️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
 )
 public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {

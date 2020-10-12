@@ -26,7 +26,7 @@ import java.util.Locale;
     trigger = "reddit",
     withLoadingBar = true,
     emoji = "\uD83E\uDD16",
-    executable = false
+    executableWithoutArgs = false
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
 

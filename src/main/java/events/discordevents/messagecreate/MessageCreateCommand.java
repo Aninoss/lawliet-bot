@@ -83,7 +83,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                 clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                    if (!command.isExecutable() && followedString.isEmpty()) {
+                    if (!command.isExecutableWithoutArgs() && followedString.isEmpty()) {
                         followedString = command.getTrigger();
                         command = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
                         command.getAttachments().put("noargs", true);

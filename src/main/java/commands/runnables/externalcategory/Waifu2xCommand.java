@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "waifu2x",
         withLoadingBar = true,
         emoji = "\uD83D\uDCC8",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = {"waifu4x"}
 )
 public class Waifu2xCommand extends Command {

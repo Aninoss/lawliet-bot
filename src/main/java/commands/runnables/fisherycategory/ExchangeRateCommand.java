@@ -20,7 +20,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "exch",
         emoji = "\uD83D\uDD01",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"exchangerate", "er", "exchr"}
 )
 public class ExchangeRateCommand extends Command implements OnTrackerRequestListener {

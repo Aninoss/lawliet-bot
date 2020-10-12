@@ -618,7 +618,7 @@ public abstract class Command {
     public String[] getAliases() { return commandProperties.aliases(); }
     public String getEmoji() { return commandProperties.emoji(); }
     public boolean isNsfw() { return commandProperties.nsfw(); }
-    public boolean isExecutable() { return commandProperties.executable(); }
+    public boolean isExecutableWithoutArgs() { return commandProperties.executableWithoutArgs(); }
     public boolean requiresEmbeds() { return commandProperties.requiresEmbeds(); }
     public int getMaxCalculationTimeSec() { return commandProperties.maxCalculationTimeSec(); }
     public boolean isPatreonRequired() { return commandProperties.patreonRequired(); }

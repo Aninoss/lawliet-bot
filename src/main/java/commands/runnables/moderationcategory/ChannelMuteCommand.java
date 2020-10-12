@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
         botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
         emoji = "\uD83D\uDED1",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = {"channelmute", "mute"}
 )
 public class ChannelMuteCommand extends Command  {

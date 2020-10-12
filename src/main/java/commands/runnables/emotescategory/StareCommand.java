@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "stare",
         emoji = "\uD83D\uDC40",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"see"}
 )
 public class StareCommand extends EmoteAbstract {

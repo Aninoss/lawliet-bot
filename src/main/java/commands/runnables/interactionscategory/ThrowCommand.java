@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "throw",
         emoji = "\uD83D\uDCA8",
-        executable = true
+        executableWithoutArgs = true
 )
 public class ThrowCommand extends InteractionAbstract {
 

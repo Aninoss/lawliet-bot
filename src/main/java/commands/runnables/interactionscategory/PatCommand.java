@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"praise", "yaoipat", "yuripat"}
 )
 public class PatCommand extends InteractionAbstract {

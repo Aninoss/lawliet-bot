@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "yes",
         emoji = "\uD83D\uDC4D",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"thumbsup", "thumpsup"}
 )
 public class YesCommand extends EmoteAbstract {

@@ -15,7 +15,7 @@ import java.util.Locale;
         trigger = "language",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83C\uDF10",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"sprache", "lang"}
 )
 public class LanguageCommand extends Command implements OnReactionAddListener {

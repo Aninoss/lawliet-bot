@@ -12,7 +12,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "invite",
         emoji = "\uD83D\uDD17",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"link", "addbot", "inv"}
 )
 public class InviteCommand extends Command {

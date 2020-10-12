@@ -23,7 +23,7 @@ import java.util.Locale;
         trigger = "animereleases",
         withLoadingBar = true,
         emoji = "\uD83D\uDCFA",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "animerelease" }
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {

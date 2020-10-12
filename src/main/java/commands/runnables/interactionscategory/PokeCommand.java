@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "poke",
         emoji = "\uD83D\uDC49",
-        executable = true
+        executableWithoutArgs = true
 )
 public class PokeCommand extends InteractionAbstract {
 

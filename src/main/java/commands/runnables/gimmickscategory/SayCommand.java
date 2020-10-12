@@ -13,7 +13,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "say",
         emoji = "\uD83D\uDCAC",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = { "repeat" }
 )
 public class SayCommand extends Command {

@@ -18,7 +18,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "userinfo",
         emoji = "\uD83D\uDC81",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"userinfos", "userstat", "userstats", "accountinfo", "whois"}
 )
 public class UserInfoCommand extends Command {

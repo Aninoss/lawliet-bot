@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "blackjack",
         emoji = "\uD83C\uDCCF",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"bj"}
 )
 public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {

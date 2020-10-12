@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "bully",
         emoji = "\uD83D\uDE08",
-        executable = true
+        executableWithoutArgs = true
 )
 public class BullyCommand extends InteractionAbstract {
 

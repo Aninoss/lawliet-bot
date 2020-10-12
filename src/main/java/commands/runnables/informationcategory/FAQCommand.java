@@ -14,7 +14,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "faq",
         emoji = "❔",
-        executable = true
+        executableWithoutArgs = true
 )
 public class FAQCommand extends ListAbstract {
 

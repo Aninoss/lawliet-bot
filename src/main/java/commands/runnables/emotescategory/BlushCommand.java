@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "blush",
         emoji = "\uD83D\uDE0A",
-        executable = true
+        executableWithoutArgs = true
 )
 public class BlushCommand extends EmoteAbstract {
 

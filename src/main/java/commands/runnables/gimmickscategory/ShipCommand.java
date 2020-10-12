@@ -25,7 +25,7 @@ import java.util.Random;
     botPermissions = Permission.ATTACH_FILES,
     withLoadingBar = true,
     emoji = "\uD83D\uDC6B",
-    executable = false
+    executableWithoutArgs = false
 )
 public class ShipCommand extends Command {
 

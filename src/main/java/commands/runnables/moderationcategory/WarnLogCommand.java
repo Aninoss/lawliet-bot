@@ -24,7 +24,7 @@ import java.util.*;
 @CommandProperties(
         trigger = "warnlog",
         emoji = "\uD83D\uDCDD",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"warns"}
 )
 public class WarnLogCommand extends Command {

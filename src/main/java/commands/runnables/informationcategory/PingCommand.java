@@ -14,7 +14,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "ping",
         emoji = "\uD83C\uDFD3",
-        executable = true
+        executableWithoutArgs = true
 )
 public class PingCommand extends Command {
 

@@ -25,7 +25,7 @@ import java.util.Optional;
 @CommandProperties(
         trigger = "twitch",
         emoji = "\uD83D\uDCF9",
-        executable = false,
+        executableWithoutArgs = false,
         withLoadingBar = true
 )
 public class TwitchCommand extends Command implements OnTrackerRequestListener {

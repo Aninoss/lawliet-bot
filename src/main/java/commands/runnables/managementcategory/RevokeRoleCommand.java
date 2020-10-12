@@ -10,7 +10,7 @@ import java.util.Locale;
         userPermissions = Permission.MANAGE_ROLES,
         botPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE4",
-        executable = false,
+        executableWithoutArgs = false,
         patreonRequired = true,
         turnOffTimeout = true,
         aliases = { "takerole", "revoke" }

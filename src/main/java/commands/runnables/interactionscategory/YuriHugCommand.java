@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "yurihug",
         emoji = "\uD83D\uDC69\uD83D\uDC50\uD83D\uDC69",
-        executable = true
+        executableWithoutArgs = true
 )
 public class YuriHugCommand extends InteractionAbstract {
 

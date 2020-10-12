@@ -23,7 +23,7 @@ import java.util.Locale;
         botPermissions = Permission.ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83C\uDF08",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"lgbt", "pride"}
 )
 public class RainbowCommand extends Command {

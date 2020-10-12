@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.READ_MESSAGE_HISTORY,
         userPermissions = Permission.READ_MESSAGE_HISTORY,
         emoji = "\uD83D\uDCDD",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = {"qoute"}
 )
 public class QuoteCommand extends Command {

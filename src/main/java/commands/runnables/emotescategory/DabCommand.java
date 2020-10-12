@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "dab",
         emoji = "\uD83C\uDD92",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"dap"}
 )
 public class DabCommand extends EmoteAbstract {

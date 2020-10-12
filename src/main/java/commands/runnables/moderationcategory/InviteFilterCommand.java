@@ -29,7 +29,7 @@ import java.util.Locale;
         botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         emoji = "✉️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "invitesfilter", "spblock", "inviteblock", "spfilter", "invitesblock" }
 )
 public class InviteFilterCommand extends Command implements OnNavigationListener {

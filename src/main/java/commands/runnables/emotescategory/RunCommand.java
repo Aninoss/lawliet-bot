@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "run",
         emoji = "\uD83C\uDFC3",
-        executable = true
+        executableWithoutArgs = true
 )
 public class RunCommand extends EmoteAbstract {
 

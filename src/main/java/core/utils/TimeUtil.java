@@ -28,13 +28,16 @@ public final class TimeUtil {
     }
 
     public static String getRemainingTimeString(Locale locale, Instant time0, Instant time1, boolean shorter) {
+        long diff = Math.abs(Date.from(time0).getTime() - Date.from(time1).getTime()) + 1000 * 60;
+        return getRemainingTimeString(locale, diff, shorter);
+    }
+
+    public static String getRemainingTimeString(Locale locale, long millis, boolean shorter) {
         String remaining = "";
 
-        long diff = Math.abs(Date.from(time0).getTime() - Date.from(time1).getTime()) + 1000 * 60;
-
-        int days = (int) (diff / (24 * 60 * 60 * 1000));
-        int hours = (int) (diff / (60 * 60 * 1000) % 24);
-        int minutes = (int) (diff / (60 * 1000) % 60);
+        int days = (int) (millis / (24 * 60 * 60 * 1000));
+        int hours = (int) (millis / (60 * 60 * 1000) % 24);
+        int minutes = (int) (millis / (60 * 1000) % 60);
 
         String addString = "";
         if (shorter) addString = "_shorter";
@@ -43,7 +46,7 @@ public final class TimeUtil {
         if (hours > 0) remaining += hours + " " + TextManager.getString(locale, TextManager.GENERAL, "hours" + addString, hours != 1) + ", ";
         if (minutes > 0) remaining += minutes + " " + TextManager.getString(locale, TextManager.GENERAL, "minutes" + addString, minutes != 1) + ", ";
 
-        remaining = remaining.substring(0, remaining.length() - 2);
+        if (remaining.length() > 0) remaining = remaining.substring(0, remaining.length() - 2);
         remaining = StringUtil.replaceLast(remaining, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
         return remaining;
     }

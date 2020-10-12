@@ -22,7 +22,7 @@ import java.util.Locale;
         trigger = "stats",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCCA",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"info"}
 )
 public class StatsCommand extends Command {

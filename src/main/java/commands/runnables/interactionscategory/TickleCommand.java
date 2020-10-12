@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "tickle",
         emoji = "\uD83E\uDD23",
-        executable = true
+        executableWithoutArgs = true
 )
 public class TickleCommand extends InteractionAbstract {
 

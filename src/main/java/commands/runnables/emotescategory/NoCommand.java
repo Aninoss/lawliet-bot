@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "no",
         emoji = "\uD83D\uDC4E",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"nope", "thumbsdown", "thumpsdown"}
 )
 public class NoCommand extends EmoteAbstract {

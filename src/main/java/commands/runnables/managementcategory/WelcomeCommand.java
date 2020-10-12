@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
     botPermissions = Permission.ATTACH_FILES,
     userPermissions = Permission.MANAGE_SERVER,
     emoji = "🙋",
-    executable = true
+    executableWithoutArgs = true
 )
 public class WelcomeCommand extends Command implements OnNavigationListener {
     

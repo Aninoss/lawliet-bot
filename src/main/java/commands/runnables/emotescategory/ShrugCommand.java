@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "shrug",
         emoji = "🤷",
-        executable = true
+        executableWithoutArgs = true
 )
 public class ShrugCommand extends EmoteAbstract {
 

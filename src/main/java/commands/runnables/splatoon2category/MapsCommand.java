@@ -23,7 +23,7 @@ import java.util.Locale;
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDDFA",
-    executable = true
+    executableWithoutArgs = true
 )
 public class MapsCommand extends Command implements OnTrackerRequestListener {
 

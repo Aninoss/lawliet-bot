@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
         trigger = "commandmanagement",
         userPermissions = Permission.ADMINISTRATOR,
         emoji = "🚦",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm"}
 )
 public class CommandManagementCommand extends Command implements OnNavigationListener {

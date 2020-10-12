@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "slot",
         emoji = "🎰",
-        executable = true,
+        executableWithoutArgs = true,
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         aliases = {"slots", "slotmachine"}
 )

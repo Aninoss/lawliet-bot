@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "channelinfo",
         emoji = "\uD83D\uDCDD",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"channelinfos", "channelstat", "channelstats"}
 )
 public class ChannelInfoCommand extends Command {

@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "kiss",
         emoji = "\uD83D\uDC8B",
-        executable = true
+        executableWithoutArgs = true
 )
 public class KissCommand extends InteractionAbstract {
 

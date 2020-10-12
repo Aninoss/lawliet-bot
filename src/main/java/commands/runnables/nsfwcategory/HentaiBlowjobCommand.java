@@ -7,7 +7,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "hblowjob",
-        executable = true,
+        executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,

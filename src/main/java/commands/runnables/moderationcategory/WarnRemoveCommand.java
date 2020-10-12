@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "warnremove",
         emoji = "\uD83D\uDDD1",
         userPermissions = Permission.KICK_MEMBERS,
-        executable = false,
+        executableWithoutArgs = false,
         aliases = { "unwarn", "removewarn" }
 )
 public class WarnRemoveCommand extends Command implements OnReactionAddListener {

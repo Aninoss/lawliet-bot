@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
     trigger = "warn",
     userPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEA8",
-    executable = false
+    executableWithoutArgs = false
 )
 public class WarnCommand extends Command implements OnReactionAddListener {
 

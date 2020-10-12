@@ -20,7 +20,7 @@ import java.util.Locale;
         trigger = "commandusages",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCD3",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"cu", "commandusage"}
 )
 public class CommandUsagesCommand extends ListAbstract {

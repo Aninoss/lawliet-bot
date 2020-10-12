@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_ROLES,
         botPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE5",
-        executable = false,
+        executableWithoutArgs = false,
         patreonRequired = true,
         turnOffTimeout = true,
         aliases = { "giverole", "assign" }

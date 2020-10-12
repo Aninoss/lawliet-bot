@@ -18,7 +18,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "avatar",
         emoji = "\uD83D\uDDBC️️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "profilepic" }
 )
 public class AvatarCommand extends Command {

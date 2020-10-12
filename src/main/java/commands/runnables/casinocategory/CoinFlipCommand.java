@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "coinflip",
         emoji = "\uD83D\uDCB0",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "coin", "coins", "cf", "cointoss" }
 )
 public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {

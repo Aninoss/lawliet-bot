@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
-        executable = true,
+        executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }
 )

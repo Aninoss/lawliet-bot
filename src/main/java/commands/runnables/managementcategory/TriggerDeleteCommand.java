@@ -17,7 +17,7 @@ import java.util.Locale;
         trigger = "triggerdelete",
         userPermissions = Permission.MANAGE_SERVER | Permission.MANAGE_MESSAGES,
         emoji = "\uD83D\uDDD1",
-        executable = true,
+        executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "triggerremove", "starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove", "starterdelete" }
 )

@@ -17,7 +17,7 @@ import java.util.Locale;
         trigger = "autoclaim",
         emoji = "\uD83E\uDD16",
         patreonRequired = true,
-        executable = true
+        executableWithoutArgs = true
 )
 public class AutoClaimCommand extends Command implements OnReactionAddListener {
 

@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83E\uDDF9",
-        executable = false,
+        executableWithoutArgs = false,
         maxCalculationTimeSec = 5 * 60,
         aliases = {"fclear", "allclear"}
 )

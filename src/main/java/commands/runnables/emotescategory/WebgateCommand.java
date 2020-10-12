@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "webgate",
         emoji = "⛩️",
-        executable = true,
+        executableWithoutArgs = true,
         exlusiveServers = { 580048842020487180L }
 )
 public class WebgateCommand extends EmoteAbstract {

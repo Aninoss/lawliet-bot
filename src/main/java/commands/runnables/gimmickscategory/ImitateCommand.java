@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "imitate",
         emoji = "\uD83D\uDD01",
-        executable = true,
+        executableWithoutArgs = true,
         patreonRequired = true,
         turnOffTimeout = true,
         aliases = { "impersonate" }

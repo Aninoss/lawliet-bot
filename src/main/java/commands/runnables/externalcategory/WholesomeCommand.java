@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "wholesome",
     emoji = "\uD83D\uDC96",
-    executable = true
+    executableWithoutArgs = true
 )
 public class WholesomeCommand extends RedditAbstract {
 

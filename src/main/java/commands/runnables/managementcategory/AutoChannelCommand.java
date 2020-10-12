@@ -28,7 +28,7 @@ import java.util.Locale;
         botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
         userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
         emoji = "🔊",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "tempchannel" }
 )
 public class AutoChannelCommand extends Command implements OnNavigationListener {

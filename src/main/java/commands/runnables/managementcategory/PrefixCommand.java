@@ -18,7 +18,7 @@ import java.util.Locale;
     trigger = "prefix",
     userPermissions = Permission.MANAGE_SERVER,
     emoji = "\uD83D\uDCDB",
-    executable = false
+    executableWithoutArgs = false
 )
 public class PrefixCommand extends Command {
 

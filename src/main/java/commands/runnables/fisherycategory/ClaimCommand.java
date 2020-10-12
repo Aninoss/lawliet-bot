@@ -24,7 +24,7 @@ import java.util.Locale;
     trigger = "claim",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     emoji = "\uD83C\uDF80",
-    executable = true
+    executableWithoutArgs = true
 )
 public class ClaimCommand extends FisheryAbstract {
 

@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "nsfwfilter",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "⛔",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
 )
 public class NSFWFilterCommand extends Command implements OnNavigationListener {

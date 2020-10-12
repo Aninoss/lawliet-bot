@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "nosebleed",
     emoji = "\uD83E\uDE78",
-    executable = true
+    executableWithoutArgs = true
 )
 public class NoseBleedCommand extends EmoteAbstract {
 

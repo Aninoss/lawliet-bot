@@ -38,7 +38,7 @@ import java.util.concurrent.TimeoutException;
         trigger = "mcdisplays",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "️🧮️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
 public class MemberCountDisplayCommand extends Command implements OnNavigationListener {

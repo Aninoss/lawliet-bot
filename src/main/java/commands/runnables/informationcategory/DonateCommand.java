@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "donate",
         emoji = "\uD83D\uDCB8",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "patreon", "donation", "premium" }
 )
 public class DonateCommand extends Command {

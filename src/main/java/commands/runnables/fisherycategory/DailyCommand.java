@@ -22,7 +22,7 @@ import java.util.Locale;
     trigger = "daily",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     emoji = "\uD83D\uDDD3",
-    executable = true
+    executableWithoutArgs = true
 )
 public class DailyCommand extends FisheryAbstract {
 

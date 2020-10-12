@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.MANAGE_ROLES,
         userPermissions = Permission.MANAGE_ROLES,
         emoji = "👪",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
 )
 public class AutoRolesCommand extends Command implements OnNavigationListener {

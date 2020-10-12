@@ -35,7 +35,7 @@ import java.util.Random;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings"}
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {

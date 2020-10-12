@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "sleep",
     emoji = "\uD83D\uDCA4",
-    executable = true
+    executableWithoutArgs = true
 )
 public class SleepCommand extends EmoteAbstract {
 

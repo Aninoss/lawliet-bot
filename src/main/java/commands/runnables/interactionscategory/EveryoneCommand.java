@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "everyone",
         emoji = "\uD83D\uDE21",
-        executable = true
+        executableWithoutArgs = true
 )
 public class EveryoneCommand extends InteractionAbstract {
 

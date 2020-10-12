@@ -16,7 +16,7 @@ import java.util.Locale;
     trigger = "dadjoke",
     withLoadingBar = true,
     emoji = "\uD83D\uDE44",
-    executable = true
+    executableWithoutArgs = true
 )
 public class DadJokeCommand extends Command {
 

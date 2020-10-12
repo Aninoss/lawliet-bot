@@ -20,7 +20,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "patreon",
         emoji = "\uD83D\uDCB3",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"donate", "donation", "premium"}
 )
 public class PatreonCommand extends Command {

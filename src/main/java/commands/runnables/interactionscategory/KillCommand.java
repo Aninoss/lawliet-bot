@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "kill",
         emoji = "☠️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"die"}
 )
 public class KillCommand extends InteractionAbstract {

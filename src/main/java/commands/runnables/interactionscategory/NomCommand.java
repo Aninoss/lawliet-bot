@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "nom",
         emoji = "\uD83E\uDD62",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"eat"}
 )
 public class NomCommand extends InteractionAbstract {

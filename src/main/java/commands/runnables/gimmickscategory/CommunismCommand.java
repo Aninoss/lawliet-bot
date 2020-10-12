@@ -13,7 +13,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "communism",
         emoji = "\uD83C\uDF39",
-        executable = true,
+        executableWithoutArgs = true,
         exlusiveServers = { AssetIds.ANINOSS_SERVER_ID },
         aliases = {"socialism"}
 )

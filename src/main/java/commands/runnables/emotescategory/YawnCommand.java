@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "yawn",
         emoji = "\uD83E\uDD71",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"wakeup", "tired", "sleepy"}
 )
 public class YawnCommand extends EmoteAbstract {

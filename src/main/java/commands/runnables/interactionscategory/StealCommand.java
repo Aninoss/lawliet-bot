@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "steal",
         emoji = "❔",
-        executable = true
+        executableWithoutArgs = true
 )
 public class StealCommand extends InteractionAbstract {
 

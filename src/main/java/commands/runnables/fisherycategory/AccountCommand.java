@@ -20,7 +20,7 @@ import java.util.Locale;
         trigger = "acc",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDE4B",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"profile", "profil", "account", "balance", "fish", "bal"}
 )
 public class AccountCommand extends FisheryAbstract {

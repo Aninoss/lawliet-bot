@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "bite",
     emoji = "\uD83E\uDE78",
-    executable = true
+    executableWithoutArgs = true
 )
 public class BiteCommand extends InteractionAbstract {
 

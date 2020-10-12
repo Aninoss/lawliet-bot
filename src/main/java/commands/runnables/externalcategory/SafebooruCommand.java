@@ -9,7 +9,7 @@ import java.util.Locale;
         trigger = "safeb",
         emoji = "\uD83D\uDE07",
         withLoadingBar = true,
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"softb", "safebooru", "softbooru", "sbooru"}
 )
 public class SafebooruCommand extends PornSearchAbstract {

@@ -15,7 +15,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "fortune",
         emoji = "❓",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = {"question", "8ball"}
 )
 public class FortuneCommand extends Command {

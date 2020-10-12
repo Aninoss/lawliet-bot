@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
         withLoadingBar = true,
         emoji = "\uD83D\uDDD1\uFE0F",
         maxCalculationTimeSec = 3 * 60,
-        executable = false
+        executableWithoutArgs = false
 )
 public class ClearCommand extends Command {
 

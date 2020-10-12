@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
     trigger = "survey",
     botPermissions = Permission.MANAGE_MESSAGES,
     emoji = "✅",
-    executable = true
+    executableWithoutArgs = true
 )
 public class SurveyCommand extends FisheryAbstract implements OnReactionAddStaticListener, OnTrackerRequestListener {
 

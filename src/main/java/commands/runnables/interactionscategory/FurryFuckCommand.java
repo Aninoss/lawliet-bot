@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "furryfuck",
         emoji = "\uD83E\uDD8A",
-        executable = true,
+        executableWithoutArgs = true,
         nsfw = true
 )
 public class FurryFuckCommand extends InteractionAbstract {

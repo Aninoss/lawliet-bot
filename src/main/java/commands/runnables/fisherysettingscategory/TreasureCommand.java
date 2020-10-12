@@ -15,7 +15,7 @@ import java.util.Locale;
         trigger = "treasure",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83C\uDFF4\u200D☠️",
-        executable = true,
+        executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "tresure", "treasurechest" }
 )

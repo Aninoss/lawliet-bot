@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "dance",
         emoji = "\uD83D\uDD7A",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"party"}
 )
 public class DanceCommand extends EmoteAbstract {

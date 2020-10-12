@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "laugh",
         emoji = "\uD83D\uDE06",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"lol", "funny"}
 )
 public class LaughCommand extends EmoteAbstract {

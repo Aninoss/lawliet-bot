@@ -12,7 +12,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "upvote",
         emoji = "\uD83D\uDC4D",
-        executable = true
+        executableWithoutArgs = true
 )
 public class UpvoteCommand extends Command {
 

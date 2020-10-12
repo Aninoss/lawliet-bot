@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
     botPermissions = Permission.BAN_MEMBERS,
     userPermissions = Permission.BAN_MEMBERS,
     emoji = "\uD83D\uDEAB",
-    executable = false
+    executableWithoutArgs = false
 )
 public class BanCommand extends WarnCommand  {
 

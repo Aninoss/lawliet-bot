@@ -73,6 +73,7 @@ public class CommandContainer {
         commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
         commandList.add(TriggerDeleteCommand.class);
+        commandList.add(ReminderCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

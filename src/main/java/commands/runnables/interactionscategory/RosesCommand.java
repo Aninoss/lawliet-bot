@@ -20,7 +20,7 @@ import java.util.Locale;
     trigger = "roses",
     emoji = "🌹",
     exlusiveUsers = { 397209883793162240L, 444821134936899605L },
-    executable = false
+    executableWithoutArgs = false
 )
 public class RosesCommand extends Command {
 

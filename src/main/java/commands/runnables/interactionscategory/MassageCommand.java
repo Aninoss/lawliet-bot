@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "massage",
         emoji = "\uD83D\uDC86",
-        executable = true
+        executableWithoutArgs = true
 )
 public class MassageCommand extends InteractionAbstract {
 

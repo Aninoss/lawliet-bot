@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
         botPermissions = Permission.BAN_MEMBERS,
         userPermissions = Permission.BAN_MEMBERS,
         emoji = "\uD83C\uDF3C",
-        executable = false
+        executableWithoutArgs = false
 )
 public class UnbanCommand extends WarnCommand  {
 

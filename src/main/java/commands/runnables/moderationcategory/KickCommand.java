@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
     botPermissions = Permission.KICK_MEMBERS,
     userPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEAA",
-    executable = false
+    executableWithoutArgs = false
 )
 public class KickCommand extends WarnCommand  {
 

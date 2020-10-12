@@ -13,7 +13,7 @@ import java.util.Optional;
         trigger = "play",
         emoji = "\uD83D\uDDBC",
         withLoadingBar = true,
-        executable = false,
+        executableWithoutArgs = false,
         exlusiveUsers = { 272037078919938058L },
         aliases = { "start" }
 )

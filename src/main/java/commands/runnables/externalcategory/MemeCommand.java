@@ -9,7 +9,7 @@ import java.util.Locale;
         trigger = "meme",
         emoji = "\uD83D\uDDBC",
         withLoadingBar = true,
-        executable = true
+        executableWithoutArgs = true
 )
 public class MemeCommand extends RedditAbstract {
 

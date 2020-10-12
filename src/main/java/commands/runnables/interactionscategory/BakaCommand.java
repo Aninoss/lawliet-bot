@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "baka",
     emoji = "\uD83D\uDCA2",
-    executable = true
+    executableWithoutArgs = true
 )
 public class BakaCommand extends InteractionAbstract {
 

@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "vote",
         botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         emoji = "\uD83D\uDDF3",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = {"poll"}
 )
 public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {

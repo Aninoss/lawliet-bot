@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "smug",
         emoji = "\uD83D\uDE0F",
-        executable = true
+        executableWithoutArgs = true
 )
 public class SmugCommand extends EmoteAbstract {
 

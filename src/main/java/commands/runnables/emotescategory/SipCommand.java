@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "sip",
         emoji = "☕",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"teasip", "tea"}
 )
 public class SipCommand extends EmoteAbstract {

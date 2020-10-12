@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"hit", "attack"}
 )
 public class PunchCommand extends InteractionAbstract {

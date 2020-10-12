@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "ytmp3",
         emoji = "\uD83D\uDCE5",
-        executable = false,
+        executableWithoutArgs = false,
         patreonRequired = true,
         maxCalculationTimeSec = 60,
         aliases = { "youtube", "yt", "youtubemp3" }

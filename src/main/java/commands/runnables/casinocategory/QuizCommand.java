@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         withLoadingBar = true,
         deleteOnTimeOut = true,
-        executable = true
+        executableWithoutArgs = true
 )
 public class QuizCommand extends CasinoAbstract implements OnReactionAddListener {
 

@@ -21,7 +21,7 @@ import java.util.Locale;
         botPermissions = Permission.ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83D\uDCA2",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"triggered"}
 )
 public class TriggerCommand extends Command {

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "🔔",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize" }
 )
 public class AlertsCommand extends Command implements OnNavigationListener {

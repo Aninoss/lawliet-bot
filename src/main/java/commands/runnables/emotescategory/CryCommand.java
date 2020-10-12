@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "cry",
         emoji = "\uD83D\uDE2D",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"sad" , "sob"}
 )
 public class CryCommand extends EmoteAbstract {

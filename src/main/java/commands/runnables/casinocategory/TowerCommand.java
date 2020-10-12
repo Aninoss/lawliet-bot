@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "tower",
         emoji = "🏗️️",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "crash" }
 )
 public class TowerCommand extends CasinoAbstract implements OnReactionAddListener {

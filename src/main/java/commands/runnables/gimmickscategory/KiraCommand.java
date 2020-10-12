@@ -19,7 +19,7 @@ import java.util.Random;
 @CommandProperties(
     trigger = "kira",
     emoji = "\u270D\uFE0F️️",
-    executable = true
+    executableWithoutArgs = true
 )
 public class KiraCommand extends Command {
 

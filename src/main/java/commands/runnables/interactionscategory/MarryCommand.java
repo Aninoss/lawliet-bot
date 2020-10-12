@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "marry",
         emoji = "\uD83D\uDC8D",
-        executable = true
+        executableWithoutArgs = true
 )
 public class MarryCommand extends InteractionAbstract {
 

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
         botPermissions = Permission.MANAGE_MESSAGES,
         userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
         emoji = "️🚧️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords" }
 )
 public class WordFilterCommand extends Command implements OnNavigationListener {

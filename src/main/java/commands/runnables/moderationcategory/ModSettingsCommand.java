@@ -29,7 +29,7 @@ import java.util.Locale;
         botPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"modsettings"}
 )
 public class ModSettingsCommand extends Command implements OnNavigationListener {

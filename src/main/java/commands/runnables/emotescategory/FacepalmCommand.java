@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "facepalm",
         emoji = "\uD83E\uDD26",
-        executable = true
+        executableWithoutArgs = true
 )
 public class FacepalmCommand extends EmoteAbstract {
 

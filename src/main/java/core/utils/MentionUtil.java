@@ -377,12 +377,12 @@ public class MentionUtil {
                     return available / 2;
 
                 String valueString = StringUtil.filterDoubleString(part);
-                String remainingString = part.substring(valueString.length());
+                String partPostfix = part.substring(valueString.length()).toLowerCase();
                 if (valueString.isEmpty())
                     continue;
 
                 double value = Double.parseDouble(valueString);
-                switch (remainingString) {
+                switch (partPostfix) {
                     case "":
                         return (long) value;
 
@@ -407,6 +407,39 @@ public class MentionUtil {
         }
 
         return -1;
+    }
+
+    public static long getTimeMinutesExt(String str) {
+        long sec = 0;
+        str = str.toLowerCase().replace("\n", " ");
+
+        for(String part : str.split(" ")) {
+            if (part.length() > 0) {
+                long value = StringUtil.filterLongFromString(part);
+                if (value > 0) {
+                    String partPostfix = part.substring(String.valueOf(value).length()).toLowerCase();
+
+                    switch (partPostfix) {
+                        case "m":
+                        case "min":
+                            sec += value;
+                            break;
+
+                        case "h":
+                            sec += value * 60;
+                            break;
+
+                        case "d":
+                            sec += value * 60 * 24;
+                            break;
+
+                        default:
+                    }
+                }
+            }
+        }
+
+        return sec;
     }
 
 }

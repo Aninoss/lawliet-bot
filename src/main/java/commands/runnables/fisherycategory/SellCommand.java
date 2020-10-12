@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
     trigger = "sell",
     botPermissions = Permission.USE_EXTERNAL_EMOJIS,
     emoji = "\uD83D\uDCE4",
-    executable = true
+    executableWithoutArgs = true
 )
 public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnForwardedRecievedListener {
 

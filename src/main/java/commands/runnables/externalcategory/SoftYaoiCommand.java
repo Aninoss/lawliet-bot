@@ -9,7 +9,7 @@ import java.util.Locale;
         trigger = "softyaoi",
         emoji = "\uD83D\uDC6C",
         withLoadingBar = true,
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"safeyaoi", "sfwyaoi", "shounenai", "shounen-ai"}
 )
 public class SoftYaoiCommand extends SafebooruAbstract {

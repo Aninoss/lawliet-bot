@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "new",
         emoji = "\uD83C\uDD95",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"changelog"}
 )
 public class NewCommand extends Command implements OnTrackerRequestListener {

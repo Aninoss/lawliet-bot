@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "reward",
         emoji = "\uD83C\uDF53",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = { "rewards" }
 )
 public class RewardCommand extends InteractionAbstract {

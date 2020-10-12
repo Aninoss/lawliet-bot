@@ -27,7 +27,7 @@ import java.util.Locale;
         trigger = "whitelist",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "✅",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"wl"}
 )
 public class WhiteListCommand extends Command implements OnNavigationListener {

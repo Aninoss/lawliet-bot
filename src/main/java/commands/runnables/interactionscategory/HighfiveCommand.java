@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "highfive",
         emoji = "✋",
-        executable = true
+        executableWithoutArgs = true
 )
 public class HighfiveCommand extends InteractionAbstract {
 

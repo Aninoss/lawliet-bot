@@ -18,7 +18,7 @@ import java.util.Locale;
         trigger = "autoquote",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83D\uDCDD",
-        executable = true
+        executableWithoutArgs = true
 )
 public class AutoQuoteCommand extends Command implements OnReactionAddListener {
 

@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "angry",
         emoji = "\uD83D\uDCA2",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"rage", "mad"}
 )
 public class AngryCommand extends EmoteAbstract {

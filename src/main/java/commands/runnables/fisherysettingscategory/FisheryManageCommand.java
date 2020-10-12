@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "💰",
-        executable = false,
+        executableWithoutArgs = false,
         patreonRequired = true,
         aliases = {"fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager"}
 )

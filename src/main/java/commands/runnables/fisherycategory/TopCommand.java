@@ -22,7 +22,7 @@ import java.util.Optional;
         trigger = "top",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDFC6",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"rankings", "ranking", "rank", "ranks", "leaderboard"}
 )
 public class TopCommand extends ListAbstract {

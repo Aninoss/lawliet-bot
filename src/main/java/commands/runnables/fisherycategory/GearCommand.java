@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "gear",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDFA3",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"equip", "equipment", "inventory", "level"}
 )
 public class GearCommand extends FisheryAbstract {

@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"greet", "bye", "hi", "cya"}
 )
 public class WaveCommand extends InteractionAbstract {

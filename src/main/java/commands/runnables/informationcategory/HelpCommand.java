@@ -33,7 +33,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "help",
         emoji = "❕",
-        executable = true,
+        executableWithoutArgs = true,
         requiresEmbeds = false,
         aliases = {"commands"}
 )
@@ -93,7 +93,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDraw(DiscordApi api) throws Throwable {
         String arg = StringUtil.trimString(searchTerm);
-        if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1,arg.length()-1);
+        if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length()-1);
 
         ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
 
@@ -115,7 +115,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 15;
+        return 16;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -147,7 +147,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 }
 
                 String addNotExecutable = "";
-                if (!command.isExecutable()) {
+                if (!command.isExecutableWithoutArgs()) {
                     addNotExecutable = "\n" + getString("command_notexecutable");
                 } else if (!isNavigationPrivateMessage()) {
                     setOptions(getString("command_execute").split("\n"));

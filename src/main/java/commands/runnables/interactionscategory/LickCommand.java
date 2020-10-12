@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "lick",
         emoji = "\uD83D\uDE0B",
-        executable = true
+        executableWithoutArgs = true
 )
 public class LickCommand extends InteractionAbstract {
 

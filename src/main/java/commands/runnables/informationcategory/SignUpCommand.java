@@ -13,7 +13,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "signup",
         emoji = "✏️",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"giveaway", "singup", "register"}
 )
 public class SignUpCommand extends Command {

@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "topic",
         emoji = "\uD83E\uDD60",
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"topics"}
 )
 public class TopicCommand extends Command implements OnTrackerRequestListener {

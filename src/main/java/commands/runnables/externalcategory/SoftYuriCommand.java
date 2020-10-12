@@ -9,7 +9,7 @@ import java.util.Locale;
         trigger = "softyuri",
         emoji = "\uD83D\uDC6D",
         withLoadingBar = true,
-        executable = true,
+        executableWithoutArgs = true,
         aliases = {"safeyuri", "sfwyuri", "shoujoai", "shoujo-ai"}
 )
 public class SoftYuriCommand extends SafebooruAbstract {

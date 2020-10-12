@@ -10,7 +10,7 @@ import java.util.Locale;
         userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
         botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
         emoji = "\uD83D\uDED1",
-        executable = false,
+        executableWithoutArgs = false,
         aliases = {"channelunmute", "unmute", "unchmute", "unchannelmute"}
 )
 public class ChannelUnmuteCommand extends ChannelMuteCommand  {
