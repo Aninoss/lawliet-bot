@@ -218,6 +218,18 @@ public class PermissionUtil {
                 .count() >= server.getMemberCount() * 0.75;
     }
 
+    public static boolean userCanMentionRoles(ServerTextChannel channel, User user, String messageContent) {
+        if (channel.canMentionEveryone(user))
+            return true;
+
+        if (messageContent.contains("@everyone") || messageContent.contains("@here"))
+            return false;
+
+        return channel.getServer().getRoles().stream()
+                .filter(role -> messageContent.contains(role.getMentionTag()))
+                .allMatch(Role::isMentionable);
+    }
+
     public static class PermissionConvertion {
 
         private final PermissionType permissionType;

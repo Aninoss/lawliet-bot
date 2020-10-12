@@ -5,12 +5,15 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import constants.Permission;
 import core.EmbedFactory;
+import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
+import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
@@ -19,9 +22,10 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "reminder",
-        userPermissions = Permission.MANAGE_SERVER | Permission.MENTION_EVERYONE,
+        userPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = false,
+        releaseDate = { 2020, 10, 20 },
         aliases = { "remindme", "remind" }
 )
 public class ReminderCommand extends Command implements OnReactionAddListener {
@@ -46,7 +50,18 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("twochannels"))).get();
             return false;
         }
+
         ServerTextChannel channel = channels.size() == 0 ? event.getServerTextChannel().get() : channels.get(0);
+        if (!checkWriteInChannelWithLog(channel)) {
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getMentionTag());
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, error)).get();
+            return false;
+        }
+
+        if (!PermissionUtil.userCanMentionRoles(channel, event.getMessageAuthor().asUser().get(), event.getMessageContent())) {
+            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("user_nomention"))).get();
+            return false;
+        }
 
         for(String part : followedString.split(" ")) {
             if (part.length() > 0) {
@@ -72,8 +87,12 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             return false;
         }
 
-        String timeSpanString = TimeUtil.getRemainingTimeString(getLocale(), minutes * 60 * 1000, false);
-        message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template", channel.getMentionTag(), timeSpanString, messageText, CANCEL_EMOJI))).get();
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", CANCEL_EMOJI))
+                .addInlineField(getString("channel"), channel.getMentionTag())
+                .addInlineField(getString("timespan"), TimeUtil.getRemainingTimeString(getLocale(), minutes * 60 * 1000, false))
+                .addField(getString("content"), StringUtil.shortenString(messageText, 1024));
+
+        message = event.getChannel().sendMessage(eb).get();
         message.addReaction(CANCEL_EMOJI).get();
 
         return true;
