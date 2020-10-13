@@ -36,7 +36,7 @@ import java.util.Locale;
         emoji = "⏲️",
         executableWithoutArgs = false,
         releaseDate = { 2020, 10, 21 },
-        aliases = { "remindme", "remind", "reminders" }
+        aliases = { "remindme", "remind", "reminders", "schedule", "scheduler", "schedulers" }
 )
 public class ReminderCommand extends Command implements OnReactionAddListener {
 
@@ -148,12 +148,12 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         if (active) {
             remindersBean.stop();
             removeReactionListener();
+            message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
             try {
                 DBReminders.getInstance().loadBean().remove(remindersBean.getId(), remindersBean);
             } catch (Exception e) {
                 LOGGER.error("Could not load reminders", e);
             }
-            message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
         }
     }
 
