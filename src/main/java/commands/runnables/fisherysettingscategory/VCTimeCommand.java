@@ -50,7 +50,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
                 message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                         getString("status",
                                 serverBean.getFisheryVcHoursCap().isPresent(),
-                                serverBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(getLocale(), in)).orElse(getString("unlimited")),
+                                serverBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(in)).orElse(getString("unlimited")),
                                 CLEAR_EMOJI,
                                 QUIT_EMOJI
                         ))).get();
@@ -83,7 +83,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
 
         serverBean.setFisheryVcHoursCap(value);
 
-        sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("success", getNumberSlot(value), StringUtil.numToString(getLocale(), value))));
+        sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("success", getNumberSlot(value), StringUtil.numToString(value))));
         return true;
     }
 

@@ -89,7 +89,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, towerText.toString());
         eb.addField(Emojis.EMPTY_EMOJI, getString("template_start", showMoreText,
                 player.getDisplayName(server),
-                StringUtil.numToString(getLocale(), coinsInput),
+                StringUtil.numToString(coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale()),
                 EMOJIS[0],
                 StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()),

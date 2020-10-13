@@ -15,7 +15,7 @@ public class DBDataLoad<T> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBDataLoad.class);
 
-   private final PreparedStatement preparedStatement;
+    private final PreparedStatement preparedStatement;
 
     public DBDataLoad(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) throws SQLException {
         if (requiredAttributes.isEmpty()) throw new SQLException("No attributes specified!");

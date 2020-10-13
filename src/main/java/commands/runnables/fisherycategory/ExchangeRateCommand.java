@@ -38,7 +38,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     }
 
     private EmbedBuilder getEmbed() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("template", StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        return EmbedFactory.getCommandEmbedStandard(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
 
     private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {

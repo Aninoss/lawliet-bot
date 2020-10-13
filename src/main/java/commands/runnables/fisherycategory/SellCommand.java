@@ -48,9 +48,9 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
         } else {
             message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
                     getString("status",
-                            StringUtil.numToString(getLocale(), userBean.getFish()),
-                            StringUtil.numToString(getLocale(), userBean.getCoins()),
-                            StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)),
+                            StringUtil.numToString(userBean.getFish()),
+                            StringUtil.numToString(userBean.getCoins()),
+                            StringUtil.numToString(ExchangeRate.getInstance().get(0)),
                             getChangeEmoji()
                     ))).get();
             message.addReaction("❌");
@@ -134,7 +134,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
         removeMessageForwarder();
         removeReactionListener();
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nointerest_description", StringUtil.numToString(getLocale(), ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
         sendMessage(channel, eb);
     }
 

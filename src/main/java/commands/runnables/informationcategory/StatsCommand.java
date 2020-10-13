@@ -42,10 +42,10 @@ public class StatsCommand extends Command {
                 ExternalLinks.BOT_INVITE_URL,
                 BotUtil.getCurrentVersion(),
                 TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
-                StringUtil.numToString(getLocale(), DiscordApiCollection.getInstance().getServerTotalSize()),
-                StringUtil.numToString(getLocale(), DBTracker.getInstance().getBean().getSlots().size()),
+                StringUtil.numToString(DiscordApiCollection.getInstance().getServerTotalSize()),
+                StringUtil.numToString(DBTracker.getInstance().getBean().getSlots().size()),
                         StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getOwner().getDiscriminatedName()),
-                StringUtil.numToString(getLocale(), DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
+                StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +
                 "\n\n" +
                 getString("translator", dephordName, neverCookFirstName));

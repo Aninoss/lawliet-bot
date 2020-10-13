@@ -66,7 +66,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
                     .setTitle(twitchStream.getStatus().get())
                     .setUrl(twitchUser.getChannelUrl())
                     .setImage(twitchStream.getPreviewImage().get())
-                    .setFooter(getString("footer", StringUtil.numToString(getLocale(), twitchStream.getViewers().get()), StringUtil.numToString(getLocale(), twitchStream.getFollowers().get())));
+                    .setFooter(getString("footer", StringUtil.numToString(twitchStream.getViewers().get()), StringUtil.numToString(twitchStream.getFollowers().get())));
         } else {
             eb = EmbedFactory.getEmbed()
                     .setAuthor(twitchUser.getDisplayName(), twitchUser.getChannelUrl(), TWITCH_ICON)

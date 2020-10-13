@@ -46,7 +46,7 @@ public abstract class RedditAbstract extends Command {
                 .setUrl(post.getUrl())
                 .setTimestamp(post.getInstant());
 
-        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(getLocale(), post.getScore()), StringUtil.numToString(getLocale(), post.getComments())));
+        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments())));
 
         event.getChannel().sendMessage(eb).get();
         return true;

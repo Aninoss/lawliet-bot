@@ -80,7 +80,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
             return false;
         }
 
-        nString = removeAll ? getString("all") : StringUtil.numToString(getLocale(), n);
+        nString = removeAll ? getString("all") : StringUtil.numToString(n);
         userString = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), users).getMentionText();
 
         if (DBModeration.getInstance().getBean(channel.getServer().getId()).isQuestion()) {

@@ -1,7 +1,6 @@
 package events.discordevents.messagecreate;
 
 import constants.AssetIds;
-import constants.Locales;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
@@ -9,8 +8,6 @@ import modules.ChatGameGuessingNames;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-
-import java.util.Locale;
 
 @DiscordEvent
 public class MessageCreateChatGameGuessingNumber extends MessageCreateAbstract {
@@ -32,7 +29,7 @@ public class MessageCreateChatGameGuessingNumber extends MessageCreateAbstract {
                     int res = ChatGameGuessingNames.getInstance().check(val);
                     if (res == 0) {
                         event.getMessage().addReaction("✅").exceptionally(ExceptionLogger.get());
-                        event.getChannel().sendMessage(String.format("%s hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", event.getMessageAuthor().asUser().get().getMentionTag(), StringUtil.numToString(new Locale(Locales.DE), val), tries));
+                        event.getChannel().sendMessage(String.format("%s hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", event.getMessageAuthor().asUser().get().getMentionTag(), StringUtil.numToString(val), tries));
                     } else {
                         if (res > 0)
                             event.getMessage().addReaction("⬆️").exceptionally(ExceptionLogger.get());

@@ -50,11 +50,11 @@ public class DailyCommand extends FisheryAbstract {
                 bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
             }
 
-            StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(getLocale(), fishes)));
+            StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(fishes)));
             if (bonusCombo > 0)
-                sb.append("\n").append(getString("point_combo", StringUtil.numToString(getLocale(), bonusCombo)));
+                sb.append("\n").append(getString("point_combo", StringUtil.numToString(bonusCombo)));
             if (bonusDonation > 0)
-                sb.append("\n").append(getString("point_donation", StringUtil.numToString(getLocale(), bonusDonation)));
+                sb.append("\n").append(getString("point_donation", StringUtil.numToString(bonusDonation)));
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("codeblock", sb.toString()));
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", ExternalLinks.PATREON_PAGE, ExternalLinks.UPVOTE_URL), false);

@@ -84,13 +84,13 @@ public class GiveCommand extends FisheryAbstract {
                 fisheryUser1.addCoinsGiven(value);
 
                 EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("successful",
-                        StringUtil.numToString(getLocale(), value),
+                        StringUtil.numToString(value),
                         user1.getMentionTag(),
                         user0.getMentionTag(),
-                        StringUtil.numToString(getLocale(), coins0Pre),
-                        StringUtil.numToString(getLocale(), coins0Pre - value),
-                        StringUtil.numToString(getLocale(), coins1Pre),
-                        StringUtil.numToString(getLocale(), coins1Pre + value)
+                        StringUtil.numToString(coins0Pre),
+                        StringUtil.numToString(coins0Pre - value),
+                        StringUtil.numToString(coins1Pre),
+                        StringUtil.numToString(coins1Pre + value)
                 ));
 
                 if (limitCapped)

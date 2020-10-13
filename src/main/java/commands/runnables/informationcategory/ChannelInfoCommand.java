@@ -52,9 +52,9 @@ public class ChannelInfoCommand extends Command {
                     StringUtil.escapeMarkdown(channel.getName()),
                     channel.getIdAsString(),
                     TimeUtil.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
-                    StringUtil.numToString(getLocale(), members.size()),
-                    StringUtil.numToString(getLocale(), members.stream().filter(member -> !member.isBot()).count()),
-                    StringUtil.numToString(getLocale(), members.stream().filter(User::isBot).count())
+                    StringUtil.numToString(members.size()),
+                    StringUtil.numToString(members.stream().filter(member -> !member.isBot()).count()),
+                    StringUtil.numToString(members.stream().filter(User::isBot).count())
             };
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));

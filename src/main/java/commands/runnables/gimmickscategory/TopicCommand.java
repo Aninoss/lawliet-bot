@@ -56,7 +56,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
         long minutes = StringUtil.filterLongFromString(key);
         if (minutes > MAX_MINUTES || minutes < 1) {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(getLocale(), MAX_MINUTES)));
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(MAX_MINUTES)));
             EmbedFactory.addTrackerRemoveLog(eb, getLocale());
 
             slot.getChannel().get().sendMessage(eb).get();

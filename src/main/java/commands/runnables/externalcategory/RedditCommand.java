@@ -87,7 +87,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
             nsfwString = " " + getString("nsfw");
         }
 
-        eb.setFooter(getString("footer", flairText, StringUtil.numToString(getLocale(), post.getScore()), StringUtil.numToString(getLocale(), post.getComments()), post.getDomain()) + nsfwString);
+        eb.setFooter(getString("footer", flairText, StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments()), post.getDomain()) + nsfwString);
 
         return eb;
     }

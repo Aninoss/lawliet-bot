@@ -95,7 +95,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
-                StringUtil.numToString(getLocale(), coinsInput),
+                StringUtil.numToString(coinsInput),
                 getProgress(),
                 StringUtil.generateHeartBar(health, MAX_HEALTH, wrong),
                 answer,

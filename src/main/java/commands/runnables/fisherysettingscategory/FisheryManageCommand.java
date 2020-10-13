@@ -100,7 +100,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                 String amountString = StringUtil.trimString(followedString.substring(typeString.length()));
                 Long value;
                 if ((value = updateValues(type, amountString)) != null) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(getLocale(), value))));
+                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(value))));
                     removeNavigation();
                     return true;
                 } else {
@@ -121,7 +121,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                 return Response.FALSE;
             }
 
-            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, user.getDisplayName(server), StringUtil.numToString(getLocale(), value)).replace("*", ""));
+            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, user.getDisplayName(server), StringUtil.numToString(value)).replace("*", ""));
             setState(0);
 
             return Response.TRUE;
@@ -230,9 +230,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         if (state == 0) {
             setOptions(
                     getString("state0_options",
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getFish()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getCoins()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getDailyStreak())
+                        StringUtil.numToString(fisheryUserBean.getFish()),
+                        StringUtil.numToString(fisheryUserBean.getCoins()),
+                        StringUtil.numToString(fisheryUserBean.getDailyStreak())
                     ).split("\n")
             );
 
@@ -242,9 +242,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             return EmbedFactory.getCommandEmbedStandard(this,
                     getString("state1_description",
                             state - 1,
-                            StringUtil.numToString(getLocale(), fisheryUserBean.getFish()),
-                            StringUtil.numToString(getLocale(), fisheryUserBean.getCoins()),
-                            StringUtil.numToString(getLocale(), fisheryUserBean.getDailyStreak())),
+                            StringUtil.numToString(fisheryUserBean.getFish()),
+                            StringUtil.numToString(fisheryUserBean.getCoins()),
+                            StringUtil.numToString(fisheryUserBean.getDailyStreak())),
                     getString("state1_title", state - 1)
             );
         }

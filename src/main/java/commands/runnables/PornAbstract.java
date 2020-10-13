@@ -170,7 +170,7 @@ public abstract class PornAbstract extends Command {
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), Category.NSFW, "porn_link", pornImage.getPageUrl()))
                     .setImage(pornImage.getImageUrl())
                     .setTimestamp(pornImage.getInstant())
-                    .setFooter(TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(getLocale(), pornImage.getScore())));
+                    .setFooter(TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(pornImage.getScore())));
 
             getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
             if (channel.getCurrentCachedInstance().isPresent())

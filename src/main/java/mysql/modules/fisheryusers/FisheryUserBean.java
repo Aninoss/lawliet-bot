@@ -426,9 +426,9 @@ public class FisheryUserBean extends BeanWithServer {
         long diff = numberNow - numberPrevious;
         String diffSign = diff >= 0 ? "+" : "";
         return TextManager.getString(locale, TextManager.GENERAL, rankSlot ? "rankingprogress_update2" : "rankingprogress_update", diff != 0,
-                StringUtil.numToString(locale, numberPrevious),
-                StringUtil.numToString(locale, numberNow),
-                diffSign + StringUtil.numToString(locale, diff)
+                StringUtil.numToString(numberPrevious),
+                StringUtil.numToString(numberNow),
+                diffSign + StringUtil.numToString(diff)
         );
     }
 

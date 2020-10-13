@@ -63,7 +63,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                                 user.getMentionTag(),
                                 StringUtil.escapeMarkdown(user.getName()),
                                 StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                StringUtil.numToString(locale, server.getMemberCount())
+                                StringUtil.numToString(server.getMemberCount())
                         )
                     );
             event.getUser().sendMessage(eb)
@@ -86,7 +86,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                                         user.getMentionTag(),
                                         StringUtil.escapeMarkdown(user.getName()),
                                         StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                        StringUtil.numToString(locale, server.getMemberCount())
+                                        StringUtil.numToString(server.getMemberCount())
                                 )
                         ),
                         image,
@@ -101,7 +101,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
                                         user.getMentionTag(),
                                         StringUtil.escapeMarkdown(user.getName()),
                                         StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                        StringUtil.numToString(locale, server.getMemberCount())
+                                        StringUtil.numToString(server.getMemberCount())
                                 )
                         )
                 ).exceptionally(ExceptionLogger.get());

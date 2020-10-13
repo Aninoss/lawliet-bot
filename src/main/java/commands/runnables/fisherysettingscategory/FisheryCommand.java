@@ -215,7 +215,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                 eb = EmbedFactory.getEmbed()
                         .setTitle(FisheryCommand.treasureEmoji + " " +getString("treasure_title"))
-                        .setDescription(getString("treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(getLocale(), won)))
+                        .setDescription(getString("treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(won)))
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
                 message.edit(eb);

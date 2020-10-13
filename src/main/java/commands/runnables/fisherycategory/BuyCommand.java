@@ -240,12 +240,12 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                         String productDescription = "???";
                         long price = slot.getPrice();
                         if (slot.getPowerUpId() != FisheryCategoryInterface.ROLE)
-                            productDescription = getString("product_des_" + slot.getPowerUpId(), StringUtil.numToString(getLocale(), slot.getDeltaEffect()));
+                            productDescription = getString("product_des_" + slot.getPowerUpId(), StringUtil.numToString(slot.getDeltaEffect()));
                         else if (roles.get(slot.getLevel()) != null) {
                             price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getPowerUpId(), roles.get(slot.getLevel()).getMentionTag());
                         }
-                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(getLocale(), price), productDescription));
+                        description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(price), productDescription));
 
                         numberReactions++;
                         eb.addField(Emojis.EMPTY_EMOJI, description.toString());
@@ -256,15 +256,15 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 int roleLvl = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
 
                 String status = getString("status",
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getFish()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getCoins()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
+                        StringUtil.numToString(fisheryUserBean.getFish()),
+                        StringUtil.numToString(fisheryUserBean.getCoins()),
+                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
+                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
+                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
+                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
                         roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getMentionTag() : "**-**",
-                        StringUtil.numToString(getLocale(), fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect()),
-                        fisheryUserBean.getServerBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(getLocale(), fisheryUserBean.getCoinsGivenMax()) : "∞"
+                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect()),
+                        fisheryUserBean.getServerBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryUserBean.getCoinsGivenMax()) : "∞"
                 );
 
                 eb.addField(Emojis.EMPTY_EMOJI, StringUtil.shortenStringLine(status, 1024));

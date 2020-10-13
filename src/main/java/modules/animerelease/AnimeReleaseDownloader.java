@@ -112,7 +112,7 @@ public class AnimeReleaseDownloader {
         String episode = null;
         if (data.has("crunchyroll:episodeNumber")) {
             try {
-                episode = StringUtil.numToString(locale, data.getInt("crunchyroll:episodeNumber"));
+                episode = StringUtil.numToString(data.getInt("crunchyroll:episodeNumber"));
             } catch (Exception e) {
                 //Ignore
                 episode = data.getString("crunchyroll:episodeNumber");

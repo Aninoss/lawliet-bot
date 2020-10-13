@@ -49,7 +49,7 @@ public class ClaimCommand extends FisheryAbstract {
         } else {
             long fishes = Fishery.getClaimValue(userBean);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(getLocale(), upvotesUnclaimed), StringUtil.numToString(getLocale(), Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb);

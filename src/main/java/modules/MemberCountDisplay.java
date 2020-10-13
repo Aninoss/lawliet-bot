@@ -54,10 +54,10 @@ public class MemberCountDisplay {
 
         return replaceVariables(
                 name,
-                StringUtil.numToString(locale, members),
-                StringUtil.numToString(locale, members - botMembers),
-                StringUtil.numToString(locale, botMembers),
-                StringUtil.numToString(locale, boosts)
+                StringUtil.numToString(members),
+                StringUtil.numToString(members - botMembers),
+                StringUtil.numToString(botMembers),
+                StringUtil.numToString(boosts)
         );
     }
 

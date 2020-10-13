@@ -76,7 +76,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         String key = "tutorial";
         if (finished) key = "data";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(getLocale(), coinsInput)), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(coinsInput)), false);
 
         eb = EmbedFactory.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

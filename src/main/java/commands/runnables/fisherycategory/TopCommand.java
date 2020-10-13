@@ -85,9 +85,9 @@ public class TopCommand extends ListAbstract {
                         userString),
                 getString("template_descritpion",
                         DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag(),
-                        StringUtil.numToString(getLocale(), userBean.getFishIncome()),
-                        StringUtil.numToString(getLocale(), userBean.getCoins()),
-                        StringUtil.numToString(getLocale(), userBean.getFish()))
+                        StringUtil.numToString(userBean.getFishIncome()),
+                        StringUtil.numToString(userBean.getCoins()),
+                        StringUtil.numToString(userBean.getFish()))
         );
     }
 

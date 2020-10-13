@@ -145,7 +145,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
 
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
                 player.getDisplayName(server),
-                StringUtil.numToString(getLocale(), coinsInput),
+                StringUtil.numToString(coinsInput),
                 getSpinningWheel(0),
                 getSpinningWheel(1),
                 getSpinningWheel(2),

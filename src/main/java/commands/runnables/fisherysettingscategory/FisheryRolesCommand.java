@@ -124,7 +124,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", "0", StringUtil.numToString(getLocale(), Settings.FISHERY_MAX)));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", "0", StringUtil.numToString(Settings.FISHERY_MAX)));
                         return Response.FALSE;
                     }
                 } else {
@@ -246,7 +246,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMin()), StringUtil.numToString(getLocale(), serverBean.getFisheryRoleMax())), true);
+                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(serverBean.getFisheryRoleMin()), StringUtil.numToString(serverBean.getFisheryRoleMax())), true);
 
             case 1:
                 return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
