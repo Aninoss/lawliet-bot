@@ -26,10 +26,9 @@ public class DBReminders extends DBCached {
                         return new RemindersBean(
                         DBServer.getInstance().getBean(serverId),
                         resultSet.getInt(1),
-                        resultSet.getLong(2),
-                        resultSet.getTimestamp(3).toInstant(),
-                        resultSet.getString(4)
-
+                        resultSet.getLong(3),
+                        resultSet.getTimestamp(4).toInstant(),
+                        resultSet.getString(5)
                 );
             });
 

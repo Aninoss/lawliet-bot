@@ -12,6 +12,7 @@ import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.ReminderManager;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
 import mysql.modules.server.DBServer;
@@ -20,6 +21,10 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -30,15 +35,18 @@ import java.util.Locale;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = false,
-        releaseDate = { 2020, 10, 20 },
-        aliases = { "remindme", "remind" }
+        releaseDate = { 2020, 10, 21 },
+        aliases = { "remindme", "remind", "reminders" }
 )
 public class ReminderCommand extends Command implements OnReactionAddListener {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ReminderCommand.class);
 
     private final String CANCEL_EMOJI = "❌";
 
     private Message message = null;
     private RemindersBean remindersBean = null;
+    private boolean active = true;
 
     public ReminderCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -113,10 +121,12 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
                 generateNewId(remindersBeans),
                 channel.getId(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),
-                messageText
+                messageText,
+                this::cancel
         );
 
         remindersBeans.put(remindersBean.getId(), remindersBean);
+        ReminderManager.getInstance().loadReminderBean(remindersBean);
     }
 
     private int generateNewId(CustomObservableMap<Integer, RemindersBean> remindersBeans) {
@@ -130,9 +140,20 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals(CANCEL_EMOJI)) {
+            cancel();
+        }
+    }
+
+    private void cancel() {
+        if (active) {
+            remindersBean.stop();
             removeReactionListener();
-            DBReminders.getInstance().loadBean().remove(remindersBean.getId());
-            message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("canceled"))).get();
+            try {
+                DBReminders.getInstance().loadBean().remove(remindersBean.getId(), remindersBean);
+            } catch (Exception e) {
+                LOGGER.error("Could not load reminders", e);
+            }
+            message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
         }
     }
 
@@ -142,6 +163,8 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
     }
 
     @Override
-    public void onReactionTimeOut(Message message) throws Throwable {}
+    public void onReactionTimeOut(Message message) throws Throwable {
+        active = false;
+    }
 
 }

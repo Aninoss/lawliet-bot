@@ -28,7 +28,7 @@ public class TrackerManager {
 
     private boolean active = false;
 
-    public void start() {
+    public synchronized void start() {
         if (active) return;
         active = true;
 
@@ -122,10 +122,6 @@ public class TrackerManager {
         }
 
         return trackerCommandTriggerList;
-    }
-
-    public void stop() {
-        active = false;
     }
 
 }

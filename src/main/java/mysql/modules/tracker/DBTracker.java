@@ -110,7 +110,6 @@ public class DBTracker extends DBCached {
     @Override
     public void clear() {
         if (trackerBean != null) {
-            TrackerManager.getInstance().stop();
             trackerBean = null;
             start();
         }

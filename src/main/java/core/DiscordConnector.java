@@ -4,6 +4,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
+import modules.ReminderManager;
 import modules.repair.AutoChannelRepair;
 import modules.repair.RolesRepair;
 import mysql.modules.fisheryusers.DBFishery;
@@ -113,6 +114,7 @@ public class DiscordConnector {
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();
         if (Bot.isProductionMode()) BumpReminder.getInstance().start();
+        ReminderManager.getInstance().start();
 
         DiscordApiCollection.getInstance().setStarted();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
