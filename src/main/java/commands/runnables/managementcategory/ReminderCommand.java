@@ -72,6 +72,19 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             return false;
         }
 
+        EmbedBuilder missingPermissionsEmbed = PermissionUtil.getUserAndBotPermissionMissingEmbed(
+                getLocale(),
+                event.getServer().get(),
+                channel,
+                event.getMessage().getUserAuthor().get(),
+                Permission.READ_MESSAGES | Permission.SEND_MESSAGES,
+                Permission.READ_MESSAGES | Permission.SEND_MESSAGES
+        );
+        if (missingPermissionsEmbed != null) {
+            event.getChannel().sendMessage(missingPermissionsEmbed).get();
+            return false;
+        }
+
         if (!PermissionUtil.userCanMentionRoles(channel, event.getMessageAuthor().asUser().get(), event.getMessageContent())) {
             event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("user_nomention"))).get();
             return false;

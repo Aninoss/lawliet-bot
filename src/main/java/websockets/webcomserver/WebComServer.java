@@ -108,7 +108,7 @@ public class WebComServer {
             Locale locale = new Locale(localeString);
             String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, commandCategory, key));
             if (!str.isEmpty())
-                str = ("\n" + str).replace("\n", "\n• L." + commandTrigger + " ").substring(1);
+                str = ("\n" + str).replace("\n", "\nL." + commandTrigger + " ").substring(1);
 
             jsonObject.put(locale.getDisplayName(), str);
         }

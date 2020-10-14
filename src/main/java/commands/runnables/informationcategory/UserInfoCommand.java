@@ -58,8 +58,7 @@ public class UserInfoCommand extends Command {
                     user.getIdAsString(),
                     user.getAvatar().getUrl().toString() + "?size=2048",
                     user.getJoinedAtTimestamp(server).isPresent() ? TimeUtil.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
-                    TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true),
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "status_" + user.getStatus().getStatusString())
+                    TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true)
             };
 
             EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args)).
