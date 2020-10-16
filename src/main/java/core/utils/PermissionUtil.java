@@ -14,7 +14,6 @@ import org.javacord.api.entity.permission.Permissions;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

@@ -268,37 +268,40 @@ public class HelpCommand extends Command implements OnNavigationListener {
             if (!commandTrigger.equals(getTrigger()) &&
                     (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
             ) {
-                StringBuilder commands = new StringBuilder();
+                StringBuilder title = new StringBuilder();
                 boolean canAccess = PermissionUtil.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 1;
 
-                commands.append("**")
+                title.append("**")
                         .append(LetterEmojis.LETTERS[i])
                         .append(" → ")
                         .append(command.getEmoji())
                         .append(" ");
 
-                if (!canAccess) commands.append("~~");
+                if (!canAccess) title.append("~~");
 
-                commands.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title").toUpperCase());
+                title.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title"));
                 if (command.getReleaseDate().isAfter(LocalDate.now()))
-                    commands.append(" ").append(getString("beta"));
+                    title.append(" ").append(getString("beta"));
 
-                if (!canAccess) commands.append("~~");
-                if (command.isModCommand()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
-                if (command instanceof OnTrackerRequestListener) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
-                if (command.isNsfw()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
-                if (command.isPatreonRequired()) commands.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+                if (!canAccess) title.append("~~");
+                if (command.isModCommand()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
+                if (command instanceof OnTrackerRequestListener) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
+                if (command.isNsfw()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
+                if (command.isPatreonRequired()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+                title.append("**");
 
-                commands.append("**\n").append("`").append(getPrefix()).append(commandTrigger).append("`")
+
+                StringBuilder commands = new StringBuilder();
+                commands.append("`").append(getPrefix()).append(commandTrigger).append("`")
                         .append(" - ")
-                        .append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description"))
-                        .append("\n\n");
+                        .append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description"));
+
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
 
-                eb.addField(Emojis.EMPTY_EMOJI, commands.toString());
+                eb.addField(title.toString(), commands.toString());
             }
         }
 

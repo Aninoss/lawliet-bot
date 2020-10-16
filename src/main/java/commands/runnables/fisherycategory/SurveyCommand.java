@@ -164,7 +164,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         channel.sendMessage(getResultsEmbed(lastSurvey, channel.getServer(), user));
 
         //Survey Message
-        EmbedBuilder eb = getSurveyEmbed(currentSurvey);
+        EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
         if (!tracker) EmbedFactory.addTrackerNoteLog(getLocale(), channel.getServer(), userRequested, eb, getPrefix(), getTrigger());
         Message message = channel.sendMessage(eb).get();
 
@@ -227,7 +227,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         return eb;
     }
 
-    private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean) throws IOException {
+    private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean, boolean tracker) throws IOException {
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
         EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription", BELL_EMOJI), getString("title") + Emojis.EMPTY_EMOJI);
 
@@ -239,7 +239,9 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
         eb.addField(getString("majority"), majorityString.toString(), false);
-        EmbedFactory.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), TimeUtil.localDateToInstant(surveyBean.getNextDate()), false)));
+
+        Instant now = tracker ? TimeUtil.instantRoundDownToDay(Instant.now()).minusSeconds(1) : Instant.now();
+        EmbedFactory.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), now, TimeUtil.localDateToInstant(surveyBean.getNextDate()), false)));
 
         return eb;
     }

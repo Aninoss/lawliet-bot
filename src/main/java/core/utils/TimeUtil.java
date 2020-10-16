@@ -69,6 +69,12 @@ public final class TimeUtil {
         return roundCeiling.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
     }
 
+    public static Instant instantRoundDownToDay(Instant instant) {
+        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault());
+        LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.DAYS);
+        return roundCeiling.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+    }
+
     public static Instant parseDateString(String str) {
         String[] timeString = str.split(" ");
         int month = parseMonth(timeString[1]);
