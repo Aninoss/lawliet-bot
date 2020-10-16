@@ -22,7 +22,7 @@ public class UpvoteCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("template", ExternalLinks.UPVOTE_URL))).get();
+        event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("template", ExternalLinks.UPVOTE_URL))).get();
         return true;
     }
 

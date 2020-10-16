@@ -463,21 +463,21 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     @Draw(state = ADD_OR_EDIT)
     public EmbedBuilder onDrawAddOrEdit(DiscordApi api) {
         setOptions(getString("state0_options").split("\n"));
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
     @Draw(state = ADD_MESSAGE)
     public EmbedBuilder onDrawAddMessage(DiscordApi api) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (channel != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", Optional.ofNullable(channel).map(Mentionable::getMentionTag).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(Mentionable::getMentionTag).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage(DiscordApi api) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (editMessage != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description", Optional.ofNullable(editMessage).map(DiscordEntity::getIdAsString).orElse(notSet)), getString("state2_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state2_description", Optional.ofNullable(editMessage).map(DiscordEntity::getIdAsString).orElse(notSet)), getString("state2_title"));
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
@@ -497,7 +497,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         if (editMode) add = "edit";
         else add = "new";
 
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title_"+add))
+        return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_"+add))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), true)
                 .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
@@ -506,19 +506,19 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     @Draw(state = UPDATE_TITLE)
     public EmbedBuilder onDrawUpdateTitle(DiscordApi api) {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
     }
 
     @Draw(state = UPDATE_DESC)
     public EmbedBuilder onDrawUpdateDesc(DiscordApi api) {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state5_description"), getString("state5_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
     }
 
     @Draw(state = ADD_SLOT)
     public EmbedBuilder onDrawAddSlot(DiscordApi api) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (roleTemp != null && emojiTemp != null) setOptions(new String[]{getString("state6_options")});
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Mentionable::getMentionTag).orElse(notSet), Optional.ofNullable(roleTemp).map(Role::getMentionTag).orElse(notSet)), getString("state6_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Mentionable::getMentionTag).orElse(notSet), Optional.ofNullable(roleTemp).map(Role::getMentionTag).orElse(notSet)), getString("state6_title"));
     }
 
     @Draw(state = REMOVE_SLOT)
@@ -529,7 +529,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
         setOptions(optionsDelete.toArray(new String[0]));
 
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state7_description"), getString("state7_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
     }
 
     @Draw(state = EXAMPLE)
@@ -539,7 +539,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     @Draw(state = SENT)
     public EmbedBuilder onDrawSent(DiscordApi api) {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state9_description"), getString("state9_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state9_description"), getString("state9_title"));
     }
 
     @Override
@@ -556,7 +556,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         if (!test) identity = Emojis.EMPTY_EMOJI;
         if (!removeRole && !test) titleAdd = Emojis.EMPTY_EMOJI;
         if (!multipleRoles && !test) titleAdd += Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI;
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(getEmoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
                 .setDescription(description)
                 .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString());
@@ -622,7 +622,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
                 PermissionUtil.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(),  event.getUser(), getUserPermissions()).isEmpty()
         ) {
-             event.getUser().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("messageid", message.getLink().toString())));
+             event.getUser().sendMessage(EmbedFactory.getEmbedDefault(this, getString("messageid", message.getLink().toString())));
         }
 
         if (!block.contains(user.getId())) {

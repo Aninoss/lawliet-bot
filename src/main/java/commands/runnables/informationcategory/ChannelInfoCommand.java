@@ -4,6 +4,7 @@ import commands.listeners.CommandProperties;
 
 import commands.Command;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -37,7 +38,7 @@ public class ChannelInfoCommand extends Command {
         Server server = event.getServer().get();
         ArrayList<ServerTextChannel> list = MentionUtil.getTextChannels(event.getMessage(), followedString).getList();
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_channels"))).get();
             return false;
         } else if (list.size() == 0) {
@@ -57,13 +58,13 @@ public class ChannelInfoCommand extends Command {
                     StringUtil.numToString(members.stream().filter(User::isBot).count())
             };
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", args));
             if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
 
             if (noMention) {
                 eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
                 if (followedString.length() > 0)
-                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                    EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }
 
             event.getServerTextChannel().get().sendMessage(eb).get();

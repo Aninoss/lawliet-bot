@@ -43,7 +43,7 @@ public class CommunismCommand extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), FACTS.length);
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, FACTS[n]);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, FACTS[n]);
         event.getChannel().sendMessage(eb).get();
         return true;
     }

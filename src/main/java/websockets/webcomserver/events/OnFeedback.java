@@ -29,7 +29,7 @@ public class OnFeedback extends EventAbstract {
 
         LOGGER.info("New Feedback! ### " + cause + " ###\n" + reason);
 
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(cause)
                 .setAuthor("BOT KICK FEEDBACK")
                 .setDescription(reason);

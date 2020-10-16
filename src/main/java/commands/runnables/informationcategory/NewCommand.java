@@ -8,6 +8,7 @@ import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotUtil;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import mysql.modules.version.DBVersion;
@@ -58,12 +59,12 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                         event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, false)).get();
                         return true;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                        event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                                 TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "10"))).get();
                         return false;
                     }
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                             TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "1"))).get();
                     return false;
                 }
@@ -75,7 +76,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                     event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, false)).get();
                     return true;
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString))).get();
                     return false;
                 }
@@ -85,7 +86,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     private EmbedBuilder getEmbedNormal(Server server, User user, List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
-        EmbedFactory.addTrackerNoteLog(getLocale(), server, user, eb, getPrefix(), getTrigger());
+        EmbedUtil.addTrackerNoteLog(getLocale(), server, user, eb, getPrefix(), getTrigger());
         return eb;
     }
 
@@ -96,7 +97,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     }
 
     private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         if (showEmptyFooter) eb.setFooter(getString("footer"));
         for(int i = versions.size() - 1; i >= 0; i--) {
             VersionBeanSlot slot = versions.get(i);

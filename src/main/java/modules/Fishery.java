@@ -43,7 +43,7 @@ public class Fishery {
     public static void spawnTreasureChest(long serverId, ServerTextChannel channel) throws ExecutionException, InterruptedException {
         ServerBean serverBean = DBServer.getInstance().getBean(serverId);
         Locale locale = serverBean.getLocale();
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");

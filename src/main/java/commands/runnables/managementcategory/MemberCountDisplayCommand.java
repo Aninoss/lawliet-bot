@@ -221,7 +221,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplay>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
@@ -233,7 +233,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
 
             case 1:
                 if (currentName != null && currentVC != null) setOptions(new String[]{getString("state1_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).map(Nameable::getName).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).map(Nameable::getName).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:
                 ArrayList<MemberCountDisplay> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
@@ -242,7 +242,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                     roleStrings[i] = channelNames.get(i).getMask();
                 }
                 setOptions(roleStrings);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             default:
                 return null;

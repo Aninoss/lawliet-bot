@@ -54,7 +54,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
         String text = welcomeMessageBean.getDmText();
 
         if (text.length() > 0) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setAuthor(server.getName(), "", server.getIcon().map(icon -> icon.getUrl().toString()).orElse(""))
                     .setDescription(
                             Welcome.resolveVariables(

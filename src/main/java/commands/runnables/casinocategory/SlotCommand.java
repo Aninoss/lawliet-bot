@@ -8,6 +8,7 @@ import constants.Category;
 import constants.LogStatus;
 import constants.Permission;
 import core.*;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -143,7 +144,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
             first = false;
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString(key,
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key,
                 player.getDisplayName(server),
                 StringUtil.numToString(coinsInput),
                 getSpinningWheel(0),
@@ -166,7 +167,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
 
         if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
-        eb = EmbedFactory.addLog(eb, logStatus, log);
+        eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
 
         return eb;

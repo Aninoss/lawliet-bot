@@ -220,7 +220,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
 
         switch (state) {
             case 0:
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
                 eb.setTitle(getEmoji() + " " + getString("title") + Emojis.EMPTY_EMOJI.repeat(22)); //TODO Just temporary
 
                 eb.addField(getString("beginning_title"), getString("beginning"));
@@ -271,7 +271,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 return eb;
 
             case 1:
-                return EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"));
+                return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"));
 
             default:
                 return null;

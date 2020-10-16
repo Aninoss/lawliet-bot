@@ -55,7 +55,7 @@ public class Mod {
                 try {
                     server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).get();
 
-                    EmbedBuilder eb = EmbedFactory.getEmbed()
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                             .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
 
@@ -67,7 +67,7 @@ public class Mod {
                 try {
                     server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).get();
 
-                    EmbedBuilder eb = EmbedFactory.getEmbed()
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
                             .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
 

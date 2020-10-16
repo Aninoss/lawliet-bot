@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import modules.PostBundle;
 import modules.animenews.AnimeNewsDownloader;
 import modules.animenews.AnimeNewsPost;
@@ -32,14 +33,14 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
-        EmbedBuilder eb = EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(post), getPrefix(), getTrigger());
+        EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(post), getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
 
         return true;
     }
 
     private EmbedBuilder getEmbed(AnimeNewsPost post) {
-        return EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
+        return EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setAuthor(post.getAuthor())
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())

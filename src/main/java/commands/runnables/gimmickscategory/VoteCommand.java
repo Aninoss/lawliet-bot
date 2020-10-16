@@ -4,6 +4,7 @@ import commands.listeners.*;
 import commands.Command;
 import constants.*;
 import core.*;
+import core.utils.EmbedUtil;
 import modules.VoteInfo;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.Message;
@@ -48,7 +49,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
             String topic = StringUtil.trimString(args[0]);
 
             if (topic.length() == 0) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("no_topic")));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_topic")));
                 return false;
             } else {
                 String[] answers = new String[args.length - 1];
@@ -67,7 +68,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 return true;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("wrong_args")));
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("wrong_args")));
             return false;
         }
     }
@@ -81,7 +82,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
             resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))
                 .addField(getString("topic"), voteInfo.getTopic(),false)
                 .addField(getString("choices"), answerText.toString(),false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")",resultsText.toString(),false);
@@ -89,7 +90,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         if (voteInfo.getCreatorId().isPresent())
             eb.setFooter(getString("footer", String.valueOf(voteInfo.getCreatorId().get())));
 
-        if (!open) EmbedFactory.addLog(eb, LogStatus.WARNING, getString("closed"));
+        if (!open) EmbedUtil.addLog(eb, LogStatus.WARNING, getString("closed"));
 
         return eb;
     }

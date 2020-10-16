@@ -50,7 +50,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
         FisheryStatus status = serverBean.getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
         }
 
@@ -62,7 +62,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                 .collect(Collectors.toList());
 
         if (list.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")));
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")));
             return false;
         }
 
@@ -100,11 +100,11 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                 String amountString = StringUtil.trimString(followedString.substring(typeString.length()));
                 Long value;
                 if ((value = updateValues(type, amountString)) != null) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(value))));
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(value))));
                     removeNavigation();
                     return true;
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
                     return false;
                 }
             }
@@ -237,9 +237,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             );
 
             String desc = getString("state0_description", user.getMentionTag());
-            return EmbedFactory.getCommandEmbedStandard(this, desc);
+            return EmbedFactory.getEmbedDefault(this, desc);
         } else {
-            return EmbedFactory.getCommandEmbedStandard(this,
+            return EmbedFactory.getEmbedDefault(this,
                     getString("state1_description",
                             state - 1,
                             StringUtil.numToString(fisheryUserBean.getFish()),

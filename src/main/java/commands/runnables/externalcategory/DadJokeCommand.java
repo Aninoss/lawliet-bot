@@ -34,7 +34,7 @@ public class DadJokeCommand extends Command {
             joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, joke)).get();
+        event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, joke)).get();
         return true;
     }
 }

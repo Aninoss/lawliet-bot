@@ -6,6 +6,7 @@ import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
 import core.mention.MentionList;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -43,7 +44,7 @@ public class GiveCommand extends FisheryAbstract {
         list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
 
         if (list.size() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("no_mentions"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_mentions"))).get();
             return false;
         }
 
@@ -69,7 +70,7 @@ public class GiveCommand extends FisheryAbstract {
                 value = cap;
                 limitCapped = true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))))).get();
                 return false;
             }
         }
@@ -83,7 +84,7 @@ public class GiveCommand extends FisheryAbstract {
                 fisheryUser1.addCoins(value);
                 fisheryUser1.addCoinsGiven(value);
 
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("successful",
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("successful",
                         StringUtil.numToString(value),
                         user1.getMentionTag(),
                         user0.getMentionTag(),
@@ -94,18 +95,18 @@ public class GiveCommand extends FisheryAbstract {
                 ));
 
                 if (limitCapped)
-                    EmbedFactory.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))));
+                    EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))));
 
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else {
                 if (fisheryUser0.getCoins() <= 0)
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("nocoins"))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("nocoins"))).get();
                 else
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
         }
 
         return false;

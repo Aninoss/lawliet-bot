@@ -128,7 +128,7 @@ public class SurveyResults implements ScheduleEventInterface {
         Locale locale = new Locale(prefersGerman ? Locales.DE : Locales.EN);
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(locale);
 
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
                         surveyQuestion.getQuestion(),

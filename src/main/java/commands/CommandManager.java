@@ -13,6 +13,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Settings;
 import core.*;
+import core.utils.EmbedUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -103,7 +104,7 @@ public class CommandManager {
                 !event.getChannel().canManageMessages(author) &&
                 event.getChannel().canYouEmbedLinks()
         ) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", ExternalLinks.BOT_INVITE_REMINDER_URL));
 
@@ -172,11 +173,11 @@ public class CommandManager {
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(command.getLocale(), Instant.now(), TimeUtil.localDateToInstant(releaseDate), false));
 
         if (event.getChannel().canYouEmbedLinks()) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
-            EmbedFactory.addLog(eb, LogStatus.TIME, waitTime);
+            EmbedUtil.addLog(eb, LogStatus.TIME, waitTime);
             sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {
             sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`");
@@ -193,7 +194,7 @@ public class CommandManager {
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", ExternalLinks.PATREON_PAGE);
 
         if (event.getChannel().canYouEmbedLinks()) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);

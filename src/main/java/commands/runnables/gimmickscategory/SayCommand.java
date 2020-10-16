@@ -25,7 +25,7 @@ public class SayCommand extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(followedString)
                 .setFooter(event.getMessage().getUserAuthor().get().getDiscriminatedName());
 

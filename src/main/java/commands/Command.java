@@ -6,6 +6,7 @@ import commands.runnables.informationcategory.PingCommand;
 import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import org.javacord.api.DiscordApi;
@@ -262,8 +263,7 @@ public abstract class Command {
     }
 
     public void drawSuper(DiscordApi api, TextChannel channel) throws Throwable {
-        EmbedBuilder eb = draw(api, state)
-                .setTimestampToNow();
+        EmbedBuilder eb = draw(api, state);
 
         int max = ((OnNavigationListener) this).getMaxReactionNumber();
 
@@ -286,7 +286,7 @@ public abstract class Command {
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str);
         }
 
-        EmbedFactory.addLog(eb, logStatus, log);
+        EmbedUtil.addLog(eb, logStatus, log);
         if (options != null && options.length > max) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
         try {
             if (navigationMessage == null) {

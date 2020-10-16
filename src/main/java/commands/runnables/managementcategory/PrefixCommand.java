@@ -44,15 +44,15 @@ public class PrefixCommand extends Command {
                     }
                 }
 
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("changed", followedString))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("changed", followedString))).get();
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5"))).get();
                 return false;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     getString("no_arg"))).get();
             return false;
         }

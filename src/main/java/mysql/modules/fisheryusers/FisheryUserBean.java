@@ -5,6 +5,7 @@ import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
 import core.*;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.BeanWithServer;
@@ -253,7 +254,7 @@ public class FisheryUserBean extends BeanWithServer {
                     Locale locale = getServerBean().getLocale();
                     String prefix = getServerBean().getPrefix();
 
-                    Message message1 = channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbed()
+                    Message message1 = channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbedDefault()
                             .setAuthor(user)
                             .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
                             .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
@@ -392,7 +393,7 @@ public class FisheryUserBean extends BeanWithServer {
         String displayName = user.getDisplayName(server);
         while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) displayName = displayName.substring(patreonEmoji.length());
 
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), "", user.getAvatar())
                 .setThumbnail(user.getAvatar());
 
@@ -417,7 +418,7 @@ public class FisheryUserBean extends BeanWithServer {
                 codeBlock
         ));
 
-        if (banned) EmbedFactory.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
+        if (banned) EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
 
         return eb;
     }

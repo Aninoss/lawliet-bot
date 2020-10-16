@@ -41,17 +41,17 @@ public class TriggerDeleteCommand extends Command implements OnReactionAddListen
             }
 
             if (option == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("invalid", followedString)));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", followedString)));
                 return false;
             }
 
             boolean active = option == 1;
             DBServer.getInstance().getBean(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set", active))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
             return true;
         } else {
             String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBServer.getInstance().getBean(event.getServer().get().getId()).isCommandAuthorMessageRemove());
-            message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("reaction", onOffText))).get();
+            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText))).get();
             for(int i = 0; i < 2; i++) {
                 message.addReaction(StringUtil.getEmojiForBoolean(i == 1));
             }
@@ -66,7 +66,7 @@ public class TriggerDeleteCommand extends Command implements OnReactionAddListen
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 boolean active = i == 1;
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
-                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set", active))).get();
+                getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
                 removeReactionListener(getReactionMessage());
                 return;
             }

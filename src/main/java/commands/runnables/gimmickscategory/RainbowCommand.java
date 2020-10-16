@@ -6,6 +6,7 @@ import commands.Command;
 import constants.Permission;
 import core.*;
 import core.mention.MentionList;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.ImageCreator;
@@ -39,7 +40,7 @@ public class RainbowCommand extends Command {
         MentionList<User> userMention = MentionUtil.getUsers(message,followedString);
         ArrayList<User> list = userMention.getList();
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
@@ -56,20 +57,20 @@ public class RainbowCommand extends Command {
         }
 
         for (User user: list) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,getString("template",user.getDisplayName(server)))
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
                     .setImage(ImageCreator.createImageRainbow(user, opacity));
 
             if (!userMentioned) {
                 eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                 if (StringUtil.filterLettersFromString(followedString).length() > 0)
-                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                    EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }
 
             Message message1 = event.getChannel().sendMessage(eb).get();
 
             if (message1 != null) {
                 String url = message1.getEmbeds().get(0).getImage().get().getUrl().toString();
-                eb = EmbedFactory.getEmbed().setDescription(getString("template2", url));
+                eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", url));
                 event.getChannel().sendMessage(eb).get();
             }
         }

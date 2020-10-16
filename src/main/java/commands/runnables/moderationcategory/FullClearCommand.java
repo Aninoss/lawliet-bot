@@ -51,7 +51,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         int deleted = pair.getKey();
 
         String key = skipped ? "finished_too_old" : "finished_description";
-        Message m = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString(key, deleted != 1, String.valueOf(deleted)))
+        Message m = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)))
                 .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
         Thread t = new CustomThread(() -> {
             try {
@@ -72,7 +72,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
             if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 hours = Integer.parseInt(str);
             } else {
-                channel.sendMessage(EmbedFactory.getCommandEmbedError(this,
+                channel.sendMessage(EmbedFactory.getEmbedError(this,
                         getString("wrong_args", "0", "20159"))).get();
                 return null;
             }

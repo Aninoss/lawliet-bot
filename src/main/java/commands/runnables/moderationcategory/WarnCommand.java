@@ -54,7 +54,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
 
         if (userList.size() > 1 || moderationBean.isQuestion()) {
             Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmaion", reason.length() > 0, mention.getMentionText(), reason));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("confirmaion", reason.length() > 0, mention.getMentionText(), reason));
             if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
             postMessage(event.getServerTextChannel().get(), eb);
             for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
@@ -70,7 +70,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         MentionList<User> userMentionList = getMentionList(message, followedString);
         userList = userMentionList.getList();
         if (userList.size() == 0) {
-            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            message.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
             return false;
         }
@@ -78,7 +78,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         reason = userMentionList.getResultMessageString().replace("`", "");
         reason = StringUtil.trimString(reason);
         if (reason.length() > CHAR_LIMIT) {
-            message.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
+            message.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
             return false;
         }
 
@@ -98,12 +98,12 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         }
         if (usersErrorList.size() > 0) {
             Mention mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), usersErrorList);
-            postMessage(channel, EmbedFactory.getCommandEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
+            postMessage(channel, EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
             return false;
         }
 
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-        EmbedBuilder actionEmbed = EmbedFactory.getCommandEmbedStandard(this, getString("action", mention.isMultiple(), mention.getMentionText(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
+        EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         for(User user: userList) {
             try {
@@ -119,7 +119,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
 
         Mod.postLog(this, actionEmbed, moderationBean);
 
-        EmbedBuilder successEb = EmbedFactory.getCommandEmbedStandard(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
+        EmbedBuilder successEb = EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
         postMessage(channel, successEb);
 
@@ -158,7 +158,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
                         execute(event.getServerTextChannel().get(),  event.getUser());
                     } else {
                         removeReactionListener();
-                        postMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("abort_description"), getString("abort_title")));
+                        postMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("abort_description"), getString("abort_title")));
                     }
                 }
             }

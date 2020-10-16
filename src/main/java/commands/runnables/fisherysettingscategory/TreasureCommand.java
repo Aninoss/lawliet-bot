@@ -32,12 +32,12 @@ public class TreasureCommand extends FisheryAbstract {
             if (StringUtil.stringIsInt(followedString)) {
                 amount = Integer.parseInt(followedString);
                 if (amount < 1 || amount > 30) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))).get();
                     return false;
                 }
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
                 return false;
             }

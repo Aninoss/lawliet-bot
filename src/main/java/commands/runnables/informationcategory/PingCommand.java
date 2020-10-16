@@ -29,7 +29,7 @@ public class PingCommand extends Command {
         long milisGateway = event.getApi().getLatestGatewayLatency().toMillis();
         long milisRest = event.getApi().measureRestLatency().get().toMillis();
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("pong",
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("pong",
                 StringUtil.numToString(milisInternal),
                 StringUtil.numToString(milisGateway),
                 StringUtil.numToString(milisRest)

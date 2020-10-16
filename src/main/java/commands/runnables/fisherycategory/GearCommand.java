@@ -6,6 +6,7 @@ import constants.Category;
 import constants.FisheryCategoryInterface;
 import constants.Permission;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.PatreonCache;
 import core.TextManager;
@@ -45,7 +46,7 @@ public class GearCommand extends FisheryAbstract {
         Message message = event.getMessage();
         ArrayList<User> list = MentionUtil.getUsers(message, followedString).getList();
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_users"))).get();
             return false;
         }
@@ -54,7 +55,7 @@ public class GearCommand extends FisheryAbstract {
         list.removeIf(User::isBot);
         if (list.size() == 0) {
             if (userBefore) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
                 return false;
             } else {
                 list.add(message.getUserAuthor().get());
@@ -65,7 +66,7 @@ public class GearCommand extends FisheryAbstract {
         List<Role> buyableRoles = DBFishery.getInstance().getBean(server.getId()).getRoles();
         for (User user : list) {
             FisheryUserBean fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId());
-            EmbedBuilder eb = EmbedFactory.getEmbed()
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(getString("desc", StringUtil.numToString(fisheryUserBean.getFish()), StringUtil.numToString(fisheryUserBean.getCoins())));
             if (eb != null) {
                 boolean patron = PatreonCache.getInstance().getPatreonLevel(user.getId()) >= 1;
@@ -103,7 +104,7 @@ public class GearCommand extends FisheryAbstract {
                 if (!userMentioned) {
                     eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                     if (followedString.length() > 0)
-                        EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                        EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
                 }
 
                 event.getChannel().sendMessage(eb).get();

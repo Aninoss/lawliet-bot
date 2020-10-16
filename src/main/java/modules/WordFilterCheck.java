@@ -40,7 +40,7 @@ public class WordFilterCheck {
             boolean successful = safeDeleteMessage(message);
             informLogReceivers(bannedWordsBean, wordFilterCommand, locale, message, author, successful);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(wordFilterCommand)
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(wordFilterCommand)
                     .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true);
 
@@ -57,7 +57,7 @@ public class WordFilterCheck {
     }
 
     private static void informLogReceivers(BannedWordsBean bannedWordsBean, WordFilterCommand wordFilterCommand, Locale locale, Message message, User author, boolean successful) throws InterruptedException {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(wordFilterCommand)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(wordFilterCommand)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true);
         if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful", author.getMentionTag()));
@@ -73,7 +73,7 @@ public class WordFilterCheck {
     }
 
     private static void informMessageAuthor(WordFilterCommand wordFilterCommand, Locale locale, Message message, User author) throws InterruptedException {
-        EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(wordFilterCommand)
+        EmbedBuilder ebUser = EmbedFactory.getEmbedDefault(wordFilterCommand)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true)
                 .setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful_user"));

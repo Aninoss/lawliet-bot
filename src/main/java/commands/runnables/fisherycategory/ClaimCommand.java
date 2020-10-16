@@ -6,6 +6,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.Fishery;
@@ -15,7 +16,6 @@ import mysql.modules.upvotes.DBUpvotes;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -40,7 +40,7 @@ public class ClaimCommand extends FisheryAbstract {
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nothing_description", ExternalLinks.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description", ExternalLinks.UPVOTE_URL));
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
@@ -49,7 +49,7 @@ public class ClaimCommand extends FisheryAbstract {
         } else {
             long fishes = Fishery.getClaimValue(userBean);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
             event.getChannel().sendMessage(eb);
@@ -58,11 +58,13 @@ public class ClaimCommand extends FisheryAbstract {
         }
     }
 
-    private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) throws IOException {
-        if (nextUpvote.isAfter(Instant.now()))
-            EmbedFactory.addLog(eb, LogStatus.TIME, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
-        else
-            EmbedFactory.addLog(eb, LogStatus.TIME, getString("next_now"));
+    private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) {
+        if (nextUpvote.isAfter(Instant.now())) {
+            EmbedUtil.addLog(eb, LogStatus.TIME, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
+            EmbedUtil.addReminaingTime(getLocale(), eb, nextUpvote);
+        } else {
+            EmbedUtil.addLog(eb, LogStatus.TIME, getString("next_now"));
+        }
     }
 
 }

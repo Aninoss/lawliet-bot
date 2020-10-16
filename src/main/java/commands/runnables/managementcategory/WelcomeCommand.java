@@ -257,7 +257,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
                         .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
@@ -277,7 +277,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                 if (state == 5) {
                     return getWelcomeMessageTest(author);
                 }
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state"+state+"_description"), getString("state"+state+"_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state"+state+"_description"), getString("state"+state+"_title"));
         }
     }
 
@@ -300,7 +300,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
 
     public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
         Server server = welcomeMessageBean.getServer().get();
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
                         StringUtil.escapeMarkdown(server.getName()),
                         user.getMentionTag(),

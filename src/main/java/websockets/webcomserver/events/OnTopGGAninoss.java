@@ -47,7 +47,7 @@ public class OnTopGGAninoss extends EventAbstract {
                     long add = Fishery.getClaimValue(userBean);
 
                     String desc = TextManager.getString(locale, TextManager.GENERAL, "topgg_aninoss", user.getMentionTag(), server.getName(), StringUtil.numToString(add), "https://top.gg/servers/462405241955155979/vote");
-                    bumpChannel.sendMessage(EmbedFactory.getEmbed().setDescription(desc)).get();
+                    bumpChannel.sendMessage(EmbedFactory.getEmbedDefault().setDescription(desc)).get();
                     bumpChannel.sendMessage(userBean.changeValues(add, 0)).get();
                 } catch (Throwable e) {
                     LOGGER.error("Exception in top.gg for Aninoss", e);

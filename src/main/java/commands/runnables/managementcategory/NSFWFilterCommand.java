@@ -142,11 +142,11 @@ public class NSFWFilterCommand extends Command implements OnNavigationListener {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                        .addField(getString("state0_mkeywords"), StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), true);
 
             case 1:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
                 String[] keywordStrings = new String[keywords.size()];
@@ -154,7 +154,7 @@ public class NSFWFilterCommand extends Command implements OnNavigationListener {
                     keywordStrings[i] = keywords.get(i);
                 }
                 setOptions(keywordStrings);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
         }
         return null;
     }

@@ -50,7 +50,7 @@ public class NibbleCommand extends Command {
         MentionList<User> userMention = MentionUtil.getUsers(event.getMessage(), followedString);
         List<User> userList = userMention.getList();
         if (userList.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));
             event.getChannel().sendMessage(eb).get();
             return false;
         }
@@ -60,7 +60,7 @@ public class NibbleCommand extends Command {
                 user1.getId() != 397209883793162240L &&
                 DiscordApiCollection.getInstance().getOwnerId() != user0.getId()
         ) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("wrong_user"));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb).get();
             return false;
         }
@@ -72,7 +72,7 @@ public class NibbleCommand extends Command {
         String[] gifs = chooseEarGif ? getGifsEar() : getGifs();
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger() + chooseEarGif, event.getServer().get().getId(), gifs.length)];
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", user0.getDisplayName(server), user1.getDisplayName(server), text))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", user0.getDisplayName(server), user1.getDisplayName(server), text))
                 .setImage(gifUrl);
         event.getChannel().sendMessage(eb).get();
 

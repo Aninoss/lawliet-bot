@@ -130,7 +130,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
                         .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet)), true)
                         .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
@@ -140,10 +140,10 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
                         .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             default:
                 return null;

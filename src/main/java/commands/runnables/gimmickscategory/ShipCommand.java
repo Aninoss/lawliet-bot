@@ -41,7 +41,7 @@ public class ShipCommand extends Command {
             list.add(event.getMessage().getUserAuthor().get());
         }
         if (list.size() != 2) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     getString( "not_2"))).get();
             return false;
         }
@@ -61,11 +61,11 @@ public class ShipCommand extends Command {
 
         InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1), n, percentage);
         if (is == null) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("noavatar"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("noavatar"))).get();
             return false;
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setImage(is);
         event.getChannel().sendMessage(eb).get();
 

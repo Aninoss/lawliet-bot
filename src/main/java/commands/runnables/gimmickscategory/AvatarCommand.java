@@ -4,6 +4,7 @@ import commands.listeners.CommandProperties;
 
 import commands.Command;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.TextManager;
 import org.javacord.api.entity.message.Message;
@@ -33,7 +34,7 @@ public class AvatarCommand extends Command {
         Message message = event.getMessage();
         ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
@@ -44,14 +45,14 @@ public class AvatarCommand extends Command {
         }
         for (User user: list) {
             String avatarUrl = user.getAvatar().getUrl().toString() + "?size=2048";
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
                     getString("template",user.getDisplayName(server), avatarUrl))
                     .setImage(avatarUrl);
 
             if (!userMentioned) {
                 eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                 if (followedString.length() > 0)
-                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                    EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }
 
             event.getChannel().sendMessage(eb).get();

@@ -27,14 +27,14 @@ public class SignUpCommand extends Command {
         boolean success = DBGiveaway.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
         if (success) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
                     getString("success", ExternalLinks.SERVER_INVITE_URL,
                             event.getMessage().getUserAuthor().get().getMentionTag(),
                             StringUtil.escapeMarkdown(event.getServer().get().getName())
                     )
             )).get();
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     getString("exists", ExternalLinks.SERVER_INVITE_URL),
                     getString("exists_title")
             )).get();

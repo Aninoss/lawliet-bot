@@ -32,7 +32,7 @@ public abstract class InteractionAbstract extends Command {
 
         if (!mentionPresent && mention.containedBlockedUser()) {
             message.getChannel().sendMessage(
-                    EmbedFactory.getCommandEmbedStandard(this,
+                    EmbedFactory.getEmbedDefault(this,
                             TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
                             .setImage("https://media.discordapp.net/attachments/736277561373491265/736277600053493770/hug.gif")).get();
             return false;
@@ -47,10 +47,10 @@ public abstract class InteractionAbstract extends Command {
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
         EmbedBuilder eb;
         if (mentionPresent) {
-            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this,getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                     .setImage(gifUrl);
         } else {
-            eb = EmbedFactory.getCommandEmbedStandard(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                     .setImage(gifUrl);
         }
 

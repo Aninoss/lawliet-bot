@@ -6,6 +6,7 @@ import constants.Permission;
 import constants.TrackerResult;
 import core.*;
 import core.internet.InternetCache;
+import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
@@ -36,7 +37,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
+        EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }
@@ -81,8 +82,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
         } while (endTime.isBefore(new Date().toInstant()));
 
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
-                .setTimestampToNow()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setFooter(getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
 
         if (!isSplatfest) {

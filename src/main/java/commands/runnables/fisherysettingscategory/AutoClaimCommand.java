@@ -41,17 +41,17 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
             }
 
             if (option == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("invalid", followedString)));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", followedString)));
                 return false;
             }
 
             boolean active = option == 1;
             DBAutoClaim.getInstance().getBean(user.getId()).setActive(active);
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set", active, user.getMentionTag()))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active, user.getMentionTag()))).get();
             return true;
         } else {
             String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBAutoClaim.getInstance().getBean(user.getId()).isActive());
-            message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("reaction", onOffText))).get();
+            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText))).get();
             for(int i = 0; i < 2; i++) {
                 message.addReaction(StringUtil.getEmojiForBoolean(i == 1));
             }
@@ -66,7 +66,7 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 boolean active = i == 1;
                 DBAutoClaim.getInstance().getBean(event.getUser().getId()).setActive(active);
-                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set", active, event.getUser().getMentionTag()))).get();
+                getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active, event.getUser().getMentionTag()))).get();
                 removeReactionListener(getReactionMessage());
                 return;
             }

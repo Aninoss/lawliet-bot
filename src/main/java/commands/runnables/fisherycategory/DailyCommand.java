@@ -6,6 +6,7 @@ import constants.*;
 import core.EmbedFactory;
 import core.PatreonCache;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -56,9 +57,9 @@ public class DailyCommand extends FisheryAbstract {
             if (bonusDonation > 0)
                 sb.append("\n").append(getString("point_donation", StringUtil.numToString(bonusDonation)));
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("codeblock", sb.toString()));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("codeblock", sb.toString()));
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", ExternalLinks.PATREON_PAGE, ExternalLinks.UPVOTE_URL), false);
-            if (breakStreak) EmbedFactory.addLog(eb, LogStatus.LOSE, getString("combobreak"));
+            if (breakStreak) EmbedUtil.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
             event.getChannel().sendMessage(eb).get();
             event.getChannel().sendMessage(userBean.changeValues(fishes + bonusCombo + bonusDonation, 0, dailyStreakNow)).get();
@@ -67,10 +68,11 @@ public class DailyCommand extends FisheryAbstract {
         } else {
             Instant nextDaily = TimeUtil.setInstantToNextDay(Instant.now());
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("claimed_desription"));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claimed_desription"));
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
-            EmbedFactory.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
+            EmbedUtil.addReminaingTime(getLocale(), eb, nextDaily);
+            EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
             event.getChannel().sendMessage(eb).get();
             return false;
         }

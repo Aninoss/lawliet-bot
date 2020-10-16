@@ -36,7 +36,7 @@ public class StatsCommand extends Command {
         String dephordName = DiscordApiCollection.getInstance().getUserById(303085910784737281L).map(User::getDiscriminatedName).orElse("???");
         String neverCookFirstName = DiscordApiCollection.getInstance().getUserById(298153126223937538L).map(User::getDiscriminatedName).orElse("???");
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
                 getString("template",
                 DiscordApiCollection.getInstance().getOwner().getMentionTag(),
                 ExternalLinks.BOT_INVITE_URL,

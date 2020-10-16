@@ -179,12 +179,12 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         .filter(Objects::nonNull)
                         .toArray(String[]::new);
                 setOptions(options);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
 
             case 1:
                 setOptions(getString("state1_options").split("\n"));
                 String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description", getCategoryStatus(category), categoryName));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
 
             case 2:
                 options = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
@@ -199,7 +199,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                         .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
                         .toArray(String[]::new);
                 setOptions(options);
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             default:
                 return null;

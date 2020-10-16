@@ -8,6 +8,7 @@ import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import core.*;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -91,7 +92,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     }
 
     private EmbedBuilder getEmbed(ServerTextChannel channel, User user) throws IOException {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         eb.addField(getString("yourbet"), getChoiceString(channel, 0), true);
         eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
         eb.addField(Emojis.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringUtil.numToString(coinsInput)));
@@ -101,7 +102,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         if (!active) {
-            eb = EmbedFactory.addLog(eb, logStatus, log);
+            eb = EmbedUtil.addLog(eb, logStatus, log);
             eb = addRetryOption(eb);
         }
 

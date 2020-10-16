@@ -31,7 +31,7 @@ public abstract class RedditAbstract extends Command {
         } while ((post == null || post.isNsfw()) && tries >= 0);
 
         if (post == null) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "error"))
                     .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_error", followedString));
 
@@ -40,7 +40,7 @@ public abstract class RedditAbstract extends Command {
             return false;
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setTitle(post.getTitle())
                 .setImage(post.getImage())
                 .setUrl(post.getUrl())

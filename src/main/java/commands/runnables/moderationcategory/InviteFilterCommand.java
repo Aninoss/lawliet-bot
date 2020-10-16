@@ -191,7 +191,7 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), true)
@@ -200,19 +200,19 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
 
             case 1:
                 setOptions(new String[]{getString("empty")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
                 setOptions(new String[]{getString("empty")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
                 setOptions(new String[]{getString("empty")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
                 setOptions(getString("state0_mactionlist").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
 
             default:
                 return null;

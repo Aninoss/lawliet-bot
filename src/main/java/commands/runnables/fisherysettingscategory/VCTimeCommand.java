@@ -47,7 +47,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {
-                message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
+                message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
                         getString("status",
                                 serverBean.getFisheryVcHoursCap().isPresent(),
                                 serverBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(in)).orElse(getString("unlimited")),
@@ -70,20 +70,20 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
         }
 
         if (!StringUtil.stringIsInt(argString)) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
             return false;
         }
 
         int value = Integer.parseInt(argString);
 
         if (value < 1 || value > 23) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23")));
             return false;
         }
 
         serverBean.setFisheryVcHoursCap(value);
 
-        sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("success", getNumberSlot(value), StringUtil.numToString(value))));
+        sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value))));
         return true;
     }
 
@@ -97,7 +97,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnF
         removeMessageForwarder();
         removeReactionListener();
         serverBean.setFisheryVcHoursCap(null);
-        sendMessage(channel, EmbedFactory.getCommandEmbedStandard(this, getString("success", getNumberSlot(null), getString("unlimited"))));
+        sendMessage(channel, EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited"))));
     }
 
     private int getNumberSlot(Integer i) {

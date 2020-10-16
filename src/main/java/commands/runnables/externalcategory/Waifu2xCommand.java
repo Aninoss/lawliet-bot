@@ -52,14 +52,14 @@ public class Waifu2xCommand extends Command {
         if (url != null) {
             String result = processImage(url);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("success", result));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result));
             eb.setImage(result);
 
             event.getChannel().sendMessage(eb).get();
             return true;
         }
 
-        EmbedBuilder notFound = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
+        EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
         event.getChannel().sendMessage(notFound).get();
         return false;
     }

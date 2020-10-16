@@ -6,6 +6,7 @@ import commands.Command;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.animerelease.AnimeReleaseDownloader;
 import modules.animerelease.AnimeReleasePost;
@@ -37,11 +38,11 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         PostBundle<AnimeReleasePost> posts = AnimeReleaseDownloader.getPosts(getLocale(), null, followedString);
 
         if (posts.getPosts().size() > 0) {
-            EmbedBuilder eb = EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
+            EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
             event.getChannel().sendMessage(eb).get();
             return true;
         } else {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
             event.getChannel().sendMessage(eb).get();
@@ -50,12 +51,12 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
     }
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) {
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-32x32.png")
                 .setDescription(post.getDescription())
                 .setUrl(post.getUrl())
                 .setImage(post.getThumbnail())
-                .setTimestamp(post.getDate());
+                .setTimestamp(post.getInstant());
 
         if (post.getEpisode().isPresent()) {
             if (post.getEpisodeTitle().isPresent()) eb.setTitle(getString("template_title",post.getEpisode().get(), post.getEpisodeTitle().get()));
@@ -80,7 +81,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         }
 
         if (first && postBundle.getPosts().size() == 0) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(getString("no_results", StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.getChannel().get().sendMessage(eb).get();

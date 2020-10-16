@@ -41,7 +41,7 @@ public class InviteFilterCheck {
 
             informLogReceivers(spBlockBean, inviteFilterCommand, locale, message, author, successful);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(inviteFilterCommand)
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(inviteFilterCommand)
                     .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true);;
@@ -59,7 +59,7 @@ public class InviteFilterCheck {
     }
 
     private static void informLogReceivers(SPBlockBean spBlockBean, InviteFilterCommand inviteFilterCommand, Locale locale, Message message, User author, boolean successful) {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(inviteFilterCommand)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(inviteFilterCommand)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true);
@@ -103,7 +103,7 @@ public class InviteFilterCheck {
     }
 
     private static void informMessageAuthor(SPBlockBean spBlockBean, InviteFilterCommand inviteFilterCommand, Locale locale, Message message, User author) throws InterruptedException {
-        EmbedBuilder ebUser = EmbedFactory.getCommandEmbedStandard(inviteFilterCommand)
+        EmbedBuilder ebUser = EmbedFactory.getEmbedDefault(inviteFilterCommand)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true)

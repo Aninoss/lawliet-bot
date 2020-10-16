@@ -3,6 +3,7 @@ package commands.runnables.informationcategory;
 import commands.listeners.CommandProperties;
 import commands.Command;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -33,7 +34,7 @@ public class UserInfoCommand extends Command {
         Server server = event.getServer().get();
         ArrayList<User> list = MentionUtil.getUsers(event.getMessage(), followedString).getList();
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         } else if (list.size() == 0) {
@@ -61,13 +62,13 @@ public class UserInfoCommand extends Command {
                     TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true)
             };
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args)).
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", args)).
                     setThumbnail(user.getAvatar().getUrl().toString());
 
             if (noMention) {
                 eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                 if (followedString.length() > 0)
-                    EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                    EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }
 
             event.getServerTextChannel().get().sendMessage(eb).get();

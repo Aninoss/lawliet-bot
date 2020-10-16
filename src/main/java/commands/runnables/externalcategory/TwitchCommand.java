@@ -6,6 +6,7 @@ import commands.listeners.OnTrackerRequestListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.twitch.TwitchController;
 import modules.twitch.TwitchStream;
@@ -39,20 +40,20 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (followedString.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
             return false;
         }
 
         Optional<TwitchStream> streamOpt = TwitchController.getInstance().getStream(followedString);
         if (streamOpt.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
                     .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
             event.getChannel().sendMessage(eb).get();
             return false;
         }
 
-        EmbedBuilder eb = EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(streamOpt.get()), getPrefix(), getTrigger());
+        EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(streamOpt.get()), getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }
@@ -61,14 +62,14 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         TwitchUser twitchUser = twitchStream.getTwitchUser();
         EmbedBuilder eb;
         if (twitchStream.isLive()) {
-            eb = EmbedFactory.getEmbed()
+            eb = EmbedFactory.getEmbedDefault()
                     .setAuthor(getString("streamer", twitchUser.getDisplayName(), twitchStream.getGame().get()), twitchUser.getChannelUrl(), TWITCH_ICON)
                     .setTitle(twitchStream.getStatus().get())
                     .setUrl(twitchUser.getChannelUrl())
                     .setImage(twitchStream.getPreviewImage().get())
                     .setFooter(getString("footer", StringUtil.numToString(twitchStream.getViewers().get()), StringUtil.numToString(twitchStream.getFollowers().get())));
         } else {
-            eb = EmbedFactory.getEmbed()
+            eb = EmbedFactory.getEmbedDefault()
                     .setAuthor(twitchUser.getDisplayName(), twitchUser.getChannelUrl(), TWITCH_ICON)
                     .setDescription(getString("offline", twitchUser.getDisplayName()));
         }
@@ -93,10 +94,10 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         }
 
         if (streamOpt.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
                     .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", slot.getCommandKey()));
-            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         }

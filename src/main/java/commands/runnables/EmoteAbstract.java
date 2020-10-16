@@ -29,7 +29,7 @@ public abstract class EmoteAbstract extends Command {
         if (followedString.length() > 0)
             quote = "\n\n> " + followedString.replace("\n", "\n> ");
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
                 .setImage(gifUrl);
 
         event.getMessage().getChannel().sendMessage(eb).get();

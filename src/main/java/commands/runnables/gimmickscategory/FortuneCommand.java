@@ -31,7 +31,7 @@ public class FortuneCommand extends Command {
             event.getChannel().sendMessage(getEmbed(message,followedString)).get();
             return true;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     getString("no_arg"))).get();
             return false;
         }
@@ -45,7 +45,7 @@ public class FortuneCommand extends Command {
         if (answer.equals("%RandomUpperCase")) {
             answer = RandomUtil.randomUpperCase(question);
         } else if (answer.startsWith("%Gif")) answer = "";
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
                 getString("template", StringUtil.escapeMarkdown(message.getAuthor().getDisplayName()), question, answer));
 
         if (answerRaw.equals("%GifNo")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665289359786014/godno.jpg");

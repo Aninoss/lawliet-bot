@@ -53,7 +53,7 @@ public class ImitateCommand extends Command {
 
         String search = user != null ? user.getMentionTag() : "**" + StringUtil.escapeMarkdown(event.getServer().get().getName()) + "**";
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("wait", search, StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
         Message message = event.getChannel().sendMessage(eb).get();
 
         eb = getEmbed(event.getServer().get(), user, 2, tempMessageCache);
@@ -84,7 +84,7 @@ public class ImitateCommand extends Command {
         }
 
         if (response.isPresent()) {
-            EmbedBuilder eb = EmbedFactory.getEmbed()
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(response.get());
 
             if (user != null) eb.setAuthor(user);
@@ -97,7 +97,7 @@ public class ImitateCommand extends Command {
     }
 
     private EmbedBuilder getErrorEmbed() {
-        return EmbedFactory.getCommandEmbedError(this,
+        return EmbedFactory.getEmbedError(this,
                 getString("nomessage"),
                 TextManager.getString(getLocale(), TextManager.GENERAL, "no_results")
         );

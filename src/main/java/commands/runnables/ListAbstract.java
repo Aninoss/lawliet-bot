@@ -42,7 +42,7 @@ public abstract class ListAbstract extends Command implements OnReactionAddListe
     }
 
     private EmbedBuilder getEmbed(ServerTextChannel channel) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
 
         eb.setTitle(getEmoji() + " " + getString("title") + Emojis.EMPTY_EMOJI.repeat(20)); //TODO Just temporary

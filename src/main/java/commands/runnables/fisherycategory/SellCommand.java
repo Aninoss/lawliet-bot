@@ -46,7 +46,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
         if (followedString.length() > 0) {
             return mainExecution(event, followedString);
         } else {
-            message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this,
+            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
                     getString("status",
                             StringUtil.numToString(userBean.getFish()),
                             StringUtil.numToString(userBean.getCoins()),
@@ -72,16 +72,16 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
             long coins = ExchangeRate.getInstance().get(0) * value;
             EmbedBuilder eb = userBean.changeValues(-value, coins);
 
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedStandard(this, getString("done")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("done")));
             event.getChannel().sendMessage(eb).get();
             return true;
         } else if (value == 0) {
             if (userBean.getFish() <= 0)
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("nofish"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("nofish"))).get();
             else
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
         } else if (value == -1) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
+            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
         }
 
         return false;
@@ -134,7 +134,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
         removeMessageForwarder();
         removeReactionListener();
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
         sendMessage(channel, eb);
     }
 

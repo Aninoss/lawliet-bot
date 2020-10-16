@@ -7,6 +7,7 @@ import constants.*;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -67,7 +68,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     }
 
     private EmbedBuilder getEmbed(int playerNewCard) {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0, playerNewCard == 0),true)
                 .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1, playerNewCard == 1),true);
 
@@ -78,7 +79,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
         eb.addField(Emojis.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(coinsInput)), false);
 
-        eb = EmbedFactory.addLog(eb, logStatus, log);
+        eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
 
         return eb;

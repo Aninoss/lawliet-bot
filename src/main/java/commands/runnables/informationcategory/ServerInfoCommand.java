@@ -46,7 +46,7 @@ public class ServerInfoCommand extends Command {
                 StringUtil.numToString(server.getChannels().stream().filter(channel -> channel.asServerVoiceChannel().isPresent()).count())
         };
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", args));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", args));
         if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
 
         event.getServerTextChannel().get().sendMessage(eb).get();

@@ -37,18 +37,18 @@ public class RollCommand extends Command {
         else {
             border = Double.parseDouble(followedString);
             if (border < 2) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "2"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "2"))).get();
                 return false;
             }
             if (border > 999999999999999999.0) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "999999999999999999"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "999999999999999999"))).get();
                 return false;
             }
         }
 
         drawn = Math.floor(n.nextDouble()*border)+1;
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
                 getString("result", StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()), String.valueOf((long) drawn),String.valueOf((long) border)));
         if (!userMentioned) eb.setFooter(getString("noarg"));
         event.getChannel().sendMessage(eb).get();

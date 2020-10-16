@@ -95,7 +95,7 @@ public class NavigationHelper<T> {
     }
 
     public EmbedBuilder drawDataAdd(String title, String desc) throws IOException {
-        return EmbedFactory.getCommandEmbedStandard(command, desc, title);
+        return EmbedFactory.getEmbedDefault(command, desc, title);
     }
 
     public EmbedBuilder drawDataRemove() throws IOException {
@@ -115,7 +115,7 @@ public class NavigationHelper<T> {
             strings[i] = nameFunction.apply(srcList.get(i));
         }
         command.setOptions(strings);
-        return EmbedFactory.getCommandEmbedStandard(command, desc, title);
+        return EmbedFactory.getEmbedDefault(command, desc, title);
     }
 
     public void startDataAdd(int stateNext) {

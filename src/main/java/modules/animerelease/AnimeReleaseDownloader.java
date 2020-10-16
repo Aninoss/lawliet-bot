@@ -87,7 +87,7 @@ public class AnimeReleaseDownloader {
                         episode,
                         null,
                         post.getThumbnail(),
-                        post.getDate(),
+                        post.getInstant(),
                         post.getUrl(),
                         post.getId()
                 );

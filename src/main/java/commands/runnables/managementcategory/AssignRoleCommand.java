@@ -55,7 +55,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         /* check for no role mention */
         if (roles.isEmpty()) {
             event.getChannel()
-                    .sendMessage(EmbedFactory.getCommandEmbedError(this, getString("no_role"))).get();
+                    .sendMessage(EmbedFactory.getEmbedError(this, getString("no_role"))).get();
             return false;
         }
         role = roles.get(0);
@@ -63,14 +63,14 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
          /* check for missing role manage permissions bot */
         if (!PermissionUtil.canManageRole(DiscordApiCollection.getInstance().getYourself(), role)) {
             event.getChannel()
-                    .sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getMentionTag()))).get();
+                    .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getMentionTag()))).get();
             return false;
         }
 
         /* check for missing role manage permissions user */
         if (!PermissionUtil.canManageRole(event.getMessageAuthor().asUser().get(), role)) {
             event.getChannel()
-                    .sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", role.getMentionTag()))).get();
+                    .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", role.getMentionTag()))).get();
             return false;
         }
 
@@ -79,7 +79,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         /* check for busy */
         if (!futureOpt.isPresent()) {
             event.getChannel()
-                    .sendMessage(EmbedFactory.getCommandEmbedError(this, getString("busy_desc"), getString("busy_title"))).get();
+                    .sendMessage(EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title"))).get();
             return false;
         }
 
@@ -87,7 +87,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         future.thenAccept(this::onAssignmentFinished);
 
         message = event.getChannel()
-                .sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("loading", role.getMentionTag(), StringUtil.getLoadingReaction(event.getServerTextChannel().get()), CANCEL_EMOJI))).get();
+                .sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", role.getMentionTag(), StringUtil.getLoadingReaction(event.getServerTextChannel().get()), CANCEL_EMOJI))).get();
         message.addReaction(CANCEL_EMOJI).get();
 
         return true;
@@ -99,9 +99,9 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         removeReactionListener();
         try {
             if (success)
-                message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("success_desc", role.getMentionTag()))).get();
+                message.edit(EmbedFactory.getEmbedDefault(this, getString("success_desc", role.getMentionTag()))).get();
             else
-                message.edit(EmbedFactory.getCommandEmbedError(this, getString("canceled_desc", role.getMentionTag()), getString("canceled_title"))).get();
+                message.edit(EmbedFactory.getEmbedError(this, getString("canceled_desc", role.getMentionTag()), getString("canceled_title"))).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Exception in role assignment finished", e);
         }

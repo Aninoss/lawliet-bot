@@ -8,6 +8,7 @@ import constants.LogStatus;
 import constants.Permission;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -86,7 +87,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         }
         towerText.append(getString("template", EMPTY_EMOJI, towerEmojis[0], towerEmojis[1], GRASS_EMOJI));
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, towerText.toString());
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, towerText.toString());
         eb.addField(Emojis.EMPTY_EMOJI, getString("template_start", showMoreText,
                 player.getDisplayName(server),
                 StringUtil.numToString(coinsInput),
@@ -96,7 +97,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
                 EMOJIS[1]
         ));
 
-        eb = EmbedFactory.addLog(eb, logStatus, log);
+        eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active)
             eb = addRetryOption(eb);
 

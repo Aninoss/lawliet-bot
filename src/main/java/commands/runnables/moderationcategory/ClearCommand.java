@@ -73,13 +73,13 @@ public class ClearCommand extends Command {
             }
 
             String key = skipped ? "finished_too_old" : "finished_description";
-            Message confirmationMessage = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString(key, deleted != 1, String.valueOf(deleted)))
+            Message confirmationMessage = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)))
                     .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
 
             startCountdown(event.getServerTextChannel().get(), new Message[]{ confirmationMessage, event.getMessage() });
             return true;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     getString("wrong_args", "2", "500"))).get();
             return false;
         }

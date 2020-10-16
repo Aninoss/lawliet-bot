@@ -40,17 +40,17 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
             }
 
             if (language == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("invalid", followedString)));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", followedString)));
                 return false;
             } else {
                 setLocale(new Locale(languageLocales[language]));
             }
 
             DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("set"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
             return true;
         } else {
-            message = event.getChannel().sendMessage(EmbedFactory.getCommandEmbedStandard(this, getString("reaction"))).get();
+            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction"))).get();
             for(String str: languageEmojis) {
                 message.addReaction(str);
             }
@@ -65,7 +65,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
             if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
                 setLocale(new Locale(languageLocales[i]));
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
-                getReactionMessage().edit(EmbedFactory.getCommandEmbedStandard(this, getString("set"))).get();
+                getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;
             }

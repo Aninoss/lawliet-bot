@@ -61,14 +61,14 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
 
         ArrayList<ServerTextChannel> channels = channelMention.getList();
         if (channels.size() > 1) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("twochannels"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("twochannels"))).get();
             return false;
         }
 
         ServerTextChannel channel = channels.size() == 0 ? event.getServerTextChannel().get() : channels.get(0);
         if (!checkWriteInChannelWithLog(channel)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getMentionTag());
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, error)).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, error)).get();
             return false;
         }
 
@@ -86,7 +86,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         }
 
         if (!PermissionUtil.userCanMentionRoles(channel, event.getMessageAuthor().asUser().get(), event.getMessageContent())) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("user_nomention"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("user_nomention"))).get();
             return false;
         }
 
@@ -104,17 +104,17 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         }
 
         if (minutes <= 0 || minutes > 366 * 24 * 60) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("notime"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("notime"))).get();
             return false;
         }
 
         String messageText = StringUtil.trimString(text.toString());
         if (messageText.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, getString("notext"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("notext"))).get();
             return false;
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("template", CANCEL_EMOJI))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", CANCEL_EMOJI))
                 .addInlineField(getString("channel"), channel.getMentionTag())
                 .addInlineField(getString("timespan"), TimeUtil.getRemainingTimeString(getLocale(), minutes * 60 * 1000, false))
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024));
@@ -161,7 +161,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         if (active) {
             remindersBean.stop();
             removeReactionListener();
-            message.edit(EmbedFactory.getCommandEmbedStandard(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
+            message.edit(EmbedFactory.getEmbedDefault(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
             try {
                 DBReminders.getInstance().loadBean().remove(remindersBean.getId(), remindersBean);
             } catch (Exception e) {

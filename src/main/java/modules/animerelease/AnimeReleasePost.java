@@ -7,15 +7,15 @@ public class AnimeReleasePost {
 
     private final String anime, description, episodeTitle, thumbnail, url, episode;
     private final int id;
-    private final Instant date;
+    private final Instant instant;
 
-    public AnimeReleasePost(String anime, String description, String episode, String episodeTitle, String thumbnail, Instant date, String url, int id) {
+    public AnimeReleasePost(String anime, String description, String episode, String episodeTitle, String thumbnail, Instant instant, String url, int id) {
         this.anime = anime;
         this.description = description;
         this.episode = episode;
         this.episodeTitle = episodeTitle;
         this.thumbnail = thumbnail;
-        this.date = date;
+        this.instant = instant;
         this.url = url;
         this.id = id;
     }
@@ -40,8 +40,8 @@ public class AnimeReleasePost {
         return url;
     }
 
-    public Instant getDate() {
-        return date;
+    public Instant getInstant() {
+        return instant;
     }
 
     public int getId() {

@@ -8,6 +8,7 @@ import constants.Permission;
 import constants.TrackerResult;
 import core.*;
 import core.internet.InternetCache;
+import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.message.Message;
@@ -40,7 +41,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
+        EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }
@@ -75,8 +76,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
             if (Instant.now().isAfter(startTime[i])) trackingTime = endTime[i];
         }
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
-                .setTimestampToNow()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {

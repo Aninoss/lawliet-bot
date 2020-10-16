@@ -23,7 +23,7 @@ public class OnFRPost extends EventAbstract {
 
         DBFeatureRequests.postFeatureRequest(userId, title, desc);
 
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(title)
                 .setAuthor("FEATURE REQUEST")
                 .setDescription(desc);

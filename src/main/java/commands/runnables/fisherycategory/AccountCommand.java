@@ -4,6 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.Permission;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.TextManager;
 import mysql.modules.fisheryusers.DBFishery;
@@ -36,7 +37,7 @@ public class AccountCommand extends FisheryAbstract {
         ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
 
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
@@ -45,7 +46,7 @@ public class AccountCommand extends FisheryAbstract {
         list.removeIf(User::isBot);
         if (list.size() == 0) {
             if (userBefore) {
-                event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
                 return false;
             } else {
                 list.add(message.getUserAuthor().get());
@@ -58,7 +59,7 @@ public class AccountCommand extends FisheryAbstract {
                 if (!userMentioned) {
                     eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                     if (followedString.length() > 0)
-                        EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                        EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
                 }
 
                 event.getChannel().sendMessage(eb).get();

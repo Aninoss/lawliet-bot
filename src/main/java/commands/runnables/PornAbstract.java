@@ -7,6 +7,7 @@ import core.CustomThread;
 import core.EmbedFactory;
 import core.PatreonCache;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
 import core.utils.StringUtil;
 import modules.porn.PornImage;
@@ -51,7 +52,7 @@ public abstract class PornAbstract extends Command {
             int patreonLevel = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId());
             if (patreonLevel <= 1 && (amount < 1 || amount > 20)) {
                 if (event.getChannel().canYouEmbedLinks()) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30"))).get();
                 } else {
                     event.getChannel().sendMessage("❌ " +TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30")).get();
@@ -60,7 +61,7 @@ public abstract class PornAbstract extends Command {
             }
             else if (patreonLevel > 1 && (amount < 1 || amount > 30)) {
                 if (event.getChannel().canYouEmbedLinks()) {
-                    event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))).get();
                 } else {
                     event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")).get();
@@ -111,7 +112,7 @@ public abstract class PornAbstract extends Command {
 
     private void postApiUnavailable(MessageCreateEvent event) throws ExecutionException, InterruptedException {
         if (event.getChannel().canYouEmbedLinks()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down_title"))
                     .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain()));
             event.getChannel().sendMessage(eb).get();
@@ -122,7 +123,7 @@ public abstract class PornAbstract extends Command {
 
     private void postNoResults(MessageCreateEvent event, String followedString) throws ExecutionException, InterruptedException {
         if (event.getChannel().canYouEmbedLinks()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
             event.getChannel().sendMessage(eb).get();
@@ -136,7 +137,7 @@ public abstract class PornAbstract extends Command {
 
         if (isExplicit() && !channel.isNsfw()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
-            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             channel.sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         }
@@ -146,10 +147,10 @@ public abstract class PornAbstract extends Command {
 
         if (pornImages.size() == 0) {
             if (!slot.getArgs().isPresent() && this instanceof PornSearchAbstract) {
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));
-                EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessage(eb).get();
                 return TrackerResult.STOP_AND_DELETE;
             } else {
@@ -167,12 +168,12 @@ public abstract class PornAbstract extends Command {
         if (embed) {
             PornImage pornImage = pornImages.get(0);
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), Category.NSFW, "porn_link", pornImage.getPageUrl()))
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.NSFW, "porn_link", pornImage.getPageUrl()))
                     .setImage(pornImage.getImageUrl())
                     .setTimestamp(pornImage.getInstant())
                     .setFooter(TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(pornImage.getScore())));
 
-            getNoticeOptional().ifPresent(notice -> EmbedFactory.addLog(eb, LogStatus.WARNING, notice));
+            getNoticeOptional().ifPresent(notice -> EmbedUtil.addLog(eb, LogStatus.WARNING, notice));
             if (channel.getCurrentCachedInstance().isPresent())
                 channel.sendMessage(eb).get();
         } else {

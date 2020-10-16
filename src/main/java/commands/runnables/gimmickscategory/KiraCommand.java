@@ -4,6 +4,7 @@ import commands.listeners.CommandProperties;
 
 import commands.Command;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.TextManager;
 import org.javacord.api.entity.message.Message;
@@ -33,7 +34,7 @@ public class KiraCommand extends Command {
         Message message = event.getMessage();
         ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
         if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
             return false;
         }
@@ -42,7 +43,7 @@ public class KiraCommand extends Command {
             list.add(message.getUserAuthor().get());
             userMentioned = false;
         }
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setThumbnail("http://images4.fanpop.com/image/photos/18000000/Kira-death-note-18041689-200-200.jpg");
 
 
@@ -55,7 +56,7 @@ public class KiraCommand extends Command {
         if (!userMentioned) {
             eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
             if (followedString.length() > 0)
-                EmbedFactory.addNoResultsLog(eb, getLocale(), followedString);
+                EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
         }
 
         event.getChannel().sendMessage(eb).get();

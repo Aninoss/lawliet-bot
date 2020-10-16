@@ -9,6 +9,7 @@ import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.PatreonCache;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -35,7 +36,7 @@ public class PatreonCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("info", ExternalLinks.PATREON_PAGE))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("info", ExternalLinks.PATREON_PAGE))
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
                 .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI);
 
@@ -45,7 +46,7 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString());
-        EmbedFactory.addLog(eb, null, getString("status", PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId())));
+        EmbedUtil.addLog(eb, null, getString("status", PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId())));
         event.getChannel().sendMessage(eb).get();
         return true;
     }

@@ -178,7 +178,7 @@ public class WordFilterCommand extends Command implements OnNavigationListener {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
                        .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
                        .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
@@ -186,11 +186,11 @@ public class WordFilterCommand extends Command implements OnNavigationListener {
 
             case 1:
                 setOptions(new String[]{getString("empty")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
                 setOptions(new String[]{getString("empty")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3: return wordsNavigationHelper.drawDataAdd(getString("state3_title"), getString("state3_description"));
             case 4: return wordsNavigationHelper.drawDataRemove(getString("state4_title"), getString("state4_description"));

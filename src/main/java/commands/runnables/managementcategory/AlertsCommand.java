@@ -257,7 +257,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0], "add"));
         emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[1], "remove"));
 
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"));
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
     @Draw(state = STATE_ADD)
@@ -267,7 +267,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
         List<Command> trackerCommands = getAllTrackerCommands();
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
         for(String category : Category.LIST) {
             StringBuilder sb = new StringBuilder();
@@ -305,20 +305,20 @@ public class AlertsCommand extends Command implements OnNavigationListener {
             emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], String.valueOf(i)));
         }
 
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
     @Draw(state = STATE_KEY)
     public EmbedBuilder onDrawKey(DiscordApi api) throws Throwable {
         emojiConnections = new ArrayList<>();
         emojiConnections.add(new BackEmojiConnection(getStarterMessage().getServerTextChannel().get(), "back"));
-        return EmbedFactory.getCommandEmbedStandard(this, TextManager.getString(getLocale(), commandCache.getCategory(),  commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
+        return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(),  commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
     @Draw(state = STATE_SUCCESS)
     public EmbedBuilder onDrawSuccess(DiscordApi api) throws Throwable {
         removeNavigation();
-        return EmbedFactory.getCommandEmbedStandard(this, getString("state3_added", commandCache.getTrigger()));
+        return EmbedFactory.getEmbedDefault(this, getString("state3_added", commandCache.getTrigger()));
     }
 
     @Override

@@ -60,7 +60,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         followedString = StringUtil.trimString(userMentions.getResultMessageString());
 
         if (users.size() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
             return false;
         }
@@ -68,14 +68,14 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         boolean removeAll = followedString.equalsIgnoreCase("all");
 
         if (!removeAll && !StringUtil.stringIsInt(followedString)) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
             return false;
         }
 
         n = removeAll ? 99999 : Integer.parseInt(followedString);
         if (n < 1 || n > 99999) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this,
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "99999"))).get();
             return false;
         }
@@ -84,7 +84,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         userString = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), users).getMentionText();
 
         if (DBModeration.getInstance().getBean(channel.getServer().getId()).isQuestion()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("confirmation", n != 1, nString, userString));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("confirmation", n != 1, nString, userString));
             postMessage(eb);
             for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
         } else {
@@ -102,13 +102,13 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
             serverWarningsSlots.remove(Math.max(0, serverWarningsSlots.size() - n), serverWarningsSlots.size());
         }
 
-        postMessage(EmbedFactory.getCommandEmbedStandard(this,
+        postMessage(EmbedFactory.getEmbedDefault(this,
                 getString("success", n != 1, nString, userString)
         ));
 
         DBModeration.getInstance().getBean(channel.getServer().getId()).getAnnouncementChannel().ifPresent(serverTextChannel -> {
             try {
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this,
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
                         getString("modlog", n != 1, requestor.getMentionTag(), nString, userString)
                 );
                 serverTextChannel.sendMessage(eb).get();
@@ -140,7 +140,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                         executeRemoval();
                     } else {
                         removeReactionListener();
-                        postMessage(EmbedFactory.getCommandEmbedStandard(
+                        postMessage(EmbedFactory.getEmbedDefault(
                                         this,
                                         TextManager.getString(getLocale(), Category.MODERATION, "warn_abort_description"),
                                         TextManager.getString(getLocale(), Category.MODERATION, "warn_abort_title")

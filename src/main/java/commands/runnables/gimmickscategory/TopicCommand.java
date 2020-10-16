@@ -8,6 +8,7 @@ import core.EmbedFactory;
 import core.FileManager;
 import core.RandomPicker;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -45,7 +46,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
         int n = RandomPicker.getInstance().pick(getTrigger(), channel.getServer().getId(), topicList.size());
         String topic = topicList.get(n);
 
-        channel.sendMessage(EmbedFactory.getCommandEmbedStandard(this, topic)).get();
+        channel.sendMessage(EmbedFactory.getEmbedDefault(this, topic)).get();
     }
 
     @Override
@@ -55,9 +56,9 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
 
         long minutes = StringUtil.filterLongFromString(key);
         if (minutes > MAX_MINUTES || minutes < 1) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this,
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(MAX_MINUTES)));
-            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
             slot.getChannel().get().sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;

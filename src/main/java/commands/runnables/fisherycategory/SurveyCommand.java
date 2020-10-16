@@ -9,6 +9,7 @@ import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
@@ -94,7 +95,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
             voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).get().getName()) + ")\n";
         }
 
-        return EmbedFactory.getCommandEmbedStandard(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)
+        return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0])
                 .addField(getString("majority"), voteStrings[1])
                 .addField(Emojis.EMPTY_EMOJI, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUser().getId()))));
@@ -136,7 +137,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                     );
                     return true;
                 } else {
-                    EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
                     event.getUser().sendMessage(eb);
                     return false;
                 }
@@ -146,7 +147,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                     surveyBean.toggleNotificationUserId(event.getUser().getId());
                     return true;
                 } else {
-                    EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
                     event.getUser().sendMessage(eb);
                     return false;
                 }
@@ -165,7 +166,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
-        if (!tracker) EmbedFactory.addTrackerNoteLog(getLocale(), channel.getServer(), userRequested, eb, getPrefix(), getTrigger());
+        if (!tracker) EmbedUtil.addTrackerNoteLog(getLocale(), channel.getServer(), userRequested, eb, getPrefix(), getTrigger());
         Message message = channel.sendMessage(eb).get();
 
         for(int i = 0; i < 2; i++) {
@@ -183,7 +184,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
     private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey, Server server, User user) throws IOException {
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(getLocale());
 
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, "", getString("results_title"));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("results_title"));
         eb.addField(getString("results_question"), surveyQuestion.getQuestion(), false);
 
         StringBuilder answerString = new StringBuilder();
@@ -209,6 +210,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         }
 
         eb.addField(getString("results_results", firstVotesTotal != 1, StringUtil.numToString(firstVotesTotal)), resultString.toString(), false);
+        eb.setTimestamp(TimeUtil.localDateToInstant(lastSurvey.getStartDate()));
 
         boolean individual = false;
         if (server != null && user != null && lastSurvey.getWon() != 2) {
@@ -216,12 +218,12 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
             if (secondVote != null) {
                 individual = true;
                 boolean won = lastSurvey.getWon() == 2 || lastSurvey.getWon() == secondVote.getVote();
-                EmbedFactory.addLog(eb, won ? LogStatus.WIN : LogStatus.LOSE, getString("results_status", won));
+                EmbedUtil.addLog(eb, won ? LogStatus.WIN : LogStatus.LOSE, getString("results_status", won));
             }
         }
 
         if (!individual) {
-            EmbedFactory.addLog(eb, null, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]));
+            EmbedUtil.addLog(eb, null, getString("results_won", lastSurvey.getWon(), surveyQuestion.getAnswers()[0], surveyQuestion.getAnswers()[1]));
         }
 
         return eb;
@@ -229,7 +231,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean, boolean tracker) throws IOException {
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("sdescription", BELL_EMOJI), getString("title") + Emojis.EMPTY_EMOJI);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title") + Emojis.EMPTY_EMOJI);
 
         StringBuilder personalString = new StringBuilder();
         StringBuilder majorityString = new StringBuilder();
@@ -241,7 +243,9 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         eb.addField(getString("majority"), majorityString.toString(), false);
 
         Instant now = tracker ? TimeUtil.instantRoundDownToDay(Instant.now()).minusSeconds(1) : Instant.now();
-        EmbedFactory.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), now, TimeUtil.localDateToInstant(surveyBean.getNextDate()), false)));
+        Instant after = TimeUtil.localDateToInstant(surveyBean.getNextDate());
+        EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), now, after, false)));
+        EmbedUtil.addReminaingTime(getLocale(), eb, after);
 
         return eb;
     }

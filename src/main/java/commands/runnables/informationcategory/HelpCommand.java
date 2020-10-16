@@ -12,6 +12,7 @@ import constants.*;
 import core.*;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
+import core.utils.EmbedUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import mysql.modules.commandmanagement.CommandManagementBean;
@@ -158,7 +159,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         i -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(i))
                 );
 
-                EmbedBuilder eb =  EmbedFactory.getEmbed()
+                EmbedBuilder eb =  EmbedFactory.getEmbedDefault()
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
@@ -172,7 +173,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 if (command.getUserPermissions() != 0)
                     eb.addField(Emojis.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
                 if (noArgs)
-                    EmbedFactory.addLog(eb, LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
+                    EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
 
                 return eb;
             }
@@ -184,7 +185,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
         if (arg.length() > 0) {
             for (String category : Category.LIST) {
                 if ((category.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category).toLowerCase().contains(arg.toLowerCase()))) {
-                    EmbedBuilder eb = EmbedFactory.getEmbed()
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
                             .setTitle(
                                     TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
@@ -273,35 +274,28 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
                         !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 1;
 
-                title.append("**")
-                        .append(LetterEmojis.LETTERS[i])
+                title.append(LetterEmojis.LETTERS[i])
                         .append(" → ")
                         .append(command.getEmoji())
                         .append(" ");
 
-                if (!canAccess) title.append("~~");
-
-                title.append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title"));
+                title.append("`").append(getPrefix()).append(commandTrigger);
                 if (command.getReleaseDate().isAfter(LocalDate.now()))
                     title.append(" ").append(getString("beta"));
+                title.append("`");
 
-                if (!canAccess) title.append("~~");
                 if (command.isModCommand()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
                 if (command instanceof OnTrackerRequestListener) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
                 if (command.isNsfw()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
                 if (command.isPatreonRequired()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
-                title.append("**");
-
-
-                StringBuilder commands = new StringBuilder();
-                commands.append("`").append(getPrefix()).append(commandTrigger).append("`")
-                        .append(" - ")
-                        .append(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description"));
 
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
 
-                eb.addField(title.toString(), commands.toString());
+                eb.addField(
+                        title.toString(),
+                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.EMPTY_EMOJI
+                );
             }
         }
 
@@ -353,7 +347,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getEmbed()
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
 
         StringBuilder categoriesSB = new StringBuilder();

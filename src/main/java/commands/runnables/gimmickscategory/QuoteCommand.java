@@ -65,13 +65,13 @@ public class QuoteCommand extends Command {
                 }
             }
 
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
                     .setDescription(getString("noresult_channel", newString, channel.getMentionTag()));
             event.getChannel().sendMessage(eb).get();
             return false;
         } else {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, getString("noarg", event.getMessage().getUserAuthor().get().getMentionTag()));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getUserAuthor().get().getMentionTag()));
             event.getChannel().sendMessage(eb).get();
             return false;
         }
@@ -93,7 +93,7 @@ public class QuoteCommand extends Command {
         String footerAdd = showAutoQuoteTurnOff ? " | " + getString("turningoff") : "";
 
         if (searchedMessage.getEmbeds().size() == 0) {
-            eb = EmbedFactory.getEmbed()
+            eb = EmbedFactory.getEmbedDefault()
                     .setFooter(getString("title") + footerAdd);
             if (searchedMessage.getContent().length() > 0) eb.setDescription("\""+searchedMessage.getContent()+"\"");
             if (searchedMessage.getAttachments().size() > 0) eb.setImage(searchedMessage.getAttachments().get(0).getUrl().toString());

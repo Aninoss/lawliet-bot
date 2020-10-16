@@ -242,14 +242,14 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
             case 0:
                 setOptions(getString("state0_options").split("\n"));
 
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description", String.valueOf(MAX_ROLES)))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), serverBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), serverBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(serverBean.getFisheryRoleMin()), StringUtil.numToString(serverBean.getFisheryRoleMax())), true);
 
             case 1:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state1_description"), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
                 String[] roleStrings = new String[roles.size()];
@@ -258,15 +258,15 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                 }
                 setOptions(roleStrings);
 
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, getString("state2_description"), getString("state2_title"));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
                 return eb;
 
             case 3:
                 setOptions(new String[]{getString("state3_options")});
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state3_description"), getString("state3_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state4_description"), getString("state4_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
 
             default:
                 return null;

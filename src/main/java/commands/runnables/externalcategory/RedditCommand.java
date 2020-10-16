@@ -7,6 +7,7 @@ import constants.Category;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.reddit.RedditDownloader;
@@ -42,7 +43,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
         if (followedString.startsWith("r/")) followedString = followedString.substring(2);
 
         if (followedString.length() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
             return false;
         } else {
             RedditPost post;
@@ -55,11 +56,11 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 }
 
                 EmbedBuilder eb = getEmbed(post);
-                EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
+                EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
                 event.getChannel().sendMessage(eb).get();
                 return true;
             } else {
-                EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
                 event.getChannel().sendMessage(eb).get();
@@ -69,7 +70,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     }
 
     private EmbedBuilder getEmbed(RedditPost post) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getCommandEmbedStandard(this, post.getDescription())
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setTitle(post.getTitle())
                 .setThumbnail(post.getThumbnail())
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), "")
@@ -95,8 +96,8 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         if (slot.getCommandKey().isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
-            EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             slot.getChannel().get().sendMessage(eb).get();
             return TrackerResult.STOP_AND_DELETE;
         } else {
@@ -118,7 +119,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
 
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
-                    EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+                    EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 }
@@ -127,10 +128,10 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 return TrackerResult.CONTINUE_AND_SAVE;
             } else {
                 if (slot.getArgs().isEmpty()) {
-                    EmbedBuilder eb = EmbedFactory.getCommandEmbedError(this)
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));
-                    EmbedFactory.addTrackerRemoveLog(eb, getLocale());
+                    EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {

@@ -4,6 +4,7 @@ import commands.listeners.*;
 import commands.Command;
 import constants.TrackerResult;
 import core.*;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ExchangeRate;
@@ -32,13 +33,13 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         EmbedBuilder eb = getEmbed();
-        EmbedFactory.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
+        EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();
         return true;
     }
 
     private EmbedBuilder getEmbed() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-        return EmbedFactory.getCommandEmbedStandard(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
 
     private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {

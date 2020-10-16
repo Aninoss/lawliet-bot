@@ -156,7 +156,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
             case 0:
                 setOptions(getString("state0_options_"+ serverBean.getFisheryStatus().ordinal()).split("\n"));
 
-                return EmbedFactory.getCommandEmbedStandard(this, getString("state0_description"))
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Emojis.EMPTY_EMOJI, false)
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryTreasureChests())), getString("state0_mtreasurechests_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryReminders())), getString("state0_mreminders_desc"), true)
@@ -194,7 +194,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (message.getChannel().canYouRemoveReactionsOfOthers())
                     message.removeAllReactions().get();
 
-                EmbedBuilder eb = EmbedFactory.getEmbed()
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                         .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().getMentionTag()));
                 message.edit(eb).get();
@@ -213,7 +213,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (resultInt == 0) treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
                 else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
 
-                eb = EmbedFactory.getEmbed()
+                eb = EmbedFactory.getEmbedDefault()
                         .setTitle(FisheryCommand.treasureEmoji + " " +getString("treasure_title"))
                         .setDescription(getString("treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(won)))
                         .setImage(treasureImage)
