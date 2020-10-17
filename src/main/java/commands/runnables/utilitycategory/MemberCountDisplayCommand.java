@@ -1,4 +1,4 @@
-package commands.runnables.managementcategory;
+package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;

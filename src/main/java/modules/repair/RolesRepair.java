@@ -1,7 +1,7 @@
 package modules.repair;
 
 import commands.runnables.fisherysettingscategory.FisheryCommand;
-import commands.runnables.managementcategory.AutoRolesCommand;
+import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.CustomObservableList;
 import core.CustomThread;

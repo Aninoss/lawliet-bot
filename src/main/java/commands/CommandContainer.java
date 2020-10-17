@@ -2,6 +2,10 @@ package commands;
 
 import commands.listeners.*;
 import commands.runnables.casinocategory.CoinFlipCommand;
+import commands.runnables.configurationcategory.CommandManagementCommand;
+import commands.runnables.configurationcategory.LanguageCommand;
+import commands.runnables.configurationcategory.NSFWFilterCommand;
+import commands.runnables.configurationcategory.PrefixCommand;
 import commands.runnables.fisherysettingscategory.*;
 import commands.runnables.informationcategory.*;
 import commands.runnables.casinocategory.*;
@@ -13,7 +17,7 @@ import commands.runnables.interactionscategory.*;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
 import commands.runnables.fisherycategory.*;
-import commands.runnables.managementcategory.*;
+import commands.runnables.utilitycategory.*;
 import commands.runnables.splatoon2category.*;
 import constants.Settings;
 import org.javacord.api.DiscordApi;
@@ -57,11 +61,14 @@ public class CommandContainer {
         commandList.add(TopicCommand.class);
         commandList.add(ImitateCommand.class);
 
-        //MANAGEMENT
+        //CONFIGURATION
         commandList.add(CommandManagementCommand.class);
-        commandList.add(WhiteListCommand.class);
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
+        commandList.add(NSFWFilterCommand.class);
+
+        //UTILITY
+        commandList.add(WhiteListCommand.class);
         commandList.add(AlertsCommand.class);
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
@@ -70,7 +77,6 @@ public class CommandContainer {
         commandList.add(AutoQuoteCommand.class);
         commandList.add(AssignRoleCommand.class);
         commandList.add(RevokeRoleCommand.class);
-        commandList.add(NSFWFilterCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
         commandList.add(TriggerDeleteCommand.class);
         commandList.add(ReminderCommand.class);

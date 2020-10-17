@@ -1,6 +1,6 @@
 package events.discordevents.servermemberjoin;
 
-import commands.runnables.managementcategory.WelcomeCommand;
+import commands.runnables.utilitycategory.WelcomeCommand;
 import constants.Permission;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;

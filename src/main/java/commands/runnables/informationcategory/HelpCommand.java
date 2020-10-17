@@ -116,7 +116,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 16;
+        return 13;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -270,10 +270,6 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
             ) {
                 StringBuilder title = new StringBuilder();
-                boolean canAccess = PermissionUtil.getMissingPermissionListForUser(authorEvent.getServer().get(), authorEvent.getServerTextChannel().get(), author, command.getUserPermissions()).size() == 0 &&
-                        (!command.isNsfw() || authorEvent.getServerTextChannel().get().isNsfw()) &&
-                        !command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(author.getId()) > 1;
-
                 title.append(LetterEmojis.LETTERS[i])
                         .append(" → ")
                         .append(command.getEmoji())

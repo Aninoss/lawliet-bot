@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
-import commands.runnables.managementcategory.AlertsCommand;
+import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Permission;
 import constants.Settings;
 import mysql.modules.tracker.DBTracker;

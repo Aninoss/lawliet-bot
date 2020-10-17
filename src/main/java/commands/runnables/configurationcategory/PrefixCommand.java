@@ -1,4 +1,4 @@
-package commands.runnables.managementcategory;
+package commands.runnables.configurationcategory;
 
 import commands.listeners.CommandProperties;
 

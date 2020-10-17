@@ -1,4 +1,4 @@
-package commands.runnables.managementcategory;
+package commands.runnables.utilitycategory;
 
 import commands.Command;
 import commands.CommandContainer;

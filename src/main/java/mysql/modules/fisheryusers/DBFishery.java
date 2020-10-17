@@ -342,16 +342,13 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         }, "vc_observer", 1).start();
     }
 
-    private void manageVCFish(Server server) throws ExecutionException, SQLException {
+    private void manageVCFish(Server server) throws ExecutionException {
         FisheryServerBean serverBean = DBFishery.getInstance().getBean(server.getId());
-
-        server.getBoostCount();
 
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             try {
                 ArrayList<User> validUsers = new ArrayList<>();
-                for (long userId : voiceChannel.getConnectedUserIds()) {
-                    User user = server.getMemberById(userId).orElse(DiscordApiCollection.getInstance().fetchUserById(server, userId).get());
+                for (User user : voiceChannel.getConnectedUsers()) {
                     if (!user.isBot() &&
                             !user.isMuted(server) &&
                             !user.isDeafened(server) &&

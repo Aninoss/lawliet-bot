@@ -1,6 +1,6 @@
 package modules;
 
-import commands.runnables.managementcategory.ReminderCommand;
+import commands.runnables.utilitycategory.ReminderCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import core.utils.TimeUtil;

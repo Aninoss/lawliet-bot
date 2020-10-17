@@ -8,7 +8,8 @@ public class CategoryCalculator {
         String packageName = c.getPackage().getName();
         if (packageName.endsWith("gimmickscategory")) return Category.GIMMICKS;
         if (packageName.endsWith("nsfwcategory")) return Category.NSFW;
-        if (packageName.endsWith("managementcategory")) return Category.MANAGEMENT;
+        if (packageName.endsWith("configurationcategory")) return Category.CONFIGURATION;
+        if (packageName.endsWith("utilitycategory")) return Category.UTILITY;
         if (packageName.endsWith("informationcategory")) return Category.INFORMATION;
         if (packageName.endsWith("splatoon2category")) return Category.SPLATOON_2;
         if (packageName.endsWith("emotescategory")) return Category.EMOTES;

@@ -1,7 +1,7 @@
 package core.utils;
 
 import commands.Command;
-import commands.runnables.managementcategory.AlertsCommand;
+import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Emojis;
 import constants.LogStatus;
 import core.TextManager;
@@ -66,7 +66,8 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder addReminaingTime(Locale locale, EmbedBuilder eb, Instant instant) {
-        eb.setTimestamp(instant);
+        if (instant.isAfter(Instant.now()))
+            eb.setTimestamp(instant);
         return eb;
     }
 

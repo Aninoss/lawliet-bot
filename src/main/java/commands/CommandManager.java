@@ -6,7 +6,7 @@ import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
-import commands.runnables.managementcategory.TriggerDeleteCommand;
+import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.ExternalLinks;
 import constants.LogStatus;

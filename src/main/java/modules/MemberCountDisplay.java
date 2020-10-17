@@ -1,6 +1,6 @@
 package modules;
 
-import commands.runnables.managementcategory.MemberCountDisplayCommand;
+import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import constants.Permission;
 import core.CustomThread;
 import core.PermissionCheckRuntime;

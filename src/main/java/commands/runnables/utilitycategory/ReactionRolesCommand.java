@@ -1,4 +1,4 @@
-package commands.runnables.managementcategory;
+package commands.runnables.utilitycategory;
 
 import com.vdurmont.emoji.EmojiParser;
 import commands.Command;

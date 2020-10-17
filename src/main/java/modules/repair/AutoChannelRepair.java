@@ -1,6 +1,6 @@
 package modules.repair;
 
-import commands.runnables.managementcategory.AutoChannelCommand;
+import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.Permission;
 import core.CustomThread;
 import core.DiscordApiCollection;
