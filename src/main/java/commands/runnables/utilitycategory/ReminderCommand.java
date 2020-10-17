@@ -103,7 +103,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             }
         }
 
-        if (minutes <= 0 || minutes > 366 * 24 * 60) {
+        if (minutes <= 0 || minutes > 999 * 24 * 60) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("notime"))).get();
             return false;
         }

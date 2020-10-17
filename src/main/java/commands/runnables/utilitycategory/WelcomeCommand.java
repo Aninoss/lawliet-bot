@@ -1,12 +1,17 @@
 package commands.runnables.utilitycategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
-import commands.Command;
-import constants.*;
-import core.*;
-import core.utils.MentionUtil;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Permission;
+import constants.Response;
+import core.EmbedFactory;
+import core.TextManager;
+import core.utils.FileUtil;
 import core.utils.InternetUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.ImageCreator;
 import modules.Welcome;
@@ -23,9 +28,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -104,31 +106,11 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
             case 4:
                 List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-                    MessageAttachment messageAttachment = attachmentList.get(0);
-
-                    long size = messageAttachment.getSize();
-                    if (size >= 20000000) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "file_too_large"));
-                        return Response.FALSE;
+                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), "data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png").isPresent()) {
+                        setLog(LogStatus.SUCCESS, getString("backgroundset"));
+                        setState(0);
+                        return Response.TRUE;
                     }
-
-                    BufferedImage bi;
-                    try {
-                        bi = messageAttachment.downloadAsImage().get();
-                    } catch (Throwable e) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-                        return Response.FALSE;
-                    }
-                    if (bi == null) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-                        return Response.FALSE;
-                    }
-
-                    ImageIO.write(bi, "png", new File("data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png"));
-
-                    setLog(LogStatus.SUCCESS, getString("backgroundset"));
-                    setState(0);
-                    return Response.TRUE;
                 }
 
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
@@ -183,7 +165,6 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
 
     @Override
     public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
-
         switch (state) {
             case 0:
                 switch (i) {

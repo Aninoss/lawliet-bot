@@ -1,10 +1,14 @@
 package core.utils;
 
+import com.vdurmont.emoji.EmojiParser;
 import core.DiscordApiCollection;
+import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
-import core.TextManager;
-import org.javacord.api.entity.channel.*;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.ServerVoiceChannel;
+import org.javacord.api.entity.emoji.CustomEmoji;
+import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
@@ -220,6 +224,25 @@ public class MentionUtil {
             }
         }
         return new MentionList<>(string,list);
+    }
+
+    public static MentionList<Emoji> getEmojis(Message message, String content) {
+        ArrayList<Emoji> emojiList = new ArrayList<>();
+
+        if (message != null) {
+            for (CustomEmoji customEmoji : message.getCustomEmojis()) {
+                emojiList.add(customEmoji);
+                content = content.replace(customEmoji.getMentionTag(), "");
+            }
+        }
+
+        List<String> unicodeEmojis = EmojiParser.extractEmojis(content);
+        for (String unicodeEmoji : unicodeEmojis) {
+            emojiList.add(StringUtil.unicodeToEmoji(unicodeEmoji));
+            content = content.replace(unicodeEmoji, "");
+        }
+
+        return new MentionList<>(content, emojiList);
     }
 
     private static ArrayList<String> getArgs(String string) {

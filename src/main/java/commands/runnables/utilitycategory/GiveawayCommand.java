@@ -9,20 +9,16 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
-import core.EmbedFactory;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import core.emojiconnection.EmojiConnection;
-import core.mention.MentionList;
-import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -36,6 +32,7 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,45 +41,57 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-        trigger = "reactionroles",
-        botPermissions = Permission.MANAGE_ROLES | Permission.READ_MESSAGE_HISTORY,
-        userPermissions = Permission.MANAGE_ROLES,
-        emoji = "☑️️",
+        trigger = "giveaway",
+        userPermissions = Permission.MANAGE_SERVER,
+        emoji = "🎉",
         executableWithoutArgs = true,
-        aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
+        aliases = { "giveaways" }
 )
-public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
+public class GiveawayCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
-    private static final int MAX_LINKS = 20;
+    private static final int MAX_GIVEAWAYS = 20;
     private final static int
             ADD_OR_EDIT = 0,
             ADD_MESSAGE = 1,
             EDIT_MESSAGE = 2,
             CONFIGURE_MESSAGE = 3,
-            UPDATE_TITLE = 4,
-            UPDATE_DESC = 5,
-            ADD_SLOT = 6,
-            REMOVE_SLOT = 7,
-            EXAMPLE = 8,
-            SENT = 9;
+            UPDATE_DESC = 4,
+            UPDATE_DURATION = 5,
+            UPDATE_WINNERS = 6,
+            UPDATE_EMOJI = 7,
+            UPDATE_IMAGE = 8,
+            ADD_SLOT = 99,
+            REMOVE_SLOT = 99,
+            EXAMPLE = 9,
+            SENT = 10;
 
-    private String title, description;
+    private String title;
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private Emoji emojiTemp;
     private Role roleTemp;
+    private boolean removeRole = true, multipleRoles = true;
+
+    private long id;
+    private String description;
+    private long durationMinutes = 10080;
+    private int amountOfWinners = 1;
+    private Emoji emoji = StringUtil.unicodeToEmoji("🎉");
+    private String imageLink;
+    private Message imageMessage;
     private ServerTextChannel channel;
-    private boolean removeRole = true, editMode = false, multipleRoles = true;
+    private boolean editMode = false;
     private Message editMessage;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GiveawayCommand.class);
     private static final ArrayList<Long> block = new ArrayList<>();
 
-    public ReactionRolesCommand(Locale locale, String prefix) {
+    public GiveawayCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        IDGenerator.getInstance().getId();
         return true;
     }
 
@@ -102,40 +111,6 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         return Response.FALSE;
     }
 
-    @ControllerMessage(state = EDIT_MESSAGE)
-    public Response onMessageEditMessage(MessageCreateEvent event, String inputString) {
-        ArrayList<Message> messageArrayList = MentionUtil.getMessagesURL(event.getMessage(), inputString).getList();
-        if (messageArrayList.size() > 0) {
-            for (Message message : messageArrayList) {
-                if (messageIsReactionMessage(message)) {
-                    ServerTextChannel messageChannel = message.getServerTextChannel().get();
-                    if (checkWriteInChannelWithLog(messageChannel)) {
-                        editMessage = message;
-                        setLog(LogStatus.SUCCESS, getString("messageset"));
-                        return Response.TRUE;
-                    } else {
-                        return Response.FALSE;
-                    }
-                }
-            }
-        }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
-        return Response.FALSE;
-    }
-
-    @ControllerMessage(state = UPDATE_TITLE)
-    public Response onMessageUpdateTitle(MessageCreateEvent event, String inputString) {
-        if (inputString.length() > 0 && inputString.length() <= 256) {
-            title = inputString;
-            setLog(LogStatus.SUCCESS, getString("titleset", inputString));
-            setState(CONFIGURE_MESSAGE);
-            return Response.TRUE;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
-            return Response.FALSE;
-        }
-    }
-
     @ControllerMessage(state = UPDATE_DESC)
     public Response onMessageUpdateDesc(MessageCreateEvent event, String inputString) {
         if (inputString.length() > 0 && inputString.length() <= 1024) {
@@ -149,57 +124,84 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
     }
 
-    @ControllerMessage(state = ADD_SLOT)
-    public Response onMessageAddSlot(MessageCreateEvent event, String inputString) throws InterruptedException {
-        if (inputString.length() > 0) {
-            boolean ok = false;
-            List<Emoji> emojis = MentionUtil.getEmojis(event.getMessage(), inputString).getList();
-            List<Role> roles = MentionUtil.getRoles(event.getMessage(), inputString).getList();
+    @ControllerMessage(state = UPDATE_DURATION)
+    public Response onMessageUpdateDuration(MessageCreateEvent event, String inputString) {
+        long minutes = MentionUtil.getTimeMinutesExt(inputString);
 
-            if (emojis.size() > 0) {
-                if (processEmoji(emojis.get(0))) {
-                    ok = true;
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
-                    return Response.FALSE;
-                }
+        if (minutes > 0) {
+            final int MAX = 999 * 24 * 60;
+            if (minutes <= MAX) {
+                durationMinutes = minutes;
+                setLog(LogStatus.SUCCESS, getString("durationset", inputString));
+                setState(CONFIGURE_MESSAGE);
+                return Response.TRUE;
+            } else {
+                setLog(LogStatus.FAILURE, getString("durationtoolong"));
+                return Response.FALSE;
             }
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", inputString));
+            return Response.FALSE;
+        }
+    }
 
-            if (roles.size() > 0) {
-                if (processRole(event, inputString))
-                    ok = true;
-            }
+    @ControllerMessage(state = UPDATE_WINNERS)
+    public Response onMessageUpdateWinners(MessageCreateEvent event, String inputString) {
+        final int MIN = 1, MAX = 20;
+        int amount;
+        if (StringUtil.stringIsInt(inputString) &&
+                (amount = Integer.parseInt(inputString)) >= MIN &&
+                amount <= MAX
+        ) {
+            amountOfWinners = amount;
+            setLog(LogStatus.SUCCESS, getString("winnersset", inputString));
+            setState(CONFIGURE_MESSAGE);
+            return Response.TRUE;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", String.valueOf(MIN), String.valueOf(MAX)));
+            return Response.FALSE;
+        }
+    }
 
-            if (ok) return Response.TRUE;
+    @ControllerMessage(state = UPDATE_EMOJI)
+    public Response onMessageUpdateEmoji(MessageCreateEvent event, String inputString) {
+        List<Emoji> emojiList = MentionUtil.getEmojis(event.getMessage(), event.getMessageContent()).getList();
+        if (emojiList.size() > 0) {
+            Emoji emoji = emojiList.get(0);
+            return processEmoji(emoji) ? Response.TRUE : Response.FALSE;
         }
 
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
         return Response.FALSE;
     }
 
-    private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || emoji.isKnownCustomEmoji()) {
-            this.emojiTemp = emoji;
-            return true;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
-            return false;
+    @ControllerMessage(state = UPDATE_IMAGE)
+    public Response onMessageUpdateImage(MessageCreateEvent event, String inputString) throws IOException, ExecutionException, InterruptedException {
+        List<MessageAttachment> attachments = event.getMessage().getAttachments();
+        if (attachments.size() > 0) {
+            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", id));
+            if (file.isPresent()) {
+                imageLink = uploadFile(file.get());
+                setLog(LogStatus.SUCCESS, getString("imageset"));
+                setState(CONFIGURE_MESSAGE);
+                return Response.TRUE;
+            }
         }
+
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        return Response.FALSE;
     }
 
-    private boolean processRole(MessageCreateEvent event, String inputString) {
-        MentionList<Role> mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString);
-        ArrayList<Role> list = mentionedRoles.getList();
-        if (list.size() > 0) {
-            Role roleTest = list.get(0);
-
-            if (!checkRoleWithLog(roleTest)) return false;
-
-            roleTemp = roleTest;
-            return true;
+    private String uploadFile(File file) throws ExecutionException, InterruptedException {
+        if (imageMessage != null) {
+            imageMessage.delete().exceptionally(ExceptionLogger.get());
+            imageMessage = null;
         }
 
-        return false;
+        imageMessage = DiscordApiCollection.getInstance().getHomeServer()
+                .getTextChannelById(767039446285156372L).get()
+                .sendMessage(file).get();
+        return imageMessage.getAttachments().get(0).getUrl().toString();
     }
 
     @ControllerReaction(state = ADD_OR_EDIT)
@@ -233,6 +235,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
             case 0:
                 if (channel != null) {
+                    id = IDGenerator.getInstance().getId();
                     setState(CONFIGURE_MESSAGE);
                     return true;
                 }
@@ -242,7 +245,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
     }
 
-    @ControllerReaction(state = EDIT_MESSAGE)
+    /*@ControllerReaction(state = EDIT_MESSAGE)
     public boolean onReactionEditMessage(SingleReactionEvent event, int i) {
         switch (i) {
             case -1:
@@ -259,7 +262,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             default:
                 return false;
         }
-    }
+    }*/
 
     @ControllerReaction(state = CONFIGURE_MESSAGE)
     public boolean onReactionConfigureMessage(SingleReactionEvent event, int i) throws ExecutionException, InterruptedException {
@@ -270,55 +273,33 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 return true;
 
             case 0:
-                setState(UPDATE_TITLE);
-                return true;
-
-            case 1:
                 setState(UPDATE_DESC);
                 return true;
 
+            case 1:
+                setState(UPDATE_DURATION);
+                return true;
+
             case 2:
-                if (emojiConnections.size() < MAX_LINKS) setState(ADD_SLOT);
-                else {
-                    setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(MAX_LINKS)));
-                }
-                roleTemp = null;
-                emojiTemp = null;
+                setState(UPDATE_WINNERS);
                 return true;
 
             case 3:
-                if (emojiConnections.size() > 0) setState(REMOVE_SLOT);
-                else {
-                    setLog(LogStatus.FAILURE, getString("noshortcuts"));
-                }
+                setState(UPDATE_EMOJI);
                 return true;
 
             case 4:
-                removeRole = !removeRole;
-                setLog(LogStatus.SUCCESS, getString("roleremoveset"));
+                setState(UPDATE_IMAGE);
                 return true;
 
             case 5:
-                multipleRoles = !multipleRoles;
-                setLog(LogStatus.SUCCESS, getString("multiplerolesset"));
+                setState(EXAMPLE);
                 return true;
 
             case 6:
-                if (emojiConnections.size() > 0) {
-                    setState(EXAMPLE);
-                } else {
-                    setLog(LogStatus.FAILURE, getString("noshortcuts"));
-                }
-                return true;
-
-            case 7:
-                if (emojiConnections.size() > 0) {
-                    if (sendMessage()) {
-                        setState(SENT);
-                        removeNavigation();
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, getString("noshortcuts"));
+                if (sendMessage()) {
+                    setState(SENT);
+                    removeNavigation();
                 }
                 return true;
 
@@ -327,36 +308,34 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
     }
 
-    @ControllerReaction(state = ADD_SLOT)
-    public boolean onReactionAddSlot(SingleReactionEvent event, int i) {
-        if (i == 0 && roleTemp != null && emojiTemp != null) {
-            emojiConnections.add(new EmojiConnection(emojiTemp, roleTemp.getMentionTag()));
-            setState(CONFIGURE_MESSAGE);
-            setLog(LogStatus.SUCCESS, getString("linkadded"));
-            return true;
-        }
-
+    @ControllerReaction(state = UPDATE_EMOJI)
+    public boolean onReactionUpdateEmoji(SingleReactionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
-            return true;
+        } else {
+            event.getReaction().ifPresent(Reaction::remove);
+            processEmoji(event.getEmoji());
         }
 
-        event.getMessage().get().removeReactionByEmoji( event.getUser(), event.getEmoji());
-        return calculateEmoji(event.getEmoji());
+        return true;
     }
 
-    @ControllerReaction(state = REMOVE_SLOT)
-    public boolean onReactionRemoveSlot(SingleReactionEvent event, int i) {
+    @ControllerReaction(state = UPDATE_IMAGE)
+    public boolean onReactionUpdateImage(SingleReactionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
-        }
-        if (i < emojiConnections.size() && i != -2) {
-            setLog(LogStatus.SUCCESS, getString("linkremoved"));
-            emojiConnections.remove(i);
-            if (emojiConnections.size() == 0) setState(CONFIGURE_MESSAGE);
+        } else if (i == 0) {
+            if (imageMessage != null) {
+                imageMessage.delete().exceptionally(ExceptionLogger.get());
+                imageMessage = null;
+            }
+            imageLink = null;
+            setLog(LogStatus.SUCCESS, getString("imageset"));
+            setState(CONFIGURE_MESSAGE);
             return true;
         }
+
         return false;
     }
 
@@ -372,6 +351,18 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             return true;
         }
         return false;
+    }
+
+    private boolean processEmoji(Emoji emoji) {
+        if (emoji.isUnicodeEmoji() || emoji.isKnownCustomEmoji()) {
+            this.emoji = emoji;
+            setLog(LogStatus.SUCCESS, getString("emojiset"));
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
+            return false;
+        }
     }
 
     private boolean sendMessage() throws ExecutionException, InterruptedException {
@@ -414,19 +405,12 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean calculateEmoji(Emoji emoji) {
-        if (emoji == null || (emoji.isCustomEmoji() && !emoji.isKnownCustomEmoji())) {
+        if (emoji == null || (emoji.isCustomEmoji() && !DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
-            return true;
+            return false;
         }
 
-        for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-            if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
-                setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
-                return true;
-            }
-        }
-
-        emojiTemp = emoji;
+        this.emoji = emoji;
         return true;
     }
     
@@ -455,43 +439,38 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setOptions(getString("state3_options").split("\n"));
 
-        String add;
-        if (editMode) add = "edit";
-        else add = "new";
-
-        return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_"+add))
-                .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
-                .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), true)
-                .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
-                .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
-    }
-
-    @Draw(state = UPDATE_TITLE)
-    public EmbedBuilder onDrawUpdateTitle(DiscordApi api) {
-        return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
+                .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), false)
+                .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
+                .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
+                .addField(getString("state3_memoji"), emoji.getMentionTag(), true)
+                .addField(getString("state3_mimage"), StringUtil.getEmojiForBoolean(imageLink != null), true);
     }
 
     @Draw(state = UPDATE_DESC)
     public EmbedBuilder onDrawUpdateDesc(DiscordApi api) {
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
+    }
+
+    @Draw(state = UPDATE_DURATION)
+    public EmbedBuilder onDrawUpdateDuration(DiscordApi api) {
         return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
     }
 
-    @Draw(state = ADD_SLOT)
-    public EmbedBuilder onDrawAddSlot(DiscordApi api) {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (roleTemp != null && emojiTemp != null) setOptions(new String[]{getString("state6_options")});
-        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Mentionable::getMentionTag).orElse(notSet), Optional.ofNullable(roleTemp).map(Role::getMentionTag).orElse(notSet)), getString("state6_title"));
+    @Draw(state = UPDATE_WINNERS)
+    public EmbedBuilder onDrawUpdateWinners(DiscordApi api) {
+        return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
     }
 
-    @Draw(state = REMOVE_SLOT)
-    public EmbedBuilder onDrawRemoveSlot(DiscordApi api) {
-        ArrayList<String> optionsDelete = new ArrayList<>();
-        for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-            optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
-        }
-        setOptions(optionsDelete.toArray(new String[0]));
-
+    @Draw(state = UPDATE_EMOJI)
+    public EmbedBuilder onDrawUpdateEmoji(DiscordApi api) {
         return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
+    }
+
+    @Draw(state = UPDATE_IMAGE)
+    public EmbedBuilder onDrawUpdateImage(DiscordApi api) {
+        setOptions(getString("state8_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
     }
 
     @Draw(state = EXAMPLE)

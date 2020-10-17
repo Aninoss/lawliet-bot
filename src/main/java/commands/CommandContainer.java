@@ -80,6 +80,7 @@ public class CommandContainer {
         commandList.add(MemberCountDisplayCommand.class);
         commandList.add(TriggerDeleteCommand.class);
         commandList.add(ReminderCommand.class);
+        commandList.add(GiveawayCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

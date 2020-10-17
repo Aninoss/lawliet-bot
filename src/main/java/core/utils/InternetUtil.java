@@ -24,15 +24,16 @@ public final class InternetUtil {
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
-        Thread t =new CustomThread(() -> {
+
+        new CustomThread(() -> {
             try {
-                Thread.sleep(10000);
+                Thread.sleep(10_000);
                 message.delete();
             } catch (InterruptedException e) {
                 LOGGER.error("Could not get url from input stream", e);
             }
-        }, "message_delete_counter", 1);
-        t.start();
+        }, "message_delete_counter", 1).start();
+
         return url;
     }
 
