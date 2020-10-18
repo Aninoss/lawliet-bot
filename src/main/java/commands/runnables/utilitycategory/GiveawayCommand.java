@@ -7,14 +7,14 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
-import core.DiscordApiCollection;
-import core.EmbedFactory;
-import core.IDGenerator;
-import core.TextManager;
+import core.*;
 import core.utils.FileUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.schedulers.GiveawayScheduler;
+import mysql.modules.giveaway.DBGiveaway;
+import mysql.modules.giveaway.GiveawayBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
@@ -27,6 +27,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -46,7 +47,8 @@ import java.util.concurrent.ExecutionException;
 )
 public class GiveawayCommand extends Command implements OnNavigationListener {
 
-    private static final int MAX_GIVEAWAYS = 20;
+    private static final int MAX_GIVEAWAYS = 50;
+
     private final static int
             ADD_OR_EDIT = 0,
             ADD_MESSAGE = 1,
@@ -61,9 +63,11 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             EXAMPLE = 9,
             SENT = 10;
 
-    private long id;
+    private CustomObservableMap<Long, GiveawayBean> giveawayBeans = null;
+
+    private long messageId;
     private String title;
-    private String description;
+    private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
     private Emoji emoji = StringUtil.unicodeToEmoji("✉️");
@@ -79,6 +83,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        giveawayBeans = DBGiveaway.getInstance().loadBean();
         title = getString("title");
         return true;
     }
@@ -180,7 +185,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     public Response onMessageUpdateImage(MessageCreateEvent event, String inputString) throws IOException, ExecutionException, InterruptedException {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
-            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", id));
+            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", IDGenerator.getInstance().getId()));
             if (file.isPresent()) {
                 imageLink = uploadFile(file.get());
                 file.get().delete();
@@ -237,7 +242,6 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
             case 0:
                 if (channel != null) {
-                    id = IDGenerator.getInstance().getId();
                     setState(CONFIGURE_MESSAGE);
                     return true;
                 }
@@ -307,6 +311,20 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 if (messageOpt.isPresent()) {
                     setState(SENT);
                     removeNavigation();
+                    GiveawayBean giveawayBean = new GiveawayBean(
+                            channel.getServer().getId(),
+                            channel.getId(),
+                            messageOpt.get().getId(),
+                            emoji.getMentionTag(),
+                            amountOfWinners,
+                            Instant.now(),
+                            durationMinutes,
+                            title,
+                            description,
+                            imageLink
+                    );
+                    giveawayBeans.put(giveawayBean.getMessageId(), giveawayBean);
+                    GiveawayScheduler.getInstance().loadGiveawayBean(giveawayBean);
                 }
                 return true;
 
@@ -399,7 +417,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), title, false)
-                .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), false)
+                .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(description.isEmpty() ? notSet : description), false)
                 .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
                 .addField(getString("state3_memoji"), emoji.getMentionTag(), true)

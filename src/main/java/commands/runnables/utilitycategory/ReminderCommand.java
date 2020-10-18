@@ -12,7 +12,7 @@ import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import modules.ReminderManager;
+import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
 import mysql.modules.server.DBServer;
@@ -139,7 +139,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         );
 
         remindersBeans.put(remindersBean.getId(), remindersBean);
-        ReminderManager.getInstance().loadReminderBean(remindersBean);
+        ReminderScheduler.getInstance().loadReminderBean(remindersBean);
     }
 
     private int generateNewId(CustomObservableMap<Integer, RemindersBean> remindersBeans) {

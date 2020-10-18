@@ -1,4 +1,4 @@
-package modules;
+package modules.schedulers;
 
 import commands.runnables.utilitycategory.ReminderCommand;
 import constants.Permission;
@@ -15,20 +15,20 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ReminderManager {
+public class ReminderScheduler {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReminderManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ReminderScheduler.class);
 
-    private static final ReminderManager ourInstance = new ReminderManager();
-    public static ReminderManager getInstance() { return ourInstance; }
-    private ReminderManager() { }
+    private static final ReminderScheduler ourInstance = new ReminderScheduler();
+    public static ReminderScheduler getInstance() { return ourInstance; }
+    private ReminderScheduler() { }
 
     private final Timer timer = new Timer();
-    private boolean active = false;
+    private boolean started = false;
 
     public void start() {
-        if (active) return;
-        active = true;
+        if (started) return;
+        started = true;
 
         try {
             DBReminders.getInstance().loadBean().values().forEach(this::loadReminderBean);

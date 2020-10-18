@@ -7,7 +7,7 @@ import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
 import javafx.util.Pair;
-import mysql.DBGiveaway;
+import mysql.DBBotGiveaway;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -17,6 +17,7 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.DonationHandler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -134,7 +135,7 @@ public class Console {
 
     private void onGiveaway(String[] args) throws SQLException {
         LOGGER.info("### GIVEAWAY RESULTS ###");
-        for (Pair<Long, Long> slot : DBGiveaway.getGiveawaySlots()) {
+        for (Pair<Long, Long> slot : DBBotGiveaway.getGiveawaySlots()) {
             DiscordApiCollection.getInstance().getServerById(slot.getKey()).ifPresent(server -> {
                 if (server.getMembers().stream().filter(user -> !user.isBot()).count() >= 10 &&
                         server.getMembers().stream().anyMatch(user -> user.getId() == slot.getValue())

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class DBGiveaway {
+public class DBBotGiveaway {
 
     public static boolean registerGiveaway(Server server, User user) throws SQLException {
         boolean quit = false;

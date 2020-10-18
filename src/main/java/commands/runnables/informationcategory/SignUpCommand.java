@@ -5,7 +5,7 @@ import commands.Command;
 import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.utils.StringUtil;
-import mysql.DBGiveaway;
+import mysql.DBBotGiveaway;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Locale;
@@ -24,7 +24,7 @@ public class SignUpCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        boolean success = DBGiveaway.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
+        boolean success = DBBotGiveaway.registerGiveaway(event.getServer().get(), event.getMessage().getUserAuthor().get());
 
         if (success) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
