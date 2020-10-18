@@ -6,12 +6,12 @@ import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Permission;
-import constants.Settings;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -27,12 +27,14 @@ public class TrackerManager {
     private TrackerManager() { }
 
     private boolean active = false;
+    private int size;
 
     public synchronized void start() {
         if (active) return;
         active = true;
 
-        for (int i = 0; i < Settings.TRACKER_SHARDS; i++) {
+        size = (DiscordApiCollection.getInstance().size() / 10) + 1;
+        for (int i = 0; i < size; i++) {
             final int trackerShard = i;
             new CustomThread(() -> {
                 manageTrackerShard(trackerShard);
@@ -74,7 +76,7 @@ public class TrackerManager {
     }
 
     private boolean trackerIsForShard(TrackerBeanSlot slot, int trackerShard) {
-        return slot.getServerId() % Settings.TRACKER_SHARDS == trackerShard;
+        return slot.getServerId() % size == trackerShard;
     }
 
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {

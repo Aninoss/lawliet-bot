@@ -21,6 +21,7 @@ import mysql.modules.survey.SurveySecondVote;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +86,7 @@ public class SurveyResults implements ScheduleEventInterface {
                 User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
                 if (user != null) {
                     LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
-                    if (manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent))
-                        Thread.sleep(500);
+                    manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
                 }
             } catch (Exception e) {
                 LOGGER.error("Exception while managing user {}", userId, e);
@@ -96,7 +96,7 @@ public class SurveyResults implements ScheduleEventInterface {
         LOGGER.info("Survey results finished");
     }
 
-    private boolean manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException, InterruptedException, ExecutionException {
+    private boolean manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException {
         Locale localeGerman = new Locale(Locales.DE);
 
         HashMap<Long, Long> coinsWinMap = new HashMap<>();
@@ -156,7 +156,7 @@ public class SurveyResults implements ScheduleEventInterface {
         }
 
         if (lastSurvey.hasNotificationUserId(user.getId())) {
-            user.sendMessage(eb).get();
+            user.sendMessage(eb).exceptionally(ExceptionLogger.get());
             return true;
         }
         return false;

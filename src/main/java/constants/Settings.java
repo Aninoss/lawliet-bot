@@ -13,6 +13,5 @@ public interface Settings {
     Color PATREON_COLOR = new Color(249, 104, 84);
     boolean GIVEAWAY_RUNNING = false;
     int FISHERY_DESPAWN_MINUTES = 1;
-    int TRACKER_SHARDS = 2;
 
 }
