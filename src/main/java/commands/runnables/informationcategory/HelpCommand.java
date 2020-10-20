@@ -280,10 +280,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     title.append(" ").append(getString("beta"));
                 title.append("`");
 
-                if (command.isModCommand()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag());
-                if (command instanceof OnTrackerRequestListener) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag());
-                if (command.isNsfw()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag());
-                if (command.isPatreonRequired()) title.append(Emojis.EMPTY_EMOJI).append(DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag());
+                if (command.isModCommand()) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.LOCKED);
+                if (command instanceof OnTrackerRequestListener) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.ALERTS);
+                if (command.isNsfw()) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.NSFW);
+                if (command.isPatreonRequired()) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.PATREON);
 
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
@@ -300,7 +300,6 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         eb.setDescription(getString("nsfw"));
-        String patreonIcon = DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag();
 
         StringBuilder withSearchKey = new StringBuilder();
         StringBuilder withoutSearchKey = new StringBuilder();
@@ -313,10 +312,14 @@ public class HelpCommand extends Command implements OnNavigationListener {
             ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
+                StringBuilder extras = new StringBuilder();
+                if (command.isPatreonRequired()) extras.append(" ").append(CommandIcon.PATREON);
+                if (command instanceof OnTrackerRequestListener) extras.append(" ").append(CommandIcon.ALERTS);
+
                 if (command instanceof PornSearchAbstract)
-                    withSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
-                    withoutSearchKey.append(getString("nsfw_slot", command.isPatreonRequired(), command.getTrigger(), patreonIcon, title)).append("\n");
+                    withoutSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
             }
         }
 
@@ -334,10 +337,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     private String getIconDescriptions() {
         return getString("commandproperties",
-                DiscordApiCollection.getInstance().getHomeEmojiById(652188097911717910L).getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiById(654051035249115147L).getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiById(703937256070709258L).getMentionTag(),
+                CommandIcon.LOCKED.toString(),
+                CommandIcon.ALERTS.toString(),
+                CommandIcon.NSFW.toString(),
+                CommandIcon.PATREON.toString(),
                 ExternalLinks.PATREON_PAGE
         );
     }
@@ -374,6 +377,26 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 ), true);
         if (Settings.GIVEAWAY_RUNNING) eb.addField(getString("giveaway_title"), getString("giveaway_desc", ExternalLinks.SERVER_INVITE_URL), false);
         return eb;
+    }
+
+    private static class CommandIcon {
+
+        public static CommandIcon LOCKED = new CommandIcon(652188097911717910L);
+        public static CommandIcon ALERTS = new CommandIcon(654051035249115147L);
+        public static CommandIcon NSFW = new CommandIcon(652188472295292998L);
+        public static CommandIcon PATREON = new CommandIcon(703937256070709258L);
+
+        private final long emojiId;
+
+        public CommandIcon(long emojiId) {
+            this.emojiId = emojiId;
+        }
+
+        @Override
+        public String toString() {
+            return DiscordApiCollection.getInstance().getHomeEmojiById(emojiId).getMentionTag();
+        }
+
     }
 
 }
