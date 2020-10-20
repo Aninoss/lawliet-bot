@@ -59,7 +59,8 @@ public class KissCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736280297171058759/736280547206234202/kiss.gif",
                 "https://media.discordapp.net/attachments/736280297171058759/736280554512711680/kiss.gif",
                 "https://media.discordapp.net/attachments/736280297171058759/736280563887112262/kiss.gif",
-                "https://media.discordapp.net/attachments/736280297171058759/736280569536708738/kiss.gif"
+                "https://media.discordapp.net/attachments/736280297171058759/736280569536708738/kiss.gif",
+                "https://media.discordapp.net/attachments/736280297171058759/768080405668167680/kiss.gif"
         };
     }
 
