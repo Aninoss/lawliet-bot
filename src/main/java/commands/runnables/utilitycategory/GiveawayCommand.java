@@ -16,10 +16,10 @@ import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.Emoji;
+import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.Reaction;
@@ -27,7 +27,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -37,17 +36,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "giveaway",
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "🎆",
+        releaseDate = { 2020, 10, 28 },
         executableWithoutArgs = true,
         aliases = { "giveaways" }
 )
 public class GiveawayCommand extends Command implements OnNavigationListener {
-
-    private static final int MAX_GIVEAWAYS = 50;
 
     private final static int
             ADD_OR_EDIT = 0,
@@ -65,17 +64,18 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     private CustomObservableMap<Long, GiveawayBean> giveawayBeans = null;
 
+    private long serverId;
     private long messageId;
     private String title;
     private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
-    private Emoji emoji = StringUtil.unicodeToEmoji("✉️");
+    private Emoji emoji = StringUtil.unicodeToEmoji("🎉");
     private String imageLink;
     private Message imageMessage;
     private ServerTextChannel channel;
+    private Instant instant;
     private boolean editMode = false;
-    private Message editMessage;
 
     public GiveawayCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -83,6 +83,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+        serverId = event.getServer().get().getId();
         giveawayBeans = DBGiveaway.getInstance().loadBean();
         title = getString("title");
         return true;
@@ -224,8 +225,12 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 return true;
 
             case 1:
-                setState(EDIT_MESSAGE);
-                editMode = true;
+                if (getGiveawaySlotsForServer().size() > 0) {
+                    setState(EDIT_MESSAGE);
+                    editMode = true;
+                } else {
+                    setLog(LogStatus.FAILURE, getString("nothing"));
+                }
                 return true;
 
             default:
@@ -251,24 +256,35 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
         }
     }
 
-    /*@ControllerReaction(state = EDIT_MESSAGE)
+    @ControllerReaction(state = EDIT_MESSAGE)
     public boolean onReactionEditMessage(SingleReactionEvent event, int i) {
-        switch (i) {
-            case -1:
-                setState(ADD_OR_EDIT);
-                return true;
-
-            case 0:
-                if (editMessage != null) {
-                    updateValuesFromMessage(editMessage);
-                    setState(CONFIGURE_MESSAGE);
-                    return true;
-                }
-
-            default:
-                return false;
+        if (i == -1) {
+            setState(ADD_OR_EDIT);
+            return true;
         }
-    }*/
+
+        List<GiveawayBean> giveaways = getGiveawaySlotsForServer();
+        if (i >= 0 && i < giveaways.size()) {
+            GiveawayBean giveaway = giveaways.get(i);
+            messageId = giveaway.getMessageId();
+            title = giveaway.getTitle();
+            description = giveaway.getDescription();
+            durationMinutes = giveaway.getDurationMinutes();
+            amountOfWinners = giveaway.getWinners();
+            imageLink = giveaway.getImageUrl().orElse(null);
+            channel = event.getServer().get().getTextChannelById(giveaway.getChannelId()).get();
+            instant = giveaway.getStart();
+
+            List<KnownCustomEmoji> emojis = MentionUtil.getCustomEmojiByTag(giveaway.getEmoji());
+            if (emojis.size() > 0) emoji = emojis.get(0);
+            else if (giveaway.getEmoji().length() <= 4) emoji = StringUtil.unicodeToEmoji(giveaway.getEmoji());
+            setState(CONFIGURE_MESSAGE);
+
+            return true;
+        }
+
+        return false;
+    }
 
     @ControllerReaction(state = CONFIGURE_MESSAGE)
     public boolean onReactionConfigureMessage(SingleReactionEvent event, int i) throws ExecutionException, InterruptedException {
@@ -287,7 +303,10 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 return true;
 
             case 2:
-                setState(UPDATE_DURATION);
+                if (!editMode)
+                    setState(UPDATE_DURATION);
+                else
+                    setLog(LogStatus.FAILURE, getString("locked"));
                 return true;
 
             case 3:
@@ -295,7 +314,10 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 return true;
 
             case 4:
-                setState(UPDATE_EMOJI);
+                if (!editMode)
+                    setState(UPDATE_EMOJI);
+                else
+                    setLog(LogStatus.FAILURE, getString("locked"));
                 return true;
 
             case 5:
@@ -317,14 +339,19 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                             messageOpt.get().getId(),
                             emoji.getMentionTag(),
                             amountOfWinners,
-                            Instant.now(),
+                            instant,
                             durationMinutes,
                             title,
                             description,
                             imageLink
                     );
+                    GiveawayBean oldGiveaway = giveawayBeans.get(giveawayBean.getMessageId());
+                    if (oldGiveaway != null) oldGiveaway.stop();
+
                     giveawayBeans.put(giveawayBean.getMessageId(), giveawayBean);
                     GiveawayScheduler.getInstance().loadGiveawayBean(giveawayBean);
+                } else {
+                    setLog(LogStatus.FAILURE, getString("error"));
                 }
                 return true;
 
@@ -405,13 +432,15 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage(DiscordApi api) {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (editMessage != null) setOptions(new String[]{TextManager.getString(getLocale(),TextManager.GENERAL,"continue")});
-        return EmbedFactory.getEmbedDefault(this, getString("state2_description", Optional.ofNullable(editMessage).map(DiscordEntity::getIdAsString).orElse(notSet)), getString("state2_title"));
+        String[] options = new ListGen<GiveawayBean>()
+                .getList(getGiveawaySlotsForServer(), ListGen.SLOT_TYPE_NONE, giveawayBean -> getString("state2_slot", giveawayBean.getTitle(), giveawayBean.getChannel().get().getMentionTag()))
+                .split("\n");
+        setOptions(options);
+        return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
-    public EmbedBuilder onDrawConfigureMessage(DiscordApi api) throws IOException {
+    public EmbedBuilder onDrawConfigureMessage(DiscordApi api) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setOptions(getString("state3_options").split("\n"));
 
@@ -473,10 +502,17 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
         return 12;
     }
 
+    private List<GiveawayBean> getGiveawaySlotsForServer() {
+        return giveawayBeans.values().stream()
+                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.getMessage().isPresent())
+                .collect(Collectors.toList());
+    }
+
     private Optional<Message> sendMessage() throws ExecutionException, InterruptedException {
         Message message;
         if (!editMode) {
             if (checkWriteInChannelWithLog(channel)) {
+                instant = Instant.now();
                 message = channel.sendMessage(getMessageEmbed()).get();
                 if (channel.canYouAddNewReactions()) {
                     message.addReaction(emoji);
@@ -484,8 +520,15 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 return Optional.of(message);
             } else return Optional.empty();
         } else {
-            editMessage.edit(getMessageEmbed()).exceptionally(ExceptionLogger.get());
-            return Optional.of(editMessage);
+            if (instant.plus(durationMinutes, ChronoUnit.MINUTES).isBefore(Instant.now()))
+                return Optional.empty();
+
+            Optional<Message> messageOptional = DiscordApiCollection.getInstance().getMessageById(channel, messageId);
+            if (messageOptional.isPresent()) {
+                messageOptional.get().edit(getMessageEmbed()).exceptionally(ExceptionLogger.get());
+                return Optional.of(messageOptional.get());
+            }
+            return Optional.empty();
         }
     }
 

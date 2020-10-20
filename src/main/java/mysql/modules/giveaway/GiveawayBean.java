@@ -1,5 +1,10 @@
 package mysql.modules.giveaway;
 
+import core.DiscordApiCollection;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.server.Server;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -35,12 +40,24 @@ public class GiveawayBean {
         return serverId;
     }
 
+    public Optional<Server> getServer() {
+        return DiscordApiCollection.getInstance().getServerById(serverId);
+    }
+
     public long getMessageId() {
         return messageId;
     }
 
+    public Optional<ServerTextChannel> getChannel() {
+        return getServer().flatMap(server -> server.getTextChannelById(channelId));
+    }
+
     public long getChannelId() {
         return channelId;
+    }
+
+    public Optional<Message> getMessage() {
+        return DiscordApiCollection.getInstance().getMessageById(serverId, channelId, messageId);
     }
 
     public String getEmoji() {

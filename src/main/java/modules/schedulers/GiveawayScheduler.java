@@ -109,7 +109,7 @@ public class GiveawayScheduler {
                 CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
-                        .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", users.size() != 1));
+                        .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
                 giveawayBean.getImageUrl().ifPresent(eb::setImage);
 
                 channel.sendMessage(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
