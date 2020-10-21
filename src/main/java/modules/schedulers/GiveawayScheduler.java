@@ -93,7 +93,7 @@ public class GiveawayScheduler {
                 for (Reaction reaction : message.getReactions()) {
                     if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {
                         reaction.getUsers().get().forEach(user -> {
-                            if (!user.isBot())
+                            if (!user.isBot() && channel.getServer().getMembers().contains(user))
                                 users.add(user);
                         });
                     }
@@ -101,18 +101,20 @@ public class GiveawayScheduler {
                 Collections.shuffle(users);
                 List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
 
-                StringBuilder mentions = new StringBuilder();
-                for (User user : winners) {
-                    mentions.append(user.getMentionTag()).append(" ");
+                if (winners.size() > 0) {
+                    StringBuilder mentions = new StringBuilder();
+                    for (User user : winners) {
+                        mentions.append(user.getMentionTag()).append(" ");
+                    }
+
+                    CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                            .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
+                            .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+                    giveawayBean.getImageUrl().ifPresent(eb::setImage);
+
+                    channel.sendMessage(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
                 }
-
-                CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
-                        .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
-                giveawayBean.getImageUrl().ifPresent(eb::setImage);
-
-                channel.sendMessage(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
                 message.delete().exceptionally(ExceptionLogger.get());
             }
         }
