@@ -3,13 +3,14 @@ package events.discordevents.messagecreate;
 import constants.AssetIds;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
+import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import modules.ChatGameGuessingNames;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 
-@DiscordEvent
+@DiscordEvent(priority = EventPriority.LOW)
 public class MessageCreateChatGameGuessingNumber extends MessageCreateAbstract {
 
     @Override

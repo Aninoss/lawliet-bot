@@ -3,6 +3,7 @@ package events.discordevents.messagecreate;
 import constants.FisheryStatus;
 import core.CustomObservableList;
 import events.discordevents.DiscordEvent;
+import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
@@ -13,7 +14,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Random;
 
-@DiscordEvent
+@DiscordEvent(priority = EventPriority.LOW)
 public class MessageCreateFishery extends MessageCreateAbstract {
 
     @Override

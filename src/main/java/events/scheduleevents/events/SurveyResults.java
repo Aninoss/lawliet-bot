@@ -72,7 +72,6 @@ public class SurveyResults implements ScheduleEventInterface {
                         DBServer.getInstance().getBean(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
                     LOGGER.debug("Enter user ID {}", surveySecondVote.getUserId());
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
-                    Thread.sleep(500);
                 }
             } catch (Exception e) {
                 LOGGER.error("Exception while initializing user list for fishery survey", e);
@@ -83,11 +82,15 @@ public class SurveyResults implements ScheduleEventInterface {
 
         for (long userId : secondVotesMap.keySet()) {
             try {
-                User user = DiscordApiCollection.getInstance().getUserById(userId).orElse(null);
-                if (user != null) {
-                    LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
-                    manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, percent);
-                }
+                int finalPercent = percent;
+                DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
+                    try {
+                        LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
+                        manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, finalPercent);
+                    } catch (Exception e) {
+                        LOGGER.error("Exception while managing user {}", userId, e);
+                    }
+                });
             } catch (Exception e) {
                 LOGGER.error("Exception while managing user {}", userId, e);
             }

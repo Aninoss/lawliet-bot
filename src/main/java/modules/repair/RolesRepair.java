@@ -89,7 +89,7 @@ public class RolesRepair implements Runnable {
         Optional<Instant> instantOpt = server.getJoinedAtTimestamp(user);
         if (instantOpt.isPresent()) {
             Instant instant = instantOpt.get();
-            return instant.isAfter(Instant.now().minus(2, ChronoUnit.HOURS));
+            return instant.isAfter(Instant.now().minus(1, ChronoUnit.HOURS));
         }
 
         return false;

@@ -4,6 +4,7 @@ import commands.runnables.utilitycategory.AutoRolesCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerMemberJoinAbstract;
+import modules.AninossRaidProtection;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.server.DBServer;
 import org.javacord.api.entity.DiscordEntity;
@@ -23,8 +24,11 @@ public class ServerMemberJoinAutoRoles extends ServerMemberJoinAbstract {
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
         for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
-            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
-                event.getUser().addRole(role).exceptionally(ExceptionLogger.get());
+            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) {
+                if (role.getId() != 462410205288726531L || AninossRaidProtection.getInstance().check(event.getUser(), role)) {
+                    event.getUser().addRole(role).exceptionally(ExceptionLogger.get());
+                }
+            }
         }
 
         return true;

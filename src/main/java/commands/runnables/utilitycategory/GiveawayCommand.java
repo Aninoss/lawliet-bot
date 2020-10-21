@@ -504,7 +504,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     private List<GiveawayBean> getGiveawaySlotsForServer() {
         return giveawayBeans.values().stream()
-                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.getMessage().isPresent())
+                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.getMessage().isPresent() && giveaway.getEnd().isAfter(Instant.now()))
                 .collect(Collectors.toList());
     }
 

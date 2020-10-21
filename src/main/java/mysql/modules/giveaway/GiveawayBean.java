@@ -6,6 +6,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 public class GiveawayBean {
@@ -70,6 +71,10 @@ public class GiveawayBean {
 
     public Instant getStart() {
         return start;
+    }
+
+    public Instant getEnd() {
+        return start.plus(durationMinutes, ChronoUnit.MINUTES);
     }
 
     public long getDurationMinutes() {

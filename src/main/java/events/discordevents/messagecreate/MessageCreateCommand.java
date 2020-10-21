@@ -15,6 +15,7 @@ import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
+import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-@DiscordEvent
+@DiscordEvent(priority = EventPriority.LOW)
 public class MessageCreateCommand extends MessageCreateAbstract {
 
     final Logger LOGGER = LoggerFactory.getLogger(MessageCreateCommand.class);

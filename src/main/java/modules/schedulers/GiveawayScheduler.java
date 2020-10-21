@@ -21,6 +21,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -46,7 +47,9 @@ public class GiveawayScheduler {
         started = true;
 
         try {
-            DBGiveaway.getInstance().loadBean().values().forEach(this::loadGiveawayBean);
+            DBGiveaway.getInstance().loadBean().values().stream()
+                    .filter(giveawayBean -> giveawayBean.getEnd().isAfter(Instant.now()))
+                    .forEach(this::loadGiveawayBean);
         } catch (Exception e) {
             LOGGER.error("Could not start giveaway", e);
         }
@@ -75,47 +78,41 @@ public class GiveawayScheduler {
                         }
                     });
         }
-
-        try {
-            DBGiveaway.getInstance().loadBean().remove(giveawayBean.getMessageId(), giveawayBean);
-        } catch (Exception e) {
-            LOGGER.error("Could not load reminders", e);
-        }
     }
 
     private void processGiveaway(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) throws ExecutionException, InterruptedException {
-        if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.READ_MESSAGE_HISTORY | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
-            Optional<Message> messageOpt = DiscordApiCollection.getInstance().getMessageById(channel, giveawayBean.getMessageId());
-            if (messageOpt.isPresent()) {
-                Message message = messageOpt.get();
-                ArrayList<User> users = new ArrayList<>();
+        Optional<Message> messageOpt = DiscordApiCollection.getInstance().getMessageById(channel, giveawayBean.getMessageId());
+        if (messageOpt.isPresent()) {
+            Message message = messageOpt.get();
+            ArrayList<User> users = new ArrayList<>();
 
-                for (Reaction reaction : message.getReactions()) {
-                    if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {
-                        reaction.getUsers().get().forEach(user -> {
-                            if (!user.isBot() && channel.getServer().getMembers().contains(user))
-                                users.add(user);
-                        });
-                    }
+            for (Reaction reaction : message.getReactions()) {
+                if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {
+                    reaction.getUsers().get().forEach(user -> {
+                        if (!user.isBot() && channel.getServer().getMembers().contains(user))
+                            users.add(user);
+                    });
                 }
-                Collections.shuffle(users);
-                List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
+            }
+            Collections.shuffle(users);
+            List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
 
-                if (winners.size() > 0) {
-                    StringBuilder mentions = new StringBuilder();
-                    for (User user : winners) {
-                        mentions.append(user.getMentionTag()).append(" ");
-                    }
-
-                    CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
-                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
-                            .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
-                    giveawayBean.getImageUrl().ifPresent(eb::setImage);
-
-                    channel.sendMessage(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
+            if (winners.size() > 0) {
+                StringBuilder mentions = new StringBuilder();
+                for (User user : winners) {
+                    mentions.append(user.getMentionTag()).append(" ");
                 }
-                message.delete().exceptionally(ExceptionLogger.get());
+
+                CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
+                        .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+                giveawayBean.getImageUrl().ifPresent(eb::setImage);
+
+                message.edit(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
+
+                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.READ_MESSAGE_HISTORY | Permission.SEND_MESSAGES | Permission.EMBED_LINKS))
+                    channel.sendMessage(mentions.toString()).thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
             }
         }
     }

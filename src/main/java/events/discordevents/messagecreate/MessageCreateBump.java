@@ -2,6 +2,7 @@ package events.discordevents.messagecreate;
 
 import constants.AssetIds;
 import events.discordevents.DiscordEvent;
+import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import modules.BumpReminder;
 import mysql.modules.bump.DBBump;
@@ -13,7 +14,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@DiscordEvent(allowBots = true)
+@DiscordEvent(priority = EventPriority.LOW, allowBots = true)
 public class MessageCreateBump extends MessageCreateAbstract {
 
     @Override
