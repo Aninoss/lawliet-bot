@@ -379,6 +379,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
         return eb;
     }
 
+
     private static class CommandIcon {
 
         public static CommandIcon LOCKED = new CommandIcon(652188097911717910L);

@@ -242,9 +242,8 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
         eb.addField(getString("majority"), majorityString.toString(), false);
 
-        Instant now = tracker ? TimeUtil.instantRoundDownToDay(Instant.now()).minusSeconds(1) : Instant.now();
         Instant after = TimeUtil.localDateToInstant(surveyBean.getNextDate());
-        EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), now, after, false)));
+        if (!tracker) EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
         EmbedUtil.addReminaingTime(getLocale(), eb, after);
 
         return eb;
