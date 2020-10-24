@@ -18,7 +18,7 @@ public final class TimeUtil {
         String str = DateTimeFormatter
                 .ofPattern(TextManager.getString(locale, TextManager.GENERAL, "time_code", withClockTime))
                 .localizedBy(locale)
-                .format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
+                .format(LocalDateTime.ofInstant(instant, ZoneOffset.UTC));
 
         if (withClockTime) {
             str += " " + TextManager.getString(locale, TextManager.GENERAL, "clock");

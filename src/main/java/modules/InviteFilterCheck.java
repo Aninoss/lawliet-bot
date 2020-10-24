@@ -36,8 +36,8 @@ public class InviteFilterCheck {
             informMessageAuthor(spBlockBean, inviteFilterCommand, locale, message, author);
 
             boolean successful = safeDeleteMessage(message);
-            successful = successful && safeKick(spBlockBean, server, author);
-            successful = successful && safeBan(spBlockBean, server, author);
+            successful = safeKick(spBlockBean, server, author) && successful;
+            successful = safeBan(spBlockBean, server, author) && successful;
 
             informLogReceivers(spBlockBean, inviteFilterCommand, locale, message, author, successful);
 
