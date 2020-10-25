@@ -113,8 +113,8 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
             case 4:
                 if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
                     String[] parts = (inputString + " ").split("-");
-                    long priceMin = StringUtil.filterLongFromString(parts[0]);
-                    long priceMax = StringUtil.filterLongFromString(parts[1]);
+                    long priceMin = MentionUtil.getAmountExt(parts[0]);
+                    long priceMax = MentionUtil.getAmountExt(parts[1]);
 
                     if (priceMin >= -1 && priceMax >= -1 && priceMin <= Settings.FISHERY_MAX && priceMax <= Settings.FISHERY_MAX) {
                         if (priceMin == -1) priceMin = serverBean.getFisheryRoleMin();

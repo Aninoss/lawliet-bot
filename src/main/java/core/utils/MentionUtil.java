@@ -24,11 +24,13 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MentionUtil {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
+    private final static Pattern p = Pattern.compile(" [0-9]+ [0-9]");
 
     public static MentionList<User> getUsers(Message message, String content) {
         return getUsers(message, content, message.getServer().get().getMembers());
@@ -389,14 +391,18 @@ public class MentionUtil {
         return knownCustomEmojis;
     }
 
+    public static long getAmountExt(String str) {
+        return getAmountExt(str, -1);
+    }
+
     public static long getAmountExt(String str, long available) {
-        str = str.toLowerCase().replace("\n", " ");
+        str = reformatForDigits(str);
 
         for(String part : str.split(" ")) {
             if (part.length() > 0) {
-                if (part.equals("all") || part.equals("allin"))
+                if (available >= 0 && (part.equals("all") || part.equals("allin")))
                     return available;
-                if (part.equals("half"))
+                if (available >= 0 && part.equals("half"))
                     return available / 2;
 
                 String valueString = StringUtil.filterDoubleString(part);
@@ -410,6 +416,7 @@ public class MentionUtil {
                         return (long) value;
 
                     case "%":
+                        if (available < 0) continue;
                         return (long) Math.abs(value / 100.0 * available);
 
                     case "k":
@@ -434,7 +441,7 @@ public class MentionUtil {
 
     public static long getTimeMinutesExt(String str) {
         long sec = 0;
-        str = str.toLowerCase().replace("\n", " ");
+        str = reformatForDigits(str);
 
         for(String part : str.split(" ")) {
             if (part.length() > 0) {
@@ -463,6 +470,23 @@ public class MentionUtil {
         }
 
         return sec;
+    }
+
+    private static String reformatForDigits(String str) {
+        str = " " + str.toLowerCase()
+                .replace("\n", " ")
+                .replaceAll(" {2}", " ")
+                .replaceAll("[^a-zA-Z0-9 ]", "");
+
+        Matcher m = p.matcher(str);
+        while(m.find()) {
+            String group = m.group();
+            String groupNew = StringUtil.replaceLast(group, " ", "");
+            str = str.replace(group, groupNew);
+            m = p.matcher(str);
+        }
+
+        return str;
     }
 
 }
