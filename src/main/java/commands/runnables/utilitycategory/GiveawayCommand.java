@@ -8,10 +8,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.utils.FileUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
@@ -27,6 +24,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -406,7 +404,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     }
 
     private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || emoji.isKnownCustomEmoji()) {
+        if (emoji.isUnicodeEmoji() || DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isPresent()) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);

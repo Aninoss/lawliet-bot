@@ -82,8 +82,8 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
         } while (endTime.isBefore(new Date().toInstant()));
 
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .setFooter(getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
+        EmbedUtil.setFooter(eb, this, getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
 
         if (!isSplatfest) {
             String[] modeIDs = new String[]{"regular", "gachi", "league"};

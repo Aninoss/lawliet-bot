@@ -9,10 +9,7 @@ import constants.Permission;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.FileUtil;
-import core.utils.InternetUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.ImageCreator;
 import modules.Welcome;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
@@ -55,8 +52,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
         author = event.getMessage().getUserAuthor().get();
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
-        return true;
-    }
+        return true;    }
 
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {

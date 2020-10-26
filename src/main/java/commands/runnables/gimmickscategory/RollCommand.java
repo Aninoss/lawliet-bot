@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -50,7 +51,7 @@ public class RollCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
                 getString("result", StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()), String.valueOf((long) drawn),String.valueOf((long) border)));
-        if (!userMentioned) eb.setFooter(getString("noarg"));
+        if (!userMentioned) EmbedUtil.setFooter(eb, this, getString("noarg"));
         event.getChannel().sendMessage(eb).get();
         return true;
     }

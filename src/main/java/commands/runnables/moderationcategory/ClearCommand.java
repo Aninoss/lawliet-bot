@@ -1,15 +1,17 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Permission;
 import core.CustomThread;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,8 +75,9 @@ public class ClearCommand extends Command {
             }
 
             String key = skipped ? "finished_too_old" : "finished_description";
-            Message confirmationMessage = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)))
-                    .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)));
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+            Message confirmationMessage = event.getChannel().sendMessage(eb).get();
 
             startCountdown(event.getServerTextChannel().get(), new Message[]{ confirmationMessage, event.getMessage() });
             return true;

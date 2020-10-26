@@ -475,8 +475,7 @@ public class MentionUtil {
     private static String reformatForDigits(String str) {
         str = " " + str.toLowerCase()
                 .replace("\n", " ")
-                .replaceAll(" {2}", " ")
-                .replaceAll("[.+,]", "");
+                .replaceAll(" {2}", " ");
 
         Matcher m = p.matcher(str);
         while(m.find()) {

@@ -50,7 +50,7 @@ public class AvatarCommand extends Command {
                     .setImage(avatarUrl);
 
             if (!userMentioned) {
-                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                 if (followedString.length() > 0)
                     EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }

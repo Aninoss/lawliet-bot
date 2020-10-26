@@ -166,7 +166,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String label = "tutorial";
         if (active) label = "tutorial_start";

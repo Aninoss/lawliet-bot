@@ -3,10 +3,12 @@ package commands.runnables;
 
 import commands.Command;
 import constants.Category;
-import core.*;
+import core.EmbedFactory;
+import core.TextManager;
+import core.utils.EmbedUtil;
+import core.utils.StringUtil;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
-import core.utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -46,7 +48,7 @@ public abstract class RedditAbstract extends Command {
                 .setUrl(post.getUrl())
                 .setTimestamp(post.getInstant());
 
-        eb.setFooter(TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments())));
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments())));
 
         event.getChannel().sendMessage(eb).get();
         return true;

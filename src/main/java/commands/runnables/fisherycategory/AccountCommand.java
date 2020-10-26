@@ -57,7 +57,7 @@ public class AccountCommand extends FisheryAbstract {
             EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId()).getAccountEmbed();
             if (eb != null) {
                 if (!userMentioned) {
-                    eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                    EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                     if (followedString.length() > 0)
                         EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
                 }

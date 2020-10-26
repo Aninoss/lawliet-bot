@@ -165,10 +165,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
                                         TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
                                         command.getEmoji()+" "+TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_title")
                         )
-                        .setFooter(getString("command_args"))
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_helptext") + addNotExecutable)
                         .addField(Emojis.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(),true)
                         .addField(Emojis.EMPTY_EMOJI, getString( "command_example", exampleNumber > 1) + "\n" + examples.toString(),true);
+                EmbedUtil.setFooter(eb, this, getString("command_args"));
 
                 if (command.getUserPermissions() != 0)
                     eb.addField(Emojis.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList,false);
@@ -186,13 +186,13 @@ public class HelpCommand extends Command implements OnNavigationListener {
             for (String category : Category.LIST) {
                 if ((category.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category).toLowerCase().contains(arg.toLowerCase()))) {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"))
                             .setTitle(
                                     TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
                                             TextManager.getString(getLocale(), TextManager.COMMANDS, category)
                             );
+                    EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
 
-                    emojiConnections = new ArrayList<>();
+                            emojiConnections = new ArrayList<>();
                     emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), ""));
 
                     switch (category) {
@@ -348,6 +348,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     private EmbedBuilder checkMainPage(ServerTextChannel channel) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
+        EmbedUtil.setFooter(eb, this);
 
         StringBuilder categoriesSB = new StringBuilder();
         emojiConnections = new ArrayList<>();

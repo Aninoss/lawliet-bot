@@ -231,7 +231,8 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean, boolean tracker) throws IOException {
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title") + Emojis.EMPTY_EMOJI);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title") + Emojis.EMPTY_EMOJI)
+                .setFooter("");
 
         StringBuilder personalString = new StringBuilder();
         StringBuilder majorityString = new StringBuilder();

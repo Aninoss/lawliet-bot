@@ -99,7 +99,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
 
         if (selection[0] == -1) eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         if (!active) {
             eb = EmbedUtil.addLog(eb, logStatus, log);

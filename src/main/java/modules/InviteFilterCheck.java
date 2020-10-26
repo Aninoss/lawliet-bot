@@ -33,8 +33,6 @@ public class InviteFilterCheck {
         if (hasPostedSP(server, message, spBlockBean)) {
             InviteFilterCommand inviteFilterCommand = (InviteFilterCommand) CommandManager.createCommandByClass(InviteFilterCommand.class, locale, spBlockBean.getServerBean().getPrefix());
 
-            informMessageAuthor(spBlockBean, inviteFilterCommand, locale, message, author);
-
             boolean successful = safeDeleteMessage(message);
             successful = safeKick(spBlockBean, server, author) && successful;
             successful = safeBan(spBlockBean, server, author) && successful;
@@ -46,10 +44,10 @@ public class InviteFilterCheck {
                     .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true);;
 
-            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful", author.getMentionTag()));
-            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_failed", author.getMentionTag()));
+            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful", author.getDiscriminatedName()));
+            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_failed", author.getDiscriminatedName()));
 
-            Mod.postLog(CommandManager.createCommandByClass(InviteFilterCommand.class, spBlockBean.getServerBean().getLocale(), spBlockBean.getServerBean().getPrefix()), eb, server);
+            Mod.postLog(CommandManager.createCommandByClass(InviteFilterCommand.class, spBlockBean.getServerBean().getLocale(), spBlockBean.getServerBean().getPrefix()), eb, server, author);
             Mod.insertWarning(spBlockBean.getServerBean().getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_title"), true);
 
             return false;
@@ -100,19 +98,6 @@ public class InviteFilterCheck {
         }
 
         return true;
-    }
-
-    private static void informMessageAuthor(SPBlockBean spBlockBean, InviteFilterCommand inviteFilterCommand, Locale locale, Message message, User author) throws InterruptedException {
-        EmbedBuilder ebUser = EmbedFactory.getEmbedDefault(inviteFilterCommand)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true)
-                .setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful_user"));
-        try {
-            author.sendMessage(ebUser).get();
-        } catch (ExecutionException e) {
-            //Ignore
-        }
     }
 
     private static boolean safeDeleteMessage(Message message) throws InterruptedException {

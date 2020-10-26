@@ -1,13 +1,13 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Permission;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.TextManager;
 import core.mention.Mention;
 import core.utils.MentionUtil;
-import core.TextManager;
 import core.utils.PermissionUtil;
 import modules.Mod;
 import modules.mute.MuteData;
@@ -22,7 +22,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "chmute",
@@ -85,16 +84,9 @@ public class ChannelMuteCommand extends Command  {
 
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
-        for(User user: userList) {
-            try {
-                if (!user.isYourself() && !user.isBot()) user.sendMessage(actionEmbed).get();
-            } catch (ExecutionException e) {
-                //Ignore
-            }
-        }
 
         if (doneSomething)
-            Mod.postLog(this, actionEmbed, event.getServer().get());
+            Mod.postLog(this, actionEmbed, event.getServer().get(), userList);
 
         if (!mute || !successfulUsers.contains(DiscordApiCollection.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;

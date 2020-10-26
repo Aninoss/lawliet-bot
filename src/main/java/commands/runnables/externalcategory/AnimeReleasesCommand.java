@@ -57,6 +57,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
                 .setUrl(post.getUrl())
                 .setImage(post.getThumbnail())
                 .setTimestamp(post.getInstant());
+        EmbedUtil.setFooter(eb, this);
 
         if (post.getEpisode().isPresent()) {
             if (post.getEpisodeTitle().isPresent()) eb.setTitle(getString("template_title",post.getEpisode().get(), post.getEpisodeTitle().get()));

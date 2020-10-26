@@ -1,10 +1,10 @@
 package commands.runnables.fisherysettingscategory;
 
+import commands.Command;
+import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddStaticListener;
-import commands.Command;
-import commands.NavigationHelper;
 import constants.*;
 import core.*;
 import core.utils.MentionUtil;
@@ -218,6 +218,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         .setDescription(getString("treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(won)))
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
+
                 message.edit(eb);
                 if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 

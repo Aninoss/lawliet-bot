@@ -5,6 +5,7 @@ import commands.listeners.OnReactionAddListener;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -42,8 +43,8 @@ public abstract class ListAbstract extends Command implements OnReactionAddListe
     }
 
     private EmbedBuilder getEmbed(ServerTextChannel channel) throws Throwable {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
 
         eb.setTitle(getEmoji() + " " + getString("title") + Emojis.EMPTY_EMOJI.repeat(20)); //TODO Just temporary
 

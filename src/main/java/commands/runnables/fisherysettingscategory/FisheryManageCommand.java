@@ -22,6 +22,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -99,8 +100,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             } else {
                 String amountString = StringUtil.trimString(followedString.substring(typeString.length()));
                 Long value;
-                if ((value = updateValues(type, amountString)) != null) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(value))));
+                AtomicLong valueOld = new AtomicLong();
+                if ((value = updateValues(type, amountString, valueOld)) != null) {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value))));
                     removeNavigation();
                     return true;
                 } else {
@@ -116,12 +118,13 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state >= 1) {
             Long value;
-            if ((value = updateValues(state - 1, inputString)) == null) {
+            AtomicLong valueOld = new AtomicLong();
+            if ((value = updateValues(state - 1, inputString, valueOld)) == null) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                 return Response.FALSE;
             }
 
-            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, user.getDisplayName(server), StringUtil.numToString(value)).replace("*", ""));
+            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, user.getDisplayName(server), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value)).replace("*", ""));
             setState(0);
 
             return Response.TRUE;
@@ -130,7 +133,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         return null;
     }
 
-    private Long updateValues(int type, String inputString) {
+    private Long updateValues(int type, String inputString, AtomicLong valueOld) {
         ValueProcedure valueProcedure = ValueProcedure.ABSOLUTE;
         if (inputString.startsWith("+")) {
             valueProcedure = ValueProcedure.ADD;
@@ -143,6 +146,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) return null;
 
         long baseValue = getBaseValueByType(fisheryUserBean, type);
+        valueOld.set(baseValue);
         long newValue = MentionUtil.getAmountExt(inputString, baseValue);
         if (newValue == -1)
             return null;

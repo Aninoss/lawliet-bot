@@ -241,8 +241,8 @@ public class DiscordApiCollection {
         }
     }
 
-    public boolean customEmojiIsKnown(CustomEmoji customEmoji) {
-        return getCustomEmojiById(customEmoji.getId()).isPresent();
+    public Optional<KnownCustomEmoji> customEmojiIsKnown(CustomEmoji customEmoji) {
+        return getCustomEmojiById(customEmoji.getId());
     }
 
     public Server getHomeServer() {

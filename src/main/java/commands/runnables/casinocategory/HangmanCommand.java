@@ -84,7 +84,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
                 answer,
                 getUsedString()));
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

@@ -76,8 +76,8 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
             if (Instant.now().isAfter(startTime[i])) trackingTime = endTime[i];
         }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .setFooter(getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
+        EmbedUtil.setFooter(eb, this, getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
             String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";

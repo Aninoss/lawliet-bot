@@ -61,7 +61,7 @@ public class RainbowCommand extends Command {
                     .setImage(ImageCreator.createImageRainbow(user, opacity));
 
             if (!userMentioned) {
-                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
                 if (StringUtil.filterLettersFromString(followedString).length() > 0)
                     EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }
@@ -71,6 +71,7 @@ public class RainbowCommand extends Command {
             if (message1 != null) {
                 String url = message1.getEmbeds().get(0).getImage().get().getUrl().toString();
                 eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", url));
+                EmbedUtil.setFooter(eb, this);
                 event.getChannel().sendMessage(eb).get();
             }
         }

@@ -7,12 +7,14 @@ import commands.Command;
 import constants.Permission;
 import constants.TrackerResult;
 import core.*;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +53,9 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         int deleted = pair.getKey();
 
         String key = skipped ? "finished_too_old" : "finished_description";
-        Message m = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)))
-                .setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"))).get();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)));
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+        Message m = event.getChannel().sendMessage(eb).get();
         Thread t = new CustomThread(() -> {
             try {
                 Thread.sleep(8000);

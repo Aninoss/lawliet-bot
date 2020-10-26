@@ -36,7 +36,6 @@ public class WordFilterCheck {
         ) {
             WordFilterCommand wordFilterCommand = (WordFilterCommand) CommandManager.createCommandByClass(WordFilterCommand.class, locale, bannedWordsBean.getServerBean().getPrefix());
 
-            informMessageAuthor(wordFilterCommand, locale, message, author);
             boolean successful = safeDeleteMessage(message);
             informLogReceivers(bannedWordsBean, wordFilterCommand, locale, message, author, successful);
 
@@ -44,10 +43,10 @@ public class WordFilterCheck {
                     .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
                     .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true);
 
-            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful", author.getMentionTag()));
-            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_failed", author.getMentionTag()));
+            if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful", author.getDiscriminatedName()));
+            else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_failed", author.getDiscriminatedName()));
 
-            Mod.postLog(CommandManager.createCommandByClass(WordFilterCommand.class, locale, bannedWordsBean.getServerBean().getPrefix()), eb, server);
+            Mod.postLog(CommandManager.createCommandByClass(WordFilterCommand.class, locale, bannedWordsBean.getServerBean().getPrefix()), eb, server, author);
             Mod.insertWarning(locale, server, author, DiscordApiCollection.getInstance().getYourself(), TextManager.getString(locale, Category.MODERATION, "wordfilter_title"), true);
 
             return false;
@@ -69,18 +68,6 @@ public class WordFilterCheck {
             } catch (ExecutionException e) {
                 //Ignore
             }
-        }
-    }
-
-    private static void informMessageAuthor(WordFilterCommand wordFilterCommand, Locale locale, Message message, User author) throws InterruptedException {
-        EmbedBuilder ebUser = EmbedFactory.getEmbedDefault(wordFilterCommand)
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true)
-                .setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_successful_user"));
-        try {
-            author.sendMessage(ebUser).get();
-        } catch (ExecutionException e) {
-            //Ignore
         }
     }
 

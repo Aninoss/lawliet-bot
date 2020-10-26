@@ -1,6 +1,7 @@
 package core;
 
 import commands.Command;
+import core.utils.EmbedUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
@@ -9,7 +10,6 @@ import java.util.Locale;
 public class EmbedFactory {
 
     public static final Color DEFAULT_EMBED_COLOR = new Color(254, 254, 254);
-    public static final Color SUCCESS_EMBED_COLOR = Color.GREEN;
     public static final Color FAILED_EMBED_COLOR = Color.RED;
 
     public static EmbedBuilder getEmbedDefault(Command command) {
@@ -20,8 +20,10 @@ public class EmbedFactory {
         EmbedBuilder eb = getEmbedDefault()
                 .setColor(DEFAULT_EMBED_COLOR)
                 .setTitle(command.getEmoji() + " " + TextManager.getString(command.getLocale(), command.getCategory(), command.getTrigger()+"_title"));
-        if (description != null && description.length() > 0) eb.setDescription(description);
 
+        if (description != null && description.length() > 0)
+            eb.setDescription(description);
+        EmbedUtil.setFooter(eb, command);
         return eb;
     }
 
@@ -43,7 +45,10 @@ public class EmbedFactory {
         EmbedBuilder eb = getEmbedError()
                 .setColor(FAILED_EMBED_COLOR)
                 .setTitle(TextManager.getString(command.getLocale(),TextManager.GENERAL,"wrong_args"));
-        if (description != null && description.length() > 0) eb.setDescription(description);
+
+        if (description != null && description.length() > 0)
+            eb.setDescription(description);
+        EmbedUtil.setFooter(eb, command);
         return eb;
     }
 

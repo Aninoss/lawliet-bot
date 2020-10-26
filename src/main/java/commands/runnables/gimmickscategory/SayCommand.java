@@ -1,8 +1,9 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.utils.EmbedUtil;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -26,8 +27,8 @@ public class SayCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(followedString)
-                .setFooter(event.getMessage().getUserAuthor().get().getDiscriminatedName());
+                .setDescription(followedString);
+        EmbedUtil.setFooter(eb, this);
 
         if (attachments.size() > 0) {
             MessageAttachment attachment = attachments.get(0);

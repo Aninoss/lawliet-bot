@@ -9,6 +9,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
+import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
@@ -160,7 +161,6 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 if (processEmoji(emojis.get(0))) {
                     ok = true;
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
                     return Response.FALSE;
                 }
             }
@@ -178,7 +178,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || emoji.isKnownCustomEmoji()) {
+        if (emoji.isUnicodeEmoji() || DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isPresent()) {
             this.emojiTemp = emoji;
             return true;
         } else {
@@ -414,7 +414,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean calculateEmoji(Emoji emoji) {
-        if (emoji == null || (emoji.isCustomEmoji() && !emoji.isKnownCustomEmoji())) {
+        if (emoji == null || (emoji.isCustomEmoji() && DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isEmpty())) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
         }

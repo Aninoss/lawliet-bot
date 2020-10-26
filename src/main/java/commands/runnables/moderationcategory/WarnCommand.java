@@ -105,19 +105,13 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
+
+        Mod.postLog(this, actionEmbed, moderationBean, userList);
         for(User user: userList) {
-            try {
-                if (sendDM() && !user.isYourself() && !user.isBot())
-                    user.sendMessage(actionEmbed).get();
-            } catch (ExecutionException e) {
-                //Ignore
-            }
             if (sendWarning())
                 Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason, autoMod());
             process(channel.getServer(), user);
         }
-
-        Mod.postLog(this, actionEmbed, moderationBean);
 
         EmbedBuilder successEb = EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
         if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);

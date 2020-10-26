@@ -72,7 +72,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0, playerNewCard == 0),true)
                 .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1, playerNewCard == 1),true);
 
-        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String key = "tutorial";
         if (finished) key = "data";

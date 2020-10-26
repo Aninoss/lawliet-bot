@@ -1,11 +1,12 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.mention.MentionList;
-import core.utils.MentionUtil;
 import core.TextManager;
+import core.mention.MentionList;
+import core.utils.EmbedUtil;
+import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import modules.textai.TextAI;
@@ -57,7 +58,7 @@ public class ImitateCommand extends Command {
         Message message = event.getChannel().sendMessage(eb).get();
 
         eb = getEmbed(event.getServer().get(), user, 2, tempMessageCache);
-        if (users.isEmpty()) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+        if (users.isEmpty()) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
 
         message.edit(eb).get();
 
@@ -86,6 +87,7 @@ public class ImitateCommand extends Command {
         if (response.isPresent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(response.get());
+            EmbedUtil.setFooter(eb, this);
 
             if (user != null) eb.setAuthor(user);
             else eb.setAuthor(server.getName(), "", server.getIcon().map(icon -> icon.getUrl().toString()).orElse(""));

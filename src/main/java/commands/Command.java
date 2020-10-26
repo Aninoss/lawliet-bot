@@ -287,7 +287,7 @@ public abstract class Command {
         }
 
         EmbedUtil.addLog(eb, logStatus, log);
-        if (options != null && options.length > max) eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
+        if (options != null && options.length > max) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
         try {
             if (navigationMessage == null) {
                 if (navigationPrivateMessage) {

@@ -62,7 +62,7 @@ public class ChannelInfoCommand extends Command {
             if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
 
             if (noMention) {
-                eb.setFooter(TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
+                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
                 if (followedString.length() > 0)
                     EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
             }

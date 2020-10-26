@@ -98,7 +98,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-        if (showEmptyFooter) eb.setFooter(getString("footer"));
+        if (showEmptyFooter) EmbedUtil.setFooter(eb, this, getString("footer"));
         for(int i = versions.size() - 1; i >= 0; i--) {
             VersionBeanSlot slot = versions.get(i);
             eb.addField(slot.getVersion(), ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
