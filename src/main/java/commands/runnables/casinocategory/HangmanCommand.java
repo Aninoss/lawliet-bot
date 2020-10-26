@@ -41,7 +41,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private final int MAX_HEALTH = 6;
     private boolean[] progress;
     private LogStatus logStatus;
-    private ArrayList<String> used;
+    private ArrayList<Character> used;
     private boolean first;
 
     public HangmanCommand(Locale locale, String prefix) {
@@ -113,50 +113,49 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         StringBuilder sb = new StringBuilder();
 
         for(int i=0; i<used.size(); i++) {
-            String str = used.get(i);
+            char character = used.get(i);
             if (i != 0) sb.append(", ");
-            sb.append(str);
+            sb.append(character);
         }
 
         return sb.toString();
     }
 
+    private final static String toIgnore = "ÄÖUẞ";
+
     @Override
     public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        String input = event.getMessage().getContent().toUpperCase()
-                .replace("Ä", "AE")
-                .replace("Ö", "OE")
-                .replace("Ü", "UE")
-                .replace("ß", "SS");
-        if (input.length() == 0) return null;
+        String input = event.getMessage().getContent().toUpperCase();
 
-        if (!used.contains(input)) {
-            if (input.length() == 1) {
-                used.add(input);
-                boolean successful = false;
-                for (int i = 0; i < answer.length(); i++) {
-                    if (answer.charAt(i) == input.toUpperCase().charAt(0)) {
-                        progress[i] = true;
-                        successful = true;
-                    }
+        if (input.length() != 1 || toIgnore.contains(input)) return null;
+
+        char inputChar = input.charAt(0);
+        if (!used.contains(inputChar)) {
+            used.add(inputChar);
+            boolean successful = false;
+            for (int i = 0; i < answer.length(); i++) {
+                if (answer.charAt(i) == inputChar) {
+                    progress[i] = true;
+                    successful = true;
                 }
+            }
 
-                if (!successful) onWrong(input);
-                else onRight(input);
-                event.getMessage().delete();
-                return successful ? Response.TRUE : Response.FALSE;
-            } else return null;
+            if (!successful) onWrong(inputChar);
+            else onRight(inputChar);
+            event.getMessage().delete();
+            return successful ? Response.TRUE : Response.FALSE;
         } else {
             logStatus = LogStatus.FAILURE;
             log = getString("used", input);
             message.edit(getEmbed(false));
         }
 
+
         event.getMessage().delete();
         return Response.FALSE;
     }
 
-    private void onWrong(String input) throws IOException, SQLException, ExecutionException {
+    private void onWrong(char input) throws IOException, SQLException, ExecutionException {
         health --;
 
         if (health > 0) {
@@ -171,7 +170,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         message.edit(getEmbed(true));
     }
 
-    private void onRight(String input) throws IOException, SQLException, ExecutionException {
+    private void onRight(char input) throws IOException, SQLException, ExecutionException {
         boolean finished = true;
         for (boolean set : progress) {
             if (!set) {
