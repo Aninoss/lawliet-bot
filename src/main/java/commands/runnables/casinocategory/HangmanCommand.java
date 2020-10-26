@@ -21,10 +21,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -41,7 +38,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private final int MAX_HEALTH = 6;
     private boolean[] progress;
     private LogStatus logStatus;
-    private ArrayList<String> used;
+    private ArrayList<Character> used;
     private boolean first;
 
     public HangmanCommand(Locale locale, String prefix) {
@@ -84,7 +81,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
                 answer,
                 getUsedString()));
 
-        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0) eb.setFooter(TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
@@ -113,9 +110,9 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         StringBuilder sb = new StringBuilder();
 
         for(int i=0; i<used.size(); i++) {
-            String str = used.get(i);
+            char ch = used.get(i);
             if (i != 0) sb.append(", ");
-            sb.append(str);
+            sb.append(ch);
         }
 
         return sb.toString();
@@ -123,40 +120,45 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
     @Override
     public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        String input = event.getMessage().getContent().toUpperCase()
+        String inputStr = event.getMessage().getContent().toUpperCase()
                 .replace("Ä", "AE")
                 .replace("Ö", "OE")
                 .replace("Ü", "UE")
                 .replace("ß", "SS");
-        if (input.length() == 0) return null;
+        if (inputStr.length() == 0) return null;
 
-        if (!used.contains(input)) {
-            if (input.length() == 1) {
-                used.add(input);
-                boolean successful = false;
-                for (int i = 0; i < answer.length(); i++) {
-                    if (answer.charAt(i) == input.toUpperCase().charAt(0)) {
-                        progress[i] = true;
-                        successful = true;
+        char[] chars = inputStr.toCharArray();
+        boolean successful = false;
+        List<Character> usedNow = new LinkedList<>();
+        for (char input: chars) {
+            if (!active) {
+                break;
+            }
+            if (!usedNow.contains(input)) {
+                usedNow.add(input);
+                if (!used.contains(input)) {
+                    used.add(input);
+                    for (int i = 0; i < answer.length(); i++) {
+                        if (answer.charAt(i) == Character.toUpperCase(input)) {
+                            progress[i] = true;
+                            successful = true;
+                        }
                     }
+                    if (!successful) onWrong(input);
+                    else onRight(input);
+                } else {
+                    logStatus = LogStatus.FAILURE;
+                    log = getString("used", input);
+                    message.edit(getEmbed(false));
                 }
-
-                if (!successful) onWrong(input);
-                else onRight(input);
-                event.getMessage().delete();
-                return successful ? Response.TRUE : Response.FALSE;
-            } else return null;
-        } else {
-            logStatus = LogStatus.FAILURE;
-            log = getString("used", input);
-            message.edit(getEmbed(false));
+            }
         }
 
         event.getMessage().delete();
-        return Response.FALSE;
+        return successful ? Response.TRUE : Response.FALSE;
     }
 
-    private void onWrong(String input) throws IOException, SQLException, ExecutionException {
+    private void onWrong(char input) throws IOException, SQLException, ExecutionException {
         health --;
 
         if (health > 0) {
@@ -171,7 +173,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         message.edit(getEmbed(true));
     }
 
-    private void onRight(String input) throws IOException, SQLException, ExecutionException {
+    private void onRight(char input) throws IOException, SQLException, ExecutionException {
         boolean finished = true;
         for (boolean set : progress) {
             if (!set) {
