@@ -44,6 +44,8 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private ArrayList<Character> used;
     private boolean first;
 
+    private final static String TO_IGNORE = "ÄÖUẞ";
+
     public HangmanCommand(Locale locale, String prefix) {
         super(locale, prefix);
         winMultiplicator = 1;
@@ -121,13 +123,11 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         return sb.toString();
     }
 
-    private final static String toIgnore = "ÄÖUẞ";
-
     @Override
     public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
         String input = event.getMessage().getContent().toUpperCase();
 
-        if (input.length() != 1 || toIgnore.contains(input)) return null;
+        if (input.length() != 1 || TO_IGNORE.contains(input)) return null;
 
         char inputChar = input.charAt(0);
         if (!used.contains(inputChar)) {
@@ -160,7 +160,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
         if (health > 0) {
             logStatus = LogStatus.FAILURE;
-            log = getString("wrong", input);
+            log = getString("wrong", String.valueOf(input));
         } else {
             logStatus = LogStatus.LOSE;
             log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
@@ -181,7 +181,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
         if (!finished) {
             logStatus = LogStatus.SUCCESS;
-            log = getString("right", input);
+            log = getString("right", String.valueOf(input));
         } else {
             logStatus = LogStatus.WIN;
             log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
