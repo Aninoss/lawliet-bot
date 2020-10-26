@@ -23,7 +23,7 @@ import java.util.Optional;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDFC6",
         executableWithoutArgs = true,
-        aliases = {"rankings", "ranking", "rank", "ranks", "leaderboard"}
+        aliases = { "rankings", "ranking", "rank", "ranks", "leaderboard", "t" }
 )
 public class TopCommand extends ListAbstract {
 

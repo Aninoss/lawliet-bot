@@ -21,10 +21,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 @CommandProperties(
-    trigger = "claim",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    emoji = "\uD83C\uDF80",
-    executableWithoutArgs = true
+        trigger = "claim",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        emoji = "\uD83C\uDF80",
+        executableWithoutArgs = true,
+        aliases = { "c" }
 )
 public class ClaimCommand extends FisheryAbstract {
 

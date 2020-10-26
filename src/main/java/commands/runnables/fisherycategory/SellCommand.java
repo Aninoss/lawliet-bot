@@ -26,10 +26,11 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
-    trigger = "sell",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    emoji = "\uD83D\uDCE4",
-    executableWithoutArgs = true
+        trigger = "sell",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        emoji = "\uD83D\uDCE4",
+        executableWithoutArgs = true,
+        aliases = { "s" }
 )
 public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnForwardedRecievedListener {
 

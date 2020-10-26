@@ -27,7 +27,7 @@ import java.util.Locale;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
-        aliases = {"gift", "pay"}
+        aliases = {"gift", "pay" }
 )
 public class GiveCommand extends FisheryAbstract {
 

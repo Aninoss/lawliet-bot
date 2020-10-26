@@ -20,10 +20,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 @CommandProperties(
-    trigger = "daily",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-    emoji = "\uD83D\uDDD3",
-    executableWithoutArgs = true
+        trigger = "daily",
+        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        emoji = "\uD83D\uDDD3",
+        executableWithoutArgs = true,
+        aliases = { "d" }
 )
 public class DailyCommand extends FisheryAbstract {
 

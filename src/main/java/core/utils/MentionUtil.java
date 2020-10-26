@@ -476,7 +476,7 @@ public class MentionUtil {
         str = " " + str.toLowerCase()
                 .replace("\n", " ")
                 .replaceAll(" {2}", " ")
-                .replaceAll("[^a-zA-Z0-9 ]", "");
+                .replaceAll("[.+,]", "");
 
         Matcher m = p.matcher(str);
         while(m.find()) {
