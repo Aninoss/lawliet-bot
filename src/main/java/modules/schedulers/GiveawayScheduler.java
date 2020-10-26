@@ -3,11 +3,9 @@ package modules.schedulers;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
+import constants.Emojis;
 import constants.Permission;
-import core.DiscordApiCollection;
-import core.EmbedFactory;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import core.utils.TimeUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
@@ -107,6 +105,9 @@ public class GiveawayScheduler {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
                         .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+                if (winners.size() > 0)
+                    eb.addField(Emojis.EMPTY_EMOJI, new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + user.getDiscriminatedName() + "**"));
+
                 giveawayBean.getImageUrl().ifPresent(eb::setImage);
 
                 message.edit(mentions.toString(), eb).exceptionally(ExceptionLogger.get());

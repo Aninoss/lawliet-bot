@@ -73,7 +73,7 @@ public class EmbedUtil {
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command) {
         if (command.getStarterMessage() != null)
-            eb.setFooter(command.getStarterMessage().getUserAuthor().get().getDiscriminatedName());
+            command.getStarterMessage().getUserAuthor().ifPresent(user -> eb.setFooter(user.getDiscriminatedName()));
         return eb;
     }
 
@@ -81,7 +81,7 @@ public class EmbedUtil {
         if (footer == null || footer.isEmpty())
             return setFooter(eb, command);
         if (command.getStarterMessage() != null)
-            eb.setFooter(command.getStarterMessage().getUserAuthor().get().getDiscriminatedName() + " | " + footer);
+            command.getStarterMessage().getUserAuthor().ifPresent(user -> eb.setFooter(user.getDiscriminatedName() + " | " + footer));
         return eb;
     }
 
