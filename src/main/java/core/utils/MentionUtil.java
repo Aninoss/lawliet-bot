@@ -488,4 +488,8 @@ public class MentionUtil {
         return str;
     }
 
+    public static String getUserMentionTag(long id) {
+        return "<@!" + id + ">";
+    }
+
 }
