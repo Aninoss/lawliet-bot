@@ -14,6 +14,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.javacord.api.util.DiscordRegexPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,23 +207,14 @@ public class MentionUtil {
 
     public static MentionList<Message> getMessagesURL(Message message, String string) {
         ArrayList<Message> list = new ArrayList<>();
-        for(String part: getArgs(string)) {
-            String regex = String.format("https://.*discord.*.com/channels/%d/\\d*/\\d*", message.getServer().get().getId());
-            if (Pattern.matches(regex, part)) {
-                String[] parts = part.split("/");
-                if (parts.length == 7) {
-                    try {
-                        Message m;
-                        if (message.getServer().get().getTextChannelById(parts[5]).isPresent() && (m = message.getServer().get().getTextChannelById(parts[5]).get().getMessageById(parts[6]).get()) != null) {
-                            if (m.getIdAsString().equals(parts[6])) {
-                                if (!list.contains(m)) list.add(m);
-                                string = string.replace(part, "");
-                            }
-                        }
-                    } catch (InterruptedException | ExecutionException ignored) {
-                        //Ignore
-                    }
-                }
+        Server server = message.getServer().get();
+        String serverId = server.getIdAsString();
+        Matcher m = DiscordRegexPattern.MESSAGE_LINK.matcher(string);
+        while (m.find()) {
+            if (m.group("server").equals(serverId)) {
+                server.getTextChannelById(m.group("channel")).ifPresent(channel -> {
+                    list.add(channel.getMessageById(m.group("message")).join());
+                });
             }
         }
         return new MentionList<>(string,list);
