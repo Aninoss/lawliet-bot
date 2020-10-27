@@ -2,13 +2,11 @@ package events.discordevents.eventtypeabstracts;
 
 import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
 
@@ -24,9 +22,7 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
         }
 
         if (event.getUser().isEmpty()) {
-            Optional<User> userOpt = DiscordApiCollection.getInstance().getUserById(event.getUserId());
-            if (userOpt.isEmpty() || !userOpt.get().isBot())
-                LOGGER.error("Empty user with id {}", event.getUserId());
+            event.getApi().getUserById(event.getUserId());
             return;
         }
 

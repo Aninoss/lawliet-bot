@@ -1,5 +1,6 @@
 package mysql.modules.fisheryusers;
 
+import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import core.Bot;
 import core.CustomThread;
@@ -12,7 +13,6 @@ import mysql.interfaces.IntervalSave;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import com.google.common.cache.CacheBuilder;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
@@ -348,7 +349,8 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             try {
                 ArrayList<User> validUsers = new ArrayList<>();
-                for (User user : voiceChannel.getConnectedUsers()) {
+                List<User> users = new ArrayList<>(voiceChannel.getConnectedUsers());
+                for (User user : users) {
                     if (!user.isBot() &&
                             !user.isMuted(server) &&
                             !user.isDeafened(server) &&
