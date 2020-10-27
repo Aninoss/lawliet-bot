@@ -76,7 +76,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 if (searchTerm.startsWith("exec:")) {
                     String className = searchTerm.split(":")[1];
                     Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
-                    command.setReactionUserID(event.getUser().getId());
+                    command.setReactionUserID(event.getUserId());
                     command.blockLoading();
 
                     CommandManager.manage(authorEvent, command, "", Instant.now());

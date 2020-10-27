@@ -72,7 +72,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
                     if (message.getCreationTimestamp().isAfter(surveyBean.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
                         if (!registerVote(event, surveyBean, type, i)) return;
                         EmbedBuilder eb = getVoteStatusEmbed(event, surveyBean);
-                        event.getUser().sendMessage(eb);
+                        event.getUser().get().sendMessage(eb);
                     }
                     break;
                 }
@@ -84,9 +84,9 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
         String[] voteStrings = new String[2];
 
-        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUser().getId()).getVote()];
+        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUserId()).getVote()];
 
-        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUser().getId());
+        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUserId());
 
         if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         else voteStrings[1] = "";
@@ -98,7 +98,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0])
                 .addField(getString("majority"), voteStrings[1])
-                .addField(Emojis.EMPTY_EMOJI, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUser().getId()))));
+                .addField(Emojis.EMPTY_EMOJI, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserId()))));
     }
 
     private void removeUserReactions(Message message) throws ExecutionException, InterruptedException {
@@ -126,29 +126,29 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
     private boolean registerVote(ReactionAddEvent event, SurveyBean surveyBean, int type, byte i) {
         switch (type) {
             case 1:
-                surveyBean.getFirstVotes().put(event.getUser().getId(), new SurveyFirstVote(event.getUser().getId(), i));
+                surveyBean.getFirstVotes().put(event.getUserId(), new SurveyFirstVote(event.getUserId(), i));
                 return true;
 
             case 2:
-                if (surveyBean.getFirstVotes().containsKey(event.getUser().getId())) {
+                if (surveyBean.getFirstVotes().containsKey(event.getUserId())) {
                     surveyBean.getSecondVotes().put(
-                            new Pair<>(event.getServer().get().getId(), event.getUser().getId()),
-                            new SurveySecondVote(event.getServer().get().getId(), event.getUser().getId(), i)
+                            new Pair<>(event.getServer().get().getId(), event.getUserId()),
+                            new SurveySecondVote(event.getServer().get().getId(), event.getUserId(), i)
                     );
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    event.getUser().sendMessage(eb);
+                    event.getUser().get().sendMessage(eb);
                     return false;
                 }
 
             case 3:
-                if (surveyBean.getFirstVotes().containsKey(event.getUser().getId())) {
-                    surveyBean.toggleNotificationUserId(event.getUser().getId());
+                if (surveyBean.getFirstVotes().containsKey(event.getUserId())) {
+                    surveyBean.toggleNotificationUserId(event.getUserId());
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    event.getUser().sendMessage(eb);
+                    event.getUser().get().sendMessage(eb);
                     return false;
                 }
 

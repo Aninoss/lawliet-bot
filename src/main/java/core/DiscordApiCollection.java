@@ -41,7 +41,7 @@ public class DiscordApiCollection {
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
             try {
-                Thread.sleep(12 * 60 * 1000);
+                Thread.sleep(20 * 60 * 1000);
                 if (!allShardsConnected()) {
                     LOGGER.error("EXIT - Could not boot up");
                     System.exit(-1);
@@ -156,11 +156,9 @@ public class DiscordApiCollection {
     public Optional<User> getUserById(long userId) {
         for(DiscordApi api: apiList) {
             if (api != null) {
-                try {
-                    return Optional.of(api.getUserById(userId).get());
-                } catch (InterruptedException | ExecutionException e) {
-                    //Ignore
-                }
+                Optional<User> userOptional = api.getCachedUserById(userId);
+                if (userOptional.isPresent())
+                    return userOptional;
             }
         }
         return Optional.empty();

@@ -31,17 +31,17 @@ public class MuteManager {
         ServerTextChannel channel = muteData.getChannel();
         ServerTextChannelUpdater updateChannel = channel.createUpdater();
         ArrayList<User> users = muteData.getUsers();
-        //Map<Long, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
-        Map<User, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
+        Map<Long, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
+        //Map<User, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
 
         for(User user: users) {
             PermissionsBuilder permissions = null;
 
             boolean cont = true;
-            //if (userPermissions.containsKey(user.getId()))
-                //permissions = userPermissions.get(user.getId()).toBuilder();
-            if (userPermissions.containsKey(user))
-                permissions = userPermissions.get(user).toBuilder();
+            if (userPermissions.containsKey(user.getId()))
+                permissions = userPermissions.get(user.getId()).toBuilder();
+            //if (userPermissions.containsKey(user))
+                //permissions = userPermissions.get(user).toBuilder();
             else {
                 if (mute) permissions = new PermissionsBuilder().setAllUnset();
                 else cont = false;

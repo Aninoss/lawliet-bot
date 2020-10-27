@@ -44,7 +44,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private ArrayList<Character> used;
     private boolean first;
 
-    private final static String TO_IGNORE = "ÄÖUẞ";
+    private final static String TO_IGNORE = "ÄÖÜẞ";
 
     public HangmanCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -97,7 +97,6 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private String getProgress() {
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i<progress.length; i++) {
-            //if (i > 0) sb.append(Tools.getEmptyCharacter());
             if (progress[i]) sb.append(answer.charAt(i));
             else sb.append('-');
         }

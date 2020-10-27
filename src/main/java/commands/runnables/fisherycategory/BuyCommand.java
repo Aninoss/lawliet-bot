@@ -149,8 +149,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 removeNavigationWithMessage();
                 return false;
             } else if (i >= 0) {
-                //buy(i,  event.getUser(), true); //TODO Javacord 3.1.x
-                buy(i, event.getUser(), true);
+                buy(i, event.getUser().get(), true);
                 return true;
             }
             return false;
@@ -221,7 +220,6 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
         switch (state) {
             case 0:
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-                eb.setTitle(getEmoji() + " " + getString("title") + Emojis.EMPTY_EMOJI.repeat(22)); //TODO Just temporary
 
                 eb.addField(getString("beginning_title"), getString("beginning"));
 

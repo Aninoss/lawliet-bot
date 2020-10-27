@@ -149,7 +149,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
             for (int i = 0; i < 2; i++) {
                 if (event.getEmoji().asUnicodeEmoji().get().equals(StringUtil.getEmojiForBoolean(i == 0))) {
                     if (i == 0) {
-                        execute(event.getServerTextChannel().get(),  event.getUser());
+                        execute(event.getServerTextChannel().get(),  event.getUser().get());
                     } else {
                         removeReactionListener();
                         postMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("abort_description"), getString("abort_title")));

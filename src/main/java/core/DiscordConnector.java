@@ -4,10 +4,10 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
-import modules.schedulers.GiveawayScheduler;
-import modules.schedulers.ReminderScheduler;
 import modules.repair.AutoChannelRepair;
 import modules.repair.RolesRepair;
+import modules.schedulers.GiveawayScheduler;
+import modules.schedulers.ReminderScheduler;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
@@ -27,10 +27,6 @@ public class DiscordConnector {
     private DiscordConnector() {}
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
-    /*private final Intent[] TURNED_OFF_INTENTS = new Intent[] {
-            Intent.GUILD_PRESENCES
-    };*/ //TODO Javacord 3.1.x
-
     private final DiscordEventManager discordEventManager = new DiscordEventManager();
     private boolean connected = false;
 
@@ -43,8 +39,9 @@ public class DiscordConnector {
         DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                 .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                //.setAllIntentsExcept(TURNED_OFF_INTENTS) //TODO Javacord 3.1.x
-                //.setWaitForUsersOnStartup(true) //TODO Javacord 3.1.x
+                .setAllIntents()
+                .setWaitForUsersOnStartup(true)
+                .setShutdownHookRegistrationEnabled(false)
                 .setRecommendedTotalShards()
                 .join();
 
@@ -69,8 +66,9 @@ public class DiscordConnector {
             DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
                     .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                     .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                    //.setAllIntentsExcept(TURNED_OFF_INTENTS) //TODO Javacord 3.1.x
-                    //.setWaitForUsersOnStartup(true) //TODO Javacord 3.1.x
+                    .setAllIntents()
+                    .setWaitForUsersOnStartup(true)
+                    .setShutdownHookRegistrationEnabled(false)
                     .setTotalShards(DiscordApiCollection.getInstance().size())
                     .setCurrentShard(shardId);
 
@@ -111,7 +109,7 @@ public class DiscordConnector {
         updateActivity();
         DBFishery.getInstance().cleanUp();
         DBFishery.getInstance().startVCObserver();
-        new WebComServer(15744);
+        WebComServer.getInstance().start(15744);
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();
         if (Bot.isProductionMode()) BumpReminder.getInstance().start();

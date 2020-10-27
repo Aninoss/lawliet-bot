@@ -142,7 +142,7 @@ public class PermissionUtil {
     public static boolean canManageRole(User user, Role role) {
         Server server = role.getServer();
         if (role.isManaged() || !server.canManageRoles(user)) return false;
-        if (server.getOwner().getId() == user.getId()) return true;
+        if (server.getOwnerId() == user.getId()) return true;
 
         int highestPosition = -1;
         for(Role ownRole: server.getRoles(user)) {
@@ -155,15 +155,15 @@ public class PermissionUtil {
     }
 
     public static boolean hasAdminPermissions(Server server, User user) {
-        return server.getAllowedPermissions(user).contains(PermissionType.ADMINISTRATOR) || user.getId() == server.getOwner().getId();
+        return server.getAllowedPermissions(user).contains(PermissionType.ADMINISTRATOR) || user.getId() == server.getOwnerId();
     }
 
     public static boolean canYouKickUser(Server server, User user) {
-        return server.canYouKickUser(user) && server.getOwner().getId() != user.getId();
+        return server.canYouKickUser(user) && server.getOwnerId() != user.getId();
     }
 
     public static boolean canYouBanUser(Server server, User user) {
-        return server.canYouBanUser(user) && server.getOwner().getId() != user.getId();
+        return server.canYouBanUser(user) && server.getOwnerId() != user.getId();
     }
 
     public static boolean botHasServerPermission(Server server, PermissionType permissionType) {

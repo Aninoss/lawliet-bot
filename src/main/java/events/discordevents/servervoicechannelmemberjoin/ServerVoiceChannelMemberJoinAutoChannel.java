@@ -13,7 +13,10 @@ import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
-import org.javacord.api.entity.permission.*;
+import org.javacord.api.entity.permission.PermissionState;
+import org.javacord.api.entity.permission.PermissionType;
+import org.javacord.api.entity.permission.Permissions;
+import org.javacord.api.entity.permission.PermissionsBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
 import org.slf4j.Logger;
@@ -60,7 +63,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
 
                 //Transfer permissions
                 Permissions botPermission = null;
-                /*for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
+                for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
                     if (DiscordApiCollection.getInstance().getYourself().getId() == entry.getKey()) {
                         botPermission = entry.getValue();
                     }
@@ -68,8 +71,8 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 }
                 for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
                     vcb.addPermissionOverwrite(event.getServer().getRoleById(entry.getKey()).get(), entry.getValue());
-                }*/
-                for (Map.Entry<User, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
+                }
+                /*for (Map.Entry<User, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
                     if (DiscordApiCollection.getInstance().getYourself().getId() == entry.getKey().getId()) {
                         botPermission = entry.getValue();
                     }
@@ -77,7 +80,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 }
                 for (Map.Entry<Role, Permissions> entry : event.getChannel().getOverwrittenRolePermissions().entrySet()) {
                     vcb.addPermissionOverwrite(event.getServer().getRoleById(entry.getKey().getId()).get(), entry.getValue());
-                }
+                }*/
 
                 PermissionsBuilder botPermsBuilder;
                 if (botPermission == null) botPermsBuilder = new PermissionsBuilder();

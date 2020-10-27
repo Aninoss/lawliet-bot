@@ -196,7 +196,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().getMentionTag()));
+                        .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
                 message.edit(eb).get();
 
                 Thread.sleep(1000 * 3);
@@ -206,7 +206,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 int resultInt = r.nextInt(2);
                 String result = winLose[resultInt];
 
-                FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUser().getId());
+                FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
                 long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
                 String treasureImage;
@@ -215,7 +215,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
                 eb = EmbedFactory.getEmbedDefault()
                         .setTitle(FisheryCommand.treasureEmoji + " " +getString("treasure_title"))
-                        .setDescription(getString("treasure_opened_" + result, event.getUser().getMentionTag(), StringUtil.numToString(won)))
+                        .setDescription(getString("treasure_opened_" + result, event.getUser().get().getMentionTag(), StringUtil.numToString(won)))
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
 

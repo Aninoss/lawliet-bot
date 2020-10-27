@@ -17,6 +17,7 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.DonationHandler;
+import websockets.webcomserver.WebComServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,6 +57,9 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("webcom_start", this::onWebComStart);
+        tasks.put("webcom_stop", this::onWebComStop);
+        tasks.put("webcom", this::onWebCom);
         tasks.put("eval", this::onEval);
         tasks.put("eval_file", this::onEvalFile);
         tasks.put("quit", this::onQuit);
@@ -63,6 +67,7 @@ public class Console {
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
         tasks.put("threads", this::onThreads);
+        tasks.put("thread_stop", this::onThreadStop);
         tasks.put("donation", this::onDonationInsert);
         tasks.put("ban", this::onBan);
         tasks.put("unban", this::onUnban);
@@ -84,6 +89,21 @@ public class Console {
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_server", this::onSendChannel);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onWebComStart(String[] args) {
+        int port = 15744;
+        if (args.length > 1) port = Integer.parseInt(args[1]);
+        WebComServer.getInstance().start(port);
+    }
+
+    private void onWebComStop(String[] args) {
+        WebComServer.getInstance().stop();
+        LOGGER.info("WebCom server stopped");
+    }
+
+    private void onWebCom(String[] args) {
+        LOGGER.info("WebCom connection: {}", WebComServer.getInstance().connected());
     }
 
     private void onEval(String[] args) throws Exception {
@@ -203,7 +223,7 @@ public class Console {
 
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount() + " | Owner: " + server.getOwner().getDiscriminatedName()));
+        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount() + " | Owner: " + server.getOwner().get().getDiscriminatedName()));
     }
 
     private void onDeleteFisheryUser(String[] args) throws ExecutionException {
@@ -254,6 +274,19 @@ public class Console {
         double usDollars = Double.parseDouble(args[2]);
         DonationHandler.addBonus(userId, usDollars);
         LOGGER.info("{} dollars donated by {}", usDollars, userId);
+    }
+
+    private void onThreadStop(String[] args) {
+        int stopped = 0;
+
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (args.length < 2 || t.getName().matches(args[1])) {
+                t.interrupt();
+                stopped++;
+            }
+        }
+
+        LOGGER.info("{} thread/s interrupted", stopped);
     }
 
     private void onThreads(String[] args) {

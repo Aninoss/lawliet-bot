@@ -47,7 +47,7 @@ public class UserInfoCommand extends Command {
             int typeN = 0;
             if (!user.isBot()) {
                 typeN = 1;
-                if (server.getOwner().getId() == user.getId()) typeN = 2;
+                if (server.getOwnerId() == user.getId()) typeN = 2;
                 if (user.isBotOwner()) typeN = 3;
             }
 
@@ -59,7 +59,8 @@ public class UserInfoCommand extends Command {
                     user.getIdAsString(),
                     user.getAvatar().getUrl().toString() + "?size=2048",
                     user.getJoinedAtTimestamp(server).isPresent() ? TimeUtil.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
-                    TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true)
+                    TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true),
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "status_" + user.getStatus().getStatusString())
             };
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", args)).

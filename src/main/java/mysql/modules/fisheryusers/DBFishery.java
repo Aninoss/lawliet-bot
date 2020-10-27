@@ -371,7 +371,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         }
                     });
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Error while fetching VC member list", e);
             }
         }

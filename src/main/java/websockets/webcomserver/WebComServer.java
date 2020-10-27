@@ -1,20 +1,25 @@
 package websockets.webcomserver;
 
-import commands.Command;
-import constants.Locales;
-import core.*;
-import core.utils.PermissionUtil;
-import core.utils.StringUtil;
-import websockets.webcomserver.events.*;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
+import commands.Command;
+import constants.Locales;
+import core.CustomThread;
+import core.ListGen;
+import core.TextManager;
+import core.utils.PermissionUtil;
+import core.utils.StringUtil;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
+import websockets.webcomserver.events.*;
+import java.util.Locale;
 
 public class WebComServer {
+
+    private static final WebComServer ourInstance = new WebComServer();
+    public static WebComServer getInstance() { return ourInstance; }
+    private WebComServer() { }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(WebComServer.class);
 
@@ -33,7 +38,13 @@ public class WebComServer {
     private static final String EVENT_INVITE = "invite";
     private static final String EVENT_SERVERSTATS = "serverstats";
 
-    public WebComServer(int port) {
+    private SocketIOServer webComServer;
+    private boolean started = false;
+
+    public void start(int port) {
+        if (started) return;
+        started = true;
+
         new CustomThread(() -> {
             while(true) {
                 try {
@@ -41,8 +52,7 @@ public class WebComServer {
                     config.setHostname("127.0.0.1");
                     config.setPort(port);
 
-                    final SocketIOServer webComServer = new SocketIOServer(config);
-
+                    webComServer = new SocketIOServer(config);
                     webComServer.addConnectListener(new OnConnected());
 
                     webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this, EVENT_COMMANDLIST));
@@ -62,14 +72,14 @@ public class WebComServer {
                     webComServer.addEventListener(EVENT_INVITE, JSONObject.class, new OnInvite(this, EVENT_INVITE));
 
                     webComServer.start();
-                    LOGGER.info("WebCom Server started");
+                    LOGGER.info("WebCom server started");
                     return;
                 } catch (Throwable e) {
                     LOGGER.error("Exception in WebCom starter", e);
                     try {
                         Thread.sleep(10 * 1000);
                     } catch (InterruptedException interruptedException) {
-                        LOGGER.error("Interrupted", e);
+                        return;
                     }
                 }
             }
@@ -114,6 +124,18 @@ public class WebComServer {
         }
 
         return jsonObject;
+    }
+
+    public boolean connected() {
+        if (webComServer == null)
+            return false;
+
+        return webComServer.getAllClients().size() > 0;
+    }
+
+    public void stop() {
+        if (webComServer != null) webComServer.stop();
+        started = false;
     }
 
 }

@@ -213,6 +213,7 @@ public class CommandContainer {
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);
         commandList.add(PlayCommand.class);
+        commandList.add(OsuCommand.class);
 
         //NSFW
         commandList.add(Rule34Command.class);
