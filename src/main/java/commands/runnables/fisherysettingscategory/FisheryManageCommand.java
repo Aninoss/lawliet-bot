@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 )
 public class FisheryManageCommand extends Command implements OnNavigationListener {
 
-    private User user;
+    private long userId;
     private Server server;
     private FisheryUserBean fisheryUserBean;
 
@@ -68,8 +68,8 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         }
 
         server = event.getServer().get();
-        user = list.get(0);
-        fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId());
+        userId = list.get(0).getId();
+        fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(userId);
 
         followedString = userMentions.getResultMessageString();
         if (followedString.length() > 0) {
@@ -102,7 +102,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                 Long value;
                 AtomicLong valueOld = new AtomicLong();
                 if ((value = updateValues(type, amountString, valueOld)) != null) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, user.getMentionTag(), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value))));
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, MentionUtil.getUserMentionTag(userId), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value))));
                     removeNavigation();
                     return true;
                 } else {
@@ -124,7 +124,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                 return Response.FALSE;
             }
 
-            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, user.getDisplayName(server), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value)).replace("*", ""));
+            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, server.getMemberById(userId).map(u -> server.getDisplayName(u)).orElse(MentionUtil.getUserMentionTag(userId)), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value)).replace("*", ""));
             setState(0);
 
             return Response.TRUE;
@@ -240,7 +240,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
                     ).split("\n")
             );
 
-            String desc = getString("state0_description", user.getMentionTag());
+            String desc = getString("state0_description", MentionUtil.getUserMentionTag(userId));
             return EmbedFactory.getEmbedDefault(this, desc);
         } else {
             return EmbedFactory.getEmbedDefault(this,
