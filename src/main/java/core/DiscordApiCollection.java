@@ -154,11 +154,19 @@ public class DiscordApiCollection {
     }
 
     public Optional<User> getUserById(long userId) {
-        for(DiscordApi api: apiList) {
+        for(DiscordApi api : apiList) {
             if (api != null) {
                 Optional<User> userOptional = api.getCachedUserById(userId);
                 if (userOptional.isPresent())
                     return userOptional;
+            }
+        }
+
+        if (apiList[0] != null) {
+            try {
+                return Optional.of(apiList[0].getUserById(userId).get());
+            } catch (InterruptedException | ExecutionException e) {
+                //Ignore
             }
         }
         return Optional.empty();

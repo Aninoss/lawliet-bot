@@ -95,26 +95,25 @@ public class GiveawayScheduler {
             Collections.shuffle(users);
             List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
 
-            if (winners.size() > 0) {
-                StringBuilder mentions = new StringBuilder();
-                for (User user : winners) {
-                    mentions.append(user.getMentionTag()).append(" ");
-                }
-
-                CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
-                        .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
-                if (winners.size() > 0)
-                    eb.addField(Emojis.EMPTY_EMOJI, new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + user.getDiscriminatedName() + "**"));
-
-                giveawayBean.getImageUrl().ifPresent(eb::setImage);
-
-                message.edit(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
-
-                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.READ_MESSAGE_HISTORY | Permission.SEND_MESSAGES | Permission.EMBED_LINKS))
-                    channel.sendMessage(mentions.toString()).thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
+            StringBuilder mentions = new StringBuilder();
+            for (User user : winners) {
+                mentions.append(user.getMentionTag()).append(" ");
             }
+
+            CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
+                    .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+            giveawayBean.getImageUrl().ifPresent(eb::setImage);
+            if (winners.size() > 0)
+                eb.addField(Emojis.EMPTY_EMOJI, new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + user.getDiscriminatedName() + "**"));
+            else
+                eb.setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results_empty"));
+
+            message.edit(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
+
+            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.READ_MESSAGE_HISTORY | Permission.SEND_MESSAGES | Permission.EMBED_LINKS))
+                channel.sendMessage(mentions.toString()).thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
         }
     }
 

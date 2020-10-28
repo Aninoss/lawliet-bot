@@ -3,6 +3,7 @@ package events.discordevents.eventtypeabstracts;
 import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
+import org.javacord.core.DiscordApiImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +23,13 @@ public abstract class ReactionAddAbstract extends DiscordEventAbstract {
         }
 
         if (event.getUser().isEmpty()) {
-            event.getApi().getUserById(event.getUserId());
-            return;
+            DiscordApiCollection.getInstance().getUserById(event.getUserId()).ifPresent(user -> {
+                ((DiscordApiImpl)event.getApi()).getEntityCache().get().getMemberCache().getUserCache().addUser(user);
+            });
+
+            LOGGER.info("mysql.modules.fisheryusers.DBFishery.manageVCFish {}: {}", event.getUserId(), event.getUser().isPresent());
+            if (event.getUser().isEmpty())
+                return;
         }
 
         execute(listenerList, event.getUser().get(), false,

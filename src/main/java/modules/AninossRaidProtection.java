@@ -4,6 +4,7 @@ import constants.AssetIds;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -22,8 +23,9 @@ public class AninossRaidProtection {
 
         boolean ok = lastUser == null || lastInstant == null || lastInstant.plus(1, ChronoUnit.MINUTES).isBefore(Instant.now());
         if (!ok) {
-            if (role.hasUser(lastUser))
-                role.removeUser(lastUser).exceptionally(ExceptionLogger.get());
+            role.getServer().getMemberById(lastUser.getId()).ifPresent(u -> {
+                role.removeUser(u).exceptionally(ExceptionLogger.get());
+            });
         }
 
         lastUser = user;

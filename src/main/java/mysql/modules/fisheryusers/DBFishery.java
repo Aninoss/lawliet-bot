@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
@@ -349,17 +348,23 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             try {
                 ArrayList<User> validUsers = new ArrayList<>();
-                List<User> users = new ArrayList<>(voiceChannel.getConnectedUsers());
-                for (User user : users) {
-                    if (!user.isBot() &&
-                            !user.isMuted(server) &&
-                            !user.isDeafened(server) &&
-                            !user.isSelfDeafened(server) &&
-                            !user.isSelfMuted(server) &&
-                            !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                    ) {
-                        validUsers.add(user);
-                    }
+                for (User user : server.getMembers()) {
+                    user.getConnectedVoiceChannel(server).ifPresent(vc -> {
+                        try {
+                            if (vc.getId() == voiceChannel.getId() &&
+                                    !user.isBot() &&
+                                    !user.isMuted(server) &&
+                                    !user.isDeafened(server) &&
+                                    !user.isSelfDeafened(server) &&
+                                    !user.isSelfMuted(server) &&
+                                    !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
+                            ) {
+                                validUsers.add(user);
+                            }
+                        } catch (SQLException throwables) {
+                            LOGGER.error("Could not fetch banned users", throwables);
+                        }
+                    });
                 }
 
                 if (validUsers.size() > 1 &&
