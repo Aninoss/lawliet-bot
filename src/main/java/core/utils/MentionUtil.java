@@ -211,7 +211,8 @@ public class MentionUtil {
         String serverId = server.getIdAsString();
         Matcher m = DiscordRegexPattern.MESSAGE_LINK.matcher(string);
         while (m.find()) {
-            if (m.group("server").equals(serverId)) {
+            String groupString = m.group("server");
+            if (groupString != null && groupString.equals(serverId)) {
                 server.getTextChannelById(m.group("channel")).ifPresent(channel -> {
                     list.add(channel.getMessageById(m.group("message")).join());
                 });
