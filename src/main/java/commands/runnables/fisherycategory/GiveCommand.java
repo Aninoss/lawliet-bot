@@ -56,7 +56,7 @@ public class GiveCommand extends FisheryAbstract {
         /* For DisCom - Die Discord Community */
         if (server.getId() == 418223406698332173L) {
             Role role = server.getRoleById(761962407990919168L).get();
-            if (!role.hasUser(user0)) return false;
+            if (!user0.getRoles(role.getServer()).contains(role)) return false;
         }
 
         FisheryUserBean fisheryUser0 = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user0.getId());

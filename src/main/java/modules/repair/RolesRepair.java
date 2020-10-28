@@ -75,13 +75,13 @@ public class RolesRepair implements Runnable {
 
     private void checkRolesFisheryRoles(Locale locale, User user, FisheryUserBean userBean) {
         userBean.getRoles().stream()
-                .filter(role -> !role.hasUser(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role))
+                .filter(role -> !user.getRoles(role.getServer()).contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role))
                 .forEach(role -> role.addUser(user).exceptionally(ExceptionLogger.get()));
     }
 
     private void checkRolesAutoRoles(Locale locale, User user, CustomObservableList<Role> roles) {
         roles.stream()
-                .filter(role -> !role.hasUser(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
+                .filter(role -> !user.getRoles(role.getServer()).contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> role.addUser(user).exceptionally(ExceptionLogger.get()));
     }
 

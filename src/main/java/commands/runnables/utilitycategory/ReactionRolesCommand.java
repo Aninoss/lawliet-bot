@@ -518,12 +518,11 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         if (!test) identity = Emojis.EMPTY_EMOJI;
         if (!removeRole && !test) titleAdd = Emojis.EMPTY_EMOJI;
         if (!multipleRoles && !test) titleAdd += Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI;
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+
+        return EmbedFactory.getEmbedDefault()
                 .setTitle(getEmoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
                 .setDescription(description)
                 .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString());
-
-        return eb;
     }
 
     private String getLinkString() {
@@ -567,7 +566,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private boolean messageIsReactionMessage(Message message) {
         if (message.getAuthor().isYourself() && message.getEmbeds().size() > 0) {
             Embed embed = message.getEmbeds().get(0);
-            if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
+            if (embed.getTitle().isPresent() && embed.getAuthor().isEmpty()) {
                 String title = embed.getTitle().get();
                 return title.startsWith(getEmoji()) && title.endsWith(Emojis.EMPTY_EMOJI);
             }
@@ -586,16 +585,16 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             user.sendMessage(EmbedFactory.getEmbedDefault(this, getString("messageid", message.getLink().toString())));
         }
 
+        updateValuesFromMessage(message);
         if (!block.contains(user.getId())) {
             try {
-                updateValuesFromMessage(message);
                 if (!multipleRoles) {
                     block.add(user.getId());
                     if (removeMultipleRoles(event))
                         return;
                 }
 
-                if (!giveRole(message, event, user))
+                if (!giveRole(event))
                     event.removeReaction();
             } catch (Throwable e) {
                 event.removeReaction();
@@ -607,12 +606,12 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
     }
 
-    private boolean giveRole(Message message, ReactionAddEvent event, User user) throws ExecutionException, InterruptedException {
+    private boolean giveRole(ReactionAddEvent event) throws ExecutionException, InterruptedException {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
                 Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
 
-                if (!rOpt.isPresent())
+                if (rOpt.isEmpty())
                     return true;
 
                 Role r = rOpt.get();
@@ -630,7 +629,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
             if (rOpt.isPresent()) {
                 Role r = rOpt.get();
-                if (r.hasUser( event.getUser().get()) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
+                if (event.getUser().get().getRoles(r.getServer()).contains(r) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
                     if (!removeRole) return true;
                     r.removeUser( event.getUser().get()).get();
                 }
