@@ -76,9 +76,9 @@
             <version>5.1.1</version>
         </dependency>
         <dependency>
-            <groupId>com.corundumstudio.socketio</groupId>
-            <artifactId>netty-socketio</artifactId>
-            <version>1.7.18</version>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

@@ -1,7 +1,5 @@
 package websockets.webcomserver;
 
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOServer;
 import commands.Command;
 import constants.Locales;
 import core.CustomThread;
@@ -9,10 +7,14 @@ import core.ListGen;
 import core.TextManager;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
+import org.java_websocket.WebSocket;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.events.*;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Locale;
 
 public class WebComServer {
@@ -38,7 +40,7 @@ public class WebComServer {
     private static final String EVENT_INVITE = "invite";
     private static final String EVENT_SERVERSTATS = "serverstats";
 
-    private SocketIOServer webComServer;
+    private CustomWebSocketServer server;
     private boolean started = false;
 
     public void start(int port) {
@@ -48,30 +50,25 @@ public class WebComServer {
         new CustomThread(() -> {
             while(true) {
                 try {
-                    Configuration config = new Configuration();
-                    config.setHostname("127.0.0.1");
-                    config.setPort(port);
+                    server = new CustomWebSocketServer(new InetSocketAddress("localhost", port));
 
-                    webComServer = new SocketIOServer(config);
-                    webComServer.addConnectListener(new OnConnected());
+                    server.addEventHandler(EVENT_COMMANDLIST, new OnCommandList(this, EVENT_COMMANDLIST));
+                    server.addEventHandler(EVENT_FAQLIST, new OnFAQList(this, EVENT_FAQLIST));
+                    server.addEventHandler(EVENT_SERVERLIST, new OnEventServerList(this, EVENT_SERVERLIST));
+                    server.addEventHandler(EVENT_SERVERMEMBERS, new OnEventServerMembers(this, EVENT_SERVERMEMBERS));
+                    server.addEventHandler(EVENT_FR_FETCH, new OnFRFetch(this, EVENT_FR_FETCH));
+                    server.addEventHandler(EVENT_FR_BOOST, new OnFRBoost(this, EVENT_FR_BOOST));
+                    server.addEventHandler(EVENT_FR_CAN_POST, new OnFRCanPost(this, EVENT_FR_CAN_POST));
+                    server.addEventHandler(EVENT_FR_POST, new OnFRPost(this, EVENT_FR_POST));
+                    server.addEventHandler(EVENT_SERVERSTATS, new OnServerStats(this, EVENT_SERVERSTATS));
 
-                    webComServer.addEventListener(EVENT_COMMANDLIST, JSONObject.class, new OnCommandList(this, EVENT_COMMANDLIST));
-                    webComServer.addEventListener(EVENT_FAQLIST, JSONObject.class, new OnFAQList(this, EVENT_FAQLIST));
-                    webComServer.addEventListener(EVENT_SERVERLIST, JSONObject.class, new OnEventServerList(this, EVENT_SERVERLIST));
-                    webComServer.addEventListener(EVENT_SERVERMEMBERS, JSONObject.class, new OnEventServerMembers(this, EVENT_SERVERMEMBERS));
-                    webComServer.addEventListener(EVENT_FR_FETCH, JSONObject.class, new OnFRFetch(this, EVENT_FR_FETCH));
-                    webComServer.addEventListener(EVENT_FR_BOOST, JSONObject.class, new OnFRBoost(this, EVENT_FR_BOOST));
-                    webComServer.addEventListener(EVENT_FR_CAN_POST, JSONObject.class, new OnFRCanPost(this, EVENT_FR_CAN_POST));
-                    webComServer.addEventListener(EVENT_FR_POST, JSONObject.class, new OnFRPost(this, EVENT_FR_POST));
-                    webComServer.addEventListener(EVENT_SERVERSTATS, JSONObject.class, new OnServerStats(this, EVENT_SERVERSTATS));
+                    server.addEventHandler(EVENT_TOPGG, new OnTopGG(this, EVENT_TOPGG));
+                    server.addEventHandler(EVENT_TOPGG_ANINOSS, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
+                    server.addEventHandler(EVENT_DONATEBOT_IO, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
+                    server.addEventHandler(EVENT_FEEDBACK, new OnFeedback(this, EVENT_FEEDBACK));
+                    server.addEventHandler(EVENT_INVITE, new OnInvite(this, EVENT_INVITE));
 
-                    webComServer.addEventListener(EVENT_TOPGG, JSONObject.class, new OnTopGG(this, EVENT_TOPGG));
-                    webComServer.addEventListener(EVENT_TOPGG_ANINOSS, JSONObject.class, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
-                    webComServer.addEventListener(EVENT_DONATEBOT_IO, JSONObject.class, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
-                    webComServer.addEventListener(EVENT_FEEDBACK, JSONObject.class, new OnFeedback(this, EVENT_FEEDBACK));
-                    webComServer.addEventListener(EVENT_INVITE, JSONObject.class, new OnInvite(this, EVENT_INVITE));
-
-                    webComServer.start();
+                    server.start();
                     LOGGER.info("WebCom server started");
                     return;
                 } catch (Throwable e) {
@@ -126,16 +123,26 @@ public class WebComServer {
         return jsonObject;
     }
 
-    public boolean connected() {
-        if (webComServer == null)
+    public void send(WebSocket webSocket, String event, JSONObject mainJSON) {
+        server.send(webSocket, event, mainJSON);
+    }
+
+    public boolean isConnected() {
+        if (server == null)
             return false;
 
-        return webComServer.getAllClients().size() > 0;
+        return server.getConnections().size() > 0;
     }
 
     public void stop() {
-        if (webComServer != null) webComServer.stop();
-        started = false;
+        if (server != null) {
+            try {
+                server.stop();
+                started = false;
+            } catch (IOException | InterruptedException e) {
+                LOGGER.error("Could not stop server", e);
+            }
+        }
     }
 
 }

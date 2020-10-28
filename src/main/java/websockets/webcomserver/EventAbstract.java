@@ -1,11 +1,15 @@
 package websockets.webcomserver;
 
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
+import org.java_websocket.WebSocket;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class EventAbstract implements DataListener<JSONObject> {
+import java.util.function.BiConsumer;
+
+public abstract class EventAbstract implements BiConsumer<WebSocket, JSONObject> {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(EventAbstract.class);
 
     private final WebComServer webComServer;
     private final String event;
@@ -16,12 +20,16 @@ public abstract class EventAbstract implements DataListener<JSONObject> {
     }
 
     @Override
-    public void onData(SocketIOClient socketIOClient, JSONObject jsonObject, AckRequest ackRequest) throws Exception {
-        JSONObject response = processData(jsonObject, webComServer);
+    public void accept(WebSocket webSocket, JSONObject mainJSON) {
+        try {
+            JSONObject response = processData(mainJSON, webComServer);
 
-        if (response != null) {
-            response.put("id", jsonObject.getString("id"));
-            socketIOClient.sendEvent(event, response.toString());
+            if (response != null) {
+                response.put("id", mainJSON.getString("id"));
+                WebComServer.getInstance().send(webSocket, event, response);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error on web socket event", e);
         }
     }
 

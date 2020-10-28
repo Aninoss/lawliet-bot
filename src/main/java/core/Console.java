@@ -103,7 +103,7 @@ public class Console {
     }
 
     private void onWebCom(String[] args) {
-        LOGGER.info("WebCom connection: {}", WebComServer.getInstance().connected());
+        LOGGER.info("WebCom connection: {}", WebComServer.getInstance().isConnected());
     }
 
     private void onEval(String[] args) throws Exception {
