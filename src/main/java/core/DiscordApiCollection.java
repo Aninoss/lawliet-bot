@@ -41,7 +41,7 @@ public class DiscordApiCollection {
     private DiscordApiCollection() {
         Thread t = new CustomThread(() -> {
             try {
-                Thread.sleep(20 * 60 * 1000);
+                Thread.sleep(10 * 60 * 1000);
                 if (!allShardsConnected()) {
                     LOGGER.error("EXIT - Could not boot up");
                     System.exit(-1);
@@ -104,17 +104,25 @@ public class DiscordApiCollection {
     }
 
     public void reconnectShard(int n) {
-        if (Bot.isRunning() && apiList[n] != null) {
-            DiscordApi api = apiList[n];
-            apiList[n] = null;
+        if (Bot.isRunning()) {
+            if (apiList[n] != null) {
+                DiscordApi api = apiList[n];
+                apiList[n] = null;
+                try {
+                    CommandContainer.getInstance().clearShard(n);
+                } catch (Exception e) {
+                    LOGGER.error("Exception", e);
+                }
+                api.disconnect();
+            }
+
             try {
                 CommandContainer.getInstance().clearShard(n);
             } catch (Exception e) {
                 LOGGER.error("Exception", e);
             }
             RunningCheckerManager.getInstance().clearShard(n);
-            api.disconnect();
-            DiscordConnector.getInstance().reconnectApi(api.getCurrentShard());
+            DiscordConnector.getInstance().reconnectApi(n);
             errorCounter[n] = 0;
         }
     }

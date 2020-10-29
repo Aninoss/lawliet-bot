@@ -6,12 +6,12 @@ import com.google.common.cache.LoadingCache;
 import constants.AssetIds;
 import constants.Settings;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PatreonCache {
 
@@ -25,20 +25,27 @@ public class PatreonCache {
 
     private final LoadingCache<Long, Integer> cache = CacheBuilder.newBuilder()
             .build(
-                    new CacheLoader<Long, Integer>() {
+                    new CacheLoader<>() {
                         @Override
-                        public Integer load(@NonNull Long userId) throws SQLException {
+                        public Integer load(@NonNull Long userId) {
                             if (DiscordApiCollection.getInstance().getOwnerId() == userId)
                                 return Settings.PATREON_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 
                             Server supportServer = DiscordApiCollection.getInstance().getServerById(AssetIds.SUPPORT_SERVER_ID).get();
-                            for (int i = 0; i < Settings.PATREON_ROLE_IDS.length; i++) {
-                                if (supportServer.getRoleById(Settings.PATREON_ROLE_IDS[i]).get().getUsers().stream().anyMatch(user -> user.getId() == userId))
-                                    return i + 1;
-                            }
+                            AtomicInteger status = new AtomicInteger(0);
 
-                            return 0;
+                            supportServer.getMemberById(userId).ifPresent(user -> {
+                                for (int i = 0; i < Settings.PATREON_ROLE_IDS.length; i++) {
+                                    Role role = supportServer.getRoleById(Settings.PATREON_ROLE_IDS[i]).get();
+                                    if (user.getRoles(supportServer).contains(role)) {
+                                        status.set(i + 1);
+                                        break;
+                                    }
+                                }
+                            });
+
+                            return status.get();
                         }
                     }
             );
@@ -58,6 +65,10 @@ public class PatreonCache {
             LOGGER.error("Exception in Patreon check", e);
         }
         return 0;
+    }
+
+    public void setPatreonLevel(long userId, int level) {
+        cache.put(userId, level);
     }
 
 }

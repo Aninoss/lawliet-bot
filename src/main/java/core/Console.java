@@ -83,7 +83,8 @@ public class Console {
         tasks.put("backup", this::onBackup);
         tasks.put("servers", this::onServers);
         tasks.put("users", this::onUsers);
-        tasks.put("patreon", this::onPatreonStatus);
+        tasks.put("patreon", this::onPatreon);
+        tasks.put("patreon_set", this::onPatreonSet);
         tasks.put("internet", this::onInternetConnection);
         tasks.put("giveaway", this::onGiveaway);
         tasks.put("send_user", this::onSendUser);
@@ -171,9 +172,16 @@ public class Console {
         LOGGER.info("Internet connection: {}", InternetUtil.checkConnection());
     }
 
-    private void onPatreonStatus(String[] args) {
+    private void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
-        LOGGER.info("Donation stats of user {}: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
+        LOGGER.info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
+    }
+
+    private void onPatreonSet(String[] args) {
+        long userId = Long.parseLong(args[1]);
+        int level = Integer.parseInt(args[2]);
+        PatreonCache.getInstance().setPatreonLevel(userId, level);
+        LOGGER.info("Patreon stats of user {} set: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
     }
 
     private void onUsers(String[] args) {
@@ -339,13 +347,15 @@ public class Console {
                     String[] args = br.readLine().split(" ");
                     ConsoleTask task = tasks.get(args[0]);
                     if (task != null) {
-                        try {
-                            task.process(args);
-                        } catch (Throwable throwable) {
-                            LOGGER.error("Console task {} endet with exception", args[0], throwable);
-                        }
+                        new CustomThread(() -> {
+                            try {
+                                task.process(args);
+                            } catch (Throwable throwable) {
+                                LOGGER.error("Console task {} endet with exception", args[0], throwable);
+                            }
+                        }, "console_task", 1).start();
                     } else {
-                        System.out.printf("No result for \"%s\"\n", args[0]);
+                        System.err.printf("No result for \"%s\"\n", args[0]);
                     }
                 }
             } catch (IOException e) {

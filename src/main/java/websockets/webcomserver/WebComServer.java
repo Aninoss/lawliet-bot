@@ -27,8 +27,6 @@ public class WebComServer {
 
     private static final String EVENT_COMMANDLIST = "command_list";
     private static final String EVENT_FAQLIST = "faq_list";
-    private static final String EVENT_SERVERLIST = "server_list";
-    private static final String EVENT_SERVERMEMBERS = "server_members";
     private static final String EVENT_FR_FETCH = "fr_fetch";
     private static final String EVENT_FR_BOOST = "fr_boost";
     private static final String EVENT_FR_CAN_POST = "fr_can_post";
@@ -36,7 +34,6 @@ public class WebComServer {
     private static final String EVENT_TOPGG = "topgg";
     private static final String EVENT_TOPGG_ANINOSS = "topgg_aninoss";
     private static final String EVENT_DONATEBOT_IO = "donatebot.io";
-    private static final String EVENT_FEEDBACK = "feedback";
     private static final String EVENT_INVITE = "invite";
     private static final String EVENT_SERVERSTATS = "serverstats";
 
@@ -54,8 +51,6 @@ public class WebComServer {
 
                     server.addEventHandler(EVENT_COMMANDLIST, new OnCommandList(this, EVENT_COMMANDLIST));
                     server.addEventHandler(EVENT_FAQLIST, new OnFAQList(this, EVENT_FAQLIST));
-                    server.addEventHandler(EVENT_SERVERLIST, new OnEventServerList(this, EVENT_SERVERLIST));
-                    server.addEventHandler(EVENT_SERVERMEMBERS, new OnEventServerMembers(this, EVENT_SERVERMEMBERS));
                     server.addEventHandler(EVENT_FR_FETCH, new OnFRFetch(this, EVENT_FR_FETCH));
                     server.addEventHandler(EVENT_FR_BOOST, new OnFRBoost(this, EVENT_FR_BOOST));
                     server.addEventHandler(EVENT_FR_CAN_POST, new OnFRCanPost(this, EVENT_FR_CAN_POST));
@@ -65,7 +60,6 @@ public class WebComServer {
                     server.addEventHandler(EVENT_TOPGG, new OnTopGG(this, EVENT_TOPGG));
                     server.addEventHandler(EVENT_TOPGG_ANINOSS, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
                     server.addEventHandler(EVENT_DONATEBOT_IO, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
-                    server.addEventHandler(EVENT_FEEDBACK, new OnFeedback(this, EVENT_FEEDBACK));
                     server.addEventHandler(EVENT_INVITE, new OnInvite(this, EVENT_INVITE));
 
                     server.start();
