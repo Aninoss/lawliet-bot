@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "coinflip",
         emoji = "\uD83D\uDCB0",
         executableWithoutArgs = true,
-        aliases = { "coin", "coins", "cf", "cointoss" }
+        aliases = { "coin", "coins", "cf", "cointoss", "flip" }
 )
 public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {
 

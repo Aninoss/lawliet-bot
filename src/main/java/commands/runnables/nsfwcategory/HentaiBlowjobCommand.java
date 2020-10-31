@@ -23,7 +23,7 @@ public class HentaiBlowjobCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated blowjob -gay -lesbian -trap -shemale";
+        return "animated blowjob -gay -lesbian -trap -shemale -interspecies -furry";
     }
 
     @Override

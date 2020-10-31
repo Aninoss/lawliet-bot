@@ -19,7 +19,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "nibble",
     emoji = "👂",
-    exlusiveUsers = { 397209883793162240L, 444821134936899605L },
+    exlusiveUsers = { 397209883793162240L, 444821134936899605L, 558626732308168765L },
     executableWithoutArgs = true
 )
 public class NibbleCommand extends Command {

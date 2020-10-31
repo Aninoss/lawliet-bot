@@ -22,7 +22,7 @@ public class HentaiCommand extends GelbooruAbstract implements OnTrackerRequestL
 
     @Override
     protected String getSearchKey() {
-        return "animated -yaoi -yuri";
+        return "animated -yaoi -yuri -trap -shemale";
     }
 
     @Override

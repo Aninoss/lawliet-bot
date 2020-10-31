@@ -18,7 +18,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,7 +46,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {
         return CacheBuilder.newBuilder()
-                .maximumSize(200 * DiscordApiCollection.getInstance().size())
+                //.maximumSize(250 * DiscordApiCollection.getInstance().size())
                 .removalListener((element) -> onRemoved((FisheryServerBean) element.getValue()));
     }
 
@@ -320,7 +319,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         new CustomThread(() -> {
             IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
-                LOGGER.debug("VC Observer - Start");
+                LOGGER.info("VC Observer - Start");
                 DiscordApiCollection.getInstance().getServers().stream()
                         .filter(server -> {
                             try {
@@ -337,7 +336,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                                 LOGGER.error("Could not manage vc fish observer", e);
                             }
                         });
-                LOGGER.debug("VC Observer - End");
+                LOGGER.info("VC Observer - End");
             }
         }, "vc_observer", 1).start();
     }
@@ -347,26 +346,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             try {
-                ArrayList<User> validUsers = new ArrayList<>();
-                for (User user : server.getMembers()) {
-                    user.getConnectedVoiceChannel(server).ifPresent(vc -> {
-                        try {
-                            if (vc.getId() == voiceChannel.getId() &&
-                                    !user.isBot() &&
-                                    !user.isMuted(server) &&
-                                    !user.isDeafened(server) &&
-                                    !user.isSelfDeafened(server) &&
-                                    !user.isSelfMuted(server) &&
-                                    !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                            ) {
-                                validUsers.add(user);
-                            }
-                        } catch (SQLException throwables) {
-                            LOGGER.error("Could not fetch banned users", throwables);
-                        }
-                    });
-                }
-
+                ArrayList<User> validUsers = getValidUsers(server, voiceChannel);
                 if (validUsers.size() > 1 &&
                         (server.getAfkChannel().isEmpty() || voiceChannel.getId() != server.getAfkChannel().get().getId())
                 ) {
@@ -382,6 +362,29 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 LOGGER.error("Error while fetching VC member list", e);
             }
         }
+    }
+
+    private ArrayList<User> getValidUsers(Server server, ServerVoiceChannel voiceChannel) {
+        ArrayList<User> validUsers = new ArrayList<>();
+        for (long userId : voiceChannel.getConnectedUserIds()) {
+            server.getMemberById(userId).ifPresent(user -> {
+                try {
+                    if (!user.isBot() &&
+                            !user.isMuted(server) &&
+                            !user.isDeafened(server) &&
+                            !user.isSelfDeafened(server) &&
+                            !user.isSelfMuted(server) &&
+                            !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
+                    ) {
+                        validUsers.add(user);
+                    }
+                } catch (SQLException throwables) {
+                    LOGGER.error("SQL Error", throwables);
+                }
+            });
+        }
+
+        return validUsers;
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.Locale;
         trigger = "exch",
         emoji = "\uD83D\uDD01",
         executableWithoutArgs = true,
-        aliases = {"exchangerate", "er", "exchr"}
+        aliases = {"exchangerate", "er", "exchr", "exchange"}
 )
 public class ExchangeRateCommand extends Command implements OnTrackerRequestListener {
 
