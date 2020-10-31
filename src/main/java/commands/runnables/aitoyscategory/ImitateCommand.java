@@ -1,4 +1,4 @@
-package commands.runnables.gimmickscategory;
+package commands.runnables.aitoyscategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;

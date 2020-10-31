@@ -21,10 +21,13 @@ import websockets.webcomserver.WebComServer;
 public class DiscordConnector {
 
     private static final DiscordConnector ourInstance = new DiscordConnector();
+
     public static DiscordConnector getInstance() {
         return ourInstance;
     }
-    private DiscordConnector() {}
+
+    private DiscordConnector() {
+    }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
     private final DiscordEventManager discordEventManager = new DiscordEventManager();
@@ -49,35 +52,38 @@ public class DiscordConnector {
         DiscordApiCollection.getInstance().init(totalShards);
 
         apiBuilder.loginAllShards()
-                .forEach(shardFuture -> {
-                            if (shardFuture.thenAccept(this::onApiJoin)
-                                    .isCompletedExceptionally()) {
-                                LOGGER.error("EXIT - Error while connecting to the Discord servers!");
-                                System.exit(-1);
-                            }
-                        }
+                .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
+                        .exceptionally(e -> {
+                            LOGGER.error("EXIT - Error while connecting to the Discord servers!");
+                            System.exit(-1);
+                            return null;
+                        })
                 );
     }
 
     public void reconnectApi(int shardId) {
         LOGGER.info("Shard {} is getting reconnected...", shardId);
 
-        try {
-            DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
-                    .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
-                    .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                    .setAllIntents()
-                    .setWaitForUsersOnStartup(true)
-                    .setShutdownHookRegistrationEnabled(false)
-                    .setTotalShards(DiscordApiCollection.getInstance().size())
-                    .setCurrentShard(shardId);
-
-            DiscordApi api = apiBuilder.login().get();
-            onApiJoin(api);
-        } catch (Throwable e) {
-            LOGGER.error("EXIT - Exception when reconnecting shard {}", shardId, e);
-            System.exit(-1);
-        }
+        new DiscordApiBuilder()
+                .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
+                .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
+                .setAllIntents()
+                .setWaitForUsersOnStartup(true)
+                .setShutdownHookRegistrationEnabled(false)
+                .setTotalShards(DiscordApiCollection.getInstance().size())
+                .setCurrentShard(shardId)
+                .login()
+                .thenAccept(this::onApiJoin)
+                .exceptionally(e -> {
+                    LOGGER.error("Exception when reconnecting shard {}", shardId, e);
+                    try {
+                        Thread.sleep(5_000);
+                        reconnectApi(shardId);
+                    } catch (InterruptedException interruptedException) {
+                        //Ignore
+                    }
+                    return null;
+                });
     }
 
     public void onApiJoin(DiscordApi api) {

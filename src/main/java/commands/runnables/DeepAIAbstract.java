@@ -1,36 +1,25 @@
-package commands.runnables.externalcategory;
-
-import commands.listeners.CommandProperties;
+package commands.runnables;
 
 import commands.Command;
 import core.EmbedFactory;
-import core.internet.HttpRequest;
-import core.internet.HttpProperty;
-import core.utils.MentionUtil;
 import core.SecretManager;
 import core.TextManager;
+import core.internet.HttpProperty;
+import core.internet.HttpRequest;
+import core.utils.MentionUtil;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-@CommandProperties(
-        trigger = "waifu2x",
-        withLoadingBar = true,
-        emoji = "\uD83D\uDCC8",
-        executableWithoutArgs = false,
-        aliases = {"waifu4x"}
-)
-public class Waifu2xCommand extends Command {
+public abstract class DeepAIAbstract extends Command {
 
-    public Waifu2xCommand(Locale locale, String prefix) {
+    public DeepAIAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
@@ -65,9 +54,12 @@ public class Waifu2xCommand extends Command {
     }
 
 
-    private String processImage(URL url) throws IOException, ExecutionException, InterruptedException {
-        if (url.toString().equals("https://i.pinimg.com/236x/a4/a6/43/a4a6430b557982c69b50bcf174c6077f.jpg")) return "https://cdn.discordapp.com/attachments/499629904380297226/611959216038477825/waifu2x.jpg";
-        if (url.toString().equals("https://avatarfiles.alphacoders.com/699/thumb-69905.png")) return "https://cdn.discordapp.com/attachments/499629904380297226/611960284239626241/waifu2x2.jpg";
+    private String processImage(URL url) throws ExecutionException, InterruptedException {
+        for (DeepAIExample deepAiExample : getDeepAiExamples()) {
+            if (url.toString().equals(deepAiExample.imageUrl)) {
+                return deepAiExample.resultUrl;
+            }
+        }
 
         String query = "image=" + url.toString();
 
@@ -76,8 +68,26 @@ public class Waifu2xCommand extends Command {
                 new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
         };
 
-        String data = HttpRequest.getData("https://api.deepai.org/api/waifu2x", query, properties).get().getContent().get();
+        String data = HttpRequest.getData(getUrl(), query, properties).get().getContent().get();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");
     }
+
+    protected abstract String getUrl();
+
+    protected abstract DeepAIExample[] getDeepAiExamples();
+
+
+    protected static class DeepAIExample {
+
+        private final String imageUrl;
+        private final String resultUrl;
+
+        public DeepAIExample(String imageUrl, String resultUrl) {
+            this.imageUrl = imageUrl;
+            this.resultUrl = resultUrl;
+        }
+
+    }
+
 }

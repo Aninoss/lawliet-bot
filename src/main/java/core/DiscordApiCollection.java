@@ -39,7 +39,7 @@ public class DiscordApiCollection {
     private final Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
-        Thread t = new CustomThread(() -> {
+        new CustomThread(() -> {
             try {
                 Thread.sleep(10 * 60 * 1000);
                 if (!allShardsConnected()) {
@@ -50,8 +50,7 @@ public class DiscordApiCollection {
                 LOGGER.error("EXIT - Interrupted", e);
                 System.exit(-1);
             }
-        }, "bootup_timebomb", 1);
-        t.start();
+        }, "bootup_timebomb", 1).start();
     }
 
     public void init(int shardNumber) {

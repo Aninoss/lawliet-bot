@@ -379,8 +379,8 @@ public class Console {
         //Threads
         sb.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append("\n");
 
-        LOGGER.info("RAM: {} & {}", memoryUsed, maxMemory);
-        LOGGER.info("Threads: : {}", Thread.getAllStackTraces().keySet().size());
+        //LOGGER.info("RAM: {} & {}", memoryUsed, maxMemory);
+        //LOGGER.info("Threads: : {}", Thread.getAllStackTraces().keySet().size());
 
         //Activities
         sb.append("Activities: ").append(CommandContainer.getInstance().getActivitiesSize()).append("\n");

@@ -19,6 +19,7 @@ public class CategoryCalculator {
         if (packageName.endsWith("fisherycategory")) return Category.FISHERY;
         if (packageName.endsWith("casinocategory")) return Category.CASINO;
         if (packageName.endsWith("moderationcategory")) return Category.MODERATION;
+        if (packageName.endsWith("aitoyscategory")) return Category.AI_TOYS;
         return null;
     }
 

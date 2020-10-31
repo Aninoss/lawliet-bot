@@ -1,31 +1,36 @@
 package commands;
 
 import commands.listeners.*;
-import commands.runnables.casinocategory.CoinFlipCommand;
+import commands.runnables.aitoyscategory.ColorizerCommand;
+import commands.runnables.aitoyscategory.ImitateCommand;
+import commands.runnables.aitoyscategory.Waifu2xCommand;
+import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.CommandManagementCommand;
 import commands.runnables.configurationcategory.LanguageCommand;
 import commands.runnables.configurationcategory.NSFWFilterCommand;
 import commands.runnables.configurationcategory.PrefixCommand;
-import commands.runnables.fisherysettingscategory.*;
-import commands.runnables.informationcategory.*;
-import commands.runnables.casinocategory.*;
 import commands.runnables.emotescategory.*;
 import commands.runnables.externalcategory.*;
+import commands.runnables.fisherycategory.*;
+import commands.runnables.fisherysettingscategory.*;
 import commands.runnables.gimmickscategory.*;
-import commands.runnables.informationcategory.HelpCommand;
+import commands.runnables.informationcategory.*;
 import commands.runnables.interactionscategory.*;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
-import commands.runnables.fisherycategory.*;
+import commands.runnables.splatoon2category.MapsCommand;
+import commands.runnables.splatoon2category.SalmonCommand;
+import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
-import commands.runnables.splatoon2category.*;
 import constants.Settings;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class CommandContainer {
 
@@ -59,7 +64,11 @@ public class CommandContainer {
         commandList.add(SayCommand.class);
         commandList.add(VoteCommand.class);
         commandList.add(TopicCommand.class);
+
+        //AI TOYS
         commandList.add(ImitateCommand.class);
+        commandList.add(Waifu2xCommand.class);
+        commandList.add(ColorizerCommand.class);
 
         //CONFIGURATION
         commandList.add(CommandManagementCommand.class);
@@ -207,7 +216,6 @@ public class CommandContainer {
         commandList.add(YouTubeMP3Command.class);
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
-        commandList.add(Waifu2xCommand.class);
         commandList.add(DadJokeCommand.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);

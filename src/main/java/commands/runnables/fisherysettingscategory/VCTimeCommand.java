@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "⏲️",
         executableWithoutArgs = true,
         patreonRequired = true,
-        aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits" }
+        aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits", "vctimeout" }
 )
 public class VCTimeCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {
 
