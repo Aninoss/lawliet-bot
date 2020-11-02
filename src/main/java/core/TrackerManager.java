@@ -76,7 +76,7 @@ public class TrackerManager {
     }
 
     private boolean trackerIsForShard(TrackerBeanSlot slot, int trackerShard) {
-        return slot.getServerId() % size == trackerShard;
+        return (slot.getServerId() >> 22) % size == trackerShard;
     }
 
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {

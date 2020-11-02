@@ -13,6 +13,7 @@ import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
+import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +39,7 @@ public class DiscordConnector {
         connected = true;
 
         LOGGER.info("Bot is logging in...");
-
-        DiscordApiBuilder apiBuilder = new DiscordApiBuilder()
-                .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
-                .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                .setAllIntents()
-                .setWaitForUsersOnStartup(true)
-                .setShutdownHookRegistrationEnabled(false)
+        DiscordApiBuilder apiBuilder = createBuilder()
                 .setRecommendedTotalShards()
                 .join();
 
@@ -64,13 +59,7 @@ public class DiscordConnector {
     public void reconnectApi(int shardId) {
         LOGGER.info("Shard {} is getting reconnected...", shardId);
 
-        new DiscordApiBuilder()
-                .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
-                .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
-                .setAllIntents()
-                .setWaitForUsersOnStartup(true)
-                .setShutdownHookRegistrationEnabled(false)
-                .setTotalShards(DiscordApiCollection.getInstance().size())
+        createBuilder().setTotalShards(DiscordApiCollection.getInstance().size())
                 .setCurrentShard(shardId)
                 .login()
                 .thenAccept(this::onApiJoin)
@@ -84,6 +73,15 @@ public class DiscordConnector {
                     }
                     return null;
                 });
+    }
+
+    private DiscordApiBuilder createBuilder() {
+        return new DiscordApiBuilder()
+                .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
+                .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
+                .setAllIntentsExcept(Intent.DIRECT_MESSAGE_TYPING, Intent.GUILD_MESSAGE_TYPING)
+                .setWaitForUsersOnStartup(true)
+                .setShutdownHookRegistrationEnabled(false);
     }
 
     public void onApiJoin(DiscordApi api) {

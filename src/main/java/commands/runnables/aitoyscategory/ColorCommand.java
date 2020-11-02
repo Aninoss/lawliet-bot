@@ -13,9 +13,9 @@ import java.util.Locale;
         patreonRequired = true,
         aliases = { "colourizer", "colorize", "colorizer", "colorization", "colourize", "colour", "colourization" }
 )
-public class ColorizerCommand extends DeepAIAbstract {
+public class ColorCommand extends DeepAIAbstract {
 
-    public ColorizerCommand(Locale locale, String prefix) {
+    public ColorCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 

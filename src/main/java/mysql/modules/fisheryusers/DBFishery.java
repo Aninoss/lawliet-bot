@@ -18,6 +18,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,7 +26,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
 
@@ -320,6 +323,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
                 LOGGER.info("VC Observer - Start");
+                AtomicInteger actions = new AtomicInteger(0);
                 DiscordApiCollection.getInstance().getServers().stream()
                         .filter(server -> {
                             try {
@@ -331,17 +335,17 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         })
                         .forEach(server -> {
                             try {
-                                manageVCFish(server);
+                                manageVCFish(server, actions);
                             } catch (Throwable e) {
                                 LOGGER.error("Could not manage vc fish observer", e);
                             }
                         });
-                LOGGER.info("VC Observer - End");
+                LOGGER.info("VC Observer - End ({} Actions)", actions.get());
             }
         }, "vc_observer", 1).start();
     }
 
-    private void manageVCFish(Server server) throws ExecutionException {
+    private void manageVCFish(Server server, AtomicInteger actions) throws ExecutionException {
         FisheryServerBean serverBean = DBFishery.getInstance().getBean(server.getId());
 
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
@@ -353,6 +357,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     validUsers.forEach(user -> {
                         try {
                             serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
+                            actions.incrementAndGet();
                         } catch (ExecutionException e) {
                             LOGGER.error("Exception when registering vc", e);
                         }
@@ -365,9 +370,20 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     private ArrayList<User> getValidUsers(Server server, ServerVoiceChannel voiceChannel) {
+        //TODO DEBUG
+        try {
+            if (voiceChannel.getConnectedUsers().size() != voiceChannel.getConnectedUserIds().size())
+                LOGGER.error("Incomplete connected users list for voice channel {} on server {}", voiceChannel.getId(), server.getId());
+        } catch (Throwable e) {
+            //Ignore
+        }
+
         ArrayList<User> validUsers = new ArrayList<>();
         for (long userId : voiceChannel.getConnectedUserIds()) {
-            server.getMemberById(userId).ifPresent(user -> {
+            Optional<User> userOpt = server.getMemberById(userId);
+            if (userOpt.isEmpty())
+                LOGGER.error("VC Observer - missing user with id {} on server {}", userId, server.getId());
+            userOpt.ifPresent(user -> {
                 try {
                     if (!user.isBot() &&
                             !user.isMuted(server) &&

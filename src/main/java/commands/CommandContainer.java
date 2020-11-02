@@ -1,7 +1,7 @@
 package commands;
 
 import commands.listeners.*;
-import commands.runnables.aitoyscategory.ColorizerCommand;
+import commands.runnables.aitoyscategory.ColorCommand;
 import commands.runnables.aitoyscategory.ImitateCommand;
 import commands.runnables.aitoyscategory.Waifu2xCommand;
 import commands.runnables.casinocategory.*;
@@ -68,7 +68,7 @@ public class CommandContainer {
         //AI TOYS
         commandList.add(ImitateCommand.class);
         commandList.add(Waifu2xCommand.class);
-        commandList.add(ColorizerCommand.class);
+        commandList.add(ColorCommand.class);
 
         //CONFIGURATION
         commandList.add(CommandManagementCommand.class);
