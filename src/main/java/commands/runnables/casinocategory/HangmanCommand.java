@@ -43,6 +43,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private boolean[] progress;
     private LogStatus logStatus;
     private ArrayList<Character> used;
+    private ArrayList<String> guessed;
     private boolean first;
 
     public HangmanCommand(Locale locale, String prefix) {
@@ -60,6 +61,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
             health = MAX_HEALTH;
             progress = new boolean[answer.length()];
             used = new ArrayList<>();
+            guessed = new ArrayList<>();
             message = event.getChannel().sendMessage(getEmbed(false)).get();
             message.addReaction("❌");
 
@@ -113,9 +115,13 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         StringBuilder sb = new StringBuilder();
 
         for(int i=0; i<used.size(); i++) {
-            char character = used.get(i);
             if (i != 0) sb.append(", ");
-            sb.append(character);
+            sb.append(used.get(i));
+        }
+
+        for (String s : guessed) {
+            sb.append(", ");
+            sb.append(s);
         }
 
         return sb.toString();
@@ -130,12 +136,20 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
                 return null;
 
             event.getMessage().delete();
-            if (answer.equals(input)) { //if input is right win game
-                Arrays.fill(progress, true);
-                onRight(input);
-                return Response.TRUE;
-            } else { //input is wrong
-                onWrong(input);
+            if (!guessed.contains(input)) {
+                guessed.add(input);
+                if (answer.equals(input)) { //if input is right win game
+                    Arrays.fill(progress, true);
+                    onRight(input);
+                    return Response.TRUE;
+                } else { //input is wrong
+                    onWrong(input);
+                    return Response.FALSE;
+                }
+            } else {
+                logStatus = LogStatus.FAILURE;
+                log = getString("used", input);
+                message.edit(getEmbed(false));
                 return Response.FALSE;
             }
         }
@@ -189,7 +203,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         return true;
     }
 
-    private void onWrong(String input) throws IOException, SQLException, ExecutionException {
+    private void onWrong(String input) throws ExecutionException {
         health --;
 
         if (health > 0) {
