@@ -250,6 +250,7 @@ public class CommandContainer {
         commandList.add(NibbleCommand.class);
         commandList.add(RosesCommand.class);
         commandList.add(WebgateCommand.class);
+        commandList.add(CelebrateCommand.class);
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {
