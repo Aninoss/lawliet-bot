@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class PornImageDownloader {
                         .replace(",", " ")
                         .replace(" ", softMode ? "~ " : " ") +
                         (softMode ? "~" : "") +
-                        searchTermExtra, "UTF-8"
+                        searchTermExtra, StandardCharsets.UTF_8
         );
 
         String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;

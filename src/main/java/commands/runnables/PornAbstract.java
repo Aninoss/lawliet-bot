@@ -2,7 +2,10 @@ package commands.runnables;
 
 
 import commands.Command;
-import constants.*;
+import constants.Category;
+import constants.ExternalLinks;
+import constants.LogStatus;
+import constants.TrackerResult;
 import core.CustomThread;
 import core.EmbedFactory;
 import core.PatreonCache;
@@ -25,6 +28,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -74,7 +78,13 @@ public abstract class PornAbstract extends Command {
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
         do {
-            ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount), usedResults);
+            ArrayList<PornImage> pornImages;
+            try {
+                pornImages = getPornImages(nsfwFilter, followedString, Math.min(3, (int) amount), usedResults);
+            } catch (NoSuchElementException e) {
+                postApiUnavailable(event);
+                return false;
+            }
 
             if (pornImages.size() == 0) {
                 if (first) {
@@ -104,7 +114,7 @@ public abstract class PornAbstract extends Command {
     private boolean checkServiceAvailable() {
         try {
             return PornImageDownloader.getPicture(getDomain(), "", "", "", false, true, isExplicit(), new ArrayList<>(), new ArrayList<>()).isPresent();
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (IOException | InterruptedException | ExecutionException | NoSuchElementException e) {
             //Ignore
             return false;
         }

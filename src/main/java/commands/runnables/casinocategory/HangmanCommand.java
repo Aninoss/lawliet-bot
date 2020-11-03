@@ -103,7 +103,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         return sb.toString();
     }
 
-    private void onAbort() throws IOException, SQLException, ExecutionException {
+    private void onAbort() throws ExecutionException {
         logStatus = LogStatus.LOSE;
         onLose();
         log = getString("abort");
@@ -142,7 +142,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
 
         char inputChar = input.charAt(0);
 
-        if (!charIsValid(inputChar)) return null;
+        if (!Character.isLetter(inputChar)) return null;
 
         if (!used.contains(inputChar)) {
             used.add(inputChar);
@@ -169,10 +169,6 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         return Response.FALSE;
     }
 
-    private boolean charIsValid(char ch) {
-        return ch >= 'A' && ch <= 'Z';
-    }
-
     private boolean stringCouldMatch(String input) { //input should be uppercase
         if (input.length() != answer.length()) //string can't be right
             return false;
@@ -181,7 +177,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         char[] answerChars = answer.toCharArray();
 
         for (int i = 0; i < inputChars.length; i++) {
-            if (!charIsValid(inputChars[i])) return false;
+            if (!Character.isLetter(inputChars[i])) return false;
             if (progress[i]) { //char has been solved
                 if (inputChars[i] != answerChars[i])  //string can't be right
                     return false;
@@ -208,7 +204,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         message.edit(getEmbed(true));
     }
 
-    private void onRight(String input) throws IOException, SQLException, ExecutionException {
+    private void onRight(String input) throws ExecutionException {
         boolean finished = true;
         for (boolean set : progress) {
             if (!set) {
