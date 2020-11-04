@@ -251,6 +251,7 @@ public class CommandContainer {
         commandList.add(RosesCommand.class);
         commandList.add(WebgateCommand.class);
         commandList.add(CelebrateCommand.class);
+        commandList.add(PokemonCommand.class);
 
         for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
             try {

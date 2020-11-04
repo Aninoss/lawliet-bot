@@ -68,4 +68,10 @@ public class EmbedFactory {
                 .setDescription(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_description"));
     }
 
+    public static EmbedBuilder getApiDownEmbed(Locale locale, String service) {
+        return EmbedFactory.getEmbedError()
+                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "quiz_down_title"))
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "api_down", service));
+    }
+
 }

@@ -122,10 +122,7 @@ public abstract class PornAbstract extends Command {
 
     private void postApiUnavailable(MessageCreateEvent event) throws ExecutionException, InterruptedException {
         if (event.getChannel().canYouEmbedLinks()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "quiz_down_title"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain()));
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(EmbedFactory.getApiDownEmbed(getLocale(), getDomain())).get();
         } else {
             event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain())).get();
         }

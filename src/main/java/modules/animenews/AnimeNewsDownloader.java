@@ -40,7 +40,7 @@ public class AnimeNewsDownloader {
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (!httpResponse.getContent().isPresent()) return null;
+        if (httpResponse.getContent().isEmpty()) return null;
         String dataString = httpResponse.getContent().get();
 
         ArrayList<AnimeNewsPost> postList = new ArrayList<>();

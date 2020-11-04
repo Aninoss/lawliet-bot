@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class InternetCache {
 
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> shortLivedCache = CacheBuilder.newBuilder()
-            .maximumSize(300)
+            .maximumSize(500)
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build(
                     new CacheLoader<String, CompletableFuture<HttpResponse>>() {
@@ -28,7 +28,7 @@ public class InternetCache {
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> cache = CacheBuilder.newBuilder()
             .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))
             .build(
-                    new CacheLoader<String, CompletableFuture<HttpResponse>>() {
+                    new CacheLoader<>() {
                         @Override
                         public CompletableFuture<HttpResponse> load(@NonNull String url) throws IOException {
                             return HttpRequest.getData(url);
@@ -54,7 +54,8 @@ public class InternetCache {
     }
 
     public static void setExpirationDate(Instant instant, String... urls) {
-        for(String url: urls) expirationDates.put(url, instant);;
+        for(String url: urls)
+            expirationDates.put(url, instant);
     }
 
 }
