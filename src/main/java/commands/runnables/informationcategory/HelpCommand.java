@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 @CommandProperties(
@@ -130,7 +131,9 @@ public class HelpCommand extends Command implements OnNavigationListener {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
 
-            if (commandTrigger.equalsIgnoreCase(arg) && !commandTrigger.equals(getTrigger())) {
+            if ((commandTrigger.equalsIgnoreCase(arg) || Arrays.stream(command.getAliases()).anyMatch(arg::equalsIgnoreCase)) &&
+                    !commandTrigger.equals(getTrigger())
+            ) {
                 emojiConnections = new ArrayList<>();
                 emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
 

@@ -207,6 +207,8 @@ public abstract class PornAbstract extends Command {
                     synchronized (this) {
                         pornImageOpt.ifPresent(pornImages::add);
                     }
+                } catch (NoSuchElementException e) {
+                    //Ignore
                 } catch (IOException | InterruptedException | ExecutionException | ArrayIndexOutOfBoundsException e) {
                     LOGGER.error("Could not download porn image", e);
                 }
