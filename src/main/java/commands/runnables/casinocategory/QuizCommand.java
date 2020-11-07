@@ -113,7 +113,8 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             message = event.getChannel().sendMessage(getEmbed()).get();
             new CustomThread(this::countdown, "quiz_countdown", 1).start();
 
-            for(int i=0; i<answers.length; i++) message.addReaction(LetterEmojis.LETTERS[i]);
+            for(int i = 0; i < answers.length; i++)
+                message.addReaction(LetterEmojis.LETTERS[i]);
 
             return true;
         }

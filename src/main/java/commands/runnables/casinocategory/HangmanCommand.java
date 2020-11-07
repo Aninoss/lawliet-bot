@@ -106,7 +106,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     private String getUsedString() {
         StringBuilder sb = new StringBuilder();
 
-        for(int i=0; i<used.size(); i++) {
+        for(int i = 0; i < used.size(); i++) {
             String str = used.get(i);
             if (i != 0) sb.append(", ");
             sb.append(str);
