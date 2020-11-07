@@ -43,10 +43,11 @@ public class MentionUtil {
             list.remove(DiscordApiCollection.getInstance().getYourself());
         list.removeIf(user -> !users.contains(user));
 
-        for (User user : list)
+        for (User user : list) {
             content = content
                     .replace(user.getMentionTag(), "")
                     .replace("<@!" + user.getIdAsString() + ">", "");
+        }
 
         for(User user : users) {
             String[] strings = {
@@ -135,12 +136,8 @@ public class MentionUtil {
 
     private static boolean matches(String str, String check) {
         check = check.toLowerCase();
-        str = str.toLowerCase().replace("\n", " ");
-
-        return  str.equals(check) ||
-                str.startsWith(check + " ") ||
-                str.contains(" " + check + " ") ||
-                str.endsWith(" " + check);
+        str = " " + str.toLowerCase().replace("\n", " ") + " ";
+        return str.contains(" " + check + " ");
     }
 
     public static MentionList<URL> getImages(String string) {

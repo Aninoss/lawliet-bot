@@ -14,7 +14,6 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
-import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
@@ -151,7 +150,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     @ControllerMessage(state = ADD_SLOT)
-    public Response onMessageAddSlot(MessageCreateEvent event, String inputString) throws InterruptedException {
+    public Response onMessageAddSlot(MessageCreateEvent event, String inputString) {
         if (inputString.length() > 0) {
             boolean ok = false;
             List<Emoji> emojis = MentionUtil.getEmojis(event.getMessage(), inputString).getList();
@@ -166,8 +165,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             }
 
             if (roles.size() > 0) {
-                if (processRole(event, inputString))
+                if (processRole(roles))
                     ok = true;
+                else
+                    return Response.FALSE;
             }
 
             if (ok) return Response.TRUE;
@@ -187,19 +188,12 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
     }
 
-    private boolean processRole(MessageCreateEvent event, String inputString) {
-        MentionList<Role> mentionedRoles = MentionUtil.getRoles(event.getMessage(), inputString);
-        ArrayList<Role> list = mentionedRoles.getList();
-        if (list.size() > 0) {
-            Role roleTest = list.get(0);
-
-            if (!checkRoleWithLog(roleTest)) return false;
-
-            roleTemp = roleTest;
-            return true;
-        }
-
-        return false;
+    private boolean processRole(List<Role> list) {
+        Role roleTest = list.get(0);
+        if (!checkRoleWithLog(roleTest))
+            return false;
+        roleTemp = roleTest;
+        return true;
     }
 
     @ControllerReaction(state = ADD_OR_EDIT)

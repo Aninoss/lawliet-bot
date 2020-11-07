@@ -67,7 +67,10 @@ public class Console {
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
         tasks.put("threads", this::onThreads);
-        tasks.put("thread_stop", this::onThreadStop);
+        tasks.put("threads_stop", this::onThreadStop);
+        tasks.put("stop_threads", this::onThreadStop);
+        tasks.put("threads_kill", this::onThreadStop);
+        tasks.put("kill_threads", this::onThreadStop);
         tasks.put("donation", this::onDonationInsert);
         tasks.put("ban", this::onBan);
         tasks.put("unban", this::onUnban);
