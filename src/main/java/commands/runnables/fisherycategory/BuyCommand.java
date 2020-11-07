@@ -193,23 +193,29 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
         fisheryUserBean.levelUp(slot.getPowerUpId());
 
         if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
-            roles.get(slot.getLevel() - 1).addUser(user).get();
-            if (slot.getLevel() > 1) {
-                Server server = roles.get(0).getServer();
-                if (serverBean.isFisherySingleRoles())
-                    for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                        if (user.getRoles(server).contains(roles.get(j))) roles.get(j).removeUser(user).get();
+            Role role = roles.get(slot.getLevel() - 1);
+            if (role.getCurrentCachedInstance().isPresent()) {
+                role.addUser(user).get();
+                if (slot.getLevel() > 1) {
+                    Server server = roles.get(0).getServer();
+                    if (serverBean.isFisherySingleRoles()) {
+                        for (int j = slot.getLevel() - 2; j >= 0; j--) {
+                            if (user.getRoles(server).contains(roles.get(j)))
+                                roles.get(j).removeUser(user).exceptionally(ExceptionLogger.get());
+                        }
+                    } else {
+                        for (int j = slot.getLevel() - 2; j >= 0; j--) {
+                            if (!user.getRoles(server).contains(roles.get(j)))
+                                roles.get(j).addUser(user).exceptionally(ExceptionLogger.get());
+                        }
                     }
-                else
-                    for(int j = slot.getLevel() - 2; j >= 0; j--) {
-                        if (!user.getRoles(server).contains(roles.get(j))) roles.get(j).addUser(user).get();
-                    }
-            }
+                }
 
-            Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
-            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES)) {
-                String announcementText = getString("newrole", user.getMentionTag(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
-                announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).exceptionally(ExceptionLogger.get());
+                Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
+                if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES)) {
+                    String announcementText = getString("newrole", user.getMentionTag(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
+                    announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).exceptionally(ExceptionLogger.get());
+                }
             }
         }
     }

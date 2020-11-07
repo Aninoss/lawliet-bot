@@ -180,6 +180,13 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     private boolean processEmoji(Emoji emoji) {
         if (emoji.isUnicodeEmoji() || DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isPresent()) {
+            for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
+                if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
+                    setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
+                    return false;
+                }
+            }
+
             this.emojiTemp = emoji;
             return true;
         } else {
@@ -307,9 +314,13 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
             case 7:
                 if (emojiConnections.size() > 0) {
-                    if (sendMessage()) {
-                        setState(SENT);
-                        removeNavigation();
+                    if (getLinkString().length() <= 1024) {
+                        if (sendMessage()) {
+                            setState(SENT);
+                            removeNavigation();
+                        }
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("shortcutstoolong"));
                     }
                 } else {
                     setLog(LogStatus.FAILURE, getString("noshortcuts"));
@@ -335,7 +346,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             return true;
         }
 
-        event.getMessage().get().removeReactionByEmoji( event.getUser().get(), event.getEmoji());
+        event.getMessage().get().removeReactionByEmoji(event.getUser().get(), event.getEmoji());
         return calculateEmoji(event.getEmoji());
     }
 
@@ -455,8 +466,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_"+add))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
-                .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), true)
-                .addField(getString("state3_mshortcuts"), Optional.ofNullable(getLinkString()).orElse(notSet), false)
+                .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), 1024), true)
+                .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(getLinkString()).orElse(notSet), 1024), false)
                 .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
     }
 

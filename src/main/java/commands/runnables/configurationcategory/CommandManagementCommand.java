@@ -62,7 +62,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 if (i == -1) {
                     removeNavigationWithMessage();
                     return false;
-                } else if (i < Category.LIST.length) {
+                } else if (i >= 0 && i < Category.LIST.length) {
                     category = Category.LIST[i];
                     setState(1);
                     return true;

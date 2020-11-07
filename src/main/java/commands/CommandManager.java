@@ -264,14 +264,18 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(MessageCreateEvent event, Locale locale, String text) throws ExecutionException, InterruptedException {
-        Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMessage().getUserAuthor().get().getMentionTag())).get();
-        autoRemoveMessageAfterCountdown(event, message);
+        if (event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+            Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMessage().getUserAuthor().get().getMentionTag())).get();
+            autoRemoveMessageAfterCountdown(event, message);
+        }
     }
 
     private static void sendError(MessageCreateEvent event, Locale locale, EmbedBuilder eb) throws ExecutionException, InterruptedException {
-        eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-        Message message = event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
-        autoRemoveMessageAfterCountdown(event, message);
+        if (event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+            eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
+            Message message = event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+            autoRemoveMessageAfterCountdown(event, message);
+        }
     }
 
     private static void autoRemoveMessageAfterCountdown(MessageCreateEvent event, Message message) {

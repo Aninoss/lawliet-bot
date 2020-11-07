@@ -181,7 +181,7 @@ public abstract class PornAbstract extends Command {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(pornImage.getScore())));
 
             getNoticeOptional().ifPresent(notice -> EmbedUtil.addLog(eb, LogStatus.WARNING, notice));
-            if (channel.getCurrentCachedInstance().isPresent())
+            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
                 channel.sendMessage(eb).get();
         } else {
             StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
@@ -191,7 +191,7 @@ public abstract class PornAbstract extends Command {
 
             getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
 
-            if (channel.getCurrentCachedInstance().isPresent())
+            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
                 channel.sendMessage(sb.toString()).get();
         }
     }

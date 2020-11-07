@@ -55,17 +55,18 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         String key = skipped ? "finished_too_old" : "finished_description";
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)));
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-        Message m = event.getChannel().sendMessage(eb).get();
-        Thread t = new CustomThread(() -> {
-            try {
-                Thread.sleep(8000);
-                Message[] messagesArray = new Message[]{m, event.getMessage()};
-                event.getChannel().bulkDelete(messagesArray);
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
-            }
-        }, "fullclear_countdown", 1);
-        t.start();
+        if (event.getChannel().getCurrentCachedInstance().isPresent() && event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+            Message m = event.getChannel().sendMessage(eb).get();
+            new CustomThread(() -> {
+                try {
+                    Thread.sleep(8000);
+                    Message[] messagesArray = new Message[]{ m, event.getMessage() };
+                    event.getChannel().bulkDelete(messagesArray);
+                } catch (InterruptedException e) {
+                    LOGGER.error("Interrupted", e);
+                }
+            }, "fullclear_countdown", 1).start();
+        }
         return true;
     }
 
