@@ -42,7 +42,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
         return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
 
-    private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+    private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException {
         int rateNow = ExchangeRate.getInstance().get(0);
         int rateBefore = ExchangeRate.getInstance().get(-1);
 

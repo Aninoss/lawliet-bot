@@ -3,7 +3,6 @@ package modules;
 import core.SecretManager;
 import core.Security;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
@@ -20,7 +19,7 @@ public class ExchangeRate {
 
     private final HashMap<String, Integer> rateMap = new HashMap<>();
 
-    public int get(int offset) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+    public int get(int offset) throws InvalidKeySpecException, NoSuchAlgorithmException {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, offset);
         String dateString = calendar.get(Calendar.YEAR) + ";" + calendar.get(Calendar.DAY_OF_YEAR);

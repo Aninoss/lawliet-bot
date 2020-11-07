@@ -21,11 +21,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 @CommandProperties(
-        trigger = "animereleases",
+        trigger = "crunchyroll",
         withLoadingBar = true,
         emoji = "\uD83D\uDCFA",
         executableWithoutArgs = true,
-        aliases = { "animerelease" }
+        aliases = { "animereleases", "animerelease" }
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 

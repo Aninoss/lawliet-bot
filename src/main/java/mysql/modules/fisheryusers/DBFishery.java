@@ -370,14 +370,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     private ArrayList<User> getValidUsers(Server server, ServerVoiceChannel voiceChannel) {
-        //TODO DEBUG
-        try {
-            if (voiceChannel.getConnectedUsers().size() != voiceChannel.getConnectedUserIds().size())
-                LOGGER.error("Incomplete connected users list for voice channel {} on server {}", voiceChannel.getId(), server.getId());
-        } catch (Throwable e) {
-            //Ignore
-        }
-
         ArrayList<User> validUsers = new ArrayList<>();
         for (long userId : voiceChannel.getConnectedUserIds()) {
             Optional<User> userOpt = server.getMemberById(userId);

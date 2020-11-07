@@ -3,6 +3,7 @@ package core;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Permission;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class TrackerManager {
@@ -113,11 +115,12 @@ public class TrackerManager {
         ArrayList<ArrayList<TrackerBeanSlot>> trackerCommandTriggerList = new ArrayList<>();
 
         for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
-            String commandTrigger = Command.getClassProperties((Class<? extends Command>) clazz).trigger();
+            CommandProperties commandProps = Command.getClassProperties((Class<? extends Command>) clazz);
+            String commandTrigger = commandProps.trigger();
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
             DBTracker.getInstance().getBean().getSlots().stream()
-                    .filter(slot -> slot.getCommandTrigger().equalsIgnoreCase(commandTrigger) && slot.isActive())
+                    .filter(slot -> (slot.getCommandTrigger().equalsIgnoreCase(commandTrigger) || Arrays.stream(commandProps.aliases()).anyMatch(alias -> slot.getCommandTrigger().equalsIgnoreCase(alias))) && slot.isActive())
                     .forEach(groupedSlots::add);
 
             trackerCommandTriggerList.add(groupedSlots);
