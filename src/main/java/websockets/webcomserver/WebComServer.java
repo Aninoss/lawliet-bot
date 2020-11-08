@@ -2,7 +2,6 @@ package websockets.webcomserver;
 
 import commands.Command;
 import constants.Locales;
-import core.CustomThread;
 import core.ListGen;
 import core.TextManager;
 import core.utils.PermissionUtil;
@@ -44,37 +43,23 @@ public class WebComServer {
         if (started) return;
         started = true;
 
-        new CustomThread(() -> {
-            while(true) {
-                try {
-                    server = new CustomWebSocketServer(new InetSocketAddress("localhost", port));
+        server = new CustomWebSocketServer(new InetSocketAddress("localhost", port));
 
-                    server.addEventHandler(EVENT_COMMANDLIST, new OnCommandList(this, EVENT_COMMANDLIST));
-                    server.addEventHandler(EVENT_FAQLIST, new OnFAQList(this, EVENT_FAQLIST));
-                    server.addEventHandler(EVENT_FR_FETCH, new OnFRFetch(this, EVENT_FR_FETCH));
-                    server.addEventHandler(EVENT_FR_BOOST, new OnFRBoost(this, EVENT_FR_BOOST));
-                    server.addEventHandler(EVENT_FR_CAN_POST, new OnFRCanPost(this, EVENT_FR_CAN_POST));
-                    server.addEventHandler(EVENT_FR_POST, new OnFRPost(this, EVENT_FR_POST));
-                    server.addEventHandler(EVENT_SERVERSTATS, new OnServerStats(this, EVENT_SERVERSTATS));
+        server.addEventHandler(EVENT_COMMANDLIST, new OnCommandList(this, EVENT_COMMANDLIST));
+        server.addEventHandler(EVENT_FAQLIST, new OnFAQList(this, EVENT_FAQLIST));
+        server.addEventHandler(EVENT_FR_FETCH, new OnFRFetch(this, EVENT_FR_FETCH));
+        server.addEventHandler(EVENT_FR_BOOST, new OnFRBoost(this, EVENT_FR_BOOST));
+        server.addEventHandler(EVENT_FR_CAN_POST, new OnFRCanPost(this, EVENT_FR_CAN_POST));
+        server.addEventHandler(EVENT_FR_POST, new OnFRPost(this, EVENT_FR_POST));
+        server.addEventHandler(EVENT_SERVERSTATS, new OnServerStats(this, EVENT_SERVERSTATS));
 
-                    server.addEventHandler(EVENT_TOPGG, new OnTopGG(this, EVENT_TOPGG));
-                    server.addEventHandler(EVENT_TOPGG_ANINOSS, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
-                    server.addEventHandler(EVENT_DONATEBOT_IO, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
-                    server.addEventHandler(EVENT_INVITE, new OnInvite(this, EVENT_INVITE));
+        server.addEventHandler(EVENT_TOPGG, new OnTopGG(this, EVENT_TOPGG));
+        server.addEventHandler(EVENT_TOPGG_ANINOSS, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
+        server.addEventHandler(EVENT_DONATEBOT_IO, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
+        server.addEventHandler(EVENT_INVITE, new OnInvite(this, EVENT_INVITE));
 
-                    server.start();
-                    LOGGER.info("WebCom server started");
-                    return;
-                } catch (Throwable e) {
-                    LOGGER.error("Exception in WebCom starter", e);
-                    try {
-                        Thread.sleep(10 * 1000);
-                    } catch (InterruptedException interruptedException) {
-                        return;
-                    }
-                }
-            }
-        }, "start_server").start();
+        server.start();
+        LOGGER.info("WebCom server started");
     }
 
     public JSONObject getLanguagePack(String category,  String key) {

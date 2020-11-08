@@ -4,12 +4,12 @@ import constants.AssetIds;
 import constants.ExternalLinks;
 import core.DiscordApiCollection;
 import events.scheduleevents.ScheduleEventDaily;
-import events.scheduleevents.ScheduleEventInterface;
+import core.schedule.ScheduleInterface;
 import org.javacord.api.util.logging.ExceptionLogger;
 import java.util.Calendar;
 
 @ScheduleEventDaily
-public class FeatureRequestsRefillNotification implements ScheduleEventInterface {
+public class FeatureRequestsRefillNotification implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

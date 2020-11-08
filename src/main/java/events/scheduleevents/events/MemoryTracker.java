@@ -2,14 +2,14 @@ package events.scheduleevents.events;
 
 import core.Console;
 import events.scheduleevents.ScheduleEventFixedRate;
-import events.scheduleevents.ScheduleEventInterface;
+import core.schedule.ScheduleInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.temporal.ChronoUnit;
 
 @ScheduleEventFixedRate(rateValue = 500, rateUnit = ChronoUnit.MILLIS)
-public class MemoryTracker implements ScheduleEventInterface {
+public class MemoryTracker implements ScheduleInterface {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MemoryTracker.class);
 

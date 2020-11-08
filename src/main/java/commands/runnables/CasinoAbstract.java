@@ -21,6 +21,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -104,7 +105,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             DBGameStatistics.getInstance().getBean(compareKey).addValue(false, 1);
         }
         EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).changeValues(0, -coinsInput);
-        if (coinsInput > 0) channel.sendMessage(eb);
+        if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
     }
 
     protected void onWin() throws ExecutionException {
@@ -123,7 +124,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         }
 
         EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).changeValues(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
-        if (coinsInput > 0) channel.sendMessage(eb);
+        if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
     }
 
     protected EmbedBuilder addRetryOption(EmbedBuilder eb) {

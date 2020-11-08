@@ -1,9 +1,10 @@
 package commands.runningchecker;
 
-import core.CustomThread;
 import core.PatreonCache;
+import core.schedule.MainScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,19 +36,17 @@ public class RunningCheckerManager {
 
     private void removeOnThreadEnd(ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
         final Thread currentThread = Thread.currentThread();
-        new CustomThread(() -> {
-            try {
-                currentThread.join();
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
-            }
+        MainScheduler.getInstance().poll(100, () -> {
+            if (currentThread.isAlive())
+                return true;
 
             synchronized (RunningCheckerManager.getInstance()) {
                 runningCommandsList.remove(runningCheckerSlot);
                 if (runningCommandsList.isEmpty())
                     runningCommandsMap.remove(userId);
+                return false;
             }
-        }, "command_state_observer_thread", 1).start();
+        });
     }
 
     private int getMaxAmount(long userId) {

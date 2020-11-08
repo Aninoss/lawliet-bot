@@ -1,5 +1,6 @@
 package core;
 
+import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
@@ -18,6 +19,8 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.WebComServer;
+
+import java.time.temporal.ChronoUnit;
 
 public class DiscordConnector {
 
@@ -65,12 +68,7 @@ public class DiscordConnector {
                 .thenAccept(this::onApiJoin)
                 .exceptionally(e -> {
                     LOGGER.error("Exception when reconnecting shard {}", shardId, e);
-                    try {
-                        Thread.sleep(5_000);
-                        reconnectApi(shardId);
-                    } catch (InterruptedException interruptedException) {
-                        //Ignore
-                    }
+                    MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, () -> reconnectApi(shardId));
                     return null;
                 });
     }

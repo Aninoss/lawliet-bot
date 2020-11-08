@@ -9,7 +9,6 @@ import core.internet.InternetCache;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -51,7 +50,11 @@ public class PokemonCommand extends Command {
         if (!title.contains(" "))
             return null;
         String desc = StringUtil.extractGroups(content, "<meta property=\"og:description\" content=\"", "\"/>")[0];
-        String thumbnail = StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"/>")[0];
+
+        String thumbnail = "";
+        if (content.contains("<meta property=\"og:image\" content=\""))
+            thumbnail = StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"/>")[0];
+
         String url = StringUtil.extractGroups(content, "<meta property=\"og:url\" content=\"", "\"/>")[0];
         return new Pokemon(title, desc, thumbnail, url);
     }

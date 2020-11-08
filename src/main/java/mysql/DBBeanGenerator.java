@@ -72,12 +72,12 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         tempList.stream()
                 .filter(value -> !(value instanceof BeanWithServer) || ((BeanWithServer)value).getServerBean().isCached())
                 .forEach(value -> {
-            try {
-                saveBean(value);
-            } catch (Throwable e) {
-                LOGGER.error("Could not save bean", e);
-            }
-        });
+                    try {
+                        saveBean(value);
+                    } catch (Throwable e) {
+                        LOGGER.error("Could not save bean", e);
+                    }
+                });
     }
 
     protected abstract U loadBean(T t) throws Exception;

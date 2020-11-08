@@ -41,8 +41,7 @@ public class HttpRequest {
 
     public static CompletableFuture<HttpResponse> getData(String urlString, String method, int pauseTimeMilis, String body, HttpProperty... headers) {
         CompletableFuture<HttpResponse> future = new CompletableFuture<>();
-        Thread t = new CustomThread(() -> download(future, urlString, method, pauseTimeMilis, body, headers), "download_url");
-        t.start();
+        new CustomThread(() -> download(future, urlString, method, pauseTimeMilis, body, headers), "download_url").start();
         return future;
     }
 

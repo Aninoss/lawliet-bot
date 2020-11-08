@@ -4,13 +4,13 @@ import commands.runningchecker.RunningCheckerManager;
 import core.PatreonCache;
 import core.ServerPatreonBoostCache;
 import events.scheduleevents.ScheduleEventDaily;
-import events.scheduleevents.ScheduleEventInterface;
+import core.schedule.ScheduleInterface;
 import modules.porn.PornImageCache;
 import modules.reddit.SubredditContainer;
 import mysql.modules.upvotes.DBUpvotes;
 
 @ScheduleEventDaily
-public class ClearCaches implements ScheduleEventInterface {
+public class ClearCaches implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

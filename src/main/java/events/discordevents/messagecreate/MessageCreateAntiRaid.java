@@ -14,9 +14,9 @@ public class MessageCreateAntiRaid extends MessageCreateAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
-
-        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == ANINOSS_SERVER_ID && event.getMessage().getMentionedUsers().size() >= 30) {
+        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == AssetIds.ANINOSS_SERVER_ID &&
+                event.getMessage().getMentionedUsers().size() >= 20
+        ) {
             event.getServer().get().banUser(event.getMessage().getUserAuthor().get(), 1, "Anti Raid").exceptionally(ExceptionLogger.get());
             DiscordApiCollection.getInstance().getOwner().sendMessage("ANTI RAID FOR " + event.getMessage().getUserAuthor().get().getDiscriminatedName()).exceptionally(ExceptionLogger.get());
             return false;

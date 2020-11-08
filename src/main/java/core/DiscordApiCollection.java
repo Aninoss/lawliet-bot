@@ -6,6 +6,7 @@ import constants.AssetIds;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
+import core.schedule.MainScheduler;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,18 +41,12 @@ public class DiscordApiCollection {
     private final Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
-        new CustomThread(() -> {
-            try {
-                Thread.sleep(10 * 60 * 1000);
-                if (!allShardsConnected()) {
-                    LOGGER.error("EXIT - Could not boot up");
-                    System.exit(-1);
-                }
-            } catch (InterruptedException e) {
-                LOGGER.error("EXIT - Interrupted", e);
+        MainScheduler.getInstance().schedule(10, ChronoUnit.MINUTES, () -> {
+            if (!allShardsConnected()) {
+                LOGGER.error("EXIT - Could not boot up");
                 System.exit(-1);
             }
-        }, "bootup_timebomb", 1).start();
+        });
     }
 
     public void init(int shardNumber) {
@@ -61,10 +57,8 @@ public class DiscordApiCollection {
 
     public void insertApi(DiscordApi api) {
         apiList[api.getCurrentShard()] = api;
-        if (Bot.isProductionMode()) {
-            new CustomThread(() -> keepApiAlive(api), "keep_alive_shard" + api.getCurrentShard(), 1)
-                    .start();
-        }
+        if (Bot.isProductionMode())
+            keepApiAlive(api);
     }
 
     public void setStarted() {
@@ -74,28 +68,23 @@ public class DiscordApiCollection {
 
     private void keepApiAlive(DiscordApi api) {
         api.addMessageCreateListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
-        try {
-            while (Bot.isRunning()) {
-                Thread.sleep(10 * 1000);
-                int n = api.getCurrentShard();
-                if (shardIsConnected(n) && isAlive[n]) {
-                    errorCounter[n] = 0;
-                    isAlive[n] = false;
-                } else {
-                    LOGGER.debug("No data from shard {}", n);
+        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, () -> {
+            int n = api.getCurrentShard();
+            if (shardIsConnected(n) && isAlive[n]) {
+                errorCounter[n] = 0;
+                isAlive[n] = false;
+            } else {
+                LOGGER.debug("No data from shard {}", n);
 
-                    errorCounter[n]++;
-                    if (errorCounter[n] >= 6) {
-                        LOGGER.warn("Shard {} temporarely offline", n);
-                        reconnectShard(n);
-                        return;
-                    }
+                errorCounter[n]++;
+                if (errorCounter[n] >= 6) {
+                    LOGGER.warn("Shard {} temporarely offline", n);
+                    reconnectShard(n);
+                    return false;
                 }
             }
-        } catch (InterruptedException e) {
-            LOGGER.error("EXIT - Interrupted", e);
-            System.exit(-1);
-        }
+            return true;
+        });
     }
 
     public boolean shardIsConnected(int n) {

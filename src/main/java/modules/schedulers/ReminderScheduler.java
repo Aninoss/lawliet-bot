@@ -3,6 +3,7 @@ package modules.schedulers;
 import commands.runnables.utilitycategory.ReminderCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
+import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
@@ -12,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ReminderScheduler {
 
@@ -23,7 +22,6 @@ public class ReminderScheduler {
     public static ReminderScheduler getInstance() { return ourInstance; }
     private ReminderScheduler() { }
 
-    private final Timer timer = new Timer();
     private boolean started = false;
 
     public void start() {
@@ -38,12 +36,9 @@ public class ReminderScheduler {
     }
 
     public void loadReminderBean(RemindersBean remindersBean) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                onReminderDue(remindersBean);
-            }
-        }, TimeUtil.getMilisBetweenInstants(Instant.now(), remindersBean.getTime()));
+        MainScheduler.getInstance().schedule(TimeUtil.getMilisBetweenInstants(Instant.now(), remindersBean.getTime()), () -> {
+            onReminderDue(remindersBean);
+        });
     }
 
     private void onReminderDue(RemindersBean remindersBean) {

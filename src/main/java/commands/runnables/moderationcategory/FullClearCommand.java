@@ -1,16 +1,18 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
-
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
 import constants.Permission;
 import constants.TrackerResult;
-import core.*;
+import core.EmbedFactory;
+import core.PermissionCheckRuntime;
+import core.TextManager;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.tracker.TrackerBeanSlot;
 import javafx.util.Pair;
+import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
@@ -57,15 +59,11 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
         if (event.getChannel().getCurrentCachedInstance().isPresent() && event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
             Message m = event.getChannel().sendMessage(eb).get();
-            new CustomThread(() -> {
-                try {
-                    Thread.sleep(8000);
-                    Message[] messagesArray = new Message[]{ m, event.getMessage() };
-                    event.getChannel().bulkDelete(messagesArray);
-                } catch (InterruptedException e) {
-                    LOGGER.error("Interrupted", e);
-                }
-            }, "fullclear_countdown", 1).start();
+
+            MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, () -> {
+                Message[] messagesArray = new Message[]{ m, event.getMessage() };
+                event.getChannel().bulkDelete(messagesArray);
+            });
         }
         return true;
     }

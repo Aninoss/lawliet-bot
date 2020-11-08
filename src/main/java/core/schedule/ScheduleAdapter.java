@@ -1,17 +1,17 @@
-package events.scheduleevents;
+package core.schedule;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.TimerTask;
 
-public class ScheduleEventAdapter extends TimerTask {
+public class ScheduleAdapter extends TimerTask {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleEventAdapter.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleAdapter.class);
 
-    private final ScheduleEventInterface scheduleEvent;
+    private final ScheduleInterface scheduleEvent;
 
-    public ScheduleEventAdapter(ScheduleEventInterface scheduleEvent) {
+    public ScheduleAdapter(ScheduleInterface scheduleEvent) {
         this.scheduleEvent = scheduleEvent;
     }
 

@@ -4,11 +4,11 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.*;
-import core.CustomThread;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
-import core.internet.HttpRequest;
 import core.TextManager;
+import core.internet.HttpRequest;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -111,28 +111,28 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             winMultiplicator = answers.length * (difficulty+1) / 8.0;
 
             message = event.getChannel().sendMessage(getEmbed()).get();
-            new CustomThread(this::countdown, "quiz_countdown", 1).start();
+            MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, this::onTimeUp);
 
-            for(int i = 0; i < answers.length; i++)
+            for(int i = 0; i < answers.length; i++) {
                 message.addReaction(LetterEmojis.LETTERS[i]);
+            }
 
             return true;
         }
         return false;
     }
 
-    private void countdown() {
+    private void onTimeUp() {
         try {
-            Thread.sleep(COUNTER * 1000);
             if (active) {
                 onAnswerSelected(-1);
             }
-        } catch (InterruptedException | IOException | ExecutionException e) {
+        } catch (ExecutionException e) {
             LOGGER.error("Exception on countdown", e);
         }
     }
 
-    private void onAnswerSelected(int selected) throws IOException, ExecutionException, InterruptedException {
+    private void onAnswerSelected(int selected) throws ExecutionException {
         if (selected == correctAnswer) {
             onWin();
             logStatus = LogStatus.WIN;
@@ -147,19 +147,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         answerSelected = selected;
         message.edit(getEmbed());
 
-        Thread t = new CustomThread(() -> {
-            try {
-                Thread.sleep(Settings.TIME_OUT_TIME);
-            } catch (InterruptedException e) {
-                //Ignore
-            }
-            try {
-                removeReactionListenerWithMessage();
-            } catch (InterruptedException e) {
-                LOGGER.error("Could not remove message", e);
-            }
-        }, "quiz_countdown", 1);
-        t.start();
+        MainScheduler.getInstance().schedule(Settings.TIME_OUT_TIME, this::removeReactionListenerWithMessage);
     }
 
     private EmbedBuilder getEmbed() {

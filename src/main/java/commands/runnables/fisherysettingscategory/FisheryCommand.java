@@ -7,6 +7,7 @@ import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddStaticListener;
 import constants.*;
 import core.*;
+import core.schedule.MainScheduler;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -26,6 +27,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
@@ -227,18 +229,14 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) accountUpdateMessage = channel.sendMessage(userBean.changeValues(0, won)).get();
 
                 final Message finalAccountUpdateMessage = accountUpdateMessage;
-                Thread t = new CustomThread(() -> {
-                    try {
-                        Thread.sleep(1000 * 60);
-                        blockedTreasureMessages.remove(message);
-                        Thread.sleep(Settings.FISHERY_DESPAWN_MINUTES * 60 * 1000);
+                MainScheduler.getInstance().schedule(1, ChronoUnit.MINUTES, () -> {
+                    blockedTreasureMessages.remove(message);
+
+                    MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
                         if (finalAccountUpdateMessage != null) finalAccountUpdateMessage.delete();
                         message.delete();
-                    } catch (InterruptedException e) {
-                        LOGGER.error("Interrupted", e);
-                    }
-                }, "treasure_block_countdown", 1);
-                t.start();
+                    });
+                });
             }
         }
     }

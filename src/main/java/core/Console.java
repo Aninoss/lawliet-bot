@@ -45,7 +45,6 @@ public class Console {
     private double maxMemory = 0;
     private boolean started = false;
     private final HashMap<String, ConsoleTask> tasks = new HashMap<>();
-    private final StringBuilder codeBuilder = new StringBuilder();
 
     public void start() {
         if (started) return;

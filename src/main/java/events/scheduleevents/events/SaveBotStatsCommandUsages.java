@@ -2,11 +2,11 @@ package events.scheduleevents.events;
 
 import core.Bot;
 import events.scheduleevents.ScheduleEventDaily;
-import events.scheduleevents.ScheduleEventInterface;
+import core.schedule.ScheduleInterface;
 import mysql.modules.botstats.DBBotStats;
 
 @ScheduleEventDaily
-public class SaveBotStatsCommandUsages implements ScheduleEventInterface {
+public class SaveBotStatsCommandUsages implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

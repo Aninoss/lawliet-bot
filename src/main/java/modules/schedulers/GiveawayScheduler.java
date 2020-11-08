@@ -6,6 +6,7 @@ import commands.runnables.utilitycategory.GiveawayCommand;
 import constants.Emojis;
 import constants.Permission;
 import core.*;
+import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
@@ -37,7 +38,6 @@ public class GiveawayScheduler {
     private GiveawayScheduler() {
     }
 
-    private final Timer timer = new Timer();
     private boolean started = false;
 
     public void start() {
@@ -54,12 +54,9 @@ public class GiveawayScheduler {
     }
 
     public void loadGiveawayBean(GiveawayBean giveawayBean) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                onGiveawayDue(giveawayBean);
-            }
-        }, TimeUtil.getMilisBetweenInstants(Instant.now(), giveawayBean.getStart().plus(giveawayBean.getDurationMinutes(), ChronoUnit.MINUTES)));
+        MainScheduler.getInstance().schedule(TimeUtil.getMilisBetweenInstants(Instant.now(), giveawayBean.getStart().plus(giveawayBean.getDurationMinutes(), ChronoUnit.MINUTES)), () -> {
+            onGiveawayDue(giveawayBean);
+        });
     }
 
     private void onGiveawayDue(GiveawayBean giveawayBean) {

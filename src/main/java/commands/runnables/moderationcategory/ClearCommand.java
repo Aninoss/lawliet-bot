@@ -3,9 +3,9 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Permission;
-import core.CustomThread;
 import core.EmbedFactory;
 import core.TextManager;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -89,14 +89,9 @@ public class ClearCommand extends Command {
     }
 
     private void startCountdown(ServerTextChannel channel, Message[] messagesArray) {
-        new CustomThread(() -> {
-            try {
-                Thread.sleep(8000);
-                channel.bulkDelete(messagesArray);
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
-            }
-        }, "clear_countdown", 1).start();
+        MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, () -> {
+            channel.bulkDelete(messagesArray);
+        });
     }
 
 }

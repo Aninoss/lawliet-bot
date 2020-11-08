@@ -4,7 +4,10 @@ import commands.listeners.*;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import constants.*;
-import core.*;
+import core.Countdown;
+import core.DiscordApiCollection;
+import core.ExceptionHandler;
+import core.TextManager;
 import core.emojiconnection.EmojiConnection;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
@@ -22,6 +25,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -383,7 +387,6 @@ public abstract class Command {
             if (message.getChannel().canYouUseExternalEmojis())
                 loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
             else loadingBarReaction = message.addReaction("⏳");
-
             loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
         }
     }
@@ -478,16 +481,19 @@ public abstract class Command {
         }
     }
 
-    public void removeReactionListenerWithMessage() throws InterruptedException {
+    public void removeReactionListenerWithMessage() {
         Message reactionMessage = ((OnReactionAddListener) this).getReactionMessage();
         removeReactionListener(reactionMessage);
-        try {
-            if (starterMessage.getChannel().canYouManageMessages())
-                starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).get();
-            else if (reactionMessage != null) reactionMessage.delete().get();
-        } catch (ExecutionException e) {
-            //Ignore
-            reactionMessage.delete();
+
+         if (starterMessage.getChannel().canYouManageMessages()) {
+            starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).exceptionally(e -> {
+                if (reactionMessage != null)
+                    reactionMessage.delete().exceptionally(ExceptionLogger.get());
+                return null;
+            });
+        } else {
+            if (reactionMessage != null)
+                reactionMessage.delete().exceptionally(ExceptionLogger.get());
         }
     }
 

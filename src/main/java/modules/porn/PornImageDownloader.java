@@ -10,22 +10,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class PornImageDownloader {
 
-    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
+    public static CompletableFuture<Optional<PornImage>> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws ExecutionException {
         return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit,2, false, additionalFilters, usedResults);
     }
 
-    public static Optional<PornImage> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, int remaining, boolean softMode, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws IOException, InterruptedException, ExecutionException {
+    public static CompletableFuture<Optional<PornImage>> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, int remaining, boolean softMode, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws ExecutionException {
         while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
@@ -38,30 +38,47 @@ public class PornImageDownloader {
                         searchTermExtra, StandardCharsets.UTF_8
         );
 
-        String url = "https://"+domain+"/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
-        String data = InternetCache.getDataShortLived(url).get().getContent().get();
+        CompletableFuture<Optional<PornImage>> future = new CompletableFuture<>();
 
-        if (!data.contains("count=\"")) return Optional.empty();
-        int count = Math.min(200 * 100, Integer.parseInt(StringUtil.extractGroups(data, "count=\"", "\"")[0]));
+        String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
+        String finalSearchTerm = searchTerm;
+        InternetCache.getDataShortLived(url).thenAccept(response -> {
+            try {
+                String data = response.getContent().get();
+                if (!data.contains("count=\"")) {
+                    future.complete(Optional.empty());
+                    return;
+                }
+                int count = Math.min(200 * 100, Integer.parseInt(StringUtil.extractGroups(data, "count=\"", "\"")[0]));
+                if (count == 0) {
+                    if (!softMode) {
+                        future.complete(getPicture(domain, finalSearchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining, true, additionalFilters, usedResults).get());
+                        return;
+                    } else if (remaining > 0) {
+                        if (finalSearchTerm.contains(" ")) {
+                            future.complete(getPicture(domain, finalSearchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining - 1, false, additionalFilters, usedResults).get());
+                            return;
+                        } else if (finalSearchTerm.contains("_")) {
+                            future.complete(getPicture(domain, finalSearchTerm.replace("_", " "), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining - 1, false, additionalFilters, usedResults).get());
+                            return;
+                        }
+                    }
 
-        if (count == 0) {
-            if (!softMode) {
-                return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining, true, additionalFilters, usedResults);
-            } else if (remaining > 0) {
-                if (searchTerm.contains(" "))
-                    return getPicture(domain, searchTerm.replace(" ", "_"), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining - 1, false, additionalFilters, usedResults);
-                else if (searchTerm.contains("_"))
-                    return getPicture(domain, searchTerm.replace("_", " "), searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, remaining - 1, false, additionalFilters, usedResults);
+                    future.complete(Optional.empty());
+                    return;
+                }
+
+                Random r = new Random();
+                int page = r.nextInt(count) / 100;
+                if (searchTermEncoded.length() == 0) page = 0;
+
+                future.complete(getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, animatedOnly, canBeVideo, explicit, additionalFilters, usedResults));
+            } catch (Throwable e) {
+                future.completeExceptionally(e);
             }
+        });
 
-            return Optional.empty();
-        }
-
-        Random r = new Random();
-        int page = r.nextInt(count)/100;
-        if (searchTermEncoded.length() == 0) page = 0;
-
-        return getPictureOnPage(domain, searchTermEncoded, page, imageTemplate, animatedOnly, canBeVideo, explicit, additionalFilters, usedResults);
+        return future;
     }
 
     private static Optional<PornImage> getPictureOnPage(String domain, String searchTerm, int page, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws InterruptedException, ExecutionException {

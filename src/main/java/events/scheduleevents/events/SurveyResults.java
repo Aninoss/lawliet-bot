@@ -10,7 +10,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import events.scheduleevents.ScheduleEventHourly;
-import events.scheduleevents.ScheduleEventInterface;
+import core.schedule.ScheduleInterface;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
@@ -34,7 +34,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 @ScheduleEventHourly
-public class SurveyResults implements ScheduleEventInterface {
+public class SurveyResults implements ScheduleInterface {
 
     final Logger LOGGER = LoggerFactory.getLogger(SurveyResults.class);
 

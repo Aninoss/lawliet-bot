@@ -13,6 +13,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Settings;
 import core.*;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
@@ -37,6 +38,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -279,17 +281,12 @@ public class CommandManager {
     }
 
     private static void autoRemoveMessageAfterCountdown(MessageCreateEvent event, Message message) {
-        new CustomThread(() -> {
-            try {
-                Thread.sleep(SEC_UNTIL_REMOVAL * 1000);
-                if (event.getChannel().canYouManageMessages())
-                    event.getChannel().bulkDelete(message, event.getMessage());
-                else
-                    message.delete();
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
-            }
-        }, "error_message_remove_countdown", 1).start();
+        MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, () -> {
+            if (event.getChannel().canYouManageMessages())
+                event.getChannel().bulkDelete(message, event.getMessage());
+            else
+                message.delete();
+        });
     }
 
     private static boolean isWhiteListed(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
@@ -427,22 +424,18 @@ public class CommandManager {
 
     private static void manageSlowCommandLoadingReaction(Command command) {
         final Thread commandThread = Thread.currentThread();
-        Thread t = new CustomThread(() -> {
-            try {
-                Thread.sleep(3000);
-                if (commandThread.isAlive()) {
-                    command.addLoadingReaction();
-                    for (int i = 0; i < command.getMaxCalculationTimeSec() - 3; i++) {
-                        if (!commandThread.isAlive()) return;
-                        Thread.sleep(1000);
-                    }
-                    if (command.hasTimeOut()) commandThread.interrupt();
-                }
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
+
+        MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, () -> {
+            if (commandThread.isAlive()) {
+                command.addLoadingReaction();
             }
-        }, "command_slow_loading_reaction_countdown", 1);
-        t.start();
+        });
+
+        MainScheduler.getInstance().schedule(command.getMaxCalculationTimeSec(), ChronoUnit.SECONDS, () -> {
+            if (commandThread.isAlive() && command.hasTimeOut()) {
+                commandThread.interrupt();
+            }
+        });
     }
 
     public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {

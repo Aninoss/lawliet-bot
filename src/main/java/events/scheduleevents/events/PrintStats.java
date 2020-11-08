@@ -2,11 +2,11 @@ package events.scheduleevents.events;
 
 import core.Console;
 import events.scheduleevents.ScheduleEventFixedRate;
-import events.scheduleevents.ScheduleEventInterface;
+import core.schedule.ScheduleInterface;
 import java.time.temporal.ChronoUnit;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
-public class PrintStats implements ScheduleEventInterface {
+public class PrintStats implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

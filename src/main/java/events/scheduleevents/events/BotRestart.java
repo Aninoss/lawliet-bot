@@ -2,20 +2,17 @@ package events.scheduleevents.events;
 
 import constants.Settings;
 import core.Bot;
-import core.DiscordApiCollection;
 import core.utils.SystemUtil;
 import events.scheduleevents.ScheduleEventHourly;
-import events.scheduleevents.ScheduleEventInterface;
-import mysql.modules.botstats.DBBotStats;
+import core.schedule.ScheduleInterface;
 import mysql.DBMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+
 import java.util.Calendar;
 
 @ScheduleEventHourly
-public class BotRestart implements ScheduleEventInterface {
+public class BotRestart implements ScheduleInterface {
 
     final Logger LOGGER = LoggerFactory.getLogger(BotRestart.class);
 

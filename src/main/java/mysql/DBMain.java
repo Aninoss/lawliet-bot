@@ -2,11 +2,12 @@ package mysql;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import core.Bot;
-import core.CustomThread;
 import core.SecretManager;
+import core.TaskQueue;
 import mysql.interfaces.SQLConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class DBMain implements DriverAction {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
+    private TaskQueue taskQueue = new TaskQueue();
 
     private final ArrayList<DBCached> caches = new ArrayList<>();
 
@@ -91,15 +93,14 @@ public class DBMain implements DriverAction {
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
 
-        Thread t = new CustomThread(() -> {
+        taskQueue.attach(() -> {
             try {
                 future.complete(update(sql, preparedStatementConsumer));
             } catch (SQLException | InterruptedException throwables) {
                 future.completeExceptionally(throwables);
                 LOGGER.error("Exception for query: " + sql, throwables);
             }
-        }, "sql_update", 1);
-        t.start();
+        });
 
         return future;
     }

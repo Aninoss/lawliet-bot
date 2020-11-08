@@ -1,7 +1,7 @@
 package core.utils;
 
-import core.CustomThread;
 import core.DiscordApiCollection;
+import core.schedule.MainScheduler;
 import org.javacord.api.entity.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 
 public final class InternetUtil {
@@ -25,15 +26,7 @@ public final class InternetUtil {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
 
-        new CustomThread(() -> {
-            try {
-                Thread.sleep(10_000);
-                message.delete();
-            } catch (InterruptedException e) {
-                LOGGER.error("Could not get url from input stream", e);
-            }
-        }, "message_delete_counter", 1).start();
-
+        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, message::delete);
         return url;
     }
 

@@ -5,6 +5,7 @@ import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
 import core.*;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -260,14 +261,7 @@ public class FisheryUserBean extends BeanWithServer {
                             .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
                             .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix))).get();
 
-                    new CustomThread(() -> {
-                        try {
-                            Thread.sleep(Settings.FISHERY_DESPAWN_MINUTES * 60 * 1000);
-                            message1.delete();
-                        } catch (InterruptedException e) {
-                            LOGGER.error("Interrupted", e);
-                        }
-                    }, "fishery_100_countdown", 1).start();
+                    MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, message1::delete);
                 }
 
                 return true;

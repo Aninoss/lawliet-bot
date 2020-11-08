@@ -7,12 +7,11 @@ import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
-
-import java.util.concurrent.ExecutionException;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 public class LinkCheck {
 
-    public static boolean check(Message message) throws ExecutionException, InterruptedException {
+    public static boolean check(Message message) {
         Server server = message.getServer().get();
         ServerTextChannel channel = message.getServerTextChannel().get();
 
@@ -21,7 +20,10 @@ public class LinkCheck {
                 InternetUtil.stringHasURL(message.getContent())
         ) {
             DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("- Link in **%s** from **%s**: %s", StringUtil.escapeMarkdown(server.getName()), message.getUserAuthor().get().getDiscriminatedName(), message.getContent()));
-            message.delete().get();
+            message.delete().exceptionally(ExceptionLogger.get());
+            if (server.getId() == AssetIds.ANINOSS_SERVER_ID) {
+                message.getUserAuthor().get().sendMessage("Du kannst noch keine Links in **Aninoss** versenden!").exceptionally(ExceptionLogger.get());
+            }
             return false;
         }
 

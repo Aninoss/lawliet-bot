@@ -1,8 +1,8 @@
 package modules;
 
 import constants.AssetIds;
-import core.CustomThread;
 import core.DiscordApiCollection;
+import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -48,16 +48,11 @@ public class BumpReminder {
         final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
-        new CustomThread(() -> {
-            try {
-                Thread.sleep(milis);
-                ServerTextChannel channel = DiscordApiCollection.getInstance().getServerById(ANINOSS_SERVER_ID).get().getTextChannelById(BUMP_CHANNEL_ID).get();
-                channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").exceptionally(ExceptionLogger.get());
-                countdownRunning = false;
-            } catch (Throwable e) {
-                LOGGER.error("Bump reminder error", e);
-            }
-        }, "bump_countdown", 1).start();
+        MainScheduler.getInstance().schedule(milis, () -> {
+            ServerTextChannel channel = DiscordApiCollection.getInstance().getServerById(ANINOSS_SERVER_ID).get().getTextChannelById(BUMP_CHANNEL_ID).get();
+            channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").exceptionally(ExceptionLogger.get());
+            countdownRunning = false;
+        });
     }
 
 }

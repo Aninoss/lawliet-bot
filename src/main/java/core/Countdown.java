@@ -1,7 +1,10 @@
 package core;
 
+import core.schedule.MainScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.temporal.ChronoUnit;
 
 public class Countdown {
 
@@ -28,17 +31,12 @@ public class Countdown {
                 break;
         }
 
-        Thread t = new CustomThread(() -> {
-            try {
-                while (System.currentTimeMillis() < (startTime + waitTime) && active) {
-                    Thread.sleep(1000);
-                }
-                if (active) r.run();
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
-            }
-        }, "countdown_processor", 1);
-        t.start();
+        MainScheduler.getInstance().poll(1, ChronoUnit.SECONDS, () -> {
+            if (System.currentTimeMillis() < (startTime + waitTime) && active)
+                return true;
+            if (active) r.run();
+            return false;
+        });
     }
 
     public void reset() {

@@ -2,12 +2,14 @@ package commands.runnables.casinocategory;
 
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
-import core.*;
+import core.EmbedFactory;
+import core.ExceptionHandler;
+import core.TextManager;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -113,47 +115,41 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         if (selection[0] == -1) return;
         removeReactionListener(getReactionMessage());
 
-        Thread t = new CustomThread(() -> {
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
-            }
-
+        MainScheduler.getInstance().schedule(1500, () -> {
             selection[1] = new Random().nextInt(2);
-
-            try {
-                message.edit(getEmbed());
-                Thread.sleep(1000);
-            } catch (IOException | InterruptedException e) {
-                ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-            }
-
-            if (selection[0] == selection[1]) {
-                try {
-                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
-                    logStatus = LogStatus.WIN;
-                    onWin();
-                } catch (ExecutionException e) {
-                    ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-                }
-            } else {
-                try {
-                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
-                    logStatus = LogStatus.LOSE;
-                    onLose();
-                } catch (ExecutionException e) {
-                    ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-                }
-            }
-
             try {
                 message.edit(getEmbed());
             } catch (IOException e) {
                 ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
+                return;
             }
-        }, "coinflip_cpu", 1);
-        t.start();
+
+            MainScheduler.getInstance().schedule(1000, () -> {
+                if (selection[0] == selection[1]) {
+                    try {
+                        log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
+                        logStatus = LogStatus.WIN;
+                        onWin();
+                    } catch (ExecutionException e) {
+                        ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
+                    }
+                } else {
+                    try {
+                        log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
+                        logStatus = LogStatus.LOSE;
+                        onLose();
+                    } catch (ExecutionException e) {
+                        ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
+                    }
+                }
+
+                try {
+                    message.edit(getEmbed());
+                } catch (IOException e) {
+                    ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
+                }
+            });
+        });
     }
 
     @Override

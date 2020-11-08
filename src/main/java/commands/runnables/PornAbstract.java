@@ -6,7 +6,6 @@ import constants.Category;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.TrackerResult;
-import core.CustomThread;
 import core.EmbedFactory;
 import core.PatreonCache;
 import core.TextManager;
@@ -18,19 +17,23 @@ import modules.porn.PornImageDownloader;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public abstract class PornAbstract extends Command {
 
@@ -102,10 +105,9 @@ public abstract class PornAbstract extends Command {
                     !pornImages.get(0).isVideo() &&
                     event.getChannel().canYouEmbedLinks();
 
-            post(pornImages, followedString, event.getServerTextChannel().get(), embed, 3);
-
             amount -= pornImages.size();
             first = false;
+            post(pornImages, followedString, event.getServerTextChannel().get(), embed, 3, amount <= 0);
         } while (amount > 0);
 
         return true;
@@ -113,8 +115,8 @@ public abstract class PornAbstract extends Command {
 
     private boolean checkServiceAvailable() {
         try {
-            return PornImageDownloader.getPicture(getDomain(), "", "", "", false, true, isExplicit(), new ArrayList<>(), new ArrayList<>()).isPresent();
-        } catch (IOException | InterruptedException | ExecutionException | NoSuchElementException e) {
+            return PornImageDownloader.getPicture(getDomain(), "", "", "", false, true, isExplicit(), new ArrayList<>(), new ArrayList<>()).get().isPresent();
+        } catch (InterruptedException | ExecutionException | NoSuchElementException e) {
             //Ignore
             return false;
         }
@@ -153,7 +155,7 @@ public abstract class PornAbstract extends Command {
         ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>());
 
         if (pornImages.size() == 0) {
-            if (!slot.getArgs().isPresent() && this instanceof PornSearchAbstract) {
+            if (slot.getArgs().isEmpty() && this instanceof PornSearchAbstract) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));
@@ -165,13 +167,13 @@ public abstract class PornAbstract extends Command {
             }
         }
 
-        post(pornImages, slot.getCommandKey(), channel, !pornImages.get(0).isVideo(), 1);
+        post(pornImages, slot.getCommandKey(), channel, !pornImages.get(0).isVideo(), 1, true);
         slot.setArgs("found");
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         return TrackerResult.CONTINUE_AND_SAVE;
     }
 
-    protected void post(ArrayList<PornImage> pornImages, String search, ServerTextChannel channel, boolean embed, int max) throws ExecutionException, InterruptedException {
+    protected void post(ArrayList<PornImage> pornImages, String search, ServerTextChannel channel, boolean embed, int max, boolean block) throws ExecutionException, InterruptedException {
         if (embed) {
             PornImage pornImage = pornImages.get(0);
 
@@ -181,8 +183,10 @@ public abstract class PornAbstract extends Command {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(pornImage.getScore())));
 
             getNoticeOptional().ifPresent(notice -> EmbedUtil.addLog(eb, LogStatus.WARNING, notice));
-            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
-                channel.sendMessage(eb).get();
+            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                CompletableFuture<Message> messageFuture = channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
+                if (block) messageFuture.get();
+            }
         } else {
             StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
             for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
@@ -191,37 +195,35 @@ public abstract class PornAbstract extends Command {
 
             getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
 
-            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks())
-                channel.sendMessage(sb.toString()).get();
+            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                CompletableFuture<Message> messageFuture = channel.sendMessage(sb.toString()).exceptionally(ExceptionLogger.get());
+                if (block) messageFuture.get();
+            }
         }
     }
 
     protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) {
-        ArrayList<Thread> threads = new ArrayList<>();
+        ArrayList<CompletableFuture<Optional<PornImage>>> futures = new ArrayList<>();
         ArrayList<PornImage> pornImages = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
-            Thread t = new CustomThread(() -> {
-                try {
-                    Optional<PornImage> pornImageOpt = PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults);
-                    synchronized (this) {
-                        pornImageOpt.ifPresent(pornImages::add);
-                    }
-                } catch (NoSuchElementException e) {
-                    //Ignore
-                } catch (IOException | InterruptedException | ExecutionException | ArrayIndexOutOfBoundsException e) {
-                    LOGGER.error("Could not download porn image", e);
-                }
-            }, "porn_downloader_" + i);
-            threads.add(t);
-            t.start();
+            try {
+                futures.add(
+                        PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults)
+                );
+            } catch (ExecutionException e) {
+                LOGGER.error("Error while downloading porn", e);
+            }
         }
 
-        threads.forEach(t -> {
+        futures.forEach(future -> {
             try {
-                t.join();
-            } catch (InterruptedException e) {
-                LOGGER.error("Interrupted", e);
+                Optional<PornImage> pornImageOpt = future.get(10, TimeUnit.SECONDS);
+                synchronized (this) {
+                    pornImageOpt.ifPresent(pornImages::add);
+                }
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                LOGGER.error("Error while downloading porn", e);
             }
         });
 

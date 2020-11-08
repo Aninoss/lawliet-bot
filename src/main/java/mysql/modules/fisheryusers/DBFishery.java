@@ -94,7 +94,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         .forEach(this::saveFisheryUserBean);
 
                 LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
-                if (Bot.isRunning()) Thread.sleep(750);
+                if (Bot.isRunning()) Thread.sleep(500);
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);
