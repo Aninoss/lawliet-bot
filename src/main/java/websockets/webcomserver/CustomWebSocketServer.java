@@ -1,12 +1,12 @@
 package websockets.webcomserver;
 
-import core.CustomThread;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class CustomWebSocketServer extends WebSocketServer {
         String content = message.substring(event.length() + 2);
         BiConsumer<WebSocket, JSONObject> eventConsumer = eventHandlers.get(event);
         if (eventConsumer != null) {
-            new CustomThread(() -> eventConsumer.accept(webSocket, new JSONObject(content)), "webcom_" + event).start();
+            eventConsumer.accept(webSocket, new JSONObject(content));
         }
     }
 

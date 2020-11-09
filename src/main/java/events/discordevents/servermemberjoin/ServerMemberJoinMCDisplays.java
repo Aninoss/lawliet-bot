@@ -11,7 +11,7 @@ public class ServerMemberJoinMCDisplays extends ServerMemberJoinAbstract {
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        MemberCountDisplay.manage(DBServer.getInstance().getBean(event.getServer().getId()).getLocale(), event.getServer());
+        MemberCountDisplay.getInstance().manage(DBServer.getInstance().getBean(event.getServer().getId()).getLocale(), event.getServer());
         return true;
     }
     

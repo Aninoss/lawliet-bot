@@ -3,19 +3,12 @@ package mysql.modules.fisheryusers;
 import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import core.Bot;
-import core.CustomThread;
-import core.DiscordApiCollection;
-import core.IntervalBlock;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.interfaces.IntervalSave;
-import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +16,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
 
@@ -42,7 +32,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
-    private final int VC_CHECK_INTERVAL_MIN = 1;
 
     private boolean vcObserverStarted = false;
 
@@ -313,86 +302,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         }
 
         getCache().invalidate(serverId);
-    }
-
-    public void startVCObserver() {
-        if (vcObserverStarted) return;
-        vcObserverStarted = true;
-
-        new CustomThread(() -> {
-            IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
-            while (intervalBlock.block()) {
-                LOGGER.info("VC Observer - Start");
-                AtomicInteger actions = new AtomicInteger(0);
-                DiscordApiCollection.getInstance().getServers().stream()
-                        .filter(server -> {
-                            try {
-                                return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
-                            } catch (Throwable e) {
-                                LOGGER.error("Could not get server bean", e);
-                            }
-                            return false;
-                        })
-                        .forEach(server -> {
-                            try {
-                                manageVCFish(server, actions);
-                            } catch (Throwable e) {
-                                LOGGER.error("Could not manage vc fish observer", e);
-                            }
-                        });
-                LOGGER.info("VC Observer - End ({} Actions)", actions.get());
-            }
-        }, "vc_observer", 1).start();
-    }
-
-    private void manageVCFish(Server server, AtomicInteger actions) throws ExecutionException {
-        FisheryServerBean serverBean = DBFishery.getInstance().getBean(server.getId());
-
-        for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
-            try {
-                ArrayList<User> validUsers = getValidUsers(server, voiceChannel);
-                if (validUsers.size() > 1 &&
-                        (server.getAfkChannel().isEmpty() || voiceChannel.getId() != server.getAfkChannel().get().getId())
-                ) {
-                    validUsers.forEach(user -> {
-                        try {
-                            serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
-                            actions.incrementAndGet();
-                        } catch (ExecutionException e) {
-                            LOGGER.error("Exception when registering vc", e);
-                        }
-                    });
-                }
-            } catch (Throwable e) {
-                LOGGER.error("Error while fetching VC member list", e);
-            }
-        }
-    }
-
-    private ArrayList<User> getValidUsers(Server server, ServerVoiceChannel voiceChannel) {
-        ArrayList<User> validUsers = new ArrayList<>();
-        for (long userId : voiceChannel.getConnectedUserIds()) {
-            Optional<User> userOpt = server.getMemberById(userId);
-            if (userOpt.isEmpty())
-                LOGGER.error("VC Observer - missing user with id {} on server {}", userId, server.getId());
-            userOpt.ifPresent(user -> {
-                try {
-                    if (!user.isBot() &&
-                            !user.isMuted(server) &&
-                            !user.isDeafened(server) &&
-                            !user.isSelfDeafened(server) &&
-                            !user.isSelfMuted(server) &&
-                            !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                    ) {
-                        validUsers.add(user);
-                    }
-                } catch (SQLException throwables) {
-                    LOGGER.error("SQL Error", throwables);
-                }
-            });
-        }
-
-        return validUsers;
     }
 
     @Override

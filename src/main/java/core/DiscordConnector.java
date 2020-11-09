@@ -5,6 +5,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
+import modules.FisheryVCObserver;
 import modules.repair.AutoChannelRepair;
 import modules.repair.RolesRepair;
 import modules.schedulers.GiveawayScheduler;
@@ -110,7 +111,7 @@ public class DiscordConnector {
     private void onConnectionCompleted() {
         updateActivity();
         DBFishery.getInstance().cleanUp();
-        DBFishery.getInstance().startVCObserver();
+        FisheryVCObserver.getInstance().start();
         WebComServer.getInstance().start(15744);
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();

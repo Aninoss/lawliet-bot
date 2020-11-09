@@ -169,7 +169,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                                 .build();
                         updater.addPermissionOverwrite(yourself, ownPermissions);
 
-                        String newVCName = modules.MemberCountDisplay.getNewVCName(event.getServer().get(), getLocale(), currentName);
+                        String newVCName = modules.MemberCountDisplay.generateNewVCName(event.getServer().get(), currentName);
                         updater.setName(newVCName)
                                 .update().get(10, TimeUnit.SECONDS);
                     } catch (ExecutionException | TimeoutException e) {

@@ -23,7 +23,7 @@ public class ServerVoiceChannelMemberLeaveAutoChannel extends ServerVoiceChannel
             if (event.getChannel().getId() == childChannelId) {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
-                    if (event.getChannel().getConnectedUsers().size() == 0) {
+                    if (event.getChannel().getConnectedUserIds().size() == 0) {
                         event.getChannel().delete(); //No error log
                     }
                 }

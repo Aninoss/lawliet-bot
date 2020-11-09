@@ -7,6 +7,7 @@ import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
 import javafx.util.Pair;
+import modules.FisheryVCObserver;
 import mysql.DBBotGiveaway;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -26,6 +27,7 @@ import java.lang.management.ManagementFactory;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 
 public class Console {
@@ -78,6 +80,7 @@ public class Console {
         tasks.put("daily", this::onDailyStreak);
         tasks.put("delete_fishery_user", this::onDeleteFisheryUser);
         tasks.put("remove_fishery_user", this::onDeleteFisheryUser);
+        tasks.put("fishery_vc", this::onFisheryVC);
         tasks.put("server", this::onServer);
         tasks.put("user", this::onUser);
         tasks.put("clear", this::onClear);
@@ -231,6 +234,21 @@ public class Console {
         DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> System.out.println(user.getDiscriminatedName()));
     }
 
+    private void onFisheryVC(String[] args) {
+        long serverId = Long.parseLong(args[1]);
+        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> {
+            HashSet<User> users = new HashSet<>();
+            server.getVoiceChannels().forEach(vc -> {
+                users.addAll(FisheryVCObserver.getValidVCUsers(server, vc));
+            });
+
+            String title = String.format("### VALID VC MEMBERS OF %s ###", server.getName());
+            System.out.println(title);
+            users.forEach(user -> System.out.println(user.getDiscriminatedName()));
+            System.out.println("-".repeat(title.length()));
+        });
+    }
+
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
         DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount() + " | Owner: " + server.getOwner().get().getDiscriminatedName()));
@@ -331,6 +349,7 @@ public class Console {
 
     private void onQuit(String[] args) {
         LOGGER.info("EXIT - User commanded exit");
+        SystemUtil.backupDB();
         System.exit(0);
     }
 

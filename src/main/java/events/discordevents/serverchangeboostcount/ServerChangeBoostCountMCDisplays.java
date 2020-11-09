@@ -17,7 +17,7 @@ public class ServerChangeBoostCountMCDisplays extends ServerChangeBoostCountAbst
         Server server = event.getServer();
         Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
 
-        MemberCountDisplay.manage(locale, server);
+        MemberCountDisplay.getInstance().manage(locale, server);
         return true;
     }
 
