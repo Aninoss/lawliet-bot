@@ -251,7 +251,7 @@ public class Console {
 
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> System.out.println(server.getName() + " | " + server.getMemberCount() + " | Owner: " + server.getOwner().get().getDiscriminatedName()));
+        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> LOGGER.info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard()));
     }
 
     private void onDeleteFisheryUser(String[] args) throws ExecutionException {
@@ -339,7 +339,7 @@ public class Console {
 
     private void onShards(String[] args) {
         for (int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {
-            LOGGER.info("Shard {}: {}", i, DiscordApiCollection.getInstance().shardIsConnected(i));
+            LOGGER.info("Shard {}: {} ({} unavailable)", i, DiscordApiCollection.getInstance().shardIsConnected(i), DiscordApiCollection.getInstance().getApis().get(i).getUnavailableServers().size());
         }
     }
 

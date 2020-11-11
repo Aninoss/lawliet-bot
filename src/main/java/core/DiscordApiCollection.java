@@ -344,7 +344,7 @@ public class DiscordApiCollection {
         return apiList[0].getYourself();
     }
 
-    public Collection<DiscordApi> getApis() {
+    public List<DiscordApi> getApis() {
         return Arrays.asList(apiList);
     }
 

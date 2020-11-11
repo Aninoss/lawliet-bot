@@ -58,7 +58,7 @@ public class TopCommand extends ListAbstract {
         FisheryUserBean userBean = rankingSlots.get(i);
         Optional<User> userOpt = userBean.getUser();
         String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(userBean.getUserId()));
-
+        userString = StringUtil.escapeMarkdown(userString);
 
         int rank = userBean.getRank();
         String rankString = String.valueOf(rank);

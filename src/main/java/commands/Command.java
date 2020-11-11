@@ -293,13 +293,15 @@ public abstract class Command {
         EmbedUtil.addLog(eb, logStatus, log);
         if (options != null && options.length > max) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
         try {
-            if (navigationMessage == null) {
-                if (navigationPrivateMessage) {
-                    if (channel.canYouAddNewReactions()) starterMessage.addReaction("✉").get();
-                    navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
-                } else navigationMessage = channel.sendMessage(eb).get();
-            } else {
-                navigationMessage.edit(eb).get();
+            if (channel.getCurrentCachedInstance().isPresent() && channel.canYouWrite() && channel.canYouSee() && channel.canYouEmbedLinks()) {
+                if (navigationMessage == null) {
+                    if (navigationPrivateMessage) {
+                        if (channel.canYouAddNewReactions()) starterMessage.addReaction("✉").get();
+                        navigationMessage = starterMessage.getUserAuthor().get().sendMessage(eb).get();
+                    } else navigationMessage = channel.sendMessage(eb).get();
+                } else {
+                    navigationMessage.edit(eb).get();
+                }
             }
         } catch (ExecutionException e) {
             if (!ExceptionHandler.exceptionIsClass(e, org.javacord.api.exception.UnknownMessageException.class))

@@ -334,7 +334,8 @@ public final class StringUtil {
     }
 
     public static String escapeMarkdown(String str) {
-        return str.replace("*", "\\*")
+        return str.replace("\\", "\\\\")
+                .replace("*", "\\*")
                 .replace("_", "\\_")
                 .replace("`", "\\`")
                 .replace("|", "\\|")
