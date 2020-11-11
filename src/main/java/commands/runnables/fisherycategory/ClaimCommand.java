@@ -25,6 +25,7 @@ import java.util.Locale;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDF80",
         executableWithoutArgs = true,
+        onlyPublicVersion = true,
         aliases = { "c" }
 )
 public class ClaimCommand extends FisheryAbstract {

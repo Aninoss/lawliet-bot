@@ -112,10 +112,10 @@ public class DiscordConnector {
         updateActivity();
         DBFishery.getInstance().cleanUp();
         FisheryVCObserver.getInstance().start();
-        WebComServer.getInstance().start(15744);
+        if (Bot.isPublicVersion()) WebComServer.getInstance().start(15744);
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();
-        if (Bot.isProductionMode()) BumpReminder.getInstance().start();
+        if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
 

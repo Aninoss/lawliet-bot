@@ -1,17 +1,13 @@
 package modules;
 
-import commands.listeners.OnNavigationListener;
-import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import commands.CommandContainer;
+import commands.listeners.OnNavigationListener;
+import commands.listeners.OnReactionAddListener;
 import core.ExceptionHandler;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReactionCommandCheck {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionCommandCheck.class);
 
     public static boolean manage(SingleReactionEvent event) {
         for (Command command : CommandContainer.getInstance().getReactionInstances()) {

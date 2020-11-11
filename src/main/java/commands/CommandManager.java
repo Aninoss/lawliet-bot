@@ -63,7 +63,9 @@ public class CommandManager {
                 checkReleased(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
+            if (Bot.isPublicVersion())
+                DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
+
             cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
             manageSlowCommandLoadingReaction(command);
             if (command.isPatreonRequired() && (command.getUserPermissions() & Permission.MANAGE_SERVER) != 0) {
@@ -80,7 +82,7 @@ public class CommandManager {
                 else
                     command.onRecievedSuper(event, followedString);
 
-                maybeSendInvite(event, command.getLocale());
+                if (Bot.isPublicVersion()) maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
                 ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
             }

@@ -35,7 +35,7 @@ public class TrackerManager {
         if (active) return;
         active = true;
 
-        size = (DiscordApiCollection.getInstance().size() / 10) + 1;
+        size = (DiscordApiCollection.getInstance().size() / 5) + 1;
         for (int i = 0; i < size; i++) {
             final int trackerShard = i;
             new CustomThread(() -> {
@@ -45,7 +45,7 @@ public class TrackerManager {
     }
 
     private void manageTrackerShard(int trackerShard) {
-        IntervalBlock intervalBlock = new IntervalBlock(1, ChronoUnit.MINUTES);
+        IntervalBlock intervalBlock = Bot.isProductionMode() ? new IntervalBlock(1, ChronoUnit.MINUTES) : new IntervalBlock(5, ChronoUnit.SECONDS);
         while (intervalBlock.block() && active) {
             try {
                 for (ArrayList<TrackerBeanSlot> trackerBeanSlots : getGroupedByCommandTrigger()) {

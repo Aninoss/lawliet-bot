@@ -30,7 +30,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     protected DBBeanGenerator() {
         cache = getCacheBuilder().build(
-                new CacheLoader<T, U>() {
+                new CacheLoader<>() {
                     @Override
                     public U load(@NonNull T t) throws Exception {
                         U u = loadBean(t);

@@ -13,7 +13,7 @@ public class SendBotServerCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && DiscordApiCollection.getInstance().allShardsConnected()) {
+        if (Bot.isProductionMode() && Bot.isPublicVersion() && DiscordApiCollection.getInstance().allShardsConnected()) {
             int totalServers = DiscordApiCollection.getInstance().getServerTotalSize();
 
             TopGG.getInstance().updateServerCount(totalServers);

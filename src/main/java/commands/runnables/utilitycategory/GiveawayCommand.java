@@ -537,7 +537,10 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 .setFooter(getString("endson"))
                 .setTimestamp(Instant.now().plus(durationMinutes, ChronoUnit.MINUTES));
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString("tutorial", amountOfWinners != 1, emoji.getMentionTag(), String.valueOf(amountOfWinners)));
+        if (description.isEmpty())
+            eb.setDescription(getString("tutorial", amountOfWinners != 1, emoji.getMentionTag(), String.valueOf(amountOfWinners)));
+        else
+            eb.addField(Emojis.EMPTY_EMOJI, getString("tutorial", amountOfWinners != 1, emoji.getMentionTag(), String.valueOf(amountOfWinners)));
 
         if (imageLink != null)
             eb.setImage(imageLink);

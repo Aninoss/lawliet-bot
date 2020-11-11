@@ -57,7 +57,7 @@ public class DiscordApiCollection {
 
     public void insertApi(DiscordApi api) {
         apiList[api.getCurrentShard()] = api;
-        if (Bot.isProductionMode())
+        if (Bot.isProductionMode() && Bot.isPublicVersion())
             keepApiAlive(api);
     }
 
@@ -250,7 +250,7 @@ public class DiscordApiCollection {
     public Server getHomeServer() {
         long serverId = AssetIds.HOME_SERVER_ID;
         Optional<Server> serverOptional = getServerById(serverId);
-        if (!serverOptional.isPresent()){
+        if (serverOptional.isEmpty()){
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -316,7 +316,7 @@ public class DiscordApiCollection {
     public void waitForStartup() {
         while(!allShardsConnected()) {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 LOGGER.error("Interrupted", e);
             }

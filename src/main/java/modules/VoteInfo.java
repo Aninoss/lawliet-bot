@@ -9,7 +9,7 @@ public class VoteInfo {
     private String topic;
     private String[] choices;
     private int[] values;
-    private long creatorId;
+    private final long creatorId;
 
     public VoteInfo(String topic, String[] choices, int[] values, long creatorId) {
         setTopic(topic);

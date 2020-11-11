@@ -17,9 +17,9 @@ public class NavigationHelper<T> {
 
     private enum Type { Unknown, Role, TextChannel, User };
 
-    private Command command;
-    private List<T> srcList;
-    private int max;
+    private final Command command;
+    private final List<T> srcList;
+    private final int max;
     private Type type = Type.Unknown;
     private String typeString = "";
 

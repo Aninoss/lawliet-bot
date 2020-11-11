@@ -22,7 +22,6 @@ import commands.runnables.splatoon2category.MapsCommand;
 import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
-import constants.Settings;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +108,6 @@ public class CommandContainer {
         //INFORMATION
         commandList.add(HelpCommand.class);
         commandList.add(PatreonCommand.class);
-        if (Settings.GIVEAWAY_RUNNING) commandList.add(SignUpCommand.class);
         commandList.add(FAQCommand.class);
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);

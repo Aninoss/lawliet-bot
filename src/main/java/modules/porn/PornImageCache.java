@@ -12,15 +12,15 @@ public class PornImageCache {
     public static PornImageCache getInstance() { return ourInstance; }
     private PornImageCache() {}
 
-    private LoadingCache<String, PornImageCacheSearchKey> cache = CacheBuilder.newBuilder()
+    private final LoadingCache<String, PornImageCacheSearchKey> cache = CacheBuilder.newBuilder()
             .maximumSize(50)
             .build(
-            new CacheLoader<String, PornImageCacheSearchKey>() {
-                @Override
-                public PornImageCacheSearchKey load(@NonNull String searchKey) {
-                    return new PornImageCacheSearchKey();
-                }
-            }
+                    new CacheLoader<>() {
+                        @Override
+                        public PornImageCacheSearchKey load(@NonNull String searchKey) {
+                            return new PornImageCacheSearchKey();
+                        }
+                    }
     );
 
     public PornImageCacheSearchKey get(@NonNull String domain, @NonNull String searchKey) throws ExecutionException {

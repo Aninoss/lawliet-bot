@@ -4,10 +4,7 @@ import commands.listeners.*;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import constants.*;
-import core.Countdown;
-import core.DiscordApiCollection;
-import core.ExceptionHandler;
-import core.TextManager;
+import core.*;
 import core.emojiconnection.EmojiConnection;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
@@ -662,7 +659,8 @@ public abstract class Command {
         long[] allowedUserIds = commandProperties.exlusiveUsers();
 
         return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == serverId)) &&
-                ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId));
+                ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId)) &&
+                (!commandProperties.onlyPublicVersion() || Bot.isPublicVersion());
     }
 
     public LocalDate getReleaseDate() {

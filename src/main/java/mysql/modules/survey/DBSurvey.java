@@ -85,7 +85,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     public int next() {
         currentSurveyId++;
 
-        DBMain.getInstance().asyncUpdate("INSERT INTO SurveyDates VALUES (?, NOW());", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SurveyDates VALUES (?, NOW());", preparedStatement -> {
             preparedStatement.setInt(1, currentSurveyId);
         });
 

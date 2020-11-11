@@ -21,6 +21,7 @@ import java.util.Locale;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCD3",
         executableWithoutArgs = true,
+        onlyPublicVersion = true,
         aliases = {"cu", "commandusage"}
 )
 public class CommandUsagesCommand extends ListAbstract {

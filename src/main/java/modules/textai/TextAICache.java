@@ -15,7 +15,7 @@ public class TextAICache {
 
     private final LoadingCache<String, TextAI.WordMap> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(2, TimeUnit.HOURS)
-            .build(new CacheLoader<String, TextAI.WordMap>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public TextAI.WordMap load(@NonNull String userOnServer) throws Exception {
                     return new TextAI.WordMap();

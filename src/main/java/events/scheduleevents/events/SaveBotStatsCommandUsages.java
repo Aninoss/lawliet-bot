@@ -10,7 +10,7 @@ public class SaveBotStatsCommandUsages implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode()) {
+        if (Bot.isProductionMode() && Bot.isPublicVersion()) {
             DBBotStats.saveStatsCommandUsages();
         }
     }

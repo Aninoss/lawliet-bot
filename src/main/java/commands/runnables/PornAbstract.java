@@ -1,6 +1,7 @@
 package commands.runnables;
 
-
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import constants.Category;
 import constants.ExternalLinks;
@@ -30,20 +31,21 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public abstract class PornAbstract extends Command {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
 
+    private static final Cache<String, ArrayList<PornImage>> alertsCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(9, TimeUnit.MINUTES)
+            .build();
+
     public PornAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
-    public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Throwable;
+    public abstract ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception;
     public abstract Optional<String> getNoticeOptional();
     public abstract boolean isExplicit();
     protected abstract String getDomain();
@@ -152,7 +154,14 @@ public abstract class PornAbstract extends Command {
         }
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(slot.getServerId()).getKeywords());
-        ArrayList<PornImage> pornImages = getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>());
+        ArrayList<PornImage> pornImages;
+        if (nsfwFilter.size() > 0) {
+            pornImages = getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>());
+        } else {
+            pornImages = alertsCache.get(getTrigger() + slot.getCommandKey().toLowerCase(),
+                    () -> getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
+            );
+        }
 
         if (pornImages.size() == 0) {
             if (slot.getArgs().isEmpty() && this instanceof PornSearchAbstract) {
@@ -190,7 +199,9 @@ public abstract class PornAbstract extends Command {
         } else {
             StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getEmoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
             for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
-                if (pornImages.get(i) != null) sb.append('\n').append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()));
+                if (pornImages.get(i) != null)
+                    sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()))
+                            .append(' ');
             }
 
             getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));

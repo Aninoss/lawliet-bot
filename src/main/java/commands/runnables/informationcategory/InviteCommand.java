@@ -13,6 +13,7 @@ import java.util.Locale;
         trigger = "invite",
         emoji = "\uD83D\uDD17",
         executableWithoutArgs = true,
+        onlyPublicVersion = true,
         aliases = {"link", "addbot", "inv"}
 )
 public class InviteCommand extends Command {

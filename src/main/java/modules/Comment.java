@@ -2,7 +2,7 @@ package modules;
 
 public class Comment {
 
-    private String author, content;
+    private final String author, content;
 
     public Comment(String author, String content) {
         this.author = author;

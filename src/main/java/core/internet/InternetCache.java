@@ -17,7 +17,7 @@ public class InternetCache {
             .maximumSize(500)
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build(
-                    new CacheLoader<String, CompletableFuture<HttpResponse>>() {
+                    new CacheLoader<>() {
                         @Override
                         public CompletableFuture<HttpResponse> load(@NonNull String url) throws IOException {
                             return HttpRequest.getData(url);

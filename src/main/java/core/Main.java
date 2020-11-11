@@ -7,7 +7,6 @@ import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -25,8 +24,10 @@ public class Main {
         Console.getInstance().start();
         FontContainer.getInstance().init();
         DBMain.getInstance().connect();
-        cleanAllTempFiles();
-        initializeUpdate();
+        if (Bot.isPublicVersion()) {
+            cleanAllTempFiles();
+            initializeUpdate();
+        }
 
         DiscordConnector.getInstance().connect();
     }

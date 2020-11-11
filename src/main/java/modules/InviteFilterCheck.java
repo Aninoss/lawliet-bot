@@ -41,8 +41,7 @@ public class InviteFilterCheck {
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(inviteFilterCommand)
                     .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                    .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), message.getContent(), true);;
+                    .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
 
             if (successful) eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_successful", author.getDiscriminatedName()));
             else eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_failed", author.getDiscriminatedName()));

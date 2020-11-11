@@ -19,9 +19,7 @@ public class MessageCreateBump extends MessageCreateAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
-
-        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == ANINOSS_SERVER_ID && event.getMessageAuthor().getId() == 302050872383242240L) {
+        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == AssetIds.ANINOSS_SERVER_ID && event.getMessageAuthor().getId() == 302050872383242240L) {
            List<Embed> embedList = event.getMessage().getEmbeds();
             if (embedList.size() > 0 && embedList.get(0).getImage().isPresent() && embedList.get(0).getDescription().isPresent()) {
                 DBBump.setNextBump(Instant.now().plus(2, ChronoUnit.HOURS));

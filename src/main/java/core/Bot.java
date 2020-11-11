@@ -11,6 +11,7 @@ public class Bot {
 
     private static boolean production = false;
     private static boolean stopped = false;
+    private static boolean selfHosted = false;
 
     public static void setDebug(boolean newProduction) {
         production = newProduction;
@@ -30,6 +31,10 @@ public class Bot {
     }
 
     public static boolean isRunning() { return !stopped; }
+
+    public static boolean isPublicVersion() {
+        return !selfHosted;
+    }
 
     public static boolean hasUpdate() { return new File("update/Lawliet.jar").exists(); }
 

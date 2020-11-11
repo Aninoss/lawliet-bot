@@ -370,16 +370,17 @@ public class HelpCommand extends Command implements OnNavigationListener {
         categoriesSB.append("\n").append(getString("sp")).append("\n").append(Emojis.EMPTY_EMOJI);
         eb.setDescription(categoriesSB.toString());
 
-        eb
-                .addField(getString("links_title"), getString("links_content",
-                        ExternalLinks.LAWLIET_WEBSITE,
-                        ExternalLinks.SERVER_INVITE_URL,
-                        ExternalLinks.BOT_INVITE_URL,
-                        ExternalLinks.UPVOTE_URL,
-                        ExternalLinks.PATREON_PAGE,
-                        ExternalLinks.FEATURE_REQUESTS_WEBSITE
-                ), true);
-        if (Settings.GIVEAWAY_RUNNING) eb.addField(getString("giveaway_title"), getString("giveaway_desc", ExternalLinks.SERVER_INVITE_URL), false);
+        if (Bot.isPublicVersion()) {
+            eb.addField(getString("links_title"), getString(
+                    "links_content",
+                    ExternalLinks.LAWLIET_WEBSITE,
+                    ExternalLinks.SERVER_INVITE_URL,
+                    ExternalLinks.BOT_INVITE_URL,
+                    ExternalLinks.UPVOTE_URL,
+                    ExternalLinks.PATREON_PAGE,
+                    ExternalLinks.FEATURE_REQUESTS_WEBSITE
+            ), true);
+        }
         return eb;
     }
 

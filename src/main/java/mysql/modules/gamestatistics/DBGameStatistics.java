@@ -1,5 +1,6 @@
 package mysql.modules.gamestatistics;
 
+import core.Bot;
 import mysql.DBBeanGenerator;
 import mysql.DBMain;
 
@@ -30,14 +31,16 @@ public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean
 
     @Override
     protected void saveBean(GameStatisticsBean gameStatisticsBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
-            preparedStatement.setString(1, gameStatisticsBean.getCommand());
-            preparedStatement.setBoolean(2, false);
-            preparedStatement.setDouble(3, gameStatisticsBean.getValue(false));
-            preparedStatement.setString(4, gameStatisticsBean.getCommand());
-            preparedStatement.setBoolean(5, true);
-            preparedStatement.setDouble(6, gameStatisticsBean.getValue(true));
-        });
+        if (Bot.isPublicVersion()) {
+            DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
+                preparedStatement.setString(1, gameStatisticsBean.getCommand());
+                preparedStatement.setBoolean(2, false);
+                preparedStatement.setDouble(3, gameStatisticsBean.getValue(false));
+                preparedStatement.setString(4, gameStatisticsBean.getCommand());
+                preparedStatement.setBoolean(5, true);
+                preparedStatement.setDouble(6, gameStatisticsBean.getValue(true));
+            });
+        }
     }
 
 }

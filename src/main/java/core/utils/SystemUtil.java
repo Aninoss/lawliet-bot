@@ -1,5 +1,6 @@
 package core.utils;
 
+import core.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,14 +50,12 @@ public class SystemUtil {
         return -1;
     }
 
-    public void runJavaCode(String code) {
-
-    }
-
     public static void backupDB() {
-        String filename = LocalDateTime.now().toString();
-        SystemUtil.executeProcess("./backupdb.sh", filename);
-        LOGGER.info("Database backup completed!");
+        if (Bot.isPublicVersion()) {
+            String filename = LocalDateTime.now().toString();
+            SystemUtil.executeProcess("./backupdb.sh", filename);
+            LOGGER.info("Database backup completed!");
+        }
     }
 
 }

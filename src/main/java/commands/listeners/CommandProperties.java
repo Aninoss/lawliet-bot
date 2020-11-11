@@ -22,5 +22,6 @@ public @interface CommandProperties {
     long[] exlusiveUsers() default {};
     boolean turnOffTimeout() default false;
     int[] releaseDate() default {};
+    boolean onlyPublicVersion() default false;
 
 }
