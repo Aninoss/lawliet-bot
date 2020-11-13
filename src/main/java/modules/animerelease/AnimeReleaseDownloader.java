@@ -35,10 +35,12 @@ public class AnimeReleaseDownloader {
         ArrayList<String> newUsedIds = new ArrayList<>();
 
         for (AnimeReleasePost post : animeReleasePosts) {
-            boolean ok = postPassesFilter(post, filter) &&
-                    (!post.getAnime().endsWith("(Russian)") || StringUtil.getLanguage(locale) == Language.RU) &&
-                    (!post.getAnime().endsWith("(German Dub)") || StringUtil.getLanguage(locale) == Language.DE);
+            boolean dub = post.getAnime().endsWith("Dub)") || post.getAnime().endsWith("(Russian)");
+            boolean validDub = post.getAnime().endsWith("(English Dub)") ||
+                    (post.getAnime().endsWith("(Russian)") && StringUtil.getLanguage(locale) == Language.RU) ||
+                    (post.getAnime().endsWith("(German Dub)") && StringUtil.getLanguage(locale) == Language.DE);
 
+            boolean ok = postPassesFilter(post, filter) && (!dub || validDub);
             if (ok) {
                 if (!currentUsedIds.contains(post.getId()) &&
                         (postList.size() == 0 || newestPostId != null)
@@ -65,12 +67,12 @@ public class AnimeReleaseDownloader {
     private static List<AnimeReleasePost> getAnimeReleasePostList(JSONArray data, Locale locale) {
         ArrayList<AnimeReleasePost> list = new ArrayList<>();
 
-        for(int i = 0; i < data.length(); i++) {
+        for (int i = 0; i < data.length(); i++) {
             AnimeReleasePost post = parseEpisode(data.getJSONObject(i), locale);
             AnimeReleasePost nextPost = null;
             AnimeReleasePost tempPost;
 
-            while(i + 1 < data.length() && (tempPost = parseEpisode(data.getJSONObject(i + 1), locale)).getAnime().equals(post.getAnime())) {
+            while (i + 1 < data.length() && (tempPost = parseEpisode(data.getJSONObject(i + 1), locale)).getAnime().equals(post.getAnime())) {
                 nextPost = tempPost;
                 i++;
             }
@@ -130,7 +132,8 @@ public class AnimeReleaseDownloader {
         }
 
         String thumbnail = "";
-        if (data.has("media:thumbnail")) thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
+        if (data.has("media:thumbnail"))
+            thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         Instant date = TimeUtil.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link").replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");

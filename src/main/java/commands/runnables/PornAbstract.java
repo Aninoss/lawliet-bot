@@ -155,13 +155,9 @@ public abstract class PornAbstract extends Command {
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(slot.getServerId()).getKeywords());
         ArrayList<PornImage> pornImages;
-        if (nsfwFilter.size() > 0) {
-            pornImages = getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>());
-        } else {
-            pornImages = alertsCache.get(getTrigger() + slot.getCommandKey().toLowerCase(),
-                    () -> getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
-            );
-        }
+        pornImages = alertsCache.get(getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
+                () -> getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
+        );
 
         if (pornImages.size() == 0) {
             if (slot.getArgs().isEmpty() && this instanceof PornSearchAbstract) {

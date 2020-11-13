@@ -1,6 +1,8 @@
 package core.schedule;
 
 import core.Bot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.TemporalUnit;
@@ -8,6 +10,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainScheduler {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(MainScheduler.class);
 
     private static final MainScheduler ourInstance = new MainScheduler();
     public static MainScheduler getInstance() { return ourInstance; }
@@ -19,7 +23,11 @@ public class MainScheduler {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                listener.run();
+                try {
+                    listener.run();
+                } catch (Throwable e) {
+                    LOGGER.error("Unchecked exception in schedule timer");
+                }
             }
         }, millis);
     }
@@ -36,8 +44,12 @@ public class MainScheduler {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (Bot.isRunning() && listener.run()) {
-                    poll(millis, listener);
+                try {
+                    if (Bot.isRunning() && listener.run()) {
+                        poll(millis, listener);
+                    }
+                } catch (Throwable e) {
+                    LOGGER.error("Unchecked exception in poll timer");
                 }
             }
         }, millis);
@@ -49,9 +61,9 @@ public class MainScheduler {
     }
 
 
-    public static interface RunnableWithBoolean {
+    public interface RunnableWithBoolean {
 
-        public boolean run();
+        boolean run();
 
     }
 

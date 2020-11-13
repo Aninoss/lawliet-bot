@@ -62,7 +62,7 @@ public class WebComServer {
         LOGGER.info("WebCom server started");
     }
 
-    public JSONObject getLanguagePack(String category,  String key) {
+    public JSONObject getLanguagePack(String category, String key) {
         JSONObject jsonObject = new JSONObject();
 
         for(String localeString: Locales.LIST) {
