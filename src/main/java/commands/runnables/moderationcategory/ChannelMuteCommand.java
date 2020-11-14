@@ -86,7 +86,7 @@ public class ChannelMuteCommand extends Command  {
         EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
 
         if (doneSomething)
-            Mod.postLog(this, actionEmbed, event.getServer().get(), userList);
+            Mod.postLog(this, actionEmbed, event.getServer().get(), userList).join();
 
         if (!mute || !successfulUsers.contains(DiscordApiCollection.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;

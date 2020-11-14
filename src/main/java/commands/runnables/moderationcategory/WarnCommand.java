@@ -106,10 +106,10 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
         if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
 
-        Mod.postLog(this, actionEmbed, moderationBean, userList);
+        Mod.postLog(this, actionEmbed, moderationBean, userList).join();
         for(User user: userList) {
             if (sendWarning())
-                Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason, autoMod());
+                Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason, autoActions());
             process(channel.getServer(), user);
         }
 
@@ -128,7 +128,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         return true;
     }
 
-    protected boolean autoMod() {
+    protected boolean autoActions() {
         return true;
     }
 

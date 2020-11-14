@@ -37,7 +37,7 @@ public class BanCommand extends WarnCommand  {
     }
 
     @Override
-    protected boolean autoMod() {
+    protected boolean autoActions() {
         return false;
     }
 

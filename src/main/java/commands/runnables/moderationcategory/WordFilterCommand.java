@@ -1,16 +1,19 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
 import commands.Command;
 import commands.NavigationHelper;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnNavigationListener;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.WordFilterCheck;
+import modules.automod.WordFilter;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
 import org.javacord.api.DiscordApi;
@@ -87,7 +90,7 @@ public class WordFilterCommand extends Command implements OnNavigationListener {
                 }
 
             case 3:
-                String[] wordArray = WordFilterCheck.translateString(inputString).split(" ");
+                String[] wordArray = WordFilter.translateString(inputString).split(" ");
                 List<String> wordList = Arrays
                         .stream(wordArray)
                         .filter(str -> str.length() > 0)
