@@ -1,11 +1,11 @@
 package websockets.webcomserver;
 
 import commands.Command;
+import constants.AssetIds;
 import constants.Locales;
 import core.ListGen;
 import core.TextManager;
 import core.utils.PermissionUtil;
-import core.utils.StringUtil;
 import org.java_websocket.WebSocket;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -92,7 +92,7 @@ public class WebComServer {
 
         for(String localeString: Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String str = StringUtil.solveVariablesOfCommandText(TextManager.getString(locale, commandCategory, key));
+            String str = solveVariablesOfCommandText(TextManager.getString(locale, commandCategory, key));
             if (!str.isEmpty())
                 str = ("\n" + str).replace("\n", "\nL." + commandTrigger + " ").substring(1);
 
@@ -100,6 +100,18 @@ public class WebComServer {
         }
 
         return jsonObject;
+    }
+
+    private String solveVariablesOfCommandText(String string) {
+        return string
+                .replaceAll("(?i)%MessageContent", "hi")
+                .replaceAll("(?i)%#Channel", "#welcome")
+                .replaceAll("(?i)%MessageID", "557961653975515168")
+                .replaceAll("(?i)%ChannelID", "557953262305804310")
+                .replaceAll("(?i)%ServerID", String.valueOf(AssetIds.SUPPORT_SERVER_ID))
+                .replaceAll("(?i)%@User", "@Aninoss#7220")
+                .replaceAll("(?i)%@Bot", "@Lawliet#5480")
+                .replaceAll("(?i)%Prefix", "L.");
     }
 
     public void send(WebSocket webSocket, String event, JSONObject mainJSON) {

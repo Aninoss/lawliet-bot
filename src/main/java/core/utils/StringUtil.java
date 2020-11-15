@@ -1,6 +1,5 @@
 package core.utils;
 
-import constants.AssetIds;
 import constants.Language;
 import core.DiscordApiCollection;
 import core.TextManager;
@@ -241,20 +240,6 @@ public final class StringUtil {
                 .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
                 .replaceAll("(?i)%@Bot", DiscordApiCollection.getInstance().getYourself().getMentionTag())
                 .replaceAll("(?i)%Prefix",prefix);
-    }
-
-    public static String solveVariablesOfCommandText(String string) {
-        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-
-        return string
-                .replaceAll("(?i)%MessageContent", "hello")
-                .replaceAll("(?i)%#Channel", "#welcome")
-                .replaceAll("(?i)%MessageID", "557961653975515168")
-                .replaceAll("(?i)%ChannelID", "557953262305804310")
-                .replaceAll("(?i)%ServerID", String.valueOf(AssetIds.SUPPORT_SERVER_ID))
-                .replaceAll("(?i)%@User", "@" + StringUtil.escapeMarkdown(apiCollection.getOwner().getDiscriminatedName()))
-                .replaceAll("(?i)%@Bot", "@" + StringUtil.escapeMarkdown(apiCollection.getYourself().getDiscriminatedName()))
-                .replaceAll("(?i)%Prefix", "L.");
     }
 
     public static String doubleToString(double d, int placesAfterPoint) {
