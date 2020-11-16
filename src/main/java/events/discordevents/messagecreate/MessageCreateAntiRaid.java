@@ -18,7 +18,7 @@ public class MessageCreateAntiRaid extends MessageCreateAbstract {
                 event.getMessage().getMentionedUsers().size() >= 20
         ) {
             event.getServer().get().banUser(event.getMessage().getUserAuthor().get(), 1, "Anti Raid").exceptionally(ExceptionLogger.get());
-            DiscordApiCollection.getInstance().getOwner().sendMessage("ANTI RAID FOR " + event.getMessage().getUserAuthor().get().getDiscriminatedName()).exceptionally(ExceptionLogger.get());
+            DiscordApiCollection.getInstance().getOwner().sendMessage("ANTI RAID (PING SPAM) FOR " + event.getMessage().getUserAuthor().get().getDiscriminatedName()).exceptionally(ExceptionLogger.get());
             return false;
         }
 

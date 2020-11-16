@@ -9,9 +9,9 @@ import java.util.HashMap;
 
 public class MemberCountBean extends BeanWithServer {
 
-    private final CustomObservableMap<Long, MemberCountDisplay> memberCountBeanSlots;
+    private final CustomObservableMap<Long, MemberCountDisplaySlot> memberCountBeanSlots;
 
-    public MemberCountBean(ServerBean serverBean, @NonNull HashMap<Long, MemberCountDisplay> memberCountBeanSlots) {
+    public MemberCountBean(ServerBean serverBean, @NonNull HashMap<Long, MemberCountDisplaySlot> memberCountBeanSlots) {
         super(serverBean);
         this.memberCountBeanSlots = new CustomObservableMap<>(memberCountBeanSlots);
     }
@@ -19,6 +19,6 @@ public class MemberCountBean extends BeanWithServer {
 
     /* Getters */
 
-    public CustomObservableMap<Long, MemberCountDisplay> getMemberCountBeanSlots() { return memberCountBeanSlots; }
+    public CustomObservableMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlots() { return memberCountBeanSlots; }
 
 }

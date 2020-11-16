@@ -31,24 +31,24 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
     @Override
     protected void saveBean(MemberCountBean memberCountBean) {}
 
-    private HashMap<Long, MemberCountDisplay> getMemberCountBeanSlot(long serverId) throws SQLException {
-        return new DBDataLoad<MemberCountDisplay>("MemberCountDisplays", "vcId, name", "serverId = ?",
+    private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) throws SQLException {
+        return new DBDataLoad<MemberCountDisplaySlot>("MemberCountDisplays", "vcId, name", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getHashMap(MemberCountDisplay::getVoiceChannelId, resultSet -> new MemberCountDisplay(serverId, resultSet.getLong(1), resultSet.getString(2)));
+        ).getHashMap(MemberCountDisplaySlot::getVoiceChannelId, resultSet -> new MemberCountDisplaySlot(serverId, resultSet.getLong(1), resultSet.getString(2)));
     }
 
-    private void addMemberCountBeanSlot(long serverId, MemberCountDisplay memberCountDisplay) {
+    private void addMemberCountBeanSlot(long serverId, MemberCountDisplaySlot memberCountDisplaySlot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO MemberCountDisplays (serverId, vcId, name) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
-            preparedStatement.setLong(2, memberCountDisplay.getVoiceChannelId());
-            preparedStatement.setString(3, memberCountDisplay.getMask());
+            preparedStatement.setLong(2, memberCountDisplaySlot.getVoiceChannelId());
+            preparedStatement.setString(3, memberCountDisplaySlot.getMask());
         });
     }
 
-    private void removeMemberCountBeanSlot(long serverId, MemberCountDisplay memberCountDisplay) {
+    private void removeMemberCountBeanSlot(long serverId, MemberCountDisplaySlot memberCountDisplaySlot) {
         DBMain.getInstance().asyncUpdate("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
-            preparedStatement.setLong(2, memberCountDisplay.getVoiceChannelId());
+            preparedStatement.setLong(2, memberCountDisplaySlot.getVoiceChannelId());
         });
     }
 

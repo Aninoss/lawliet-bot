@@ -18,16 +18,12 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Locale;
 
 @DiscordEvent(allowBots = true)
 public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinWelcome.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

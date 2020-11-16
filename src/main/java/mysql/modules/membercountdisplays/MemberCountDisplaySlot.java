@@ -5,12 +5,12 @@ import org.javacord.api.entity.channel.ServerVoiceChannel;
 
 import java.util.Optional;
 
-public class MemberCountDisplay {
+public class MemberCountDisplaySlot {
 
     private final long serverId, voiceChannelId;
     private final String mask;
 
-    public MemberCountDisplay(long serverId, long voiceChannelId, String mask) {
+    public MemberCountDisplaySlot(long serverId, long voiceChannelId, String mask) {
         this.serverId = serverId;
         this.voiceChannelId = voiceChannelId;
         this.mask = mask;

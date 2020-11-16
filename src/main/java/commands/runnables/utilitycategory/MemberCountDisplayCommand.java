@@ -15,7 +15,7 @@ import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountBean;
-import mysql.modules.membercountdisplays.MemberCountDisplay;
+import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -178,7 +178,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         return true;
                     }
 
-                    memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplay(event.getServer().get().getId(), currentVC.getId(), currentName));
+                    memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplaySlot(event.getServer().get().getId(), currentVC.getId(), currentName));
 
                     setLog(LogStatus.SUCCESS, getString("displayadd"));
                     setState(0);
@@ -212,7 +212,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplay>()
+                        .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplaySlot>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
                                         return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getName()), StringUtil.escapeMarkdown(bean.getMask()));
@@ -226,7 +226,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).map(Nameable::getName).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:
-                ArrayList<MemberCountDisplay> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
+                ArrayList<MemberCountDisplaySlot> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
                 String[] roleStrings = new String[channelNames.size()];
                 for(int i = 0; i < roleStrings.length; i++) {
                     roleStrings[i] = channelNames.get(i).getMask();
