@@ -507,7 +507,8 @@ public abstract class Command {
 
     public void removeReactionListener(Message message) {
         CommandContainer.getInstance().removeReactionListener(this);
-        if (message != null && message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
+        if (message != null && message.getChannel().canYouRemoveReactionsOfOthers())
+            message.removeAllReactions();
     }
 
     public void removeNavigation() {

@@ -40,12 +40,10 @@ public class RunningCheckerManager {
             if (currentThread.isAlive())
                 return true;
 
-            synchronized (RunningCheckerManager.getInstance()) {
-                runningCommandsList.remove(runningCheckerSlot);
-                if (runningCommandsList.isEmpty())
-                    runningCommandsMap.remove(userId);
-                return false;
-            }
+            runningCommandsList.remove(runningCheckerSlot);
+            if (runningCommandsList.isEmpty())
+                runningCommandsMap.remove(userId);
+            return false;
         });
     }
 

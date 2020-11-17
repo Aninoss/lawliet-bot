@@ -341,7 +341,8 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                             durationMinutes,
                             title,
                             description,
-                            imageLink
+                            imageLink,
+                            true
                     );
                     GiveawayBean oldGiveaway = giveawayBeans.get(giveawayBean.getMessageId());
                     if (oldGiveaway != null) oldGiveaway.stop();
@@ -502,7 +503,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     private List<GiveawayBean> getGiveawaySlotsForServer() {
         return giveawayBeans.values().stream()
-                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.getMessage().isPresent() && giveaway.getEnd().isAfter(Instant.now()))
+                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.getMessage().isPresent() && giveaway.isActive())
                 .collect(Collectors.toList());
     }
 

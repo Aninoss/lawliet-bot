@@ -7,9 +7,10 @@ import org.javacord.api.entity.server.Server;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Observable;
 import java.util.Optional;
 
-public class GiveawayBean {
+public class GiveawayBean extends Observable {
 
     private final long serverId;
     private final long messageId;
@@ -21,10 +22,9 @@ public class GiveawayBean {
     private final String title;
     private final String description;
     private final String imageUrl;
+    private boolean active;
 
-    private boolean active = true;
-
-    public GiveawayBean(long serverId, long channelId, long messageId, String emoji, int winners, Instant start, long durationMinutes, String title, String description, String imageUrl) {
+    public GiveawayBean(long serverId, long channelId, long messageId, String emoji, int winners, Instant start, long durationMinutes, String title, String description, String imageUrl, boolean active) {
         this.serverId = serverId;
         this.messageId = messageId;
         this.channelId = channelId;
@@ -35,6 +35,7 @@ public class GiveawayBean {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.active = active || getEnd().isAfter(Instant.now());
     }
 
     public long getServerId() {
@@ -95,6 +96,8 @@ public class GiveawayBean {
 
     public void stop() {
         active = false;
+        setChanged();
+        notifyObservers();
     }
 
     public boolean isActive() {

@@ -19,7 +19,7 @@ public class DBGiveaway extends DBCached {
 
     public CustomObservableMap<Long, GiveawayBean> loadBean() throws Exception {
         if (giveawayBeans == null) {
-            HashMap<Long, GiveawayBean> giveawaysMap = new DBDataLoad<GiveawayBean>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl", "1",
+            HashMap<Long, GiveawayBean> giveawaysMap = new DBDataLoad<GiveawayBean>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "1",
                     preparedStatement -> {}
             ).getHashMap(
                     GiveawayBean::getMessageId,
@@ -33,7 +33,8 @@ public class DBGiveaway extends DBCached {
                             resultSet.getLong(7),
                             resultSet.getString(8),
                             resultSet.getString(9),
-                            resultSet.getString(10)
+                            resultSet.getString(10),
+                            resultSet.getBoolean(11)
                     )
             );
 
@@ -53,7 +54,7 @@ public class DBGiveaway extends DBCached {
     }
 
     private void addGiveawaySlot(GiveawayBean slot) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getServerId());
             preparedStatement.setLong(2, slot.getMessageId());
             preparedStatement.setLong(3, slot.getChannelId());
@@ -64,6 +65,7 @@ public class DBGiveaway extends DBCached {
             preparedStatement.setString(8, slot.getTitle());
             preparedStatement.setString(9, slot.getDescription());
             preparedStatement.setString(10, slot.getImageUrl().orElse(null));
+            preparedStatement.setBoolean(11, slot.isActive());
         });
     }
 

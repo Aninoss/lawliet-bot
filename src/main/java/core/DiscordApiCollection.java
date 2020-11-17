@@ -96,11 +96,6 @@ public class DiscordApiCollection {
             if (apiList[n] != null) {
                 DiscordApi api = apiList[n];
                 apiList[n] = null;
-                try {
-                    CommandContainer.getInstance().clearShard(n);
-                } catch (Exception e) {
-                    LOGGER.error("Exception", e);
-                }
                 api.disconnect();
             }
 

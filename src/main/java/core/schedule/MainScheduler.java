@@ -18,6 +18,7 @@ public class MainScheduler {
     private MainScheduler() { }
 
     private final Timer timer = new Timer();
+    private final Timer poller = new Timer();
 
     public void schedule(long millis, Runnable listener) {
         timer.schedule(new TimerTask() {
@@ -41,7 +42,7 @@ public class MainScheduler {
     Keeps polling in the specified time interval as long as the listener returns true
      */
     public void poll(long millis, RunnableWithBoolean listener) {
-        timer.schedule(new TimerTask() {
+        poller.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {

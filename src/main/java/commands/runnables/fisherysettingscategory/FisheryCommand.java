@@ -38,7 +38,7 @@ import java.util.Random;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
-        aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings"}
+        aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
@@ -53,7 +53,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     public static final String treasureEmoji = "💰";
     public static final String keyEmoji = "🔑";
-    private static final ArrayList<Message> blockedTreasureMessages = new ArrayList<>();
+    private static final ArrayList<Long> blockedTreasureMessages = new ArrayList<>();
 
     public FisheryCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -67,7 +67,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
         channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;
     }
-    
+
     @Override
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         if (state == 1) {
@@ -156,7 +156,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options_"+ serverBean.getFisheryStatus().ordinal()).split("\n"));
+                setOptions(getString("state0_options_" + serverBean.getFisheryStatus().ordinal()).split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Emojis.EMPTY_EMOJI, false)
@@ -165,15 +165,19 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(serverBean.hasFisheryCoinsGivenLimit())), getString("state0_mcoinsgivenlimit_desc"), true)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false);
 
-            case 1: return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
-            case 2: return channelNavigationHelper.drawDataRemove();
+            case 1:
+                return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
+            case 2:
+                return channelNavigationHelper.drawDataRemove();
 
-            default: return null;
+            default:
+                return null;
         }
     }
 
     @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
+    public void onNavigationTimeOut(Message message) throws Throwable {
+    }
 
     @Override
     public int getMaxReactionNumber() {
@@ -182,62 +186,55 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (event.getEmoji().getMentionTag().equalsIgnoreCase(keyEmoji)) {
-            boolean blocked = false;
-            for(Message message1: blockedTreasureMessages) {
-                if (message1.getId() == message.getId()) {
-                    blocked = true;
-                    break;
-                }
-            }
+        if (event.getEmoji().getMentionTag().equalsIgnoreCase(keyEmoji) &&
+                blockedTreasureMessages.stream().noneMatch(messageId -> messageId == message.getId())
+        ) {
+            blockedTreasureMessages.add(message.getId());
+            if (message.getChannel().canYouRemoveReactionsOfOthers())
+                message.removeAllReactions().get();
 
-            if (!blocked) {
-                blockedTreasureMessages.add(message);
-                if (message.getChannel().canYouRemoveReactionsOfOthers())
-                    message.removeAllReactions().get();
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
+                    .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
+            message.edit(eb).get();
 
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
-                        .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
-                message.edit(eb).get();
+            Thread.sleep(1000 * 3);
 
-                Thread.sleep(1000 * 3);
+            Random r = new Random();
+            String[] winLose = new String[]{ "win", "lose" };
+            int resultInt = r.nextInt(2);
+            String result = winLose[resultInt];
 
-                Random r = new Random();
-                String[] winLose = new String[]{"win", "lose"};
-                int resultInt = r.nextInt(2);
-                String result = winLose[resultInt];
+            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
+            long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
-                FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
-                long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
+            String treasureImage;
+            if (resultInt == 0)
+                treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
+            else
+                treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
 
-                String treasureImage;
-                if (resultInt == 0) treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
-                else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
+            eb = EmbedFactory.getEmbedDefault()
+                    .setTitle(FisheryCommand.treasureEmoji + " " + getString("treasure_title"))
+                    .setDescription(getString("treasure_opened_" + result, event.getUser().get().getMentionTag(), StringUtil.numToString(won)))
+                    .setImage(treasureImage)
+                    .setFooter(getString("treasure_footer"));
 
-                eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(FisheryCommand.treasureEmoji + " " +getString("treasure_title"))
-                        .setDescription(getString("treasure_opened_" + result, event.getUser().get().getMentionTag(), StringUtil.numToString(won)))
-                        .setImage(treasureImage)
-                        .setFooter(getString("treasure_footer"));
+            message.edit(eb);
+            if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
 
-                message.edit(eb);
-                if (message.getChannel().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
+            ServerTextChannel channel = event.getServerTextChannel().get();
+            Message accountUpdateMessage = null;
+            if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks())
+                accountUpdateMessage = channel.sendMessage(userBean.changeValues(0, won)).get();
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-                Message accountUpdateMessage = null;
-                if (resultInt == 0 && channel.canYouWrite() && channel.canYouEmbedLinks()) accountUpdateMessage = channel.sendMessage(userBean.changeValues(0, won)).get();
-
-                final Message finalAccountUpdateMessage = accountUpdateMessage;
-                MainScheduler.getInstance().schedule(1, ChronoUnit.MINUTES, () -> {
-                    blockedTreasureMessages.remove(message);
-
-                    MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
-                        if (finalAccountUpdateMessage != null) finalAccountUpdateMessage.delete();
-                        message.delete();
-                    });
-                });
-            }
+            blockedTreasureMessages.remove(message.getId());
+            final Message finalAccountUpdateMessage = accountUpdateMessage;
+            MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
+                if (finalAccountUpdateMessage != null)
+                    finalAccountUpdateMessage.delete();
+                message.delete();
+            });
         }
     }
 
@@ -245,4 +242,5 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     public String getTitleStartIndicator() {
         return treasureEmoji;
     }
+
 }

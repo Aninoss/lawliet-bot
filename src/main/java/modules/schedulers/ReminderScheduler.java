@@ -19,8 +19,13 @@ public class ReminderScheduler {
     private final static Logger LOGGER = LoggerFactory.getLogger(ReminderScheduler.class);
 
     private static final ReminderScheduler ourInstance = new ReminderScheduler();
-    public static ReminderScheduler getInstance() { return ourInstance; }
-    private ReminderScheduler() { }
+
+    public static ReminderScheduler getInstance() {
+        return ourInstance;
+    }
+
+    private ReminderScheduler() {
+    }
 
     private boolean started = false;
 
@@ -46,16 +51,18 @@ public class ReminderScheduler {
             remindersBean.stop();
 
             long channelId = remindersBean.getChannelId();
-            remindersBean.getServer().flatMap(server -> server.getTextChannelById(channelId)).ifPresent(channel -> {
-                if (PermissionCheckRuntime.getInstance().botHasPermission(
-                        remindersBean.getServerBean().getLocale(),
-                        ReminderCommand.class,
-                        channel,
-                        Permission.READ_MESSAGES | Permission.SEND_MESSAGES)
-                ) {
-                    channel.sendMessage(remindersBean.getMessage()).exceptionally(ExceptionLogger.get());
-                }
-            });
+            remindersBean.getServer()
+                    .flatMap(server -> server.getTextChannelById(channelId))
+                    .ifPresent(channel -> {
+                        if (PermissionCheckRuntime.getInstance().botHasPermission(
+                                remindersBean.getServerBean().getLocale(),
+                                ReminderCommand.class,
+                                channel,
+                                Permission.READ_MESSAGES | Permission.SEND_MESSAGES
+                        )) {
+                            channel.sendMessage(remindersBean.getMessage()).exceptionally(ExceptionLogger.get());
+                        }
+                    });
 
             Optional.ofNullable(remindersBean.getCompletedRunnable())
                     .ifPresent(Runnable::run);

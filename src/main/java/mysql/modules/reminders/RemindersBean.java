@@ -2,14 +2,10 @@ package mysql.modules.reminders;
 
 import mysql.BeanWithServer;
 import mysql.modules.server.ServerBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
 public class RemindersBean extends BeanWithServer {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(RemindersBean.class);
 
     private final int id;
     private final long channelId;
