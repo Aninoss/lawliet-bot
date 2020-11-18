@@ -503,7 +503,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
     private List<GiveawayBean> getGiveawaySlotsForServer() {
         return giveawayBeans.values().stream()
-                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.getMessage().isPresent() && giveaway.isActive())
+                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.isActive() && giveaway.getMessage().isPresent())
                 .collect(Collectors.toList());
     }
 

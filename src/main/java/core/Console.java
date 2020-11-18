@@ -217,6 +217,7 @@ public class Console {
 
     private void onBackup(String[] args) {
         SystemUtil.backupDB();
+        System.out.println("Backup completed!");
     }
 
     private void onReloadFonts(String[] args) {

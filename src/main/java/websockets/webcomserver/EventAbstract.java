@@ -1,6 +1,5 @@
 package websockets.webcomserver;
 
-import core.CustomThread;
 import org.java_websocket.WebSocket;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,18 +21,16 @@ public abstract class EventAbstract implements BiConsumer<WebSocket, JSONObject>
 
     @Override
     public void accept(WebSocket webSocket, JSONObject mainJSON) {
-        new CustomThread(() -> {
-            try {
-                JSONObject response = processData(mainJSON, webComServer);
+        try {
+            JSONObject response = processData(mainJSON, webComServer);
 
-                if (response != null) {
-                    response.put("id", mainJSON.getString("id"));
-                    WebComServer.getInstance().send(webSocket, event, response);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error on web socket event", e);
+            if (response != null) {
+                response.put("id", mainJSON.getString("id"));
+                WebComServer.getInstance().send(webSocket, event, response);
             }
-        }, "webcom_event").start(); //TODO DEBUG
+        } catch (Exception e) {
+            LOGGER.error("Error on web socket event", e);
+        }
     }
 
     protected abstract JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception;

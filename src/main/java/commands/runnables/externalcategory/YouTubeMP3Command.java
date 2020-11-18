@@ -58,7 +58,7 @@ public class YouTubeMP3Command extends Command {
         }
 
         Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
-        SystemUtil.executeProcessSilent(Bot.isProductionMode() ? "./ytmp3.sh" : "ytmp3.bat", meta.identifier);
+        SystemUtil.executeProcess(Bot.isProductionMode() ? "./ytmp3.sh" : "ytmp3.bat", meta.identifier);
 
         File mp3File = new File(String.format("temp/%s.mp3", meta.identifier));
         if (!mp3File.exists()) {

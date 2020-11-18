@@ -46,7 +46,7 @@ public class GiveawayScheduler {
 
         try {
             DBGiveaway.getInstance().loadBean().values().stream()
-                    .filter(giveawayBean -> giveawayBean.getMessage().isPresent() && giveawayBean.isActive())
+                    .filter(GiveawayBean::isActive)
                     .forEach(this::loadGiveawayBean);
         } catch (Exception e) {
             LOGGER.error("Could not start giveaway", e);

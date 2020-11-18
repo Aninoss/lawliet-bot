@@ -27,7 +27,6 @@ public class OnCommandList extends EventAbstract {
 
     @Override
     protected synchronized JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
-        LOGGER.info("### COMMAND LIST DEBUG ###"); //TODO
         JSONObject mainJSON = new JSONObject();
         JSONArray arrayJSON = new JSONArray();
         HashMap<String, JSONObject> categories = new HashMap<>();
@@ -48,31 +47,18 @@ public class OnCommandList extends EventAbstract {
                 Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
                 String trigger = command.getTrigger();
                 JSONObject commandJSON = new JSONObject();
-                LOGGER.info("0" + trigger);
                 commandJSON.put("trigger", trigger);
-                LOGGER.info("1");
                 commandJSON.put("emoji", command.getEmoji());
-                LOGGER.info("2");
                 commandJSON.put("title", webComServer.getLanguagePack(command.getCategory(), trigger + "_title"));
-                LOGGER.info("3");
                 commandJSON.put("desc_short", webComServer.getLanguagePack(command.getCategory(), trigger + "_description"));
-                LOGGER.info("4");
                 commandJSON.put("desc_long", webComServer.getLanguagePack(command.getCategory(), trigger + "_helptext"));
-                LOGGER.info("5");
                 commandJSON.put("usage", webComServer.getCommandSpecs(command.getCategory(), trigger + "_usage", trigger));
-                LOGGER.info("6");
                 commandJSON.put("examples", webComServer.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
-                LOGGER.info("7");
                 commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
-                LOGGER.info("8");
                 commandJSON.put("nsfw", command.isNsfw());
-                LOGGER.info("9");
                 commandJSON.put("requires_user_permissions", command.isModCommand());
-                LOGGER.info("10");
                 commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
-                LOGGER.info("11");
                 commandJSON.put("patron_only", command.isPatreonRequired());
-                LOGGER.info("12");
 
                 categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
@@ -80,9 +66,7 @@ public class OnCommandList extends EventAbstract {
             }
         }
 
-        LOGGER.info("13");
         mainJSON.put("categories", arrayJSON);
-        LOGGER.info("14");
         return mainJSON;
     }
 

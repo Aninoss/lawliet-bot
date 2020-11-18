@@ -21,16 +21,18 @@ public class MainScheduler {
     private final Timer poller = new Timer();
 
     public void schedule(long millis, Runnable listener) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    listener.run();
-                } catch (Throwable e) {
-                    LOGGER.error("Unchecked exception in schedule timer");
+        if (Bot.isRunning()) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        listener.run();
+                    } catch (Throwable e) {
+                        LOGGER.error("Unchecked exception in schedule timer");
+                    }
                 }
-            }
-        }, millis);
+            }, millis);
+        }
     }
 
     public void schedule(long amount, TemporalUnit unit, Runnable listener) {
@@ -42,18 +44,20 @@ public class MainScheduler {
     Keeps polling in the specified time interval as long as the listener returns true
      */
     public void poll(long millis, RunnableWithBoolean listener) {
-        poller.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    if (Bot.isRunning() && listener.run()) {
-                        poll(millis, listener);
+        if (Bot.isRunning()) {
+            poller.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        if (Bot.isRunning() && listener.run()) {
+                            poll(millis, listener);
+                        }
+                    } catch (Throwable e) {
+                        LOGGER.error("Unchecked exception in poll timer");
                     }
-                } catch (Throwable e) {
-                    LOGGER.error("Unchecked exception in poll timer");
                 }
-            }
-        }, millis);
+            }, millis);
+        }
     }
 
     public void poll(long amount, TemporalUnit unit, RunnableWithBoolean listener) {
