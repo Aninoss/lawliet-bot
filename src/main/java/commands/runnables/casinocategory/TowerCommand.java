@@ -154,7 +154,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
         }
         logStatus = LogStatus.WIN;
         log = getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale()));
-        message.edit(getEmbed(false, false, false)).exceptionally(ExceptionLogger.get());
+        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(false, false, false)).exceptionally(ExceptionLogger.get()));
     }
 
     @Override

@@ -18,10 +18,10 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -89,11 +89,11 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         }
     }
 
-    private EmbedBuilder getEmbed() throws IOException {
+    private EmbedBuilder getEmbed() {
         return getEmbed(message.getServerTextChannel().get(), player);
     }
 
-    private EmbedBuilder getEmbed(ServerTextChannel channel, User user) throws IOException {
+    private EmbedBuilder getEmbed(ServerTextChannel channel, User user) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         eb.addField(getString("yourbet"), getChoiceString(channel, 0), true);
         eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
@@ -117,12 +117,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
 
         MainScheduler.getInstance().schedule(1500, () -> {
             selection[1] = new Random().nextInt(2);
-            try {
-                message.edit(getEmbed());
-            } catch (IOException e) {
-                ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-                return;
-            }
+            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
 
             MainScheduler.getInstance().schedule(1000, () -> {
                 if (selection[0] == selection[1]) {
@@ -143,11 +138,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                     }
                 }
 
-                try {
-                    message.edit(getEmbed());
-                } catch (IOException e) {
-                    ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-                }
+                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
             });
         });
     }
@@ -163,7 +154,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             for(int i = 0; i < 2; i++) {
                 if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[i])) {
                     selection[0] = i;
-                    message.edit(getEmbed());
+                    message.edit(getEmbed()).exceptionally(ExceptionLogger.get());
                     manageEnd();
                     return;
                 }
@@ -180,7 +171,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     public void onReactionTimeOut(Message message) throws Throwable {
         if (active) {
             selection[0] = 0;
-            message.edit(getEmbed());
+            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
             manageEnd();
         }
     }

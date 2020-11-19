@@ -226,9 +226,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     }
 
     @Override
-    public void onForwardedTimeOut() throws Throwable {
-        onAbort();
-    }
+    public void onForwardedTimeOut() throws Throwable {}
 
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
@@ -249,5 +247,9 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
     }
 
     @Override
-    public void onReactionTimeOut(Message message) throws Throwable {}
+    public void onReactionTimeOut(Message message) throws Throwable {
+        if (active) {
+            onAbort();
+        }
+    }
 }

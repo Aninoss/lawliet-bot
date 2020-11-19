@@ -47,7 +47,6 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     private String[] answers;
     private int correctAnswer;
     private int answerSelected;
-    private final int COUNTER = 10;
     String url;
 
     public QuizCommand(Locale locale, String prefix) {
@@ -108,9 +107,10 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
             }
 
             compareKey = "quiz_" + answers.length + "_" + difficulty;
-            winMultiplicator = answers.length * (difficulty+1) / 8.0;
+            winMultiplicator = answers.length * (difficulty + 1) / 8.0;
 
             message = event.getChannel().sendMessage(getEmbed()).get();
+            int COUNTER = 10;
             MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, this::onTimeUp);
 
             for(int i = 0; i < answers.length; i++) {

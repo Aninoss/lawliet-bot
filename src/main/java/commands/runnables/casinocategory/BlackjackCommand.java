@@ -3,16 +3,21 @@ package commands.runnables.casinocategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
-import constants.*;
+import constants.Category;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Permission;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83C\uDCCF",
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         executableWithoutArgs = true,
-        aliases = {"bj"}
+        aliases = { "bj" }
 )
 public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {
 
@@ -34,7 +39,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
     private String log;
     private LogStatus logStatus;
-    private final String[] EMOJIS = {"\uD83D\uDCE5", "✋"};
+    private final String[] EMOJIS = { "\uD83D\uDCE5", "✋" };
     private ArrayList<GameCard>[] gameCards;
     private final int TIME_BETWEEN_EVENTS = 2500;
     private final int TIME_BEFORE_END = 1500;
@@ -54,10 +59,10 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
             gameCards = new ArrayList[2];
 
             gameCards[0] = new ArrayList<>();
-            for(int i=0; i<2; i++) gameCards[0].add(new GameCard());
+            for (int i = 0; i < 2; i++) gameCards[0].add(new GameCard());
 
             gameCards[1] = new ArrayList<>();
-            for(int i=0; i<1; i++) gameCards[1].add(new GameCard());
+            for (int i = 0; i < 1; i++) gameCards[1].add(new GameCard());
 
             message = event.getChannel().sendMessage(getEmbed(-1)).get();
             for (String str : EMOJIS) message.addReaction(str);
@@ -69,16 +74,16 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
     private EmbedBuilder getEmbed(int playerNewCard) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0, playerNewCard == 0),true)
-                .addField(getString("cards", true, String.valueOf(getCardSize(1))),getCards(1, playerNewCard == 1),true);
+                .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0, playerNewCard == 0), true)
+                .addField(getString("cards", true, String.valueOf(getCardSize(1))), getCards(1, playerNewCard == 1), true);
 
-        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0)
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String key = "tutorial";
         if (finished) key = "data";
 
         eb.addField(Emojis.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(coinsInput)), false);
-
         eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
 
@@ -87,7 +92,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
     private String getCards(int i, boolean newCard) {
         StringBuilder sb = new StringBuilder();
-        for(int j = 0; j < gameCards[i].size(); j++) {
+        for (int j = 0; j < gameCards[i].size(); j++) {
             GameCard gameCard = gameCards[i].get(j);
             if (j == gameCards[i].size() - 1 && newCard)
                 sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d_get", gameCard.getId())).getMentionTag());
@@ -102,7 +107,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     private int getCardSize(int i) {
         int n = 0;
         int aces = 0;
-        for (GameCard gameCard: gameCards[i]) {
+        for (GameCard gameCard : gameCards[i]) {
             n += gameCard.getValue();
             if (gameCard.isAce()) aces++;
         }
@@ -146,90 +151,97 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 logStatus = LogStatus.SUCCESS;
                 log = getString("stopcard", 0);
                 message.edit(getEmbed(-1));
-
-                try {
-                    onCPUTurn();
-                } catch (ExecutionException e) {
-                    onLose();
-                    LOGGER.error("Error in black jack", e);
-                }
+                onCPUTurn();
             }
         }
     }
 
-    private void onCPUTurn() throws ExecutionException, InterruptedException {
-            while (true) {
-                Thread.sleep(TIME_BETWEEN_EVENTS);
+    private void onCPUTurn() {
+        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, this::onCPUTurnStep);
+    }
 
-                gameCards[1].add(new GameCard());
-                logStatus = LogStatus.SUCCESS;
-                log = getString("getcard", 1);
-                message.edit(getEmbed(1)).get();
+    private boolean onCPUTurnStep() {
+        if (message.getCurrentCachedInstance().isEmpty()) {
+            try {
+                onLose();
+            } catch (ExecutionException e) {
+                LOGGER.error("Black jack error exception", e);
+            }
+            return false;
+        }
 
-                if (getCardSize(1) >= 17) {
-                    if (getCardSize(1) <= 21) {
-                        Thread.sleep(TIME_BETWEEN_EVENTS);
-                        logStatus = LogStatus.SUCCESS;
-                        log = getString("stopcard", 1);
-                        message.edit(getEmbed(-1));
+        gameCards[1].add(new GameCard());
+        logStatus = LogStatus.SUCCESS;
+        log = getString("getcard", 1);
+        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(1)).exceptionally(ExceptionLogger.get()));
 
-                        Thread.sleep(TIME_BEFORE_END);
+        if (getCardSize(1) >= 17) {
+            if (getCardSize(1) <= 21) {
+                MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, () -> {
+                    logStatus = LogStatus.SUCCESS;
+                    log = getString("stopcard", 1);
+                    message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
 
-                        boolean[] blackjack = new boolean[2];
-                        for(int i=0; i<2; i++) if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
+                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
+                        try {
+                            boolean[] blackjack = new boolean[2];
+                            for (int i = 0; i < 2; i++)
+                                if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
 
-                        if (blackjack[0] && !blackjack[1]) {
-                            onWin();
-                            logStatus = LogStatus.WIN;
-                            log = getString("blackjack", 0);
-                            message.edit(getEmbed(-1)).get();
-                            return;
+                            if (blackjack[0] && !blackjack[1]) {
+                                onWin();
+                                logStatus = LogStatus.WIN;
+                                log = getString("blackjack", 0);
+                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                                return;
+                            } else if (blackjack[1] && !blackjack[0]) {
+                                onLose();
+                                logStatus = LogStatus.LOSE;
+                                log = getString("blackjack", 1);
+                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                                return;
+                            }
+
+                            int[] points = { 21 - getCardSize(0), 21 - getCardSize(1) };
+
+                            if (points[0] == points[1]) {
+                                onGameEnd();
+                                logStatus = LogStatus.FAILURE;
+                                log = getString("draw");
+                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            } else if (points[0] < points[1]) {
+                                onWin();
+                                logStatus = LogStatus.WIN;
+                                log = getString("21", 0);
+                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            } else if (points[0] > points[1]) {
+                                onLose();
+                                logStatus = LogStatus.LOSE;
+                                log = getString("21", 1);
+                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            }
+                        } catch (ExecutionException e) {
+                            LOGGER.error("Black jack exception", e);
                         }
-
-                        else if (blackjack[1] && !blackjack[0]) {
-                            onLose();
-                            logStatus = LogStatus.LOSE;
-                            log = getString("blackjack", 1);
-                            message.edit(getEmbed(-1)).get();
-                            return;
-                        }
-
-                        int[] points = {21-getCardSize(0), 21-getCardSize(1)};
-
-                        if (points[0] == points[1]) {
-                            onGameEnd();
-                            logStatus = LogStatus.FAILURE;
-                            log = getString("draw");
-                            message.edit(getEmbed(-1)).get();
-                            return;
-                        }
-
-                        else if (points[0] < points[1]) {
-                            onWin();
-                            logStatus = LogStatus.WIN;
-                            log = getString("21", 0);
-                            message.edit(getEmbed(-1)).get();
-                            return;
-                        }
-
-                        else if (points[0] > points[1]) {
-                            onLose();
-                            logStatus = LogStatus.LOSE;
-                            log = getString("21", 1);
-                            message.edit(getEmbed(-1)).get();
-                            return;
-                        }
-                    } else {
-                        Thread.sleep(TIME_BEFORE_END);
-
+                    });
+                });
+                return false;
+            } else {
+                MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
+                    try {
                         onWin();
                         logStatus = LogStatus.WIN;
                         log = getString("toomany", 1);
-                        message.edit(getEmbed(-1));
-                        return;
+                        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Black jack error exception", e);
                     }
-                }
+                });
+                return false;
             }
+        }
+
+        return true;
     }
 
     @Override
@@ -273,11 +285,14 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
             return value;
         }
 
-        public int getId() { return id; }
+        public int getId() {
+            return id;
+        }
 
         public boolean isAce() {
             return ace;
         }
+
     }
 
 }

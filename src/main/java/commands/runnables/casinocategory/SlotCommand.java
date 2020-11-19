@@ -2,21 +2,24 @@ package commands.runnables.casinocategory;
 
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
 import constants.Permission;
-import core.*;
+import core.DiscordApiCollection;
+import core.EmbedFactory;
+import core.TextManager;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -30,6 +33,8 @@ import java.util.concurrent.ExecutionException;
         aliases = {"slots", "slotmachine"}
 )
 public class SlotCommand extends CasinoAbstract implements OnReactionAddListener {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(SlotCommand.class);
 
     private String log;
     private int winLevel;
@@ -178,7 +183,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
         else return FRUITS_CONTAINER[fruits[i]];
     }
 
-    private void manageEnd() throws IOException, SQLException, ExecutionException {
+    private void manageEnd() throws ExecutionException {
         for(boolean b: progress) if (!b) return;
 
         removeReactionListener(getReactionMessage());
@@ -205,17 +210,26 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
         if (event.getEmoji().isUnicodeEmoji()) {
             if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(ALL_EMOJI)) {
                 removeReactionListener();
-                message.edit(getEmbed());
-                for(int i = 0; i < 3; i++) {
-                    Thread.sleep(1000);
-                    progress[i] = true;
-                    message.edit(getEmbed());
-                }
-                Thread.sleep(1000);
-                manageEnd();
-                message.edit(getEmbed());
+                message.edit(getEmbed()).exceptionally(ExceptionLogger.get());
+
+                MainScheduler.getInstance().schedule(1000, () -> unlockFruit(0));
+                MainScheduler.getInstance().schedule(2000, () -> unlockFruit(1));
+                MainScheduler.getInstance().schedule(3000, () -> unlockFruit(2));
+                MainScheduler.getInstance().schedule(4000, () -> {
+                    try {
+                        manageEnd();
+                        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
+                    } catch (ExecutionException e) {
+                        LOGGER.error("Slot exception", e);
+                    }
+                });
             }
         }
+    }
+
+    private void unlockFruit(int i) {
+        progress[i] = true;
+        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
     }
 
     @Override
