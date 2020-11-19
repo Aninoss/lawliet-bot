@@ -88,7 +88,7 @@ public class InviteFilter extends AutoModAbstract {
     }
 
     private boolean contentContainsDiscordLink(String string) {
-        return string.matches("(.*)(discord\\.gg\\/[A-Za-z0-9]{7})|(discord\\.com\\/invite\\/[A-Za-z0-9])|(discordapp\\.com\\/invite\\/[A-Za-z0-9])(.*)");
+        return string.matches("(.*)(discord\\.gg\\/[A-Za-z0-9]{6,8})|(discord\\.com\\/invite\\/[A-Za-z0-9])|(discordapp\\.com\\/invite\\/[A-Za-z0-9])(.*)");
     }
 
 }

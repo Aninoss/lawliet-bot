@@ -13,6 +13,7 @@ import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
+import modules.MemberCountDisplay;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountBean;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
@@ -169,9 +170,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                                 .build();
                         updater.addPermissionOverwrite(yourself, ownPermissions);
 
-                        String newVCName = modules.MemberCountDisplay.generateNewVCName(event.getServer().get(), currentName);
-                        updater.setName(newVCName)
-                                .update().get(10, TimeUnit.SECONDS);
+                        updater.update().get(10, TimeUnit.SECONDS);
                     } catch (ExecutionException | TimeoutException e) {
                         //Ignore
                         setLog(LogStatus.FAILURE, getString("nopermissions"));
@@ -179,6 +178,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                     }
 
                     memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplaySlot(event.getServer().get().getId(), currentVC.getId(), currentName));
+                    MemberCountDisplay.getInstance().manage(getLocale(), event.getServer().get());
 
                     setLog(LogStatus.SUCCESS, getString("displayadd"));
                     setState(0);

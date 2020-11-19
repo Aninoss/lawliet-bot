@@ -170,41 +170,41 @@ public class CommandContainer {
         commandList.add(YesCommand.class);
 
         //INTERACTIONS
-        commandList.add(MerkelCommand.class);
-        commandList.add(KillCommand.class);
-        commandList.add(PunchCommand.class);
-        commandList.add(SlapCommand.class);
         commandList.add(BakaCommand.class);
-        commandList.add(StealCommand.class);
-        commandList.add(ThrowCommand.class);
-        commandList.add(BullyCommand.class);
-        commandList.add(EveryoneCommand.class);
         commandList.add(BiteCommand.class);
-        commandList.add(NomCommand.class);
-        commandList.add(PokeCommand.class);
-        commandList.add(SpankCommand.class);
-        commandList.add(TickleCommand.class);
-        commandList.add(WaveCommand.class);
+        commandList.add(BullyCommand.class);
+        commandList.add(CuddleCommand.class);
+        commandList.add(EveryoneCommand.class);
+        commandList.add(FuckCommand.class);
+        commandList.add(FurryFuckCommand.class);
         commandList.add(HighfiveCommand.class);
-        commandList.add(PatCommand.class);
-        commandList.add(RewardCommand.class);
-        commandList.add(MassageCommand.class);
+        commandList.add(HugCommand.class);
+        commandList.add(KillCommand.class);
+        commandList.add(KissCommand.class);
         commandList.add(LickCommand.class);
         commandList.add(LoveCommand.class);
-        commandList.add(HugCommand.class);
-        commandList.add(YaoiHugCommand.class);
-        commandList.add(YuriHugCommand.class);
-        commandList.add(CuddleCommand.class);
-        commandList.add(YaoiCuddleCommand.class);
-        commandList.add(YuriCuddleCommand.class);
-        commandList.add(KissCommand.class);
-        commandList.add(YaoiKissCommand.class);
-        commandList.add(YuriKissCommand.class);
         commandList.add(MarryCommand.class);
-        commandList.add(FuckCommand.class);
+        commandList.add(MassageCommand.class);
+        commandList.add(MerkelCommand.class);
+        commandList.add(NomCommand.class);
+        commandList.add(PatCommand.class);
+        commandList.add(PokeCommand.class);
+        commandList.add(PunchCommand.class);
+        commandList.add(RewardCommand.class);
+        commandList.add(SlapCommand.class);
+        commandList.add(SpankCommand.class);
+        commandList.add(StealCommand.class);
+        commandList.add(ThrowCommand.class);
+        commandList.add(TickleCommand.class);
+        commandList.add(WaveCommand.class);
+        commandList.add(YaoiCuddleCommand.class);
         commandList.add(YaoiFuckCommand.class);
+        commandList.add(YaoiHugCommand.class);
+        commandList.add(YaoiKissCommand.class);
+        commandList.add(YuriCuddleCommand.class);
         commandList.add(YuriFuckCommand.class);
-        commandList.add(FurryFuckCommand.class);
+        commandList.add(YuriHugCommand.class);
+        commandList.add(YuriKissCommand.class);
 
         //EXTERNAL
         commandList.add(RedditCommand.class);
@@ -218,7 +218,6 @@ public class CommandContainer {
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);
-        commandList.add(PlayCommand.class);
         commandList.add(OsuCommand.class);
 
         //NSFW

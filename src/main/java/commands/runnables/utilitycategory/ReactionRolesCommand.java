@@ -306,7 +306,11 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
             case 6:
                 if (emojiConnections.size() > 0) {
-                    setState(EXAMPLE);
+                    if (getLinkString().length() <= 1024) {
+                        setState(EXAMPLE);
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("shortcutstoolong"));
+                    }
                 } else {
                     setLog(LogStatus.FAILURE, getString("noshortcuts"));
                 }

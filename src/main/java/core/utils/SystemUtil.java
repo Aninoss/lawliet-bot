@@ -4,7 +4,6 @@ import core.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class SystemUtil {
@@ -17,7 +16,7 @@ public class SystemUtil {
             Process p = pb.start();
             p.waitFor();
             return p.exitValue();
-        } catch (IOException | InterruptedException e) {
+        } catch (Throwable e) {
             LOGGER.error("Could not run process", e);
         }
 

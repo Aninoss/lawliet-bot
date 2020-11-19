@@ -2,8 +2,6 @@ package commands.runningchecker;
 
 import core.PatreonCache;
 import core.schedule.MainScheduler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -14,8 +12,6 @@ public class RunningCheckerManager {
     private static final RunningCheckerManager ourInstance = new RunningCheckerManager();
     public static RunningCheckerManager getInstance() { return ourInstance; }
     private RunningCheckerManager() {}
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(RunningCheckerManager.class);
 
     private final HashMap<Long, ArrayList<RunningCheckerSlot>> runningCommandsMap = new HashMap<>();
 
@@ -40,10 +36,12 @@ public class RunningCheckerManager {
             if (currentThread.isAlive())
                 return true;
 
-            runningCommandsList.remove(runningCheckerSlot);
-            if (runningCommandsList.isEmpty())
-                runningCommandsMap.remove(userId);
-            return false;
+            synchronized (this) {
+                runningCommandsList.remove(runningCheckerSlot);
+                if (runningCommandsList.isEmpty())
+                    runningCommandsMap.remove(userId);
+                return false;
+            }
         });
     }
 

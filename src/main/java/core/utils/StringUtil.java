@@ -180,38 +180,33 @@ public final class StringUtil {
     }
 
     public static String shortenString(String str, int limit) {
-        if (str.length() > limit) {
-            str = str.substring(0, limit - 4);
-
-            if (str.contains("\n")) {
-                int pos = str.lastIndexOf("\n");
-                str = str.substring(0, pos);
-            } else {
-                if (str.contains(" ")) {
-                    int pos = str.lastIndexOf(" ");
-                    str = str.substring(0, pos);
-                }
-            }
-            while (str.length() > 0 && (str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n')) str = str.substring(0, str.length() - 1);
-
-            str = str + " (…)";
-        }
-        return str;
+        return shortenString(str, limit, "…", false);
     }
 
     public static String shortenStringLine(String str, int limit) {
-        if (str.length() > limit) {
-            str = str.substring(0, limit - 4);
+        return shortenString(str, limit, "\n…", true);
+    }
 
-            if (str.contains("\n")) {
-                int pos = str.lastIndexOf("\n");
+    public static String shortenString(String str, int limit, String postfix, boolean focusLineBreak) {
+        if (str.length() <= limit)
+            return str;
+
+        while(str.length() > limit - postfix.length() && str.contains("\n")) {
+            int pos = str.lastIndexOf("\n");
+            str = str.substring(0, pos);
+        }
+
+        if (!focusLineBreak) {
+            while (str.length() > limit - postfix.length() && str.contains(" ")){
+                int pos = str.lastIndexOf(" ");
                 str = str.substring(0, pos);
             }
-            while ((str.charAt(str.length()-1) == '.' || str.charAt(str.length()-1) == ' ' || str.charAt(str.length()-1) == '\n') && str.length() > 0) str = str.substring(0,str.length()-1);
-
-            str = str + "\n(…)";
         }
-        return str;
+
+        while (str.length() > 0 && (str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n'))
+            str = str.substring(0, str.length() - 1);
+
+        return str.substring(0, Math.min(str.length(), limit - postfix.length())) + postfix;
     }
 
     public static String getEmojiForBoolean(boolean bool) {
