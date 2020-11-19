@@ -6,6 +6,7 @@ import commands.runnables.informationcategory.PingCommand;
 import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;
+import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
@@ -396,20 +397,18 @@ public abstract class Command {
 
     private void removeLoadingReaction(Message message) {
         if (loadingStatus != LoadingStatus.OFF) {
-            while (loadingStatus == LoadingStatus.ONGOING) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    //Ignore
-                }
-            }
+            MainScheduler.getInstance().poll(100, () -> {
+                if (loadingStatus == LoadingStatus.ONGOING)
+                    return true;
 
-            loadingStatus = LoadingStatus.OFF;
-            if (message.getCurrentCachedInstance().isPresent()) {
-                if (message.getChannel().canYouUseExternalEmojis())
-                    message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
-                else message.removeOwnReactionByEmoji("⏳");
-            }
+                loadingStatus = LoadingStatus.OFF;
+                if (message.getCurrentCachedInstance().isPresent()) {
+                    if (message.getChannel().canYouUseExternalEmojis())
+                        message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L)).exceptionally(ExceptionLogger.get());
+                    else message.removeOwnReactionByEmoji("⏳").exceptionally(ExceptionLogger.get());
+                }
+                return false;
+            });
         }
     }
 

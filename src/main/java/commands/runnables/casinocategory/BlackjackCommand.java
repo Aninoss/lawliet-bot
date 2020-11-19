@@ -136,13 +136,17 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
                 if (getCardSize(0) > 21) {
                     block = true;
-                    Thread.sleep(TIME_BEFORE_END);
-                    finished = true;
-                    onLose();
-
-                    logStatus = LogStatus.LOSE;
-                    log = getString("toomany", 0);
-                    message.edit(getEmbed(-1));
+                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
+                        finished = true;
+                        try {
+                            onLose();
+                            logStatus = LogStatus.LOSE;
+                            log = getString("toomany", 0);
+                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                        } catch (ExecutionException e) {
+                            LOGGER.error("Black jack exception", e);
+                        }
+                    });
                 }
             } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[1])) {
                 finished = true;

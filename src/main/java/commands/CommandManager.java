@@ -144,7 +144,7 @@ public class CommandManager {
         if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 3) return true;
 
         Optional<Integer> waitingSec = CooldownManager.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
-        if (!waitingSec.isPresent()) {
+        if (waitingSec.isEmpty()) {
             return true;
         }
 
