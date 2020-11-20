@@ -17,17 +17,25 @@ public class TextAICache {
             .expireAfterWrite(2, TimeUnit.HOURS)
             .build(new CacheLoader<>() {
                 @Override
-                public TextAI.WordMap load(@NonNull String userOnServer) throws Exception {
+                public TextAI.WordMap load(@NonNull String userOnServer) {
                     return new TextAI.WordMap();
                 }
             });
 
-    public TextAI.WordMap get(long serverId, long userId, int contextSize) throws ExecutionException {
-        return cache.get(generateKey(serverId, userId, contextSize));
+    public TextAI.WordMap get(long serverId, long userId, int contextSize) {
+        try {
+            return cache.get(generateKey(serverId, userId, contextSize));
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public TextAI.WordMap get(long serverId, int contextSize) throws ExecutionException {
-        return cache.get(generateKey(serverId, contextSize));
+    public TextAI.WordMap get(long serverId, int contextSize) {
+        try {
+            return cache.get(generateKey(serverId, contextSize));
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String generateKey(long serverId, int contextSize) {

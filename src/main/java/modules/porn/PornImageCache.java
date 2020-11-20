@@ -23,8 +23,12 @@ public class PornImageCache {
                     }
     );
 
-    public PornImageCacheSearchKey get(@NonNull String domain, @NonNull String searchKey) throws ExecutionException {
-        return cache.get(domain + "|" + searchKey.toLowerCase());
+    public PornImageCacheSearchKey get(@NonNull String domain, @NonNull String searchKey) {
+        try {
+            return cache.get(domain + "|" + searchKey.toLowerCase());
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void reset() {

@@ -3,6 +3,7 @@ package mysql.modules.fisheryusers;
 import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import core.Bot;
+import core.DiscordApiCollection;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
@@ -33,12 +34,10 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
 
-    private boolean vcObserverStarted = false;
-
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {
         return CacheBuilder.newBuilder()
-                //.maximumSize(250 * DiscordApiCollection.getInstance().size())
+                .maximumSize(250 * DiscordApiCollection.getInstance().size())
                 .removalListener((element) -> onRemoved((FisheryServerBean) element.getValue()));
     }
 

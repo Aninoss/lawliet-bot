@@ -4,7 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.io.IOException;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -19,7 +19,7 @@ public class InternetCache {
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public CompletableFuture<HttpResponse> load(@NonNull String url) throws IOException {
+                        public CompletableFuture<HttpResponse> load(@NonNull String url) {
                             return HttpRequest.getData(url);
                         }
                     });
@@ -30,27 +30,35 @@ public class InternetCache {
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public CompletableFuture<HttpResponse> load(@NonNull String url) throws IOException {
+                        public CompletableFuture<HttpResponse> load(@NonNull String url) {
                             return HttpRequest.getData(url);
                         }
                     });
 
 
-    public static CompletableFuture<HttpResponse> getData(String url) throws ExecutionException {
+    public static CompletableFuture<HttpResponse> getData(String url) {
         return getData(url, 60 * 5);
     }
 
-    public static CompletableFuture<HttpResponse> getDataShortLived(String url) throws ExecutionException {
-        return shortLivedCache.get(url);
+    public static CompletableFuture<HttpResponse> getDataShortLived(String url) {
+        try {
+            return shortLivedCache.get(url);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static CompletableFuture<HttpResponse> getData(String url, int expirationTimeSeconds) throws ExecutionException {
+    public static CompletableFuture<HttpResponse> getData(String url, int expirationTimeSeconds) {
         if (!expirationDates.containsKey(url) || expirationDates.get(url).isBefore(Instant.now())) {
             cache.invalidate(url);
             expirationDates.put(url, Instant.now().plusSeconds(expirationTimeSeconds));
         }
 
-        return cache.get(url);
+        try {
+            return cache.get(url);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void setExpirationDate(Instant instant, String... urls) {
