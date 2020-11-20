@@ -45,7 +45,7 @@ public class GiveawayScheduler {
         started = true;
 
         try {
-            DBGiveaway.getInstance().loadBean().values().stream()
+            DBGiveaway.getInstance().getBean().values().stream()
                     .filter(GiveawayBean::isActive)
                     .forEach(this::loadGiveawayBean);
         } catch (Exception e) {

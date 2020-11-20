@@ -34,7 +34,7 @@ public class ReminderScheduler {
         started = true;
 
         try {
-            DBReminders.getInstance().loadBean().values().forEach(this::loadReminderBean);
+            DBReminders.getInstance().getBean().values().forEach(this::loadReminderBean);
         } catch (Exception e) {
             LOGGER.error("Could not start reminder", e);
         }
@@ -69,7 +69,7 @@ public class ReminderScheduler {
         }
 
         try {
-            DBReminders.getInstance().loadBean().remove(remindersBean.getId(), remindersBean);
+            DBReminders.getInstance().getBean().remove(remindersBean.getId(), remindersBean);
         } catch (Exception e) {
             LOGGER.error("Could not load reminders", e);
         }

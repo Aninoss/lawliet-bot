@@ -1,13 +1,13 @@
 package mysql.modules.giveaway;
 
 import core.CustomObservableMap;
-import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
+import mysql.DBSingleBeanGenerator;
 
 import java.util.HashMap;
 
-public class DBGiveaway extends DBCached {
+public class DBGiveaway extends DBSingleBeanGenerator<CustomObservableMap<Long, GiveawayBean>> {
 
     private static final DBGiveaway ourInstance = new DBGiveaway();
     public static DBGiveaway getInstance() {
@@ -15,34 +15,31 @@ public class DBGiveaway extends DBCached {
     }
     private DBGiveaway() {}
 
-    private CustomObservableMap<Long, GiveawayBean> giveawayBeans = null;
+    @Override
+    protected CustomObservableMap<Long, GiveawayBean> loadBean() {
+        HashMap<Long, GiveawayBean> giveawaysMap = new DBDataLoad<GiveawayBean>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "1",
+                preparedStatement -> {}
+        ).getHashMap(
+                GiveawayBean::getMessageId,
+                resultSet -> new GiveawayBean(
+                        resultSet.getLong(1),
+                        resultSet.getLong(2),
+                        resultSet.getLong(3),
+                        resultSet.getString(4),
+                        resultSet.getInt(5),
+                        resultSet.getTimestamp(6).toInstant(),
+                        resultSet.getLong(7),
+                        resultSet.getString(8),
+                        resultSet.getString(9),
+                        resultSet.getString(10),
+                        resultSet.getBoolean(11)
+                )
+        );
 
-    public CustomObservableMap<Long, GiveawayBean> loadBean() {
-        if (giveawayBeans == null) {
-            HashMap<Long, GiveawayBean> giveawaysMap = new DBDataLoad<GiveawayBean>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "1",
-                    preparedStatement -> {}
-            ).getHashMap(
-                    GiveawayBean::getMessageId,
-                    resultSet -> new GiveawayBean(
-                            resultSet.getLong(1),
-                            resultSet.getLong(2),
-                            resultSet.getLong(3),
-                            resultSet.getString(4),
-                            resultSet.getInt(5),
-                            resultSet.getTimestamp(6).toInstant(),
-                            resultSet.getLong(7),
-                            resultSet.getString(8),
-                            resultSet.getString(9),
-                            resultSet.getString(10),
-                            resultSet.getBoolean(11)
-                    )
-            );
-
-            giveawayBeans = new CustomObservableMap<>(giveawaysMap);
-            giveawayBeans.addMapAddListener(this::addGiveawaySlot)
-                    .addMapUpdateListener(this::addGiveawaySlot)
-                    .addMapRemoveListener(this::removeGiveawaySlot);
-        }
+        CustomObservableMap<Long, GiveawayBean> giveawayBeans = new CustomObservableMap<>(giveawaysMap);
+        giveawayBeans.addMapAddListener(this::addGiveawaySlot)
+                .addMapUpdateListener(this::addGiveawaySlot)
+                .addMapRemoveListener(this::removeGiveawaySlot);
 
         return giveawayBeans;
     }
@@ -67,11 +64,6 @@ public class DBGiveaway extends DBCached {
             preparedStatement.setString(10, slot.getImageUrl().orElse(null));
             preparedStatement.setBoolean(11, slot.isActive());
         });
-    }
-
-    @Override
-    public void clear() {
-        giveawayBeans = null;
     }
 
 }

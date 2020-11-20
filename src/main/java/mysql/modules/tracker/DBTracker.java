@@ -2,9 +2,9 @@ package mysql.modules.tracker;
 
 import core.CustomThread;
 import core.TrackerManager;
-import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
+import mysql.DBSingleBeanGenerator;
 import mysql.modules.server.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class DBTracker extends DBCached {
+public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBTracker.class);
 
@@ -21,7 +21,6 @@ public class DBTracker extends DBCached {
     public static DBTracker getInstance() { return ourInstance; }
     private DBTracker() {}
 
-    private TrackerBean trackerBean = null;
     private boolean started = false;
 
     public void start() {
@@ -31,32 +30,29 @@ public class DBTracker extends DBCached {
         new CustomThread(this::getBean, "tracker_init").start();
     }
 
-    public synchronized TrackerBean getBean() {
-        if (trackerBean == null) {
-            ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "1", preparedStatement -> {})
-                    .getArrayList(
-                            resultSet -> {
-                                return new TrackerBeanSlot(
-                                        DBServer.getInstance().getBean(resultSet.getLong(1)),
-                                        resultSet.getLong(2),
-                                        resultSet.getString(3),
-                                        resultSet.getLong(4),
-                                        resultSet.getString(5),
-                                        resultSet.getTimestamp(6).toInstant(),
-                                        resultSet.getString(7)
-                                );
-                            }
-                    );
+    @Override
+    protected TrackerBean loadBean() throws Exception {
+        ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "1", preparedStatement -> {})
+                .getArrayList(
+                        resultSet -> new TrackerBeanSlot(
+                                DBServer.getInstance().getBean(resultSet.getLong(1)),
+                                resultSet.getLong(2),
+                                resultSet.getString(3),
+                                resultSet.getLong(4),
+                                resultSet.getString(5),
+                                resultSet.getTimestamp(6).toInstant(),
+                                resultSet.getString(7)
+                        )
+                );
 
-            trackerBean = new TrackerBean(slots);
-            trackerBean.getSlots()
-                    .addListAddListener(changeSlots -> { changeSlots.forEach(this::insertTracker); })
-                    .addListUpdateListener(this::insertTracker)
-                    .addListRemoveListener(changeSlots -> { changeSlots.forEach(this::removeTracker); });
+        TrackerBean trackerBean = new TrackerBean(slots);
+        trackerBean.getSlots()
+                .addListAddListener(changeSlots -> { changeSlots.forEach(this::insertTracker); })
+                .addListUpdateListener(this::insertTracker)
+                .addListRemoveListener(changeSlots -> { changeSlots.forEach(this::removeTracker); });
 
-            TrackerManager.getInstance().start();
-            LOGGER.info("Tracker started");
-        }
+        TrackerManager.getInstance().start();
+        LOGGER.info("Tracker started");
 
         return trackerBean;
     }
@@ -93,8 +89,8 @@ public class DBTracker extends DBCached {
 
     @Override
     public void clear() {
-        if (trackerBean != null) {
-            trackerBean = null;
+        if (isCached()) {
+            super.clear();
             start();
         }
     }

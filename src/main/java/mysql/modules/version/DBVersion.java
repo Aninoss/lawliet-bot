@@ -1,32 +1,28 @@
 package mysql.modules.version;
 
-import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-
+import mysql.DBSingleBeanGenerator;
 import java.util.ArrayList;
 
-public class DBVersion extends DBCached {
+public class DBVersion extends DBSingleBeanGenerator<VersionBean> {
 
     private static final DBVersion ourInstance = new DBVersion();
     public static DBVersion getInstance() { return ourInstance; }
     private DBVersion() {}
 
-    private VersionBean versionBean;
+    @Override
+    protected VersionBean loadBean() {
+        ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date", preparedStatement -> {})
+                .getArrayList(
+                        resultSet -> new VersionBeanSlot(
+                                resultSet.getString(1),
+                                resultSet.getTimestamp(2).toInstant()
+                        )
+                );
 
-    public synchronized VersionBean getBean() {
-        if (versionBean == null) {
-            ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date", preparedStatement -> {})
-                    .getArrayList(
-                            resultSet -> new VersionBeanSlot(
-                                    resultSet.getString(1),
-                                    resultSet.getTimestamp(2).toInstant()
-                            )
-                    );
-
-            versionBean = new VersionBean(slots);
-            versionBean.getSlots().addListAddListener(list -> list.forEach(this::insertVersion));
-        }
+        VersionBean versionBean = new VersionBean(slots);
+        versionBean.getSlots().addListAddListener(list -> list.forEach(this::insertVersion));
 
         return versionBean;
     }
@@ -37,8 +33,5 @@ public class DBVersion extends DBCached {
             preparedStatement.setString(2, DBMain.instantToDateTimeString(versionBeanSlot.getDate()));
         });
     }
-
-    @Override
-    public void clear() { versionBean = null; }
 
 }

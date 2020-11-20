@@ -126,8 +126,8 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         return true;
     }
 
-    private void insertReminderBean(ServerTextChannel channel, long minutes, String messageText) throws Exception {
-        CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().loadBean();
+    private void insertReminderBean(ServerTextChannel channel, long minutes, String messageText) {
+        CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().getBean();
 
         remindersBean = new RemindersBean(
                 DBServer.getInstance().getBean(channel.getServer().getId()),
@@ -163,7 +163,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             removeReactionListener();
             message.edit(EmbedFactory.getEmbedDefault(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
             try {
-                DBReminders.getInstance().loadBean().remove(remindersBean.getId(), remindersBean);
+                DBReminders.getInstance().getBean().remove(remindersBean.getId(), remindersBean);
             } catch (Exception e) {
                 LOGGER.error("Could not load reminders", e);
             }

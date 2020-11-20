@@ -1,35 +1,28 @@
 package mysql.modules.bannedusers;
 
-import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import java.sql.SQLException;
+import mysql.DBSingleBeanGenerator;
+
 import java.util.ArrayList;
 
-public class DBBannedUsers extends DBCached {
+public class DBBannedUsers extends DBSingleBeanGenerator<BannedUsersBean> {
 
     private static final DBBannedUsers ourInstance = new DBBannedUsers();
     public static DBBannedUsers getInstance() { return ourInstance; }
     private DBBannedUsers() {}
 
-    private BannedUsersBean bannedUsersBean = null;
+    @Override
+    protected BannedUsersBean loadBean() throws Exception {
+        BannedUsersBean bannedUsersBean = new BannedUsersBean(getUserIds());
+        bannedUsersBean.getUserIds()
+                .addListAddListener(list -> list.forEach(this::addUserId))
+                .addListRemoveListener(list -> list.forEach(this::removeUserId));
 
-    public synchronized BannedUsersBean getBean() {
-        try {
-            if (bannedUsersBean == null) {
-                bannedUsersBean = new BannedUsersBean(getUserIds());
-                bannedUsersBean.getUserIds()
-                        .addListAddListener(list -> list.forEach(this::addUserId))
-                        .addListRemoveListener(list -> list.forEach(this::removeUserId));
-            }
-
-            return bannedUsersBean;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return bannedUsersBean;
     }
 
-    private ArrayList<Long> getUserIds() throws SQLException {
+    private ArrayList<Long> getUserIds() {
         return new DBDataLoad<Long>("BannedUsers", "userId", "1",
                 preparedStatement -> {}
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -45,11 +38,6 @@ public class DBBannedUsers extends DBCached {
         DBMain.getInstance().asyncUpdate("DELETE FROM BannedUsers WHERE userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, userId);
         });
-    }
-
-    @Override
-    public void clear() {
-        bannedUsersBean = null;
     }
 
 }
