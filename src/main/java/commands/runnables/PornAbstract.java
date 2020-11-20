@@ -9,6 +9,7 @@ import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PatreonCache;
+import core.RegexPatternCache;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
@@ -31,7 +32,12 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class PornAbstract extends Command {
 
@@ -55,9 +61,14 @@ public abstract class PornAbstract extends Command {
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords());
         followedString = StringUtil.defuseMassPing(NSFWUtil.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
+        Pattern pattern = RegexPatternCache.getInstance().generate("\\b[0-9]{1,6}\\b");
+        Matcher m = pattern.matcher(followedString);
+
         long amount = 1;
-        if (StringUtil.stringContainsDigits(followedString)) {
-            amount = StringUtil.filterLongFromString(followedString);
+        if (m.find()) {
+            String group = m.group();
+            followedString = StringUtil.trimString(followedString.replaceFirst(group, "").replace("  ", " "));
+            amount = Long.parseLong(group);
             int patreonLevel = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId());
             if (patreonLevel <= 1 && (amount < 1 || amount > 20)) {
                 if (event.getChannel().canYouEmbedLinks()) {
@@ -78,7 +89,6 @@ public abstract class PornAbstract extends Command {
                 return false;
             }
         }
-        followedString = StringUtil.trimString(StringUtil.filterLettersFromString(followedString));
 
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();

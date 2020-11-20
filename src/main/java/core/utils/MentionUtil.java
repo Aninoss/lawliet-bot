@@ -2,6 +2,7 @@ package core.utils;
 
 import com.vdurmont.emoji.EmojiParser;
 import core.DiscordApiCollection;
+import core.RegexPatternCache;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
@@ -31,7 +32,6 @@ import java.util.regex.Pattern;
 public class MentionUtil {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
-    private final static Pattern p = Pattern.compile(" [0-9]+ [0-9]");
 
     public static MentionList<User> getUsers(Message message, String content) {
         return getUsers(message, content, message.getServer().get().getMembers());
@@ -467,6 +467,7 @@ public class MentionUtil {
                 .replace("\n", " ")
                 .replaceAll(" {2}", " ");
 
+        Pattern p = RegexPatternCache.getInstance().generate(" [0-9]+ [0-9]");
         Matcher m = p.matcher(str);
         while(m.find()) {
             String group = m.group();
