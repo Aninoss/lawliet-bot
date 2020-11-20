@@ -7,8 +7,8 @@ import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -43,16 +43,11 @@ public class Main {
     }
 
     private static void initializeUpdate() {
-        try {
-            VersionBean versionBean = DBVersion.getInstance().getBean();
+        VersionBean versionBean = DBVersion.getInstance().getBean();
 
-            String currentVersionDB = versionBean.getCurrentVersion().getVersion();
-            if (!BotUtil.getCurrentVersion().equals(currentVersionDB))
-                versionBean.getSlots().add(new VersionBeanSlot(BotUtil.getCurrentVersion(), Instant.now()));
-        } catch (SQLException e) {
-            LOGGER.error("EXIT - Could not insert new update", e);
-            System.exit(-1);
-        }
+        String currentVersionDB = versionBean.getCurrentVersion().getVersion();
+        if (!BotUtil.getCurrentVersion().equals(currentVersionDB))
+            versionBean.getSlots().add(new VersionBeanSlot(BotUtil.getCurrentVersion(), Instant.now()));
     }
 
 }

@@ -14,15 +14,19 @@ public class DBBannedUsers extends DBCached {
 
     private BannedUsersBean bannedUsersBean = null;
 
-    public synchronized BannedUsersBean getBean() throws SQLException {
-        if (bannedUsersBean == null) {
-            bannedUsersBean = new BannedUsersBean(getUserIds());
-            bannedUsersBean.getUserIds()
-                    .addListAddListener(list -> list.forEach(this::addUserId))
-                    .addListRemoveListener(list -> list.forEach(this::removeUserId));
-        }
+    public synchronized BannedUsersBean getBean() {
+        try {
+            if (bannedUsersBean == null) {
+                bannedUsersBean = new BannedUsersBean(getUserIds());
+                bannedUsersBean.getUserIds()
+                        .addListAddListener(list -> list.forEach(this::addUserId))
+                        .addListRemoveListener(list -> list.forEach(this::removeUserId));
+            }
 
-        return bannedUsersBean;
+            return bannedUsersBean;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ArrayList<Long> getUserIds() throws SQLException {

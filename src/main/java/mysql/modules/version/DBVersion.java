@@ -3,7 +3,7 @@ package mysql.modules.version;
 import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
 
 public class DBVersion extends DBCached {
@@ -14,7 +14,7 @@ public class DBVersion extends DBCached {
 
     private VersionBean versionBean;
 
-    public synchronized VersionBean getBean() throws SQLException {
+    public synchronized VersionBean getBean() {
         if (versionBean == null) {
             ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date", preparedStatement -> {})
                     .getArrayList(

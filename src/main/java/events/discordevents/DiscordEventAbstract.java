@@ -6,7 +6,6 @@ import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public abstract class DiscordEventAbstract {
@@ -64,12 +63,7 @@ public abstract class DiscordEventAbstract {
     }
 
     private static boolean userIsBanned(long userId) {
-        try {
-            return DBBannedUsers.getInstance().getBean().getUserIds().contains(userId);
-        } catch (SQLException throwables) {
-            LOGGER.error("SQL error", throwables);
-            return true;
-        }
+        return DBBannedUsers.getInstance().getBean().getUserIds().contains(userId);
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener) {

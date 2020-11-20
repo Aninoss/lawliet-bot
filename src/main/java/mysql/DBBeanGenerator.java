@@ -41,11 +41,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         );
 
         if (this instanceof CompleteLoadOnStartup) {
-            try {
-                getAllBeans();
-            } catch (SQLException throwables) {
-                LOGGER.error("Exception when loading all beans", throwables);
-            }
+            getAllBeans();
         }
 
         if (this instanceof IntervalSave) {
@@ -84,8 +80,12 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     protected abstract void saveBean(U u);
 
-    public U getBean(T t) throws ExecutionException {
-        return cache.get(t);
+    public U getBean(T t) {
+        try {
+            return cache.get(t);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected LoadingCache<T, U> getCache() {
@@ -118,16 +118,20 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         }
     }
 
-    public List<U> getAllBeans() throws SQLException {
+    public List<U> getAllBeans() {
         if (this instanceof CompleteLoadOnStartup) {
             if (!allLoaded) {
-                ((CompleteLoadOnStartup<T>) this).getKeySet().forEach(value -> {
-                    try {
-                        cache.get(value);
-                    } catch (Exception e) {
-                        LOGGER.error("Could not fetch cache data", e);
-                    }
-                });
+                try {
+                    ((CompleteLoadOnStartup<T>) this).getKeySet().forEach(value -> {
+                        try {
+                            cache.get(value);
+                        } catch (Exception e) {
+                            LOGGER.error("Could not fetch cache data", e);
+                        }
+                    });
+                } catch (SQLException throwables) {
+                    throw new RuntimeException(throwables);
+                }
                 allLoaded = true;
             }
 

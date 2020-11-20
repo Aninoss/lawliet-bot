@@ -295,12 +295,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         DBMain.getInstance().update("DELETE FROM PowerPlantUsers WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         DBMain.getInstance().update("DELETE FROM PowerPlantUserGained WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
 
-        try {
-            DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
-        } catch (ExecutionException e) {
-            LOGGER.error("Could not get server bean", e);
-        }
-
+        DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         getCache().invalidate(serverId);
     }
 

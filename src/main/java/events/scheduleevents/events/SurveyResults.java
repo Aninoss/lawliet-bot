@@ -106,26 +106,15 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    try {
-                        Server server = DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get();
-                        FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(user.getId());
-                        long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
-                        userBean.changeValues(0, price);
-                        coinsWinMap.put(secondVote.getServerId(), price);
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Exception", e);
-                    }
+                    Server server = DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get();
+                    FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(user.getId());
+                    long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
+                    userBean.changeValues(0, price);
+                    coinsWinMap.put(secondVote.getServerId(), price);
                 });
 
         boolean prefersGerman = secondVotes.stream()
-                .filter(secondVote -> {
-                    try {
-                        return DBServer.getInstance().getBean(secondVote.getServerId()).getLocale().equals(localeGerman);
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Could not get server bean", e);
-                    }
-                    return false;
-                })
+                .filter(secondVote -> DBServer.getInstance().getBean(secondVote.getServerId()).getLocale().equals(localeGerman))
                 .count() >= secondVotes.size() / 2.0;
 
         Locale locale = new Locale(prefersGerman ? Locales.DE : Locales.EN);

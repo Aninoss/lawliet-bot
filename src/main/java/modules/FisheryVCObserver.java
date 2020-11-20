@@ -13,7 +13,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.sql.SQLException;
+
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -92,18 +92,14 @@ public class FisheryVCObserver {
             if (userOpt.isEmpty())
                 LOGGER.error("VC Observer - missing user with id {} on server {}", userId, server.getId());
             userOpt.ifPresent(user -> {
-                try {
-                    if (!user.isBot() &&
-                            !user.isMuted(server) &&
-                            !user.isDeafened(server) &&
-                            !user.isSelfDeafened(server) &&
-                            !user.isSelfMuted(server) &&
-                            !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                    ) {
-                        validUsers.add(user);
-                    }
-                } catch (SQLException throwables) {
-                    LOGGER.error("SQL Error", throwables);
+                if (!user.isBot() &&
+                        !user.isMuted(server) &&
+                        !user.isDeafened(server) &&
+                        !user.isSelfDeafened(server) &&
+                        !user.isSelfMuted(server) &&
+                        !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
+                ) {
+                    validUsers.add(user);
                 }
             });
         }

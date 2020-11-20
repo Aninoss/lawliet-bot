@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,28 +34,24 @@ public class MemberCountDisplay {
             return future;
         });
 
-        try {
-            ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
-            for (MemberCountDisplaySlot display : displays) {
-                display.getVoiceChannel().ifPresent(voiceChannel -> {
-                    try {
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
-                            String newVCName = generateNewVCName(server, display.getMask());
-                            if (!newVCName.equals(voiceChannel.getName())) {
-                                CompletableFuture<Void> future = voiceChannel.createUpdater()
-                                        .setName(newVCName)
-                                        .update();
-                                futureMap.put(server.getId(), future);
-                                future.thenRun(() -> futureMap.remove(server.getId()));
-                            }
+        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
+        for (MemberCountDisplaySlot display : displays) {
+            display.getVoiceChannel().ifPresent(voiceChannel -> {
+                try {
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                        String newVCName = generateNewVCName(server, display.getMask());
+                        if (!newVCName.equals(voiceChannel.getName())) {
+                            CompletableFuture<Void> future = voiceChannel.createUpdater()
+                                    .setName(newVCName)
+                                    .update();
+                            futureMap.put(server.getId(), future);
+                            future.thenRun(() -> futureMap.remove(server.getId()));
                         }
-                    } catch (Throwable e) {
-                        LOGGER.error("Error in mc display", e);
                     }
-                });
-            }
-        } catch (ExecutionException e) {
-            LOGGER.error("Member count display bean error", e);
+                } catch (Throwable e) {
+                    LOGGER.error("Error in mc display", e);
+                }
+            });
         }
     }
 

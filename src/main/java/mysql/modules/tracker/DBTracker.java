@@ -8,11 +8,10 @@ import mysql.DBMain;
 import mysql.modules.server.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.sql.SQLException;
+
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class DBTracker extends DBCached {
 
@@ -29,34 +28,23 @@ public class DBTracker extends DBCached {
         if (started) return;
         started = true;
 
-        new CustomThread(() -> {
-            try {
-                getBean();
-            } catch (SQLException e) {
-                LOGGER.error("Could not get bean", e);
-            }
-        }, "tracker_init").start();
+        new CustomThread(this::getBean, "tracker_init").start();
     }
 
-    public synchronized TrackerBean getBean() throws SQLException {
+    public synchronized TrackerBean getBean() {
         if (trackerBean == null) {
             ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "1", preparedStatement -> {})
                     .getArrayList(
                             resultSet -> {
-                                try {
-                                    return new TrackerBeanSlot(
-                                            DBServer.getInstance().getBean(resultSet.getLong(1)),
-                                            resultSet.getLong(2),
-                                            resultSet.getString(3),
-                                            resultSet.getLong(4),
-                                            resultSet.getString(5),
-                                            resultSet.getTimestamp(6).toInstant(),
-                                            resultSet.getString(7)
-                                    );
-                                } catch (ExecutionException e) {
-                                    LOGGER.error("Exception when creating tracker bean", e);
-                                }
-                                return null;
+                                return new TrackerBeanSlot(
+                                        DBServer.getInstance().getBean(resultSet.getLong(1)),
+                                        resultSet.getLong(2),
+                                        resultSet.getString(3),
+                                        resultSet.getLong(4),
+                                        resultSet.getString(5),
+                                        resultSet.getTimestamp(6).toInstant(),
+                                        resultSet.getString(7)
+                                );
                             }
                     );
 
@@ -74,12 +62,8 @@ public class DBTracker extends DBCached {
     }
 
     protected void insertTracker(TrackerBeanSlot slot) {
-        try {
-            if (!getBean().getSlots().contains(slot))
-                return;
-        } catch (SQLException throwables) {
-            LOGGER.error("Cound not load tracker bean", throwables);
-        }
+        if (!getBean().getSlots().contains(slot))
+            return;
 
         DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getServerId());

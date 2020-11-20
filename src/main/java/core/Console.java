@@ -6,9 +6,7 @@ import commands.runningchecker.RunningCheckerManager;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
-import javafx.util.Pair;
 import modules.FisheryVCObserver;
-import mysql.DBBotGiveaway;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -91,7 +89,6 @@ public class Console {
         tasks.put("patreon", this::onPatreon);
         tasks.put("patreon_set", this::onPatreonSet);
         tasks.put("internet", this::onInternetConnection);
-        tasks.put("giveaway", this::onGiveaway);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_server", this::onSendChannel);
         tasks.put("send_channel", this::onSendChannel);
@@ -157,20 +154,6 @@ public class Console {
             LOGGER.info(">{} ({}): {}", user.getDiscriminatedName(), user.getId(), text);
             user.sendMessage(text).exceptionally(ExceptionLogger.get());
         });
-    }
-
-    private void onGiveaway(String[] args) throws SQLException {
-        LOGGER.info("### GIVEAWAY RESULTS ###");
-        for (Pair<Long, Long> slot : DBBotGiveaway.getGiveawaySlots()) {
-            DiscordApiCollection.getInstance().getServerById(slot.getKey()).ifPresent(server -> {
-                if (server.getMembers().stream().filter(user -> !user.isBot()).count() >= 10 &&
-                        server.getMembers().stream().anyMatch(user -> user.getId() == slot.getValue())
-                ) {
-                    User user = server.getMemberById(slot.getValue()).get();
-                    LOGGER.info("{} ({}) - Patreon: {}", user.getDiscriminatedName(), user.getId(), PatreonCache.getInstance().getPatreonLevel(user.getId()));
-                }
-            });
-        }
     }
 
     private void onInternetConnection(String[] args) {

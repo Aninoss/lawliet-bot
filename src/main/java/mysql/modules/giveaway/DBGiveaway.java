@@ -17,7 +17,7 @@ public class DBGiveaway extends DBCached {
 
     private CustomObservableMap<Long, GiveawayBean> giveawayBeans = null;
 
-    public CustomObservableMap<Long, GiveawayBean> loadBean() throws Exception {
+    public CustomObservableMap<Long, GiveawayBean> loadBean() {
         if (giveawayBeans == null) {
             HashMap<Long, GiveawayBean> giveawaysMap = new DBDataLoad<GiveawayBean>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "1",
                     preparedStatement -> {}

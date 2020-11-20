@@ -35,7 +35,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fishery",
@@ -209,45 +208,41 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 int resultInt = r.nextInt(2);
                 String result = winLose[resultInt];
 
-                try {
-                    FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
-                    long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
+                FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
+                long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
-                    String treasureImage;
-                    if (resultInt == 0) treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
-                    else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
+                String treasureImage;
+                if (resultInt == 0) treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
+                else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
 
-                    EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
-                            .setTitle(FisheryCommand.treasureEmoji + " " + getString("treasure_title"))
-                            .setDescription(getString("treasure_opened_" + result, event.getUser().get().getMentionTag(), StringUtil.numToString(won)))
-                            .setImage(treasureImage)
-                            .setFooter(getString("treasure_footer"));
+                EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
+                        .setTitle(FisheryCommand.treasureEmoji + " " + getString("treasure_title"))
+                        .setDescription(getString("treasure_opened_" + result, event.getUser().get().getMentionTag(), StringUtil.numToString(won)))
+                        .setImage(treasureImage)
+                        .setFooter(getString("treasure_footer"));
 
-                    message.getCurrentCachedInstance().ifPresent(m -> {
-                        m.edit(eb2).exceptionally(ExceptionLogger.get());
-                        if (m.getChannel().canYouRemoveReactionsOfOthers())
-                            m.removeAllReactions().exceptionally(ExceptionLogger.get());
-                    });
+                message.getCurrentCachedInstance().ifPresent(m -> {
+                    m.edit(eb2).exceptionally(ExceptionLogger.get());
+                    if (m.getChannel().canYouRemoveReactionsOfOthers())
+                        m.removeAllReactions().exceptionally(ExceptionLogger.get());
+                });
 
-                    ServerTextChannel channel = event.getServerTextChannel().get();
-                    if (resultInt == 0 && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
-                        channel.sendMessage(userBean.changeValues(0, won))
-                                .exceptionally(ExceptionLogger.get())
-                                .thenAccept(m -> {
-                                    MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
-                                        m.getCurrentCachedInstance().ifPresent(m2 -> m2.delete().exceptionally(ExceptionLogger.get()));
-                                    });
+                ServerTextChannel channel = event.getServerTextChannel().get();
+                if (resultInt == 0 && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
+                    channel.sendMessage(userBean.changeValues(0, won))
+                            .exceptionally(ExceptionLogger.get())
+                            .thenAccept(m -> {
+                                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
+                                    m.getCurrentCachedInstance().ifPresent(m2 -> m2.delete().exceptionally(ExceptionLogger.get()));
                                 });
-                    }
-
-                    MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
-                        message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
-                    });
-
-                    blockedTreasureMessages.remove(message.getId());
-                } catch (ExecutionException e) {
-                    LOGGER.error("Fishery bean exception", e);
+                            });
                 }
+
+                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
+                    message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
+                });
+
+                blockedTreasureMessages.remove(message.getId());
             });
         }
     }

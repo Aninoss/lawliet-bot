@@ -10,12 +10,11 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.upvotes.DBUpvotes;
-import websockets.webcomserver.EventAbstract;
-import websockets.webcomserver.WebComServer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.concurrent.ExecutionException;
+import websockets.webcomserver.EventAbstract;
+import websockets.webcomserver.WebComServer;
 
 public class OnTopGG extends EventAbstract {
 
@@ -39,31 +38,19 @@ public class OnTopGG extends EventAbstract {
                 LOGGER.info("UPVOTE | {}", user.getName());
 
                 DiscordApiCollection.getInstance().getMutualServers(user).stream()
-                        .filter(
-                                server -> {
-                                    try {
-                                        return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
-                                    } catch (ExecutionException e) {
-                                        LOGGER.error("Could not get server bean", e);
-                                    }
-                                    return false;
-                                }
-                        ).forEach(server -> {
-                    try {
-                        int value = isWeekend ? 2 : 1;
-                        FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
+                        .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)
+                        .forEach(server -> {
+                            int value = isWeekend ? 2 : 1;
+                            FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
 
-                        if (PatreonCache.getInstance().getPatreonLevel(userId) >= 2 &&
-                                DBAutoClaim.getInstance().getBean(userId).isActive()
-                        ) {
-                            userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
-                        } else {
-                            userBean.addUpvote(value);
-                        }
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Could not get fishery bean", e);
-                    }
-                });
+                            if (PatreonCache.getInstance().getPatreonLevel(userId) >= 2 &&
+                                    DBAutoClaim.getInstance().getBean(userId).isActive()
+                            ) {
+                                userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
+                            } else {
+                                userBean.addUpvote(value);
+                            }
+                        });
             });
             DBUpvotes.getInstance().getBean(userId).updateLastUpvote();
 
@@ -73,4 +60,5 @@ public class OnTopGG extends EventAbstract {
             return new JSONObject();
         }
     }
+
 }

@@ -11,17 +11,12 @@ import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelChangeUserLimitEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @DiscordEvent
 public class ServerVoiceChannelChangeUserLimitAutoChannel extends ServerVoiceChannelChangeUserLimitAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelChangeUserLimitAutoChannel.class);
 
     @Override
     public boolean onServerVoiceChannelChangeUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable {
@@ -33,15 +28,11 @@ public class ServerVoiceChannelChangeUserLimitAutoChannel extends ServerVoiceCha
                     int parentUserLimit = channel.getUserLimit().orElse(-1);
 
                     if (parentUserLimit != -1 && (childUserLimit == -1 || childUserLimit > parentUserLimit)) {
-                        try {
-                            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
-                            Locale locale = serverBean.getLocale();
+                        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
+                        Locale locale = serverBean.getLocale();
 
-                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
-                                event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().exceptionally(ExceptionLogger.get());
-                            }
-                        } catch (ExecutionException e) {
-                            LOGGER.error("Exception", e);
+                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                            event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().exceptionally(ExceptionLogger.get());
                         }
                     }
                 });

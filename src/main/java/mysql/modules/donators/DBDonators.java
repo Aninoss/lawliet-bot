@@ -3,7 +3,7 @@ package mysql.modules.donators;
 import mysql.DBCached;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import java.sql.SQLException;
+
 import java.util.HashMap;
 
 public class DBDonators extends DBCached {
@@ -14,7 +14,7 @@ public class DBDonators extends DBCached {
 
     private DonatorBean donatorBean = null;
 
-    public synchronized DonatorBean getBean() throws SQLException {
+    public synchronized DonatorBean getBean() {
         if (donatorBean == null) {
             HashMap<Long, DonatorBeanSlot> slots = new DBDataLoad<DonatorBeanSlot>("Donators", "userId, end, totalDollars", "1", preparedStatement -> {})
                     .getHashMap(

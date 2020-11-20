@@ -15,7 +15,7 @@ public class DBReminders extends DBCached {
 
     private CustomObservableMap<Integer, RemindersBean> remindersBeans = null;
 
-    public CustomObservableMap<Integer, RemindersBean> loadBean() throws Exception {
+    public CustomObservableMap<Integer, RemindersBean> loadBean() {
         if (remindersBeans == null) {
             HashMap<Integer, RemindersBean> remindersMap = new DBDataLoad<RemindersBean>("Reminders", "id, serverId, channelId, time, message", "1",
                     preparedStatement -> {}
