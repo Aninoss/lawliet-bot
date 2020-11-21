@@ -23,7 +23,6 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Optional;
@@ -40,7 +39,8 @@ import java.util.concurrent.ExecutionException;
 public class OsuCommand extends UserAccountAbstract implements OnReactionAddListener {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OsuCommand.class);
-    private static final String EMOJI = "🔍";
+    private final static String EMOJI = "🔍";
+    private final static String GUEST = "Guest";
 
     private Message message;
     private String gameMode = "osu";
@@ -124,18 +124,24 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
 
                 Optional<String> osuUsernameOpt = event.getUser().get().getActivity().flatMap(OsuAccountCheck::getOsuUsernameFromActivity);
                 if (osuUsernameOpt.isPresent()) {
-                    Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsernameOpt.get(), gameMode);
-                    update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsernameOpt.get());
-                    return;
+                    String osuUsername = osuUsernameOpt.get();
+                    if (!osuUsername.equals(GUEST)) {
+                        Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
+                        update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
+                        return;
+                    }
                 }
 
                 message.edit(EmbedFactory.getEmbedDefault(this, getString("synchronize", StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
-                OsuAccountSync.getInstance().add(event.getUserId(), osuName -> {
-                    try {
-                        Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuName, gameMode);
-                        update(event.getUser().get(), osuAccountOptional.orElse(null), osuName);
-                    } catch (ExecutionException | InterruptedException | UnsupportedEncodingException e) {
-                        LOGGER.error("osu download error", e);
+                OsuAccountSync.getInstance().add(event.getUserId(), osuUsername -> {
+                    if (!osuUsername.equals(GUEST)) {
+                        try {
+                            OsuAccountSync.getInstance().remove(event.getUserId());
+                            Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
+                            update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
+                        } catch (ExecutionException | InterruptedException | UnsupportedEncodingException e) {
+                            LOGGER.error("osu download error", e);
+                        }
                     }
                 });
             }

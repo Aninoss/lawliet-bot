@@ -212,13 +212,13 @@ public class CommandContainer {
         commandList.add(WholesomeCommand.class);
         commandList.add(TwitchCommand.class);
         commandList.add(YouTubeMP3Command.class);
+        commandList.add(OsuCommand.class);
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
         commandList.add(DadJokeCommand.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);
-        commandList.add(OsuCommand.class);
 
         //NSFW
         commandList.add(Rule34Command.class);

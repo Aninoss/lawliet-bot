@@ -13,6 +13,7 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +78,9 @@ public class ClearCommand extends Command {
             String key = skipped ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-            Message confirmationMessage = event.getChannel().sendMessage(eb).get();
-
-            startCountdown(event.getServerTextChannel().get(), new Message[]{ confirmationMessage, event.getMessage() });
+            event.getChannel().sendMessage(eb)
+                    .exceptionally(ExceptionLogger.get())
+                    .thenAccept(message -> startCountdown(event.getServerTextChannel().get(), new Message[]{ message, event.getMessage() }));
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
