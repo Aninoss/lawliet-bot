@@ -29,6 +29,10 @@ public class EmbedUtil {
         return eb;
     }
 
+    public static EmbedBuilder addLog(EmbedBuilder eb, String log) {
+        return addLog(eb, null, log);
+    }
+
     public static EmbedBuilder addLog(EmbedBuilder eb, LogStatus logStatus, String log) {
         if (log != null && log.length() > 0) {
             String add = "";

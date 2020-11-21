@@ -80,8 +80,8 @@ public class GiveCommand extends FisheryAbstract {
                 long coins0Pre = fisheryUser0.getCoins();
                 long coins1Pre = fisheryUser1.getCoins();
 
-                fisheryUser0.addCoins(-value);
-                fisheryUser1.addCoins(value);
+                fisheryUser0.addCoinsRaw(-value);
+                fisheryUser1.addCoinsRaw(value);
                 fisheryUser1.addCoinsGiven(value);
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("successful",

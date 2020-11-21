@@ -16,11 +16,11 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class TwitchController {
+public class TwitchDownloader {
 
-    private static final TwitchController ourInstance = new TwitchController();
-    public static TwitchController getInstance() { return ourInstance; }
-    private TwitchController() {}
+    private static final TwitchDownloader ourInstance = new TwitchDownloader();
+    public static TwitchDownloader getInstance() { return ourInstance; }
+    private TwitchDownloader() {}
 
     private final LoadingCache<String, Optional<TwitchUser>> userCache = CacheBuilder.newBuilder()
             .build(

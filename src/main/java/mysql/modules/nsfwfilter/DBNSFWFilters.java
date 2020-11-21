@@ -5,7 +5,6 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.modules.server.DBServer;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
@@ -31,7 +30,7 @@ public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
     @Override
     protected void saveBean(NSFWFiltersBean nsfwFiltersBean) {}
 
-    private ArrayList<String> getKeywords(long serverId) throws SQLException {
+    private ArrayList<String> getKeywords(long serverId) {
         return new DBDataLoad<String>("NSFWFilter", "keyword", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getString(1));

@@ -1,20 +1,26 @@
 package modules.osu;
 
+import com.vdurmont.emoji.EmojiParser;
+
+import java.util.Optional;
+
 public class OsuAccount {
 
-    private long osuId;
-    private String username;
-    private int pp;
-    private long globalRank;
-    private long countryRank;
-    private String avatarUrl;
-    private double accuracy;
-    private int level;
-    private int levelProgress;
+    private final long osuId;
+    private final String username;
+    private final String countryCode;
+    private final int pp;
+    private final Long globalRank;
+    private final Long countryRank;
+    private final String avatarUrl;
+    private final double accuracy;
+    private final int level;
+    private final int levelProgress;
 
-    public OsuAccount(long osuId, String username, int pp, long globalRank, long countryRank, String avatarUrl, double accuracy, int level, int levelProgress) {
+    public OsuAccount(long osuId, String username, String countryCode, int pp, Long globalRank, Long countryRank, String avatarUrl, double accuracy, int level, int levelProgress) {
         this.osuId = osuId;
         this.username = username;
+        this.countryCode = countryCode;
         this.pp = pp;
         this.globalRank = globalRank;
         this.countryRank = countryRank;
@@ -32,19 +38,29 @@ public class OsuAccount {
         return username;
     }
 
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public String getCountryEmoji() {
+        return EmojiParser.parseToUnicode(":" + getCountryCode().toLowerCase() + ":");
+    }
+
     public int getPp() {
         return pp;
     }
 
-    public long getGlobalRank() {
-        return globalRank;
+    public Optional<Long> getGlobalRank() {
+        return Optional.ofNullable(globalRank);
     }
 
-    public long getCountryRank() {
-        return countryRank;
+    public Optional<Long> getCountryRank() {
+        return Optional.ofNullable(countryRank);
     }
 
     public String getAvatarUrl() {
+        if (avatarUrl.startsWith("/"))
+            return "https://osu.ppy.sh/" + this.avatarUrl;
         return avatarUrl;
     }
 

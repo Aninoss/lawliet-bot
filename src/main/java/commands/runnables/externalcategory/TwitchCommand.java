@@ -8,7 +8,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import modules.twitch.TwitchController;
+import modules.twitch.TwitchDownloader;
 import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -44,7 +44,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
             return false;
         }
 
-        Optional<TwitchStream> streamOpt = TwitchController.getInstance().getStream(followedString);
+        Optional<TwitchStream> streamOpt = TwitchDownloader.getInstance().getStream(followedString);
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
@@ -86,7 +86,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
 
         Optional<TwitchStream> streamOpt;
         try {
-            streamOpt = TwitchController.getInstance().getStream(slot.getCommandKey());
+            streamOpt = TwitchDownloader.getInstance().getStream(slot.getCommandKey());
         } catch (Exception e) {
             if (slot.getArgs().isEmpty())
                 streamOpt = Optional.empty();

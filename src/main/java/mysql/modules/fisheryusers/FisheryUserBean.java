@@ -44,8 +44,8 @@ public class FisheryUserBean extends BeanWithServer {
     private Boolean onServer = null;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
-    private long hiddenCoins = 0;
     private long messagesThisHour = 0;
+    private long coinsHidden = 0;
     private long coinsGiven = 0;
     private Long coinsGivenMax = null;
     private String lastContent = null;
@@ -117,9 +117,11 @@ public class FisheryUserBean extends BeanWithServer {
 
     public long getFish() { return fish; }
 
-    public long getCoins() { return coins - hiddenCoins; }
+    public long getCoins() { return coins - coinsHidden; }
 
     public long getCoinsRaw() { return coins; }
+
+    public long getCoinsHidden() { return coinsHidden; }
 
     public long getCoinsGiven() { return coinsGiven; }
 
@@ -317,7 +319,7 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public void setCoinsRaw(long coins) {
+    public void setCoins(long coins) {
         if (this.coins != coins) {
             this.coins = coins;
             checkValuesBound();
@@ -325,7 +327,11 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public void addCoins(long coins) {
+    public void addHiddenCoins(long amount) {
+        coinsHidden = Math.max(0, Math.min(coins, coinsHidden + amount));
+    }
+
+    public void addCoinsRaw(long coins) {
         if (coins != 0) {
             this.coins += coins;
             reminderSent = true;
@@ -363,7 +369,7 @@ public class FisheryUserBean extends BeanWithServer {
 
         /* Update Changes */
         addFish(fishAdd);
-        addCoins(coinsAdd);
+        addCoinsRaw(coinsAdd);
         if (newDailyStreak != null) setDailyStreak(newDailyStreak);
 
         long rank = getRank();
@@ -432,7 +438,7 @@ public class FisheryUserBean extends BeanWithServer {
         else if (fish < 0) fish = 0;
 
         if (coins > Settings.FISHERY_MAX) coins = Settings.FISHERY_MAX;
-        else if (coins < 0) coins = 0;
+        else if (coins < coinsHidden) coins = coinsHidden;
 
         if (fishIncome != null) {
             if (fishIncome > Settings.FISHERY_MAX) fishIncome = Settings.FISHERY_MAX;
@@ -440,9 +446,10 @@ public class FisheryUserBean extends BeanWithServer {
         }
 
         if (dailyStreak > Settings.FISHERY_MAX) dailyStreak = Settings.FISHERY_MAX;
-        if (dailyStreak < 0) dailyStreak = 0;
+        else if (dailyStreak < 0) dailyStreak = 0;
 
         if (coinsGiven > Settings.FISHERY_MAX) coinsGiven = Settings.FISHERY_MAX;
+        else if (coinsGiven < 0) coinsGiven = 0;
     }
 
     public void levelUp(int powerUpId) {
@@ -468,10 +475,6 @@ public class FisheryUserBean extends BeanWithServer {
             upvoteStack += upvotes;
             setChanged();
         }
-    }
-
-    public void addHiddenCoins(long amount) {
-        hiddenCoins = Math.max(0, Math.min(coins, hiddenCoins + amount));
     }
 
     public void clearUpvoteStack() {

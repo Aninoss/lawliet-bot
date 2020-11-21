@@ -73,6 +73,8 @@ public class DiscordEventManager {
         api.addUserRoleRemoveListener(event -> new CustomThread(() -> UserRoleRemoveAbstract.onUserRoleRemoveStatic(event, getListenerList(UserRoleRemoveAbstract.class)), "user_role_remove").start());
 
         api.addServerChangeBoostCountListener(event -> new CustomThread(() -> ServerChangeBoostCountAbstract.onServerChangeBoostCountStatic(event, getListenerList(ServerChangeBoostCountAbstract.class)), "server_change_boost_count").start());
+
+        api.addUserChangeActivityListener(event -> new CustomThread(() -> UserChangeActivityAbstract.onUserChangeActivityStatic(event, getListenerList(UserChangeActivityAbstract.class)), "user_change_activity").start());
     }
 
     private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz) {

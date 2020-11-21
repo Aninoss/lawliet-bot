@@ -1,36 +1,28 @@
-package commands.runnables.fisherycategory;
+package commands.runnables;
 
-import commands.listeners.CommandProperties;
-import commands.runnables.FisheryAbstract;
-import constants.Permission;
+import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
-import mysql.modules.fisheryusers.DBFishery;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
-@CommandProperties(
-        trigger = "acc",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        emoji = "\uD83D\uDE4B",
-        executableWithoutArgs = true,
-        aliases = { "profile", "profil", "account", "balance", "fish", "bal", "a" }
-)
-public class AccountCommand extends FisheryAbstract {
+public abstract class UserAccountAbstract extends Command {
 
-    public AccountCommand(Locale locale, String prefix) {
+    public UserAccountAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
+    private boolean found = false;
 
     @Override
-    protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
 
@@ -51,19 +43,29 @@ public class AccountCommand extends FisheryAbstract {
                 userMentioned = false;
             }
         }
+
         for(User user: list) {
-            EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId()).getAccountEmbed();
+            EmbedBuilder eb = generateUserEmbed(event.getServer().get(), user, user.getId() == event.getMessageAuthor().getId(), followedString);
             if (eb != null) {
                 if (!userMentioned) {
                     EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
-                    if (followedString.length() > 0)
+                    if (followedString.length() > 0 && !found)
                         EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
                 }
 
-                event.getChannel().sendMessage(eb).get();
+                Message messageNew = event.getChannel().sendMessage(eb).get();
+                afterMessageSend(messageNew, user, user.getId() == event.getMessageAuthor().getId());
             }
         }
         return true;
     }
+
+    protected void setFound() {
+        found = true;
+    }
+
+    protected abstract EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable;
+
+    protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable { }
 
 }

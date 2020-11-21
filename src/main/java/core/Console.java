@@ -257,7 +257,7 @@ public class Console {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
-        DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoinsRaw(value);
+        DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoins(value);
         LOGGER.info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
     }
 
