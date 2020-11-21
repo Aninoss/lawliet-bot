@@ -1,6 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 
@@ -12,7 +11,6 @@ public abstract class ReactionAddAbstract extends DiscordEventAbstract {
 
     public static void onReactionAddStatic(ReactionAddEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if ((event.getMessage().isEmpty() && !event.getChannel().canYouReadMessageHistory()) ||
-                event.getUserId() == DiscordApiCollection.getInstance().getYourself().getId() ||
                 event.getUser().isEmpty()
         ) {
             return;

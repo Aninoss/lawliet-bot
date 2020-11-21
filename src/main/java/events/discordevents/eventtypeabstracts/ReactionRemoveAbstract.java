@@ -12,7 +12,6 @@ public abstract class ReactionRemoveAbstract extends DiscordEventAbstract {
 
     public static void onReactionRemoveStatic(ReactionRemoveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if ((event.getMessage().isEmpty() && !event.getChannel().canYouReadMessageHistory()) ||
-                event.getUserId() == DiscordApiCollection.getInstance().getYourself().getId() ||
                 event.getUser().isEmpty()
         ) {
             return;

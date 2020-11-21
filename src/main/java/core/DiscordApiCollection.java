@@ -335,8 +335,13 @@ public class DiscordApiCollection {
     }
 
     public User getYourself() {
-        waitForStartup();
-        return apiList[0].getYourself();
+        for(DiscordApi api: apiList) {
+            if (api != null) {
+                return api.getYourself();
+            }
+        }
+
+        throw new NullPointerException();
     }
 
     public List<DiscordApi> getApis() {

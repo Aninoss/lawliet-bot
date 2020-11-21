@@ -1,6 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.event.user.UserChangeActivityEvent;
 
@@ -11,13 +10,11 @@ public abstract class UserChangeActivityAbstract extends DiscordEventAbstract {
     public abstract boolean onUserChangeActivity(UserChangeActivityEvent event) throws Throwable;
 
     public static void onUserChangeActivityStatic(UserChangeActivityEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (event.getUserId() == DiscordApiCollection.getInstance().getYourself().getId() ||
-                event.getUser().isEmpty()
-        ) {
+        if (event.getUser().isEmpty()) {
             return;
         }
 
-        execute(listenerList, event.getUser().get(), true,
+        execute(listenerList, event.getUser().get(), false,
                 listener -> ((UserChangeActivityAbstract) listener).onUserChangeActivity(event)
         );
     }

@@ -59,7 +59,6 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
         if (event.getChannel().getCurrentCachedInstance().isPresent() && event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
             Message m = event.getChannel().sendMessage(eb).get();
-
             MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, () -> event.getChannel().bulkDelete(m, event.getMessage()));
         }
         return true;
