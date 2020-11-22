@@ -21,7 +21,7 @@ public class FurryCommand extends PornSearchAbstract implements OnTrackerRequest
         super(locale, prefix);
     }
 
-    @Override
+    /*@Override WHILE furry.booru.org is down
     protected String getDomain() {
         return "furry.booru.org";
     }
@@ -32,6 +32,24 @@ public class FurryCommand extends PornSearchAbstract implements OnTrackerRequest
     }
 
     @Override
+    public boolean isExplicit() { return true; }*/
+
+    @Override
+    protected String getDomain() {
+        return "rule34.xxx";
+    }
+
+    @Override
+    protected String getImageTemplate() {
+        return "https://img.rule34.xxx/images/%d/%f";
+    }
+
+    @Override
     public boolean isExplicit() { return true; }
+
+    @Override
+    protected String getAdditionalSearchKey() {
+        return " furry";
+    }
 
 }

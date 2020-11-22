@@ -46,8 +46,10 @@ public abstract class PornSearchAbstract extends PornAbstract {
                 break;
         }
 
-        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, false, isExplicit(), usedResults);
+        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd + getAdditionalSearchKey(), imageTemplate, false, isExplicit(), usedResults);
     }
+
+    protected String getAdditionalSearchKey() { return ""; }
 
     public boolean trackerUsesKey() { return true; }
 
