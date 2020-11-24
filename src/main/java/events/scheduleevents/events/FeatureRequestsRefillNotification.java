@@ -15,7 +15,7 @@ public class FeatureRequestsRefillNotification implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY && Bot.isPublicVersion()) {
+        if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && Bot.isPublicVersion()) {
             String message = "It's the beginning of a new week, therefore everyone can now boost again for their favorite Lawliet feature requests: " + ExternalLinks.FEATURE_REQUESTS_WEBSITE;
             DiscordApiCollection.getInstance().getServerById(AssetIds.SUPPORT_SERVER_ID)
                     .flatMap(server -> server.getTextChannelById(557960859792441357L))

@@ -45,8 +45,8 @@ public class WelcomeGraphics {
         final int BORDER = 42;
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
-        AttributedStringGenerator fontWelcome = new AttributedStringGenerator(25);
-        AttributedStringGenerator fontName = new AttributedStringGenerator(20);
+        AttributedStringGenerator fontWelcome = new AttributedStringGenerator(24);
+        AttributedStringGenerator fontName = new AttributedStringGenerator(19);
 
         AttributedCharacterIterator welcomeIterator = Graphics.getNameIterator(frc, fontWelcome, welcomeText, BASE_WIDTH - BASE_HEIGHT);
         AttributedCharacterIterator nameIterator = Graphics.getNameIterator(frc, fontName, user.getDisplayName(server), BASE_WIDTH - BASE_HEIGHT - 15);

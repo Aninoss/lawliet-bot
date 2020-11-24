@@ -231,11 +231,11 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description", command.getPrefix());
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
 
         if (event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title"))
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {
@@ -296,11 +296,11 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_description", command.getPrefix());
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_description");
 
         if (event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_title"))
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, command.getLocale(), eb);
         } else if (event.getChannel().canYouWrite()) {

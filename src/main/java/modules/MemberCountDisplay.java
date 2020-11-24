@@ -8,8 +8,6 @@ import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,32 +22,26 @@ public class MemberCountDisplay {
     public static MemberCountDisplay getInstance() { return ourInstance; }
     private MemberCountDisplay() { }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MemberCountDisplay.class);
-
     private final HashMap<Long, CompletableFuture<Void>> futureMap = new HashMap<>();
 
     public void manage(Locale locale, Server server) {
-        futureMap.computeIfPresent(server.getId(), (serverId, future) -> {
-            future.cancel(true);
-            return future;
-        });
-
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
-                try {
-                    if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
-                        String newVCName = generateNewVCName(server, display.getMask());
-                        if (!newVCName.equals(voiceChannel.getName())) {
-                            CompletableFuture<Void> future = voiceChannel.createUpdater()
-                                    .setName(newVCName)
-                                    .update();
-                            futureMap.put(server.getId(), future);
-                            future.thenRun(() -> futureMap.remove(server.getId()));
-                        }
+                futureMap.computeIfPresent(voiceChannel.getId(), (vcId, future) -> {
+                    future.cancel(true);
+                    return future;
+                });
+
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                    String newVCName = generateNewVCName(server, display.getMask());
+                    if (!newVCName.equals(voiceChannel.getName())) {
+                        CompletableFuture<Void> future = voiceChannel.createUpdater()
+                                .setName(newVCName)
+                                .update();
+                        futureMap.put(voiceChannel.getId(), future);
+                        future.thenRun(() -> futureMap.remove(voiceChannel.getId()));
                     }
-                } catch (Throwable e) {
-                    LOGGER.error("Error in mc display", e);
                 }
             });
         }
