@@ -6,10 +6,12 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
+import core.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.Fishery;
+import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.upvotes.DBUpvotes;
@@ -42,10 +44,17 @@ public class ClaimCommand extends FisheryAbstract {
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description", ExternalLinks.UPVOTE_URL));
-            eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
-            if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
+            EmbedBuilder eb;
+            if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId()) >= 2 &&
+                    DBAutoClaim.getInstance().getBean(event.getMessageAuthor().getId()).isActive()
+            ) {
+                eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));
+            } else {
+                eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description", ExternalLinks.UPVOTE_URL))
+                        .setColor(EmbedFactory.FAILED_EMBED_COLOR);
+            }
 
+            if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
             event.getChannel().sendMessage(eb).get();
             return false;
         } else {
