@@ -9,9 +9,12 @@ import constants.Permission;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.*;
-import modules.ImageCreator;
+import core.utils.FileUtil;
+import core.utils.InternetUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import modules.Welcome;
+import modules.graphics.WelcomeGraphics;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
 import org.javacord.api.DiscordApi;
@@ -285,7 +288,7 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
                         StringUtil.escapeMarkdown(user.getDiscriminatedName()),
                         StringUtil.numToString(server.getMemberCount())));
 
-        eb.setImage(InternetUtil.getURLFromInputStream(ImageCreator.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
+        eb.setImage(InternetUtil.getURLFromInputStream(WelcomeGraphics.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
         return eb;
     }
 

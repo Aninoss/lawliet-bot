@@ -55,8 +55,6 @@ public abstract class InteractionAbstract extends Command {
         }
 
         message.getChannel().sendMessage(eb).get();
-        removeMessageForwarder();
-
         return true;
     }
 

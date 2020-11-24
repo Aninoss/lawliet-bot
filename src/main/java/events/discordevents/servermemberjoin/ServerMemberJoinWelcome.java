@@ -7,8 +7,8 @@ import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerMemberJoinAbstract;
-import modules.ImageCreator;
 import modules.Welcome;
+import modules.graphics.WelcomeGraphics;
 import mysql.modules.server.DBServer;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
@@ -71,7 +71,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
         Server server = channel.getServer();
 
         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
-            InputStream image = ImageCreator.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
+            InputStream image = WelcomeGraphics.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
             User user = event.getUser();
             if (image != null) {
                 channel.sendMessage(

@@ -7,7 +7,7 @@ import constants.Permission;
 import core.*;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
-import modules.ImageCreator;
+import modules.graphics.TriggerGraphics;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -48,7 +48,7 @@ public class TriggerCommand extends Command {
         }
         for (User user: list) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
-                    .setImage(ImageCreator.createImageTriggered(user), "gif");
+                    .setImage(TriggerGraphics.createImageTriggered(user), "gif");
 
             if (!userMentioned) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));

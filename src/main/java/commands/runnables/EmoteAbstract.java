@@ -33,8 +33,6 @@ public abstract class EmoteAbstract extends Command {
                 .setImage(gifUrl);
 
         event.getMessage().getChannel().sendMessage(eb).get();
-        removeMessageForwarder();
-
         return true;
     }
 

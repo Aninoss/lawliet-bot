@@ -9,7 +9,7 @@ import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.ImageCreator;
+import modules.graphics.RainbowGraphics;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -58,7 +58,7 @@ public class RainbowCommand extends Command {
 
         for (User user: list) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
-                    .setImage(ImageCreator.createImageRainbow(user, opacity));
+                    .setImage(RainbowGraphics.createImageRainbow(user, opacity));
 
             if (!userMentioned) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));

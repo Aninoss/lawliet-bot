@@ -1,13 +1,12 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
-
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Permission;
 import core.EmbedFactory;
-import core.utils.MentionUtil;
 import core.RandomPicker;
-import modules.ImageCreator;
+import core.utils.MentionUtil;
+import modules.graphics.ShipGraphics;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -61,7 +60,7 @@ public class ShipCommand extends Command {
         int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), 7);
         if (event.getServer().get().getId() == 580048842020487180L) n = 7;
 
-        InputStream is = ImageCreator.createImageShip(getLocale(),list.get(0),list.get(1), n, percentage);
+        InputStream is = ShipGraphics.createImageShip(list.get(0), list.get(1), n, percentage);
         if (is == null) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("noavatar"))).get();
             return false;

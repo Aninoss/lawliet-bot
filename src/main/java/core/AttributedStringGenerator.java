@@ -1,7 +1,5 @@
 package core;
 
-import javafx.util.Pair;
-
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
@@ -22,32 +20,30 @@ public class AttributedStringGenerator {
 
     public AttributedCharacterIterator getIterator(String str) {
         AttributedString astr = new AttributedString(str);
-        if (!str.isEmpty()) astr.addAttribute(TextAttribute.FONT, fonts.get(0), 0, str.length());
-
-        int begin = 0;
-        while(!str.isEmpty()) {
-            Pair<Font, Integer> values = getResponsibleFont(str).orElse(new Pair<>(null, 1));
-            Font font = values.getKey();
-            int n = values.getValue();
-
-            if (font != null) {
-                astr.addAttribute(TextAttribute.FONT, font, begin, begin + n);
+        if (str.length() > 0) {
+            int i = 0;
+            while (i < str.length()) {
+                Optional<FontBounds> fontBoundsOpt = getFontBounds(str.substring(i));
+                if (fontBoundsOpt.isPresent()) {
+                    FontBounds fontBounds = fontBoundsOpt.get();
+                    astr.addAttribute(TextAttribute.FONT, fontBounds.font, i, i + fontBounds.length);
+                    i += fontBounds.length;
+                } else {
+                    i++;
+                }
             }
-            begin += n;
-            str = str.substring(n);
         }
 
         return astr.getIterator();
     }
 
-    private Optional<Pair<Font, Integer>> getResponsibleFont(String str) {
+    private Optional<FontBounds> getFontBounds(String str) {
         for(Font font: fonts) {
             int upTo = font.canDisplayUpTo(str);
-            if (upTo != 0) {
-                for(int i = 1; i <= 4; i++) {
-                    upTo = font.canDisplayUpTo(str.substring(0, i));
-                    if (upTo != 0) return Optional.of(new Pair<>(font, Math.abs(upTo)));
-                }
+            if (upTo == -1) {
+                return Optional.of(new FontBounds(font, str.length()));
+            } else if (upTo > 0) {
+                return Optional.of(new FontBounds(font, upTo));
             }
         }
 
@@ -62,6 +58,19 @@ public class AttributedStringGenerator {
     public Rectangle2D getStringBounds(AttributedCharacterIterator attributedCharacterIterator, FontRenderContext frc) {
         TextLayout tl = new TextLayout(attributedCharacterIterator, frc);
         return tl.getBounds();
+    }
+
+
+    private static class FontBounds {
+
+        final Font font;
+        final int length;
+
+        public FontBounds(Font font, int length) {
+            this.font = font;
+            this.length = length;
+        }
+
     }
 
 }
