@@ -49,7 +49,7 @@ public class MentionUtil {
                     .replace("<@!" + user.getIdAsString() + ">", "");
         }
 
-        for(User user : users) {
+        for (User user : users) {
             String[] strings = {
                     "@" + user.getDiscriminatedName(),
                     "@" + user.getName(),
@@ -74,7 +74,7 @@ public class MentionUtil {
         for (Role role : list)
             content = content.replace(role.getMentionTag(), "");
 
-        for(Role role : message.getServer().get().getRoles()) {
+        for (Role role : message.getServer().get().getRoles()) {
             String[] strings = {
                     "@" + role.getName(),
                     role.getName(),
@@ -94,7 +94,7 @@ public class MentionUtil {
         for (ServerTextChannel channel : list)
             content = content.replace(channel.getMentionTag(), "");
 
-        for(ServerTextChannel channel : message.getServer().get().getTextChannels()) {
+        for (ServerTextChannel channel : message.getServer().get().getTextChannels()) {
             String[] strings = {
                     "#" + channel.getName(),
                     channel.getName(),
@@ -110,7 +110,7 @@ public class MentionUtil {
     public static MentionList<ServerVoiceChannel> getVoiceChannels(Message message, String content) {
         ArrayList<ServerVoiceChannel> list = new ArrayList<>();
 
-        for(ServerVoiceChannel voiceChannel : message.getServer().get().getVoiceChannels()) {
+        for (ServerVoiceChannel voiceChannel : message.getServer().get().getVoiceChannels()) {
             String[] strings = {
                     "#" + voiceChannel.getName(),
                     voiceChannel.getName(),
@@ -124,7 +124,7 @@ public class MentionUtil {
     }
 
     private static <T> String check(T o, ArrayList<T> list, String content, String... names) {
-        for(String name : names) {
+        for (String name : names) {
             if (matches(content, name)) {
                 content = content.replaceAll("(?i)" + Pattern.quote(name), "");
                 if (!list.contains(o)) list.add(o);
@@ -167,8 +167,9 @@ public class MentionUtil {
             if (conn == null) return false;
             fileType = conn.getContentType().toLowerCase();
 
-            for(int i = 0; i < 2; i++) {
-                if (fileType.endsWith("jpg") || fileType.endsWith("jpeg") || fileType.endsWith("png") || fileType.endsWith("bmp")) return true;
+            for (int i = 0; i < 2; i++) {
+                if (fileType.endsWith("jpg") || fileType.endsWith("jpeg") || fileType.endsWith("png") || fileType.endsWith("bmp"))
+                    return true;
                 fileType = url.toLowerCase();
             }
 
@@ -211,11 +212,16 @@ public class MentionUtil {
             String groupString = m.group("server");
             if (groupString != null && groupString.equals(serverId)) {
                 server.getTextChannelById(m.group("channel")).ifPresent(channel -> {
-                    list.add(channel.getMessageById(m.group("message")).join());
+                    try {
+                        if (channel.canYouSee() && channel.canYouReadMessageHistory())
+                            list.add(channel.getMessageById(m.group("message")).get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        //Ignore
+                    }
                 });
             }
         }
-        return new MentionList<>(string,list);
+        return new MentionList<>(string, list);
     }
 
     public static MentionList<Emoji> getEmojis(Message message, String content) {
@@ -278,11 +284,11 @@ public class MentionUtil {
         if (mentions.size() > 1 && !multi) multi = true;
 
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < mentions.size(); i++) {
+        for (int i = 0; i < mentions.size(); i++) {
             if (i >= 1) {
                 sb.append((i < mentions.size() - 1) ?
                         ", " :
-                        " " + TextManager.getString(locale,TextManager.GENERAL,"and") + " "
+                        " " + TextManager.getString(locale, TextManager.GENERAL, "and") + " "
                 );
             }
             sb.append("**").append(mentions.get(i)).append("**");
@@ -316,9 +322,9 @@ public class MentionUtil {
         /* add everyone mention */
         if (message.mentionsEveryone() || followedString.contains("everyone") || followedString.contains("all") || followedString.contains("@here")) {
             if (mentions.isEmpty())
-                mentions.add(TextManager.getString(locale,TextManager.GENERAL,"everyone_start"));
+                mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_start"));
             else
-                mentions.add(TextManager.getString(locale,TextManager.GENERAL,"everyone_end"));
+                mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_end"));
 
             multi = true;
             followedString = followedString.replace("@everyone", "")
@@ -361,7 +367,7 @@ public class MentionUtil {
     }
 
     public static Optional<Role> getRoleByTag(Server server, String tag) {
-        String id = tag.substring(3, tag.length() -1);
+        String id = tag.substring(3, tag.length() - 1);
         return server.getRoleById(id);
     }
 
@@ -369,7 +375,7 @@ public class MentionUtil {
         ArrayList<KnownCustomEmoji> knownCustomEmojis = new ArrayList<>();
 
         if (string.contains("<") && string.contains(">")) {
-            for(String content: StringUtil.extractGroups(string, "<", ">")) {
+            for (String content : StringUtil.extractGroups(string, "<", ">")) {
                 String[] tags = content.split(":");
                 if (tags.length == 3) {
                     String id = tags[2];
@@ -388,7 +394,7 @@ public class MentionUtil {
     public static long getAmountExt(String str, long available) {
         str = reformatForDigits(str);
 
-        for(String part : str.split(" ")) {
+        for (String part : str.split(" ")) {
             if (part.length() > 0) {
                 if (available >= 0 && (part.equals("all") || part.equals("allin")))
                     return available;
@@ -433,7 +439,7 @@ public class MentionUtil {
         long sec = 0;
         str = reformatForDigits(str);
 
-        for(String part : str.split(" ")) {
+        for (String part : str.split(" ")) {
             if (part.length() > 0) {
                 long value = StringUtil.filterLongFromString(part);
                 if (value > 0) {
@@ -469,7 +475,7 @@ public class MentionUtil {
 
         Pattern p = RegexPatternCache.getInstance().generate(" [0-9]+ [0-9]");
         Matcher m = p.matcher(str);
-        while(m.find()) {
+        while (m.find()) {
             String group = m.group();
             String groupNew = StringUtil.replaceLast(group, " ", "");
             str = str.replace(group, groupNew);

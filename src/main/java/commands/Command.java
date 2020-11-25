@@ -23,7 +23,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -404,8 +403,8 @@ public abstract class Command {
                 loadingStatus = LoadingStatus.OFF;
                 if (message.getCurrentCachedInstance().isPresent()) {
                     if (message.getChannel().canYouUseExternalEmojis())
-                        message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L)).exceptionally(ExceptionLogger.get());
-                    else message.removeOwnReactionByEmoji("⏳").exceptionally(ExceptionLogger.get());
+                        message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
+                    else message.removeOwnReactionByEmoji("⏳");
                 }
                 return false;
             });
@@ -486,12 +485,12 @@ public abstract class Command {
          if (starterMessage.getChannel().canYouManageMessages()) {
             starterMessage.getChannel().bulkDelete(reactionMessage, starterMessage).exceptionally(e -> {
                 if (reactionMessage != null)
-                    reactionMessage.delete().exceptionally(ExceptionLogger.get());
+                    reactionMessage.delete(); //No log
                 return null;
             });
         } else {
             if (reactionMessage != null)
-                reactionMessage.delete().exceptionally(ExceptionLogger.get());
+                reactionMessage.delete(); //No log
         }
     }
 

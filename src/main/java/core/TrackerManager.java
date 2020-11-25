@@ -13,7 +13,6 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class TrackerManager {
                     }
                 }
             } catch (Throwable e) {
-                LOGGER.error("Exception on get grouped by command trigger", e);
+                LOGGER.error("Exception on tracker shard {}", trackerShard, e);
             }
         }
     }
@@ -111,7 +110,7 @@ public class TrackerManager {
         }
     }
 
-    private ArrayList<ArrayList<TrackerBeanSlot>> getGroupedByCommandTrigger() throws SQLException {
+    private ArrayList<ArrayList<TrackerBeanSlot>> getGroupedByCommandTrigger() {
         ArrayList<ArrayList<TrackerBeanSlot>> trackerCommandTriggerList = new ArrayList<>();
 
         for (Class<? extends OnTrackerRequestListener> clazz : CommandContainer.getInstance().getTrackerCommands()) {
@@ -119,7 +118,7 @@ public class TrackerManager {
             String commandTrigger = commandProps.trigger();
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
-            DBTracker.getInstance().getBean().getSlots().stream()
+            new ArrayList<>(DBTracker.getInstance().getBean().getSlots()).stream()
                     .filter(slot -> (slot.getCommandTrigger().equalsIgnoreCase(commandTrigger) || Arrays.stream(commandProps.aliases()).anyMatch(alias -> slot.getCommandTrigger().equalsIgnoreCase(alias))) && slot.isActive())
                     .forEach(groupedSlots::add);
 
