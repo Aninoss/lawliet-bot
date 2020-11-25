@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.AttributedCharacterIterator;
+import java.util.function.Consumer;
 
 public class Graphics {
 
@@ -48,15 +49,6 @@ public class Graphics {
         }
 
         return nameIterator;
-    }
-
-    public static void drawRectShadow(Graphics2D g2d, int x, int y, int width, int height) {
-        final double SHADOW_NUM = 5;
-        final double MULTI = 1.03;
-        for(double i = 0; i < SHADOW_NUM; i++) {
-            g2d.setColor(new Color(0, 0, 0, (int) (10.0 * (i + 1) / SHADOW_NUM)));
-            g2d.fillRect((int) (x - (width * (MULTI - 1) / 2) + (SHADOW_NUM - i)),  (int) (y - (height * (MULTI - 1) / 2) + (SHADOW_NUM - i)), (int) (width * MULTI), (int) (height * MULTI));
-        }
     }
 
     private static void drawStringCenter(Graphics2D g2d, AttributedCharacterIterator aci, Rectangle2D bounds, int x, int y, double maxWidth, double width) {
@@ -116,6 +108,18 @@ public class Graphics {
         g2d.setRenderingHints(rh);
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         return g2d;
+    }
+
+    public static void drawShadow(Graphics2D g2d, int size, float opacity, Consumer<Integer> drawable) {
+        for(int i = 0; i < (double) size; i++) {
+            float alpha = (25.0f * ((i+1) / (float) size) * opacity);
+            AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 100.0f);
+            g2d.setComposite(ac);
+            drawable.accept(size - i);
+        }
+
+        AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1);
+        g2d.setComposite(ac);
     }
 
 }

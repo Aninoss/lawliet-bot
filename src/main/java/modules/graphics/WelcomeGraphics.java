@@ -53,6 +53,10 @@ public class WelcomeGraphics {
         Rectangle2D welcomeBounds = fontWelcome.getStringBounds(welcomeIterator, frc);
         Rectangle2D nameBounds = fontName.getStringBounds(nameIterator, frc);
 
+        g2d.setColor(Color.BLACK);
+        Graphics.drawShadow(g2d, 5, 0.25f, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
+        Graphics.drawShadow(g2d, 5, 0.25f, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
+
         g2d.setColor(Color.WHITE);
         g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()), getTextHeight(frc, fontWelcome) + BORDER);
         g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()), BASE_HEIGHT - BORDER);
@@ -76,6 +80,9 @@ public class WelcomeGraphics {
         black2d.fillRect(0, 0, black.getWidth(), black.getHeight());
         black = Graphics.makeRoundedCorner(black, radius);
         g2d.drawImage(black, 15, 15, size, size, null);
+
+        BufferedImage finalBlack = black;
+        Graphics.drawShadow(g2d, 5, 0.25f, offset -> g2d.drawImage(finalBlack, 15 + offset, 15 + offset, size, size, null));
 
         if (avatarImage != null) {
             avatarImage = Graphics.makeRoundedCorner(avatarImage, radius);

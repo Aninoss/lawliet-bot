@@ -90,7 +90,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         return false;
     }
 
-    protected void onGameEnd() throws ExecutionException {
+    protected void onGameEnd() {
         won = false;
         active = false;
         DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).addHiddenCoins(-coinsInput);
@@ -99,7 +99,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         removeReactionListener(((OnReactionAddListener)this).getReactionMessage());
     }
 
-    protected void onLose() throws ExecutionException {
+    protected void onLose() {
         onGameEnd();
         if (coinsInput > 0 && useCalculatedMultiplicator) {
             DBGameStatistics.getInstance().getBean(compareKey).addValue(false, 1);
@@ -108,7 +108,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
         if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
     }
 
-    protected void onWin() throws ExecutionException {
+    protected void onWin() {
         onGameEnd();
         won = true;
 

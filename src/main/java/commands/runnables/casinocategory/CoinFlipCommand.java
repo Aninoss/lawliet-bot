@@ -7,7 +7,6 @@ import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.ExceptionHandler;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 
 @CommandProperties(
@@ -121,21 +119,13 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
 
             MainScheduler.getInstance().schedule(1000, () -> {
                 if (selection[0] == selection[1]) {
-                    try {
-                        log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
-                        logStatus = LogStatus.WIN;
-                        onWin();
-                    } catch (ExecutionException e) {
-                        ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-                    }
+                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
+                    logStatus = LogStatus.WIN;
+                    onWin();
                 } else {
-                    try {
-                        log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
-                        logStatus = LogStatus.LOSE;
-                        onLose();
-                    } catch (ExecutionException e) {
-                        ExceptionHandler.handleCommandException(e, this, message.getServerTextChannel().get());
-                    }
+                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
+                    logStatus = LogStatus.LOSE;
+                    onLose();
                 }
 
                 message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));

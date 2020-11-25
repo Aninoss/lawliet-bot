@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "blackjack",
@@ -138,14 +137,10 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                     block = true;
                     MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
                         finished = true;
-                        try {
-                            onLose();
-                            logStatus = LogStatus.LOSE;
-                            log = getString("toomany", 0);
-                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                        } catch (ExecutionException e) {
-                            LOGGER.error("Black jack exception", e);
-                        }
+                        onLose();
+                        logStatus = LogStatus.LOSE;
+                        log = getString("toomany", 0);
+                        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
                     });
                 }
             } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[1])) {
@@ -166,11 +161,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
     private boolean onCPUTurnStep() {
         if (message.getCurrentCachedInstance().isEmpty()) {
-            try {
-                onLose();
-            } catch (ExecutionException e) {
-                LOGGER.error("Black jack error exception", e);
-            }
+            onLose();
             return false;
         }
 
@@ -187,59 +178,51 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                     message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
 
                     MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
-                        try {
-                            boolean[] blackjack = new boolean[2];
-                            for (int i = 0; i < 2; i++)
-                                if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
+                        boolean[] blackjack = new boolean[2];
+                        for (int i = 0; i < 2; i++)
+                            if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
 
-                            if (blackjack[0] && !blackjack[1]) {
-                                onWin();
-                                logStatus = LogStatus.WIN;
-                                log = getString("blackjack", 0);
-                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                                return;
-                            } else if (blackjack[1] && !blackjack[0]) {
-                                onLose();
-                                logStatus = LogStatus.LOSE;
-                                log = getString("blackjack", 1);
-                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                                return;
-                            }
+                        if (blackjack[0] && !blackjack[1]) {
+                            onWin();
+                            logStatus = LogStatus.WIN;
+                            log = getString("blackjack", 0);
+                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            return;
+                        } else if (blackjack[1] && !blackjack[0]) {
+                            onLose();
+                            logStatus = LogStatus.LOSE;
+                            log = getString("blackjack", 1);
+                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            return;
+                        }
 
-                            int[] points = { 21 - getCardSize(0), 21 - getCardSize(1) };
+                        int[] points = { 21 - getCardSize(0), 21 - getCardSize(1) };
 
-                            if (points[0] == points[1]) {
-                                onGameEnd();
-                                logStatus = LogStatus.FAILURE;
-                                log = getString("draw");
-                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                            } else if (points[0] < points[1]) {
-                                onWin();
-                                logStatus = LogStatus.WIN;
-                                log = getString("21", 0);
-                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                            } else if (points[0] > points[1]) {
-                                onLose();
-                                logStatus = LogStatus.LOSE;
-                                log = getString("21", 1);
-                                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                            }
-                        } catch (ExecutionException e) {
-                            LOGGER.error("Black jack exception", e);
+                        if (points[0] == points[1]) {
+                            onGameEnd();
+                            logStatus = LogStatus.FAILURE;
+                            log = getString("draw");
+                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                        } else if (points[0] < points[1]) {
+                            onWin();
+                            logStatus = LogStatus.WIN;
+                            log = getString("21", 0);
+                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                        } else if (points[0] > points[1]) {
+                            onLose();
+                            logStatus = LogStatus.LOSE;
+                            log = getString("21", 1);
+                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
                         }
                     });
                 });
                 return false;
             } else {
                 MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
-                    try {
-                        onWin();
-                        logStatus = LogStatus.WIN;
-                        log = getString("toomany", 1);
-                        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Black jack error exception", e);
-                    }
+                    onWin();
+                    logStatus = LogStatus.WIN;
+                    log = getString("toomany", 1);
+                    message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
                 });
                 return false;
             }
