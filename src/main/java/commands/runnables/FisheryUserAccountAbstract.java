@@ -1,6 +1,5 @@
 package commands.runnables;
 
-import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
@@ -15,15 +14,15 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public abstract class UserAccountAbstract extends Command {
+public abstract class FisheryUserAccountAbstract extends FisheryAbstract {
 
-    public UserAccountAbstract(Locale locale, String prefix) {
+    public FisheryUserAccountAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
     private boolean found = false;
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
         MentionList<User> userMention = MentionUtil.getUsers(message,followedString);
         ArrayList<User> list = userMention.getList();
@@ -34,9 +33,16 @@ public abstract class UserAccountAbstract extends Command {
             return false;
         }
         boolean userMentioned = true;
+        boolean userBefore = list.size() > 0;
+        list.removeIf(User::isBot);
         if (list.size() == 0) {
-            list.add(message.getUserAuthor().get());
-            userMentioned = false;
+            if (userBefore) {
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
+                return false;
+            } else {
+                list.add(message.getUserAuthor().get());
+                userMentioned = false;
+            }
         }
 
         init(event, userMention.getResultMessageString());

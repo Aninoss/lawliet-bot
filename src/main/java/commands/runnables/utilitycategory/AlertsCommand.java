@@ -9,6 +9,7 @@ import commands.listeners.OnTrackerRequestListener;
 import constants.*;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.PatreonCache;
 import core.TextManager;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
@@ -50,13 +51,14 @@ public class AlertsCommand extends Command implements OnNavigationListener {
             STATE_KEY = 3,
             STATE_SUCCESS = 4;
 
-    private final int LIMIT_CHANNEL = 10;
-    private final int LIMIT_SERVER = 30;
+    private final int LIMIT_CHANNEL = 5;
+    private final int LIMIT_SERVER = 20;
     private final int LIMIT_KEY_LENGTH = 500;
 
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private long serverId;
     private long channelId;
+    private int patreonLevel;
     private TrackerBean trackerBean;
     private Command commandCache;
     private boolean cont = true;
@@ -70,6 +72,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         serverId = event.getServer().get().getId();
         channelId = event.getServerTextChannel().get().getId();
         trackerBean = DBTracker.getInstance().getBean();
+        patreonLevel = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId());
         controll(followedString, true);
         return true;
     }
@@ -326,7 +329,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return LIMIT_CHANNEL;
+        return 10;
     }
 
     private void addTracker(Command command, String commandKey, boolean firstTime) throws ExecutionException {
@@ -369,8 +372,8 @@ public class AlertsCommand extends Command implements OnNavigationListener {
     }
 
     private boolean enoughSpaceForNewTrackers() {
-        if (getTrackersInChannel().size() < LIMIT_CHANNEL) {
-            if (getTrackersInServer().size() < LIMIT_SERVER) {
+        if (getTrackersInChannel().size() < LIMIT_CHANNEL || patreonLevel >= 3) {
+            if (getTrackersInServer().size() < LIMIT_SERVER || patreonLevel >= 3) {
                 return true;
             } else {
                 setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));

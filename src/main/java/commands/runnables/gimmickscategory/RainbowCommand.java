@@ -1,13 +1,10 @@
 package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
-
-import commands.Command;
+import commands.runnables.UserAccountAbstract;
 import constants.Permission;
-import core.*;
-import core.mention.MentionList;
+import core.EmbedFactory;
 import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.graphics.RainbowGraphics;
 import org.javacord.api.entity.message.Message;
@@ -16,7 +13,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 @CommandProperties(
@@ -27,54 +23,36 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = {"lgbt", "pride"}
 )
-public class RainbowCommand extends Command {
+public class RainbowCommand extends UserAccountAbstract {
+
+    private long opacity;
 
     public RainbowCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        Server server = event.getServer().get();
-        Message message = event.getMessage();
-        MentionList<User> userMention = MentionUtil.getUsers(message,followedString);
-        ArrayList<User> list = userMention.getList();
-        if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
-            return false;
-        }
-
-        long opacity = StringUtil.filterLongFromString(userMention.getResultMessageString());
+    protected void init(MessageCreateEvent event, String followedString) throws Throwable {
+        opacity = StringUtil.filterLongFromString(followedString);
         if (opacity == -1) opacity = 50;
         if (opacity < 0) opacity = 0;
         if (opacity > 100) opacity = 100;
-
-        boolean userMentioned = true;
-        if (list.size() == 0) {
-            list.add(message.getUserAuthor().get());
-            userMentioned = false;
-        }
-
-        for (User user: list) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
-                    .setImage(RainbowGraphics.createImageRainbow(user, opacity));
-
-            if (!userMentioned) {
-                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
-                if (StringUtil.filterLettersFromString(followedString).length() > 0)
-                    EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
-            }
-
-            Message message1 = event.getChannel().sendMessage(eb).get();
-
-            if (message1 != null) {
-                String url = message1.getEmbeds().get(0).getImage().get().getUrl().toString();
-                eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", url));
-                EmbedUtil.setFooter(eb, this);
-                event.getChannel().sendMessage(eb).get();
-            }
-        }
-        return true;
     }
+
+    @Override
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+        return EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
+                .setImage(RainbowGraphics.createImageRainbow(user, opacity));
+    }
+
+    @Override
+    protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable {
+        if (message != null) {
+            String url = message.getEmbeds().get(0).getImage().get().getUrl().toString();
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", url));
+            EmbedUtil.setFooter(eb, this);
+            message.getServerTextChannel().get().sendMessage(eb).get();
+        }
+    }
+
 }

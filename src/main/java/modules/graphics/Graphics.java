@@ -111,15 +111,15 @@ public class Graphics {
     }
 
     public static void drawShadow(Graphics2D g2d, int size, float opacity, Consumer<Integer> drawable) {
+        Composite compositeCache = g2d.getComposite();
+
         for(int i = 0; i < (double) size; i++) {
             float alpha = (25.0f * ((i+1) / (float) size) * opacity);
             AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 100.0f);
             g2d.setComposite(ac);
             drawable.accept(size - i);
         }
-
-        AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1);
-        g2d.setComposite(ac);
+        g2d.setComposite(compositeCache);
     }
 
 }

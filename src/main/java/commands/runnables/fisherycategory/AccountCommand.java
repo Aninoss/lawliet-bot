@@ -1,19 +1,12 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryUserAccountAbstract;
 import constants.Permission;
-import core.EmbedFactory;
-import core.TextManager;
-import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
 import java.util.Locale;
 
 @CommandProperties(
@@ -23,47 +16,15 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = { "profile", "profil", "account", "balance", "fish", "bal", "a" }
 )
-public class AccountCommand extends FisheryAbstract {
+public class AccountCommand extends FisheryUserAccountAbstract {
 
     public AccountCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        Message message = event.getMessage();
-        ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
-
-        if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_users"))).get();
-            return false;
-        }
-        boolean userMentioned = true;
-        boolean userBefore = list.size() > 0;
-        list.removeIf(User::isBot);
-        if (list.size() == 0) {
-            if (userBefore) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "nobot"))).get();
-                return false;
-            } else {
-                list.add(message.getUserAuthor().get());
-                userMentioned = false;
-            }
-        }
-        for(User user: list) {
-            EmbedBuilder eb = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(user.getId()).getAccountEmbed();
-            if (eb != null) {
-                if (!userMentioned) {
-                    EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
-                    if (followedString.length() > 0)
-                        EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
-                }
-
-                event.getChannel().sendMessage(eb).get();
-            }
-        }
-        return true;
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+        return DBFishery.getInstance().getBean(server.getId()).getUserBean(user.getId()).getAccountEmbed();
     }
 
 }
