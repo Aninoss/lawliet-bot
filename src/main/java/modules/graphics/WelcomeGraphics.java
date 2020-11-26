@@ -28,9 +28,10 @@ public class WelcomeGraphics {
             Graphics2D g2d = Graphics.createGraphics(drawImage);
 
             drawBackground(g2d, backgroundImage);
-            drawLumi(g2d, drawImage);
-            drawAvatar(g2d, avatarImage);
-            drawTexts(g2d, welcome, server, user);
+            double lumi = drawLumi(g2d, drawImage);
+            float shadowOpacity = (float) (0.25 * lumi);
+            drawAvatar(g2d, avatarImage, shadowOpacity);
+            drawTexts(g2d, welcome, server, user, shadowOpacity);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(drawImage, "png", os);
@@ -41,7 +42,7 @@ public class WelcomeGraphics {
         return null;
     }
 
-    private static void drawTexts(Graphics2D g2d, String welcomeText, Server server, User user) {
+    private static void drawTexts(Graphics2D g2d, String welcomeText, Server server, User user, float shadowOpacity) {
         final int BORDER = 42;
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
@@ -54,8 +55,8 @@ public class WelcomeGraphics {
         Rectangle2D nameBounds = fontName.getStringBounds(nameIterator, frc);
 
         g2d.setColor(Color.BLACK);
-        Graphics.drawShadow(g2d, 5, 0.2f, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
-        Graphics.drawShadow(g2d, 5, 0.2f, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
+        Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
+        Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
 
         g2d.setColor(Color.WHITE);
         g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()), getTextHeight(frc, fontWelcome) + BORDER);
@@ -70,24 +71,27 @@ public class WelcomeGraphics {
         return (int)(BASE_HEIGHT - 15 + (BASE_WIDTH - BASE_HEIGHT + 15) / 2.0 - textWidth / 2.0);
     }
 
-    private static void drawAvatar(Graphics2D g2d, BufferedImage avatarImage) {
+    private static void drawAvatar(Graphics2D g2d, BufferedImage avatarImage, float shadowOpacity) {
         final int size = BASE_HEIGHT - 30;
-        final int radius = 12;
+        final int radius = 14;
+        final int border = 2;
 
-        BufferedImage black = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D black2d = black.createGraphics();
-        black2d.setColor(Color.BLACK);
-        black2d.fillRect(0, 0, black.getWidth(), black.getHeight());
-        black = Graphics.makeRoundedCorner(black, radius);
-        g2d.drawImage(black, 15, 15, size, size, null);
-
-        BufferedImage finalBlack = black;
-        Graphics.drawShadow(g2d, 5, 0.2f, offset -> g2d.drawImage(finalBlack, 15 + offset, 15 + offset, size, size, null));
+        Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, radius, Color.BLACK), 15 + offset, 15 + offset, size, size, null));
+        g2d.drawImage(generateAvatarBlock(size, radius, Color.WHITE), 15, 15, size, size, null);
+        g2d.drawImage(generateAvatarBlock(size, radius - border, new Color(47, 49, 54)), 15 + border, 15 + border, size - border * 2, size - border * 2, null);
 
         if (avatarImage != null) {
-            avatarImage = Graphics.makeRoundedCorner(avatarImage, radius);
-            g2d.drawImage(avatarImage, 15, 15, size, size, null);
+            avatarImage = Graphics.makeRoundedCorner(avatarImage, radius - border);
+            g2d.drawImage(avatarImage, 15 + border, 15 + border, size - border * 2, size - border * 2, null);
         }
+    }
+
+    private static BufferedImage generateAvatarBlock(int size, int radius, Color color) {
+        BufferedImage black = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D black2d = black.createGraphics();
+        black2d.setColor(color);
+        black2d.fillRect(0, 0, black.getWidth(), black.getHeight());
+        return Graphics.makeRoundedCorner(black, radius);
     }
 
     private static double getAverageLuminance(BufferedImage image) {
@@ -113,12 +117,13 @@ public class WelcomeGraphics {
         return totalLuminance / (double) n;
     }
 
-    private static void drawLumi(Graphics2D g2d, BufferedImage drawImage) {
+    private static double drawLumi(Graphics2D g2d, BufferedImage drawImage) {
         double lumi = getAverageLuminance(drawImage);
         if (lumi >= 0.4) {
             g2d.setColor(new Color(0, 0, 0, (float) (lumi - 0.4)));
             g2d.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
         }
+        return lumi;
     }
 
     private static void drawBackground(Graphics2D g2d, BufferedImage backgroundImage) {
