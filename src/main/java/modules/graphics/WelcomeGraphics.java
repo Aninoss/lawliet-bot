@@ -5,7 +5,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -29,12 +28,13 @@ public class WelcomeGraphics {
 
             drawBackground(g2d, backgroundImage);
             double lumi = drawLumi(g2d, drawImage);
-            float shadowOpacity = (float) (0.25 * lumi);
+            float shadowOpacity = (float) (0.21 * lumi);
+
             drawAvatar(g2d, avatarImage, shadowOpacity);
             drawTexts(g2d, welcome, server, user, shadowOpacity);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(drawImage, "png", os);
+            ImageIO.write(Graphics.makeRoundedCorner(drawImage, 15), "png", os);
             return new ByteArrayInputStream(os.toByteArray());
         } catch (IOException e) {
             LOGGER.error("Exception", e);
@@ -74,15 +74,13 @@ public class WelcomeGraphics {
     private static void drawAvatar(Graphics2D g2d, BufferedImage avatarImage, float shadowOpacity) {
         final int size = BASE_HEIGHT - 30;
         final int radius = 14;
-        final int border = 2;
 
         Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, radius, Color.BLACK), 15 + offset, 15 + offset, size, size, null));
         g2d.drawImage(generateAvatarBlock(size, radius, Color.WHITE), 15, 15, size, size, null);
-        g2d.drawImage(generateAvatarBlock(size, radius - border, new Color(47, 49, 54)), 15 + border, 15 + border, size - border * 2, size - border * 2, null);
 
         if (avatarImage != null) {
-            avatarImage = Graphics.makeRoundedCorner(avatarImage, radius - border);
-            g2d.drawImage(avatarImage, 15 + border, 15 + border, size - border * 2, size - border * 2, null);
+            avatarImage = Graphics.makeRoundedCorner(avatarImage, radius);
+            g2d.drawImage(avatarImage, 15, 15, size, size, null);
         }
     }
 
