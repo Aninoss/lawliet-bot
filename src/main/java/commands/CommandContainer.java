@@ -89,6 +89,7 @@ public class CommandContainer {
         commandList.add(TriggerDeleteCommand.class);
         commandList.add(ReminderCommand.class);
         commandList.add(GiveawayCommand.class);
+        commandList.add(SuggestionConfigCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

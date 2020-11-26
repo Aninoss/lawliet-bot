@@ -674,7 +674,11 @@ public abstract class Command {
     public String[] getOptions() { return options; }
     public void setOptions(String[] options) {
         this.options = options;
-        if (options != null) this.pageMax = Math.max(0, options.length - 1) / (((OnNavigationListener) this).getMaxReactionNumber() - 2);
+        if (options != null) {
+            int maxReactions = ((OnNavigationListener) this).getMaxReactionNumber();
+            if (maxReactions > 2)
+                this.pageMax = Math.max(0, options.length - 1) / (maxReactions - 2);
+        }
     }
     public void setLog(LogStatus logStatus, String string) {
         this.log = string;

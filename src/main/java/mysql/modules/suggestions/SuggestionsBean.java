@@ -5,7 +5,7 @@ import modules.suggestions.SuggestionMessage;
 import mysql.BeanWithServer;
 import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
+import org.javacord.api.entity.channel.ServerTextChannel;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -38,8 +38,8 @@ public class SuggestionsBean extends BeanWithServer {
         return Optional.ofNullable(channelId);
     }
 
-    public Optional<ServerVoiceChannel> getChannel() {
-        return getServer().flatMap(server -> server.getVoiceChannelById(channelId != null ? channelId : 0L));
+    public Optional<ServerTextChannel> getChannel() {
+        return getServer().flatMap(server -> server.getTextChannelById(channelId != null ? channelId : 0L));
     }
 
 
@@ -52,7 +52,11 @@ public class SuggestionsBean extends BeanWithServer {
     }
 
     public void setChannelId(Long channelId) {
-        this.channelId = channelId;
+        if (this.channelId == null || !this.channelId.equals(channelId)) {
+            this.channelId = channelId;
+            setChanged();
+            notifyObservers();
+        }
     }
 
 }
