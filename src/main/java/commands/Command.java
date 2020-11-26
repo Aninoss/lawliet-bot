@@ -680,6 +680,9 @@ public abstract class Command {
         this.log = string;
         this.logStatus = logStatus;
     }
+    public int getPage() {
+        return page;
+    }
 
     public Thread getThread() {
         return thread;

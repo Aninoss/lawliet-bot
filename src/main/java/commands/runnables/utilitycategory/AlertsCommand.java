@@ -217,7 +217,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         if (!StringUtil.stringIsInt(arg))
             return null;
 
-        int index = Integer.parseInt(arg);
+        int index = Integer.parseInt(arg) + 10 * getPage();
         if (index < 0 || index >= trackerSlots.size())
             return null;
 
@@ -329,7 +329,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 10;
+        return 12;
     }
 
     private void addTracker(Command command, String commandKey, boolean firstTime) throws ExecutionException {
