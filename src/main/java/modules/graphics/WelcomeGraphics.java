@@ -28,7 +28,7 @@ public class WelcomeGraphics {
 
             drawBackground(g2d, backgroundImage);
             double lumi = drawLumi(g2d, drawImage);
-            float shadowOpacity = (float) (0.21 * lumi);
+            float shadowOpacity = (float) (0.22 * lumi);
 
             drawAvatar(g2d, avatarImage, shadowOpacity);
             drawTexts(g2d, welcome, server, user, shadowOpacity);

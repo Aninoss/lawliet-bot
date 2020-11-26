@@ -1,11 +1,11 @@
 package commands.runnables.informationcategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnNavigationListener;
+import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;
 import constants.*;
@@ -21,7 +21,6 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
@@ -60,7 +59,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @ControllerMessage(state = DEFAULT_STATE)
     public Response onMessage(MessageCreateEvent event, String inputString) throws Throwable {
-        return null;
+        searchTerm = inputString;
+        return Response.TRUE;
     }
 
     @ControllerReaction(state = DEFAULT_STATE)
@@ -98,7 +98,6 @@ public class HelpCommand extends Command implements OnNavigationListener {
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length()-1);
 
         ServerTextChannel channel = getStarterMessage().getServerTextChannel().get();
-
         setOptions(null);
 
         EmbedBuilder eb;
@@ -239,10 +238,12 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .append(command.getEmoji())
                         .append("⠀")
                         .append(getPrefix())
-                        .append(commandTrigger);
+                        .append(commandTrigger)
+                        .append("`");
 
-                if (command.isNsfw()) stringBuilder.append(" ").append(getString("interaction_nsfw"));
-                stringBuilder.append("`\n");
+                if (command.isNsfw())
+                    stringBuilder.append(generateCommandIcons(command, true));
+                stringBuilder.append("\n");
 
                 i++;
                 if (i >= 10) {
@@ -255,11 +256,12 @@ public class HelpCommand extends Command implements OnNavigationListener {
         if (stringBuilder.length() > 0)
             eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
 
-        if (category.equals(Category.INTERACTIONS))
-            eb.addField(Emojis.EMPTY_EMOJI, getString("interaction_nsfw_desc"))
-                    .setDescription(getString("interactions_desc"));
-        else
+        addIconDescriptions(eb, category.equals(Category.INTERACTIONS));
+        if (category.equals(Category.INTERACTIONS)) {
+            eb.setDescription(getString("interactions_desc"));
+        } else {
             eb.setDescription(getString("emotes_desc"));
+        }
 
     }
 
@@ -268,37 +270,31 @@ public class HelpCommand extends Command implements OnNavigationListener {
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            User author = getStarterMessage().getUserAuthor().get();
             if (!commandTrigger.equals(getTrigger()) &&
                     (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
             ) {
                 StringBuilder title = new StringBuilder();
-                title.append(LetterEmojis.LETTERS[i])
-                        .append(" → ")
-                        .append(command.getEmoji())
-                        .append(" ");
+                title.append(command.getEmoji())
+                        .append(" `")
+                        .append(getPrefix())
+                        .append(commandTrigger)
+                        .append("`");
 
-                title.append("`").append(getPrefix()).append(commandTrigger);
                 if (command.getReleaseDate().isAfter(LocalDate.now()))
                     title.append(" ").append(getString("beta"));
-                title.append("`");
-
-                if (command.isModCommand()) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.LOCKED);
-                if (command instanceof OnTrackerRequestListener) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.ALERTS);
-                if (command.isNsfw()) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.NSFW);
-                if (command.isPatreonRequired()) title.append(Emojis.EMPTY_EMOJI).append(CommandIcon.PATREON);
+                title.append(generateCommandIcons(command, true));
 
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
-
                 eb.addField(
                         title.toString(),
-                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.EMPTY_EMOJI
+                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.EMPTY_EMOJI,
+                        true
                 );
             }
         }
 
-        eb.addField(Emojis.EMPTY_EMOJI, getIconDescriptions());
+        addIconDescriptions(eb, false);
     }
 
     private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -315,10 +311,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
-                StringBuilder extras = new StringBuilder();
-                if (command.isPatreonRequired()) extras.append(" ").append(CommandIcon.PATREON);
-                if (command instanceof OnTrackerRequestListener) extras.append(" ").append(CommandIcon.ALERTS);
-
+                StringBuilder extras = new StringBuilder(generateCommandIcons(command, false));
                 if (command instanceof PornSearchAbstract)
                     withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
@@ -335,17 +328,29 @@ public class HelpCommand extends Command implements OnNavigationListener {
             eb.addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true);
         }
 
-        eb.addField(Emojis.EMPTY_EMOJI, getIconDescriptions());
+        addIconDescriptions(eb, false);
     }
 
-    private String getIconDescriptions() {
-        return getString("commandproperties",
+    private String generateCommandIcons(Command command, boolean includeNsfw) {
+        StringBuilder sb = new StringBuilder();
+
+        if (command.isModCommand()) sb.append(CommandIcon.LOCKED);
+        if (command instanceof OnTrackerRequestListener) sb.append(CommandIcon.ALERTS);
+        if (includeNsfw && command.isNsfw()) sb.append(CommandIcon.NSFW);
+        if (command.isPatreonRequired()) sb.append(CommandIcon.PATREON);
+
+        return sb.length() == 0 ? "" : "┊" + sb.toString();
+    }
+
+    private void addIconDescriptions(EmbedBuilder eb, boolean showNsfwInfo) {
+        String str = getString("commandproperties", showNsfwInfo,
                 CommandIcon.LOCKED.toString(),
                 CommandIcon.ALERTS.toString(),
                 CommandIcon.NSFW.toString(),
                 CommandIcon.PATREON.toString(),
                 ExternalLinks.PATREON_PAGE
         );
+        eb.addField(Emojis.EMPTY_EMOJI, str);
     }
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel) throws Throwable {
