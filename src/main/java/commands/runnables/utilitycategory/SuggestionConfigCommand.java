@@ -71,9 +71,14 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
                         return false;
 
                     case 0:
-                        suggestionsBean.toggleActive();
-                        setLog(LogStatus.SUCCESS, getString("activeset", suggestionsBean.isActive()));
-                        return true;
+                        if (suggestionsBean.isActive() || suggestionsBean.getChannel().isPresent()) {
+                            suggestionsBean.toggleActive();
+                            setLog(LogStatus.SUCCESS, getString("activeset", suggestionsBean.isActive()));
+                            return true;
+                        } else {
+                            setLog(LogStatus.FAILURE, getString("active_nochannel"));
+                            return true;
+                        }
 
                     case 1:
                         setState(1);
