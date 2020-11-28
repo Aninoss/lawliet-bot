@@ -1,16 +1,15 @@
 package commands.runnables.externalcategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import commands.Command;
 import constants.TrackerResult;
 import core.EmbedFactory;
-import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
+import modules.PostBundle;
 import modules.animerelease.AnimeReleaseDownloader;
 import modules.animerelease.AnimeReleasePost;
-import modules.PostBundle;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -42,9 +41,8 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
             event.getChannel().sendMessage(eb).get();
             return true;
         } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                    .setDescription(getString("no_results", false, followedString));
             event.getChannel().sendMessage(eb).get();
             return false;
         }
@@ -72,7 +70,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
-        boolean first = !slot.getArgs().isPresent();
+        boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
         ServerTextChannel channel = slot.getChannel().get();
@@ -82,9 +80,8 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         }
 
         if (first && postBundle.getPosts().size() == 0) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(getString("no_results", StringUtil.shortenString(slot.getCommandKey(), 200)));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                    .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.getChannel().get().sendMessage(eb).get();
         }
 
