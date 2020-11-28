@@ -50,7 +50,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
 
     private EmbedBuilder getEmbed(AnimeReleasePost post) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setAuthor(post.getAnime(), post.getUrl(), "https://www.crunchyroll.com/favicons/favicon-32x32.png")
+                .setAuthor(post.getAnime(), post.getUrl(), "https://cdn.discordapp.com/attachments/499629904380297226/782242962201116723/crunchyroll_favicon.png")
                 .setDescription(post.getDescription())
                 .setUrl(post.getUrl())
                 .setImage(post.getThumbnail())

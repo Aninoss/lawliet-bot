@@ -38,7 +38,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
 
     private String log;
     private int winLevel;
-    private boolean[] progress;
+    private int progress;
     private LogStatus logStatus;
     private boolean first;
     private final String[] FRUITS_CONTAINER = {"🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🍎", "🍐", "🍑", "🍒", "🍓", "🆒"};
@@ -54,28 +54,33 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
-            useCalculatedMultiplicator = false;
-            first = true;
-            progress = new boolean[3];
-            fruits = new int[3];
+            try {
+                useCalculatedMultiplicator = false;
+                first = true;
+                progress = 0;
+                fruits = new int[3];
 
-            double n = new Random().nextDouble();
+                double n = new Random().nextDouble();
 
-            winLevel = 0;
-            for (int i = 0; i < WIN_POSSABILITIES.length; i++) {
-                n -= 1.0 / WIN_POSSABILITIES[i];
-                if (n <= 0) {
-                    winLevel = i + 1;
-                    break;
+                winLevel = 0;
+                for (int i = 0; i < WIN_POSSABILITIES.length; i++) {
+                    n -= 1.0 / WIN_POSSABILITIES[i];
+                    if (n <= 0) {
+                        winLevel = i + 1;
+                        break;
+                    }
                 }
+
+                setFruits();
+
+                message = event.getChannel().sendMessage(getEmbed()).get();
+                message.addReaction(ALL_EMOJI).get();
+
+                return true;
+            } catch (Throwable e) {
+                handleError(e, event.getServerTextChannel().get());
+                return false;
             }
-
-            setFruits();
-
-            message = event.getChannel().sendMessage(getEmbed()).get();
-            message.addReaction(ALL_EMOJI);
-
-            return true;
         }
         return false;
     }
@@ -179,12 +184,12 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     private String getSpinningWheel(int i) {
-        if (!progress[i]) return DiscordApiCollection.getInstance().getHomeEmojiById(401057220114251787L).getMentionTag();
+        if (progress <= i) return DiscordApiCollection.getInstance().getHomeEmojiById(401057220114251787L).getMentionTag();
         else return FRUITS_CONTAINER[fruits[i]];
     }
 
     private void manageEnd() throws ExecutionException {
-        for(boolean b: progress) if (!b) return;
+        if (progress < 3) return;
 
         removeReactionListener(getReactionMessage());
         log = getString("end", winLevel);
@@ -228,7 +233,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     private void unlockFruit(int i) {
-        progress[i] = true;
+        progress = i + 1;
         message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
     }
 
@@ -240,7 +245,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     @Override
     public void onReactionTimeOut(Message message) throws Throwable {
         if (active) {
-            for (int i = 0; i < 3; i++) progress[i] = true;
+            progress = 3;
             manageEnd();
             message.edit(getEmbed());
         }

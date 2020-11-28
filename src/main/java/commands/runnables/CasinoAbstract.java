@@ -1,14 +1,15 @@
 package commands.runnables;
 
-import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import commands.CommandManager;
+import commands.listeners.OnReactionAddListener;
 import constants.Category;
 import constants.Emojis;
 import constants.FisheryStatus;
 import core.EmbedFactory;
-import core.utils.MentionUtil;
+import core.ExceptionHandler;
 import core.TextManager;
+import core.utils.MentionUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.gamestatistics.DBGameStatistics;
@@ -125,6 +126,11 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
 
         EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).changeValues(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
         if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
+    }
+
+    protected void handleError(Throwable e, ServerTextChannel channel) {
+        onGameEnd();
+        ExceptionHandler.handleCommandException(e, this, channel);
     }
 
     protected EmbedBuilder addRetryOption(EmbedBuilder eb) {

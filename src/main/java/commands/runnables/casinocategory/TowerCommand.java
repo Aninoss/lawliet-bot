@@ -46,12 +46,17 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
-            useCalculatedMultiplicator = false;
+            try {
+                useCalculatedMultiplicator = false;
 
-            message = event.getChannel().sendMessage(getEmbed(true, false, false)).get();
-            for (String str : EMOJIS) message.addReaction(str);
+                message = event.getChannel().sendMessage(getEmbed(true, false, false)).get();
+                for (String str : EMOJIS) message.addReaction(str).get();
 
-            return true;
+                return true;
+            } catch (Throwable e) {
+                handleError(e, event.getServerTextChannel().get());
+                return false;
+            }
         }
         return false;
     }

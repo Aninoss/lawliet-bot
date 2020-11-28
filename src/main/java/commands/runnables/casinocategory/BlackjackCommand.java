@@ -18,8 +18,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -33,8 +31,6 @@ import java.util.Random;
         aliases = { "bj" }
 )
 public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(BlackjackCommand.class);
 
     private String log;
     private LogStatus logStatus;
@@ -52,21 +48,26 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
-            winMultiplicator = 1;
-            block = false;
-            finished = false;
-            gameCards = new ArrayList[2];
+            try {
+                winMultiplicator = 1;
+                block = false;
+                finished = false;
+                gameCards = new ArrayList[2];
 
-            gameCards[0] = new ArrayList<>();
-            for (int i = 0; i < 2; i++) gameCards[0].add(new GameCard());
+                gameCards[0] = new ArrayList<>();
+                for (int i = 0; i < 2; i++) gameCards[0].add(new GameCard());
 
-            gameCards[1] = new ArrayList<>();
-            for (int i = 0; i < 1; i++) gameCards[1].add(new GameCard());
+                gameCards[1] = new ArrayList<>();
+                for (int i = 0; i < 1; i++) gameCards[1].add(new GameCard());
 
-            message = event.getChannel().sendMessage(getEmbed(-1)).get();
-            for (String str : EMOJIS) message.addReaction(str);
+                message = event.getChannel().sendMessage(getEmbed(-1)).get();
+                for (String str : EMOJIS) message.addReaction(str).get();
 
-            return true;
+                return true;
+            } catch (Throwable e) {
+                handleError(e, event.getServerTextChannel().get());
+                return false;
+            }
         }
         return false;
     }

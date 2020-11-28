@@ -56,68 +56,73 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         if (onGameStart(event, followedString)) {
-            if (!allowBet) {
-                logStatus = LogStatus.WARNING;
-                log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
-            }
-
-            String dataString, diffString;
-            JSONObject data;
             try {
-                dataString = HttpRequest.getData(url).get().getContent().get();
-                data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
-                diffString = data.getString("difficulty");
+                if (!allowBet) {
+                    logStatus = LogStatus.WARNING;
+                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
+                }
+
+                String dataString, diffString;
+                JSONObject data;
+                try {
+                    dataString = HttpRequest.getData(url).get().getContent().get();
+                    data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
+                    diffString = data.getString("difficulty");
+                } catch (Throwable e) {
+                    DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
+                    throw e;
+                }
+
+                switch (diffString) {
+                    case "easy":
+                        difficulty = 0;
+                        break;
+
+                    case "medium":
+                        difficulty = 1;
+                        break;
+
+                    case "hard":
+                        difficulty = 2;
+                        break;
+                }
+
+                question = StringUtil.decryptString(data.getString("question"));
+
+                ArrayList<String> orderedAnswers = new ArrayList<>();
+                orderedAnswers.add(StringUtil.decryptString(data.getString("correct_answer")));
+
+                JSONArray answersJSON = data.getJSONArray("incorrect_answers");
+                for (int i = 0; i < answersJSON.length(); i++) {
+                    orderedAnswers.add(StringUtil.decryptString(answersJSON.getString(i)));
+                }
+
+                answers = new String[orderedAnswers.size()];
+                Random r = new Random();
+                correctAnswer = -1;
+                for (int i = 0; i < answers.length; i++) {
+                    int select = r.nextInt(orderedAnswers.size());
+                    answers[i] = orderedAnswers.get(select);
+                    if (select == 0 && correctAnswer == -1) correctAnswer = i;
+                    orderedAnswers.remove(select);
+                }
+
+                compareKey = "quiz_" + answers.length + "_" + difficulty;
+                winMultiplicator = answers.length * (difficulty + 1) / 8.0;
+
+                message = event.getChannel().sendMessage(getEmbed()).get();
+                int COUNTER = 10;
+                MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, this::onTimeUp);
+
+                for (int i = 0; i < answers.length; i++) {
+                    message.addReaction(LetterEmojis.LETTERS[i]).get();
+                }
+
+                return true;
             } catch (Throwable e) {
-                DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
-                throw e;
+                handleError(e, event.getServerTextChannel().get());
+                return false;
             }
-
-            switch (diffString) {
-                case "easy":
-                    difficulty = 0;
-                    break;
-
-                case "medium":
-                    difficulty = 1;
-                    break;
-
-                case "hard":
-                    difficulty = 2;
-                    break;
-            }
-
-            question = StringUtil.decryptString(data.getString("question"));
-
-            ArrayList<String> orderedAnswers = new ArrayList<>();
-            orderedAnswers.add(StringUtil.decryptString(data.getString("correct_answer")));
-
-            JSONArray answersJSON = data.getJSONArray("incorrect_answers");
-            for(int i=0; i<answersJSON.length(); i++) {
-                orderedAnswers.add(StringUtil.decryptString(answersJSON.getString(i)));
-            }
-
-            answers = new String[orderedAnswers.size()];
-            Random r = new Random();
-            correctAnswer = -1;
-            for(int i=0; i<answers.length; i++) {
-                int select = r.nextInt(orderedAnswers.size());
-                answers[i] = orderedAnswers.get(select);
-                if (select == 0 && correctAnswer == -1) correctAnswer = i;
-                orderedAnswers.remove(select);
-            }
-
-            compareKey = "quiz_" + answers.length + "_" + difficulty;
-            winMultiplicator = answers.length * (difficulty + 1) / 8.0;
-
-            message = event.getChannel().sendMessage(getEmbed()).get();
-            int COUNTER = 10;
-            MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, this::onTimeUp);
-
-            for(int i = 0; i < answers.length; i++) {
-                message.addReaction(LetterEmojis.LETTERS[i]);
-            }
-
-            return true;
         }
         return false;
     }

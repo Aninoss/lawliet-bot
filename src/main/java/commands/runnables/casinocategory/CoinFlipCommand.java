@@ -48,17 +48,22 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         onlyNumbersAsArg = false;
         if (onGameStart(event, followedString)) {
-            useCalculatedMultiplicator = false;
-            winMultiplicator = 1;
+            try {
+                useCalculatedMultiplicator = false;
+                winMultiplicator = 1;
 
-            int coinSideSelection = getCoinValue(followedString);
-            if (coinSideSelection >= 0) selection[0] = coinSideSelection;
+                int coinSideSelection = getCoinValue(followedString);
+                if (coinSideSelection >= 0) selection[0] = coinSideSelection;
 
-            message = event.getChannel().sendMessage(getEmbed(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get())).get();
-            if (selection[0] == -1) for (String str : EMOJIS) message.addReaction(str);
-            else manageEnd();
+                message = event.getChannel().sendMessage(getEmbed(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get())).get();
+                if (selection[0] == -1) for (String str : EMOJIS) message.addReaction(str).get();
+                else manageEnd();
 
-            return true;
+                return true;
+            } catch (Throwable e) {
+                handleError(e, event.getServerTextChannel().get());
+                return false;
+            }
         }
         return false;
     }
