@@ -19,24 +19,24 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "roses",
     emoji = "🌹",
-    exlusiveUsers = { 397209883793162240L, 444821134936899605L },
+    exlusiveUsers = { 397209883793162240L, 558626732308168765L, 272037078919938058L },
     executableWithoutArgs = false
 )
 public class RosesCommand extends Command {
 
     private final static RoseData[] ROSE_DATA_ARRAY = new RoseData[] {
-            new RoseData("schwarz", "black", "759424572126134302/him_her_black.gif", "759427067925757952/her_him_black.gif"),
-            new RoseData("blau", "blue", "759424575640830022/him_her_blue.gif", "759427127543726098/her_him_blue.gif"),
-            new RoseData("bronze", "bronze", "759424580548034590/him_her_bronze.gif", "759427178273832990/her_him_bronze.gif"),
-            new RoseData("gold", "gold", "759424585249587220/him_her_gold.gif", "759427228454223872/her_him_gold.gif"),
-            new RoseData("orange", "orange", "759424589158809651/him_her_orange.gif", "759427288277188688/her_him_orange.gif"),
-            new RoseData("pink", "pink", "759424596939243570/him_her_pink.gif", "759427342094696479/her_him_pink.gif"),
-            new RoseData("violett", "purple", "759424600228233236/him_her_purple.gif", "759427393437302794/her_him_purple.gif"),
-            new RoseData("rot", "red", "759424605194027008/him_her_red.gif", "759427442166988850/her_him_red.gif"),
-            new RoseData("rosa", "rose", "759424611859038268/him_her_rose.gif", "759427493760729158/her_him_rose.gif"),
-            new RoseData("silber", "silver", "759424617403121674/him_her_silver.gif", "759427564581290034/her_him_silver.gif"),
-            new RoseData("weiß", "white", "759424624080978010/him_her_white.gif", "759427630549303356/her_him_white.gif"),
-            new RoseData("gelb", "yellow", "759424631127539762/him_her_yellow.gif", "759427690049568838/her_him_yellow.gif"),
+            new RoseData("schwarz", "black", "782246061808943134/him2her_black.gif", "782247600396959824/her2him_black.gif"),
+            new RoseData("blau", "blue", "782246943875137576/him2her_blue.gif", "782247610852311091/her2him_blue.gif"),
+            new RoseData("bronze", "bronze", "782246068112195634/him2her_bronze.gif", "782247621381062666/her2him_bronze.gif"),
+            new RoseData("gold", "gold", "782246076400664576/him2her_gold.gif", "782247632897966100/her2him_gold.gif"),
+            new RoseData("orange", "orange", "782246083904274492/him2her_orange.gif", "782247646525128724/her2him_orange.gif"),
+            new RoseData("pink", "pink", "782246092938543144/him2her_pink.gif", "782247660152684544/her2him_pink.gif"),
+            new RoseData("violett", "purple", "782246101335932978/him2her_purple.gif", "782247670806478880/her2him_purple.gif"),
+            new RoseData("rot", "red", "782246109166305310/him2her_red.gif", "782247558319570955/her2him_red.gif"),
+            new RoseData("rosa", "rose", "782246119152680971/him2her_rosa.gif", "782247563910447144/her2him_rosa.gif"),
+            new RoseData("silber", "silver", "782246126451163196/him2her_silver.gif", "782247572885864448/her2him_silver.gif"),
+            new RoseData("weiß", "white", "782246135187374090/him2her_white.gif", "782247579924430888/her2him_white.gif"),
+            new RoseData("gelb", "yellow", "782246144285081600/him2her_yellow.gif", "782247589407752222/her2him_yellow.gif"),
     };
     private final static long SEELE_USER_ID = 397209883793162240L;
 
