@@ -72,7 +72,7 @@ public class TwitchDownloader {
 
     private Optional<TwitchUser> getTwitchUser(String channelName) throws InterruptedException, UnsupportedEncodingException, ExecutionException {
         JSONObject data;
-        data = fetchApi("https://api.twitch.tv/kraken/users?login=" + InternetUtil.encodeForURL(channelName));
+        data = fetchApi("https://api.twitch.tv/kraken/users?login=" + InternetUtil.escapeForURL(channelName));
 
         if (!data.has("users"))
             return Optional.empty();

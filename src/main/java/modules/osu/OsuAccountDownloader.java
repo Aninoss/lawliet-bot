@@ -5,14 +5,13 @@ import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class OsuAccountDownloader {
 
-    public static Optional<OsuAccount> download(String username, String gameMode) throws ExecutionException, InterruptedException, UnsupportedEncodingException {
-        Optional<String> contentOpt = InternetCache.getData("https://osu.ppy.sh/users/" + InternetUtil.encodeForURL(username) + "/" + gameMode).get().getContent();
+    public static Optional<OsuAccount> download(String username, String gameMode) throws ExecutionException, InterruptedException {
+        Optional<String> contentOpt = InternetCache.getData("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode).get().getContent();
         if (contentOpt.isEmpty())
             return Optional.empty();
 

@@ -23,7 +23,7 @@ import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.UnsupportedEncodingException;
+
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -39,12 +39,14 @@ import java.util.concurrent.ExecutionException;
 public class OsuCommand extends UserAccountAbstract implements OnReactionAddListener {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OsuCommand.class);
-    private final static String EMOJI = "🔍";
+    private final static String EMOJI_CONNECT = "🔍";
+    private final static String EMOJI_CANCEL = "❌";
     private final static String GUEST = "Guest";
 
     private Message message;
     private String gameMode = "osu";
     private int gameModeSlot = 0;
+    private boolean connecting = false;
 
     public OsuCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -66,7 +68,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
         }
 
         if (userIsAuthor && OsuAccountSync.getInstance().getUserInCache(user.getId()).isEmpty()) {
-            EmbedUtil.addLog(eb, getString("react", userExists, EMOJI));
+            EmbedUtil.addLog(eb, getString("react", userExists, EMOJI_CONNECT));
         }
 
         return eb;
@@ -108,43 +110,56 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
 
     @Override
     protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable {
-        if (userIsAuthor && OsuAccountSync.getInstance().getUserInCache(user.getId()).isEmpty()) {
+        if (userIsAuthor) {
             this.message = message;
-            message.addReaction(EMOJI).get();
+            message.addReaction(EMOJI_CONNECT).get();
         }
     }
 
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().getMentionTag().equals(EMOJI)) {
-            removeReactionListener();
+        if (event.getEmoji().getMentionTag().equals(EMOJI_CONNECT) && !connecting) {
+            connecting = true;
+            DBOsuAccounts.getInstance().getBean().remove(event.getUserId());
 
-            if (OsuAccountSync.getInstance().getUserInCache(event.getUserId()).isEmpty()) {
-                DBOsuAccounts.getInstance().getBean().remove(event.getUserId());
+            Optional<String> osuUsernameOpt = event.getUser().get().getActivity().flatMap(OsuAccountCheck::getOsuUsernameFromActivity);
+            if (osuUsernameOpt.isPresent()) {
+                String osuUsername = osuUsernameOpt.get();
+                if (!osuUsername.equals(GUEST)) {
+                    removeReactionListener();
+                    Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
+                    update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
+                    return;
+                }
+            }
 
-                Optional<String> osuUsernameOpt = event.getUser().get().getActivity().flatMap(OsuAccountCheck::getOsuUsernameFromActivity);
-                if (osuUsernameOpt.isPresent()) {
-                    String osuUsername = osuUsernameOpt.get();
-                    if (!osuUsername.equals(GUEST)) {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
+            EmbedUtil.addLog(eb, null, getString("synch_abort", EMOJI_CANCEL));
+
+            message.edit(eb).get();
+            if (event.getChannel().canYouRemoveReactionsOfOthers()) {
+                message.removeAllReactions()
+                        .thenRun(() -> message.addReaction(EMOJI_CANCEL).exceptionally(ExceptionLogger.get()));
+            } else {
+                message.addReaction(EMOJI_CANCEL).exceptionally(ExceptionLogger.get());
+            }
+
+            OsuAccountSync.getInstance().add(event.getUserId(), osuUsername -> {
+                if (!osuUsername.equals(GUEST)) {
+                    try {
+                        removeReactionListener();
+                        OsuAccountSync.getInstance().remove(event.getUserId());
                         Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
                         update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
-                        return;
+                    } catch (ExecutionException | InterruptedException e) {
+                        LOGGER.error("osu download error", e);
                     }
                 }
-
-                message.edit(EmbedFactory.getEmbedDefault(this, getString("synchronize", StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
-                OsuAccountSync.getInstance().add(event.getUserId(), osuUsername -> {
-                    if (!osuUsername.equals(GUEST)) {
-                        try {
-                            OsuAccountSync.getInstance().remove(event.getUserId());
-                            Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
-                            update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
-                        } catch (ExecutionException | InterruptedException | UnsupportedEncodingException e) {
-                            LOGGER.error("osu download error", e);
-                        }
-                    }
-                });
-            }
+            });
+        } else if (event.getEmoji().getMentionTag().equals(EMOJI_CANCEL) && connecting) {
+            removeReactionListener();
+            OsuAccountSync.getInstance().remove(event.getUserId());
+            message.edit(EmbedFactory.getAbortEmbed(this)).get();
         }
     }
 

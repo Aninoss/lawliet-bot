@@ -1,5 +1,6 @@
 package core.utils;
 
+import com.google.common.net.UrlEscapers;
 import core.DiscordApiCollection;
 import core.schedule.MainScheduler;
 import org.javacord.api.entity.message.Message;
@@ -7,12 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 
@@ -62,8 +60,8 @@ public final class InternetUtil {
         return false;
     }
 
-    public static String encodeForURL(String url) throws UnsupportedEncodingException {
-        return URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
+    public static String escapeForURL(String url) {
+        return UrlEscapers.urlFragmentEscaper().escape(url);
     }
 
 }

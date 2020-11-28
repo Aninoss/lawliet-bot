@@ -14,7 +14,7 @@ public class OsuAccountSync {
     private OsuAccountSync() { }
 
     private final Cache<Long, Consumer<String>> osuSyncCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
 
     public void add(long userId, Consumer<String> action) {

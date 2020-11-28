@@ -1,21 +1,19 @@
 package commands.runnables.moderationcategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-
-import commands.Command;
-import constants.Category;
 import constants.Permission;
 import core.CustomObservableList;
 import core.EmbedFactory;
-import core.utils.MentionUtil;
-import core.mention.MentionList;
 import core.TextManager;
+import core.mention.MentionList;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningsSlot;
-import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -140,12 +138,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                         executeRemoval();
                     } else {
                         removeReactionListener();
-                        postMessage(EmbedFactory.getEmbedDefault(
-                                        this,
-                                        TextManager.getString(getLocale(), Category.MODERATION, "warn_abort_description"),
-                                        TextManager.getString(getLocale(), Category.MODERATION, "warn_abort_title")
-                                )
-                        );
+                        postMessage(EmbedFactory.getAbortEmbed(this));
                     }
                 }
             }

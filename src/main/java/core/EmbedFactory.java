@@ -74,4 +74,12 @@ public class EmbedFactory {
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "api_down", service));
     }
 
+    public static EmbedBuilder getAbortEmbed(Command command) {
+        return EmbedFactory.getEmbedDefault(
+                command,
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "process_abort_description"),
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "process_abort_title")
+        );
+    }
+
 }
