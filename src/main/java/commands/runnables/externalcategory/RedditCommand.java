@@ -78,6 +78,8 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 .setImage(post.getImage())
                 .setUrl(post.getUrl());
 
+        LOGGER.info("Reddit url: " + post.getUrl()); //TODO DEBUG
+
         String flairText = "";
         String flair = post.getFlair();
         if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" "))
@@ -135,11 +137,6 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                     channel.sendMessage(eb).get();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {
-                    if (RedditDownloader.checkRedditConnection()) {
-                        slot.setArgs(null);
-                        return TrackerResult.CONTINUE_AND_SAVE;
-                    }
-
                     return TrackerResult.CONTINUE;
                 }
             }

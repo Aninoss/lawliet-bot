@@ -77,7 +77,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.getInstance().assignRoles(event.getServer().get(), role, addRole());
 
         /* check for busy */
-        if (!futureOpt.isPresent()) {
+        if (futureOpt.isEmpty()) {
             event.getChannel()
                     .sendMessage(EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title"))).get();
             return false;

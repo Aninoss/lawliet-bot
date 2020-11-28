@@ -94,7 +94,7 @@ public class RedditDownloader {
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
 
-        String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
+        String downloadUrl = "https://www.reddit.com/r/" + InternetUtil.escapeForURL(sub) + ".json?raw_json=1";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
         if (httpResponse.getContent().isEmpty())

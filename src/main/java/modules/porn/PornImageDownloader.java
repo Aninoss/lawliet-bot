@@ -40,7 +40,7 @@ public class PornImageDownloader {
 
         CompletableFuture<Optional<PornImage>> future = new CompletableFuture<>();
 
-        String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&tags=" + searchTermEncoded;
+        String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&tags=" + InternetUtil.escapeForURL(searchTermEncoded);
         String finalSearchTerm = searchTerm;
         InternetCache.getDataShortLived(url).thenAccept(response -> {
             try {

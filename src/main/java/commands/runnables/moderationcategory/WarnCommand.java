@@ -152,7 +152,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
                         execute(event.getServerTextChannel().get(),  event.getUser().get());
                     } else {
                         removeReactionListener();
-                        postMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("abort_description"), getString("abort_title")));
+                        postMessage(event.getServerTextChannel().get(), EmbedFactory.getAbortEmbed(this));
                     }
                 }
             }
