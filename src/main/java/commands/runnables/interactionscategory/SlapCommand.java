@@ -7,7 +7,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "slap",
         emoji = "\uD83D\uDC4F",
-        executableWithoutArgs = false
+        executableWithoutArgs = true
 )
 public class SlapCommand extends InteractionAbstract {
 

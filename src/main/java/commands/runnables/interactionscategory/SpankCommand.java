@@ -8,7 +8,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "spank",
     emoji = "\uD83C\uDF51",
-    executableWithoutArgs = false
+    executableWithoutArgs = true
 )
 public class SpankCommand extends InteractionAbstract {
 
