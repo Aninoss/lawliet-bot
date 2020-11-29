@@ -319,7 +319,7 @@ public class FisheryUserBean extends BeanWithServer {
         }
     }
 
-    public void setCoins(long coins) {
+    public void setCoinsRaw(long coins) {
         if (this.coins != coins) {
             this.coins = coins;
             checkValuesBound();

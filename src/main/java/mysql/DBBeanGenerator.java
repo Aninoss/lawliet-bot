@@ -49,13 +49,15 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             changed = new ArrayList<>();
 
             Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
-                if (changed.size() > 0) intervalSave();
+                if (changed.size() > 0)
+                    intervalSave();
             }, "shutdown_intervalsave"));
 
             Thread t = new CustomThread(() -> {
                 IntervalBlock intervalBlock = new IntervalBlock(minutes, ChronoUnit.MINUTES);
                 while(intervalBlock.block()) {
-                    if (changed.size() > 0) intervalSave();
+                    if (changed.size() > 0)
+                        intervalSave();
                 }
             }, "dbbean_interval_save", 1);
             t.start();
@@ -143,8 +145,8 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     @Override
     public void clear() {
-        if ((this instanceof IntervalSave)) intervalSave();
-        cache.invalidateAll();
+        if (!(this instanceof IntervalSave))
+            cache.invalidateAll();
     }
 
 }

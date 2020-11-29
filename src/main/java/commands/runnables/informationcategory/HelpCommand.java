@@ -116,7 +116,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return 14;
+        return Category.LIST.length;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {

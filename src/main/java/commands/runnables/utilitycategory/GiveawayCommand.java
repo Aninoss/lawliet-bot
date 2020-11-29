@@ -532,11 +532,13 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     }
 
     private EmbedBuilder getMessageEmbed() {
+        Instant startInstant = editMode ? instant : Instant.now();
+
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(getEmoji() + " " + title)
                 .setDescription(description)
                 .setFooter(getString("endson"))
-                .setTimestamp(Instant.now().plus(durationMinutes, ChronoUnit.MINUTES));
+                .setTimestamp(startInstant.plus(durationMinutes, ChronoUnit.MINUTES));
 
         if (description.isEmpty())
             eb.setDescription(getString("tutorial", amountOfWinners != 1, emoji.getMentionTag(), String.valueOf(amountOfWinners)));
