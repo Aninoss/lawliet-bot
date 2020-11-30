@@ -2,7 +2,7 @@ package modules;
 
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import constants.Permission;
-import core.DiscordQuickUpdater;
+import core.QuickUpdater;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
@@ -29,7 +29,7 @@ public class MemberCountDisplay {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
-                DiscordQuickUpdater.getInstance().update(
+                QuickUpdater.getInstance().update(
                         "member_count_displays",
                         voiceChannel.getId(),
                         () -> {

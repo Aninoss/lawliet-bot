@@ -40,7 +40,7 @@ import java.util.Locale;
 )
 public class HelpCommand extends Command implements OnNavigationListener {
 
-    private ArrayList<EmojiConnection> emojiConnections;
+    private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private String searchTerm;
     private MessageCreateEvent authorEvent;
     private CommandManagementBean commandManagementBean;
@@ -60,7 +60,11 @@ public class HelpCommand extends Command implements OnNavigationListener {
     @ControllerMessage(state = DEFAULT_STATE)
     public Response onMessage(MessageCreateEvent event, String inputString) throws Throwable {
         searchTerm = inputString;
-        return Response.FALSE;
+        if (emojiConnections.stream().anyMatch(c -> c.getConnection().equalsIgnoreCase(inputString))) {
+            searchTerm = inputString;
+            return Response.TRUE;
+        }
+        return null;
     }
 
     @ControllerReaction(state = DEFAULT_STATE)
@@ -104,7 +108,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
         if ((eb = checkCommand(channel, arg)) == null) {
             if ((eb = checkCategory(channel,arg)) == null) {
                 eb = checkMainPage(channel);
-                if (arg.length() > 0) setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
+                if (arg.length() > 0)
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", StringUtil.shortenString(arg, 64)));
             }
         }
 
@@ -245,6 +250,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     stringBuilder.append(generateCommandIcons(command, true));
                 stringBuilder.append("\n");
 
+                emojiConnections.add(new EmojiConnection("", command.getTrigger()));
                 i++;
                 if (i >= 10) {
                     if (stringBuilder.length() > 0) eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
@@ -316,6 +322,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
                     withoutSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+
+                emojiConnections.add(new EmojiConnection("", command.getTrigger()));
             }
         }
 
@@ -343,14 +351,16 @@ public class HelpCommand extends Command implements OnNavigationListener {
     }
 
     private void addIconDescriptions(EmbedBuilder eb, boolean showNsfwInfo) {
-        String str = getString("commandproperties", showNsfwInfo,
-                CommandIcon.LOCKED.toString(),
-                CommandIcon.ALERTS.toString(),
-                CommandIcon.NSFW.toString(),
-                CommandIcon.PATREON.toString(),
-                ExternalLinks.PATREON_PAGE
-        );
-        eb.addField(Emojis.EMPTY_EMOJI, str);
+        if (!isNavigationPrivateMessage()) {
+            String str = getString("commandproperties", showNsfwInfo,
+                    CommandIcon.LOCKED.toString(),
+                    CommandIcon.ALERTS.toString(),
+                    CommandIcon.NSFW.toString(),
+                    CommandIcon.PATREON.toString(),
+                    ExternalLinks.PATREON_PAGE
+            );
+            eb.addField(Emojis.EMPTY_EMOJI, str);
+        }
     }
 
     private EmbedBuilder checkMainPage(ServerTextChannel channel) throws Throwable {

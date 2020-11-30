@@ -37,7 +37,7 @@ public class OnTopGGAninoss extends EventAbstract {
         String type = requestJSON.getString("type");
 
         if (type.equals("upvote")) {
-            final Server server = DiscordApiCollection.getInstance().getServerById(AssetIds.ANINOSS_SERVER_ID).get();
+            final Server server = DiscordApiCollection.getInstance().getServerById(AssetIds.ANICORD_SERVER_ID).get();
             final Locale locale = new Locale(Locales.DE);
             server.getMemberById(userId).ifPresent(user -> {
                 try {

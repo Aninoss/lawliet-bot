@@ -45,7 +45,7 @@ public class BumpReminder {
         if (countdownRunning) return;
         countdownRunning = true;
 
-        final long ANINOSS_SERVER_ID = AssetIds.ANINOSS_SERVER_ID;
+        final long ANINOSS_SERVER_ID = AssetIds.ANICORD_SERVER_ID;
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
         MainScheduler.getInstance().schedule(milis, () -> {

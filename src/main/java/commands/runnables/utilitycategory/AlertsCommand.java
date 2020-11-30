@@ -181,7 +181,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
     private Response processAdd(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (!enoughSpaceForNewTrackers())
-            return Response.FALSE;
+            return null;
 
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
         if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnTrackerRequestListener)) {

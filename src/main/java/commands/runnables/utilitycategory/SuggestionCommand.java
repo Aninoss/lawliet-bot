@@ -6,10 +6,10 @@ import commands.listeners.OnReactionAddStaticListener;
 import commands.listeners.OnReactionRemoveStaticListener;
 import constants.Emojis;
 import constants.Permission;
-import core.DiscordQuickUpdater;
+import core.QuickUpdater;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
-import core.SpamChecker;
+import core.RatelimitManager;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
@@ -50,7 +50,7 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ADD_REACTIONS)) {
-                if (SpamChecker.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES)) {
+                if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES)) {
                     ServerTextChannel channel = channelOpt.get();
                     String author = event.getMessage().getUserAuthor().get().getDiscriminatedName();
                     String content = StringUtil.shortenString(followedString, 1024);
@@ -115,7 +115,7 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
                 .computeIfPresent(message.getId(), (messageId, suggestionMessage) -> {
                     String emoji = event.getEmoji().getMentionTag();
                     if (emoji.equals(EMOJI_LIKE) || emoji.equals(EMOJI_DISLIKE)) {
-                        DiscordQuickUpdater.getInstance().update(
+                        QuickUpdater.getInstance().update(
                                 "suggestion",
                                 messageId,
                                 () -> {

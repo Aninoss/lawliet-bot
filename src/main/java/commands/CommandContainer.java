@@ -245,7 +245,6 @@ public class CommandContainer {
         commandList.add(SplatnetCommand.class);
 
         //PRIVATE
-        commandList.add(CommunismCommand.class);
         commandList.add(NibbleCommand.class);
         commandList.add(RosesCommand.class);
         commandList.add(WebgateCommand.class);

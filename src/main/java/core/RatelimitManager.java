@@ -8,18 +8,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SpamChecker {
+public class RatelimitManager {
 
-    private static final SpamChecker ourInstance = new SpamChecker();
-    public static SpamChecker getInstance() { return ourInstance; }
-    private SpamChecker() { }
+    private static final RatelimitManager ourInstance = new RatelimitManager();
+    public static RatelimitManager getInstance() { return ourInstance; }
+    private RatelimitManager() { }
 
-    private HashMap<String, HashMap<Object, ArrayList<Instant>>> typeMap = new HashMap<>();
+    private HashMap<String,ArrayList<Instant>> eventMap = new HashMap<>();
 
     public boolean checkAndSet(String type, Object key, int cap, int capTimeAmount, ChronoUnit capTimeUnit) {
-        ArrayList<Instant> events = typeMap.computeIfAbsent(type, k -> new HashMap<>())
-                .computeIfAbsent(key, k -> new ArrayList<>());
+        String stringKey = type + ":" + key;
 
+        ArrayList<Instant> events = eventMap.computeIfAbsent(stringKey, k -> new ArrayList<>());
         synchronized (events) {
             if (events.size() >= cap) {
                 Instant firstOccurence = events.get(0);

@@ -18,7 +18,7 @@ public class AninossRaidProtection {
     private Instant lastInstant = null;
 
     public synchronized boolean check(User user, Role role) {
-        if (role.getServer().getId() != AssetIds.ANINOSS_SERVER_ID)
+        if (role.getServer().getId() != AssetIds.ANICORD_SERVER_ID)
             return true;
 
         boolean ok = lastUser == null || lastInstant == null || lastInstant.plus(1, ChronoUnit.MINUTES).isBefore(Instant.now());

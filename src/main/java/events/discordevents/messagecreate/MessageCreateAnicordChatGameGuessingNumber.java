@@ -11,13 +11,13 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 
 @DiscordEvent(priority = EventPriority.LOW)
-public class MessageCreateChatGameGuessingNumber extends MessageCreateAbstract {
+public class MessageCreateAnicordChatGameGuessingNumber extends MessageCreateAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
         final long GAME_CHANNEL_ID = 758285721877479504L;
 
-        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == AssetIds.ANINOSS_SERVER_ID && event.getChannel().getId() == GAME_CHANNEL_ID) {
+        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == AssetIds.ANICORD_SERVER_ID && event.getChannel().getId() == GAME_CHANNEL_ID) {
             String numStr = event.getMessageContent();
             if (numStr.contains(" "))
                 numStr = numStr.split(" ")[0];
