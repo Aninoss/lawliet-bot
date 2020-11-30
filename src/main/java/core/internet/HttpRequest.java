@@ -79,7 +79,7 @@ public class HttpRequest {
 
             int code = connection.getResponseCode();
             if (code / 100 != 2) {
-                LOGGER.error("Error code {} for URL {}", code, urlString);
+                LOGGER.warn("Error code {} for URL {}", code, urlString);
                 future.complete(new HttpResponse(code));
                 return;
             }

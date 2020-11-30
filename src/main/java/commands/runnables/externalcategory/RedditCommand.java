@@ -8,6 +8,7 @@ import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
+import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.reddit.RedditDownloader;
@@ -72,11 +73,15 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     private EmbedBuilder getEmbed(RedditPost post) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setTitle(post.getTitle())
-                .setThumbnail(post.getThumbnail())
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), "")
-                .setTimestamp(post.getInstant())
-                .setImage(post.getImage())
-                .setUrl(post.getUrl());
+                .setTimestamp(post.getInstant());
+
+        if (InternetUtil.stringHasURL(post.getThumbnail(), true))
+            eb.setThumbnail(post.getThumbnail());
+        if (InternetUtil.stringHasURL(post.getUrl(), true))
+            eb.setUrl(post.getUrl());
+        if (InternetUtil.stringHasURL(post.getImage(), true))
+            eb.setImage(post.getImage());
 
         String flairText = "";
         String flair = post.getFlair();

@@ -60,7 +60,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
     @ControllerMessage(state = DEFAULT_STATE)
     public Response onMessage(MessageCreateEvent event, String inputString) throws Throwable {
         searchTerm = inputString;
-        return Response.TRUE;
+        return Response.FALSE;
     }
 
     @ControllerReaction(state = DEFAULT_STATE)

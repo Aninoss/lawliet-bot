@@ -6,6 +6,7 @@ import constants.Category;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
+import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
@@ -44,9 +45,12 @@ public abstract class RedditAbstract extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setTitle(post.getTitle())
-                .setImage(post.getImage())
-                .setUrl(post.getUrl())
                 .setTimestamp(post.getInstant());
+
+        if (InternetUtil.stringHasURL(post.getUrl(), true))
+            eb.setUrl(post.getUrl());
+        if (InternetUtil.stringHasURL(post.getImage(), true))
+            eb.setImage(post.getImage());
 
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments())));
 

@@ -33,6 +33,9 @@ public final class InternetUtil {
     }
 
     public static boolean stringHasURL(String str, boolean strict) {
+        if (str == null || str.isEmpty())
+            return false;
+
         if (!strict &&
                 (str.contains("http://") || str.contains("https://") || str.contains("www."))
         ) return true;

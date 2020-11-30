@@ -87,6 +87,7 @@ public class SurveyResults implements ScheduleInterface {
                     try {
                         LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
                         manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, finalPercent);
+                        Thread.sleep(20);
                     } catch (Exception e) {
                         LOGGER.error("Exception while managing user {}", userId, e);
                     }
