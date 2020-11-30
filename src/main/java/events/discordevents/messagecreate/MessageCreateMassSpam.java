@@ -31,9 +31,9 @@ public class MessageCreateMassSpam extends MessageCreateAbstract {
             User user = event.getMessageAuthor().asUser().get();
             ArrayList<Instant> times = messages.computeIfAbsent(user.getId(), e -> new ArrayList<>());
             times.add(Instant.now());
-            if (times.size() >= 5) {
+            if (times.size() >= 4) {
                 Instant firstInst = times.remove(0);
-                if (firstInst.plus(7, ChronoUnit.SECONDS).isAfter(Instant.now())) {
+                if (firstInst.plus(5, ChronoUnit.SECONDS).isAfter(Instant.now())) {
                     event.getServer().get().banUser(event.getMessage().getUserAuthor().get(), 1, "Anti Raid").exceptionally(ExceptionLogger.get());
                     DiscordApiCollection.getInstance().getOwner().sendMessage("ANTI RAID (SPAM) FOR " + user.getDiscriminatedName() + " IN " + event.getServerTextChannel().get().getMentionTag()).exceptionally(ExceptionLogger.get());
                     return false;

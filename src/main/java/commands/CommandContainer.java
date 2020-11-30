@@ -90,6 +90,7 @@ public class CommandContainer {
         commandList.add(ReminderCommand.class);
         commandList.add(GiveawayCommand.class);
         commandList.add(SuggestionConfigCommand.class);
+        commandList.add(SuggestionCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

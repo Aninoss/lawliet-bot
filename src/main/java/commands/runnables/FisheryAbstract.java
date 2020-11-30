@@ -23,7 +23,7 @@ public abstract class FisheryAbstract extends Command {
         if (status == FisheryStatus.ACTIVE) {
             return onMessageReceivedSuccessful(event, followedString);
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"))).get();
             return false;
         }
     }

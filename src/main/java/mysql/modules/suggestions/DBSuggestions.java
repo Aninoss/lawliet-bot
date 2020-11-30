@@ -9,14 +9,19 @@ import mysql.modules.server.DBServer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
 
     private static final DBSuggestions ourInstance = new DBSuggestions();
-    public static DBSuggestions getInstance() { return ourInstance; }
-    private DBSuggestions() {}
+
+    public static DBSuggestions getInstance() {
+        return ourInstance;
+    }
+
+    private DBSuggestions() {
+    }
 
     @Override
     protected SuggestionsBean loadBean(Long serverId) throws Exception {
@@ -39,7 +44,7 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
                     DBServer.getInstance().getBean(serverId),
                     false,
                     null,
-                    new ArrayList<>()
+                    new HashMap<>()
             );
         }
 
@@ -47,8 +52,8 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
         preparedStatement.close();
 
         suggestionsBean.getSuggestionMessages()
-                .addListAddListener(list -> list.forEach(this::addSuggestionMessage))
-                .addListRemoveListener(list -> list.forEach(this::removeSuggestionMessage));
+                .addMapAddListener(this::addSuggestionMessage)
+                .addMapRemoveListener(this::addSuggestionMessage);
 
         return suggestionsBean;
     }
@@ -65,21 +70,26 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
         });
     }
 
-    private ArrayList<SuggestionMessage> getSuggestionMessages(long serverId) {
-        return new DBDataLoad<SuggestionMessage>("SuggestionMessages", "messageId, content", "serverId = ?",
+    private HashMap<Long, SuggestionMessage> getSuggestionMessages(long serverId) {
+        return new DBDataLoad<SuggestionMessage>("SuggestionMessages", "messageId, content, author", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> new SuggestionMessage(
-                serverId,
-                resultSet.getLong(1),
-                resultSet.getString(2)
-        ));
+        ).getHashMap(
+                SuggestionMessage::getMessageId,
+                resultSet -> new SuggestionMessage(
+                        serverId,
+                        resultSet.getLong(1),
+                        resultSet.getString(2),
+                        resultSet.getString(3)
+                )
+        );
     }
 
     private void addSuggestionMessage(SuggestionMessage suggestionMessage) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, content) VALUES (?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, content, author) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, suggestionMessage.getServerId());
             preparedStatement.setLong(2, suggestionMessage.getMessageId());
             preparedStatement.setString(3, suggestionMessage.getContent());
+            preparedStatement.setString(4, suggestionMessage.getAuthor());
         });
     }
 

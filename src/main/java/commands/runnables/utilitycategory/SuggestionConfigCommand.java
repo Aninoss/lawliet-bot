@@ -19,7 +19,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -28,6 +27,7 @@ import java.util.Locale;
         userPermissions = Permission.MANAGE_SERVER,
         emoji = "❕",
         executableWithoutArgs = true,
+        releaseDate = { 2020, 12, 7 },
         aliases = { "suggestionconfig", "suggestionsconfig" }
 )
 public class SuggestionConfigCommand extends Command implements OnNavigationListener {
@@ -52,10 +52,16 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
                 return Response.FALSE;
             } else {
-                suggestionsBean.setChannelId(channelList.get(0).getId());
-                setLog(LogStatus.SUCCESS, getString("channelset"));
-                setState(0);
-                return Response.TRUE;
+                ServerTextChannel channel = channelList.get(0);
+                if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks() && channel.canYouAddNewReactions()) {
+                    suggestionsBean.setChannelId(channelList.get(0).getId());
+                    setLog(LogStatus.SUCCESS, getString("channelset"));
+                    setState(0);
+                    return Response.TRUE;
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission", channel.getName()));
+                    return Response.FALSE;
+                }
             }
         }
         return null;

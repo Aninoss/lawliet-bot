@@ -2,6 +2,7 @@ package modules;
 
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import constants.Permission;
+import core.DiscordQuickUpdater;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
@@ -28,21 +29,21 @@ public class MemberCountDisplay {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
-                futureMap.computeIfPresent(voiceChannel.getId(), (vcId, future) -> {
-                    future.cancel(true);
-                    return future;
-                });
-
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
-                    String newVCName = generateNewVCName(server, display.getMask());
-                    if (!newVCName.equals(voiceChannel.getName())) {
-                        CompletableFuture<Void> future = voiceChannel.createUpdater()
-                                .setName(newVCName)
-                                .update();
-                        futureMap.put(voiceChannel.getId(), future);
-                        future.thenRun(() -> futureMap.remove(voiceChannel.getId()));
-                    }
-                }
+                DiscordQuickUpdater.getInstance().update(
+                        "member_count_displays",
+                        voiceChannel.getId(),
+                        () -> {
+                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                                String newVCName = generateNewVCName(server, display.getMask());
+                                if (!newVCName.equals(voiceChannel.getName())) {
+                                    return voiceChannel.createUpdater()
+                                            .setName(newVCName)
+                                            .update();
+                                }
+                            }
+                            return null;
+                        }
+                );
             });
         }
     }

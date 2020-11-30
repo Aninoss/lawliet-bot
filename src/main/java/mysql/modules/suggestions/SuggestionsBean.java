@@ -1,24 +1,24 @@
 package mysql.modules.suggestions;
 
-import core.CustomObservableList;
+import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
 import mysql.BeanWithServer;
 import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 public class SuggestionsBean extends BeanWithServer {
 
-    private final CustomObservableList<SuggestionMessage> messages;
+    private final CustomObservableMap<Long, SuggestionMessage> messages;
     private boolean active;
     private Long channelId;
 
-    public SuggestionsBean(ServerBean serverBean, boolean active, Long channelId, @NonNull ArrayList<SuggestionMessage> messages) {
+    public SuggestionsBean(ServerBean serverBean, boolean active, Long channelId, @NonNull HashMap<Long, SuggestionMessage> messages) {
         super(serverBean);
-        this.messages = new CustomObservableList<>(messages);
+        this.messages = new CustomObservableMap<>(messages);
         this.active = active;
         this.channelId = channelId;
     }
@@ -30,7 +30,7 @@ public class SuggestionsBean extends BeanWithServer {
         return active;
     }
 
-    public CustomObservableList<SuggestionMessage> getSuggestionMessages() {
+    public CustomObservableMap<Long, SuggestionMessage> getSuggestionMessages() {
         return messages;
     }
 
