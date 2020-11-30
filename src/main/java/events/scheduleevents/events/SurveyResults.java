@@ -99,7 +99,7 @@ public class SurveyResults implements ScheduleInterface {
         LOGGER.info("Survey results finished");
     }
 
-    private boolean manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException {
+    private void manageSurveyUser(SurveyBean lastSurvey, ArrayList<SurveySecondVote> secondVotes, User user, byte won, int percent) throws IOException {
         Locale localeGerman = new Locale(Locales.DE);
 
         HashMap<Long, Long> coinsWinMap = new HashMap<>();
@@ -149,9 +149,7 @@ public class SurveyResults implements ScheduleInterface {
 
         if (lastSurvey.hasNotificationUserId(user.getId())) {
             user.sendMessage(eb).exceptionally(ExceptionLogger.get());
-            return true;
         }
-        return false;
     }
 
 }

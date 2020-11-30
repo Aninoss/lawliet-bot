@@ -17,7 +17,7 @@ public class LinkCheck {
 
         if ((server.getId() == AssetIds.ANINOSS_SERVER_ID || server.getId() == AssetIds.SUPPORT_SERVER_ID) &&
                 !channel.canEmbedLinks(message.getUserAuthor().get()) &&
-                InternetUtil.stringHasURL(message.getContent())
+                InternetUtil.stringHasURL(message.getContent(), false)
         ) {
             DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("- Link in **%s** from **%s**: %s", StringUtil.escapeMarkdown(server.getName()), message.getUserAuthor().get().getDiscriminatedName(), message.getContent()));
             message.delete().exceptionally(ExceptionLogger.get());

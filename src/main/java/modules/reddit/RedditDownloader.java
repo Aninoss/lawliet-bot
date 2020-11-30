@@ -211,7 +211,9 @@ public class RedditDownloader {
                     post.setUrl(source);
                     postSource = false;
                     domain = "reddit.com";
-                } else if (thumbnail.toLowerCase().startsWith("http")) post.setThumbnail(thumbnail);
+                } else if (thumbnail.toLowerCase().startsWith("http")) {
+                    post.setThumbnail(thumbnail);
+                }
             }
         }
 

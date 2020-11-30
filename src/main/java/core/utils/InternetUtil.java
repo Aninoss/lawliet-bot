@@ -32,8 +32,10 @@ public final class InternetUtil {
         return url.endsWith("jpeg") || url.endsWith("jpg") || url.endsWith("png") || url.endsWith("bmp") || url.endsWith("gif");
     }
 
-    public static boolean stringHasURL(String str) {
-        if (str.contains("http://") || str.contains("https://") || str.contains("www.")) return true;
+    public static boolean stringHasURL(String str, boolean strict) {
+        if (!strict &&
+                (str.contains("http://") || str.contains("https://") || str.contains("www."))
+        ) return true;
 
         String [] parts = str.split("\\s+");
 
