@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 public class RatelimitManager {
 
@@ -16,7 +17,10 @@ public class RatelimitManager {
 
     private HashMap<String,ArrayList<Instant>> eventMap = new HashMap<>();
 
-    public boolean checkAndSet(String type, Object key, int cap, int capTimeAmount, ChronoUnit capTimeUnit) {
+    /*
+    @return the remaining amount of seconds
+     */
+    public Optional<Integer> checkAndSet(String type, Object key, int cap, int capTimeAmount, ChronoUnit capTimeUnit) {
         String stringKey = type + ":" + key;
 
         ArrayList<Instant> events = eventMap.computeIfAbsent(stringKey, k -> new ArrayList<>());
@@ -27,13 +31,13 @@ public class RatelimitManager {
                 long milisCap = Duration.of(capTimeAmount, capTimeUnit).toMillis();
 
                 if (milisAgo < milisCap)
-                    return false;
+                    return Optional.of((int)Math.ceil((milisCap - milisAgo) / 1000.0));
                 else
                     events.remove(0);
             }
 
             events.add(Instant.now());
-            return true;
+            return Optional.empty();
         }
     }
 

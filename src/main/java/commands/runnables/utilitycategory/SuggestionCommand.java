@@ -50,7 +50,7 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ADD_REACTIONS)) {
-                if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES)) {
+                if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES).isEmpty()) {
                     ServerTextChannel channel = channelOpt.get();
                     String author = event.getMessage().getUserAuthor().get().getDiscriminatedName();
                     String content = StringUtil.shortenString(followedString, 1024);
