@@ -31,7 +31,7 @@ public class RedditDownloader {
     private static Instant nextRequestBlockUntil = null;
 
     public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
-        sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
+        sub = InternetUtil.escapeForURL(sub);
 
         RedditPost redditPost;
         int i = 0;
@@ -49,7 +49,7 @@ public class RedditDownloader {
             return null;
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
+        sub = InternetUtil.escapeForURL(sub);
 
         Subreddit subreddit = SubredditContainer.getInstance().get(sub);
         String postReference = subreddit.getPostReference();

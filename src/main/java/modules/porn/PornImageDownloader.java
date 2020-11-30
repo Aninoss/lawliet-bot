@@ -10,8 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -30,12 +28,12 @@ public class PornImageDownloader {
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
 
-        String searchTermEncoded = URLEncoder.encode(
+        String searchTermEncoded = InternetUtil.escapeForURL(
                 searchTerm
                         .replace(",", " ")
                         .replace(" ", softMode ? "~ " : " ") +
                         (softMode ? "~" : "") +
-                        searchTermExtra, StandardCharsets.UTF_8
+                        searchTermExtra
         );
 
         CompletableFuture<Optional<PornImage>> future = new CompletableFuture<>();

@@ -8,6 +8,8 @@ import java.time.Duration;
 import java.time.temporal.TemporalUnit;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 
 public class MainScheduler {
 
@@ -19,17 +21,23 @@ public class MainScheduler {
 
     private final Timer timer = new Timer();
     private final Timer poller = new Timer();
+    private final Timer timeOutMonitorer = new Timer();
+    private final ConcurrentLinkedQueue<Thread> callerThreads = new ConcurrentLinkedQueue<>();
 
     public void schedule(long millis, Runnable listener) {
         if (Bot.isRunning()) {
+            Thread t = Thread.currentThread();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     try {
+                        callerThreads.add(t);
+                        monitorTimeOuts(t);
                         listener.run();
                     } catch (Throwable e) {
                         LOGGER.error("Unchecked exception in schedule timer");
                     }
+                    callerThreads.remove(t);
                 }
             }, millis);
         }
@@ -43,33 +51,41 @@ public class MainScheduler {
     /*
     Keeps polling in the specified time interval as long as the listener returns true
      */
-    public void poll(long millis, RunnableWithBoolean listener) {
+    public void poll(long millis, Supplier<Boolean> listener) {
         if (Bot.isRunning()) {
+            Thread t = Thread.currentThread();
             poller.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     try {
-                        if (Bot.isRunning() && listener.run()) {
+                        callerThreads.add(t);
+                        monitorTimeOuts(t);
+                        if (Bot.isRunning() && listener.get()) {
                             poll(millis, listener);
                         }
                     } catch (Throwable e) {
                         LOGGER.error("Unchecked exception in poll timer");
                     }
+                    callerThreads.remove(t);
                 }
             }, millis);
         }
     }
 
-    public void poll(long amount, TemporalUnit unit, RunnableWithBoolean listener) {
+    public void poll(long amount, TemporalUnit unit, Supplier<Boolean> listener) {
         long millis = Duration.of(amount, unit).toMillis();
         poll(millis, listener);
     }
 
-
-    public interface RunnableWithBoolean {
-
-        boolean run();
-
+    private void monitorTimeOuts(Thread callerThread) {
+        timeOutMonitorer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (callerThreads.contains(callerThread)) {
+                    LOGGER.warn("Task {} stuck in scheduler", callerThread.getName());
+                }
+            }
+        }, 500);
     }
 
 }
