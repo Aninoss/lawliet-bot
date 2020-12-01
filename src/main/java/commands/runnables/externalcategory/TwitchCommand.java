@@ -87,7 +87,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         Optional<TwitchStream> streamOpt;
         try {
             streamOpt = TwitchDownloader.getInstance().getStream(slot.getCommandKey());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (slot.getArgs().isEmpty())
                 streamOpt = Optional.empty();
             else

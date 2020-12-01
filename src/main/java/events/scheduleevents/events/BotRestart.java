@@ -41,7 +41,7 @@ public class BotRestart implements ScheduleInterface {
         LOGGER.info("Backup database...");
         try {
             SystemUtil.backupDB();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("Error while creating database backup", e);
         }
     }

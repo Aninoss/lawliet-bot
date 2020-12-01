@@ -101,7 +101,7 @@ public class DiscordApiCollection {
 
             try {
                 CommandContainer.getInstance().clearShard(n);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Exception", e);
             }
             RunningCheckerManager.getInstance().clearShard(n);

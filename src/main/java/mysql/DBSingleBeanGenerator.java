@@ -8,7 +8,7 @@ public abstract class DBSingleBeanGenerator<T> extends DBCached {
         if (o == null) {
             try {
                 o = loadBean();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }

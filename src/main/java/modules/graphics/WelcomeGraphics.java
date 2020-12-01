@@ -17,7 +17,17 @@ import java.util.concurrent.ExecutionException;
 public class WelcomeGraphics {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(WelcomeGraphics.class);
-    private static final int BASE_WIDTH = 400, BASE_HEIGHT = 135;
+
+    private static final int BASE_WIDTH = 800;
+    private static final int BASE_HEIGHT = 270;
+    private static final int BASE_ROUNDED = 30;
+    private static final int SPACE = 30;
+    private static final int TEXT_SPACE = 54;
+    private static final int TEXT_FONT_LARGE = 48;
+    private static final int TEXT_FONT_SMALL = 38;
+    private static final int AVATAR_ROUNDED = 30;
+    private static final int SHADOW_SIZE = 10;
+    private static final double SHADOW_OPACITY = 0.18;
 
     public static InputStream createImageWelcome(User user, Server server, String welcome) {
         try {
@@ -28,13 +38,13 @@ public class WelcomeGraphics {
 
             drawBackground(g2d, backgroundImage);
             double lumi = drawLumi(g2d, drawImage);
-            float shadowOpacity = (float) (0.22 * lumi);
+            float shadowOpacity = (float) (SHADOW_OPACITY * lumi);
 
             drawAvatar(g2d, avatarImage, shadowOpacity);
             drawTexts(g2d, welcome, server, user, shadowOpacity);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(Graphics.makeRoundedCorner(drawImage, 15), "png", os);
+            ImageIO.write(Graphics.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
             return new ByteArrayInputStream(os.toByteArray());
         } catch (IOException e) {
             LOGGER.error("Exception", e);
@@ -43,20 +53,20 @@ public class WelcomeGraphics {
     }
 
     private static void drawTexts(Graphics2D g2d, String welcomeText, Server server, User user, float shadowOpacity) {
-        final int BORDER = 42;
+        final int BORDER = SPACE + TEXT_SPACE;
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
-        AttributedStringGenerator fontWelcome = new AttributedStringGenerator(24);
-        AttributedStringGenerator fontName = new AttributedStringGenerator(19);
+        AttributedStringGenerator fontWelcome = new AttributedStringGenerator(TEXT_FONT_LARGE);
+        AttributedStringGenerator fontName = new AttributedStringGenerator(TEXT_FONT_SMALL);
 
         AttributedCharacterIterator welcomeIterator = Graphics.getNameIterator(frc, fontWelcome, welcomeText, BASE_WIDTH - BASE_HEIGHT);
-        AttributedCharacterIterator nameIterator = Graphics.getNameIterator(frc, fontName, user.getDisplayName(server), BASE_WIDTH - BASE_HEIGHT - 15);
+        AttributedCharacterIterator nameIterator = Graphics.getNameIterator(frc, fontName, user.getDisplayName(server), BASE_WIDTH - BASE_HEIGHT - SPACE);
         Rectangle2D welcomeBounds = fontWelcome.getStringBounds(welcomeIterator, frc);
         Rectangle2D nameBounds = fontName.getStringBounds(nameIterator, frc);
 
         g2d.setColor(Color.BLACK);
-        Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
-        Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
+        Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
+        Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
 
         g2d.setColor(Color.WHITE);
         g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()), getTextHeight(frc, fontWelcome) + BORDER);
@@ -68,19 +78,18 @@ public class WelcomeGraphics {
     }
 
     private static int getTextX(double textWidth) {
-        return (int)(BASE_HEIGHT - 15 + (BASE_WIDTH - BASE_HEIGHT + 15) / 2.0 - textWidth / 2.0);
+        return (int)(BASE_HEIGHT - SPACE + (BASE_WIDTH - BASE_HEIGHT + SPACE) / 2.0 - textWidth / 2.0);
     }
 
     private static void drawAvatar(Graphics2D g2d, BufferedImage avatarImage, float shadowOpacity) {
-        final int size = BASE_HEIGHT - 30;
-        final int radius = 14;
+        final int size = BASE_HEIGHT - SPACE * 2;
 
-        Graphics.drawShadow(g2d, 5, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, radius, Color.BLACK), 15 + offset, 15 + offset, size, size, null));
-        g2d.drawImage(generateAvatarBlock(size, radius, Color.WHITE), 15, 15, size, size, null);
+        Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.BLACK), SPACE + offset, SPACE + offset, size, size, null));
+        g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.WHITE), SPACE, SPACE, size, size, null);
 
         if (avatarImage != null) {
-            avatarImage = Graphics.makeRoundedCorner(avatarImage, radius);
-            g2d.drawImage(avatarImage, 15, 15, size, size, null);
+            avatarImage = Graphics.makeRoundedCorner(avatarImage, AVATAR_ROUNDED);
+            g2d.drawImage(avatarImage, SPACE, SPACE, size, size, null);
         }
     }
 

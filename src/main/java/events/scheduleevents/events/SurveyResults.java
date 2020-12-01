@@ -4,10 +4,7 @@ import constants.Category;
 import constants.FisheryCategoryInterface;
 import constants.FisheryStatus;
 import constants.Locales;
-import core.Bot;
-import core.DiscordApiCollection;
-import core.EmbedFactory;
-import core.TextManager;
+import core.*;
 import core.utils.StringUtil;
 import events.scheduleevents.ScheduleEventHourly;
 import core.schedule.ScheduleInterface;
@@ -44,12 +41,14 @@ public class SurveyResults implements ScheduleInterface {
             SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
             LocalDate today = LocalDate.now();
             if (!today.isBefore(surveyBean.getNextDate())) {
-                try {
-                    LOGGER.info("Calculating survey results...");
-                    updateSurvey();
-                } catch (Exception e) {
-                    LOGGER.error("Could not update survey", e);
-                }
+                new CustomThread(() -> {
+                    try {
+                        LOGGER.info("Calculating survey results...");
+                        updateSurvey();
+                    } catch (Throwable e) {
+                        LOGGER.error("Could not update survey", e);
+                    }
+                }, "survey_results").start();
             }
         }
     }
@@ -73,7 +72,7 @@ public class SurveyResults implements ScheduleInterface {
                     LOGGER.debug("Enter user ID {}", surveySecondVote.getUserId());
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Exception while initializing user list for fishery survey", e);
             }
         }
@@ -88,11 +87,11 @@ public class SurveyResults implements ScheduleInterface {
                         LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
                         manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, finalPercent);
                         Thread.sleep(20);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         LOGGER.error("Exception while managing user {}", userId, e);
                     }
                 });
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Exception while managing user {}", userId, e);
             }
         }

@@ -115,7 +115,7 @@ public class AnimeReleaseDownloader {
         if (data.has("crunchyroll:episodeNumber")) {
             try {
                 episode = StringUtil.numToString(data.getInt("crunchyroll:episodeNumber"));
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 //Ignore
                 episode = data.getString("crunchyroll:episodeNumber");
             }
@@ -124,7 +124,7 @@ public class AnimeReleaseDownloader {
         String episodeTitle;
         try {
             episodeTitle = data.getString("crunchyroll:episodeTitle");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             //Ignore
             double value = data.getDouble("crunchyroll:episodeTitle");
             if (((int) value) == value) episodeTitle = String.valueOf((int) value);

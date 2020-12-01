@@ -55,7 +55,7 @@ public class ListGen<T> {
                 }
                 sb.append(value);
                 sb.append("\n");
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Exception", e);
             }
             i++;

@@ -28,7 +28,7 @@ public abstract class EventAbstract implements BiConsumer<WebSocket, JSONObject>
                 response.put("id", mainJSON.getString("id"));
                 WebComServer.getInstance().send(webSocket, event, response);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("Error on web socket event", e);
         }
     }

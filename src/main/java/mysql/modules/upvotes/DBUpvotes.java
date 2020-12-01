@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -56,12 +54,7 @@ public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
     }
 
     public void cleanUp() {
-        try {
-            Statement statement = DBMain.getInstance().statementExecuted("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
-            statement.close();
-        } catch (SQLException e) {
-            LOGGER.error("Could not remove Upvote", e);
-        }
+        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();", preparedStatement -> {});
     }
 
 }

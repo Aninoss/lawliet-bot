@@ -164,7 +164,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             message.edit(EmbedFactory.getEmbedDefault(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
             try {
                 DBReminders.getInstance().getBean().remove(remindersBean.getId(), remindersBean);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.error("Could not load reminders", e);
             }
         }

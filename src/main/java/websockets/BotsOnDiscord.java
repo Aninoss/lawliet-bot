@@ -1,31 +1,22 @@
 package websockets;
 
 import constants.AssetIds;
+import core.SecretManager;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
-import core.SecretManager;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutionException;
 
 public class BotsOnDiscord {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(BotsOnDiscord.class);
-
     public static void updateServerCount(int serverCount) {
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("guildCount", serverCount);
-            HttpProperty[] properties = new HttpProperty[]{
-                    new HttpProperty("Content-Type", "application/json"),
-                    new HttpProperty("Authorization", SecretManager.getString("bots.ondiscord.token"))
-            };
-            HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + AssetIds.LAWLIET_USER_ID + "/guilds", jsonObject.toString(), properties).get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Could not send data to BotsOnDiscord", e);
-        }
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("guildCount", serverCount);
+        HttpProperty[] properties = new HttpProperty[]{
+                new HttpProperty("Content-Type", "application/json"),
+                new HttpProperty("Authorization", SecretManager.getString("bots.ondiscord.token"))
+        };
+        HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + AssetIds.LAWLIET_USER_ID + "/guilds", jsonObject.toString(), properties).exceptionally(ExceptionLogger.get());
     }
 
 }

@@ -127,7 +127,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                     ((CompleteLoadOnStartup<T>) this).getKeySet().forEach(value -> {
                         try {
                             cache.get(value);
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             LOGGER.error("Could not fetch cache data", e);
                         }
                     });
