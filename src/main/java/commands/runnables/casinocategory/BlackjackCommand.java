@@ -136,7 +136,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
                 if (getCardSize(0) > 21) {
                     block = true;
-                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
+                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
                         finished = true;
                         onLose();
                         logStatus = LogStatus.LOSE;
@@ -157,7 +157,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     }
 
     private void onCPUTurn() {
-        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, this::onCPUTurnStep);
+        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", this::onCPUTurnStep);
     }
 
     private boolean onCPUTurnStep() {
@@ -173,12 +173,12 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
         if (getCardSize(1) >= 17) {
             if (getCardSize(1) <= 21) {
-                MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, () -> {
+                MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
                     logStatus = LogStatus.SUCCESS;
                     log = getString("stopcard", 1);
                     message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
 
-                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
+                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
                         boolean[] blackjack = new boolean[2];
                         for (int i = 0; i < 2; i++)
                             if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
@@ -219,7 +219,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 });
                 return false;
             } else {
-                MainScheduler.getInstance().schedule(TIME_BEFORE_END, () -> {
+                MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
                     onWin();
                     logStatus = LogStatus.WIN;
                     log = getString("toomany", 1);

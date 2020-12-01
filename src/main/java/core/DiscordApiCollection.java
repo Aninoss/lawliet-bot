@@ -41,7 +41,7 @@ public class DiscordApiCollection {
     private final Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
-        MainScheduler.getInstance().schedule(10, ChronoUnit.MINUTES, () -> {
+        MainScheduler.getInstance().schedule(10, ChronoUnit.MINUTES, "bootup_check", () -> {
             if (!allShardsConnected()) {
                 LOGGER.error("EXIT - Could not boot up");
                 System.exit(-1);
@@ -68,7 +68,7 @@ public class DiscordApiCollection {
 
     private void keepApiAlive(DiscordApi api) {
         api.addMessageCreateListener(event -> isAlive[event.getApi().getCurrentShard()] = true);
-        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, () -> {
+        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, "shard_connection_checker", () -> {
             int n = api.getCurrentShard();
             if (shardIsConnected(n) && isAlive[n]) {
                 errorCounter[n] = 0;

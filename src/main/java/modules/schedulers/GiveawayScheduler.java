@@ -7,7 +7,6 @@ import constants.Emojis;
 import constants.Permission;
 import core.*;
 import core.schedule.MainScheduler;
-import core.utils.TimeUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.server.DBServer;
@@ -21,7 +20,6 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +52,7 @@ public class GiveawayScheduler {
     }
 
     public void loadGiveawayBean(GiveawayBean giveawayBean) {
-        MainScheduler.getInstance().schedule(TimeUtil.getMilisBetweenInstants(Instant.now(), giveawayBean.getEnd()), () -> {
+        MainScheduler.getInstance().schedule(giveawayBean.getEnd(), "giveaway", () -> {
             onGiveawayDue(giveawayBean);
         });
     }

@@ -32,7 +32,7 @@ public class RunningCheckerManager {
 
     private void removeOnThreadEnd(ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
         final Thread currentThread = Thread.currentThread();
-        MainScheduler.getInstance().poll(100, () -> {
+        MainScheduler.getInstance().poll(100, "runningchecker", () -> {
             if (currentThread.isAlive())
                 return true;
 

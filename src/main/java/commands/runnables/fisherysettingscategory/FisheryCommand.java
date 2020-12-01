@@ -202,7 +202,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
             message.edit(eb).exceptionally(ExceptionLogger.get());
 
-            MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, () -> {
+            MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
                 Random r = new Random();
                 String[] winLose = new String[]{ "win", "lose" };
                 int resultInt = r.nextInt(2);
@@ -232,13 +232,13 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     channel.sendMessage(userBean.changeValues(0, won))
                             .exceptionally(ExceptionLogger.get())
                             .thenAccept(m -> {
-                                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
+                                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
                                     m.getCurrentCachedInstance().ifPresent(m2 -> m2.delete().exceptionally(ExceptionLogger.get()));
                                 });
                             });
                 }
 
-                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, () -> {
+                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
                     message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
                 });
 

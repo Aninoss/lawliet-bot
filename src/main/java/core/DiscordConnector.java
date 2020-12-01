@@ -69,7 +69,7 @@ public class DiscordConnector {
                 .thenAccept(this::onApiJoin)
                 .exceptionally(e -> {
                     LOGGER.error("Exception when reconnecting shard {}", shardId, e);
-                    MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, () -> reconnectApi(shardId));
+                    MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "shard_reconnect", () -> reconnectApi(shardId));
                     return null;
                 });
     }

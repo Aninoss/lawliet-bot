@@ -112,7 +112,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
 
                 message = event.getChannel().sendMessage(getEmbed()).get();
                 int COUNTER = 10;
-                MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, this::onTimeUp);
+                MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, "quiz_timeup", this::onTimeUp);
 
                 for (int i = 0; i < answers.length; i++) {
                     message.addReaction(LetterEmojis.LETTERS[i]).get();
@@ -152,7 +152,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         answerSelected = selected;
         message.edit(getEmbed());
 
-        MainScheduler.getInstance().schedule(Settings.TIME_OUT_TIME, this::removeReactionListenerWithMessage);
+        MainScheduler.getInstance().schedule(Settings.TIME_OUT_TIME, "quiz_remove", this::removeReactionListenerWithMessage);
     }
 
     private EmbedBuilder getEmbed() {

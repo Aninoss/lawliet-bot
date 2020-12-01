@@ -399,7 +399,7 @@ public abstract class Command {
 
     private void removeLoadingReaction(Message message) {
         if (loadingStatus != LoadingStatus.OFF) {
-            MainScheduler.getInstance().poll(100, () -> {
+            MainScheduler.getInstance().poll(100, "command_remove_loading_reaction", () -> {
                 if (loadingStatus == LoadingStatus.ONGOING)
                     return true;
 

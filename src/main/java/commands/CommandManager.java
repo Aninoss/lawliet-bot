@@ -283,7 +283,7 @@ public class CommandManager {
     }
 
     private static void autoRemoveMessageAfterCountdown(MessageCreateEvent event, Message message) {
-        MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, () -> {
+        MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
             if (event.getChannel().canYouManageMessages())
                 event.getChannel().bulkDelete(message, event.getMessage());
             else
@@ -427,13 +427,13 @@ public class CommandManager {
     private static void manageSlowCommandLoadingReaction(Command command) {
         final Thread commandThread = Thread.currentThread();
 
-        MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, () -> {
+        MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "command_manager_add_loading_reaction", () -> {
             if (commandThread.isAlive()) {
                 command.addLoadingReaction();
             }
         });
 
-        MainScheduler.getInstance().schedule(command.getMaxCalculationTimeSec(), ChronoUnit.SECONDS, () -> {
+        MainScheduler.getInstance().schedule(command.getMaxCalculationTimeSec(), ChronoUnit.SECONDS, "command_manager_timeout", () -> {
             if (commandThread.isAlive() && command.hasTimeOut()) {
                 commandThread.interrupt();
             }

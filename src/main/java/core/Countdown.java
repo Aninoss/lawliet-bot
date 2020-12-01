@@ -31,7 +31,7 @@ public class Countdown {
                 break;
         }
 
-        MainScheduler.getInstance().poll(1, ChronoUnit.SECONDS, () -> {
+        MainScheduler.getInstance().poll(1, ChronoUnit.SECONDS, "countdown", () -> {
             if (System.currentTimeMillis() < (startTime + waitTime) && active)
                 return true;
             if (active)

@@ -217,10 +217,10 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
                 removeReactionListener();
                 message.edit(getEmbed()).exceptionally(ExceptionLogger.get());
 
-                MainScheduler.getInstance().schedule(1000, () -> unlockFruit(0));
-                MainScheduler.getInstance().schedule(2000, () -> unlockFruit(1));
-                MainScheduler.getInstance().schedule(3000, () -> unlockFruit(2));
-                MainScheduler.getInstance().schedule(4000, () -> {
+                MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(0));
+                MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(1));
+                MainScheduler.getInstance().schedule(3000, "slot_2", () -> unlockFruit(2));
+                MainScheduler.getInstance().schedule(4000, "slot_results", () -> {
                     try {
                         manageEnd();
                         message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));

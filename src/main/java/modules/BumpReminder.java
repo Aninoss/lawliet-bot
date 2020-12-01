@@ -48,7 +48,7 @@ public class BumpReminder {
         final long ANINOSS_SERVER_ID = AssetIds.ANICORD_SERVER_ID;
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
-        MainScheduler.getInstance().schedule(milis, () -> {
+        MainScheduler.getInstance().schedule(milis, "anicord_bump", () -> {
             ServerTextChannel channel = DiscordApiCollection.getInstance().getServerById(ANINOSS_SERVER_ID).get().getTextChannelById(BUMP_CHANNEL_ID).get();
             channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").exceptionally(ExceptionLogger.get());
             countdownRunning = false;

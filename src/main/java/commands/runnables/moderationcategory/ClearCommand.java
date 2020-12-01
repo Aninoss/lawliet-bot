@@ -90,7 +90,7 @@ public class ClearCommand extends Command {
     }
 
     private void startCountdown(ServerTextChannel channel, Message[] messagesArray) {
-        MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, () -> channel.bulkDelete(messagesArray));
+        MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "clear_confirmation_autoremove", () -> channel.bulkDelete(messagesArray));
     }
 
 }

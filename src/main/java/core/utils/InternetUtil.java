@@ -24,7 +24,7 @@ public final class InternetUtil {
         Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
 
-        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, message::delete);
+        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "mediamessage_remove", message::delete);
         return url;
     }
 

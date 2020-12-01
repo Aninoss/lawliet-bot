@@ -118,11 +118,11 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         if (selection[0] == -1) return;
         removeReactionListener(getReactionMessage());
 
-        MainScheduler.getInstance().schedule(1500, () -> {
+        MainScheduler.getInstance().schedule(1500, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextInt(2);
             message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
 
-            MainScheduler.getInstance().schedule(1000, () -> {
+            MainScheduler.getInstance().schedule(1000, "coinflip_results", () -> {
                 if (selection[0] == selection[1]) {
                     log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
                     logStatus = LogStatus.WIN;

@@ -4,14 +4,12 @@ import commands.runnables.utilitycategory.ReminderCommand;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import core.schedule.MainScheduler;
-import core.utils.TimeUtil;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Optional;
 
 public class ReminderScheduler {
@@ -41,7 +39,7 @@ public class ReminderScheduler {
     }
 
     public void loadReminderBean(RemindersBean remindersBean) {
-        MainScheduler.getInstance().schedule(TimeUtil.getMilisBetweenInstants(Instant.now(), remindersBean.getTime()), () -> {
+        MainScheduler.getInstance().schedule(remindersBean.getTime(), "reminder", () -> {
             onReminderDue(remindersBean);
         });
     }
