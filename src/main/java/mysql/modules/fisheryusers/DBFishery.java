@@ -89,7 +89,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private void saveFisheryUserBean(FisheryUserBean fisheryUserBean) {
         try {
-            DBMain.getInstance().update("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", preparedStatement -> {
+            DBMain.getInstance().update("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", preparedStatement -> {
                 preparedStatement.setLong(1, fisheryUserBean.getServerId());
                 preparedStatement.setLong(2, fisheryUserBean.getUserId());
                 preparedStatement.setLong(3, fisheryUserBean.getFish());
@@ -98,6 +98,9 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 preparedStatement.setLong(6, fisheryUserBean.getDailyStreak());
                 preparedStatement.setBoolean(7, fisheryUserBean.isReminderSent());
                 preparedStatement.setInt(8, fisheryUserBean.getUpvoteStack());
+                preparedStatement.setString(9, DBMain.localDateToDateString(fisheryUserBean.getDailyValuesUpdated()));
+                preparedStatement.setInt(10, fisheryUserBean.getVcMinutes());
+                preparedStatement.setLong(11, fisheryUserBean.getCoinsGiven());
             });
 
             fisheryUserBean.getAllFishHourlyIncomeChanged().forEach(this::saveFisheryHourlyIncomeBean);
@@ -158,7 +161,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     private HashMap<Long, FisheryUserBean> getFisheryUsers(long serverId, ServerBean serverBean, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap) throws SQLException, ExecutionException {
         HashMap<Long, FisheryUserBean> usersMap = new HashMap<>();
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed FROM PowerPlantUsers WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins FROM PowerPlantUsers WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.execute();
 
@@ -174,6 +177,9 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     resultSet.getLong(5),
                     resultSet.getBoolean(6),
                     resultSet.getInt(7),
+                    resultSet.getDate(8).toLocalDate(),
+                    resultSet.getInt(9),
+                    resultSet.getLong(10),
                     fisheryHourlyIncomeMap.getOrDefault(userId, new HashMap<>()),
                     fisheryPowerUpMap.getOrDefault(userId, new HashMap<>())
             );

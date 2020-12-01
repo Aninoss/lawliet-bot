@@ -52,6 +52,9 @@ public class FisheryServerBean extends BeanWithServer {
                 0,
                 false,
                 0,
+                LocalDate.now(),
+                0,
+                0L,
                 new HashMap<>(),
                 new HashMap<>()
         ));

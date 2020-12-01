@@ -39,18 +39,22 @@ public class FisheryUserBean extends BeanWithServer {
     private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
     private long fish, coins, dailyStreak;
     private LocalDate dailyReceived;
-    private int upvoteStack, lastMessagePeriod = -1, lastMessageHour = -1, vcMinutes = 0;
+    private int upvoteStack;
+    private int lastMessagePeriod = -1;
+    private int lastMessageHour = -1;
+    private int vcMinutes;
     private boolean reminderSent, changed = false, banned = false;
     private Boolean onServer = null;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
     private long messagesThisHour = 0;
     private long coinsHidden = 0;
-    private long coinsGiven = 0;
+    private long coinsGiven;
     private Long coinsGivenMax = null;
     private String lastContent = null;
+    private LocalDate dailyValuesUpdated;
 
-    FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+    FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
         super(serverBean);
         this.userId = userId;
         this.fish = fish;
@@ -60,14 +64,17 @@ public class FisheryUserBean extends BeanWithServer {
         this.reminderSent = reminderSent;
         this.upvoteStack = upvoteStack;
         this.fisheryHourlyIncomeMap = fisheryHourlyIncomeMap;
+        this.vcMinutes = vcMinutes;
+        this.coinsGiven = coinsGiven;
         this.powerUpMap = powerUpMap;
+        this.dailyValuesUpdated = dailyValuesUpdated;
 
         for(int i = 0; i < 6; i++)
             this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverBean.getServerId(), userId, i, 0));
     }
 
-    public FisheryUserBean(ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        this(serverBean, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, fisheryHourlyIncomeMap, powerUpMap);
+    public FisheryUserBean(ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+        this(serverBean, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, fisheryHourlyIncomeMap, powerUpMap);
         setFisheryServerBean(fisheryServerBean);
     }
 
@@ -123,7 +130,19 @@ public class FisheryUserBean extends BeanWithServer {
 
     public long getCoinsHidden() { return coinsHidden; }
 
-    public long getCoinsGiven() { return coinsGiven; }
+    public long getCoinsGiven() {
+        cleanDailyValues();
+        return coinsGiven;
+    }
+
+    public void addCoinsGiven(long value) {
+        cleanDailyValues();
+        if (value > 0) {
+            coinsGiven += value;
+            checkValuesBound();
+            setChanged();
+        }
+    }
 
     public long getTotalProgressIndex() {
         long sum = 0;
@@ -134,6 +153,7 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     public long getCoinsGivenMax() {
+        cleanDailyValues();
         if (coinsGivenMax == null) {
             long sum = 0;
             for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
@@ -206,6 +226,32 @@ public class FisheryUserBean extends BeanWithServer {
 
     public boolean isBanned() { return banned; }
 
+    public LocalDate getDailyValuesUpdated() {
+        return dailyValuesUpdated;
+    }
+
+    public int getVcMinutes() {
+        cleanDailyValues();
+        return vcMinutes;
+    }
+
+    private void addVcMinutes(int value) {
+        cleanDailyValues();
+        if (value > 0) {
+            vcMinutes += value;
+            setChanged();
+        }
+    }
+
+    public void cleanDailyValues() {
+        if (!dailyValuesUpdated.isEqual(LocalDate.now())) {
+            dailyValuesUpdated = LocalDate.now();
+            vcMinutes = 0;
+            coinsGiven = 0;
+            coinsGivenMax = null;
+            setChanged();
+        }
+    }
 
     void setFisheryServerBean(FisheryServerBean fisheryServerBean) {
         if (this.fisheryServerBean == null) {
@@ -276,7 +322,7 @@ public class FisheryUserBean extends BeanWithServer {
         if (!banned) {
             Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
             if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getServerId()))
-                minutes = Math.min(minutes, limitOpt.get() * 60 - vcMinutes);
+                minutes = Math.min(minutes, limitOpt.get() * 60 - getVcMinutes());
 
             if (minutes > 0) {
                 long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
@@ -286,8 +332,7 @@ public class FisheryUserBean extends BeanWithServer {
                     if (fishIncome != null) fishIncome += effect;
                     getCurrentFisheryHourlyIncome().add(effect);
                 }
-                vcMinutes += minutes;
-
+                addVcMinutes(minutes);
                 checkValuesBound();
                 setChanged();
             }
@@ -337,13 +382,6 @@ public class FisheryUserBean extends BeanWithServer {
             reminderSent = true;
             checkValuesBound();
             setChanged();
-        }
-    }
-
-    public void addCoinsGiven(long coins) {
-        if (coins > 0) {
-            this.coinsGiven += coins;
-            checkValuesBound();
         }
     }
 

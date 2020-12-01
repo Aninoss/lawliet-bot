@@ -1,5 +1,6 @@
 package mysql;
 
+import core.Bot;
 import core.CustomThread;
 import core.IntervalBlock;
 import mysql.interfaces.CompleteLoadOnStartup;
@@ -54,7 +55,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             }, "shutdown_intervalsave"));
 
             Thread t = new CustomThread(() -> {
-                IntervalBlock intervalBlock = new IntervalBlock(minutes, ChronoUnit.MINUTES);
+                IntervalBlock intervalBlock = new IntervalBlock(Bot.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
                 while(intervalBlock.block()) {
                     if (changed.size() > 0)
                         intervalSave();

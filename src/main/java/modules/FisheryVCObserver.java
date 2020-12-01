@@ -1,6 +1,7 @@
 package modules;
 
 import constants.FisheryStatus;
+import core.Bot;
 import core.CustomThread;
 import core.DiscordApiCollection;
 import core.IntervalBlock;
@@ -67,7 +68,7 @@ public class FisheryVCObserver {
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             try {
                 ArrayList<User> validUsers = getValidVCUsers(server, voiceChannel);
-                if (validUsers.size() > 1 &&
+                if (validUsers.size() > (Bot.isProductionMode() ? 1 : 0) &&
                         (server.getAfkChannel().isEmpty() || voiceChannel.getId() != server.getAfkChannel().get().getId())
                 ) {
                     validUsers.forEach(user -> {

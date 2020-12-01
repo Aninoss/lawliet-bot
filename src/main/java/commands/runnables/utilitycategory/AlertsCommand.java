@@ -386,13 +386,13 @@ public class AlertsCommand extends Command implements OnNavigationListener {
     }
 
     private List<TrackerBeanSlot> getTrackersInChannel() {
-        return trackerBean.getSlots().stream()
+        return new ArrayList<>(trackerBean.getSlots()).stream()
                 .filter(slot -> slot.getChannelId() == channelId)
                 .collect(Collectors.toList());
     }
 
     private List<TrackerBeanSlot> getTrackersInServer() {
-        return trackerBean.getSlots().stream()
+        return new ArrayList<>(trackerBean.getSlots()).stream()
                 .filter(slot -> slot.getServerId() == serverId)
                 .collect(Collectors.toList());
     }

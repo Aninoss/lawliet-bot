@@ -1,5 +1,6 @@
 package events.scheduleevents.events;
 
+import core.Bot;
 import core.Console;
 import events.scheduleevents.ScheduleEventFixedRate;
 import core.schedule.ScheduleInterface;
@@ -10,7 +11,8 @@ public class PrintStats implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        System.out.println(Console.getInstance().getStats());
+        if (Bot.isProductionMode())
+            System.out.println(Console.getInstance().getStats());
     }
 
 }
