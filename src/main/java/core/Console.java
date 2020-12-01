@@ -80,6 +80,7 @@ public class Console {
         tasks.put("remove_fishery_user", this::onDeleteFisheryUser);
         tasks.put("fishery_vc", this::onFisheryVC);
         tasks.put("server", this::onServer);
+        tasks.put("leave_server", this::onLeaveServer);
         tasks.put("user", this::onUser);
         tasks.put("clear", this::onClear);
         tasks.put("fonts", this::onReloadFonts);
@@ -235,7 +236,17 @@ public class Console {
 
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> LOGGER.info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard()));
+        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server ->
+                LOGGER.info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard())
+        );
+    }
+
+    private void onLeaveServer(String[] args) {
+        long serverId = Long.parseLong(args[1]);
+        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> {
+            server.leave().exceptionally(ExceptionLogger.get());
+            LOGGER.info("Left server: {}", server.getName());
+        });
     }
 
     private void onDeleteFisheryUser(String[] args) throws ExecutionException {

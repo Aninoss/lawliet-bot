@@ -70,7 +70,7 @@ public class TwitchDownloader {
         return new TwitchStream(twitchUser, previewImage, game, status, viewers, followers);
     }
 
-    private Optional<TwitchUser> getTwitchUser(String channelName) throws InterruptedException, UnsupportedEncodingException, ExecutionException {
+    private Optional<TwitchUser> getTwitchUser(String channelName) throws InterruptedException, ExecutionException {
         JSONObject data;
         data = fetchApi("https://api.twitch.tv/kraken/users?login=" + InternetUtil.escapeForURL(channelName));
 
