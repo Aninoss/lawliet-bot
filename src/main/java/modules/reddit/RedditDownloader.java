@@ -2,9 +2,9 @@ package modules.reddit;
 
 import constants.Category;
 import constants.Locales;
+import core.TextManager;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
-import core.TextManager;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
@@ -14,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -44,7 +42,7 @@ public class RedditDownloader {
         return redditPost;
     }
 
-    public static RedditPost getPost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
+    public static RedditPost getPost(Locale locale, String sub) throws InterruptedException, ExecutionException {
         if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil))
             return null;
 
@@ -87,14 +85,14 @@ public class RedditDownloader {
         return getPost(locale, data);
     }
 
-    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws IOException, InterruptedException, ExecutionException {
+    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws InterruptedException, ExecutionException {
         if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil))
             return null;
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = URLEncoder.encode(sub, StandardCharsets.UTF_8);
+        sub = InternetUtil.escapeForURL(sub);
 
-        String downloadUrl = "https://www.reddit.com/r/" + InternetUtil.escapeForURL(sub) + ".json?raw_json=1";
+        String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
         if (httpResponse.getContent().isEmpty())
@@ -160,7 +158,7 @@ public class RedditDownloader {
     public static boolean checkRedditConnection() {
         try {
             return getPost(new Locale(Locales.EN), "memes") != null;
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Error in reddit check", e);
         }
         return false;
