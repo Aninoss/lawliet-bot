@@ -77,7 +77,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString))).get();
+                            TextManager.getNoResultsString(getLocale(), followedString))).get();
                     return false;
                 }
             }

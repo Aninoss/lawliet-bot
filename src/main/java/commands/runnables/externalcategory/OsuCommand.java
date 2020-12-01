@@ -172,7 +172,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
         } else {
             eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", osuName));
+                    .setDescription(TextManager.getNoResultsString(getLocale(), osuName));
         }
         message.edit(eb).exceptionally(ExceptionLogger.get());
     }

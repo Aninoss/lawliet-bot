@@ -15,7 +15,7 @@ import java.util.Locale;
 public class EmbedUtil {
 
     public static EmbedBuilder addNoResultsLog(EmbedBuilder eb, Locale locale, String searchString) {
-        return addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "no_results_description", searchString));
+        return addLog(eb, LogStatus.FAILURE, TextManager.getNoResultsString(locale, searchString));
     }
 
     public static EmbedBuilder addTrackerRemoveLog(EmbedBuilder eb, Locale locale) {

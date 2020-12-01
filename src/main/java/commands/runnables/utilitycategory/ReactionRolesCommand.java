@@ -98,7 +98,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 return Response.FALSE;
             }
         }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
         return Response.FALSE;
     }
 
@@ -119,7 +119,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 }
             }
         }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
         return Response.FALSE;
     }
 
@@ -174,7 +174,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             if (ok) return Response.TRUE;
         }
 
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
         return Response.FALSE;
     }
 

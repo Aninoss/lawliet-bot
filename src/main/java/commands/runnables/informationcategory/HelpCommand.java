@@ -109,7 +109,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             if ((eb = checkCategory(channel,arg)) == null) {
                 eb = checkMainPage(channel);
                 if (arg.length() > 0)
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", StringUtil.shortenString(arg, 64)));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
             }
         }
 

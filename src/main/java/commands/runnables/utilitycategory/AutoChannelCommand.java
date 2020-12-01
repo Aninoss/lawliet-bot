@@ -51,7 +51,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListener 
             case 1:
                 ArrayList<ServerVoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;
                 } else {
                     autoChannelBean.setParentChannelId(channelList.get(0).getId());

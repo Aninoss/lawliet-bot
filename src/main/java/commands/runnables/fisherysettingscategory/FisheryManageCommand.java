@@ -96,7 +96,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             }
 
             if (type == -1) {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), followedString));
             } else {
                 String amountString = StringUtil.trimString(followedString.substring(typeString.length()));
                 Long value;

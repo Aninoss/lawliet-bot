@@ -47,7 +47,7 @@ public class YouTubeMP3Command extends Command {
 
         Optional<AudioTrackInfo> metaOpt = YouTubePlayer.getInstance().meta(followedString);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), followedString))).get();
             return false;
         }
 

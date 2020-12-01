@@ -185,7 +185,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
         if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnTrackerRequestListener)) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", arg));
+            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
             return null;
         }
 

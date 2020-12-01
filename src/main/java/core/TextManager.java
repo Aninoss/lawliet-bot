@@ -76,6 +76,10 @@ public class TextManager {
         else return getString(locale, category, key, 1, args);
     }
 
+    public static String getNoResultsString(Locale locale, String content) {
+        return TextManager.getString(locale, TextManager.GENERAL, "no_results_description", StringUtil.shortenString(content, 32));
+    }
+
     public static int getKeySize(String category) {
         ResourceBundle texts = ResourceBundle.getBundle(category, new Locale(Locales.EN));
         return texts.keySet().size();

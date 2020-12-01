@@ -53,7 +53,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListener 
             case 1:
                 ArrayList<ServerTextChannel> channelsList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelsList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;
                 } else {
                     ServerTextChannel channel = channelsList.get(0);

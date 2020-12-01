@@ -42,7 +42,7 @@ public class NavigationHelper<T> {
 
     public Response addData(List<T> newList, String inputString, User author, int stateBack) throws IOException {
         if (newList.size() == 0) {
-            command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+            command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return Response.FALSE;
         } else {
             if (type == Type.Role && !command.checkRolesWithLog((List<Role>) newList, author)) return Response.FALSE;

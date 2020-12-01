@@ -49,7 +49,7 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
             if (channelList.size() == 0) {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                 return Response.FALSE;
             } else {
                 ServerTextChannel channel = channelList.get(0);

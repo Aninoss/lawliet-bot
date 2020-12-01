@@ -57,7 +57,7 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
             case 1:
                 ArrayList<User> userIgnoredList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
                 if (userIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;
                 } else {
                     ignoredUsers.clear();
@@ -70,7 +70,7 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
             case 2:
                 ArrayList<ServerTextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
                 if (channelIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;
                 } else {
                     ignoredChannels.clear();
@@ -83,7 +83,7 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
             case 3:
                 ArrayList<User> logRecieverList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
                 if (logRecieverList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;
                 } else {
                     logReceivers.clear();

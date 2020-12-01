@@ -31,7 +31,7 @@ public class PokemonCommand extends Command {
         if (pokemon == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+                    .setDescription(TextManager.getNoResultsString(getLocale(), followedString));
             event.getChannel().sendMessage(eb).get();
             return false;
         }

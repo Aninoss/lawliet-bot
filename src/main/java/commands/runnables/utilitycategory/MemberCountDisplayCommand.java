@@ -76,7 +76,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                     }
                 }
 
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                 return Response.FALSE;
             } else {
                 ServerVoiceChannel channel = vcList.get(0);

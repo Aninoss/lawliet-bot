@@ -86,7 +86,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 return true;
             }
 
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), followedString));
         }
 
         return true;

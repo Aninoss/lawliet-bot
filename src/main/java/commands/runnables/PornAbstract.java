@@ -146,10 +146,10 @@ public abstract class PornAbstract extends Command {
         if (event.getChannel().canYouEmbedLinks()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString));
+                    .setDescription(TextManager.getNoResultsString(getLocale(), followedString));
             event.getChannel().sendMessage(eb).get();
         } else {
-            event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", followedString)).get();
+            event.getChannel().sendMessage("❌ " + TextManager.getNoResultsString(getLocale(), followedString)).get();
         }
     }
 
@@ -173,7 +173,7 @@ public abstract class PornAbstract extends Command {
             if (slot.getArgs().isEmpty() && this instanceof PornSearchAbstract) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_noresults_tracker", slot.getCommandKey()));
+                        .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessage(eb).get();
                 return TrackerResult.STOP_AND_DELETE;

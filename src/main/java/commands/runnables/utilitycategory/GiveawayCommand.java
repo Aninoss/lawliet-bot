@@ -99,7 +99,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
                 return Response.FALSE;
             }
         }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
         return Response.FALSE;
     }
 
@@ -176,7 +176,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             return processEmoji(emoji) ? Response.TRUE : Response.FALSE;
         }
 
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
         return Response.FALSE;
     }
 
@@ -194,7 +194,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             }
         }
 
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_results_description", inputString));
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
         return Response.FALSE;
     }
 
