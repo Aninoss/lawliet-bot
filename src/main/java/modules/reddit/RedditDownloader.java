@@ -47,7 +47,7 @@ public class RedditDownloader {
             return null;
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = InternetUtil.escapeForURL(sub);
+        sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
 
         Subreddit subreddit = SubredditContainer.getInstance().get(sub);
         String postReference = subreddit.getPostReference();
@@ -90,7 +90,7 @@ public class RedditDownloader {
             return null;
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = InternetUtil.escapeForURL(sub);
+        sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 

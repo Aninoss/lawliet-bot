@@ -5,14 +5,15 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.text.AttributedCharacterIterator;
-import java.util.concurrent.ExecutionException;
 
 public class WelcomeGraphics {
 
@@ -88,8 +89,8 @@ public class WelcomeGraphics {
         g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.WHITE), SPACE, SPACE, size, size, null);
 
         if (avatarImage != null) {
-            avatarImage = Graphics.makeRoundedCorner(avatarImage, AVATAR_ROUNDED);
-            g2d.drawImage(avatarImage, SPACE, SPACE, size, size, null);
+            avatarImage = Graphics.makeRoundedCorner(avatarImage, AVATAR_ROUNDED, size, size);
+            g2d.drawImage(avatarImage, SPACE, SPACE, null);
         }
     }
 
@@ -142,8 +143,8 @@ public class WelcomeGraphics {
     private static BufferedImage getAvatarImage(User user) {
         BufferedImage profilePicture = null;
         try {
-            profilePicture = user.getAvatar().asBufferedImage().get();
-        } catch (InterruptedException | ExecutionException e) {
+            profilePicture = ImageIO.read(new URL(user.getAvatar().getUrl().toString() + "?size=256"));
+        } catch (IOException e) {
             //Ignore
         }
         return profilePicture;
