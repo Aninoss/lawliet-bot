@@ -2,7 +2,7 @@ package events.discordevents.servermemberleave;
 
 import constants.AssetIds;
 import core.DiscordApiCollection;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerMemberLeaveAbstract;

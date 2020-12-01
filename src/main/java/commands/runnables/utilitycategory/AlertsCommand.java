@@ -9,7 +9,7 @@ import commands.listeners.OnTrackerRequestListener;
 import constants.*;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.TextManager;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;

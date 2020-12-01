@@ -1,6 +1,6 @@
 package commands.runningchecker;
 
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 
 import java.time.Instant;

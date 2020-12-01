@@ -3,7 +3,7 @@ package events.discordevents.userroleremove;
 import constants.AssetIds;
 import constants.Settings;
 import core.DiscordApiCollection;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.UserRoleRemoveAbstract;

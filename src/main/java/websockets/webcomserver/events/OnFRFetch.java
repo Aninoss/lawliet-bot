@@ -1,7 +1,7 @@
 package websockets.webcomserver.events;
 
 import constants.FRPanelType;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.featurerequests.DBFeatureRequests;
 import org.json.JSONArray;

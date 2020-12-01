@@ -2,7 +2,7 @@ package websockets.webcomserver.events;
 
 import constants.FisheryStatus;
 import core.DiscordApiCollection;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;

@@ -8,7 +8,7 @@ import constants.ExternalLinks;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.EmbedFactory;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;

@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.*;
 import core.EmbedFactory;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;

@@ -3,6 +3,7 @@ package core;
 import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
+import core.cache.PatreonCache;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;

@@ -2,22 +2,24 @@ package modules.automod;
 
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
+import constants.AssetIds;
 import constants.Category;
-import constants.ExternalLinks;
 import constants.Permission;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.cache.InviteCache;
+import core.utils.DiscordUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.invite.RichInvite;
 import org.javacord.api.util.logging.ExceptionLogger;
 
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
 
 public class InviteFilter extends AutoModAbstract {
 
@@ -69,26 +71,21 @@ public class InviteFilter extends AutoModAbstract {
                 !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
                 !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId())
         ) {
-            String content = message.getContent();
-            content = content.replaceAll("(?i)" + Pattern.quote(ExternalLinks.SERVER_INVITE_URL), "");
-            if (contentContainsDiscordLink(content)) {
-                try {
-                    for (RichInvite richInvite : message.getServer().get().getInvites().get()) {
-                        content = content.replace(" ", "").replaceAll("(?i)" + Pattern.quote("discord.gg/" + richInvite.getCode()), "");
-                    }
-                    return contentContainsDiscordLink(content);
-                } catch (ExecutionException | InterruptedException e) {
-                    //Ignore
-                    return true;
-                }
+            ArrayList<String> inviteLinks = DiscordUtil.filterServerInviteLinks(message.getContent());
+            if (inviteLinks.size() > 0) {
+                return inviteLinks.stream()
+                        .map(str -> {
+                            String[] parts = str.split("/");
+                            return parts[parts.length - 1];
+                        })
+                        .map(inviteCode -> InviteCache.getInstance().getInviteByCode(inviteCode))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .anyMatch(invite -> invite.getServerId() != message.getServer().get().getId() && invite.getServerId() != AssetIds.SUPPORT_SERVER_ID);
             }
         }
 
         return false;
-    }
-
-    private boolean contentContainsDiscordLink(String string) {
-        return string.matches("(.*)(discord\\.gg\\/[A-Za-z0-9]{6,8})|(discord\\.com\\/invite\\/[A-Za-z0-9])|(discordapp\\.com\\/invite\\/[A-Za-z0-9])(.*)");
     }
 
 }

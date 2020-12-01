@@ -1,10 +1,12 @@
-package core;
+package core.cache;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import constants.AssetIds;
 import constants.Settings;
+import core.Bot;
+import core.DiscordApiCollection;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;

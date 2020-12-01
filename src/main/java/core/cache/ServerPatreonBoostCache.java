@@ -1,8 +1,9 @@
-package core;
+package core.cache;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import core.DiscordApiCollection;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
 

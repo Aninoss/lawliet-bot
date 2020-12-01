@@ -8,8 +8,8 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
-import core.PatreonCache;
-import core.RegexPatternCache;
+import core.cache.PatreonCache;
+import core.cache.PatternCache;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
@@ -61,7 +61,7 @@ public abstract class PornAbstract extends Command {
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords());
         followedString = StringUtil.defuseMassPing(NSFWUtil.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
-        Pattern pattern = RegexPatternCache.getInstance().generate("\\b[0-9]{1,6}\\b");
+        Pattern pattern = PatternCache.getInstance().generate("\\b[0-9]{1,6}\\b");
         Matcher m = pattern.matcher(followedString);
 
         long amount = 1;

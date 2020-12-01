@@ -6,7 +6,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
-import core.PatreonCache;
+import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;

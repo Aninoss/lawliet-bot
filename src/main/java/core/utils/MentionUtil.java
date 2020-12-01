@@ -2,7 +2,7 @@ package core.utils;
 
 import com.vdurmont.emoji.EmojiParser;
 import core.DiscordApiCollection;
-import core.RegexPatternCache;
+import core.cache.PatternCache;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
@@ -473,7 +473,7 @@ public class MentionUtil {
                 .replace("\n", " ")
                 .replaceAll(" {2}", " ");
 
-        Pattern p = RegexPatternCache.getInstance().generate(" [0-9]+ [0-9]");
+        Pattern p = PatternCache.getInstance().generate(" [0-9]+ [0-9]");
         Matcher m = p.matcher(str);
         while (m.find()) {
             String group = m.group();

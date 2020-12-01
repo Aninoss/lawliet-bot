@@ -5,6 +5,8 @@ import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
 import core.*;
+import core.cache.PatreonCache;
+import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;

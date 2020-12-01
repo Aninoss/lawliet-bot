@@ -1,8 +1,8 @@
 package events.scheduleevents.events;
 
 import commands.runningchecker.RunningCheckerManager;
-import core.PatreonCache;
-import core.ServerPatreonBoostCache;
+import core.cache.PatreonCache;
+import core.cache.ServerPatreonBoostCache;
 import events.scheduleevents.ScheduleEventDaily;
 import core.schedule.ScheduleInterface;
 import modules.porn.PornImageCache;

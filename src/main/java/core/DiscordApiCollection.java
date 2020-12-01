@@ -3,6 +3,7 @@ package core;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
 import constants.AssetIds;
+import core.cache.EmojiCache;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
