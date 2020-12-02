@@ -40,10 +40,13 @@ import java.util.Locale;
 )
 public class HelpCommand extends Command implements OnNavigationListener {
 
+    String[] LIST = new String[]{ Category.GIMMICKS, Category.AI_TOYS, Category.CONFIGURATION, Category.UTILITY, Category.MODERATION, Category.INFORMATION, Category.FISHERY_SETTINGS, Category.FISHERY, Category.CASINO, Category.EMOTES, Category.INTERACTIONS, Category.EXTERNAL, Category.NSFW, Category.PATREON_ONLY, Category.SPLATOON_2 };
+
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private String searchTerm;
     private MessageCreateEvent authorEvent;
     private CommandManagementBean commandManagementBean;
+    private String currentCategory = null;
 
     public HelpCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -121,7 +124,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Override
     public int getMaxReactionNumber() {
-        return Category.LIST.length;
+        return LIST.length;
     }
 
     private EmbedBuilder checkCommand(ServerTextChannel channel, String arg) throws Throwable {
@@ -138,8 +141,11 @@ public class HelpCommand extends Command implements OnNavigationListener {
             if ((commandTrigger.equalsIgnoreCase(arg) || Arrays.stream(command.getAliases()).anyMatch(arg::equalsIgnoreCase)) &&
                     !commandTrigger.equals(getTrigger())
             ) {
+                if (currentCategory == null)
+                    currentCategory = command.getCategory();
+
                 emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), command.getCategory()));
+                emojiConnections.add(new BackEmojiConnection(channel.canYouUseExternalEmojis() || isNavigationPrivateMessage(), currentCategory));
 
                 StringBuilder usage = new StringBuilder();
                 for(String line: TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_usage").split("\n")) {
@@ -169,7 +175,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 EmbedBuilder eb =  EmbedFactory.getEmbedDefault()
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, command.getCategory()) + " » " +
+                                        TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory) + " » " +
                                         command.getEmoji()+" "+TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_title")
                         )
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(),commandTrigger+"_helptext") + addNotExecutable)
@@ -190,8 +196,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     private EmbedBuilder checkCategory(ServerTextChannel channel, String arg) throws Throwable {
         if (arg.length() > 0) {
-            for (String category : Category.LIST) {
+            for (String category : LIST) {
                 if ((category.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category).toLowerCase().contains(arg.toLowerCase()))) {
+                    currentCategory = category;
+
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(
                                     TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
@@ -213,6 +221,10 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                         case Category.NSFW:
                             categoryNSFW(eb);
+                            break;
+
+                        case Category.PATREON_ONLY:
+                            categoryPatreon(eb);
                             break;
 
                         default:
@@ -247,7 +259,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .append("`");
 
                 if (command.isNsfw())
-                    stringBuilder.append(generateCommandIcons(command, true));
+                    stringBuilder.append(generateCommandIcons(command, true, true));
                 stringBuilder.append("\n");
 
                 emojiConnections.add(new EmojiConnection("", command.getTrigger()));
@@ -262,7 +274,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
         if (stringBuilder.length() > 0)
             eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
 
-        addIconDescriptions(eb, category.equals(Category.INTERACTIONS));
+        addIconDescriptions(eb, false, false, category.equals(Category.INTERACTIONS), false);
         if (category.equals(Category.INTERACTIONS)) {
             eb.setDescription(getString("interactions_desc"));
         } else {
@@ -271,7 +283,56 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     }
 
+    private void categoryPatreon(EmbedBuilder eb) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        boolean includeLocked = false;
+        boolean includeAlerts = false;
+        boolean includeNSFW = false;
+
+        int i = 0;
+        for(String category : Category.LIST) {
+            for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
+                Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+                String commandTrigger = command.getTrigger();
+                if (command.isPatreonRequired() &&
+                        !commandTrigger.equals(getTrigger()) &&
+                        (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
+                ) {
+                    StringBuilder title = new StringBuilder();
+                    title.append(command.getEmoji())
+                            .append(" `")
+                            .append(getPrefix())
+                            .append(commandTrigger)
+                            .append("`");
+
+                    if (command.getReleaseDate().isAfter(LocalDate.now()))
+                        title.append(" ").append(getString("beta"));
+                    title.append(generateCommandIcons(command, true, false));
+
+                    if (command.isModCommand()) includeLocked = true;
+                    if (command instanceof OnTrackerRequestListener) includeAlerts = true;
+                    if (command.isNsfw()) includeNSFW = true;
+
+                    emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
+                    i++;
+                    eb.addField(
+                            title.toString(),
+                            TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.EMPTY_EMOJI,
+                            true
+                    );
+                }
+            }
+        }
+
+        eb.setDescription(getString("premium", ExternalLinks.PATREON_PAGE) + "\n" + Emojis.EMPTY_EMOJI);
+        addIconDescriptions(eb, includeLocked, includeAlerts, includeNSFW, false);
+    }
+
     private void categoryDefault(EmbedBuilder eb, String category) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        boolean includeLocked = false;
+        boolean includeAlerts = false;
+        boolean includeNSFW = false;
+        boolean includePatreon = false;
+
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
@@ -288,7 +349,12 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
                 if (command.getReleaseDate().isAfter(LocalDate.now()))
                     title.append(" ").append(getString("beta"));
-                title.append(generateCommandIcons(command, true));
+                title.append(generateCommandIcons(command, true, true));
+
+                if (command.isModCommand()) includeLocked = true;
+                if (command instanceof OnTrackerRequestListener) includeAlerts = true;
+                if (command.isNsfw()) includeNSFW = true;
+                if (command.isPatreonRequired()) includePatreon = true;
 
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
                 i++;
@@ -300,7 +366,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             }
         }
 
-        addIconDescriptions(eb, false);
+        addIconDescriptions(eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
     }
 
     private void categoryNSFW(EmbedBuilder eb) throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -317,7 +383,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
-                StringBuilder extras = new StringBuilder(generateCommandIcons(command, false));
+                StringBuilder extras = new StringBuilder(generateCommandIcons(command, false, true));
                 if (command instanceof PornSearchAbstract)
                     withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 else if (command instanceof PornPredefinedAbstract)
@@ -336,30 +402,29 @@ public class HelpCommand extends Command implements OnNavigationListener {
             eb.addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true);
         }
 
-        addIconDescriptions(eb, false);
+        addIconDescriptions(eb, false, true, false, true);
     }
 
-    private String generateCommandIcons(Command command, boolean includeNsfw) {
+    private String generateCommandIcons(Command command, boolean includeNsfw, boolean includePatreon) {
         StringBuilder sb = new StringBuilder();
 
         if (command.isModCommand()) sb.append(CommandIcon.LOCKED);
         if (command instanceof OnTrackerRequestListener) sb.append(CommandIcon.ALERTS);
         if (includeNsfw && command.isNsfw()) sb.append(CommandIcon.NSFW);
-        if (command.isPatreonRequired()) sb.append(CommandIcon.PATREON);
+        if (includePatreon && command.isPatreonRequired()) sb.append(CommandIcon.PATREON);
 
         return sb.length() == 0 ? "" : "┊" + sb.toString();
     }
 
-    private void addIconDescriptions(EmbedBuilder eb, boolean showNsfwInfo) {
+    private void addIconDescriptions(EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
         if (!isNavigationPrivateMessage()) {
-            String str = getString("commandproperties", showNsfwInfo,
-                    CommandIcon.LOCKED.toString(),
-                    CommandIcon.ALERTS.toString(),
-                    CommandIcon.NSFW.toString(),
-                    CommandIcon.PATREON.toString(),
-                    ExternalLinks.PATREON_PAGE
-            );
-            eb.addField(Emojis.EMPTY_EMOJI, str);
+            StringBuilder sb = new StringBuilder(getString("commandproperties")).append("\n\n");
+            if (includeLocked) sb.append(getString("commandproperties_LOCKED", CommandIcon.LOCKED.toString())).append("\n");
+            if (includeAlerts) sb.append(getString("commandproperties_ALERTS", CommandIcon.ALERTS.toString())).append("\n");
+            if (includeNSFW) sb.append(getString("commandproperties_NSFW", CommandIcon.NSFW.toString())).append("\n");
+            if (includePatreon) sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.toString(), ExternalLinks.PATREON_PAGE)).append("\n");
+
+            eb.addField(Emojis.EMPTY_EMOJI, sb.toString());
         }
     }
 
@@ -374,7 +439,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
 
         int i = 0;
-        for (String string : Category.LIST) {
+        for (String string : LIST) {
             if (!commandManagementBean.getSwitchedOffElements().contains(string) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())) {
                 categoriesSB.append(LetterEmojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], string));

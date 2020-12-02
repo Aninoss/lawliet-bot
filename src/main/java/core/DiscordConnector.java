@@ -88,7 +88,6 @@ public class DiscordConnector {
         api.setMessageCacheSize(30, 30 * 60);
 
         DiscordApiCollection.getInstance().insertApi(api);
-        startRepairProcesses(api);
         LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
         if (DiscordApiCollection.getInstance().allShardsConnected()) {
@@ -96,16 +95,12 @@ public class DiscordConnector {
                 onConnectionCompleted();
             } else {
                 updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
+                startRepairProcesses(api);
             }
         }
 
         discordEventManager.registerApi(api);
         api.addReconnectListener(event -> onSessionResume(event.getApi()));
-    }
-
-    private void startRepairProcesses(DiscordApi api) {
-        new AutoChannelRepair(api).start();
-        new RolesRepair(api).start();
     }
 
     private void onConnectionCompleted() {
@@ -118,9 +113,17 @@ public class DiscordConnector {
         if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
+        DiscordApiCollection.getInstance().getApis().forEach(this::startRepairProcesses);
 
         DiscordApiCollection.getInstance().setStarted();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+    }
+
+    private void startRepairProcesses(DiscordApi api) {
+        if (api != null) {
+            AutoChannelRepair.getInstance().start(api);
+            RolesRepair.getInstance().start(api);
+        }
     }
 
     public void updateActivity() {

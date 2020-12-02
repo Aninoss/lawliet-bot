@@ -252,7 +252,7 @@ public class CommandContainer {
         commandList.add(CelebrateCommand.class);
         commandList.add(PokemonCommand.class);
 
-        for(Class<? extends Command> clazz: new ArrayList<>(commandList)) {
+        for(Class<? extends Command> clazz: commandList) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
                 addCommand(command.getTrigger(), command);

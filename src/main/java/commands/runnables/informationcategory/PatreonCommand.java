@@ -22,7 +22,7 @@ import java.util.Locale;
         trigger = "patreon",
         emoji = "\uD83D\uDCB3",
         executableWithoutArgs = true,
-        aliases = {"donate", "donation", "premium"}
+        aliases = { "donate", "donation" }
 )
 public class PatreonCommand extends Command {
 

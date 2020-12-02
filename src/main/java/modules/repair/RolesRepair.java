@@ -2,8 +2,8 @@ package modules.repair;
 
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
-import core.CustomThread;
 import core.PermissionCheckRuntime;
+import core.TaskQueue;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
@@ -22,22 +22,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 
-public class RolesRepair implements Runnable {
+public class RolesRepair {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RolesRepair.class);
 
-    private final DiscordApi api;
+    private static final RolesRepair ourInstance = new RolesRepair();
+    public static RolesRepair getInstance() { return ourInstance; }
+    private RolesRepair() { }
 
-    public RolesRepair(DiscordApi api) {
-        this.api = api;
+    private final TaskQueue taskQueue = new TaskQueue("roles_repair");
+
+    public void start(DiscordApi api) {
+        taskQueue.attach(() -> run(api));
     }
 
-    public void start() {
-        new CustomThread(this, "roles_repair_" + api.getCurrentShard(), 1).start();
-    }
-
-    @Override
-    public void run() {
+    public void run(DiscordApi api) {
         for(Server server : api.getServers()) {
             processAutoRoles(server);
             processFisheryRoles(server);

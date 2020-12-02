@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
         userPermissions = Permission.ADMINISTRATOR,
         emoji = "🚦",
         executableWithoutArgs = true,
-        aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm"}
+        aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman"}
 )
 public class CommandManagementCommand extends Command implements OnNavigationListener {
 

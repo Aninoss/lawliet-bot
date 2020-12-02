@@ -10,8 +10,13 @@ public class TaskQueue {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(TaskQueue.class);
 
+    private final String threadName;
     private final ConcurrentLinkedQueue<Runnable> tasks = new ConcurrentLinkedQueue<>();
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
+
+    public TaskQueue(String threadName) {
+        this.threadName = threadName;
+    }
 
     public void attach(Runnable r) {
         boolean empty = tasks.size() == 0;
@@ -27,7 +32,7 @@ public class TaskQueue {
                     }
                 }
                 completedListeners.forEach(Runnable::run);
-            }, "task_queue").start();
+            }, threadName).start();
         }
     }
 

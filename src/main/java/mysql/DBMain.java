@@ -26,7 +26,7 @@ public class DBMain implements DriverAction {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
-    private final TaskQueue taskQueue = new TaskQueue();
+    private final TaskQueue taskQueue = new TaskQueue("mysql_queue");
 
     private final ArrayList<DBCached> caches = new ArrayList<>();
 
