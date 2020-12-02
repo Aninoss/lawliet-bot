@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
         maxCalculationTimeSec = 5 * 60,
-        aliases = {"fclear", "allclear"}
+        aliases = {"fclear", "allclear", "clearall" }
 )
 public class FullClearCommand extends Command implements OnTrackerRequestListener {
 
