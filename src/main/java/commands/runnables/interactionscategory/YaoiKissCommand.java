@@ -52,7 +52,8 @@ public class YaoiKissCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736280745601007737/736284287359254599/yaoikiss.gif",
                 "https://media.discordapp.net/attachments/736280745601007737/736284502275522670/yaoikiss.gif",
                 "https://media.discordapp.net/attachments/736280745601007737/774620635997011978/yaoikiss.gif",
-                "https://media.discordapp.net/attachments/736280745601007737/783699292757164102/yaoikiss.gif"
+                "https://media.discordapp.net/attachments/736280745601007737/783699292757164102/yaoikiss.gif",
+                "https://media.discordapp.net/attachments/736280745601007737/783755433126264912/yaoikiss.gif"
         };
     }
 
