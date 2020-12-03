@@ -195,30 +195,33 @@ public class DiscordApiCollection {
         }
     }
 
-    public Optional<Message> getMessageById(long serverId, long channelId, long messageId) {
+    public CompletableFuture<Optional<Message>> getMessageById(long serverId, long channelId, long messageId) {
         Optional<Server> server = getServerById(serverId);
         if (server.isPresent()) {
             return getMessageById(server.get(), channelId, messageId);
         } else {
-            return Optional.empty();
+            return CompletableFuture.completedFuture(Optional.empty());
         }
     }
 
-    public Optional<Message> getMessageById(Server server, long channelId, long messageId) {
+    public CompletableFuture<Optional<Message>> getMessageById(Server server, long channelId, long messageId) {
         Optional<ServerTextChannel> channel = server.getTextChannelById(channelId);
         if (channel.isPresent()) {
             return getMessageById(channel.get(), messageId);
         } else {
-            return Optional.empty();
+            return CompletableFuture.completedFuture(Optional.empty());
         }
     }
 
-    public Optional<Message> getMessageById(ServerTextChannel channel, long messageId) {
-        try {
-            return Optional.of(channel.getMessageById(messageId).get());
-        } catch (InterruptedException | ExecutionException e) {
-            return Optional.empty();
-        }
+    public CompletableFuture<Optional<Message>> getMessageById(ServerTextChannel channel, long messageId) {
+        CompletableFuture<Optional<Message>> future = new CompletableFuture<>();
+        channel.getMessageById(messageId)
+                .exceptionally(e -> {
+                    future.complete(Optional.empty());
+                    return null;
+                })
+                .thenAccept(m -> future.complete(Optional.of(m)));
+        return future;
     }
 
     public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {

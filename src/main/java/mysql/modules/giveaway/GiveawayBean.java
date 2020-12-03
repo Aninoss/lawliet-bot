@@ -59,7 +59,7 @@ public class GiveawayBean extends Observable {
     }
 
     public Optional<Message> getMessage() {
-        return DiscordApiCollection.getInstance().getMessageById(serverId, channelId, messageId);
+        return DiscordApiCollection.getInstance().getMessageById(serverId, channelId, messageId).join();
     }
 
     public String getEmoji() {

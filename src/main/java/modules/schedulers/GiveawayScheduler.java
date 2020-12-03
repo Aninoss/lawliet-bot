@@ -72,14 +72,15 @@ public class GiveawayScheduler {
     }
 
     private void processGiveawayUsers(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) {
-        DiscordApiCollection.getInstance().getMessageById(channel, giveawayBean.getMessageId()).ifPresent(message -> {
-            for (Reaction reaction : message.getReactions()) {
-                if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {
-                    reaction.getUsers().thenAccept(users -> processGiveaway(channel, serverBean, giveawayBean, message, new ArrayList<>(users)));
-                    break;
-                }
-            }
-        });
+        DiscordApiCollection.getInstance().getMessageById(channel, giveawayBean.getMessageId())
+                .thenAccept(messageOpt -> messageOpt.ifPresent(message -> {
+                    for (Reaction reaction : message.getReactions()) {
+                        if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {
+                            reaction.getUsers().thenAccept(users -> processGiveaway(channel, serverBean, giveawayBean, message, new ArrayList<>(users)));
+                            break;
+                        }
+                    }
+                }));
     }
 
     private void processGiveaway(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {

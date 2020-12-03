@@ -522,7 +522,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             if (instant.plus(durationMinutes, ChronoUnit.MINUTES).isBefore(Instant.now()))
                 return Optional.empty();
 
-            Optional<Message> messageOptional = DiscordApiCollection.getInstance().getMessageById(channel, messageId);
+            Optional<Message> messageOptional = DiscordApiCollection.getInstance().getMessageById(channel, messageId).join();
             if (messageOptional.isPresent()) {
                 messageOptional.get().edit(getMessageEmbed()).exceptionally(ExceptionLogger.get());
                 return Optional.of(messageOptional.get());

@@ -58,7 +58,7 @@ public class QuoteCommand extends Command {
 
             //ID with channel
             if (StringUtil.stringIsLong(newString)) {
-                Message message = DiscordApiCollection.getInstance().getMessageById(channel, Long.parseLong(newString)).orElse(null);
+                Message message = DiscordApiCollection.getInstance().getMessageById(channel, Long.parseLong(newString)).join().orElse(null);
                 if (message != null) {
                     postEmbed(event.getMessage().getServerTextChannel().get(), message);
                     return true;
