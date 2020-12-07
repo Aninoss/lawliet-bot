@@ -170,7 +170,7 @@ public class CommandManager {
     }
 
     private static boolean checkReleased(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        LocalDate releaseDate = command.getReleaseDate();
+        LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
         if (!releaseDate.isAfter(LocalDate.now()) || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 1) {
             return true;
         }

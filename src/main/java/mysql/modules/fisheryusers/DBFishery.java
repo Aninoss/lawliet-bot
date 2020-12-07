@@ -1,6 +1,5 @@
 package mysql.modules.fisheryusers;
 
-import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import core.Bot;
 import mysql.DBBeanGenerator;
@@ -11,6 +10,7 @@ import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,20 +31,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
-
-    @Override
-    protected CacheBuilder<Object, Object> getCacheBuilder() {
-        return CacheBuilder.newBuilder()
-                .removalListener((element) -> onRemoved((FisheryServerBean) element.getValue()));
-    }
-
-    private void onRemoved(FisheryServerBean fisheryServerBean) {
-        if (isChanged(fisheryServerBean)) {
-            LOGGER.warn("Fishery cache overflow (size: {})", getCache().size());
-            removeUpdate(fisheryServerBean);
-            saveBean(fisheryServerBean);
-        }
-    }
 
     @Override
     protected FisheryServerBean loadBean(Long serverId) throws Exception {
@@ -79,7 +65,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                         .forEach(this::saveFisheryUserBean);
 
                 LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
-                if (Bot.isRunning()) Thread.sleep(500);
+                if (Bot.isRunning()) Thread.sleep(100);
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);
@@ -292,10 +278,10 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         });
     }
 
-    public void removePowerPlant(long serverId) throws SQLException, InterruptedException {
-        DBMain.getInstance().update("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
-        DBMain.getInstance().update("DELETE FROM PowerPlantUsers WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
-        DBMain.getInstance().update("DELETE FROM PowerPlantUserGained WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
+    public void removePowerPlant(long serverId) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUsers WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
 
         DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         getCache().invalidate(serverId);

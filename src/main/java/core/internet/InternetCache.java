@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class InternetCache {
 
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> shortLivedCache = CacheBuilder.newBuilder()
-            .maximumSize(1000)
+            .maximumSize(500)
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build(
                     new CacheLoader<>() {

@@ -8,6 +8,7 @@ import mysql.interfaces.IntervalSave;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import mysql.modules.fisheryusers.DBFishery;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,8 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             Thread t = new CustomThread(() -> {
                 IntervalBlock intervalBlock = new IntervalBlock(Bot.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
                 while(intervalBlock.block()) {
+                    if (this instanceof DBFishery)
+                        LOGGER.info("Fishery update"); //TODO Debug
                     if (changed.size() > 0)
                         intervalSave();
                 }

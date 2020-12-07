@@ -85,7 +85,7 @@ public class DiscordConnector {
 
     public void onApiJoin(DiscordApi api) {
         api.setAutomaticMessageCacheCleanupEnabled(true);
-        api.setMessageCacheSize(30, 30 * 60);
+        api.setMessageCacheSize(0, 0);
 
         DiscordApiCollection.getInstance().insertApi(api);
         LOGGER.info("Shard {} connection established", api.getCurrentShard());

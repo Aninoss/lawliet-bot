@@ -187,13 +187,13 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onWin();
                             logStatus = LogStatus.WIN;
                             log = getString("blackjack", 0);
-                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                             return;
                         } else if (blackjack[1] && !blackjack[0]) {
                             onLose();
                             logStatus = LogStatus.LOSE;
                             log = getString("blackjack", 1);
-                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                             return;
                         }
 
@@ -203,17 +203,17 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             onGameEnd();
                             logStatus = LogStatus.FAILURE;
                             log = getString("draw");
-                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] < points[1]) {
                             onWin();
                             logStatus = LogStatus.WIN;
                             log = getString("21", 0);
-                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] > points[1]) {
                             onLose();
                             logStatus = LogStatus.LOSE;
                             log = getString("21", 1);
-                            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                         }
                     });
                 });

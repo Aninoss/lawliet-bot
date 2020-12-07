@@ -665,9 +665,9 @@ public abstract class Command {
                 (!commandProperties.onlyPublicVersion() || Bot.isPublicVersion());
     }
 
-    public LocalDate getReleaseDate() {
+    public Optional<LocalDate> getReleaseDate() {
         int[] releaseDateArray = commandProperties.releaseDate();
-        return releaseDateArray.length == 3 ? LocalDate.of(releaseDateArray[0], releaseDateArray[1], releaseDateArray[2]) : LocalDate.now();
+        return Optional.ofNullable(releaseDateArray.length == 3 ? LocalDate.of(releaseDateArray[0], releaseDateArray[1], releaseDateArray[2]) : null);
     }
 
     public boolean hasTimeOut() { return !commandProperties.turnOffTimeout(); }

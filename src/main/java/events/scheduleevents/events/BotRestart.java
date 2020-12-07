@@ -5,6 +5,7 @@ import core.Bot;
 import core.schedule.ScheduleInterface;
 import core.utils.SystemUtil;
 import events.scheduleevents.ScheduleEventHourly;
+import mysql.DBMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,9 @@ public class BotRestart implements ScheduleInterface {
                 if (Bot.hasUpdate()) {
                     LOGGER.info("EXIT - Restarting for update...");
                     System.exit(0);
+                } else {
+                    DBMain.getInstance().clearCache();
+                    LOGGER.info("Cache cleaned");
                 }
             } else if (hour < Settings.UPDATE_HOUR) {
                 readyForRestart = true;

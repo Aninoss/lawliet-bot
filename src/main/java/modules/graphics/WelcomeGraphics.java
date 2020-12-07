@@ -86,7 +86,7 @@ public class WelcomeGraphics {
         final int size = BASE_HEIGHT - SPACE * 2;
 
         Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.BLACK), SPACE + offset, SPACE + offset, size, size, null));
-        g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.WHITE), SPACE, SPACE, size, size, null);
+        g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED + 1, Color.WHITE), SPACE, SPACE, size, size, null);
 
         if (avatarImage != null) {
             avatarImage = Graphics.makeRoundedCorner(avatarImage, AVATAR_ROUNDED, size, size);

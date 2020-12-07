@@ -304,7 +304,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                             .append(commandTrigger)
                             .append("`");
 
-                    if (command.getReleaseDate().isAfter(LocalDate.now()))
+                    if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now()))
                         title.append(" ").append(getString("beta"));
                     title.append(generateCommandIcons(command, true, false));
 
@@ -347,7 +347,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                         .append(commandTrigger)
                         .append("`");
 
-                if (command.getReleaseDate().isAfter(LocalDate.now()))
+                if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now()))
                     title.append(" ").append(getString("beta"));
                 title.append(generateCommandIcons(command, true, true));
 

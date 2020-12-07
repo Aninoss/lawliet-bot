@@ -221,11 +221,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
 
-                message.getCurrentCachedInstance().ifPresent(m -> {
-                    m.edit(eb2).exceptionally(ExceptionLogger.get());
-                    if (m.getChannel().canYouRemoveReactionsOfOthers())
-                        m.removeAllReactions().exceptionally(ExceptionLogger.get());
-                });
+                message.edit(eb2).exceptionally(ExceptionLogger.get());
+                if (message.getChannel().canYouRemoveReactionsOfOthers())
+                    message.removeAllReactions().exceptionally(ExceptionLogger.get());
 
                 ServerTextChannel channel = event.getServerTextChannel().get();
                 if (resultInt == 0 && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
@@ -233,13 +231,13 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                             .exceptionally(ExceptionLogger.get())
                             .thenAccept(m -> {
                                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
-                                    m.getCurrentCachedInstance().ifPresent(m2 -> m2.delete().exceptionally(ExceptionLogger.get()));
+                                    m.delete().exceptionally(ExceptionLogger.get());
                                 });
                             });
                 }
 
                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
-                    message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
+                    message.delete().exceptionally(ExceptionLogger.get());
                 });
 
                 blockedTreasureMessages.remove(message.getId());

@@ -11,6 +11,7 @@ import modules.FisheryVCObserver;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
+import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -335,7 +336,8 @@ public class Console {
 
     private void onShards(String[] args) {
         for (int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {
-            LOGGER.info("Shard {}: {} ({} unavailable)", i, DiscordApiCollection.getInstance().shardIsConnected(i), DiscordApiCollection.getInstance().getApis().get(i).getUnavailableServers().size());
+            DiscordApi api = DiscordApiCollection.getInstance().getApis().get(i);
+            LOGGER.info("Shard {}: {} ({} unavailable)", i, DiscordApiCollection.getInstance().shardIsConnected(i), api != null ? api.getUnavailableServers().size() : "?");
         }
     }
 
