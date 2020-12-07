@@ -68,7 +68,7 @@ public class TrackerManager {
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Throwable throwable) {
-                    LOGGER.error("Error in tracker", throwable);
+                    LOGGER.error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
                     if (throwable.toString().contains("Unknown Channel"))
                         slot.delete();
                 }

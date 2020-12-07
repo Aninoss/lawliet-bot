@@ -19,8 +19,6 @@ import org.javacord.api.entity.permission.Permissions;
 import org.javacord.api.entity.permission.PermissionsBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Optional;
@@ -28,8 +26,6 @@ import java.util.concurrent.ExecutionException;
 
 @DiscordEvent
 public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelMemberJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerVoiceChannelMemberJoinAutoChannel.class);
 
     @Override
     public boolean onServerVoiceChannelMemberJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable {

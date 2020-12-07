@@ -103,7 +103,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     private void removeUserReactions(Message message) throws ExecutionException, InterruptedException {
         for(Reaction reaction: message.getReactions()) {
-            String emoji = reaction.getEmoji().asUnicodeEmoji().get();
+            String emoji = reaction.getEmoji().getMentionTag();
             boolean correctEmoji = false;
             for (int i = 0; i < 2; i++) {
                 if (reaction.getEmoji().isUnicodeEmoji() &&

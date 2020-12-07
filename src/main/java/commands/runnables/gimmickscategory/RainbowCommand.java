@@ -12,6 +12,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.Locale;
 
@@ -48,10 +49,12 @@ public class RainbowCommand extends UserAccountAbstract {
     @Override
     protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable {
         if (message != null) {
-            String url = message.getEmbeds().get(0).getImage().get().getUrl().toString();
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", url));
-            EmbedUtil.setFooter(eb, this);
-            message.getServerTextChannel().get().sendMessage(eb).get();
+            message.getEmbeds().get(0).getImage().ifPresent(url -> {
+                String urlString = url.toString();
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", urlString));
+                EmbedUtil.setFooter(eb, this);
+                message.getServerTextChannel().get().sendMessage(eb).exceptionally(ExceptionLogger.get());
+            });
         }
     }
 
