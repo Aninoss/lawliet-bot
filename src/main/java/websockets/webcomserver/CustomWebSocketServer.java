@@ -1,5 +1,7 @@
 package websockets.webcomserver;
 
+import core.CustomThread;
+import core.schedule.MainScheduler;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
@@ -64,7 +67,14 @@ public class CustomWebSocketServer extends WebSocketServer {
         String content = message.substring(event.length() + 2);
         BiConsumer<WebSocket, JSONObject> eventConsumer = eventHandlers.get(event);
         if (eventConsumer != null) {
-            eventConsumer.accept(webSocket, new JSONObject(content));
+            Thread t = new CustomThread(() -> eventConsumer.accept(webSocket, new JSONObject(content)), "webcom_" + event);
+            MainScheduler.getInstance().schedule(1, ChronoUnit.SECONDS, "webcom_" + event + "_observer", () -> {
+                if (t.isAlive()) {
+                    LOGGER.error("webcom_" + event + " took too long to respond!");
+                    t.interrupt();
+                }
+            });
+            t.start();
         }
     }
 
