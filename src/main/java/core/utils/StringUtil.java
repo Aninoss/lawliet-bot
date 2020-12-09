@@ -4,7 +4,6 @@ import constants.Language;
 import core.DiscordApiCollection;
 import core.TextManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
 import org.jsoup.Jsoup;
 
@@ -13,7 +12,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Optional;
 
 public final class StringUtil {
 
@@ -401,25 +399,6 @@ public final class StringUtil {
 
     public static boolean stringContainsVague(String str0, String str1) {
         return str0.toLowerCase().replace(" ", "").contains(str1.toLowerCase().replace(" ", ""));
-    }
-
-    public static Emoji unicodeToEmoji(String unicode) {
-        return new Emoji() {
-            @Override
-            public Optional<String> asUnicodeEmoji() {
-                return Optional.of(unicode);
-            }
-
-            @Override
-            public boolean isAnimated() {
-                return false;
-            }
-
-            @Override
-            public String getMentionTag() {
-                return unicode;
-            }
-        };
     }
 
 }

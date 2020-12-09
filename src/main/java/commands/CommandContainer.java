@@ -22,6 +22,7 @@ import commands.runnables.splatoon2category.MapsCommand;
 import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
+import core.NewApiCollection;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,6 +269,8 @@ public class CommandContainer {
                 LOGGER.error("Could not create class", e);
             }
         }
+
+        NewApiCollection.getInstance().addShardDisconnectConsumer(this::clearShard);
     }
 
     public void clearShard(int shardId) {

@@ -16,6 +16,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.util.DiscordRegexPattern;
+import org.javacord.core.entity.emoji.UnicodeEmojiImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,7 +237,7 @@ public class MentionUtil {
 
         List<String> unicodeEmojis = EmojiParser.extractEmojis(content);
         for (String unicodeEmoji : unicodeEmojis) {
-            emojiList.add(StringUtil.unicodeToEmoji(unicodeEmoji));
+            emojiList.add(UnicodeEmojiImpl.fromString(unicodeEmoji));
             content = content.replace(unicodeEmoji, "");
         }
 

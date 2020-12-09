@@ -32,6 +32,7 @@ public class DiscordConnector {
     }
 
     private DiscordConnector() {
+        NewApiCollection.getInstance().addShardDisconnectConsumer(this::reconnectApi);
     }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);

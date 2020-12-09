@@ -1,5 +1,6 @@
 package commands.runningchecker;
 
+import core.NewApiCollection;
 import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 
@@ -11,7 +12,10 @@ public class RunningCheckerManager {
 
     private static final RunningCheckerManager ourInstance = new RunningCheckerManager();
     public static RunningCheckerManager getInstance() { return ourInstance; }
-    private RunningCheckerManager() {}
+
+    private RunningCheckerManager() {
+        NewApiCollection.getInstance().addShardDisconnectConsumer(this::clearShard);
+    }
 
     private final HashMap<Long, ArrayList<RunningCheckerSlot>> runningCommandsMap = new HashMap<>();
 

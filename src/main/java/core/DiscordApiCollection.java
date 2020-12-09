@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -39,7 +38,6 @@ public class DiscordApiCollection {
     private int[] errorCounter;
     private boolean[] isAlive;
     private boolean started = false;
-    private final Instant startingTime = Instant.now();
 
     private DiscordApiCollection() {
         MainScheduler.getInstance().schedule(10, ChronoUnit.MINUTES, "bootup_check", () -> {
@@ -120,7 +118,7 @@ public class DiscordApiCollection {
         for(DiscordApi api: apiList) {
             if (api != null) {
                 try {
-                    api.disconnect();
+                    //api.disconnect(); TODO DEBUG
                 } catch (Throwable e) {
                     LOGGER.error("Error while disconnecting api with shard {}", api.getCurrentShard());
                 }
@@ -131,18 +129,6 @@ public class DiscordApiCollection {
     public Optional<Server> getServerById(long serverId) {
         if (apiList[getResponsibleShard(serverId)] == null) return Optional.empty();
         return apiList[getResponsibleShard(serverId)].getServerById(serverId);
-    }
-
-    public Optional<User> getUserById(long serverId, long userId) {
-        int shardId = getResponsibleShard(serverId);
-        if (apiList[shardId] != null) {
-            try {
-                return Optional.of(apiList[shardId].getUserById(userId).get());
-            } catch (InterruptedException | ExecutionException e) {
-                //Ignore
-            }
-        }
-        return Optional.empty();
     }
 
     public Optional<User> getUserById(long userId) {
@@ -258,11 +244,6 @@ public class DiscordApiCollection {
             throw new RuntimeException("Home server not connected");
         }
         return serverOptional.get();
-    }
-
-    public boolean apiHasHomeServer(DiscordApi api) {
-        long serverId = AssetIds.HOME_SERVER_ID;
-        return getResponsibleShard(serverId) == api.getCurrentShard();
     }
 
     public int getResponsibleShard(long serverId) {
@@ -407,10 +388,6 @@ public class DiscordApiCollection {
         jsonObject.put("content", content);
 
         return HttpRequest.getData(webhookUrl, "POST", jsonObject.toString(), contentType);
-    }
-
-    public Instant getStartingTime() {
-        return startingTime;
     }
 
 }
