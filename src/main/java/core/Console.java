@@ -88,7 +88,6 @@ public class Console {
         tasks.put("fonts", this::onReloadFonts);
         tasks.put("backup", this::onBackup);
         tasks.put("servers", this::onServers);
-        tasks.put("users", this::onUsers);
         tasks.put("patreon", this::onPatreon);
         tasks.put("patreon_set", this::onPatreonSet);
         tasks.put("internet", this::onInternetConnection);
@@ -173,10 +172,6 @@ public class Console {
         int level = Integer.parseInt(args[2]);
         PatreonCache.getInstance().setPatreonLevel(userId, level);
         LOGGER.info("Patreon stats of user {} set: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
-    }
-
-    private void onUsers(String[] args) {
-        LOGGER.info("Total users: " + DiscordApiCollection.getInstance().getUserIds().size());
     }
 
     private void onServers(String[] args) {
