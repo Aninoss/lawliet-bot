@@ -10,11 +10,15 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.upvotes.DBUpvotes;
+import mysql.modules.upvotes.UpvotesBean;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.EventAbstract;
 import websockets.webcomserver.WebComServer;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 public class OnTopGG extends EventAbstract {
 
@@ -34,25 +38,28 @@ public class OnTopGG extends EventAbstract {
         boolean isWeekend = requestJSON.getBoolean("isWeekend");
 
         if (type.equals("upvote")) {
-            DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
-                LOGGER.info("UPVOTE | {}", user.getName());
+            UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean(userId);
+            if (upvotesBean.getLastUpvote().plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
+                DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
+                    LOGGER.info("UPVOTE | {}", user.getName());
 
-                DiscordApiCollection.getInstance().getMutualServers(user).stream()
-                        .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)
-                        .forEach(server -> {
-                            int value = isWeekend ? 2 : 1;
-                            FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
+                    DiscordApiCollection.getInstance().getMutualServers(user).stream()
+                            .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)
+                            .forEach(server -> {
+                                int value = isWeekend ? 2 : 1;
+                                FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
 
-                            if (PatreonCache.getInstance().getPatreonLevel(userId) >= 2 &&
-                                    DBAutoClaim.getInstance().getBean(userId).isActive()
-                            ) {
-                                userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
-                            } else {
-                                userBean.addUpvote(value);
-                            }
-                        });
-            });
-            DBUpvotes.getInstance().getBean(userId).updateLastUpvote();
+                                if (PatreonCache.getInstance().getPatreonLevel(userId) >= 2 &&
+                                        DBAutoClaim.getInstance().getBean(userId).isActive()
+                                ) {
+                                    userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
+                                } else {
+                                    userBean.addUpvote(value);
+                                }
+                            });
+                });
+                upvotesBean.updateLastUpvote();
+            }
 
             return new JSONObject();
         } else {

@@ -2,8 +2,6 @@ package mysql.modules.upvotes;
 
 import mysql.DBBeanGenerator;
 import mysql.DBMain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,8 +9,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBUpvotes.class);
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
     public static DBUpvotes getInstance() { return ourInstance; }
