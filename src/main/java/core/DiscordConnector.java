@@ -6,8 +6,7 @@ import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
 import modules.FisheryVCObserver;
-import modules.repair.AutoChannelRepair;
-import modules.repair.RolesRepair;
+import modules.repair.MainRepair;
 import modules.schedulers.GiveawayScheduler;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.fisheryusers.DBFishery;
@@ -96,7 +95,7 @@ public class DiscordConnector {
                 onConnectionCompleted();
             } else {
                 updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
-                startRepairProcesses(api);
+                MainRepair.start(api, 1);
             }
         }
 
@@ -114,17 +113,10 @@ public class DiscordConnector {
         if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
-        DiscordApiCollection.getInstance().getApis().forEach(this::startRepairProcesses);
+        DiscordApiCollection.getInstance().getApis().forEach(api -> MainRepair.start(api, 1));
 
         DiscordApiCollection.getInstance().setStarted();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
-    }
-
-    private void startRepairProcesses(DiscordApi api) {
-        if (api != null) {
-            AutoChannelRepair.getInstance().start(api);
-            RolesRepair.getInstance().start(api);
-        }
     }
 
     public void updateActivity() {

@@ -8,6 +8,7 @@ import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
 import modules.FisheryVCObserver;
+import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -58,6 +59,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("repair", this::onRepair);
         tasks.put("webcom_start", this::onWebComStart);
         tasks.put("webcom_stop", this::onWebComStop);
         tasks.put("webcom", this::onWebCom);
@@ -94,6 +96,12 @@ public class Console {
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_server", this::onSendChannel);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onRepair(String[] args) {
+        int hours = Integer.parseInt(args[1]);
+        DiscordApiCollection.getInstance().getApis().forEach(api -> MainRepair.start(api, hours));
+        LOGGER.info("Repair started with hours {}", hours);
     }
 
     private void onWebComStart(String[] args) {
