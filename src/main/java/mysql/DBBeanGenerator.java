@@ -62,6 +62,8 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                         LOGGER.info("Fishery update"); //TODO Debug
                     if (changed.size() > 0)
                         intervalSave();
+                    if (this instanceof DBFishery)
+                        LOGGER.info("Fishery update completed"); //TODO Debug
                 }
             }, "dbbean_interval_save", 1);
             t.start();

@@ -289,7 +289,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     public int getIntervalMinutes() {
-        return 20;
+        return 10;
     }
 
 }

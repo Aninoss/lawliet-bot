@@ -23,6 +23,7 @@ public class LinkFilter {
             message.delete().exceptionally(ExceptionLogger.get());
             if (server.getId() == AssetIds.ANICORD_SERVER_ID) {
                 message.getUserAuthor().get().sendMessage("⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>").exceptionally(ExceptionLogger.get());
+                message.getServer().get().getTextChannelById(462420339364724751L).get().sendMessage("LINK BLOCK FOR " + message.getUserAuthor().get().getDiscriminatedName() + " IN " + message.getServerTextChannel().get().getMentionTag() + ": " + message.getContent()).exceptionally(ExceptionLogger.get());
             }
             return false;
         }

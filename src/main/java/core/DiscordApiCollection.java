@@ -115,15 +115,6 @@ public class DiscordApiCollection {
 
     public void stop() {
         started = false;
-        for(DiscordApi api: apiList) {
-            if (api != null) {
-                try {
-                    //api.disconnect(); TODO DEBUG
-                } catch (Throwable e) {
-                    LOGGER.error("Error while disconnecting api with shard {}", api.getCurrentShard());
-                }
-            }
-        }
     }
 
     public Optional<Server> getServerById(long serverId) {
