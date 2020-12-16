@@ -21,7 +21,6 @@ public class InternetCache {
                     new CacheLoader<>() {
                         @Override
                         public CompletableFuture<HttpResponse> load(@NonNull String url) {
-                            System.out.println("Cache");//TODO
                             return HttpRequest.getData(url);
                         }
                     });

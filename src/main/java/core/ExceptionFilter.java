@@ -25,7 +25,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "Cannot send messages to this user",
             "timeout",
             "connect timed out",
-            "java.util.concurrent.TimeoutException"
+            "java.util.concurrent.TimeoutException",
+            "Unknown Message"
     };
 
     public ExceptionFilter() {}

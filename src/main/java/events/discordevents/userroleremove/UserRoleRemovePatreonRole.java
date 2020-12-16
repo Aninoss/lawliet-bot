@@ -1,6 +1,7 @@
 package events.discordevents.userroleremove;
 
 import constants.AssetIds;
+import constants.ExternalLinks;
 import constants.Settings;
 import core.DiscordApiCollection;
 import core.cache.PatreonCache;
@@ -22,9 +23,14 @@ public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
         if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
-                    LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
                     PatreonCache.getInstance().resetUser(event.getUser().getId());
+                    if (PatreonCache.getInstance().getPatreonLevel(event.getUser().getId()) == 0) {
+                        LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
+                        event.getUser().sendMessage(String.format("**❌ You are no longer registered as a Patreon!**\nIf this was unexpected, please get in touch with us in the Lawliet server: %s",
+                                ExternalLinks.SERVER_INVITE_URL
+                        ));
+                        DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
+                    }
                     break;
                 }
             }

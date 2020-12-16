@@ -4,6 +4,10 @@
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="core.ExceptionFilter"/>
 
+        <filter class="core.ExceptionEmergencyBreak">
+            <exceptionClassName>java.lang.OutOfMemoryError</exceptionClassName>
+        </filter>
+
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%-5level] %msg%n</pattern>
         </encoder>

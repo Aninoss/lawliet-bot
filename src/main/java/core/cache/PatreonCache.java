@@ -38,7 +38,7 @@ public class PatreonCache {
                             AtomicInteger status = new AtomicInteger(0);
 
                             supportServer.getMemberById(userId).ifPresent(user -> {
-                                for (int i = 0; i < Settings.PATREON_ROLE_IDS.length; i++) {
+                                for (int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 0; i--) {
                                     Role role = supportServer.getRoleById(Settings.PATREON_ROLE_IDS[i]).get();
                                     if (user.getRoles(supportServer).contains(role)) {
                                         status.set(i + 1);
