@@ -14,12 +14,14 @@ import java.util.concurrent.TimeUnit;
 public class InternetCache {
 
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> shortLivedCache = CacheBuilder.newBuilder()
-            .maximumSize(500)
             .expireAfterWrite(10, TimeUnit.MINUTES)
+            .softValues()
+            .maximumSize(300)
             .build(
                     new CacheLoader<>() {
                         @Override
                         public CompletableFuture<HttpResponse> load(@NonNull String url) {
+                            System.out.println("Cache");//TODO
                             return HttpRequest.getData(url);
                         }
                     });
