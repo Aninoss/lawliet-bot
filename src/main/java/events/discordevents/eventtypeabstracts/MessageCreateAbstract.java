@@ -12,6 +12,8 @@ import java.util.ArrayList;
 
 public abstract class MessageCreateAbstract extends DiscordEventAbstract {
 
+    private static ArrayList<Long> usersDmNotified = new ArrayList<>();
+
     private Instant startTime;
 
     public abstract boolean onMessageCreate(MessageCreateEvent event) throws Throwable;
@@ -30,14 +32,17 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         if (user == null || user.isYourself()) return;
 
         if (event.getServer().isEmpty() && !user.isBot()) {
-            if (Bot.isPublicVersion()) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError()
-                        .setTitle("❌ Not Supported")
-                        .setDescription(String.format("Commands via dm are not supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", ExternalLinks.BOT_INVITE_URL)));
-            } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError()
-                        .setTitle("❌ Not Supported")
-                        .setDescription("Commands via dm are not supported!"));
+            if (!usersDmNotified.contains(user.getId())) {
+                usersDmNotified.add(user.getId());
+                if (Bot.isPublicVersion()) {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError()
+                            .setTitle("❌ Not Supported")
+                            .setDescription(String.format("Commands via dm are not supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", ExternalLinks.BOT_INVITE_URL)));
+                } else {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError()
+                            .setTitle("❌ Not Supported")
+                            .setDescription("Commands via dm are not supported!"));
+                }
             }
             return;
         }
