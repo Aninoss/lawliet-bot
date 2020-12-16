@@ -29,10 +29,10 @@ public class NewApiCollection {
     private long ownerId = 0;
 
     private NewApiCollection() {
-        MainScheduler.getInstance().schedule(10, ChronoUnit.MINUTES, "bootup_check", () -> {
+        MainScheduler.getInstance().schedule(15, ChronoUnit.MINUTES, "bootup_check", () -> {
             if (!started) {
                 LOGGER.error("EXIT - Could not boot up");
-                System.exit(-1);
+                //System.exit(-1);
             }
         });
     }

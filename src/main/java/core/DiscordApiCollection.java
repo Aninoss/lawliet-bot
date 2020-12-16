@@ -40,10 +40,10 @@ public class DiscordApiCollection {
     private boolean started = false;
 
     private DiscordApiCollection() {
-        MainScheduler.getInstance().schedule(10, ChronoUnit.MINUTES, "bootup_check", () -> {
-            if (!allShardsConnected()) {
+        MainScheduler.getInstance().schedule(15, ChronoUnit.MINUTES, "bootup_check", () -> {
+            if (!started) {
                 LOGGER.error("EXIT - Could not boot up");
-                System.exit(-1);
+                //System.exit(-1);
             }
         });
     }

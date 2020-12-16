@@ -8,7 +8,10 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.utils.*;
+import core.utils.FileUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
@@ -24,7 +27,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.javacord.core.entity.emoji.UnicodeEmojiImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +71,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
-    private Emoji emoji = UnicodeEmojiImpl.fromString("🎉");
+    private Emoji emoji = UnicodeEmoji.fromString("🎉");
     private String imageLink;
     private Message imageMessage;
     private ServerTextChannel channel;
@@ -276,7 +278,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
 
             List<KnownCustomEmoji> emojis = MentionUtil.getCustomEmojiByTag(giveaway.getEmoji());
             if (emojis.size() > 0) emoji = emojis.get(0);
-            else if (giveaway.getEmoji().length() <= 4) emoji = UnicodeEmojiImpl.fromString(giveaway.getEmoji());
+            else if (giveaway.getEmoji().length() <= 4) emoji = UnicodeEmoji.fromString(giveaway.getEmoji());
             setState(CONFIGURE_MESSAGE);
 
             return true;
