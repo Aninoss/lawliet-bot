@@ -83,30 +83,32 @@ public class TrackerManager {
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {
         OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix()).get();
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
-        if (channelOpt.isPresent() &&
-                PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)
-        ) {
-            switch (command.onTrackerRequest(slot)) {
-                case STOP:
-                    slot.stop();
-                    break;
+        if (channelOpt.isPresent()) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+                switch (command.onTrackerRequest(slot)) {
+                    case STOP:
+                        slot.stop();
+                        break;
 
-                case STOP_AND_DELETE:
-                    slot.delete();
-                    break;
+                    case STOP_AND_DELETE:
+                        slot.delete();
+                        break;
 
-                case STOP_AND_SAVE:
-                    slot.stop();
-                    slot.save();
-                    break;
+                    case STOP_AND_SAVE:
+                        slot.stop();
+                        slot.save();
+                        break;
 
-                case CONTINUE:
-                    break;
+                    case CONTINUE:
+                        break;
 
-                case CONTINUE_AND_SAVE:
-                    slot.save();
-                    break;
+                    case CONTINUE_AND_SAVE:
+                        slot.save();
+                        break;
+                }
             }
+        } else if (slot.getServer().isPresent()) {
+            DBTracker.getInstance().getBean().getSlots().remove(slot);
         }
     }
 
