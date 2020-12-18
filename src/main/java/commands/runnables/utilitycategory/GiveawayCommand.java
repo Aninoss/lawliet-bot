@@ -207,7 +207,8 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             imageMessage = null;
         }
 
-        imageMessage = DiscordApiCollection.getInstance().getHomeServer()
+        //TODO adjust for clustering
+        imageMessage = DiscordApiManager.getInstance().getLocalServerById(368531164861825024L).get()
                 .getTextChannelById(767039446285156372L).get()
                 .sendMessage(file).get();
         return imageMessage.getAttachments().get(0).getUrl().toString();
@@ -408,7 +409,8 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     }
 
     private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isPresent()) {
+        //TODO adjust for clustering
+        if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);
@@ -525,7 +527,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             if (instant.plus(durationMinutes, ChronoUnit.MINUTES).isBefore(Instant.now()))
                 return Optional.empty();
 
-            Optional<Message> messageOptional = DiscordApiCollection.getInstance().getMessageById(channel, messageId).join();
+            Optional<Message> messageOptional = DiscordApiManager.getInstance().getMessageById(channel, messageId).join();
             if (messageOptional.isPresent()) {
                 messageOptional.get().edit(getMessageEmbed()).exceptionally(ExceptionLogger.get());
                 return Optional.of(messageOptional.get());

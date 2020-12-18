@@ -1,8 +1,8 @@
 package core.emojiconnection;
 
 import constants.LetterEmojis;
+import core.utils.DiscordUtil;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
 
@@ -10,39 +10,27 @@ import java.util.concurrent.CompletableFuture;
 
 public class EmojiConnection {
 
-    private String unicodeEmoji, connection;
-    private CustomEmoji customEmoji;
-    private boolean custom = false;
+    private final String emoji;
+    private final String connection;
 
     public EmojiConnection(String emoji, String connection) {
-        this.unicodeEmoji = emoji;
         this.connection = connection;
-    }
-
-    public EmojiConnection(CustomEmoji customEmoji, String connection) {
-        this.customEmoji = customEmoji;
-        this.connection = connection;
-        custom = true;
+        this.emoji = emoji;
     }
 
     public EmojiConnection(Emoji emoji, String connection) {
         this.connection = connection;
-        if (emoji.isUnicodeEmoji()) this.unicodeEmoji =  emoji.asUnicodeEmoji().get();
-        if (emoji.isCustomEmoji()) {
-            this.customEmoji = emoji.asCustomEmoji().get();
-            custom = true;
-        }
+        this.emoji = emoji.getMentionTag();
     }
 
     public CompletableFuture<Void> addReaction(Message message) {
-        if (!custom) return message.addReaction(unicodeEmoji);
-        return message.addReaction(customEmoji);
+        if (emoji.startsWith("<"))
+            return message.addReaction(DiscordUtil.createCustomEmojiFromTag(emoji));
+        return message.addReaction(emoji);
     }
 
     public boolean isEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() && !custom) return emoji.asUnicodeEmoji().get().equals(unicodeEmoji);
-        if (emoji.isCustomEmoji() && custom) return emoji.asCustomEmoji().get().equals(customEmoji);
-        return false;
+        return this.emoji.equals(emoji.getMentionTag());
     }
 
     public String getConnection() {
@@ -50,8 +38,7 @@ public class EmojiConnection {
     }
 
     public String getEmojiTag() {
-        if (!custom) return unicodeEmoji;
-        return customEmoji.getMentionTag();
+        return emoji;
     }
 
     public static EmojiConnection[] getEmojiConnectionArray(TextChannel channel, boolean withBackButton, String... connections) {
@@ -106,15 +93,4 @@ public class EmojiConnection {
         return str.substring(0,str.length()-1);
     }
 
-    public void setUnicodeEmoji(String unicodeEmoji) {
-        this.unicodeEmoji = unicodeEmoji;
-    }
-
-    public void setCustomEmoji(CustomEmoji customEmoji) {
-        this.customEmoji = customEmoji;
-    }
-
-    public void setCustom(boolean custom) {
-        this.custom = custom;
-    }
 }

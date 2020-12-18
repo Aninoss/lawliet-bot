@@ -1,10 +1,15 @@
 package core.utils;
 
 import core.cache.PatternCache;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Icon;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.server.Server;
+import org.javacord.api.util.DiscordRegexPattern;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +39,44 @@ public class DiscordUtil {
         }
 
         return Optional.empty();
+    }
+
+    public static CustomEmoji createCustomEmojiFromTag(String tag) {
+        Matcher m = DiscordRegexPattern.CUSTOM_EMOJI.matcher(tag);
+        if (m.find()) {
+            String name = m.group("name");
+            long id = Long.parseLong(m.group("id"));
+            boolean animated = tag.startsWith("<a:");
+
+            return new CustomEmoji() {
+                @Override
+                public Icon getImage() {
+                    throw new NoSuchElementException("No image present");
+                }
+
+                @Override
+                public DiscordApi getApi() {
+                    throw new NoSuchElementException("No api present");
+                }
+
+                @Override
+                public long getId() {
+                    return id;
+                }
+
+                @Override
+                public String getName() {
+                    return name;
+                }
+
+                @Override
+                public boolean isAnimated() {
+                    return animated;
+                }
+            };
+        }
+
+        throw new NoSuchElementException("Not a custom emoji tag");
     }
 
 }

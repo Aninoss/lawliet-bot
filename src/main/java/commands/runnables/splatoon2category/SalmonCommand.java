@@ -1,12 +1,12 @@
 package commands.runnables.splatoon2category;
 
-import commands.listeners.CommandProperties;
-
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
+import constants.Emojis;
 import constants.Permission;
 import constants.TrackerResult;
-import core.*;
+import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
@@ -80,7 +80,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
         EmbedUtil.setFooter(eb, this, getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for(int i=0; i<datesShown; i++) {
-            String title = DiscordApiCollection.getInstance().getHomeEmojiById(400461201177575425L).getMentionTag() + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String title = Emojis.SPLATOON_SALMONRUN + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {

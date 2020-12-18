@@ -6,8 +6,8 @@ import constants.AssetIds;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.Settings;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -53,7 +53,7 @@ public class PatreonCommand extends Command {
 
     private String getPatreonUsersString(int patreonTier) {
         StringBuilder patreonUsers = new StringBuilder();
-        Role role = DiscordApiCollection.getInstance().getServerById(AssetIds.SUPPORT_SERVER_ID).get().getRoleById(Settings.PATREON_ROLE_IDS[patreonTier]).get();
+        Role role = DiscordApiManager.getInstance().getLocalServerById(AssetIds.SUPPORT_SERVER_ID).get().getRoleById(Settings.PATREON_ROLE_IDS[patreonTier]).get(); //TODO adjust for clustering
         role.getUsers().stream()
                 .filter(user -> Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(userIdBlock -> user.getId() == userIdBlock))
                 .forEach(user -> {

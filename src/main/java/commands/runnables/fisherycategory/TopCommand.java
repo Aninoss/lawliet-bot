@@ -2,6 +2,7 @@ package commands.runnables.fisherycategory;
 
 import commands.listeners.*;
 import commands.runnables.ListAbstract;
+import constants.Emojis;
 import constants.Permission;
 import constants.FisheryStatus;
 import core.*;
@@ -84,7 +85,7 @@ public class TopCommand extends ListAbstract {
                         rankString,
                         userString),
                 getString("template_descritpion",
-                        DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag(),
+                        Emojis.SPACEHOLDER,
                         StringUtil.numToString(userBean.getFishIncome()),
                         StringUtil.numToString(userBean.getCoins()),
                         StringUtil.numToString(userBean.getFish()))

@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.*;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
 import core.internet.HttpRequest;
@@ -12,7 +11,6 @@ import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -165,8 +163,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         String label = "tutorial";
         if (active) label = "tutorial_start";
 
-        CustomEmoji countdown = DiscordApiCollection.getInstance().getHomeEmojiById(729371766119727124L);
-        eb.addField(Emojis.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(coinsInput), countdown.getMentionTag()), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(coinsInput), Emojis.COUNTDOWN), false);
 
         eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);

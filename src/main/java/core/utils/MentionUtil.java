@@ -1,7 +1,7 @@
 package core.utils;
 
 import com.vdurmont.emoji.EmojiParser;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.TextManager;
 import core.UnicodeEmoji;
 import core.cache.PatternCache;
@@ -40,8 +40,8 @@ public class MentionUtil {
 
     public static MentionList<User> getUsers(Message message, String content, Collection<User> users) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
-        if (!content.contains(DiscordApiCollection.getInstance().getYourself().getIdAsString()))
-            list.remove(DiscordApiCollection.getInstance().getYourself());
+        if (!content.contains(DiscordApiManager.getInstance().getYourself().getIdAsString()))
+            list.remove(DiscordApiManager.getInstance().getYourself());
         list.removeIf(user -> !users.contains(user));
 
         for (User user : list) {
@@ -372,6 +372,7 @@ public class MentionUtil {
         return server.getRoleById(id);
     }
 
+    //TODO adjust for clustering
     public static ArrayList<KnownCustomEmoji> getCustomEmojiByTag(String string) {
         ArrayList<KnownCustomEmoji> knownCustomEmojis = new ArrayList<>();
 
@@ -380,7 +381,7 @@ public class MentionUtil {
                 String[] tags = content.split(":");
                 if (tags.length == 3) {
                     String id = tags[2];
-                    DiscordApiCollection.getInstance().getCustomEmojiById(id).ifPresent(knownCustomEmojis::add);
+                    DiscordApiManager.getInstance().getCustomEmojiById(id).ifPresent(knownCustomEmojis::add);
                 }
             }
         }

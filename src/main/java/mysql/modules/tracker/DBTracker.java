@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
 public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
@@ -43,6 +44,7 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
                                 resultSet.getString(7)
                         )
                 );
+        slots.removeIf(Objects::isNull);
 
         TrackerBean trackerBean = new TrackerBean(slots);
         trackerBean.getSlots()
@@ -57,33 +59,37 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
     }
 
     protected void insertTracker(TrackerBeanSlot slot) {
-        if (!getBean().getSlots().contains(slot))
-            return;
+        if (!Objects.isNull(slot)) {
+            if (!getBean().getSlots().contains(slot))
+                return;
 
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, slot.getServerId());
-            preparedStatement.setLong(2, slot.getChannelId());
-            preparedStatement.setString(3, slot.getCommandTrigger());
+            DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+                preparedStatement.setLong(1, slot.getServerId());
+                preparedStatement.setLong(2, slot.getChannelId());
+                preparedStatement.setString(3, slot.getCommandTrigger());
 
-            Optional<Long> messageIdOpt = slot.getMessageId();
-            if (messageIdOpt.isPresent()) preparedStatement.setLong(4, messageIdOpt.get());
-            else preparedStatement.setNull(4, Types.BIGINT);
+                Optional<Long> messageIdOpt = slot.getMessageId();
+                if (messageIdOpt.isPresent()) preparedStatement.setLong(4, messageIdOpt.get());
+                else preparedStatement.setNull(4, Types.BIGINT);
 
-            preparedStatement.setString(5, slot.getCommandKey());
-            preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getNextRequest()));
+                preparedStatement.setString(5, slot.getCommandKey());
+                preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getNextRequest()));
 
-            Optional<String> argsOpt = slot.getArgs();
-            if (argsOpt.isPresent()) preparedStatement.setString(7, argsOpt.get());
-            else preparedStatement.setNull(7, Types.VARCHAR);
-        });
+                Optional<String> argsOpt = slot.getArgs();
+                if (argsOpt.isPresent()) preparedStatement.setString(7, argsOpt.get());
+                else preparedStatement.setNull(7, Types.VARCHAR);
+            });
+        }
     }
 
     protected void removeTracker(TrackerBeanSlot slot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, slot.getChannelId());
-            preparedStatement.setString(2, slot.getCommandTrigger());
-            preparedStatement.setString(3, slot.getCommandKey());
-        });
+        if (!Objects.isNull(slot)) {
+            DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
+                preparedStatement.setLong(1, slot.getChannelId());
+                preparedStatement.setString(2, slot.getCommandTrigger());
+                preparedStatement.setString(3, slot.getCommandKey());
+            });
+        }
     }
 
     @Override

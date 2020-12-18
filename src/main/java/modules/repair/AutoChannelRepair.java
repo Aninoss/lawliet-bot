@@ -2,7 +2,7 @@ package modules.repair;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.Permission;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import core.TaskQueue;
 import mysql.modules.autochannel.AutoChannelBean;
@@ -33,7 +33,7 @@ public class AutoChannelRepair {
     public void run(DiscordApi api) {
         try {
             DBAutoChannel.getInstance().getAllChildChannelServerIds().stream()
-                    .filter(serverId -> DiscordApiCollection.getInstance().getResponsibleShard(serverId) == api.getCurrentShard())
+                    .filter(serverId -> DiscordApiManager.getInstance().getResponsibleShard(serverId) == api.getCurrentShard())
                     .map(api::getServerById)
                     .filter(Optional::isPresent)
                     .map(Optional::get)

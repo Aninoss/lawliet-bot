@@ -3,10 +3,9 @@ package core.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
-
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -26,7 +25,8 @@ public class ServerPatreonBoostCache {
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
+                            //TODO transfer to patreon api
+                            Optional<Server> serverOptional = DiscordApiManager.getInstance().getLocalServerById(serverId);
                             if (serverOptional.isPresent()) {
                                 Server server = serverOptional.get();
 

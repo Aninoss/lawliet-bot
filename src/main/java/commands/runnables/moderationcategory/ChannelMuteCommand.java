@@ -3,8 +3,8 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.TextManager;
 import core.mention.Mention;
 import core.utils.MentionUtil;
@@ -88,7 +88,7 @@ public class ChannelMuteCommand extends Command  {
         if (doneSomething)
             Mod.postLog(this, actionEmbed, event.getServer().get(), userList).join();
 
-        if (!mute || !successfulUsers.contains(DiscordApiCollection.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
+        if (!mute || !successfulUsers.contains(DiscordApiManager.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;
 
             if (doneSomething)

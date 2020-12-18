@@ -2,8 +2,8 @@ package websockets.webcomserver.events;
 
 import constants.AssetIds;
 import constants.Locales;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.Fishery;
@@ -37,7 +37,7 @@ public class OnTopGGAninoss extends EventAbstract {
         String type = requestJSON.getString("type");
 
         if (type.equals("upvote")) {
-            final Server server = DiscordApiCollection.getInstance().getServerById(AssetIds.ANICORD_SERVER_ID).get();
+            final Server server = DiscordApiManager.getInstance().getLocalServerById(AssetIds.ANICORD_SERVER_ID).get();
             final Locale locale = new Locale(Locales.DE);
             server.getMemberById(userId).ifPresent(user -> {
                 try {

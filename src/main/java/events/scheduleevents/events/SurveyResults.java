@@ -5,9 +5,9 @@ import constants.FisheryCategoryInterface;
 import constants.FisheryStatus;
 import constants.Locales;
 import core.*;
-import core.utils.StringUtil;
-import events.scheduleevents.ScheduleEventHourly;
 import core.schedule.ScheduleInterface;
+import core.utils.StringUtil;
+import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
@@ -25,16 +25,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-@ScheduleEventHourly
+@ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
 public class SurveyResults implements ScheduleInterface {
 
     final Logger LOGGER = LoggerFactory.getLogger(SurveyResults.class);
 
+    /* TODO adjust for clustering */
     @Override
     public void run() throws Throwable {
         if (Bot.isProductionMode()) {
@@ -54,7 +56,9 @@ public class SurveyResults implements ScheduleInterface {
     }
 
     private void updateSurvey() throws SQLException, ExecutionException {
-        DiscordApiCollection.getInstance().waitForStartup();
+        if (!DiscordApiManager.getInstance().isEverythingConnected())
+            return;
+
         SurveyBean lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
         DBSurvey.getInstance().next();
 
@@ -67,7 +71,7 @@ public class SurveyResults implements ScheduleInterface {
         HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
         for (SurveySecondVote surveySecondVote : lastSurvey.getSecondVotes().values()) {
             try {
-                if (DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).isPresent() &&
+                if (DiscordApiManager.getInstance().getLocalServerById(surveySecondVote.getServerId()).isPresent() &&
                         DBServer.getInstance().getBean(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE) {
                     LOGGER.debug("Enter user ID {}", surveySecondVote.getUserId());
                     secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
@@ -82,7 +86,7 @@ public class SurveyResults implements ScheduleInterface {
         for (long userId : secondVotesMap.keySet()) {
             try {
                 int finalPercent = percent;
-                DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
+                DiscordApiManager.getInstance().fetchUserById(userId).get().ifPresent(user -> {
                     try {
                         LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
                         manageSurveyUser(lastSurvey, secondVotesMap.get(userId), user, won, finalPercent);
@@ -106,7 +110,7 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    Server server = DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get();
+                    Server server = DiscordApiManager.getInstance().getLocalServerById(secondVote.getServerId()).get();
                     FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(user.getId());
                     long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                     userBean.changeValues(0, price);
@@ -138,7 +142,7 @@ public class SurveyResults implements ScheduleInterface {
                     .forEach(secondVote -> {
                         sb.append(TextManager.getString(locale, Category.FISHERY, "survey_results_message_server",
                                 finalI,
-                                StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getServerById(secondVote.getServerId()).get().getName()),
+                                StringUtil.escapeMarkdown(DiscordApiManager.getInstance().getLocalServerById(secondVote.getServerId()).get().getName()),
                                 StringUtil.numToString(coinsWinMap.computeIfAbsent(secondVote.getServerId(), k -> 0L))
                         )).append("\n");
                     });

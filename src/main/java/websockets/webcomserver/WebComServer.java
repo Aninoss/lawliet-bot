@@ -55,7 +55,6 @@ public class WebComServer {
 
         server.addEventHandler(EVENT_TOPGG, new OnTopGG(this, EVENT_TOPGG));
         server.addEventHandler(EVENT_TOPGG_ANINOSS, new OnTopGGAninoss(this, EVENT_TOPGG_ANINOSS));
-        server.addEventHandler(EVENT_DONATEBOT_IO, new OnDonatebotIO(this, EVENT_DONATEBOT_IO));
         server.addEventHandler(EVENT_INVITE, new OnInvite(this, EVENT_INVITE));
 
         server.start();

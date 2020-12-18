@@ -2,7 +2,7 @@ package events.discordevents.servermemberjoin;
 
 import constants.AssetIds;
 import constants.Settings;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -23,7 +23,7 @@ public class ServerMemberJoinPatreon extends ServerMemberJoinAbstract {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getServer().getRoles(event.getUser()).stream().anyMatch(role -> role.getId() == roleId)) {
                     LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    DiscordApiCollection.getInstance().getOwner().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
+                    DiscordApiManager.getInstance().fetchOwner().get().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
                     PatreonCache.getInstance().resetUser(event.getUser().getId());
                     break;
                 }

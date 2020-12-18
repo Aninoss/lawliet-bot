@@ -3,8 +3,8 @@ package modules;
 import constants.FisheryStatus;
 import core.Bot;
 import core.CustomThread;
-import core.DiscordApiCollection;
 import core.IntervalBlock;
+import core.DiscordApiManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryServerBean;
@@ -41,7 +41,7 @@ public class FisheryVCObserver {
             while (intervalBlock.block()) {
                 LOGGER.info("VC Observer - Start");
                 AtomicInteger actions = new AtomicInteger(0);
-                DiscordApiCollection.getInstance().getServers().stream()
+                DiscordApiManager.getInstance().getLocalServers().stream()
                         .filter(server -> {
                             try {
                                 return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;

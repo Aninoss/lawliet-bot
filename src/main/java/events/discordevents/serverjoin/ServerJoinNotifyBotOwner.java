@@ -1,6 +1,6 @@
 package events.discordevents.serverjoin;
 
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerJoinAbstract;
@@ -17,7 +17,7 @@ public class ServerJoinNotifyBotOwner extends ServerJoinAbstract {
     @Override
     public boolean onServerJoin(ServerJoinEvent event) throws Throwable {
         if (event.getServer().getMemberCount() >= 1000)
-            DiscordApiCollection.getInstance().getOwner().sendMessage("**+++** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")").exceptionally(ExceptionLogger.get());
+            DiscordApiManager.getInstance().fetchOwner().get().sendMessage("**+++** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")").exceptionally(ExceptionLogger.get());
 
         LOGGER.info("+++ {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
         return true;

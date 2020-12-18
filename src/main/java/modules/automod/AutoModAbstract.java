@@ -5,8 +5,8 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import constants.Category;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import modules.Mod;
@@ -18,6 +18,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -66,7 +67,7 @@ public abstract class AutoModAbstract {
             Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
             Mod.postLog(command, eb, server, author).thenRun(() -> {
                 try {
-                    Mod.insertWarning(serverBean.getLocale(), server, author, DiscordApiCollection.getInstance().getYourself(), commandTitle, withAutoActions(message, serverBean.getLocale()));
+                    Mod.insertWarning(serverBean.getLocale(), server, author, DiscordApiManager.getInstance().getYourself(), commandTitle, withAutoActions(message, serverBean.getLocale()));
                 } catch (ExecutionException e) {
                     LOGGER.error("Error when creating command instance");
                 }

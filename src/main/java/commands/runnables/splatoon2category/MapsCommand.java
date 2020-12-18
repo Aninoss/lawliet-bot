@@ -2,6 +2,7 @@ package commands.runnables.splatoon2category;
 
 import commands.listeners.*;
 import commands.Command;
+import constants.Emojis;
 import constants.Permission;
 import constants.TrackerResult;
 import core.*;
@@ -17,6 +18,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 @CommandProperties(
@@ -85,6 +87,11 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
 
+        HashMap<String, String> emojiMap = new HashMap<>();
+        emojiMap.put("gachi", Emojis.SPLATOON_GACHI);
+        emojiMap.put("regular", Emojis.SPLATOON_REGULAR);
+        emojiMap.put("league", Emojis.SPLATOON_LEAGUE);
+
         if (!isSplatfest) {
             String[] modeIDs = new String[]{"regular", "gachi", "league"};
             boolean[] showRules = new boolean[]{false, true, true};
@@ -92,7 +99,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
             for (int i = 0; i < modeIDs.length; i++) {
                 String id = modeIDs[i];
                 String modeName = languageData.getJSONObject("game_modes").getJSONObject(id).getString("name");
-                String fieldTitle = DiscordApiCollection.getInstance().getHomeEmojiByName(id).getMentionTag() + " __**" + modeName + "**__";
+                String fieldTitle = emojiMap.get(id) + " __**" + modeName + "**__";
                 String[] timeNames = getString("times").split("\n");
                 StringBuilder fieldContent = new StringBuilder();
                 for (int j = 0; j < timeNames.length; j++) {
@@ -115,7 +122,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
             festTeams[1] = languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festData.getInt("festival_id"))).getJSONObject("names").getString("bravo_short");
 
             String id = "regular";
-            String fieldTitle = DiscordApiCollection.getInstance().getHomeEmojiById(747118860313821214L).getMentionTag() + getString("splatfest_battle", festTeams[0], festTeams[1]);
+            String fieldTitle = Emojis.SPLATOON_SPLATFEST + getString("splatfest_battle", festTeams[0], festTeams[1]);
             String[] timeNames = getString("times").split("\n");
             String fieldContent = "";
             for (int j = 0; j < timeNames.length; j++) {

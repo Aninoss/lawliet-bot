@@ -1,7 +1,7 @@
 package modules;
 
 import constants.AssetIds;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
@@ -48,7 +48,7 @@ public class BumpReminder {
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
         MainScheduler.getInstance().schedule(milis, "anicord_bump", () -> {
-            DiscordApiCollection.getInstance().getServerById(ANINOSS_SERVER_ID)
+            DiscordApiManager.getInstance().getLocalServerById(ANINOSS_SERVER_ID)
                     .flatMap(server -> server.getTextChannelById(BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {
                         channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").exceptionally(ExceptionLogger.get());

@@ -1,7 +1,7 @@
 package events.scheduleevents.events;
 
 import core.Bot;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import events.scheduleevents.ScheduleEventDaily;
 import core.schedule.ScheduleInterface;
 import mysql.modules.botstats.DBBotStats;
@@ -12,7 +12,7 @@ public class SaveBotStatsServerCount implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         if (Bot.isProductionMode() && Bot.isPublicVersion()) {
-            DBBotStats.saveStatsServers(DiscordApiCollection.getInstance().getServerTotalSize());
+            DBBotStats.saveStatsServers(DiscordApiManager.getInstance().getLocalServerSize());
         }
     }
 

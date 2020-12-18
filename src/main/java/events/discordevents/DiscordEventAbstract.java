@@ -1,6 +1,5 @@
 package events.discordevents;
 
-import core.DiscordApiCollection;
 import mysql.modules.bannedusers.DBBannedUsers;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -36,9 +35,7 @@ public abstract class DiscordEventAbstract {
     }
 
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, boolean multiThreadded, EventExecution function) {
-        if (!DiscordApiCollection.getInstance().isStarted() ||
-                (user != null && user.isYourself())
-        ) {
+        if (user != null && user.isYourself()) {
             return;
         }
 

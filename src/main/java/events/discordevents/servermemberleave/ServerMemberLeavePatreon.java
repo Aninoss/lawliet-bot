@@ -2,7 +2,7 @@ package events.discordevents.servermemberleave;
 
 import constants.AssetIds;
 import constants.ExternalLinks;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -25,7 +25,7 @@ public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
                 event.getUser().sendMessage(String.format("**⚠️ Because of technical reasons you need to stay on the Lawliet server in order to keep your Patreon perks!**\nIf this was unintentional, please follow these steps:\n\n1) Join the Lawliet server again: %s\n2) Reconnect your Discord account in your Patreon settings",
                         ExternalLinks.SERVER_INVITE_URL
                 ));
-                DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT (LEFT SERVER): " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
+                DiscordApiManager.getInstance().fetchOwner().get().sendMessage("PATREON USER LEFT (LEFT SERVER): " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
             }
             PatreonCache.getInstance().resetUser(event.getUser().getId());
         }

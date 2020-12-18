@@ -6,7 +6,7 @@ import com.google.common.cache.LoadingCache;
 import constants.AssetIds;
 import constants.Settings;
 import core.Bot;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -30,11 +30,12 @@ public class PatreonCache {
                     new CacheLoader<>() {
                         @Override
                         public Integer load(@NonNull Long userId) {
-                            if (DiscordApiCollection.getInstance().getOwnerId() == userId)
+                            if (DiscordApiManager.getInstance().getOwnerId() == userId)
                                 return Settings.PATREON_ROLE_IDS.length;
                             if (!Bot.isProductionMode()) return 0;
 
-                            Server supportServer = DiscordApiCollection.getInstance().getServerById(AssetIds.SUPPORT_SERVER_ID).get();
+                            //TODO transfer to patreon api
+                            Server supportServer = DiscordApiManager.getInstance().getLocalServerById(AssetIds.SUPPORT_SERVER_ID).get();
                             AtomicInteger status = new AtomicInteger(0);
 
                             supportServer.getMemberById(userId).ifPresent(user -> {

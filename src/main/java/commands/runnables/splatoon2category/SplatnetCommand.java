@@ -1,12 +1,12 @@
 package commands.runnables.splatoon2category;
 
-import commands.listeners.CommandProperties;
-
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
+import constants.Emojis;
 import constants.Permission;
 import constants.TrackerResult;
-import core.*;
+import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
@@ -79,7 +79,7 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
             if (endTime.isBefore(trackingTime)) trackingTime = endTime;
 
             String gearName = languageData.getJSONObject("gear").getJSONObject(data.getString("kind")).getJSONObject(data.getJSONObject("gear").getString("id")).getString("name");
-            String fieldTitle = DiscordApiCollection.getInstance().getHomeEmojiById(437258157136543744L).getMentionTag() + " __**" + gearName + "**__";
+            String fieldTitle = Emojis.SPLATOON_SQUID + " __**" + gearName + "**__";
             int price = data.getInt("price");
 
             String mainAbility = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("skill").getString("id")).getString("name");
@@ -89,7 +89,7 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
             String effect = getString("nothing");
             if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
 
-            String fieldContent = getString("template", DiscordApiCollection.getInstance().getHomeEmojiById(437239777834827786L).getMentionTag(), String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", Emojis.SPLATOON_COIN, String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

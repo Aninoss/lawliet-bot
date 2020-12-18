@@ -3,7 +3,7 @@ package core.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.server.invite.Invite;
@@ -22,10 +22,7 @@ public class InviteCache {
                     new CacheLoader<>() {
                         @Override
                         public Optional<Invite> load(@NonNull String code) {
-                            DiscordApi api = DiscordApiCollection.getInstance().getApis().get(0);
-                            if (api == null)
-                                throw new NullPointerException("Api instance is null");
-
+                            DiscordApi api = DiscordApiManager.getInstance().getAnyApi().get();
                             try {
                                 return Optional.of(api.getInviteByCode(code).get());
                             } catch (InterruptedException | ExecutionException e) {

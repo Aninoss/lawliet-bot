@@ -1,14 +1,14 @@
 package commands.runnables.utilitycategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-import commands.Command;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
+import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
-import core.TextManager;
 import core.utils.StringUtil;
 import modules.RoleAssigner;
 import org.javacord.api.entity.message.Message;
@@ -61,7 +61,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         role = roles.get(0);
 
          /* check for missing role manage permissions bot */
-        if (!PermissionUtil.canManageRole(DiscordApiCollection.getInstance().getYourself(), role)) {
+        if (!PermissionUtil.canManageRole(DiscordApiManager.getInstance().getYourself(), role)) {
             event.getChannel()
                     .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getMentionTag()))).get();
             return false;

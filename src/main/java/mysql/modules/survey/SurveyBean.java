@@ -2,11 +2,10 @@ package mysql.modules.survey;
 
 import core.CustomObservableList;
 import core.CustomObservableMap;
-import core.DiscordApiCollection;
 import core.FileManager;
+import core.DiscordApiManager;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -94,7 +93,7 @@ public class SurveyBean extends Observable {
 
     public List<SurveySecondVote> getSurveySecondVotesForUserId(long userId) {
         return getSecondVotes().values().stream()
-                .filter(surveySecondVote -> surveySecondVote.getUserId() == userId && DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).isPresent())
+                .filter(surveySecondVote -> surveySecondVote.getUserId() == userId && DiscordApiManager.getInstance().getLocalServerById(surveySecondVote.getServerId()).isPresent())
                 .collect(Collectors.toList());
     }
 

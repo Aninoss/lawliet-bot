@@ -7,7 +7,6 @@ import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
@@ -95,9 +94,9 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         for (int j = 0; j < gameCards[i].size(); j++) {
             GameCard gameCard = gameCards[i].get(j);
             if (j == gameCards[i].size() - 1 && newCard)
-                sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d_get", gameCard.getId())).getMentionTag());
+                sb.append(Emojis.CARD_FADEIN[gameCard.getId()]);
             else
-                sb.append(DiscordApiCollection.getInstance().getHomeEmojiByName(String.format("card_%d", gameCard.getId())).getMentionTag());
+                sb.append(Emojis.CARD[gameCard.getId()]);
         }
         sb.append(Emojis.EMPTY_EMOJI);
 

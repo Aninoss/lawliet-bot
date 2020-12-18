@@ -1,6 +1,6 @@
 package websockets.webcomserver.events;
 
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.utils.PermissionUtil;
 import mysql.modules.bannedusers.DBBannedUsers;
 import websockets.webcomserver.EventAbstract;
@@ -25,12 +25,12 @@ public class OnEventServerMembers extends EventAbstract {
             return null;
 
         long serverId = requestJSON.getLong("server_id");
-        Optional<User> userOptional = DiscordApiCollection.getInstance().getUserById(userId);
+        Optional<User> userOptional = DiscordApiManager.getInstance().fetchUserById(userId).get();
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
-            Optional<Server> serverOptional = DiscordApiCollection.getInstance().getServerById(serverId);
+            Optional<Server> serverOptional = DiscordApiManager.getInstance().getLocalServerById(serverId);
             if (serverOptional.isPresent()) {
                 Server server = serverOptional.get();
                 if (PermissionUtil.hasAdminPermissions(server, user)) {

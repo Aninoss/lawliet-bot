@@ -1,8 +1,7 @@
 package mysql.modules.membercountdisplays;
 
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
-
 import java.util.Optional;
 
 public class MemberCountDisplaySlot {
@@ -21,7 +20,7 @@ public class MemberCountDisplaySlot {
     }
 
     public Optional<ServerVoiceChannel> getVoiceChannel() {
-        return DiscordApiCollection.getInstance().getServerById(serverId).flatMap(server -> server.getVoiceChannelById(voiceChannelId));
+        return DiscordApiManager.getInstance().getLocalServerById(serverId).flatMap(server -> server.getVoiceChannelById(voiceChannelId));
     }
 
     public String getMask() {

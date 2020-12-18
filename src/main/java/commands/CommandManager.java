@@ -8,18 +8,12 @@ import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import commands.runningchecker.RunningCheckerManager;
-import constants.ExternalLinks;
-import constants.LogStatus;
-import constants.Permission;
-import constants.Settings;
+import constants.*;
 import core.*;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
-import core.utils.EmbedUtil;
-import core.utils.PermissionUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.commandusages.DBCommandUsages;
 import mysql.modules.server.DBServer;
@@ -111,7 +105,7 @@ public class CommandManager {
                 event.getChannel().canYouEmbedLinks()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setThumbnail(DiscordApiCollection.getInstance().getYourself().getAvatar())
+                    .setThumbnail(DiscordApiManager.getInstance().getYourself().getAvatar())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", ExternalLinks.BOT_INVITE_REMINDER_URL));
 
             event.getChannel().sendMessage(eb).exceptionally(ExceptionLogger.get());
@@ -318,7 +312,7 @@ public class CommandManager {
 
         if (event.getChannel().canYouAddNewReactions()) {
             if (event.getChannel().canYouUseExternalEmojis())
-                event.addReactionsToMessage(DiscordApiCollection.getInstance().getHomeEmojiById(707952533267677204L));
+                event.addReactionsToMessage(DiscordUtil.createCustomEmojiFromTag(Emojis.NO));
             else
                 event.addReactionsToMessage("❌");
             event.addReactionsToMessage("✍️");

@@ -31,7 +31,7 @@ public class DiscordConnector {
     }
 
     private DiscordConnector() {
-        NewApiCollection.getInstance().addShardDisconnectConsumer(this::reconnectApi);
+        DiscordApiManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
     }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
@@ -48,7 +48,7 @@ public class DiscordConnector {
                 .join();
 
         int totalShards = apiBuilder.getTotalShards();
-        DiscordApiCollection.getInstance().init(totalShards);
+        DiscordApiManager.getInstance().init(totalShards, totalShards);
 
         apiBuilder.loginAllShards()
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
@@ -63,7 +63,7 @@ public class DiscordConnector {
     public void reconnectApi(int shardId) {
         LOGGER.info("Shard {} is getting reconnected...", shardId);
 
-        createBuilder().setTotalShards(DiscordApiCollection.getInstance().size())
+        createBuilder().setTotalShards(DiscordApiManager.getInstance().getTotalShards())
                 .setCurrentShard(shardId)
                 .login()
                 .thenAccept(this::onApiJoin)
@@ -87,24 +87,20 @@ public class DiscordConnector {
         api.setAutomaticMessageCacheCleanupEnabled(true);
         api.setMessageCacheSize(0, 0);
 
-        DiscordApiCollection.getInstance().insertApi(api);
+        DiscordApiManager.getInstance().addApi(api);
         LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
-        if (DiscordApiCollection.getInstance().allShardsConnected()) {
-            if (!DiscordApiCollection.getInstance().isStarted()) {
-                onConnectionCompleted();
-            } else {
-                updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
-                MainRepair.start(api, 1);
-            }
+        if (DiscordApiManager.getInstance().isEverythingConnected() && !DiscordApiManager.getInstance().isStarted()) {
+            onConnectionCompleted();
         }
 
+        updateActivity(api);
+        MainRepair.start(api, 1);
         discordEventManager.registerApi(api);
         api.addReconnectListener(event -> onSessionResume(event.getApi()));
     }
 
     private void onConnectionCompleted() {
-        updateActivity();
         DBFishery.getInstance().cleanUp();
         FisheryVCObserver.getInstance().start();
         if (Bot.isPublicVersion()) WebComServer.getInstance().start(15744);
@@ -113,28 +109,19 @@ public class DiscordConnector {
         if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
-        DiscordApiCollection.getInstance().getApis().forEach(api -> MainRepair.start(api, 1));
 
-        DiscordApiCollection.getInstance().setStarted();
+        DiscordApiManager.getInstance().start();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    public void updateActivity() {
-        DiscordApiCollection apiCollection = DiscordApiCollection.getInstance();
-        int serverTotalSize = apiCollection.getServerTotalSize();
-        for (DiscordApi api : apiCollection.getApis()) {
-            updateActivity(api, serverTotalSize);
-        }
-    }
-
-    public void updateActivity(DiscordApi api, int serverNumber) {
+    public void updateActivity(DiscordApi api) {
         api.updateStatus(UserStatus.ONLINE);
-        api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverNumber) + " | www.lawlietbot.xyz");
+        api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(DiscordApiManager.getInstance().getGlobalServerSize()) + " | www.lawlietbot.xyz");
     }
 
     private void onSessionResume(DiscordApi api) {
         LOGGER.debug("Connection has been reestablished!");
-        updateActivity(api, DiscordApiCollection.getInstance().getServerTotalSize());
+        updateActivity(api);
     }
 
 }

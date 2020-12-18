@@ -7,10 +7,10 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnTrackerRequestListener;
 import constants.*;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
-import core.cache.PatreonCache;
+import core.DiscordApiManager;
 import core.TextManager;
+import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
 import core.utils.StringUtil;
@@ -190,7 +190,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         }
 
         Command command = commandOpt.get();
-        if (command.isNsfw() && !DiscordApiCollection.getInstance().getServerById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
+        if (command.isNsfw() && !DiscordApiManager.getInstance().getLocalServerById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
             return Response.FALSE;
         }
@@ -277,8 +277,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
             trackerCommands.stream()
                     .filter(command -> command.getCategory().equals(category))
                     .forEach(command -> {
-                        String nsfwEmoji = DiscordApiCollection.getInstance().getHomeEmojiById(652188472295292998L).getMentionTag();
-                        sb.append(getString("slot_add", command.isNsfw(), command.getTrigger(), nsfwEmoji))
+                        sb.append(getString("slot_add", command.isNsfw(), command.getTrigger(), Emojis.COMMAND_ICON_NSFW))
                                 .append("\n");
                     });
 
@@ -387,7 +386,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
     private List<TrackerBeanSlot> getTrackersInChannel() {
         return new ArrayList<>(trackerBean.getSlots()).stream()
-                .filter(slot -> slot.getChannelId() == channelId)
+                .filter(slot -> slot != null && slot.getChannelId() == channelId)
                 .collect(Collectors.toList());
     }
 

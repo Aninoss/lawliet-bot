@@ -3,8 +3,8 @@ package commands.runnables.gimmickscategory;
 import commands.listeners.CommandProperties;
 import commands.Command;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.TextManager;
@@ -58,7 +58,7 @@ public class QuoteCommand extends Command {
 
             //ID with channel
             if (StringUtil.stringIsLong(newString)) {
-                Message message = DiscordApiCollection.getInstance().getMessageById(channel, Long.parseLong(newString)).join().orElse(null);
+                Message message = DiscordApiManager.getInstance().getMessageById(channel, Long.parseLong(newString)).join().orElse(null);
                 if (message != null) {
                     postEmbed(event.getMessage().getServerTextChannel().get(), message);
                     return true;

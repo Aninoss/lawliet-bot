@@ -1,7 +1,7 @@
 package websockets.webcomserver.events;
 
 import constants.FisheryStatus;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.cache.PatreonCache;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
@@ -40,10 +40,10 @@ public class OnTopGG extends EventAbstract {
         if (type.equals("upvote")) {
             UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean(userId);
             if (upvotesBean.getLastUpvote().plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
-                DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
+                DiscordApiManager.getInstance().fetchUserById(userId).get().ifPresent(user -> {
                     LOGGER.info("UPVOTE | {}", user.getName());
 
-                    DiscordApiCollection.getInstance().getMutualServers(user).stream()
+                    DiscordApiManager.getInstance().getLocalMutualServers(user).stream()
                             .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)
                             .forEach(server -> {
                                 int value = isWeekend ? 2 : 1;

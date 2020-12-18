@@ -34,7 +34,7 @@ public class TrackerManager {
         if (active) return;
         active = true;
 
-        size = (DiscordApiCollection.getInstance().size() / 5) + 1;
+        size = (DiscordApiManager.getInstance().getLocalShards() / 5) + 1;
         for (int i = 0; i < size; i++) {
             final int trackerShard = i;
             new CustomThread(() -> {
@@ -64,7 +64,7 @@ public class TrackerManager {
                     trackerIsForShard(slot, trackerShard)
             ) {
                 try {
-                    manageTracker(slot);
+                    if (slot != null) manageTracker(slot);
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Throwable throwable) {
@@ -108,7 +108,7 @@ public class TrackerManager {
                 }
             }
         } else if (slot.getServer().isPresent()) {
-            DBTracker.getInstance().getBean().getSlots().remove(slot);
+            DBTracker.getInstance().getBean().getSlots().removeIf(s -> s.getChannelId() == slot.getChannelId());
         }
     }
 

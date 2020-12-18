@@ -1,7 +1,7 @@
 package websockets.webcomserver.events;
 
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import mysql.modules.featurerequests.DBFeatureRequests;
 import websockets.webcomserver.EventAbstract;
 import websockets.webcomserver.WebComServer;
@@ -28,7 +28,7 @@ public class OnFRPost extends EventAbstract {
                 .setAuthor("FEATURE REQUEST")
                 .setDescription(desc);
         if (notify) eb.setFooter("Notify: " + userId);
-        DiscordApiCollection.getInstance().getOwner().sendMessage(eb).get();
+        DiscordApiManager.getInstance().fetchOwner().get().sendMessage(eb).get();
 
         return new JSONObject();
     }

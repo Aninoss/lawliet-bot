@@ -34,7 +34,7 @@ public class PermissionCheckRuntime {
     }
 
     private boolean botHasPermission(Locale locale, Class<? extends Command> c, Server server, ServerChannel channel, int permissions) {
-        ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), permissions);
+        ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(server, channel, DiscordApiManager.getInstance().getYourself(), permissions);
 
         if (missingPermissions.size() == 0) return true;
 

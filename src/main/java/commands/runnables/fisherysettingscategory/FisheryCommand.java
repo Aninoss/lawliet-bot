@@ -202,13 +202,13 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
             message.edit(eb).exceptionally(ExceptionLogger.get());
 
+            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
             MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
                 Random r = new Random();
                 String[] winLose = new String[]{ "win", "lose" };
                 int resultInt = r.nextInt(2);
                 String result = winLose[resultInt];
 
-                FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
                 long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
                 String treasureImage;

@@ -2,7 +2,7 @@ package mysql.modules.server;
 
 import constants.FisheryStatus;
 import constants.Locales;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import mysql.DBBeanGenerator;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
@@ -26,7 +26,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
     @Override
     protected ServerBean loadBean(Long serverId) throws Exception {
-        boolean serverPresent = DiscordApiCollection.getInstance().getServerById(serverId).isPresent();
+        boolean serverPresent = DiscordApiManager.getInstance().getLocalServerById(serverId).isPresent();
         if (serverPresent) removedServerIds.remove(serverId);
 
         ServerBean serverBean;

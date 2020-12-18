@@ -2,8 +2,8 @@ package commands.runnables.interactionscategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
@@ -60,7 +60,7 @@ public class RosesCommand extends Command {
 
         if (user0.getId() != SEELE_USER_ID &&
                 user1.getId() != SEELE_USER_ID &&
-                DiscordApiCollection.getInstance().getOwnerId() != user0.getId()
+                DiscordApiManager.getInstance().getOwnerId() != user0.getId()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb).get();

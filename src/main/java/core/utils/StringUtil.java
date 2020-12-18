@@ -1,12 +1,12 @@
 package core.utils;
 
+import constants.Emojis;
 import constants.Language;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.TextManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.jsoup.Jsoup;
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -231,7 +231,7 @@ public final class StringUtil {
                 .replaceAll("(?i)%ChannelID",message.getServerTextChannel().get().getIdAsString())
                 .replaceAll("(?i)%ServerID",message.getServer().get().getIdAsString())
                 .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
-                .replaceAll("(?i)%@Bot", DiscordApiCollection.getInstance().getYourself().getMentionTag())
+                .replaceAll("(?i)%@Bot", DiscordApiManager.getInstance().getYourself().getMentionTag())
                 .replaceAll("(?i)%Prefix",prefix);
     }
 
@@ -297,7 +297,7 @@ public final class StringUtil {
 
     public static String getLoadingReaction(ServerTextChannel channel) {
         if (channel.canYouUseExternalEmojis())
-            return DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L).getMentionTag();
+            return Emojis.LOADING;
         else return "⏳";
     }
 
@@ -328,23 +328,23 @@ public final class StringUtil {
         StringBuilder sb = new StringBuilder();
 
         if (health > 0) {
-            if (lostHealth) sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729337505626849370L).getMentionTag());
-            else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729332545388544080L).getMentionTag());
-        } else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729337505215938621L).getMentionTag());
+            if (lostHealth) sb.append(Emojis.HEART_HIT);
+            else sb.append(Emojis.HEART_NORMAL);
+        } else sb.append(Emojis.HEART_HIT_GAMEOVER);
 
         for(int i = 0; i < healthMax; i++) {
             if (i < health) {
-                if (lostHealth) sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338253358137374L).getMentionTag());
-                else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338714702217256L).getMentionTag());
+                if (lostHealth) sb.append(Emojis.HEART_BAR_HIT);
+                else sb.append(Emojis.HEART_BAR);
             } else if (i == health) {
-                if (lostHealth) sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729337391369682944L).getMentionTag());
-                else sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338774194225183L).getMentionTag());
+                if (lostHealth) sb.append(Emojis.HEART_BAR_HIT_LOSE);
+                else sb.append(Emojis.HEART_BAR_EMPTY);
             } else {
-                sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729338774194225183L).getMentionTag());
+                sb.append(Emojis.HEART_BAR_EMPTY);
             }
         }
 
-        sb.append(DiscordApiCollection.getInstance().getHomeEmojiById(729342822536183839L).getMentionTag());
+        sb.append(Emojis.HEART_BAR_BORDER);
         return sb.toString();
     }
 

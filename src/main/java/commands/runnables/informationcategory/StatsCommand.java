@@ -24,7 +24,7 @@ import java.util.Locale;
         emoji = "\uD83D\uDCCA",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
-        aliases = {"info"}
+        aliases = { "info" }
 )
 public class StatsCommand extends Command {
 
@@ -34,22 +34,26 @@ public class StatsCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        String dephordName = DiscordApiCollection.getInstance().getUserById(303085910784737281L).map(User::getDiscriminatedName).orElse("???");
-        String neverCookFirstName = DiscordApiCollection.getInstance().getUserById(298153126223937538L).map(User::getDiscriminatedName).orElse("???");
+        String dephordName = DiscordApiManager.getInstance().fetchUserById(303085910784737281L).get().map(User::getDiscriminatedName).orElse("???");
+        String neverCookFirstName = DiscordApiManager.getInstance().fetchUserById(298153126223937538L).get().map(User::getDiscriminatedName).orElse("???");
+        String owner = DiscordApiManager.getInstance().fetchOwner().get().getMentionTag();
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
-                getString("template",
-                DiscordApiCollection.getInstance().getOwner().getMentionTag(),
-                ExternalLinks.BOT_INVITE_URL,
-                BotUtil.getCurrentVersion(),
-                TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
-                StringUtil.numToString(DiscordApiCollection.getInstance().getServerTotalSize()),
-                StringUtil.numToString(DBTracker.getInstance().getBean().getSlots().size()),
-                        StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getOwner().getDiscriminatedName()),
-                StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
+                this,
+                getString(
+                        "template",
+                        owner,
+                        ExternalLinks.BOT_INVITE_URL,
+                        BotUtil.getCurrentVersion(),
+                        TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
+                        StringUtil.numToString(DiscordApiManager.getInstance().getGlobalServerSize()),
+                        StringUtil.numToString(DBTracker.getInstance().getBean().getSlots().size()),
+                        owner,
+                        StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +
-                "\n\n" +
-                getString("translator", dephordName, neverCookFirstName));
+                        "\n\n" +
+                        getString("translator", dephordName, neverCookFirstName)
+        );
 
         event.getServerTextChannel().get().sendMessage(eb).get();
         return true;

@@ -2,7 +2,7 @@ package events.discordevents.servervoicechannelmemberjoin;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.Permission;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerVoiceChannelMemberJoinAbstract;
@@ -60,7 +60,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 //Transfer permissions
                 Permissions botPermission = null;
                 for (Map.Entry<Long, Permissions> entry : event.getChannel().getOverwrittenUserPermissions().entrySet()) {
-                    if (DiscordApiCollection.getInstance().getYourself().getId() == entry.getKey()) {
+                    if (DiscordApiManager.getInstance().getYourself().getId() == entry.getKey()) {
                         botPermission = entry.getValue();
                     }
                     vcb.addPermissionOverwrite(event.getServer().getMemberById(entry.getKey()).get(), entry.getValue());
@@ -80,7 +80,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 PermissionsBuilder pb = new PermissionsBuilder();
                 pb.setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED);
                 vcb.addPermissionOverwrite(event.getUser(), pb.build());
-                vcb.addPermissionOverwrite(DiscordApiCollection.getInstance().getYourself(), botPermission);
+                vcb.addPermissionOverwrite(DiscordApiManager.getInstance().getYourself(), botPermission);
                 ServerVoiceChannel vc;
                 try {
                     vc = vcb.create().get();

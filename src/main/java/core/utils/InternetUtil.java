@@ -1,12 +1,11 @@
 package core.utils;
 
 import com.google.common.net.UrlEscapers;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.schedule.MainScheduler;
 import org.javacord.api.entity.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,7 +20,8 @@ public final class InternetUtil {
     private final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
 
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
-        Message message = DiscordApiCollection.getInstance().getHomeServer().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
+        //TODO implement clustering
+        Message message = DiscordApiManager.getInstance().getLocalServerById(368531164861825024L).get().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
 
         MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "mediamessage_remove", message::delete);

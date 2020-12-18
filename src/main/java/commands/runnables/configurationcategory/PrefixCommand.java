@@ -1,11 +1,10 @@
 package commands.runnables.configurationcategory;
 
-import commands.listeners.CommandProperties;
-
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
@@ -34,13 +33,13 @@ public class PrefixCommand extends Command {
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = StringUtil.trimString(server.getDisplayName(DiscordApiCollection.getInstance().getYourself()));
+                    String nickname = StringUtil.trimString(server.getDisplayName(DiscordApiManager.getInstance().getYourself()));
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
-                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), nickname + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiManager.getInstance().getYourself(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(DiscordApiCollection.getInstance().getYourself(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiManager.getInstance().getYourself(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
                     }
                 }
 

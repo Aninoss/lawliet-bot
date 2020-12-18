@@ -3,6 +3,8 @@ package core;
 import core.schedule.MainScheduler;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.emoji.CustomEmoji;
+import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -15,11 +17,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class NewApiCollection {
+public class DiscordApiManager {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(NewApiCollection.class);
-    private static final NewApiCollection ourInstance = new NewApiCollection();
-    public static NewApiCollection getInstance() { return ourInstance; }
+    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiManager.class);
+
+    private static final DiscordApiManager ourInstance = new DiscordApiManager();
+    public static DiscordApiManager getInstance() { return ourInstance; }
+    private DiscordApiManager() {}
 
     private final HashMap<Integer, DiscordApi> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
@@ -28,18 +32,16 @@ public class NewApiCollection {
     private boolean started = false;
     private long ownerId = 0;
 
-    private NewApiCollection() {
-        MainScheduler.getInstance().schedule(15, ChronoUnit.MINUTES, "bootup_check", () -> {
-            if (!started) {
-                LOGGER.error("EXIT - Could not boot up");
-                //System.exit(-1);
-            }
-        });
-    }
-
     public void init(int localShards, int totalShards) {
         this.localShards = localShards;
         this.totalShards = totalShards;
+
+        MainScheduler.getInstance().schedule((long) Math.ceil(localShards / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
+            if (!started) {
+                LOGGER.error("EXIT - Could not boot up");
+                System.exit(-1);
+            }
+        });
     }
 
     public void addShardDisconnectConsumer(Consumer<Integer> consumer) {
@@ -50,8 +52,6 @@ public class NewApiCollection {
         if (ownerId == 0)
             ownerId = api.getOwnerId();
         apiMap.put(api.getCurrentShard(), api);
-        if (!started && isEverythingConnected())
-            started = true;
     }
 
     public Optional<DiscordApi> getApi(int shard) {
@@ -92,6 +92,11 @@ public class NewApiCollection {
         return apiMap.size() >= localShards;
     }
 
+    public void start() {
+        if (isEverythingConnected())
+            started = true;
+    }
+
     public void stop() {
         started = false;
     }
@@ -110,7 +115,15 @@ public class NewApiCollection {
     }
 
     public int getLocalServerSize() {
-        return getLocalServers().size();
+        int servers = 0;
+        for (DiscordApi api : getConnectedLocalApis()) {
+            servers += api.getServers().size() + api.getUnavailableServers().size();
+        }
+        return (int) (servers * ((double) getLocalShards() / apiMap.size()));
+    }
+
+    public int getGlobalServerSize() {
+        return getLocalServerSize(); //TODO just temporary
     }
 
     public Optional<Server> getLocalServerById(long serverId) {
@@ -143,14 +156,19 @@ public class NewApiCollection {
             return CompletableFuture.completedFuture(userOpt);
 
         CompletableFuture<Optional<User>> future = new CompletableFuture<>();
-        getAnyApi().ifPresent(api -> {
+        Optional<DiscordApi> apiOpt = getAnyApi();
+        if (apiOpt.isPresent()) {
+            DiscordApi api = apiOpt.get();
             api.getUserById(userId)
                     .exceptionally(e -> {
                         future.complete(Optional.empty());
                         return null;
                     })
                     .thenAccept(user -> future.complete(Optional.of(user)));
-        });
+        } else {
+            future.complete(Optional.empty());
+        }
+
         return future;
     }
 
@@ -158,8 +176,15 @@ public class NewApiCollection {
         return ownerId;
     }
 
-    public CompletableFuture<Optional<User>> fetchOwner() {
-        return fetchUserById(getOwnerId());
+    public CompletableFuture<User> fetchOwner() {
+        Optional<DiscordApi> apiOpt = getAnyApi();
+        if (apiOpt.isPresent()) {
+            return apiOpt.get().getUserById(getOwnerId());
+        } else {
+            CompletableFuture<User> future = new CompletableFuture<>();
+            future.completeExceptionally(new NoSuchElementException("No api connected"));
+            return future;
+        }
     }
 
     public long getYourselfId() {
@@ -172,20 +197,6 @@ public class NewApiCollection {
         return getAnyApi()
                 .map(DiscordApi::getYourself)
                 .orElseThrow();
-    }
-
-    public Optional<ServerTextChannel> getFirstWritableChannelOfServer(Server server) {
-        if (server.getSystemChannel().isPresent() && server.getSystemChannel().get().canYouSee() && server.getSystemChannel().get().canYouWrite() && server.getSystemChannel().get().canYouEmbedLinks()) {
-            return server.getSystemChannel();
-        } else {
-            for(ServerTextChannel channel : server.getTextChannels()) {
-                if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
-                    return Optional.of(channel);
-                }
-            }
-        }
-
-        return Optional.empty();
     }
 
     public CompletableFuture<Optional<Message>> getMessageById(long serverId, long channelId, long messageId) {
@@ -215,6 +226,24 @@ public class NewApiCollection {
                 })
                 .thenAccept(m -> future.complete(Optional.of(m)));
         return future;
+    }
+
+    public boolean customEmojiIsKnown(CustomEmoji customEmoji) {
+        return getCustomEmojiById(customEmoji.getId()).isPresent();
+    }
+
+    //TODO remove
+    public Optional<KnownCustomEmoji> getCustomEmojiById(String emojiId) {
+        for(DiscordApi api: getConnectedLocalApis()) {
+            Optional<KnownCustomEmoji> emojiOptional = api.getCustomEmojiById(emojiId);
+            if (emojiOptional.isPresent()) return emojiOptional;
+        }
+        return Optional.empty();
+    }
+
+    //TODO remove
+    public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {
+        return getCustomEmojiById(String.valueOf(emojiId));
     }
 
 }

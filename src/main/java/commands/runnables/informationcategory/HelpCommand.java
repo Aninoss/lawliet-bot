@@ -467,20 +467,20 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     private static class CommandIcon {
 
-        public static CommandIcon LOCKED = new CommandIcon(652188097911717910L);
-        public static CommandIcon ALERTS = new CommandIcon(654051035249115147L);
-        public static CommandIcon NSFW = new CommandIcon(652188472295292998L);
-        public static CommandIcon PATREON = new CommandIcon(703937256070709258L);
+        public static CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED);
+        public static CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS);
+        public static CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW);
+        public static CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PATREON);
 
-        private final long emojiId;
+        private final String emojiTag;
 
-        public CommandIcon(long emojiId) {
-            this.emojiId = emojiId;
+        public CommandIcon(String emojiTag) {
+            this.emojiTag = emojiTag;
         }
 
         @Override
         public String toString() {
-            return DiscordApiCollection.getInstance().getHomeEmojiById(emojiId).getMentionTag();
+            return emojiTag;
         }
 
     }

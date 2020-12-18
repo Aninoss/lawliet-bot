@@ -1,6 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import core.DiscordApiCollection;
 import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 

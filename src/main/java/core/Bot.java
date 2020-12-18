@@ -23,7 +23,7 @@ public class Bot {
     public static void onStop() {
         LOGGER.info("### STOPPING BOT ###");
         stopped = true;
-        DiscordApiCollection.getInstance().stop();
+        DiscordApiManager.getInstance().stop();
     }
 
     public static boolean isProductionMode() {

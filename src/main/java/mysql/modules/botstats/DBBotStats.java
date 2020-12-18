@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 public class DBBotStats {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBBotStats.class);
+    //TODO save per cluster
 
     public static void saveStatsServers(int serverCount) {
         DBMain.getInstance().asyncUpdate("INSERT INTO StatsServerCount VALUES(NOW(), ?);",

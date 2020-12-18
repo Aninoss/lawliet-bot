@@ -7,6 +7,7 @@ import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;
 import core.schedule.MainScheduler;
+import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
@@ -189,8 +190,8 @@ public abstract class Command {
                     if (i == -1) {
                         if (navigationMessage != null) {
                             if (navigationMessage.getChannel().canYouUseExternalEmojis())
-                                navigationMessage.addReaction(DiscordApiCollection.getInstance().getBackEmojiCustom());
-                            else navigationMessage.addReaction(Emojis.BACK_EMOJI);
+                                navigationMessage.addReaction(DiscordUtil.createCustomEmojiFromTag(Emojis.BACK_EMOJI));
+                            else navigationMessage.addReaction(Emojis.BACK_EMOJI_UNICODE);
                         }
                     }
                     if (i >= 0 && navigationMessage != null) {
@@ -249,8 +250,8 @@ public abstract class Command {
     }
 
     private int getIndex(SingleReactionEvent event) {
-        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Emojis.BACK_EMOJI)) ||
-                (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(DiscordApiCollection.getInstance().getBackEmojiCustom().getMentionTag()))
+        if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Emojis.BACK_EMOJI_UNICODE)) ||
+                (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(Emojis.BACK_EMOJI))
         ) {
             return -1;
         } else {
@@ -380,14 +381,14 @@ public abstract class Command {
                         message.getChannel().canYouAddNewReactions() &&
                         !loadingBlock &&
                         message.getReactions().stream().map(Reaction::getEmoji)
-                                .noneMatch(emoji -> emoji.equalsEmoji(Objects.requireNonNull(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L))) ||
+                                .noneMatch(emoji -> emoji.getMentionTag().equals(Emojis.LOADING) ||
                                         emoji.equalsEmoji("⏳"))
         ) {
             loadingStatus = LoadingStatus.ONGOING;
 
             CompletableFuture<Void> loadingBarReaction;
             if (message.getChannel().canYouUseExternalEmojis())
-                loadingBarReaction = message.addReaction(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
+                loadingBarReaction = message.addReaction(DiscordUtil.createCustomEmojiFromTag(Emojis.LOADING));
             else loadingBarReaction = message.addReaction("⏳");
             loadingBarReaction.thenRun(() -> loadingStatus = LoadingStatus.FINISHED);
         }
@@ -406,7 +407,7 @@ public abstract class Command {
                 loadingStatus = LoadingStatus.OFF;
                 if (message.getCurrentCachedInstance().isPresent()) {
                     if (message.getChannel().canYouUseExternalEmojis())
-                        message.removeOwnReactionByEmoji(DiscordApiCollection.getInstance().getHomeEmojiById(407189379749117981L));
+                        message.removeOwnReactionByEmoji(DiscordUtil.createCustomEmojiFromTag(Emojis.LOADING));
                     else message.removeOwnReactionByEmoji("⏳");
                 }
                 return false;
@@ -585,7 +586,7 @@ public abstract class Command {
         if (unmanagableRoles.size() == 0) {
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
 
-            if (requester == null) requester = DiscordApiCollection.getInstance().getYourself();
+            if (requester == null) requester = DiscordApiManager.getInstance().getYourself();
             for(Role role: roles) {
                 if (!PermissionUtil.canManageRole(requester, role)) forbiddenRoles.add(role);
             }

@@ -1,8 +1,9 @@
 package events.scheduleevents.events;
 
 import core.DiscordConnector;
-import events.scheduleevents.ScheduleEventFixedRate;
+import core.DiscordApiManager;
 import core.schedule.ScheduleInterface;
+import events.scheduleevents.ScheduleEventFixedRate;
 
 import java.time.temporal.ChronoUnit;
 
@@ -11,7 +12,7 @@ public class UpdateBotActivity implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        DiscordConnector.getInstance().updateActivity();
+        DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> DiscordConnector.getInstance().updateActivity(api));
     }
 
 }

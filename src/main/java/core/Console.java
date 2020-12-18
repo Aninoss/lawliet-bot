@@ -18,9 +18,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import websockets.DonationHandler;
 import websockets.webcomserver.WebComServer;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -74,7 +72,6 @@ public class Console {
         tasks.put("stop_threads", this::onThreadStop);
         tasks.put("threads_kill", this::onThreadStop);
         tasks.put("kill_threads", this::onThreadStop);
-        tasks.put("donation", this::onDonationInsert);
         tasks.put("ban", this::onBan);
         tasks.put("unban", this::onUnban);
         tasks.put("fish", this::onFish);
@@ -100,7 +97,7 @@ public class Console {
 
     private void onRepair(String[] args) {
         int hours = Integer.parseInt(args[1]);
-        DiscordApiCollection.getInstance().getApis().forEach(api -> MainRepair.start(api, hours));
+        DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, hours));
         LOGGER.info("Repair started with hours {}", hours);
     }
 
@@ -144,7 +141,7 @@ public class Console {
         }
         String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
 
-        DiscordApiCollection.getInstance().getServerById(serverId)
+        DiscordApiManager.getInstance().getLocalServerById(serverId)
                 .flatMap(server -> server.getTextChannelById(channelId))
                 .ifPresent(channel -> {
                     LOGGER.info(">{} (#{}): {}", channel.getName(), channel.getId(), text);
@@ -160,7 +157,7 @@ public class Console {
 
         long userId = Long.parseLong(args[1]);
         String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
-        DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> {
+        DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
             LOGGER.info(">{} ({}): {}", user.getDiscriminatedName(), user.getId(), text);
             user.sendMessage(text).exceptionally(ExceptionLogger.get());
         });
@@ -184,7 +181,7 @@ public class Console {
 
     private void onServers(String[] args) {
         LOGGER.info("--- SERVERS ---");
-        ArrayList<Server> servers = new ArrayList<>(DiscordApiCollection.getInstance().getServers());
+        ArrayList<Server> servers = new ArrayList<>(DiscordApiManager.getInstance().getLocalServers());
         servers.sort((s1, s2) -> Integer.compare(s2.getMemberCount(), s1.getMemberCount()));
         int limit = servers.size();
         if (args.length >= 2)
@@ -221,12 +218,12 @@ public class Console {
 
     private void onUser(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getUserById(userId).ifPresent(user -> System.out.println(user.getDiscriminatedName()));
+        DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> System.out.println(user.getDiscriminatedName()));
     }
 
     private void onFisheryVC(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> {
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server -> {
             HashSet<User> users = new HashSet<>();
             server.getVoiceChannels().forEach(vc -> {
                 users.addAll(FisheryVCObserver.getValidVCUsers(server, vc));
@@ -241,14 +238,14 @@ public class Console {
 
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server ->
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server ->
                 LOGGER.info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard())
         );
     }
 
     private void onLeaveServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiCollection.getInstance().getServerById(serverId).ifPresent(server -> {
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server -> {
             server.leave().exceptionally(ExceptionLogger.get());
             LOGGER.info("Left server: {}", server.getName());
         });
@@ -297,13 +294,6 @@ public class Console {
         LOGGER.info("User {} banned", userId);
     }
 
-    private void onDonationInsert(String[] args) throws SQLException, InterruptedException {
-        long userId = Long.parseLong(args[1]);
-        double usDollars = Double.parseDouble(args[2]);
-        DonationHandler.addBonus(userId, usDollars);
-        LOGGER.info("{} dollars donated by {}", usDollars, userId);
-    }
-
     private void onThreadStop(String[] args) {
         int stopped = 0;
 
@@ -334,13 +324,12 @@ public class Console {
 
     private void onReconnect(String[] args) {
         int shardId = Integer.parseInt(args[1]);
-        DiscordApiCollection.getInstance().reconnectShard(shardId);
+        DiscordApiManager.getInstance().reconnectShard(shardId);
     }
 
     private void onShards(String[] args) {
-        for (int i = 0; i < DiscordApiCollection.getInstance().size(); i++) {
-            DiscordApi api = DiscordApiCollection.getInstance().getApis().get(i);
-            LOGGER.info("Shard {}: {} ({} unavailable)", i, DiscordApiCollection.getInstance().shardIsConnected(i), api != null ? api.getUnavailableServers().size() : "?");
+        for (DiscordApi api : DiscordApiManager.getInstance().getConnectedLocalApis()) {
+            LOGGER.info("Shard {} ({} unavailable)", api.getCurrentShard(), api.getUnavailableServers().size());
         }
     }
 

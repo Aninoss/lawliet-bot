@@ -7,24 +7,21 @@ import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import commands.runnables.informationcategory.HelpCommand;
-import constants.ExternalLinks;
-import core.*;
+import core.ExceptionHandler;
+import core.DiscordApiManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.MessageCreateAbstract;
 import mysql.modules.autoquote.DBAutoQuote;
-import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -45,8 +42,8 @@ public class MessageCreateCommand extends MessageCreateAbstract {
 
         String[] prefixes = {
                 prefix,
-                DiscordApiCollection.getInstance().getYourself().getMentionTag(),
-                "<@!" + DiscordApiCollection.getInstance().getYourself().getIdAsString() + ">"
+                DiscordApiManager.getInstance().getYourself().getMentionTag(),
+                "<@!" + DiscordApiManager.getInstance().getYourself().getIdAsString() + ">"
         };
 
         int prefixFound = -1;
@@ -74,8 +71,6 @@ public class MessageCreateCommand extends MessageCreateAbstract {
             }
 
             if (commandTrigger.length() > 0) {
-                if (checkForSqlInjection(event)) return false;
-
                 Locale locale = serverBean.getLocale();
                 Class<? extends Command> clazz;
                 clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
@@ -119,24 +114,6 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                 }
             }
         }
-    }
-
-    private boolean checkForSqlInjection(MessageCreateEvent event) throws SQLException, ExecutionException {
-        String content = event.getMessageContent().toLowerCase().replace("  ", "");
-        if (content.contains("drop table") || content.contains("drop database")) {
-            DBBannedUsers.getInstance().getBean().getUserIds().add(event.getMessageAuthor().getId());
-
-            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setDescription(TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_banned", ExternalLinks.SERVER_INVITE_URL));
-
-            LOGGER.warn("### SQL Injection: {}", event.getMessageContent());
-            event.getMessage().getUserAuthor().get().sendMessage(eb);
-            DiscordApiCollection.getInstance().getOwner().sendMessage(String.format("%s SQL Injection \"%s\"", event.getMessage().getUserAuthor().get().getMentionTag(), event.getMessageContent()));
-            return true;
-        }
-
-        return false;
     }
 
     private boolean manageForwardedMessages(MessageCreateEvent event) {

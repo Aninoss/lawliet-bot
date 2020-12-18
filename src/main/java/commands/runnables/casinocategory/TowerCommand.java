@@ -6,7 +6,6 @@ import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -64,20 +63,16 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     private EmbedBuilder getEmbed(boolean showMoreText, boolean crashed, boolean falling) {
         final int LEVEL_LIMIT = 12;
 
-        final String GRASS_EMOJI = DiscordApiCollection.getInstance().getHomeEmojiById(734843199985811556L).getMentionTag();
-        final String EMPTY_EMOJI = DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag();
-        String[] towerEmojis = new String[2];
-        if (crashed) {
-            towerEmojis[0] = DiscordApiCollection.getInstance().getHomeEmojiById(734842201254920223L).getMentionTag();
-            towerEmojis[1] = DiscordApiCollection.getInstance().getHomeEmojiById(734842200755535912L).getMentionTag();
-        } else {
-            towerEmojis[0] = DiscordApiCollection.getInstance().getHomeEmojiById(734836799003688981L).getMentionTag();
-            towerEmojis[1] = DiscordApiCollection.getInstance().getHomeEmojiById(734836799402409986L).getMentionTag();
-        }
-        String[] towerEmojisAnimated = {
-                DiscordApiCollection.getInstance().getHomeEmojiById(735259827563135030L).getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiById(735259827382779985L).getMentionTag()
-        };
+        final String GRASS_EMOJI = Emojis.TOWER_GRAS;
+        final String EMPTY_EMOJI = Emojis.SPACEHOLDER;
+
+        String[] towerEmojis;
+        if (crashed)
+            towerEmojis = Emojis.TOWER_BASE_BROKEN;
+        else
+            towerEmojis = Emojis.TOWER_BASE;
+
+        String[] towerEmojisAnimated = Emojis.TOWER_BASE_FALLING;
 
         /* build tower */
         StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.EMPTY_EMOJI + "\n") : "");

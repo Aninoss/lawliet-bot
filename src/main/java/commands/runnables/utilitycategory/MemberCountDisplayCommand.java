@@ -1,16 +1,16 @@
 package commands.runnables.utilitycategory;
 
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
-import commands.Command;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.ListGen;
-import core.utils.MentionUtil;
+import core.DiscordApiManager;
 import core.TextManager;
+import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
 import modules.MemberCountDisplay;
@@ -81,7 +81,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
             } else {
                 ServerVoiceChannel channel = vcList.get(0);
 
-                ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(channel.getServer(), channel, DiscordApiCollection.getInstance().getYourself(), Permission.MANAGE_CHANNEL | Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.CONNECT);
+                ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(channel.getServer(), channel, DiscordApiManager.getInstance().getYourself(), Permission.MANAGE_CHANNEL | Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.CONNECT);
                 if (missingPermissions.size() > 0) {
                     String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(n)));
                     setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));
@@ -161,7 +161,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                         updater.addPermissionOverwrite(everyoneRole, permissions.build());
 
-                        User yourself = DiscordApiCollection.getInstance().getYourself();
+                        User yourself = DiscordApiManager.getInstance().getYourself();
                         Permissions ownPermissions = currentVC.getOverwrittenPermissions(yourself)
                                 .toBuilder()
                                 .setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED)

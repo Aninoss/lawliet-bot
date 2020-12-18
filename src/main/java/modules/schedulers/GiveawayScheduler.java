@@ -59,7 +59,7 @@ public class GiveawayScheduler {
 
     private void onGiveawayDue(GiveawayBean giveawayBean) {
         if (giveawayBean.isActive()) {
-            DiscordApiCollection.getInstance().getServerById(giveawayBean.getServerId())
+            DiscordApiManager.getInstance().getLocalServerById(giveawayBean.getServerId())
                     .flatMap(server -> server.getTextChannelById(giveawayBean.getChannelId()))
                     .ifPresent(channel -> {
                         try {
@@ -72,7 +72,7 @@ public class GiveawayScheduler {
     }
 
     private void processGiveawayUsers(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) {
-        DiscordApiCollection.getInstance().getMessageById(channel, giveawayBean.getMessageId())
+        DiscordApiManager.getInstance().getMessageById(channel, giveawayBean.getMessageId())
                 .thenAccept(messageOpt -> messageOpt.ifPresent(message -> {
                     for (Reaction reaction : message.getReactions()) {
                         if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {

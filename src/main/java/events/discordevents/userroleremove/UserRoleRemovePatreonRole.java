@@ -3,7 +3,7 @@ package events.discordevents.userroleremove;
 import constants.AssetIds;
 import constants.ExternalLinks;
 import constants.Settings;
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -29,7 +29,7 @@ public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
                         event.getUser().sendMessage(String.format("**❌ You are no longer registered as a Patreon!**\nIf this was unexpected, please get in touch with us in the Lawliet server: %s",
                                 ExternalLinks.SERVER_INVITE_URL
                         ));
-                        DiscordApiCollection.getInstance().getOwner().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
+                        DiscordApiManager.getInstance().fetchOwner().get().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
                     }
                     break;
                 }

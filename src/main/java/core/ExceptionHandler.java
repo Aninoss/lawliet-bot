@@ -63,7 +63,7 @@ public class ExceptionHandler {
         if (submitToDeveloper) {
             LOGGER.error("Exception for command \"{}\" with state {}", command.getTrigger(), command.getState(), throwable);
             if (Bot.isProductionMode()) {
-                DiscordApiCollection.getInstance().getOwner().sendMessage(EmbedFactory.getEmbedError()
+                DiscordApiManager.getInstance().fetchOwner().join().sendMessage(EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error") + " \"" + command.getTrigger() + "\"")
                         .setDescription(StringUtil.shortenString(stacktrace, 1000))).exceptionally(ExceptionLogger.get());
             }

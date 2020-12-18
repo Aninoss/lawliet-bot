@@ -4,9 +4,9 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
+import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
@@ -160,19 +160,19 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
                 getSpinningWheel(0),
                 getSpinningWheel(1),
                 getSpinningWheel(2),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotdr").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotdlr").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotdl").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotud").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotur").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr1").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotulr").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr2").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotlr3").getMentionTag(),
-                DiscordApiCollection.getInstance().getHomeEmojiByName("slotul").getMentionTag(),
+                Emojis.SLOT_DR,
+                Emojis.SLOT_LR,
+                Emojis.SLOT_DLR,
+                Emojis.SLOT_DL,
+                Emojis.SLOT_UD,
+                Emojis.SLOT_UR,
+                Emojis.SLOT_LR1,
+                Emojis.SLOT_ULR,
+                Emojis.SLOT_LR2,
+                Emojis.SLOT_LR3,
+                Emojis.SLOT_UL,
                 ALL_EMOJI,
-                DiscordApiCollection.getInstance().getHomeEmojiById(417016019622559755L).getMentionTag()
+                Emojis.SPACEHOLDER
                 ));
 
         if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
@@ -184,7 +184,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     private String getSpinningWheel(int i) {
-        if (progress <= i) return DiscordApiCollection.getInstance().getHomeEmojiById(401057220114251787L).getMentionTag();
+        if (progress <= i) return Emojis.SLOT_SPINNING;
         else return FRUITS_CONTAINER[fruits[i]];
     }
 

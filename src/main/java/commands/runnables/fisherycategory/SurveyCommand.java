@@ -5,8 +5,8 @@ import commands.listeners.OnReactionAddStaticListener;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryAbstract;
 import constants.*;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.EmbedUtil;
@@ -91,8 +91,9 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         else voteStrings[1] = "";
 
+        //TODO adjust for clustering
         for (SurveySecondVote surveySecondVote: surveySecondVotes) {
-            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiCollection.getInstance().getServerById(surveySecondVote.getServerId()).get().getName()) + ")\n";
+            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiManager.getInstance().getLocalServerById(surveySecondVote.getServerId()).get().getName()) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)

@@ -1,6 +1,6 @@
 package commands.runningchecker;
 
-import core.NewApiCollection;
+import core.DiscordApiManager;
 import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 
@@ -14,7 +14,7 @@ public class RunningCheckerManager {
     public static RunningCheckerManager getInstance() { return ourInstance; }
 
     private RunningCheckerManager() {
-        NewApiCollection.getInstance().addShardDisconnectConsumer(this::clearShard);
+        DiscordApiManager.getInstance().addShardDisconnectConsumer(this::clearShard);
     }
 
     private final HashMap<Long, ArrayList<RunningCheckerSlot>> runningCommandsMap = new HashMap<>();

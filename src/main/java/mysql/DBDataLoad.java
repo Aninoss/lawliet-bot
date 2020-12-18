@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class DBDataLoad<T> {
 
@@ -39,7 +40,7 @@ public class DBDataLoad<T> {
             while (resultSet.next()) {
                 try {
                     T value = function.apply(resultSet);
-                    if (value != null) list.add(function.apply(resultSet));
+                    if (!Objects.isNull(value)) list.add(value);
                 } catch (Throwable e) {
                     LOGGER.error("Exception", e);
                 }
@@ -54,7 +55,7 @@ public class DBDataLoad<T> {
         }
     }
 
-    public <U> HashMap<U, T> getHashMap(SQLFunction<T, U> getKeyFuntion, SQLFunction<ResultSet, T> function) {
+    public <U> HashMap<U, T> getHashMap(SQLFunction<T, U> getKeyFunction, SQLFunction<ResultSet, T> function) {
         try {
             ResultSet resultSet = preparedStatement.getResultSet();
             HashMap<U, T> map = new HashMap<>();
@@ -62,7 +63,7 @@ public class DBDataLoad<T> {
             while (resultSet.next()) {
                 try {
                     T value = function.apply(resultSet);
-                    if (value != null) map.put(getKeyFuntion.apply(value), value);
+                    if (value != null) map.put(getKeyFunction.apply(value), value);
                 } catch (Throwable e) {
                     LOGGER.error("Exception", e);
                 }

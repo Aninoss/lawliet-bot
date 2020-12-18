@@ -1,8 +1,8 @@
 package core.utils;
 
 import constants.Permission;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.TextManager;
 import org.javacord.api.entity.channel.ChannelCategory;
 import org.javacord.api.entity.channel.ServerChannel;
@@ -23,7 +23,7 @@ public class PermissionUtil {
 
     public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, Server server, ServerChannel channel, User user, int userPermissions, int botPermissions) {
         ArrayList<Integer> userPermission = getMissingPermissionListForUser(server, channel, user, userPermissions);
-        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiCollection.getInstance().getYourself(), botPermissions);
+        ArrayList<Integer> botPermission = getMissingPermissionListForUser(server, channel, DiscordApiManager.getInstance().getYourself(), botPermissions);
 
         return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
     }
@@ -136,7 +136,7 @@ public class PermissionUtil {
     }
 
     public static boolean canYouManageRole(Role role) {
-        return canManageRole(DiscordApiCollection.getInstance().getYourself(), role);
+        return canManageRole(DiscordApiManager.getInstance().getYourself(), role);
     }
 
     public static boolean canManageRole(User user, Role role) {
@@ -167,11 +167,11 @@ public class PermissionUtil {
     }
 
     public static boolean botHasServerPermission(Server server, PermissionType permissionType) {
-        return userHasServerPermission(server, DiscordApiCollection.getInstance().getYourself(), permissionType);
+        return userHasServerPermission(server, DiscordApiManager.getInstance().getYourself(), permissionType);
     }
 
     public static boolean botHasChannelPermission(ServerChannel channel, PermissionType permissionType) {
-        return userHasChannelPermission(channel, DiscordApiCollection.getInstance().getYourself(), permissionType);
+        return userHasChannelPermission(channel, DiscordApiManager.getInstance().getYourself(), permissionType);
     }
 
     public static boolean userHasServerPermission(Server server, User user, PermissionType permissionType) {

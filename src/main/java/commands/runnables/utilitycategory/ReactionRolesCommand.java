@@ -9,8 +9,8 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
-import core.DiscordApiCollection;
 import core.EmbedFactory;
+import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
@@ -179,7 +179,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isPresent()) {
+        //TODO adjust for clustering
+        if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
             for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                 if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
@@ -423,7 +424,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean calculateEmoji(Emoji emoji) {
-        if (emoji == null || (emoji.isCustomEmoji() && DiscordApiCollection.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()).isEmpty())) {
+        //TODO adjust for clustering
+        if (emoji == null || (emoji.isCustomEmoji() && !DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
         }

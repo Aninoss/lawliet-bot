@@ -1,6 +1,6 @@
 package events.discordevents.messagecreate;
 
-import core.DiscordApiCollection;
+import core.DiscordApiManager;
 import core.TextManager;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -22,7 +22,7 @@ public class MessageCreateSingleBotMention extends MessageCreateAbstract {
         if (content.equalsIgnoreCase("i.") && prefix.equalsIgnoreCase("L."))
             content = prefix;
 
-        if (prefix.equalsIgnoreCase(content) || StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiCollection.getInstance().getYourself().getMentionTag())) {
+        if (prefix.equalsIgnoreCase(content) || StringUtil.trimString(event.getMessageContent().replace("@!", "@")).equalsIgnoreCase(DiscordApiManager.getInstance().getYourself().getMentionTag())) {
             String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_ping_help", serverBean.getPrefix());
             if (event.getChannel().canYouWrite()) event.getChannel().sendMessage(text).get();
 
