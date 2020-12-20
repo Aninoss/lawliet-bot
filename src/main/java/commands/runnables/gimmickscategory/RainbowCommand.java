@@ -49,8 +49,8 @@ public class RainbowCommand extends UserAccountAbstract {
     @Override
     protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable {
         if (message != null) {
-            message.getEmbeds().get(0).getImage().ifPresent(url -> {
-                String urlString = url.toString();
+            message.getEmbeds().get(0).getImage().ifPresent(image -> {
+                String urlString = image.getUrl().toString();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", urlString));
                 EmbedUtil.setFooter(eb, this);
                 message.getServerTextChannel().get().sendMessage(eb).exceptionally(ExceptionLogger.get());
