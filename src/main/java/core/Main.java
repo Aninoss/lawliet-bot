@@ -2,7 +2,9 @@ package core;
 
 import core.patreon.PatreonApi;
 import core.utils.BotUtil;
+import modules.FisheryVCObserver;
 import mysql.DBMain;
+import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
@@ -26,7 +28,9 @@ public class Main {
         Console.getInstance().start();
         FontContainer.getInstance().init();
         DBMain.getInstance().connect();
+        DBFishery.getInstance().cleanUp();
         PatreonApi.getInstance().update();
+        FisheryVCObserver.getInstance().start();
         if (Bot.isPublicVersion()) {
             cleanAllTempFiles();
             initializeUpdate();

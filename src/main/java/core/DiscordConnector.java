@@ -5,11 +5,9 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
-import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
 import modules.schedulers.GiveawayScheduler;
 import modules.schedulers.ReminderScheduler;
-import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.survey.DBSurvey;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
@@ -20,6 +18,7 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.WebComServer;
+
 import java.time.temporal.ChronoUnit;
 
 public class DiscordConnector {
@@ -105,8 +104,6 @@ public class DiscordConnector {
 
     private void onConnectionCompleted() {
         DBSurvey.getInstance().getCurrentSurvey();
-        DBFishery.getInstance().cleanUp();
-        FisheryVCObserver.getInstance().start();
         if (Bot.isPublicVersion()) WebComServer.getInstance().start(15744);
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();

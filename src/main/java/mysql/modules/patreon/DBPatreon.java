@@ -10,8 +10,6 @@ public class DBPatreon extends DBSingleBeanGenerator<HashMap<Long, PatreonBean>>
     public static DBPatreon getInstance() { return ourInstance; }
     private DBPatreon() {}
 
-    private HashMap<Long, PatreonBean> patreonMap;
-
     @Override
     protected HashMap<Long, PatreonBean> loadBean() throws Exception {
         return new DBDataLoad<PatreonBean>("Patreon", "userId, tier, expires", "1",
@@ -24,6 +22,11 @@ public class DBPatreon extends DBSingleBeanGenerator<HashMap<Long, PatreonBean>>
                         resultSet.getDate(3).toLocalDate()
                 )
         );
+    }
+
+    @Override
+    public Integer getExpirationTimeMinutes() {
+        return 30;
     }
 
 }

@@ -46,12 +46,14 @@ public class DiscordApiManager {
         this.shardIntervalMax = shardIntervalMax;
         this.totalShards = totalShards;
 
-        MainScheduler.getInstance().schedule((long) Math.ceil(getLocalShards() / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
-            if (!started) {
-                LOGGER.error("EXIT - Could not boot up");
-                System.exit(-1);
-            }
-        });
+        if (Bot.isProductionMode()) {
+            MainScheduler.getInstance().schedule((long) Math.ceil(getLocalShards() / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
+                if (!started) {
+                    LOGGER.error("EXIT - Could not boot up");
+                    System.exit(-1);
+                }
+            });
+        }
     }
 
     public void addShardDisconnectConsumer(Consumer<Integer> consumer) {
