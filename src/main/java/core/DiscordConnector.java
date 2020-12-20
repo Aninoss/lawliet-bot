@@ -20,7 +20,6 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.WebComServer;
-
 import java.time.temporal.ChronoUnit;
 
 public class DiscordConnector {
