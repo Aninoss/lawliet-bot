@@ -105,6 +105,10 @@ public class DiscordApiManager {
         return Math.abs((int) ((serverId >> 22) % totalShards));
     }
 
+    public boolean serverIsManaged(long serverId) {
+        return getLocalServerById(serverId).isPresent();
+    }
+
     public List<Server> getLocalServers() {
         ArrayList<Server> serverList = new ArrayList<>();
         for(DiscordApi api : apiMap.values()) {

@@ -1,37 +1,34 @@
 package mysql.modules.autoclaim;
 
-import java.util.Observable;
+import core.CustomObservableList;
+import core.patreon.PatreonApi;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import java.util.ArrayList;
 
-public class AutoClaimBean extends Observable {
+public class AutoClaimBean {
 
-    private final long userId;
-    private boolean active;
+    CustomObservableList<Long> userList;
 
-    public AutoClaimBean(long userId, boolean active) {
-        this.userId = userId;
-        this.active = active;
+    public AutoClaimBean(@NonNull ArrayList<Long> userList) {
+        this.userList = new CustomObservableList<>(userList);
     }
 
 
     /* Getters */
 
-    public long getUserId() { return userId; }
-
-    public boolean isActive() {
-        return active;
+    public CustomObservableList<Long> getUserList() {
+        return userList;
     }
 
-
-    /* Setters */
-
-    public void toggleActive() {
-        this.active = !this.active;
-        setChanged();
-        notifyObservers();
+    public boolean isActive(long userId) {
+        return userList.contains(userId) && PatreonApi.getInstance().getUserTier(userId) >= 2;
     }
 
-    public void setActive(boolean active) {
-        if (this.isActive() != active) toggleActive();
+    public void setActive(long userId, boolean active) {
+        if (active && !userList.contains(userId))
+            userList.add(userId);
+        else if (!active)
+            userList.remove(userId);
     }
 
 }

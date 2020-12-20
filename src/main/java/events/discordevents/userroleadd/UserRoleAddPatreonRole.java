@@ -3,7 +3,6 @@ package events.discordevents.userroleadd;
 import constants.AssetIds;
 import constants.Settings;
 import core.DiscordApiManager;
-import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.UserRoleAddAbstract;
@@ -24,7 +23,6 @@ public class UserRoleAddPatreonRole extends UserRoleAddAbstract {
                 if (event.getRole().getId() == roleId) {
                     LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                     DiscordApiManager.getInstance().fetchOwner().get().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
-                    PatreonCache.getInstance().resetUser(event.getUser().getId());
                     break;
                 }
             }

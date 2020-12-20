@@ -1,34 +1,39 @@
 package mysql.modules.upvotes;
 
+import core.CustomObservableMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 import java.time.Instant;
-import java.util.Observable;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 
-public class UpvotesBean extends Observable {
+public class UpvotesBean {
 
-    private final long userId;
-    private Instant lastUpvote;
+    private final CustomObservableMap<Long, UpvoteSlot> upvoteMap;
 
-    public UpvotesBean(long userId, Instant lastUpvote) {
-        this.userId = userId;
-        this.lastUpvote = lastUpvote;
+    public UpvotesBean(@NonNull HashMap<Long, UpvoteSlot> lastUpvote) {
+        this.upvoteMap = new CustomObservableMap<>(lastUpvote);
     }
 
 
     /* Getters */
 
-    public long getUserId() {
-        return userId;
+    public CustomObservableMap<Long, UpvoteSlot> getUpvoteMap() {
+        return upvoteMap;
     }
 
-    public Instant getLastUpvote() { return lastUpvote; }
+    public Instant getLastUpvote(long userId) {
+        if (upvoteMap.containsKey(userId))
+            return upvoteMap.get(userId).getLastUpdate();
+        else
+            return Instant.now().minus(24, ChronoUnit.HOURS);
+    }
 
 
     /* Setters */
 
-    public void updateLastUpvote() {
-        this.lastUpvote = Instant.now();
-        setChanged();
-        notifyObservers();
+    public void updateLastUpvote(long userId) {
+        upvoteMap.put(userId, new UpvoteSlot(userId, Instant.now()));
     }
 
 }

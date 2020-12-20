@@ -3,7 +3,7 @@ package core;
 import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonApi;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
@@ -19,6 +19,7 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.webcomserver.WebComServer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -88,7 +89,6 @@ public class Console {
         tasks.put("backup", this::onBackup);
         tasks.put("servers", this::onServers);
         tasks.put("patreon", this::onPatreon);
-        tasks.put("patreon_set", this::onPatreonSet);
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_server", this::onSendChannel);
@@ -169,14 +169,7 @@ public class Console {
 
     private void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
-        LOGGER.info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
-    }
-
-    private void onPatreonSet(String[] args) {
-        long userId = Long.parseLong(args[1]);
-        int level = Integer.parseInt(args[2]);
-        PatreonCache.getInstance().setPatreonLevel(userId, level);
-        LOGGER.info("Patreon stats of user {} set: {}", userId, PatreonCache.getInstance().getPatreonLevel(userId));
+        LOGGER.info("Patreon stats of user {}: {}", userId, PatreonApi.getInstance().getUserTier(userId));
     }
 
     private void onServers(String[] args) {

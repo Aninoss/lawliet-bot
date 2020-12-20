@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Observable;
 
 public class TrackerBean extends Observable {
@@ -24,13 +23,6 @@ public class TrackerBean extends Observable {
     /* Getters */
 
     public synchronized CustomObservableList<TrackerBeanSlot> getSlots() {
-        slots.removeIf(o -> {
-            if (Objects.isNull(o)) {
-                LOGGER.warn("NULL VALUE IN ALERTS"); //TODO Debug
-                return true;
-            }
-            return false;
-        });
         return slots;
     }
 

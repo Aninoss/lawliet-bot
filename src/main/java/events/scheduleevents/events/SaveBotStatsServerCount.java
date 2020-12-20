@@ -11,7 +11,7 @@ public class SaveBotStatsServerCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && Bot.isPublicVersion()) {
+        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 0) {
             DBBotStats.saveStatsServers(DiscordApiManager.getInstance().getLocalServerSize());
         }
     }

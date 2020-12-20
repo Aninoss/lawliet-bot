@@ -1,6 +1,7 @@
 package mysql.modules.tracker;
 
 import core.CustomThread;
+import core.DiscordApiManager;
 import core.TrackerManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
@@ -8,6 +9,7 @@ import mysql.DBSingleBeanGenerator;
 import mysql.modules.server.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -27,7 +29,10 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
         if (started) return;
         started = true;
 
-        new CustomThread(this::getBean, "tracker_init").start();
+        new CustomThread(() -> {
+            TrackerManager.getInstance().start(getBean());
+            LOGGER.info("Tracker started");
+        }, "tracker_init").start();
     }
 
     @Override
@@ -44,16 +49,13 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
                                 resultSet.getString(7)
                         )
                 );
-        slots.removeIf(Objects::isNull);
+        slots.removeIf(o -> Objects.isNull(o) || !DiscordApiManager.getInstance().serverIsManaged(o.getServerId()));
 
         TrackerBean trackerBean = new TrackerBean(slots);
         trackerBean.getSlots()
                 .addListAddListener(changeSlots -> { changeSlots.forEach(this::insertTracker); })
                 .addListUpdateListener(this::insertTracker)
                 .addListRemoveListener(changeSlots -> { changeSlots.forEach(this::removeTracker); });
-
-        TrackerManager.getInstance().start();
-        LOGGER.info("Tracker started");
 
         return trackerBean;
     }

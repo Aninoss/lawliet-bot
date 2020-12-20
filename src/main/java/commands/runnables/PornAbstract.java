@@ -8,9 +8,9 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
-import core.cache.PatreonCache;
-import core.cache.PatternCache;
 import core.TextManager;
+import core.cache.PatternCache;
+import core.patreon.PatreonApi;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
 import core.utils.StringUtil;
@@ -69,7 +69,7 @@ public abstract class PornAbstract extends Command {
             String group = m.group();
             followedString = StringUtil.trimString(followedString.replaceFirst(group, "").replace("  ", " "));
             amount = Long.parseLong(group);
-            int patreonLevel = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId());
+            int patreonLevel = PatreonApi.getInstance().getUserTier(event.getMessageAuthor().getId());
             if (patreonLevel <= 1 && (amount < 1 || amount > 20)) {
                 if (event.getChannel().canYouEmbedLinks()) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,

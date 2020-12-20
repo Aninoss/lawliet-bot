@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
+import core.patreon.PatreonApi;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
 import java.util.Optional;
@@ -25,14 +26,13 @@ public class ServerPatreonBoostCache {
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            //TODO transfer to patreon api
                             Optional<Server> serverOptional = DiscordApiManager.getInstance().getLocalServerById(serverId);
                             if (serverOptional.isPresent()) {
                                 Server server = serverOptional.get();
 
                                 return server.getMembers().stream()
                                         .filter(user -> !user.isBot() && server.canManage(user))
-                                        .anyMatch(user -> PatreonCache.getInstance().getPatreonLevel(user.getId()) > 1);
+                                        .anyMatch(user -> PatreonApi.getInstance().getUserTier(user.getId()) > 1);
                             }
 
                             return false;

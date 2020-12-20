@@ -6,6 +6,7 @@ public class CommandUsagesBean extends Observable {
 
     private final String command;
     private long value;
+    private long increment = 0;
 
     public CommandUsagesBean(String command, long value) {
         this.command = command;
@@ -23,11 +24,18 @@ public class CommandUsagesBean extends Observable {
         return value;
     }
 
+    public long flushIncrement() {
+        long incTemp = increment;
+        increment = 0;
+        return incTemp;
+    }
+
 
     /* Setters */
 
     public void increase() {
         this.value++;
+        this.increment++;
         setChanged();
         notifyObservers();
     }

@@ -1,56 +1,48 @@
 package mysql.modules.upvotes;
 
-import mysql.DBBeanGenerator;
+import mysql.DBDataLoad;
 import mysql.DBMain;
+import mysql.DBSingleBeanGenerator;
+import java.util.HashMap;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-
-public class DBUpvotes extends DBBeanGenerator<Long, UpvotesBean> {
+public class DBUpvotes extends DBSingleBeanGenerator<UpvotesBean> {
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
     public static DBUpvotes getInstance() { return ourInstance; }
     private DBUpvotes() {}
 
     @Override
-    protected UpvotesBean loadBean(Long userId) throws Exception {
-        UpvotesBean upvotesBean;
+    protected UpvotesBean loadBean() throws Exception {
+        HashMap<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1",
+                preparedStatement -> {}
+        ).getHashMap(
+                UpvoteSlot::getUserId,
+                resultSet -> new UpvoteSlot(
+                        resultSet.getLong(1),
+                        resultSet.getTimestamp(2).toInstant()
+                )
+        );
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT lastDate FROM Upvotes WHERE userId = ?;");
-        preparedStatement.setLong(1, userId);
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            upvotesBean = new UpvotesBean(
-                    userId,
-                    resultSet.getTimestamp(1).toInstant()
-            );
-        } else {
-            upvotesBean = new UpvotesBean(
-                    userId,
-                    Instant.now().minus(24, ChronoUnit.HOURS)
-            );
-        }
-
-        resultSet.close();
-        preparedStatement.close();
+        UpvotesBean upvotesBean = new UpvotesBean(upvoteMap);
+        upvotesBean.getUpvoteMap().addMapAddListener(this::addUpvote);
 
         return upvotesBean;
     }
 
-    @Override
-    protected void saveBean(UpvotesBean upvotesBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, upvotesBean.getUserId());
-            preparedStatement.setString(2, DBMain.instantToDateTimeString(upvotesBean.getLastUpvote()));
+    private void addUpvote(UpvoteSlot upvoteSlot) {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
+            preparedStatement.setLong(1, upvoteSlot.getUserId());
+            preparedStatement.setString(2, DBMain.instantToDateTimeString(upvoteSlot.getLastUpdate()));
         });
     }
 
     public void cleanUp() {
         DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();", preparedStatement -> {});
+    }
+
+    @Override
+    public Integer getExpirationTimeMinutes() {
+        return 5;
     }
 
 }

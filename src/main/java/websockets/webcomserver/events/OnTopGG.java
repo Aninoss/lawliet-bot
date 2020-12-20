@@ -2,7 +2,7 @@ package websockets.webcomserver.events;
 
 import constants.FisheryStatus;
 import core.DiscordApiManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonApi;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -38,8 +38,8 @@ public class OnTopGG extends EventAbstract {
         boolean isWeekend = requestJSON.getBoolean("isWeekend");
 
         if (type.equals("upvote")) {
-            UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean(userId);
-            if (upvotesBean.getLastUpvote().plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
+            UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean();
+            if (upvotesBean.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
                 DiscordApiManager.getInstance().fetchUserById(userId).get().ifPresent(user -> {
                     LOGGER.info("UPVOTE | {}", user.getName());
 
@@ -49,8 +49,8 @@ public class OnTopGG extends EventAbstract {
                                 int value = isWeekend ? 2 : 1;
                                 FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
 
-                                if (PatreonCache.getInstance().getPatreonLevel(userId) >= 2 &&
-                                        DBAutoClaim.getInstance().getBean(userId).isActive()
+                                if (PatreonApi.getInstance().getUserTier(userId) >= 2 &&
+                                        DBAutoClaim.getInstance().getBean().isActive(userId)
                                 ) {
                                     userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
                                 } else {
@@ -58,7 +58,7 @@ public class OnTopGG extends EventAbstract {
                                 }
                             });
                 });
-                upvotesBean.updateLastUpvote();
+                upvotesBean.updateLastUpvote(userId);
             }
 
             return new JSONObject();

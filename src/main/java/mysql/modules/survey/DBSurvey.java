@@ -18,6 +18,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     public static DBSurvey getInstance() { return ourInstance; }
     private DBSurvey() {}
 
+    //TODO adjust for clustering
     private Integer currentSurveyId = null;
 
     @Override

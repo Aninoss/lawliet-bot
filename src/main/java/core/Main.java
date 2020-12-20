@@ -1,5 +1,6 @@
 package core;
 
+import core.patreon.PatreonApi;
 import core.utils.BotUtil;
 import mysql.DBMain;
 import mysql.modules.version.DBVersion;
@@ -24,6 +25,7 @@ public class Main {
         Console.getInstance().start();
         FontContainer.getInstance().init();
         DBMain.getInstance().connect();
+        PatreonApi.getInstance().update();
         if (Bot.isPublicVersion()) {
             cleanAllTempFiles();
             initializeUpdate();

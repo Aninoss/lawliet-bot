@@ -28,7 +28,7 @@ public class DBVersion extends DBSingleBeanGenerator<VersionBean> {
     }
 
     protected void insertVersion(VersionBeanSlot versionBeanSlot) {
-        DBMain.getInstance().asyncUpdate("INSERT INTO Version (version, date) VALUES (?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Version (version, date) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setString(1, versionBeanSlot.getVersion());
             preparedStatement.setString(2, DBMain.instantToDateTimeString(versionBeanSlot.getDate()));
         });

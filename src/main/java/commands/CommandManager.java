@@ -10,8 +10,8 @@ import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.*;
 import core.*;
-import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
+import core.patreon.PatreonApi;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.modules.commandmanagement.DBCommandManagement;
@@ -137,7 +137,7 @@ public class CommandManager {
     }
 
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) >= 3) return true;
+        if (PatreonApi.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) >= 3) return true;
 
         Optional<Integer> waitingSec = CooldownManager.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
         if (waitingSec.isEmpty()) {
@@ -165,7 +165,7 @@ public class CommandManager {
 
     private static boolean checkReleased(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
-        if (!releaseDate.isAfter(LocalDate.now()) || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 1) {
+        if (!releaseDate.isAfter(LocalDate.now()) || PatreonApi.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) > 1) {
             return true;
         }
 
@@ -187,7 +187,7 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (!command.isPatreonRequired() || PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().asUser().get().getId()) > 1) {
+        if (!command.isPatreonRequired() || PatreonApi.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) > 1) {
             return true;
         }
 

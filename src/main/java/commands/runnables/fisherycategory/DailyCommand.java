@@ -2,10 +2,13 @@ package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
-import constants.*;
+import constants.ExternalLinks;
+import constants.FisheryCategoryInterface;
+import constants.LogStatus;
+import constants.Permission;
 import core.EmbedFactory;
-import core.cache.PatreonCache;
 import core.TextManager;
+import core.patreon.PatreonApi;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -48,7 +51,7 @@ public class DailyCommand extends FisheryAbstract {
                 bonusCombo = (int) Math.round(fishes * 0.25);
             }
 
-            if (PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId()) > 1) {
+            if (PatreonApi.getInstance().getUserTier(event.getMessageAuthor().getId()) > 1) {
                 bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
             }
 

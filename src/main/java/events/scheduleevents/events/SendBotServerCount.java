@@ -13,8 +13,7 @@ public class SendBotServerCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        //TODO transfer to cluster manager
-        if (Bot.isProductionMode() && Bot.isPublicVersion() && DiscordApiManager.getInstance().isEverythingConnected()) {
+        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 0 && DiscordApiManager.getInstance().isEverythingConnected()) {
             int totalServers = DiscordApiManager.getInstance().getGlobalServerSize();
 
             TopGG.getInstance().updateServerCount(totalServers);

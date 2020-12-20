@@ -1,7 +1,7 @@
 package websockets.webcomserver.events;
 
 import constants.FRPanelType;
-import core.cache.PatreonCache;
+import core.patreon.PatreonApi;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.featurerequests.DBFeatureRequests;
 import org.json.JSONArray;
@@ -60,7 +60,7 @@ public class OnFRFetch extends EventAbstract {
         if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
             return 0;
 
-        return Math.max(1, PatreonCache.getInstance().getPatreonLevel(userId));
+        return Math.max(1, PatreonApi.getInstance().getUserTier(userId));
     }
 
     public static int getBoostsUsed(long userId) throws SQLException {

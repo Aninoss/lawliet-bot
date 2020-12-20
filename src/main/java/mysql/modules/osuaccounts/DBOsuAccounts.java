@@ -35,4 +35,9 @@ public class DBOsuAccounts extends DBSingleBeanGenerator<CustomObservableMap<Lon
         });
     }
 
+    @Override
+    public Integer getExpirationTimeMinutes() {
+        return 5;
+    }
+
 }

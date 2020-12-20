@@ -7,7 +7,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Permission;
-import mysql.modules.tracker.DBTracker;
+import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.slf4j.Logger;
@@ -27,13 +27,15 @@ public class TrackerManager {
     public static TrackerManager getInstance() { return ourInstance; }
     private TrackerManager() { }
 
+    private TrackerBean trackerBean;
     private boolean active = false;
     private int size;
 
-    public synchronized void start() {
+    public synchronized void start(TrackerBean trackerBean) {
         if (active) return;
         active = true;
 
+        this.trackerBean = trackerBean;
         size = (DiscordApiManager.getInstance().getLocalShards() / 5) + 1;
         for (int i = 0; i < size; i++) {
             final int trackerShard = i;
@@ -108,7 +110,7 @@ public class TrackerManager {
                 }
             }
         } else if (slot.getServer().isPresent()) {
-            DBTracker.getInstance().getBean().getSlots().removeIf(s -> s.getChannelId() == slot.getChannelId());
+            trackerBean.getSlots().removeIf(s -> s.getChannelId() == slot.getChannelId());
         }
     }
 
@@ -120,7 +122,7 @@ public class TrackerManager {
             String commandTrigger = commandProps.trigger();
 
             ArrayList<TrackerBeanSlot> groupedSlots = new ArrayList<>();
-            new ArrayList<>(DBTracker.getInstance().getBean().getSlots()).stream()
+            new ArrayList<>(trackerBean.getSlots()).stream()
                     .filter(slot -> (slot.getCommandTrigger().equalsIgnoreCase(commandTrigger) || Arrays.stream(commandProps.aliases()).anyMatch(alias -> slot.getCommandTrigger().equalsIgnoreCase(alias))) && slot.isActive())
                     .forEach(groupedSlots::add);
 

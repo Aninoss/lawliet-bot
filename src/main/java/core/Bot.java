@@ -12,6 +12,7 @@ public class Bot {
     private static boolean production = false;
     private static boolean stopped = false;
     private static boolean selfHosted = false;
+    private static int clusterId = 0;
 
     public static void setDebug(boolean newProduction) {
         production = newProduction;
@@ -37,5 +38,7 @@ public class Bot {
     }
 
     public static boolean hasUpdate() { return new File("update/Lawliet.jar").exists(); }
+
+    public static int getClusterId() { return clusterId; }
 
 }

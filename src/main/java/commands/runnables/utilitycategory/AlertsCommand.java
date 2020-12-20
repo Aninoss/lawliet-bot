@@ -7,12 +7,12 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnTrackerRequestListener;
 import constants.*;
-import core.EmbedFactory;
 import core.DiscordApiManager;
+import core.EmbedFactory;
 import core.TextManager;
-import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
+import core.patreon.PatreonApi;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
 import mysql.modules.tracker.DBTracker;
@@ -72,7 +72,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         serverId = event.getServer().get().getId();
         channelId = event.getServerTextChannel().get().getId();
         trackerBean = DBTracker.getInstance().getBean();
-        patreonLevel = PatreonCache.getInstance().getPatreonLevel(event.getMessageAuthor().getId());
+        patreonLevel = PatreonApi.getInstance().getUserTier(event.getMessageAuthor().getId());
         controll(followedString, true);
         return true;
     }

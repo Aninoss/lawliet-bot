@@ -59,11 +59,11 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                 IntervalBlock intervalBlock = new IntervalBlock(Bot.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
                 while(intervalBlock.block()) {
                     if (this instanceof DBFishery)
-                        LOGGER.info("Fishery update"); //TODO Debug
+                        LOGGER.info("Fishery update");
                     if (changed.size() > 0)
                         intervalSave();
                     if (this instanceof DBFishery)
-                        LOGGER.info("Fishery update completed"); //TODO Debug
+                        LOGGER.info("Fishery update completed");
                 }
             }, "dbbean_interval_save", 1);
             t.start();

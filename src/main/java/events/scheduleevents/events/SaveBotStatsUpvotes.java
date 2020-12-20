@@ -10,7 +10,7 @@ public class SaveBotStatsUpvotes implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && Bot.isPublicVersion()) {
+        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 0) {
             DBBotStats.saveStatsUpvotes();
         }
     }

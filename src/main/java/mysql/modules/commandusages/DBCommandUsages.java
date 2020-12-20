@@ -42,9 +42,11 @@ public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> 
 
     @Override
     protected void saveBean(CommandUsagesBean commandUsagesBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO CommandUsages (command, usages) VALUES (?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT INTO CommandUsages (command, usages) VALUES (?, ?) ON DUPLICATE KEY UPDATE usages = usages + ?;", preparedStatement -> {
+            long inc = commandUsagesBean.flushIncrement();
             preparedStatement.setString(1, commandUsagesBean.getCommand());
-            preparedStatement.setLong(2, commandUsagesBean.getValue());
+            preparedStatement.setLong(2, inc);
+            preparedStatement.setLong(3, inc);
         });
     }
 

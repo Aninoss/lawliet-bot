@@ -1,50 +1,44 @@
 package mysql.modules.autoclaim;
 
-import mysql.DBBeanGenerator;
+import mysql.DBDataLoad;
 import mysql.DBMain;
+import mysql.DBSingleBeanGenerator;
+import java.util.ArrayList;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-public class DBAutoClaim extends DBBeanGenerator<Long, AutoClaimBean> {
+public class DBAutoClaim extends DBSingleBeanGenerator<AutoClaimBean> {
 
     private static final DBAutoClaim ourInstance = new DBAutoClaim();
     public static DBAutoClaim getInstance() { return ourInstance; }
     private DBAutoClaim() {}
 
     @Override
-    protected AutoClaimBean loadBean(Long userId) throws Exception {
-        AutoClaimBean autoClaimBean;
+    protected AutoClaimBean loadBean() throws Exception {
+        ArrayList<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1",
+                preparedStatement -> {}
+        ).getArrayList(resultSet -> resultSet.getLong(1));
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM AutoClaim WHERE userId = ?;");
-        preparedStatement.setLong(1, userId);
-        preparedStatement.execute();
-
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            autoClaimBean = new AutoClaimBean(
-                    userId,
-                    resultSet.getBoolean(1)
-            );
-        } else {
-            autoClaimBean = new AutoClaimBean(
-                    userId,
-                    false
-            );
-        }
-
-        resultSet.close();
-        preparedStatement.close();
+        AutoClaimBean autoClaimBean = new AutoClaimBean(autoClaimList);
+        autoClaimBean.getUserList().addListAddListener(list -> list.forEach(this::addAutoClaim))
+                .addListRemoveListener(list -> list.forEach(this::removeAutoClaim));
 
         return autoClaimBean;
     }
 
-    @Override
-    protected void saveBean(AutoClaimBean autoClaim) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoClaim (userId, active) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, autoClaim.getUserId());
-            preparedStatement.setBoolean(2, autoClaim.isActive());
+    private void addAutoClaim(long userId) {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoClaim (userId, active) VALUES (?, 1);", preparedStatement -> {
+            preparedStatement.setLong(1, userId);
         });
+    }
+
+    private void removeAutoClaim(long userId) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM AutoClaim WHERE userId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, userId);
+        });
+    }
+
+    @Override
+    public Integer getExpirationTimeMinutes() {
+        return 5;
     }
 
 }
