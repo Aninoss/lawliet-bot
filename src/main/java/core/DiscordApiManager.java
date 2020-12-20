@@ -27,16 +27,18 @@ public class DiscordApiManager {
 
     private final HashMap<Integer, DiscordApi> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
+    private int shardIntervalMin = 0;
+    private int shardIntervalMax = 0;
     private int totalShards = 0;
-    private int localShards = 0;
     private boolean started = false;
     private long ownerId = 0;
 
-    public void init(int localShards, int totalShards) {
-        this.localShards = localShards;
+    public void init(int shardIntervalMin, int shardIntervalMax, int totalShards) {
+        this.shardIntervalMin = shardIntervalMin;
+        this.shardIntervalMax = shardIntervalMax;
         this.totalShards = totalShards;
 
-        MainScheduler.getInstance().schedule((long) Math.ceil(localShards / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
+        MainScheduler.getInstance().schedule((long) Math.ceil(getLocalShards() / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
             if (!started) {
                 LOGGER.error("EXIT - Could not boot up");
                 System.exit(-1);
@@ -81,7 +83,15 @@ public class DiscordApiManager {
     }
 
     public int getLocalShards() {
-        return localShards;
+        return shardIntervalMax - shardIntervalMin + 1;
+    }
+
+    public int getShardIntervalMin() {
+        return shardIntervalMin;
+    }
+
+    public int getShardIntervalMax() {
+        return shardIntervalMax;
     }
 
     public boolean isStarted() {
@@ -89,7 +99,7 @@ public class DiscordApiManager {
     }
 
     public boolean isEverythingConnected() {
-        return apiMap.size() >= localShards;
+        return apiMap.size() >= getLocalShards();
     }
 
     public void start() {

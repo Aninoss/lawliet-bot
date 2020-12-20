@@ -37,8 +37,12 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
 
     @Override
     protected TrackerBean loadBean() throws Exception {
-        ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "1", preparedStatement -> {})
-                .getArrayList(
+        ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?", preparedStatement -> {
+            preparedStatement.setInt(1, DiscordApiManager.getInstance().getTotalShards());
+            preparedStatement.setInt(2, DiscordApiManager.getInstance().getShardIntervalMin());
+            preparedStatement.setInt(3, DiscordApiManager.getInstance().getTotalShards());
+            preparedStatement.setInt(4, DiscordApiManager.getInstance().getShardIntervalMax());
+        }).getArrayList(
                         resultSet -> new TrackerBeanSlot(
                                 DBServer.getInstance().getBean(resultSet.getLong(1)),
                                 resultSet.getLong(2),

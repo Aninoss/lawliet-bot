@@ -47,10 +47,13 @@ public class DiscordConnector {
                 .setRecommendedTotalShards()
                 .join();
 
+        //TODO receive interval
         int totalShards = apiBuilder.getTotalShards();
-        DiscordApiManager.getInstance().init(totalShards, totalShards);
+        int shardIntervalMin = 0;
+        int shardIntervalMax = totalShards - 1;
+        DiscordApiManager.getInstance().init(shardIntervalMin, shardIntervalMax, totalShards);
 
-        apiBuilder.loginAllShards()
+        apiBuilder.loginShards(shard -> shard >= shardIntervalMin && shard <= shardIntervalMax)
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
                         .exceptionally(e -> {
                             LOGGER.error("EXIT - Error while connecting to the Discord servers!");
