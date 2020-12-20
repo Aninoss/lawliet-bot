@@ -14,10 +14,12 @@ public class Bot {
     private static boolean selfHosted = false;
     private static int clusterId = 0;
 
-    public static void setDebug(boolean newProduction) {
+    public static void init(boolean newProduction, int newClusterId) {
         production = newProduction;
+        clusterId = newClusterId;
         System.out.println("-------------------------------------");
         System.out.println("Production Mode: " + production);
+        System.out.println("Cluster ID: " + clusterId);
         System.out.println("-------------------------------------");
     }
 
@@ -31,14 +33,20 @@ public class Bot {
         return production;
     }
 
-    public static boolean isRunning() { return !stopped; }
+    public static boolean isRunning() {
+        return !stopped;
+    }
 
     public static boolean isPublicVersion() {
         return !selfHosted;
     }
 
-    public static boolean hasUpdate() { return new File("update/Lawliet.jar").exists(); }
+    public static boolean hasUpdate() {
+        return new File("update/Lawliet.jar").exists();
+    }
 
-    public static int getClusterId() { return clusterId; }
+    public static int getClusterId() {
+        return clusterId;
+    }
 
 }

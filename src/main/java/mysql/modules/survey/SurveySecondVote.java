@@ -1,5 +1,10 @@
 package mysql.modules.survey;
 
+import core.DiscordApiManager;
+import org.javacord.api.entity.server.Server;
+
+import java.util.Optional;
+
 public class SurveySecondVote {
 
     private final long serverId, userId;
@@ -13,6 +18,10 @@ public class SurveySecondVote {
 
     public long getServerId() {
         return serverId;
+    }
+
+    public Optional<Server> getServer() {
+        return DiscordApiManager.getInstance().getLocalServerById(getServerId());
     }
 
     public long getUserId() {

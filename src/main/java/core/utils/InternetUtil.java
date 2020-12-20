@@ -20,8 +20,8 @@ public final class InternetUtil {
     private final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
 
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
-        //TODO implement clustering
-        Message message = DiscordApiManager.getInstance().getLocalServerById(368531164861825024L).get().getTextChannelById(521088289894039562L).get().sendMessage(inputStream, "welcome.png").get();
+        Message message = DiscordApiManager.getInstance().fetchCacheUser().get()
+                .sendMessage(inputStream, "welcome.png").get();
         URL url = message.getAttachments().get(0).getUrl();
 
         MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "mediamessage_remove", message::delete);

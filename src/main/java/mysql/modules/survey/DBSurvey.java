@@ -1,16 +1,17 @@
 package mysql.modules.survey;
 
+import javafx.util.Pair;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import javafx.util.Pair;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.Locale;
 
 public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
@@ -18,7 +19,6 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     public static DBSurvey getInstance() { return ourInstance; }
     private DBSurvey() {}
 
-    //TODO adjust for clustering
     private Integer currentSurveyId = null;
 
     @Override
@@ -64,20 +64,24 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
         return surveyBean;
     }
 
-    public SurveyBean getCurrentSurvey() throws SQLException, ExecutionException {
+    public SurveyBean getCurrentSurvey() {
         return getBean(getCurrentSurveyId());
     }
 
-    public synchronized int getCurrentSurveyId() throws SQLException {
+    public synchronized int getCurrentSurveyId() {
         if (currentSurveyId == null) {
-            Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC LIMIT 1;");
-            ResultSet resultSet = statement.getResultSet();
+            try {
+                Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;");
+                ResultSet resultSet = statement.getResultSet();
 
-            if (resultSet.next())
-                currentSurveyId = resultSet.getInt(1);
+                if (resultSet.next())
+                    currentSurveyId = resultSet.getInt(1);
 
-            resultSet.close();
-            statement.close();
+                resultSet.close();
+                statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return currentSurveyId;
@@ -96,17 +100,23 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     @Override
     protected void saveBean(SurveyBean surveyBean) {}
 
-    private HashMap<Long, SurveyFirstVote> getFirstVotes(int surveyId) throws SQLException {
-        return new DBDataLoad<SurveyFirstVote>("SurveyVotes", "userId, personalVote", "surveyId = ?",
+    private HashMap<Long, SurveyFirstVote> getFirstVotes(int surveyId) {
+        return new DBDataLoad<SurveyFirstVote>("SurveyVotes", "userId, personalVote, locale", "surveyId = ?",
                 preparedStatement -> preparedStatement.setInt(1, surveyId)
-        ).getHashMap(SurveyFirstVote::getUserId, resultSet -> new SurveyFirstVote(resultSet.getLong(1), resultSet.getByte(2)));
+        ).getHashMap(SurveyFirstVote::getUserId, resultSet ->
+                new SurveyFirstVote(resultSet.getLong(1),
+                        resultSet.getByte(2),
+                        new Locale(resultSet.getString(3))
+                )
+        );
     }
 
     private void addFirstVote(int surveyId, SurveyFirstVote surveyFirstVote) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyVotes (surveyId, userId, personalVote) VALUES (?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyVotes (surveyId, userId, personalVote, locale) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
             preparedStatement.setLong(2, surveyFirstVote.getUserId());
             preparedStatement.setByte(3, surveyFirstVote.getVote());
+            preparedStatement.setString(4, surveyFirstVote.getLocale().getDisplayName());
         });
     }
 

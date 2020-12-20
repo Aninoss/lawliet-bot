@@ -207,9 +207,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             imageMessage = null;
         }
 
-        //TODO adjust for clustering
-        imageMessage = DiscordApiManager.getInstance().getLocalServerById(368531164861825024L).get()
-                .getTextChannelById(767039446285156372L).get()
+        imageMessage = DiscordApiManager.getInstance().fetchCacheUser().get()
                 .sendMessage(file).get();
         return imageMessage.getAttachments().get(0).getUrl().toString();
     }

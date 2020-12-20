@@ -19,7 +19,8 @@ public class Main {
 
     public static void main(String[] args) throws Throwable {
         boolean production = args.length >= 1 && args[0].equals("production");
-        Bot.setDebug(production);
+        int clusterId = args.length >= 2 ? Integer.parseInt(args[1]) : 0; //TODO adjust for clustering
+        Bot.init(production, clusterId);
         Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
 
         Console.getInstance().start();

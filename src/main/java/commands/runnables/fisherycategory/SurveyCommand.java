@@ -91,7 +91,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         else voteStrings[1] = "";
 
-        //TODO adjust for clustering
+        //TODO fetch gloab server tada for clustering
         for (SurveySecondVote surveySecondVote: surveySecondVotes) {
             voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiManager.getInstance().getLocalServerById(surveySecondVote.getServerId()).get().getName()) + ")\n";
         }
@@ -127,7 +127,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
     private boolean registerVote(ReactionAddEvent event, SurveyBean surveyBean, int type, byte i) {
         switch (type) {
             case 1:
-                surveyBean.getFirstVotes().put(event.getUserId(), new SurveyFirstVote(event.getUserId(), i));
+                surveyBean.getFirstVotes().put(event.getUserId(), new SurveyFirstVote(event.getUserId(), i, getLocale()));
                 return true;
 
             case 2:

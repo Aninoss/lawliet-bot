@@ -7,6 +7,7 @@ import core.patreon.PatreonApi;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.SystemUtil;
+import events.scheduleevents.events.SurveyResults;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
 import mysql.DBMain;
@@ -58,6 +59,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("survey", this::onSurvey);
         tasks.put("repair", this::onRepair);
         tasks.put("webcom_start", this::onWebComStart);
         tasks.put("webcom_stop", this::onWebComStop);
@@ -93,6 +95,10 @@ public class Console {
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_server", this::onSendChannel);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onSurvey(String[] args) {
+        SurveyResults.processCurrentResults();
     }
 
     private void onRepair(String[] args) {

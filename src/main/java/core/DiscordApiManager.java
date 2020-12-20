@@ -1,5 +1,6 @@
 package core;
 
+import constants.AssetIds;
 import core.schedule.MainScheduler;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -22,11 +23,18 @@ public class DiscordApiManager {
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiManager.class);
 
     private static final DiscordApiManager ourInstance = new DiscordApiManager();
-    public static DiscordApiManager getInstance() { return ourInstance; }
-    private DiscordApiManager() {}
+
+    public static DiscordApiManager getInstance() {
+        return ourInstance;
+    }
+
+    private DiscordApiManager() {
+    }
 
     private final HashMap<Integer, DiscordApi> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
+    private final HashMap<Long, User> userCache = new HashMap<>();
+
     private int shardIntervalMin = 0;
     private int shardIntervalMax = 0;
     private int totalShards = 0;
@@ -51,8 +59,10 @@ public class DiscordApiManager {
     }
 
     public void addApi(DiscordApi api) {
-        if (ownerId == 0)
+        if (ownerId == 0) {
             ownerId = api.getOwnerId();
+            fetchUserById(AssetIds.CACHE_USER_ID);
+        }
         apiMap.put(api.getCurrentShard(), api);
     }
 
@@ -121,7 +131,7 @@ public class DiscordApiManager {
 
     public List<Server> getLocalServers() {
         ArrayList<Server> serverList = new ArrayList<>();
-        for(DiscordApi api : apiMap.values()) {
+        for (DiscordApi api : apiMap.values()) {
             serverList.addAll(api.getServers());
         }
 
@@ -153,7 +163,7 @@ public class DiscordApiManager {
     }
 
     public Optional<User> getCachedUserById(long userId) {
-        for(DiscordApi api : apiMap.values()) {
+        for (DiscordApi api : apiMap.values()) {
             Optional<User> userOpt = api.getCachedUserById(userId);
             if (userOpt.isPresent())
                 return userOpt;
@@ -169,6 +179,9 @@ public class DiscordApiManager {
         if (userOpt.isPresent())
             return CompletableFuture.completedFuture(userOpt);
 
+        if (userCache.containsKey(userId))
+            return CompletableFuture.completedFuture(Optional.of(userCache.get(userId)));
+
         CompletableFuture<Optional<User>> future = new CompletableFuture<>();
         Optional<DiscordApi> apiOpt = getAnyApi();
         if (apiOpt.isPresent()) {
@@ -178,11 +191,27 @@ public class DiscordApiManager {
                         future.complete(Optional.empty());
                         return null;
                     })
-                    .thenAccept(user -> future.complete(Optional.of(user)));
+                    .thenAccept(user -> {
+                        userCache.put(userId, user);
+                        future.complete(Optional.of(user));
+                    });
         } else {
             future.complete(Optional.empty());
         }
 
+        return future;
+    }
+
+    private CompletableFuture<User> fetchUserExistenceGuaranteed(long userId) {
+        CompletableFuture<User> future = new CompletableFuture<>();
+        fetchUserById(userId)
+                .thenAccept(userOpt -> {
+                    if (userOpt.isPresent()) {
+                        future.complete(userOpt.get());
+                    } else {
+                        future.completeExceptionally(new NoSuchElementException("User not found"));
+                    }
+                });
         return future;
     }
 
@@ -191,15 +220,13 @@ public class DiscordApiManager {
     }
 
     public CompletableFuture<User> fetchOwner() {
-        Optional<DiscordApi> apiOpt = getAnyApi();
-        if (apiOpt.isPresent()) {
-            return apiOpt.get().getUserById(getOwnerId());
-        } else {
-            CompletableFuture<User> future = new CompletableFuture<>();
-            future.completeExceptionally(new NoSuchElementException("No api connected"));
-            return future;
-        }
+        return fetchUserExistenceGuaranteed(getOwnerId());
     }
+
+    public CompletableFuture<User> fetchCacheUser() {
+        return fetchUserExistenceGuaranteed(AssetIds.CACHE_USER_ID);
+    }
+
 
     public long getYourselfId() {
         return getAnyApi()
@@ -248,7 +275,7 @@ public class DiscordApiManager {
 
     //TODO remove
     public Optional<KnownCustomEmoji> getCustomEmojiById(String emojiId) {
-        for(DiscordApi api: getConnectedLocalApis()) {
+        for (DiscordApi api : getConnectedLocalApis()) {
             Optional<KnownCustomEmoji> emojiOptional = api.getCustomEmojiById(emojiId);
             if (emojiOptional.isPresent()) return emojiOptional;
         }
