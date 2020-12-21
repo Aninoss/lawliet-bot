@@ -11,7 +11,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -29,9 +28,11 @@ public class DiscordApiManager {
     }
 
     private DiscordApiManager() {
+        if (Bot.isProductionMode())
+            startApiPoller();
     }
 
-    private final HashMap<Integer, DiscordApi> apiMap = new HashMap<>();
+    private final HashMap<Integer, DiscordApiExtended> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
     private final HashMap<Long, User> userCache = new HashMap<>();
 
@@ -65,29 +66,44 @@ public class DiscordApiManager {
             ownerId = api.getOwnerId();
             fetchUserById(AssetIds.CACHE_USER_ID);
         }
-        apiMap.put(api.getCurrentShard(), api);
+        apiMap.put(api.getCurrentShard(), new DiscordApiExtended(api));
     }
 
     public Optional<DiscordApi> getApi(int shard) {
-        DiscordApi api = apiMap.get(shard);
-        return Optional.ofNullable(api);
+        return Optional.ofNullable(apiMap.get(shard)).map(DiscordApiExtended::getApi);
     }
 
     public Optional<DiscordApi> getAnyApi() {
-        return apiMap.values().stream().findFirst();
+        return apiMap.values().stream().findFirst().map(DiscordApiExtended::getApi);
     }
 
     public List<DiscordApi> getConnectedLocalApis() {
-        return new ArrayList<>(apiMap.values());
+        return apiMap.values().stream()
+                .map(DiscordApiExtended::getApi)
+                .collect(Collectors.toList());
+    }
+
+    private void startApiPoller() {
+        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
+            try {
+                new ArrayList<>(apiMap.values())
+                        .forEach(DiscordApiExtended::checkConnection);
+            } catch (Throwable e) {
+                LOGGER.error("Error while polling apis", e);
+            }
+            return true;
+        });
     }
 
     public void reconnectShard(int shard) {
-        getApi(shard).ifPresent(api -> {
-            api.disconnect();
-            apiMap.remove(shard);
-            shardDisconnectConsumers.forEach(c -> c.accept(shard));
-            DiscordConnector.getInstance().reconnectApi(shard);
-        });
+        getApi(shard).ifPresent(this::reconnectShard);
+    }
+
+    public void reconnectShard(DiscordApi api) {
+        int shard = api.getCurrentShard();
+        apiMap.remove(shard);
+        api.disconnect();
+        shardDisconnectConsumers.forEach(c -> c.accept(shard));
     }
 
     public int getTotalShards() {
@@ -133,22 +149,26 @@ public class DiscordApiManager {
 
     public List<Server> getLocalServers() {
         ArrayList<Server> serverList = new ArrayList<>();
-        for (DiscordApi api : apiMap.values()) {
-            serverList.addAll(api.getServers());
+        for (DiscordApiExtended api : apiMap.values()) {
+            serverList.addAll(api.getApi().getServers());
         }
 
         return serverList;
     }
 
-    public int getLocalServerSize() {
-        int servers = 0;
-        for (DiscordApi api : getConnectedLocalApis()) {
-            servers += api.getServers().size() + api.getUnavailableServers().size();
+    public Optional<Long> getLocalServerSize() {
+        if (isEverythingConnected()) {
+            long servers = 0;
+            for (DiscordApi api : getConnectedLocalApis()) {
+                servers += api.getServers().size() + api.getUnavailableServers().size();
+            }
+            return Optional.of(servers);
         }
-        return (int) (servers * ((double) getLocalShards() / apiMap.size()));
+
+        return Optional.empty();
     }
 
-    public int getGlobalServerSize() {
+    public Optional<Long> getGlobalServerSize() {
         return getLocalServerSize(); //TODO just temporary
     }
 
@@ -165,8 +185,8 @@ public class DiscordApiManager {
     }
 
     public Optional<User> getCachedUserById(long userId) {
-        for (DiscordApi api : apiMap.values()) {
-            Optional<User> userOpt = api.getCachedUserById(userId);
+        for (DiscordApiExtended api : apiMap.values()) {
+            Optional<User> userOpt = api.getApi().getCachedUserById(userId);
             if (userOpt.isPresent())
                 return userOpt;
         }
@@ -287,6 +307,37 @@ public class DiscordApiManager {
     //TODO remove
     public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {
         return getCustomEmojiById(String.valueOf(emojiId));
+    }
+
+
+    private static class DiscordApiExtended {
+
+        private final DiscordApi api;
+        private boolean alive = true;
+        private int errors = 0;
+
+        public DiscordApiExtended(DiscordApi api) {
+            this.api = api;
+            api.addMessageCreateListener(event -> alive = true);
+        }
+
+        public DiscordApi getApi() {
+            return api;
+        }
+
+        public void checkConnection() {
+            if (alive) {
+                errors = 0;
+                alive = false;
+            } else {
+                LOGGER.debug("No data from shard {}", api.getCurrentShard());
+                if (++errors >= 6) { /* reconnect after 60 seconds */
+                    LOGGER.warn("Shard {} temporarely offline", api.getCurrentShard());
+                    DiscordApiManager.getInstance().reconnectShard(api.getCurrentShard());
+                }
+            }
+        }
+
     }
 
 }

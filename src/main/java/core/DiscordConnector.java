@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import websockets.webcomserver.WebComServer;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 public class DiscordConnector {
 
@@ -117,7 +118,11 @@ public class DiscordConnector {
 
     public void updateActivity(DiscordApi api) {
         api.updateStatus(UserStatus.ONLINE);
-        api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(DiscordApiManager.getInstance().getGlobalServerSize()) + " | www.lawlietbot.xyz");
+        Optional<Long> serverSizeOpt = DiscordApiManager.getInstance().getGlobalServerSize();
+        if (serverSizeOpt.isPresent())
+            api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverSizeOpt.get()) + " | www.lawlietbot.xyz");
+        else
+            api.updateActivity(ActivityType.WATCHING, "L.help | www.lawlietbot.xyz");
     }
 
     private void onSessionResume(DiscordApi api) {

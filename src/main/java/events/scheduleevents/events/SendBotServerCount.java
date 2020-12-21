@@ -13,14 +13,14 @@ public class SendBotServerCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 0 && DiscordApiManager.getInstance().isEverythingConnected()) {
-            int totalServers = DiscordApiManager.getInstance().getGlobalServerSize();
-
-            TopGG.getInstance().updateServerCount(totalServers);
-            Botsfordiscord.updateServerCount(totalServers);
-            BotsOnDiscord.updateServerCount(totalServers);
-            Discordbotlist.updateServerCount(totalServers);
-            Discordbotsgg.updateServerCount(totalServers);
+        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 0) {
+            DiscordApiManager.getInstance().getGlobalServerSize().ifPresent(totalServers -> {
+                TopGG.getInstance().updateServerCount(totalServers);
+                Botsfordiscord.updateServerCount(totalServers);
+                BotsOnDiscord.updateServerCount(totalServers);
+                Discordbotlist.updateServerCount(totalServers);
+                Discordbotsgg.updateServerCount(totalServers);
+            });
         }
     }
 

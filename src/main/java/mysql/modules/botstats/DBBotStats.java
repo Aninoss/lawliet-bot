@@ -15,9 +15,9 @@ public class DBBotStats {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBBotStats.class);
 
-    public static void saveStatsServers(int serverCount) {
+    public static void saveStatsServers(long serverCount) {
         DBMain.getInstance().asyncUpdate("INSERT INTO StatsServerCount VALUES(NOW(), ?);",
-                preparedStatement -> preparedStatement.setInt(1, serverCount)
+                preparedStatement -> preparedStatement.setLong(1, serverCount)
         );
     }
 

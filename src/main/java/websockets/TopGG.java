@@ -25,8 +25,8 @@ public class TopGG {
                 .build();
     }
 
-    public void updateServerCount(int totalServerSize) {
-        dblApi.setStats(totalServerSize);
+    public void updateServerCount(long totalServerSize) {
+        dblApi.setStats((int)totalServerSize);
     }
 
     public int getTotalUpvotes() throws ExecutionException, InterruptedException {

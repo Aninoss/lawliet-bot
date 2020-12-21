@@ -27,7 +27,7 @@ public class OnServerStats extends EventAbstract {
         });
 
         mainJSON.put("data", arrayJSON);
-        mainJSON.put("servers", DiscordApiManager.getInstance().getGlobalServerSize());
+        mainJSON.put("servers", DiscordApiManager.getInstance().getGlobalServerSize().orElse(null));
         return mainJSON;
     }
 

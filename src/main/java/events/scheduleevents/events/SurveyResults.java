@@ -75,8 +75,8 @@ public class SurveyResults implements ScheduleInterface {
                         if (notificationUsers.contains(userId)) {
                             notificationUsers.remove(userId);
                             sendSurveyResult(lastSurvey, user, won, percent);
+                            Thread.sleep(100);
                         }
-                        Thread.sleep(20);
                     } catch (Throwable e) {
                         LOGGER.error("Exception while managing user {}", userId, e);
                     }
@@ -90,7 +90,7 @@ public class SurveyResults implements ScheduleInterface {
             DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
                 try {
                     sendSurveyResult(lastSurvey, user, won, percent);
-                    Thread.sleep(20);
+                    Thread.sleep(100);
                 } catch (Throwable e) {
                     LOGGER.error("Exception while managing user {}", userId, e);
                 }

@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class Discordbotlist {
 
-    public static void updateServerCount(int serverCount) {
+    public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("guilds", serverCount);
 

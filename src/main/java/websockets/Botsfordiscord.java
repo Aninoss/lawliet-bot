@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class Botsfordiscord {
 
-    public static void updateServerCount(int serverCount) {
+    public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("server_count", String.valueOf(serverCount));
         HttpProperty[] properties = new HttpProperty[]{

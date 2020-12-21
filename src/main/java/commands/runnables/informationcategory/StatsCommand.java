@@ -46,7 +46,7 @@ public class StatsCommand extends Command {
                         ExternalLinks.BOT_INVITE_URL,
                         BotUtil.getCurrentVersion(),
                         TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
-                        StringUtil.numToString(DiscordApiManager.getInstance().getGlobalServerSize()),
+                        DiscordApiManager.getInstance().getGlobalServerSize().map(StringUtil::numToString).orElse("-"),
                         StringUtil.numToString(DBTracker.getInstance().getBean().getSlots().size()),
                         owner,
                         StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
