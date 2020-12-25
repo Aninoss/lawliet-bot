@@ -7,6 +7,8 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -17,6 +19,8 @@ import java.util.Locale;
         executableWithoutArgs = true
 )
 public class PingCommand extends Command {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(PingCommand.class);
 
     public PingCommand(Locale locale, String prefix) {
         super(locale, prefix);

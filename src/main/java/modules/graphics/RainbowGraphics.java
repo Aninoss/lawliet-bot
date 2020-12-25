@@ -26,6 +26,7 @@ public class RainbowGraphics {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageIO.write(result, "png", os);
+        g.dispose();
         return new ByteArrayInputStream(os.toByteArray());
     }
 

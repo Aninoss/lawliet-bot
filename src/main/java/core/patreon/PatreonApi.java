@@ -40,8 +40,10 @@ public class PatreonApi {
 
     public synchronized int getUserTier(long userId) {
         /* fetch update if due */
-        if (Instant.now().isAfter(nextReset))
+        if (Instant.now().isAfter(nextReset)) {
+            resetUpdateTimer();
             new CustomThread(this::update, "patreon_update", 1).start();
+        }
 
         /* return 6 if user is owner */
         if (userId == DiscordApiManager.getInstance().getOwnerId())
@@ -65,7 +67,6 @@ public class PatreonApi {
     public void update() {
         if (Bot.isProductionMode()) {
             LOGGER.info("Updating Patreon tiers");
-            nextReset = Instant.now().plus(10, ChronoUnit.MINUTES);
             try {
                 HashMap<Long, Integer> userTiers = new HashMap<>();
                 fetchFromUrl("https://www.patreon.com/api/oauth2/v2/campaigns/3334056/members?include=user,currently_entitled_tiers&fields%5Bmember%5D=full_name,patron_status&fields%5Buser%5D=social_connections&page%5Bsize%5D=9999", userTiers);
@@ -75,6 +76,10 @@ public class PatreonApi {
                 LOGGER.error("Could not fetch patreon data", e);
             }
         }
+    }
+
+    public void resetUpdateTimer() {
+        nextReset = Instant.now().plus(5, ChronoUnit.MINUTES);
     }
 
     public HashMap<Long, Integer> getUserTiersMap() {

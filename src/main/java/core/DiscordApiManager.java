@@ -61,7 +61,7 @@ public class DiscordApiManager {
         shardDisconnectConsumers.add(consumer);
     }
 
-    public void addApi(DiscordApi api) {
+    public synchronized void addApi(DiscordApi api) {
         if (ownerId == 0) {
             ownerId = api.getOwnerId();
             fetchUserById(AssetIds.CACHE_USER_ID);
@@ -69,16 +69,16 @@ public class DiscordApiManager {
         apiMap.put(api.getCurrentShard(), new DiscordApiExtended(api));
     }
 
-    public Optional<DiscordApi> getApi(int shard) {
+    public synchronized Optional<DiscordApi> getApi(int shard) {
         return Optional.ofNullable(apiMap.get(shard)).map(DiscordApiExtended::getApi);
     }
 
-    public Optional<DiscordApi> getAnyApi() {
-        return apiMap.values().stream().findFirst().map(DiscordApiExtended::getApi);
+    public synchronized Optional<DiscordApi> getAnyApi() {
+        return new ArrayList<>(apiMap.values()).stream().findFirst().map(DiscordApiExtended::getApi);
     }
 
-    public List<DiscordApi> getConnectedLocalApis() {
-        return apiMap.values().stream()
+    public synchronized List<DiscordApi> getConnectedLocalApis() {
+        return new ArrayList<>(apiMap.values()).stream()
                 .map(DiscordApiExtended::getApi)
                 .collect(Collectors.toList());
     }

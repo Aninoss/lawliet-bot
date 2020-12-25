@@ -13,7 +13,6 @@ import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -327,9 +326,7 @@ public class Console {
     }
 
     private void onShards(String[] args) {
-        for (DiscordApi api : DiscordApiManager.getInstance().getConnectedLocalApis()) {
-            LOGGER.info("Shard {} ({} unavailable)", api.getCurrentShard(), api.getUnavailableServers().size());
-        }
+        LOGGER.info("Shards: {} / {}", DiscordApiManager.getInstance().getConnectedLocalApis().size(), DiscordApiManager.getInstance().getLocalShards());
     }
 
     private void onStats(String[] args) {

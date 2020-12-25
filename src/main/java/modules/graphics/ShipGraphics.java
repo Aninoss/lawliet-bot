@@ -26,7 +26,7 @@ public class ShipGraphics {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = Graphics.createGraphics(result);
-        FileReader fReader = new FileReader(new File("recourses/ship/pos.txt"));
+        FileReader fReader = new FileReader("recourses/ship/pos.txt");
         BufferedReader reader = new BufferedReader(fReader);
 
         String text;
@@ -58,6 +58,7 @@ public class ShipGraphics {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageIO.write(result, "png", os);
+        g.dispose();
         return new ByteArrayInputStream(os.toByteArray());
     }
 

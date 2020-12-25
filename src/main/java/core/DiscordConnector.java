@@ -56,7 +56,7 @@ public class DiscordConnector {
         apiBuilder.loginShards(shard -> shard >= shardIntervalMin && shard <= shardIntervalMax)
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
                         .exceptionally(e -> {
-                            LOGGER.error("EXIT - Error while connecting to the Discord servers!");
+                            LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
                             System.exit(-1);
                             return null;
                         })

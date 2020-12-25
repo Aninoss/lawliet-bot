@@ -55,6 +55,7 @@ public class TriggerGraphics {
             g.drawImage(ImageIO.read(new File("recourses/triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
 
             gifSequenceWriter.writeToSequence(result);
+            g.dispose();
         }
 
         gifSequenceWriter.close();

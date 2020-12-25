@@ -30,6 +30,7 @@ public class Main {
         DBMain.getInstance().connect();
         DBFishery.getInstance().cleanUp();
         PatreonApi.getInstance().update();
+        PatreonApi.getInstance().resetUpdateTimer();
         FisheryVCObserver.getInstance().start();
         if (Bot.isPublicVersion()) {
             cleanAllTempFiles();

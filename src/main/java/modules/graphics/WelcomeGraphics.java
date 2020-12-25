@@ -46,6 +46,7 @@ public class WelcomeGraphics {
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(Graphics.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
+            g2d.dispose();
             return new ByteArrayInputStream(os.toByteArray());
         } catch (IOException e) {
             LOGGER.error("Exception", e);
@@ -99,6 +100,7 @@ public class WelcomeGraphics {
         Graphics2D black2d = black.createGraphics();
         black2d.setColor(color);
         black2d.fillRect(0, 0, black.getWidth(), black.getHeight());
+        black2d.dispose();
         return Graphics.makeRoundedCorner(black, radius);
     }
 
