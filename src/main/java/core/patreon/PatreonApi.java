@@ -1,9 +1,9 @@
 package core.patreon;
 
 import core.Bot;
-import core.CustomThread;
 import core.DiscordApiManager;
 import core.SecretManager;
+import core.cache.SingleCache;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import mysql.modules.patreon.DBPatreon;
@@ -13,20 +13,22 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
-public class PatreonApi {
+public class PatreonApi extends SingleCache<HashMap<Long, Integer>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(PatreonApi.class);
-    
     private static final PatreonApi ourInstance = new PatreonApi();
-    public static PatreonApi getInstance() { return ourInstance; }
-    private PatreonApi() { }
 
-    private final HashMap<String, Integer> TIER_MAP  = new HashMap<>() {{
+    public static PatreonApi getInstance() {
+        return ourInstance;
+    }
+
+    private PatreonApi() {
+    }
+
+    private final HashMap<String, Integer> TIER_MAP = new HashMap<>() {{
         put("6044874", 1);
         put("4928466", 2);
         put("5074151", 3);
@@ -35,15 +37,8 @@ public class PatreonApi {
         put("5080991", 6);
     }};
 
-    private HashMap<Long, Integer> userTiers = new HashMap<>();
-    private Instant nextReset = Instant.now();
-
     public synchronized int getUserTier(long userId) {
-        /* fetch update if due */
-        if (Instant.now().isAfter(nextReset)) {
-            resetUpdateTimer();
-            new CustomThread(this::update, "patreon_update", 1).start();
-        }
+        HashMap<Long, Integer> userTiers = getAsync();
 
         /* return 6 if user is owner */
         if (userId == DiscordApiManager.getInstance().getOwnerId())
@@ -64,34 +59,33 @@ public class PatreonApi {
         return 0;
     }
 
-    public void update() {
+    @Override
+    protected HashMap<Long, Integer> fetchValue() {
         if (Bot.isProductionMode()) {
             LOGGER.info("Updating Patreon tiers");
             try {
                 HashMap<Long, Integer> userTiers = new HashMap<>();
                 fetchFromUrl("https://www.patreon.com/api/oauth2/v2/campaigns/3334056/members?include=user,currently_entitled_tiers&fields%5Bmember%5D=full_name,patron_status&fields%5Buser%5D=social_connections&page%5Bsize%5D=9999", userTiers);
-                this.userTiers = userTiers;
                 LOGGER.info("Patreon update completed with {} users", userTiers.size());
+                return userTiers;
             } catch (ExecutionException | InterruptedException e) {
                 LOGGER.error("Could not fetch patreon data", e);
             }
         }
-    }
-
-    public void resetUpdateTimer() {
-        nextReset = Instant.now().plus(5, ChronoUnit.MINUTES);
+        return null;
     }
 
     public HashMap<Long, Integer> getUserTiersMap() {
-        HashMap<Long, Integer> userTiersMap = new HashMap<>(userTiers);
+        HashMap<Long, Integer> userTiersMap = getAsync();
+        HashMap<Long, Integer> userTiersMapCombined = userTiersMap != null ? new HashMap<>(getAsync()) : new HashMap<>();
         HashMap<Long, PatreonBean> sqlMap = DBPatreon.getInstance().getBean();
 
         sqlMap.keySet().forEach(userId -> {
             PatreonBean p = sqlMap.get(userId);
             if (p.isValid())
-                userTiersMap.put(userId, p.getTier());
+                userTiersMapCombined.put(userId, p.getTier());
         });
-        return userTiersMap;
+        return userTiersMapCombined;
     }
 
     private void fetchFromUrl(String url, HashMap<Long, Integer> userTiers) throws ExecutionException, InterruptedException {

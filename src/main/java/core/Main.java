@@ -29,8 +29,7 @@ public class Main {
         FontContainer.getInstance().init();
         DBMain.getInstance().connect();
         DBFishery.getInstance().cleanUp();
-        PatreonApi.getInstance().update();
-        PatreonApi.getInstance().resetUpdateTimer();
+        PatreonApi.getInstance().fetch();
         FisheryVCObserver.getInstance().start();
         if (Bot.isPublicVersion()) {
             cleanAllTempFiles();
