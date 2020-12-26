@@ -6,7 +6,6 @@ import commands.runningchecker.RunningCheckerManager;
 import core.patreon.PatreonApi;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
-import core.utils.SystemUtil;
 import events.scheduleevents.events.SurveyResults;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
@@ -71,28 +70,22 @@ public class Console {
         tasks.put("reconnect", this::onReconnect);
         tasks.put("threads", this::onThreads);
         tasks.put("threads_stop", this::onThreadStop);
-        tasks.put("stop_threads", this::onThreadStop);
-        tasks.put("threads_kill", this::onThreadStop);
-        tasks.put("kill_threads", this::onThreadStop);
         tasks.put("ban", this::onBan);
         tasks.put("unban", this::onUnban);
         tasks.put("fish", this::onFish);
         tasks.put("coins", this::onCoins);
         tasks.put("daily", this::onDailyStreak);
         tasks.put("delete_fishery_user", this::onDeleteFisheryUser);
-        tasks.put("remove_fishery_user", this::onDeleteFisheryUser);
         tasks.put("fishery_vc", this::onFisheryVC);
         tasks.put("server", this::onServer);
         tasks.put("leave_server", this::onLeaveServer);
         tasks.put("user", this::onUser);
         tasks.put("clear", this::onClear);
         tasks.put("fonts", this::onReloadFonts);
-        tasks.put("backup", this::onBackup);
         tasks.put("servers", this::onServers);
         tasks.put("patreon", this::onPatreon);
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
-        tasks.put("send_server", this::onSendChannel);
         tasks.put("send_channel", this::onSendChannel);
     }
 
@@ -197,11 +190,6 @@ public class Console {
             );
         }
         LOGGER.info("---------------");
-    }
-
-    private void onBackup(String[] args) {
-        SystemUtil.backupDB();
-        System.out.println("Backup completed!");
     }
 
     private void onReloadFonts(String[] args) {
@@ -335,7 +323,6 @@ public class Console {
 
     private void onQuit(String[] args) {
         LOGGER.info("EXIT - User commanded exit");
-        SystemUtil.backupDB();
         System.exit(0);
     }
 

@@ -1,13 +1,16 @@
 package core;
 
+import core.patreon.PatreonApi;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
+import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
 import modules.schedulers.GiveawayScheduler;
 import modules.schedulers.ReminderScheduler;
+import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.survey.DBSurvey;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
@@ -17,6 +20,7 @@ import org.javacord.api.entity.intent.Intent;
 import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websockets.syncserver.SyncManager;
 import websockets.webcomserver.WebComServer;
 
 import java.time.temporal.ChronoUnit;
@@ -36,24 +40,23 @@ public class DiscordConnector {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
     private final DiscordEventManager discordEventManager = new DiscordEventManager();
-    private boolean connected = false;
+    private boolean started = false;
 
-    public void connect() {
-        if (connected) return;
-        connected = true;
+    public void connect(int shardMin, int shardMax, int totalShards) {
+        if (started) return;
+        started = true;
+
+        DBFishery.getInstance().cleanUp();
+        PatreonApi.getInstance().fetch();
+        FisheryVCObserver.getInstance().start();
 
         LOGGER.info("Bot is logging in...");
         DiscordApiBuilder apiBuilder = createBuilder()
-                .setRecommendedTotalShards()
-                .join();
+                .setTotalShards(totalShards);
 
-        //TODO receive interval
-        int totalShards = apiBuilder.getTotalShards();
-        int shardIntervalMin = 0;
-        int shardIntervalMax = totalShards - 1;
-        DiscordApiManager.getInstance().init(shardIntervalMin, shardIntervalMax, totalShards);
+        DiscordApiManager.getInstance().init(shardMin, shardMax, totalShards);
 
-        apiBuilder.loginShards(shard -> shard >= shardIntervalMin && shard <= shardIntervalMax)
+        apiBuilder.loginShards(shard -> shard >= shardMin && shard <= shardMax)
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
                         .exceptionally(e -> {
                             LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
@@ -93,7 +96,7 @@ public class DiscordConnector {
         DiscordApiManager.getInstance().addApi(api);
         LOGGER.info("Shard {} connection established", api.getCurrentShard());
 
-        if (DiscordApiManager.getInstance().isEverythingConnected() && !DiscordApiManager.getInstance().isStarted()) {
+        if (DiscordApiManager.getInstance().isEverythingConnected() && !DiscordApiManager.getInstance().isFullyConnected()) {
             onConnectionCompleted();
         }
 
@@ -113,6 +116,7 @@ public class DiscordConnector {
         GiveawayScheduler.getInstance().start();
 
         DiscordApiManager.getInstance().start();
+        SyncManager.getInstance().setFullyConnected();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
@@ -128,6 +132,10 @@ public class DiscordConnector {
     private void onSessionResume(DiscordApi api) {
         LOGGER.debug("Connection has been reestablished!");
         updateActivity(api);
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
 }

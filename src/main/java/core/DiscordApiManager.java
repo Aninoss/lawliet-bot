@@ -39,7 +39,7 @@ public class DiscordApiManager {
     private int shardIntervalMin = 0;
     private int shardIntervalMax = 0;
     private int totalShards = 0;
-    private boolean started = false;
+    private boolean fullyConnected = false;
     private long ownerId = 0;
 
     public void init(int shardIntervalMin, int shardIntervalMax, int totalShards) {
@@ -49,7 +49,7 @@ public class DiscordApiManager {
 
         if (Bot.isProductionMode()) {
             MainScheduler.getInstance().schedule((long) Math.ceil(getLocalShards() / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
-                if (!started) {
+                if (!fullyConnected) {
                     LOGGER.error("EXIT - Could not boot up");
                     System.exit(-1);
                 }
@@ -122,8 +122,8 @@ public class DiscordApiManager {
         return shardIntervalMax;
     }
 
-    public boolean isStarted() {
-        return started;
+    public boolean isFullyConnected() {
+        return fullyConnected;
     }
 
     public boolean isEverythingConnected() {
@@ -132,11 +132,11 @@ public class DiscordApiManager {
 
     public void start() {
         if (isEverythingConnected())
-            started = true;
+            fullyConnected = true;
     }
 
     public void stop() {
-        started = false;
+        fullyConnected = false;
     }
 
     public int getResponsibleShard(long serverId) {
