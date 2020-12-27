@@ -222,7 +222,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                     onWin();
                     logStatus = LogStatus.WIN;
                     log = getString("toomany", 1);
-                    message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
+                    message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                 });
                 return false;
             }

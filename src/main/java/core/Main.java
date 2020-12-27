@@ -34,6 +34,8 @@ public class Main {
 
         LOGGER.info("Waiting for sync server");
         SyncManager.getInstance().start();
+        if (!Bot.isProductionMode())
+            DiscordConnector.getInstance().connect(0, 0, 1);
     }
 
     private static void cleanAllTempFiles() {

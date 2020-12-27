@@ -411,7 +411,8 @@ public class FisheryUserBean extends BeanWithServer {
         /* Update Changes */
         addFish(fishAdd);
         addCoinsRaw(coinsAdd);
-        if (newDailyStreak != null) setDailyStreak(newDailyStreak);
+        if (newDailyStreak != null)
+            setDailyStreak(newDailyStreak);
 
         long rank = getRank();
 
@@ -432,7 +433,8 @@ public class FisheryUserBean extends BeanWithServer {
 
         String patreonEmoji = "👑";
         String displayName = user.getDisplayName(server);
-        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) displayName = displayName.substring(patreonEmoji.length());
+        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji))
+            displayName = displayName.substring(patreonEmoji.length());
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), "", user.getAvatar())

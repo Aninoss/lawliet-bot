@@ -114,7 +114,8 @@ public class DiscordConnector {
         GiveawayScheduler.getInstance().start();
 
         DiscordApiManager.getInstance().start();
-        SyncManager.getInstance().setFullyConnected();
+        if (Bot.isProductionMode())
+            SyncManager.getInstance().setFullyConnected();
         LOGGER.info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 

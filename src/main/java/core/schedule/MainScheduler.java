@@ -85,11 +85,14 @@ public class MainScheduler {
     }
 
     private void monitorTimeOuts(ScheduleSlot slot) {
+        Thread runnerThread = Thread.currentThread();
         timeOutMonitorer.schedule(new TimerTask() {
             @Override
             public void run() {
                 if (slots.contains(slot)) {
-                    LOGGER.warn("Task \"{}\" stuck in scheduler", slot.name);
+                    Exception e = new Exception("Stack Trace");
+                    e.setStackTrace(runnerThread.getStackTrace());
+                    LOGGER.error("Task \"{}\" stuck in scheduler {}", slot.name, runnerThread.getName(), e);
                 }
             }
         }, 500);

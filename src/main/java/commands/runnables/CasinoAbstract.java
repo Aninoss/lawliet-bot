@@ -120,7 +120,8 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().getBean(compareKey);
             gameStatisticsBean.addValue(true, winMultiplicator);
 
-            double won = gameStatisticsBean.getValue(true), lost = gameStatisticsBean.getValue(false);
+            double won = gameStatisticsBean.getValue(true);
+            double lost = gameStatisticsBean.getValue(false);
             if (won > 0 && lost > 0) multiplicator = lost / won;
         }
 
