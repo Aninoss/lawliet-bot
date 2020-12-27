@@ -1,5 +1,6 @@
 package mysql.modules.upvotes;
 
+import core.Bot;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
@@ -30,10 +31,12 @@ public class DBUpvotes extends DBSingleBeanGenerator<UpvotesBean> {
     }
 
     private void addUpvote(UpvoteSlot upvoteSlot) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
-            preparedStatement.setLong(1, upvoteSlot.getUserId());
-            preparedStatement.setString(2, DBMain.instantToDateTimeString(upvoteSlot.getLastUpdate()));
-        });
+        if (Bot.getClusterId() == 0) {
+            DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
+                preparedStatement.setLong(1, upvoteSlot.getUserId());
+                preparedStatement.setString(2, DBMain.instantToDateTimeString(upvoteSlot.getLastUpdate()));
+            });
+        }
     }
 
     public void cleanUp() {

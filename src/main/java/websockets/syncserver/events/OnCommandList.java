@@ -1,32 +1,30 @@
-package websockets.webcomserver.events;
+package websockets.syncserver.events;
 
-import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.OnTrackerRequestListener;
 import constants.Category;
 import core.TextManager;
-import websockets.webcomserver.EventAbstract;
-import websockets.webcomserver.WebComServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websockets.syncserver.SyncLocaleUtil;
+import websockets.syncserver.SyncServerEvent;
+import websockets.syncserver.SyncServerFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class OnCommandList extends EventAbstract {
+@SyncServerEvent(event = "COMMAND_LIST")
+public class OnCommandList implements SyncServerFunction {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OnCommandList.class);
-
-    public OnCommandList(WebComServer webComServer, String event) {
-        super(webComServer, event);
-    }
-
+    
     @Override
-    protected synchronized JSONObject processData(JSONObject requestJSON, WebComServer webComServer) throws Exception {
+    public JSONObject apply(JSONObject jsonObject) {
         JSONObject mainJSON = new JSONObject();
         JSONArray arrayJSON = new JSONArray();
         HashMap<String, JSONObject> categories = new HashMap<>();
@@ -35,7 +33,7 @@ public class OnCommandList extends EventAbstract {
         for (String categoryId : Category.LIST) {
             JSONObject categoryJSON = new JSONObject();
             categoryJSON.put("id", categoryId);
-            categoryJSON.put("name", webComServer.getLanguagePack(TextManager.COMMANDS, categoryId));
+            categoryJSON.put("name", SyncLocaleUtil.getLanguagePack(TextManager.COMMANDS, categoryId));
             categoryJSON.put("commands", new JSONArray());
             categories.put(categoryId, categoryJSON);
             arrayJSON.put(categoryJSON);
@@ -49,12 +47,12 @@ public class OnCommandList extends EventAbstract {
                 JSONObject commandJSON = new JSONObject();
                 commandJSON.put("trigger", trigger);
                 commandJSON.put("emoji", command.getEmoji());
-                commandJSON.put("title", webComServer.getLanguagePack(command.getCategory(), trigger + "_title"));
-                commandJSON.put("desc_short", webComServer.getLanguagePack(command.getCategory(), trigger + "_description"));
-                commandJSON.put("desc_long", webComServer.getLanguagePack(command.getCategory(), trigger + "_helptext"));
-                commandJSON.put("usage", webComServer.getCommandSpecs(command.getCategory(), trigger + "_usage", trigger));
-                commandJSON.put("examples", webComServer.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
-                commandJSON.put("user_permissions", webComServer.getCommandPermissions(command));
+                commandJSON.put("title", SyncLocaleUtil.getLanguagePack(command.getCategory(), trigger + "_title"));
+                commandJSON.put("desc_short", SyncLocaleUtil.getLanguagePack(command.getCategory(), trigger + "_description"));
+                commandJSON.put("desc_long", SyncLocaleUtil.getLanguagePack(command.getCategory(), trigger + "_helptext"));
+                commandJSON.put("usage", SyncLocaleUtil.getCommandSpecs(command.getCategory(), trigger + "_usage", trigger));
+                commandJSON.put("examples", SyncLocaleUtil.getCommandSpecs(command.getCategory(), trigger + "_examples", trigger));
+                commandJSON.put("user_permissions", SyncLocaleUtil.getCommandPermissions(command));
                 commandJSON.put("nsfw", command.isNsfw());
                 commandJSON.put("requires_user_permissions", command.isModCommand());
                 commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);

@@ -7,7 +7,7 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.ServerPatreonBoostCache;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -429,7 +429,7 @@ public class FisheryUserBean extends BeanWithServer {
     private synchronized EmbedBuilder generateUserChangeEmbed(Server server, User user, Locale locale, long fishAdd, long coinsAdd,
                                                  long rank, long rankPrevious, long fishIncomePrevious, long fishPrevious, long coinsPrevious, Long newDailyStreak, long dailyStreakPrevious
     ) {
-        boolean patron = PatreonApi.getInstance().getUserTier(userId) >= 1;
+        boolean patron = PatreonCache.getInstance().getUserTier(userId) >= 1;
 
         String patreonEmoji = "👑";
         String displayName = user.getDisplayName(server);

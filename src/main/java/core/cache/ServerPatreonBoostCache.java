@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
-import core.patreon.PatreonApi;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
 import java.util.Optional;
@@ -32,7 +31,7 @@ public class ServerPatreonBoostCache {
 
                                 return server.getMembers().stream()
                                         .filter(user -> !user.isBot() && server.canManage(user))
-                                        .anyMatch(user -> PatreonApi.getInstance().getUserTier(user.getId()) > 1);
+                                        .anyMatch(user -> PatreonCache.getInstance().getUserTier(user.getId()) > 1);
                             }
 
                             return false;

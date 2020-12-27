@@ -7,7 +7,7 @@ import constants.FisheryCategoryInterface;
 import constants.Permission;
 import core.EmbedFactory;
 import core.TextManager;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -50,7 +50,7 @@ public class GearCommand extends FisheryUserAccountAbstract {
                 .setDescription(getString("desc", StringUtil.numToString(fisheryUserBean.getFish()), StringUtil.numToString(fisheryUserBean.getCoins())));
         EmbedUtil.setFooter(eb, this);
 
-        boolean patron = PatreonApi.getInstance().getUserTier(user.getId()) >= 1;
+        boolean patron = PatreonCache.getInstance().getUserTier(user.getId()) >= 1;
         String patreonEmoji = "\uD83D\uDC51";
         String displayName = user.getDisplayName(server);
         while (displayName.length() > 0 && displayName.startsWith(patreonEmoji))

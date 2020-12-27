@@ -7,7 +7,7 @@ import constants.ExternalLinks;
 import constants.Settings;
 import core.DiscordApiManager;
 import core.EmbedFactory;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -38,7 +38,7 @@ public class PatreonCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        userTiers = PatreonApi.getInstance().getUserTiersMap();
+        userTiers = PatreonCache.getInstance().getAsync();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("info", ExternalLinks.PATREON_PAGE))
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
@@ -50,7 +50,7 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString());
-        EmbedUtil.addLog(eb, null, getString("status", PatreonApi.getInstance().getUserTier(event.getMessageAuthor().getId())));
+        EmbedUtil.addLog(eb, null, getString("status", PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId())));
         event.getChannel().sendMessage(eb).get();
         return true;
     }

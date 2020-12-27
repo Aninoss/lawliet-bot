@@ -8,7 +8,7 @@ import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
 import core.TextManager;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -51,7 +51,7 @@ public class DailyCommand extends FisheryAbstract {
                 bonusCombo = (int) Math.round(fishes * 0.25);
             }
 
-            if (PatreonApi.getInstance().getUserTier(event.getMessageAuthor().getId()) > 1) {
+            if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) > 1) {
                 bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
             }
 

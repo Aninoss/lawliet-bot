@@ -3,7 +3,7 @@ package core;
 import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import events.scheduleevents.events.SurveyResults;
@@ -17,7 +17,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import websockets.webcomserver.WebComServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,9 +58,6 @@ public class Console {
 
         tasks.put("survey", this::onSurvey);
         tasks.put("repair", this::onRepair);
-        tasks.put("webcom_start", this::onWebComStart);
-        tasks.put("webcom_stop", this::onWebComStop);
-        tasks.put("webcom", this::onWebCom);
         tasks.put("eval", this::onEval);
         tasks.put("eval_file", this::onEvalFile);
         tasks.put("quit", this::onQuit);
@@ -97,21 +93,6 @@ public class Console {
         int hours = Integer.parseInt(args[1]);
         DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, hours));
         LOGGER.info("Repair started with hours {}", hours);
-    }
-
-    private void onWebComStart(String[] args) {
-        int port = 15744;
-        if (args.length > 1) port = Integer.parseInt(args[1]);
-        WebComServer.getInstance().start(port);
-    }
-
-    private void onWebComStop(String[] args) {
-        WebComServer.getInstance().stop();
-        LOGGER.info("WebCom server stopped");
-    }
-
-    private void onWebCom(String[] args) {
-        LOGGER.info("WebCom connection: {}", WebComServer.getInstance().isConnected());
     }
 
     private void onEval(String[] args) throws Exception {
@@ -167,7 +148,7 @@ public class Console {
 
     private void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
-        LOGGER.info("Patreon stats of user {}: {}", userId, PatreonApi.getInstance().getUserTier(userId));
+        LOGGER.info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getUserTier(userId));
     }
 
     private void onServers(String[] args) {

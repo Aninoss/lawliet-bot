@@ -1,7 +1,7 @@
 package mysql.modules.autoclaim;
 
 import core.CustomObservableList;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.util.ArrayList;
 
@@ -21,7 +21,7 @@ public class AutoClaimBean {
     }
 
     public boolean isActive(long userId) {
-        return userList.contains(userId) && PatreonApi.getInstance().getUserTier(userId) >= 2;
+        return userList.contains(userId) && PatreonCache.getInstance().getUserTier(userId) >= 2;
     }
 
     public void setActive(long userId, boolean active) {

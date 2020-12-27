@@ -1,7 +1,7 @@
 package commands.runningchecker;
 
 import core.DiscordApiManager;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 
 import java.time.Instant;
@@ -50,7 +50,7 @@ public class RunningCheckerManager {
     }
 
     private int getMaxAmount(long userId) {
-        return PatreonApi.getInstance().getUserTier(userId) >= 3 ? 2 : 1;
+        return PatreonCache.getInstance().getUserTier(userId) >= 3 ? 2 : 1;
     }
 
     private void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {

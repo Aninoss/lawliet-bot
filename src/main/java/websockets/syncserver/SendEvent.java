@@ -2,8 +2,10 @@ package websockets.syncserver;
 
 import core.utils.DiscordUtil;
 import org.javacord.api.entity.emoji.CustomEmoji;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -17,7 +19,7 @@ public class SendEvent {
         return SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
     }
 
-    public static CompletableFuture<Optional<Long>> sendGlobalServerSize(long localServerSize) {
+    public static CompletableFuture<Optional<Long>> sendRequestGlobalServerSize(long localServerSize) {
         return process("GLOBAL_SERVER_SIZE",
                 Map.of("local_server_size", localServerSize),
                 responseJson -> {
@@ -41,6 +43,24 @@ public class SendEvent {
         return process("SERVER_NAME",
                 Map.of("server_id", serverId),
                 responseJson -> responseJson.has("name") ? Optional.of(responseJson.getString("name")) : Optional.empty()
+        );
+    }
+
+    public static CompletableFuture<HashMap<Long, Integer>> sendRequestPatreon() {
+        return process("PATREON",
+                Map.of(),
+                responseJson -> {
+                    HashMap<Long, Integer> patreonUserTiers = new HashMap<>();
+                    JSONArray usersArray = responseJson.getJSONArray("users");
+                    for (int i = 0; i < usersArray.length(); i++) {
+                        JSONObject userJson = usersArray.getJSONObject(i);
+                        patreonUserTiers.put(
+                                userJson.getLong("user_id"),
+                                userJson.getInt("tier")
+                        );
+                    }
+                    return patreonUserTiers;
+                }
         );
     }
 

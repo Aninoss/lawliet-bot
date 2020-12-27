@@ -6,7 +6,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Permission;
 import core.EmbedFactory;
-import core.patreon.PatreonApi;
+import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -45,7 +45,7 @@ public class ClaimCommand extends FisheryAbstract {
 
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
-            if (PatreonApi.getInstance().getUserTier(event.getMessageAuthor().getId()) >= 2 &&
+            if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) >= 2 &&
                     DBAutoClaim.getInstance().getBean().isActive(event.getMessageAuthor().getId())
             ) {
                 eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));

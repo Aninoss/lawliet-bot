@@ -20,8 +20,6 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.syncserver.SyncManager;
-import websockets.webcomserver.WebComServer;
-
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -106,7 +104,6 @@ public class DiscordConnector {
 
     private void onConnectionCompleted() {
         DBSurvey.getInstance().getCurrentSurvey();
-        if (Bot.isPublicVersion()) WebComServer.getInstance().start(15744);
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();
         if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();

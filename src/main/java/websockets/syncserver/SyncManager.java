@@ -8,7 +8,6 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.CustomWebSocketClient;
-
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Objects;
@@ -30,7 +29,7 @@ public class SyncManager {
     private SyncManager() {
         try {
             String host = Bot.isProductionMode() ? SecretManager.getString("syncserver.ip") : "localhost";
-            client = new CustomWebSocketClient(host, 9998, String.valueOf(Bot.getClusterId()), getSocketClientHeaders());
+            client = new CustomWebSocketClient(host, 9998, "cluster_" + Bot.getClusterId(), getSocketClientHeaders());
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -74,6 +73,7 @@ public class SyncManager {
 
     private HashMap<String, String> getSocketClientHeaders() {
         HashMap<String, String> headers = new HashMap<>();
+        headers.put("type", "cluster");
         headers.put("size", String.valueOf(Math.round(Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0))));
         headers.put("already_connected", "false");
         return headers;

@@ -47,7 +47,7 @@ public class DiscordApiManager {
             Optional<Long> localServerSizeOpt = getLocalServerSize();
             if (localServerSizeOpt.isEmpty())
                 return null;
-            return SendEvent.sendGlobalServerSize(localServerSizeOpt.get()).join().orElse(null);
+            return SendEvent.sendRequestGlobalServerSize(localServerSizeOpt.get()).join().orElse(null);
         }
     };
 
