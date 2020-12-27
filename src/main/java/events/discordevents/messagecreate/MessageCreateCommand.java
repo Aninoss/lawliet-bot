@@ -7,7 +7,7 @@ import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import commands.runnables.informationcategory.HelpCommand;
-import core.ExceptionHandler;
+import core.utils.ExceptionUtil;
 import core.DiscordApiManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -85,7 +85,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                     try {
                         CommandManager.manage(event, command, followedString, getStartTime());
                     } catch (Throwable e) {
-                        ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
+                        ExceptionUtil.handleCommandException(e, command, event.getServerTextChannel().get());
                     }
                 }
             }
@@ -134,7 +134,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                         if (end) return true;
                     }
                 } catch (Throwable e) {
-                    ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
+                    ExceptionUtil.handleCommandException(e, command, event.getServerTextChannel().get());
                 }
             }
         }

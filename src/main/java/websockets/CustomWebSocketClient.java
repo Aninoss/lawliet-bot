@@ -1,6 +1,7 @@
 package websockets;
 
 import core.CustomThread;
+import core.utils.ExceptionUtil;
 import core.schedule.MainScheduler;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -89,7 +90,8 @@ public class CustomWebSocketClient extends WebSocketClient {
 
                 MainScheduler.getInstance().schedule(2, ChronoUnit.SECONDS, "websocket_" + event + "_observer", () -> {
                     if (t.isAlive()) {
-                        LOGGER.error("websocket_" + event + " took too long to respond!");
+                        Exception e = ExceptionUtil.generateForStack(t);
+                        LOGGER.error("websocket_" + event + " took too long to respond!", e);
                         t.interrupt();
                     }
                 });
@@ -121,13 +123,18 @@ public class CustomWebSocketClient extends WebSocketClient {
         int id = r.nextInt();
 
         content.put("request_id", id);
-        send(event + "::" + content.toString());
+        try {
+            send(event + "::" + content.toString());
+        } catch (Throwable e) {
+            future.completeExceptionally(e);
+            return future;
+        }
         outCache.put(id, future);
 
         MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "websocket_" + event, () -> {
             if (outCache.containsKey(id)) {
-                outCache.remove(id)
-                        .completeExceptionally(new SocketTimeoutException("No response"));
+                outCache.remove(id);
+                future.completeExceptionally(new SocketTimeoutException("No response"));
             }
         });
 

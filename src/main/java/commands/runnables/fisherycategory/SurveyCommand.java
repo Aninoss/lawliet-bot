@@ -91,9 +91,8 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         else voteStrings[1] = "";
 
-        //TODO fetch gloab server tada for clustering
-        for (SurveySecondVote surveySecondVote: surveySecondVotes) {
-            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiManager.getInstance().getLocalServerById(surveySecondVote.getServerId()).get().getName()) + ")\n";
+        for (SurveySecondVote surveySecondVote : surveySecondVotes) {
+            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiManager.getInstance().getServerName(surveySecondVote.getServerId()).orElse(String.valueOf(surveySecondVote.getServerId()))) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)

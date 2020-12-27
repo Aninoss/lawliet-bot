@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 
+/* TODO transfer to sync server */
 public class CustomWebSocketServer extends WebSocketServer {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CustomWebSocketServer.class);

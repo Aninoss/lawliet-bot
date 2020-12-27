@@ -14,6 +14,7 @@ import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
+import core.utils.DiscordUtil;
 import core.utils.MentionUtil;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
@@ -179,7 +180,6 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean processEmoji(Emoji emoji) {
-        //TODO adjust for clustering
         if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
             for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                 if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
@@ -424,7 +424,6 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     private boolean calculateEmoji(Emoji emoji) {
-        //TODO adjust for clustering
         if (emoji == null || (emoji.isCustomEmoji() && !DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
@@ -567,7 +566,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         for(String line: embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
-                MentionUtil.getCustomEmojiByTag(parts[0]).stream().limit(1).forEach(customEmoji -> emojiConnections.add(new EmojiConnection(customEmoji, parts[1])));
+                emojiConnections.add(new EmojiConnection(DiscordUtil.createCustomEmojiFromTag(parts[0]), parts[1]));
             } else {
                 emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
             }

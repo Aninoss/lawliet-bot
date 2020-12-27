@@ -1,7 +1,7 @@
-package core;
+package core.utils;
 
 import commands.Command;
-import core.utils.StringUtil;
+import core.*;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
@@ -12,12 +12,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 
-/**
- * Verarbeitet Exceptions
- */
-public class ExceptionHandler {
+public class ExceptionUtil {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionUtil.class);
 
     public static void handleCommandException(Throwable throwable, Command command, TextChannel channel) {
         Locale locale = command.getLocale();
@@ -72,6 +69,12 @@ public class ExceptionHandler {
 
     public static boolean exceptionIsClass(Throwable throwable, Class<?> c) {
         return c.isInstance(throwable) || (throwable.getMessage() != null && throwable.getMessage().startsWith(c.getName()));
+    }
+
+    public static Exception generateForStack(Thread t) {
+        Exception e = new Exception("Stack Trace");
+        e.setStackTrace(t.getStackTrace());
+        return e;
     }
 
 

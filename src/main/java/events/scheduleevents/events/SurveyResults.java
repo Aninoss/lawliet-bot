@@ -43,6 +43,9 @@ public class SurveyResults implements ScheduleInterface {
         new CustomThread(() -> {
             DBSurvey.getInstance().clear();
             SurveyBean lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ignored) {}
             DBSurvey.getInstance().next();
 
             LOGGER.info("Calculating survey results...");

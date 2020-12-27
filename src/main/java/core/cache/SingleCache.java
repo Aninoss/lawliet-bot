@@ -1,11 +1,16 @@
 package core.cache;
 
 import core.CustomThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 public abstract class SingleCache <T> {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(SingleCache.class);
+    
     private Instant nextReset = null;
     private T value = null;
 
@@ -35,9 +40,13 @@ public abstract class SingleCache <T> {
 
     public T fetch() {
         resetUpdateTimer();
-        T newValue = fetchValue();
-        if (newValue != null)
-            this.value = newValue;
+        try {
+            T newValue = fetchValue();
+            if (newValue != null)
+                this.value = newValue;
+        } catch (Throwable e) {
+            LOGGER.error("Uncaught exception", e); 
+        }
         return this.value;
     }
 

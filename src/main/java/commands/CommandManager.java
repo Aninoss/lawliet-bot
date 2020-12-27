@@ -80,7 +80,7 @@ public class CommandManager {
 
                 if (Bot.isPublicVersion()) maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
-                ExceptionHandler.handleCommandException(e, command, event.getServerTextChannel().get());
+                ExceptionUtil.handleCommandException(e, command, event.getServerTextChannel().get());
             }
             command.removeLoadingReaction();
         }

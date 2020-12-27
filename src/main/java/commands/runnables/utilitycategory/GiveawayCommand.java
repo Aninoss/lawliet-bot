@@ -8,10 +8,7 @@ import constants.LogStatus;
 import constants.Permission;
 import constants.Response;
 import core.*;
-import core.utils.FileUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
@@ -19,7 +16,6 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.Reaction;
@@ -275,9 +271,8 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             channel = event.getServer().get().getTextChannelById(giveaway.getChannelId()).get();
             instant = giveaway.getStart();
 
-            List<KnownCustomEmoji> emojis = MentionUtil.getCustomEmojiByTag(giveaway.getEmoji());
-            if (emojis.size() > 0) emoji = emojis.get(0);
-            else if (giveaway.getEmoji().length() <= 4) emoji = UnicodeEmoji.fromString(giveaway.getEmoji());
+            if (giveaway.getEmoji().length() <= 4) emoji = UnicodeEmoji.fromString(giveaway.getEmoji());
+            else emoji = DiscordUtil.createCustomEmojiFromTag(giveaway.getEmoji());
             setState(CONFIGURE_MESSAGE);
 
             return true;
@@ -407,7 +402,6 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     }
 
     private boolean processEmoji(Emoji emoji) {
-        //TODO adjust for clustering
         if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));

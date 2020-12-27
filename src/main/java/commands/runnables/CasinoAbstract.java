@@ -7,7 +7,7 @@ import constants.Category;
 import constants.Emojis;
 import constants.FisheryStatus;
 import core.EmbedFactory;
-import core.ExceptionHandler;
+import core.utils.ExceptionUtil;
 import core.TextManager;
 import core.utils.MentionUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -131,7 +131,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
 
     protected void handleError(Throwable e, ServerTextChannel channel) {
         onGameEnd();
-        ExceptionHandler.handleCommandException(e, this, channel);
+        ExceptionUtil.handleCommandException(e, this, channel);
     }
 
     protected EmbedBuilder addRetryOption(EmbedBuilder eb) {

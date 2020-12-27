@@ -1,6 +1,7 @@
 package core.schedule;
 
 import core.Bot;
+import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +91,7 @@ public class MainScheduler {
             @Override
             public void run() {
                 if (slots.contains(slot)) {
-                    Exception e = new Exception("Stack Trace");
-                    e.setStackTrace(runnerThread.getStackTrace());
+                    Exception e = ExceptionUtil.generateForStack(runnerThread);
                     LOGGER.error("Task \"{}\" stuck in scheduler {}", slot.name, runnerThread.getName(), e);
                 }
             }

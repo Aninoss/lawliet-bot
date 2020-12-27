@@ -1,8 +1,12 @@
 package core;
 
 import constants.AssetIds;
+import core.cache.ExternalEmojiCache;
+import core.cache.ExternalServerNameCache;
+import core.cache.SingleCache;
 import core.schedule.MainScheduler;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.Nameable;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.KnownCustomEmoji;
@@ -11,6 +15,8 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websockets.syncserver.SendEvent;
+
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -35,6 +41,15 @@ public class DiscordApiManager {
     private final HashMap<Integer, DiscordApiExtended> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
     private final HashMap<Long, User> userCache = new HashMap<>();
+    private final SingleCache<Long> globalServerSizeCache = new SingleCache<>() {
+        @Override
+        protected Long fetchValue() {
+            Optional<Long> localServerSizeOpt = getLocalServerSize();
+            if (localServerSizeOpt.isEmpty())
+                return null;
+            return SendEvent.sendGlobalServerSize(localServerSizeOpt.get()).join().orElse(null);
+        }
+    };
 
     private int shardIntervalMin = 0;
     private int shardIntervalMax = 0;
@@ -169,7 +184,12 @@ public class DiscordApiManager {
     }
 
     public Optional<Long> getGlobalServerSize() {
-        return getLocalServerSize(); //TODO just temporary
+        Optional<Long> localServerSizeOpt = getLocalServerSize();
+        if (localServerSizeOpt.isEmpty())
+            return Optional.empty();
+
+        Long globalServerSize = globalServerSizeCache.getAsync();
+        return globalServerSize != null ? Optional.of(globalServerSize) : Optional.empty();
     }
 
     public Optional<Server> getLocalServerById(long serverId) {
@@ -182,6 +202,11 @@ public class DiscordApiManager {
         return getLocalServers().stream()
                 .filter((server) -> server.isMember(user))
                 .collect(Collectors.toList());
+    }
+
+    public Optional<String> getServerName(long serverId) {
+        Optional<String> serverNameOptional = getLocalServerById(serverId).map(Nameable::getName);
+        return serverNameOptional.or(() -> ExternalServerNameCache.getInstance().getServerNameById(serverId));
     }
 
     public Optional<User> getCachedUserById(long userId) {
@@ -295,18 +320,19 @@ public class DiscordApiManager {
         return getCustomEmojiById(customEmoji.getId()).isPresent();
     }
 
-    //TODO remove
-    public Optional<KnownCustomEmoji> getCustomEmojiById(String emojiId) {
+    public Optional<KnownCustomEmoji> getLocalCustomEmojiById(long emojiId) {
         for (DiscordApi api : getConnectedLocalApis()) {
             Optional<KnownCustomEmoji> emojiOptional = api.getCustomEmojiById(emojiId);
-            if (emojiOptional.isPresent()) return emojiOptional;
+            if (emojiOptional.isPresent())
+                return emojiOptional;
         }
+
         return Optional.empty();
     }
 
-    //TODO remove
-    public Optional<KnownCustomEmoji> getCustomEmojiById(long emojiId) {
-        return getCustomEmojiById(String.valueOf(emojiId));
+    public Optional<CustomEmoji> getCustomEmojiById(long emojiId) {
+        Optional<CustomEmoji> emojiOptional = getLocalCustomEmojiById(emojiId).map(e -> e);
+        return emojiOptional.or(() -> ExternalEmojiCache.getInstance().getCustomEmojiById(emojiId));
     }
 
 

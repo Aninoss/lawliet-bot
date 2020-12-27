@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddListener;
-import core.ExceptionHandler;
+import core.utils.ExceptionUtil;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 public class ReactionCommandCheck {
@@ -17,7 +17,7 @@ public class ReactionCommandCheck {
                         if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
                         if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
                     } catch (Throwable e) {
-                        ExceptionHandler.handleCommandException(e, command, event.getMessage().get().getChannel());
+                        ExceptionUtil.handleCommandException(e, command, event.getMessage().get().getChannel());
                     }
                 } else {
                     if (event.getChannel().canYouRemoveReactionsOfOthers() && event.getReaction().isPresent())

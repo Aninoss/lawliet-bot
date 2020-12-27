@@ -7,10 +7,7 @@ import constants.*;
 import core.*;
 import core.emojiconnection.EmojiConnection;
 import core.schedule.MainScheduler;
-import core.utils.DiscordUtil;
-import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
+import core.utils.*;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -82,7 +79,7 @@ public abstract class Command {
         try {
             onMessageReceived(event, followedString);
         } catch (Throwable e) {
-            ExceptionHandler.handleCommandException(e, this, event.getServerTextChannel().get());
+            ExceptionUtil.handleCommandException(e, this, event.getServerTextChannel().get());
             return;
         } finally {
             removeLoadingReaction();
@@ -117,7 +114,7 @@ public abstract class Command {
         try {
             ((OnReactionAddListener) this).onReactionAdd(event);
         } catch (Throwable throwable) {
-            ExceptionHandler.handleCommandException(throwable, this, event.getServerTextChannel().get());
+            ExceptionUtil.handleCommandException(throwable, this, event.getServerTextChannel().get());
         }
     }
 
@@ -131,7 +128,7 @@ public abstract class Command {
         try {
             success = ((OnForwardedRecievedListener) this).onForwardedRecieved(event);
         } catch (Throwable throwable) {
-            ExceptionHandler.handleCommandException(throwable, this, event.getServerTextChannel().get());
+            ExceptionUtil.handleCommandException(throwable, this, event.getServerTextChannel().get());
         } finally {
             removeLoadingReaction(event.getMessage());
         }
@@ -174,7 +171,7 @@ public abstract class Command {
                 drawSuper(event.getApi(), event.getServerTextChannel().get());
             }
         } catch (Throwable throwable) {
-            ExceptionHandler.handleCommandException(throwable, this, event.getServerTextChannel().get());
+            ExceptionUtil.handleCommandException(throwable, this, event.getServerTextChannel().get());
             return Response.ERROR;
         } finally {
             removeLoadingReaction();
@@ -223,7 +220,7 @@ public abstract class Command {
             if (changed)
                 drawSuper(event.getApi(), event.getChannel());
         } catch (Throwable throwable) {
-            ExceptionHandler.handleCommandException(throwable, this, event.getChannel());
+            ExceptionUtil.handleCommandException(throwable, this, event.getChannel());
         }
     }
 
@@ -305,7 +302,7 @@ public abstract class Command {
                 }
             }
         } catch (ExecutionException e) {
-            if (!ExceptionHandler.exceptionIsClass(e, org.javacord.api.exception.UnknownMessageException.class))
+            if (!ExceptionUtil.exceptionIsClass(e, org.javacord.api.exception.UnknownMessageException.class))
                 throw e;
         }
     }
@@ -446,7 +443,7 @@ public abstract class Command {
                     if (commandProperties.deleteOnTimeOut()) removeNavigationWithMessage();
                     else removeNavigation();
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleCommandException(throwable, this, message.getServerTextChannel().get());
+                    ExceptionUtil.handleCommandException(throwable, this, message.getServerTextChannel().get());
                 }
             } else if (this instanceof OnReactionAddListener) {
                 try {
@@ -454,7 +451,7 @@ public abstract class Command {
                     else removeReactionListener();
                     ((OnReactionAddListener) this).onReactionTimeOut(message);
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleCommandException(throwable, this, message.getServerTextChannel().get());
+                    ExceptionUtil.handleCommandException(throwable, this, message.getServerTextChannel().get());
                 }
             }
         } else if (CommandContainer.getInstance().forwarderContains(this)) {
@@ -463,7 +460,7 @@ public abstract class Command {
                 try {
                     ((OnForwardedRecievedListener) this).onForwardedTimeOut();
                 } catch (Throwable throwable) {
-                    ExceptionHandler.handleCommandException(throwable, this, message.getServerTextChannel().get());
+                    ExceptionUtil.handleCommandException(throwable, this, message.getServerTextChannel().get());
                 }
             }
         }

@@ -3,6 +3,7 @@ package websockets.syncserver;
 import core.Bot;
 import core.DiscordApiManager;
 import core.SecretManager;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public class SyncManager {
         getClient().addHeader("shard_min", String.valueOf(DiscordApiManager.getInstance().getShardIntervalMin()));
         getClient().addHeader("shard_max", String.valueOf(DiscordApiManager.getInstance().getShardIntervalMax()));
         getClient().addHeader("total_shards", String.valueOf(DiscordApiManager.getInstance().getTotalShards()));
-        SendEvent.sendFullyConnected();
+        SendEvent.sendFullyConnected().exceptionally(ExceptionLogger.get());
     }
 
     private HashMap<String, String> getSocketClientHeaders() {

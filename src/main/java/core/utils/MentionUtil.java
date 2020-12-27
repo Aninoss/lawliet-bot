@@ -11,7 +11,6 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.emoji.KnownCustomEmoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -370,23 +369,6 @@ public class MentionUtil {
     public static Optional<Role> getRoleByTag(Server server, String tag) {
         String id = tag.substring(3, tag.length() - 1);
         return server.getRoleById(id);
-    }
-
-    //TODO adjust for clustering
-    public static ArrayList<KnownCustomEmoji> getCustomEmojiByTag(String string) {
-        ArrayList<KnownCustomEmoji> knownCustomEmojis = new ArrayList<>();
-
-        if (string.contains("<") && string.contains(">")) {
-            for (String content : StringUtil.extractGroups(string, "<", ">")) {
-                String[] tags = content.split(":");
-                if (tags.length == 3) {
-                    String id = tags[2];
-                    DiscordApiManager.getInstance().getCustomEmojiById(id).ifPresent(knownCustomEmojis::add);
-                }
-            }
-        }
-
-        return knownCustomEmojis;
     }
 
     public static long getAmountExt(String str) {

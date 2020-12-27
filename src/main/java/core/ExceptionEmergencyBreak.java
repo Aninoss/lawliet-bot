@@ -5,6 +5,7 @@ import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
+import core.utils.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class ExceptionEmergencyBreak extends Filter<ILoggingEvent> {
         final ThrowableProxy throwableProxyImpl =
                 (ThrowableProxy) throwableProxy;
         final Throwable throwable = throwableProxyImpl.getThrowable();
-        if (ExceptionHandler.exceptionIsClass(throwable, exceptionClass)) {
+        if (ExceptionUtil.exceptionIsClass(throwable, exceptionClass)) {
             LOGGER.error("EXIT - Emergency break");
             System.exit(-1);
             return FilterReply.NEUTRAL;
