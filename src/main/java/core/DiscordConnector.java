@@ -1,6 +1,5 @@
 package core;
 
-import core.patreon.PatreonApi;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventManager;
@@ -47,7 +46,6 @@ public class DiscordConnector {
         started = true;
 
         DBFishery.getInstance().cleanUp();
-        PatreonApi.getInstance().fetch();
         FisheryVCObserver.getInstance().start();
 
         LOGGER.info("Bot is logging in...");

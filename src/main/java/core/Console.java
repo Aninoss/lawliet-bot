@@ -352,7 +352,8 @@ public class Console {
                         System.err.printf("No result for \"%s\"\n", args[0]);
                     }
                 }
-            } catch (IOException e) {
+                Thread.sleep(100);
+            } catch (IOException | InterruptedException e) {
                 LOGGER.error("Unexpected console exception", e);
             }
         }
