@@ -73,7 +73,6 @@ public class SyncManager {
 
     private HashMap<String, String> getSocketClientHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("type", "cluster");
         headers.put("size", String.valueOf(Math.round(Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0))));
         headers.put("already_connected", "false");
         return headers;
