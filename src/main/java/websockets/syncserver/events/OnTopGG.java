@@ -33,7 +33,7 @@ public class OnTopGG implements SyncServerFunction {
             return null;
 
         String type = jsonObject.getString("type");
-        boolean isWeekend = jsonObject.getBoolean("isWeekend");
+        boolean isWeekend = jsonObject.has("isWeekend") && jsonObject.getBoolean("isWeekend");
 
         if (type.equals("upvote")) {
             try {

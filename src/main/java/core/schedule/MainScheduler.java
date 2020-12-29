@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,29 +21,24 @@ public class MainScheduler {
 
     private static final MainScheduler ourInstance = new MainScheduler();
     public static MainScheduler getInstance() { return ourInstance; }
-    private MainScheduler() { }
+    private final static int SIZE = 3;
 
-    private final Timer timer = new Timer();
-    private final Timer poller = new Timer();
+    private final Timer[] timers = new Timer[SIZE];
+    private final Timer[] pollers = new Timer[SIZE];
+    private final boolean[] busyTimers = new boolean[SIZE];
+    private final boolean[] busyPollers = new boolean[SIZE];
     private final Timer timeOutMonitorer = new Timer();
     private final ConcurrentLinkedQueue<ScheduleSlot> slots = new ConcurrentLinkedQueue<>();
+
+    private MainScheduler() {
+        Arrays.fill(timers, new Timer());
+        Arrays.fill(pollers, new Timer());
+    }
 
     public void schedule(long millis, String name, Runnable listener) {
         if (Bot.isRunning()) {
             ScheduleSlot scheduleSlot = new ScheduleSlot(name);
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        slots.add(scheduleSlot);
-                        monitorTimeOuts(scheduleSlot);
-                        listener.run();
-                    } catch (Throwable e) {
-                        LOGGER.error("Unchecked exception in schedule timer");
-                    }
-                    slots.remove(scheduleSlot);
-                }
-            }, millis);
+            addTimer(timers, busyTimers, scheduleSlot, millis, listener);
         }
     }
 
@@ -62,27 +58,43 @@ public class MainScheduler {
     public void poll(long millis, String name, Supplier<Boolean> listener) {
         if (Bot.isRunning()) {
             ScheduleSlot scheduleSlot = new ScheduleSlot(name);
-            poller.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        slots.add(scheduleSlot);
-                        monitorTimeOuts(scheduleSlot);
-                        if (Bot.isRunning() && listener.get()) {
-                            poll(millis, name, listener);
-                        }
-                    } catch (Throwable e) {
-                        LOGGER.error("Unchecked exception in poll timer");
-                    }
-                    slots.remove(scheduleSlot);
+            addTimer(pollers, busyPollers, scheduleSlot, millis, () -> {
+                if (Bot.isRunning() && listener.get()) {
+                    poll(millis, name, listener);
                 }
-            }, millis);
+            });
         }
     }
 
     public void poll(long amount, TemporalUnit unit, String name, Supplier<Boolean> listener) {
         long millis = Duration.of(amount, unit).toMillis();
         poll(millis, name, listener);
+    }
+
+    private void addTimer(Timer[] timers, boolean[] busyArray, ScheduleSlot scheduleSlot, long millis, Runnable listener) {
+        int length = Math.min(timers.length, busyArray.length);
+        for(int i = 0; i < length; i++) {
+            if (!busyArray[i] || i == length - 1) {
+                Timer timer = timers[i];
+                int finalI = i;
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            slots.add(scheduleSlot);
+                            monitorTimeOuts(scheduleSlot);
+                            busyArray[finalI] = true;
+                            listener.run();
+                        } catch (Throwable e) {
+                            LOGGER.error("Unchecked exception in schedule timer");
+                        }
+                        busyArray[finalI] = false;
+                        slots.remove(scheduleSlot);
+                    }
+                }, millis);
+                return;
+            }
+        }
     }
 
     private void monitorTimeOuts(ScheduleSlot slot) {

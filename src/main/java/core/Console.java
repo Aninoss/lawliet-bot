@@ -296,6 +296,10 @@ public class Console {
 
     private void onShards(String[] args) {
         LOGGER.info("Shards: {} / {}", DiscordApiManager.getInstance().getConnectedLocalApis().size(), DiscordApiManager.getInstance().getLocalShards());
+        for (int i = DiscordApiManager.getInstance().getShardIntervalMin(); i <= DiscordApiManager.getInstance().getShardIntervalMax(); i++) {
+            if (DiscordApiManager.getInstance().getApi(i).isEmpty())
+                LOGGER.info("Shard {} is unavailable!", i);
+        }
     }
 
     private void onStats(String[] args) {

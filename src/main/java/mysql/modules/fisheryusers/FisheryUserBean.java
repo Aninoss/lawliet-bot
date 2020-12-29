@@ -529,7 +529,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public boolean isOnServer() {
         if (onServer == null) {
-            onServer = getServer().map(server -> server.getMembers().stream().anyMatch(user -> user.getId() == userId)).orElse(false);
+            onServer = getUser().isPresent();
         }
 
         return onServer;

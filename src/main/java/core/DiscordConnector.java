@@ -20,6 +20,7 @@ import org.javacord.api.entity.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.syncserver.SyncManager;
+
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -55,11 +56,22 @@ public class DiscordConnector {
         apiBuilder.loginShards(shard -> shard >= shardMin && shard <= shardMax)
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
                         .exceptionally(e -> {
-                            LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
-                            System.exit(-1);
+                            LOGGER.error("EXIT - Error while connecting shard {}!", apiBuilder.getCurrentShard(), e);
                             return null;
                         })
                 );
+
+        /*for(int i = shardMin; i <= shardMax; i++) {
+            int finalI = i;
+            apiBuilder.loginShards(i).forEach(apiFuture -> apiFuture
+                    .thenAccept(this::onApiJoin)
+                    .exceptionally(e -> {
+                        LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
+                        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "shard_reconnect", () -> reconnectApi(finalI));
+                        return null;
+                    })
+            );
+        }*/
     }
 
     public void reconnectApi(int shardId) {
