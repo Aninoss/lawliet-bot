@@ -38,6 +38,7 @@ public class DiscordApiManager {
             startApiPoller();
     }
 
+    private final DiscordApiBlocker discordApiBlocker = new DiscordApiBlocker();
     private final HashMap<Integer, DiscordApiExtended> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
     private final HashMap<Long, User> userCache = new HashMap<>();
@@ -70,6 +71,10 @@ public class DiscordApiManager {
                 }
             });
         }
+    }
+
+    public DiscordApiBlocker getDiscordApiBlocker() {
+        return discordApiBlocker;
     }
 
     public void addShardDisconnectConsumer(Consumer<Integer> consumer) {
@@ -158,6 +163,10 @@ public class DiscordApiManager {
         return Math.abs((int) ((serverId >> 22) % totalShards));
     }
 
+    public int getResponsibleShard(long serverId, int totalShards) {
+        return Math.abs((int) ((serverId >> 22) % totalShards));
+    }
+
     public boolean serverIsManaged(long serverId) {
         return getLocalServerById(serverId).isPresent();
     }
@@ -165,7 +174,9 @@ public class DiscordApiManager {
     public List<Server> getLocalServers() {
         ArrayList<Server> serverList = new ArrayList<>();
         for (DiscordApiExtended api : apiMap.values()) {
-            serverList.addAll(api.getApi().getServers());
+            api.getApi().getServers().stream()
+                    .filter(server -> discordApiBlocker.serverIsAvailable(server.getId()))
+                    .forEach(serverList::add);
         }
 
         return serverList;
@@ -193,6 +204,9 @@ public class DiscordApiManager {
     }
 
     public Optional<Server> getLocalServerById(long serverId) {
+        if (!discordApiBlocker.serverIsAvailable(serverId))
+            return Optional.empty();
+
         int shard = getResponsibleShard(serverId);
         return getApi(shard)
                 .flatMap(api -> api.getServerById(serverId));
@@ -200,7 +214,7 @@ public class DiscordApiManager {
 
     public List<Server> getLocalMutualServers(User user) {
         return getLocalServers().stream()
-                .filter((server) -> server.isMember(user))
+                .filter(server -> discordApiBlocker.serverIsAvailable(server.getId()) && server.isMember(user))
                 .collect(Collectors.toList());
     }
 

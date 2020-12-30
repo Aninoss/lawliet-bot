@@ -1,6 +1,7 @@
 package events.discordevents.eventtypeabstracts;
 
 import events.discordevents.DiscordEventAbstract;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageDeleteEvent;
@@ -16,7 +17,7 @@ public abstract class MessageDeleteAbstract extends DiscordEventAbstract {
         if (event.getServer().isEmpty() || user == null)
             return;
 
-        execute(listenerList, user, false,
+        execute(listenerList, user, false, event.getServer().map(DiscordEntity::getId).orElse(0L),
                 listener -> ((MessageDeleteAbstract) listener).onMessageDelete(event)
         );
     }

@@ -78,7 +78,8 @@ public class CommandManager {
                 else
                     command.onRecievedSuper(event, followedString);
 
-                if (Bot.isPublicVersion()) maybeSendInvite(event, command.getLocale());
+                if (Bot.isPublicVersion())
+                    maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getServerTextChannel().get());
             }

@@ -10,7 +10,7 @@ public abstract class ServerMemberJoinAbstract extends DiscordEventAbstract {
     public abstract boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable;
 
     public static void onServerMemberJoinStatic(ServerMemberJoinEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(listenerList, event.getUser(), true,
+        execute(listenerList, event.getUser(), true, event.getServer().getId(),
                 listener -> ((ServerMemberJoinAbstract) listener).onServerMemberJoin(event)
         );
     }

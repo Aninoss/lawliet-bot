@@ -10,7 +10,7 @@ public abstract class ServerChangeBoostCountAbstract extends DiscordEventAbstrac
     public abstract boolean onServerChangeBoostCount(ServerChangeBoostCountEvent event) throws Throwable;
 
     public static void onServerChangeBoostCountStatic(ServerChangeBoostCountEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(listenerList, true,
+        execute(listenerList, true, event.getServer().getId(),
                 listener -> ((ServerChangeBoostCountAbstract) listener).onServerChangeBoostCount(event)
         );
     }

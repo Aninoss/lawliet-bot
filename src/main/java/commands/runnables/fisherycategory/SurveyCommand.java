@@ -58,8 +58,8 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
         event.removeReaction().get();
 
         removeUserReactions(message);
-        String emoji = event.getEmoji().asUnicodeEmoji().get();
         if (event.getEmoji().isUnicodeEmoji()) {
+            String emoji = event.getEmoji().asUnicodeEmoji().get();
             for (byte i = 0; i < 2; i++) {
                 int type = 0;
                 if (emoji.equals(LetterEmojis.LETTERS[i])) type = 1;

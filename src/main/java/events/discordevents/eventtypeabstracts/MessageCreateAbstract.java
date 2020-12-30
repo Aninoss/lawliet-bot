@@ -4,6 +4,7 @@ import constants.ExternalLinks;
 import core.Bot;
 import core.EmbedFactory;
 import events.discordevents.DiscordEventAbstract;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -31,7 +32,7 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         User user = event.getMessageAuthor().asUser().orElse(null);
         if (user == null || user.isYourself()) return;
 
-        if (event.getServer().isEmpty() && !user.isBot()) {
+        if (event.getServer().isEmpty() && !user.isBot() && Bot.getClusterId() == 0) {
             if (!usersDmNotified.contains(user.getId())) {
                 usersDmNotified.add(user.getId());
                 if (Bot.isPublicVersion()) {
@@ -48,7 +49,7 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         }
 
         Instant startTime = Instant.now();
-        execute(listenerList, user, false,
+        execute(listenerList, user, false, event.getServer().map(DiscordEntity::getId).orElse(0L),
                 listener -> {
                     ((MessageCreateAbstract) listener).setStartTime(startTime);
                     return ((MessageCreateAbstract) listener).onMessageCreate(event);

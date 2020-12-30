@@ -158,7 +158,6 @@ public class WelcomeGraphics {
         return base;
     }
 
-    /* TODO adjust for clustering */
     private static File getBackgroundFile(Server server) {
         File backgroundFile = getDefaultBackgroundFile();
         String customBackgroundPath = "data/welcome_backgrounds/" + server.getIdAsString() + ".png";

@@ -10,7 +10,7 @@ public abstract class UserRoleRemoveAbstract extends DiscordEventAbstract {
     public abstract boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable;
 
     public static void onUserRoleRemoveStatic(UserRoleRemoveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(listenerList, event.getUser(), true,
+        execute(listenerList, event.getUser(), true, event.getServer().getId(),
                 listener -> ((UserRoleRemoveAbstract) listener).onUserRoleRemove(event)
         );
     }

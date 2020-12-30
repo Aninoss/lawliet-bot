@@ -92,7 +92,6 @@ public class CustomWebSocketClient extends WebSocketClient {
                     if (t.isAlive()) {
                         Exception e = ExceptionUtil.generateForStack(t);
                         LOGGER.error("websocket_" + event + " took too long to respond!", e);
-                        t.interrupt();
                     }
                 });
                 t.start();

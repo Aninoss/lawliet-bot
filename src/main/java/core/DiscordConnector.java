@@ -60,18 +60,6 @@ public class DiscordConnector {
                             return null;
                         })
                 );
-
-        /*for(int i = shardMin; i <= shardMax; i++) {
-            int finalI = i;
-            apiBuilder.loginShards(i).forEach(apiFuture -> apiFuture
-                    .thenAccept(this::onApiJoin)
-                    .exceptionally(e -> {
-                        LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
-                        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "shard_reconnect", () -> reconnectApi(finalI));
-                        return null;
-                    })
-            );
-        }*/
     }
 
     public void reconnectApi(int shardId) {

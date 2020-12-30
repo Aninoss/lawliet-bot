@@ -52,9 +52,7 @@ public class GiveawayScheduler {
     }
 
     public void loadGiveawayBean(GiveawayBean giveawayBean) {
-        MainScheduler.getInstance().schedule(giveawayBean.getEnd(), "giveaway", () -> {
-            onGiveawayDue(giveawayBean);
-        });
+        MainScheduler.getInstance().schedule(giveawayBean.getEnd(), "giveaway", () -> onGiveawayDue(giveawayBean));
     }
 
     private void onGiveawayDue(GiveawayBean giveawayBean) {

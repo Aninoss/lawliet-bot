@@ -1,5 +1,6 @@
 package events.discordevents;
 
+import core.DiscordApiManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -30,12 +31,16 @@ public abstract class DiscordEventAbstract {
         return discordEvent.allowBots();
     }
 
-    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, boolean multiThreadded, EventExecution function) {
-        execute(listenerList, null, multiThreadded, function);
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, boolean multiThreadded, long serverId, EventExecution function) {
+        execute(listenerList, null, multiThreadded, serverId, function);
     }
 
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, boolean multiThreadded, EventExecution function) {
-        if (user != null && user.isYourself()) {
+        execute(listenerList, user, multiThreadded, 0L, function);
+    }
+
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, boolean multiThreadded, long serverId, EventExecution function) {
+        if ((user != null && user.isYourself()) || !DiscordApiManager.getInstance().getDiscordApiBlocker().serverIsAvailable(serverId)) {
             return;
         }
 

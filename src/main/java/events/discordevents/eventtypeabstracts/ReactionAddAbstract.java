@@ -1,6 +1,7 @@
 package events.discordevents.eventtypeabstracts;
 
 import events.discordevents.DiscordEventAbstract;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public abstract class ReactionAddAbstract extends DiscordEventAbstract {
             return;
         }
 
-        execute(listenerList, event.getUser().get(), false,
+        execute(listenerList, event.getUser().get(), false, event.getServer().map(DiscordEntity::getId).orElse(0L),
                 listener -> ((ReactionAddAbstract) listener).onReactionAdd(event)
         );
     }
