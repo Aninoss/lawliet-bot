@@ -44,14 +44,13 @@ public class DiscordConnector {
         if (started) return;
         started = true;
 
+        DiscordApiManager.getInstance().init(shardMin, shardMax, totalShards);
         DBFishery.getInstance().cleanUp();
         FisheryVCObserver.getInstance().start();
 
         LOGGER.info("Bot is logging in...");
         DiscordApiBuilder apiBuilder = createBuilder()
                 .setTotalShards(totalShards);
-
-        DiscordApiManager.getInstance().init(shardMin, shardMax, totalShards);
 
         apiBuilder.loginShards(shard -> shard >= shardMin && shard <= shardMax)
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
@@ -81,8 +80,7 @@ public class DiscordConnector {
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
                 .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
                 .setAllIntentsExcept(Intent.DIRECT_MESSAGE_TYPING, Intent.GUILD_MESSAGE_TYPING)
-                .setWaitForUsersOnStartup(true)
-                .setShutdownHookRegistrationEnabled(false);
+                .setWaitForUsersOnStartup(true);
     }
 
     public void onApiJoin(DiscordApi api) {

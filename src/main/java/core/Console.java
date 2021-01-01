@@ -58,8 +58,6 @@ public class Console {
 
         tasks.put("survey", this::onSurvey);
         tasks.put("repair", this::onRepair);
-        tasks.put("eval", this::onEval);
-        tasks.put("eval_file", this::onEvalFile);
         tasks.put("quit", this::onQuit);
         tasks.put("stats", this::onStats);
         tasks.put("shards", this::onShards);
@@ -93,21 +91,6 @@ public class Console {
         int hours = Integer.parseInt(args[1]);
         DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, hours));
         LOGGER.info("Repair started with hours {}", hours);
-    }
-
-    private void onEval(String[] args) throws Exception {
-        StringBuilder message = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            message.append(" ").append(args[i]);
-        }
-
-        int retValue = new CodeExecutor().eval(StringUtil.trimString(message.toString()));
-        System.out.printf("### CODE EXITED WITH %d ###\n", retValue);
-    }
-
-    private void onEvalFile(String[] args) throws Exception {
-        int retValue = new CodeExecutor().evalFile("data/CodeRuntime.java");
-        System.out.printf("### CODE EXITED WITH %d ###\n", retValue);
     }
 
     private void onSendChannel(String[] args) {
