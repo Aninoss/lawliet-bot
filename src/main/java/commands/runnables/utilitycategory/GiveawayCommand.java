@@ -270,9 +270,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
             imageLink = giveaway.getImageUrl().orElse(null);
             channel = event.getServer().get().getTextChannelById(giveaway.getChannelId()).get();
             instant = giveaway.getStart();
-
-            if (giveaway.getEmoji().length() <= 4) emoji = UnicodeEmoji.fromString(giveaway.getEmoji());
-            else emoji = DiscordUtil.createCustomEmojiFromTag(giveaway.getEmoji());
+            emoji = DiscordUtil.emojiFromString(giveaway.getEmoji());
             setState(CONFIGURE_MESSAGE);
 
             return true;

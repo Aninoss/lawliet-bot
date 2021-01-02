@@ -4,6 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import core.EmbedFactory;
+import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import mysql.modules.autoclaim.AutoClaimBean;
 import mysql.modules.autoclaim.DBAutoClaim;
@@ -65,7 +66,7 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         for(int i = 0; i < 2; i++) {
             String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 boolean active = i == 1;
                 DBAutoClaim.getInstance().getBean().setActive(event.getUserId(), active);
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active, event.getUser().get().getMentionTag()))).get();

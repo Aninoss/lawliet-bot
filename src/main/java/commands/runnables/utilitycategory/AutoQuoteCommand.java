@@ -6,6 +6,7 @@ import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import constants.Permission;
 import core.EmbedFactory;
+import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import mysql.modules.autoquote.DBAutoQuote;
 import org.javacord.api.entity.message.Message;
@@ -62,7 +63,7 @@ public class AutoQuoteCommand extends Command implements OnReactionAddListener {
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         for(int i = 0; i < 2; i++) {
             String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 boolean active = i == 1;
                 DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).setActive(active);
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();

@@ -11,6 +11,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.schedule.MainScheduler;
+import core.utils.DiscordUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -190,7 +191,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (event.getEmoji().getMentionTag().equalsIgnoreCase(keyEmoji) &&
+        if (DiscordUtil.emojiIsString(event.getEmoji(), keyEmoji) &&
                 blockedTreasureMessages.stream().noneMatch(messageId -> messageId == message.getId())
         ) {
             blockedTreasureMessages.add(message.getId());

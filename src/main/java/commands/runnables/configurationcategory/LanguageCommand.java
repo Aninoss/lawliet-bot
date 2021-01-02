@@ -5,6 +5,7 @@ import commands.Command;
 import constants.Locales;
 import constants.Permission;
 import core.EmbedFactory;
+import core.utils.DiscordUtil;
 import mysql.modules.server.DBServer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -62,7 +63,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         for(int i=0; i<languageEmojis.length; i++) {
             String str = languageEmojis[i];
-            if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 setLocale(new Locale(languageLocales[i]));
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set"))).get();

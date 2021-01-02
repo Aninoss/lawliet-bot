@@ -182,7 +182,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private boolean processEmoji(Emoji emoji) {
         if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
             for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-                if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
+                if(DiscordUtil.emojiIsString(emoji, emojiConnection.getEmojiTag())) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
                     return false;
                 }
@@ -402,7 +402,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                 boolean exist = false;
                 for(Reaction reaction: m.getReactions()) {
-                    if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
+                    if (DiscordUtil.emojiIsString(reaction.getEmoji(), emojiConnection.getEmojiTag())) {
                         exist = true;
                         break;
                     }
@@ -412,7 +412,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
             for(Reaction reaction: m.getReactions()) {
                 boolean exist = false;
                 for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-                    if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(emojiConnection.getEmojiTag())) {
+                    if (DiscordUtil.emojiIsString(reaction.getEmoji(), emojiConnection.getEmojiTag())) {
                         exist = true;
                         break;
                     }
@@ -430,7 +430,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
 
         for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
-            if(emojiConnection.getEmojiTag().equalsIgnoreCase(emoji.getMentionTag())) {
+            if(DiscordUtil.emojiIsString(emoji, emojiConnection.getEmojiTag())) {
                 setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
                 return true;
             }
@@ -618,9 +618,8 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     private boolean giveRole(ReactionAddEvent event) throws ExecutionException, InterruptedException {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-            if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), emojiConnection.getEmojiTag())) {
                 Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
-
                 if (rOpt.isEmpty())
                     return true;
 
@@ -654,7 +653,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         updateValuesFromMessage(message);
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                if (emojiConnection.getEmojiTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
+                if (DiscordUtil.emojiIsString(event.getEmoji(), emojiConnection.getEmojiTag())) {
                     Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getServer().get(), emojiConnection.getConnection());
                     if (rOpt.isEmpty()) return;
                     Role r = rOpt.get();

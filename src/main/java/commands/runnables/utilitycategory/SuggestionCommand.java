@@ -10,11 +10,13 @@ import core.QuickUpdater;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.RatelimitManager;
+import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.message.embed.EmbedFooter;
@@ -113,8 +115,8 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
                 .getBean(event.getServer().get().getId())
                 .getSuggestionMessages()
                 .computeIfPresent(message.getId(), (messageId, suggestionMessage) -> {
-                    String emoji = event.getEmoji().getMentionTag();
-                    if (emoji.equals(EMOJI_LIKE) || emoji.equals(EMOJI_DISLIKE)) {
+                    Emoji emoji = event.getEmoji();
+                    if (DiscordUtil.emojiIsString(emoji, EMOJI_LIKE) || DiscordUtil.emojiIsString(emoji, EMOJI_DISLIKE)) {
                         QuickUpdater.getInstance().update(
                                 "suggestion",
                                 messageId,

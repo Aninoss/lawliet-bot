@@ -5,6 +5,7 @@ import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import constants.Permission;
 import core.EmbedFactory;
+import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
 import org.javacord.api.entity.message.Message;
@@ -63,7 +64,7 @@ public class TriggerDeleteCommand extends Command implements OnReactionAddListen
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         for(int i = 0; i < 2; i++) {
             String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (event.getEmoji().getMentionTag().equalsIgnoreCase(str)) {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 boolean active = i == 1;
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();

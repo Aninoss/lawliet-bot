@@ -41,11 +41,10 @@ public class OnTopGG implements SyncServerFunction {
             } catch (ExecutionException | InterruptedException e) {
                 LOGGER.error("Exception", e);
             }
-            return null;
         } else {
             LOGGER.error("Wrong type: " + type);
-            return null;
         }
+        return null;
     }
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {

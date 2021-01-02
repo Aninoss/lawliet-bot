@@ -5,10 +5,11 @@ import commands.listeners.OnReactionAddStaticListener;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryAbstract;
 import constants.*;
-import core.EmbedFactory;
 import core.DiscordApiManager;
+import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -16,6 +17,7 @@ import javafx.util.Pair;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -23,6 +25,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -103,11 +106,11 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     private void removeUserReactions(Message message) throws ExecutionException, InterruptedException {
         for(Reaction reaction: message.getReactions()) {
-            String emoji = reaction.getEmoji().getMentionTag();
+            Emoji emoji = reaction.getEmoji();
             boolean correctEmoji = false;
             for (int i = 0; i < 2; i++) {
                 if (reaction.getEmoji().isUnicodeEmoji() &&
-                        (emoji.equals(LetterEmojis.LETTERS[i]) || emoji.equals(LetterEmojis.RED_LETTERS[i]) || emoji.equals(BELL_EMOJI))
+                        (DiscordUtil.emojiIsString(emoji, LetterEmojis.LETTERS[i]) || DiscordUtil.emojiIsString(emoji, LetterEmojis.RED_LETTERS[i]) || DiscordUtil.emojiIsString(emoji, BELL_EMOJI))
                 ) {
                     correctEmoji = true;
                     break;

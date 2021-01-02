@@ -30,7 +30,7 @@ public class EmojiConnection {
     }
 
     public boolean isEmoji(Emoji emoji) {
-        return this.emoji.equals(emoji.getMentionTag());
+        return DiscordUtil.emojiIsString(emoji, this.emoji);
     }
 
     public String getConnection() {

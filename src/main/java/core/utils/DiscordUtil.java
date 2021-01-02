@@ -1,10 +1,13 @@
 package core.utils;
 
+import core.UnicodeEmoji;
 import core.cache.PatternCache;
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Icon;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
+import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.util.DiscordRegexPattern;
 
@@ -39,6 +42,22 @@ public class DiscordUtil {
         }
 
         return Optional.empty();
+    }
+
+    public static Emoji emojiFromString(String str) {
+        if (str.startsWith("<"))
+            return createCustomEmojiFromTag(str);
+        else
+            return UnicodeEmoji.fromString(str);
+    }
+
+    public static boolean emojiIsString(Emoji emoji, String emojiCompare) {
+        return emojiIsEmoji(emoji, emojiFromString(emojiCompare));
+    }
+
+    public static boolean emojiIsEmoji(Emoji emoji, Emoji emoji2) {
+        return emoji.asCustomEmoji().map(DiscordEntity::getIdAsString).orElse(emoji.getMentionTag())
+                .equals(emoji2.asCustomEmoji().map(DiscordEntity::getIdAsString).orElse(emoji2.getMentionTag()));
     }
 
     public static CustomEmoji createCustomEmojiFromTag(String tag) {

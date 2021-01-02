@@ -13,6 +13,7 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.util.logging.ExceptionLogger;
 import websockets.syncserver.SyncServerEvent;
+
 import java.util.Locale;
 
 @SyncServerEvent(event = "TOPGG_ANICORD")

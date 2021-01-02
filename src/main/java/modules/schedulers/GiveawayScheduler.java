@@ -7,6 +7,7 @@ import constants.Emojis;
 import constants.Permission;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.DiscordUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.server.DBServer;
@@ -73,7 +74,7 @@ public class GiveawayScheduler {
         DiscordApiManager.getInstance().getMessageById(channel, giveawayBean.getMessageId())
                 .thenAccept(messageOpt -> messageOpt.ifPresent(message -> {
                     for (Reaction reaction : message.getReactions()) {
-                        if (reaction.getEmoji().getMentionTag().equals(giveawayBean.getEmoji())) {
+                        if (DiscordUtil.emojiIsString(reaction.getEmoji(), giveawayBean.getEmoji())) {
                             reaction.getUsers().thenAccept(users -> processGiveaway(channel, serverBean, giveawayBean, message, new ArrayList<>(users)));
                             break;
                         }

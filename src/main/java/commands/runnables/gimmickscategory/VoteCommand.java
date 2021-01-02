@@ -4,6 +4,7 @@ import commands.listeners.*;
 import commands.Command;
 import constants.*;
 import core.*;
+import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
 import modules.VoteInfo;
 import core.utils.StringUtil;
@@ -112,7 +113,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         for(int i=0; i < values.length; i++) {
             boolean found = false;
             for (Reaction reaction: message.getReactions()) {
-                if (reaction.getEmoji().getMentionTag().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+                if (DiscordUtil.emojiIsString(reaction.getEmoji(), LetterEmojis.LETTERS[i])) {
                     if (reaction.containsYou()) values[i] = reaction.getCount() - 1;
                     else values[i] = reaction.getCount();
                     found = true;
@@ -140,21 +141,9 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         return new VoteInfo(topic, choices, values, creatorId);
     }
 
-    private void removeEmoteIfNotSupported(Message message, ReactionAddEvent reactionAddEvent) {
-        String emoteString = reactionAddEvent.getEmoji().getMentionTag();
-        String choiceString = message.getEmbeds().get(0).getFields().get(1).getValue();
-
-        for (int i = 0; i < choiceString.split("\n").length; i++) {
-            if (emoteString.equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
-                return;
-            }
-        }
-    }
-
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
         if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
-        removeEmoteIfNotSupported(message, event);
         if (message.getEmbeds().size() == 0) return;
 
         //Doppelte Reaktionen entfernen
@@ -165,7 +154,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         VoteInfo voteInfo = getValuesFromMessage(message);
         User user =  event.getUser().get();
 
-        if (event.getEmoji().getMentionTag().equalsIgnoreCase("❌") &&
+        if (DiscordUtil.emojiIsString(event.getEmoji(), "❌") &&
                 voteInfo.getCreatorId().isPresent() &&
                 voteInfo.getCreatorId().get() == event.getUserId() &&
                 message.getReactions().size() > 0
@@ -176,7 +165,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         }
 
         for (Reaction reaction : message.getReactions()) {
-            if (!reaction.getEmoji().getMentionTag().equalsIgnoreCase(event.getEmoji().getMentionTag())) {
+            if (!DiscordUtil.emojiIsEmoji(reaction.getEmoji(), event.getEmoji())) {
                 try {
                     List<User> userList = reaction.getUsers().get();
                     if (userList.contains(user)) {
@@ -188,7 +177,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 }
             } else {
                 for(int i = 0; i < voteInfo.getValues().length; i++) {
-                    if (event.getEmoji().getMentionTag().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+                    if (DiscordUtil.emojiIsString(event.getEmoji(), LetterEmojis.LETTERS[i])) {
                         userFound = reaction.getUsers().get().contains(user);
                         break;
                     }
@@ -205,7 +194,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
     public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) throws Throwable {
         VoteInfo voteInfo = getValuesFromMessage(message);
         for(int i = 0; i < voteInfo.getValues().length; i++) {
-            if (event.getEmoji().getMentionTag().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), LetterEmojis.LETTERS[i])) {
                 message.edit(getEmbed(voteInfo, true)).get();
                 break;
             }

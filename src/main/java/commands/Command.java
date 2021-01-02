@@ -248,7 +248,7 @@ public abstract class Command {
 
     private int getIndex(SingleReactionEvent event) {
         if ((event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(Emojis.BACK_EMOJI_UNICODE)) ||
-                (event.getEmoji().isCustomEmoji() && event.getEmoji().asCustomEmoji().get().getMentionTag().equalsIgnoreCase(Emojis.BACK_EMOJI))
+                (event.getEmoji().isCustomEmoji() && DiscordUtil.emojiIsString(event.getEmoji().asCustomEmoji().get(), Emojis.BACK_EMOJI))
         ) {
             return -1;
         } else {
@@ -378,7 +378,7 @@ public abstract class Command {
                         message.getChannel().canYouAddNewReactions() &&
                         !loadingBlock &&
                         message.getReactions().stream().map(Reaction::getEmoji)
-                                .noneMatch(emoji -> emoji.getMentionTag().equals(Emojis.LOADING) ||
+                                .noneMatch(emoji -> DiscordUtil.emojiIsString(emoji, Emojis.LOADING) ||
                                         emoji.equalsEmoji("⏳"))
         ) {
             loadingStatus = LoadingStatus.ONGOING;

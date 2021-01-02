@@ -7,6 +7,7 @@ import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.osu.OsuAccount;
@@ -118,7 +119,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
 
     @Override
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().getMentionTag().equals(EMOJI_CONNECT) && !connecting) {
+        if (DiscordUtil.emojiIsString(event.getEmoji(), EMOJI_CONNECT) && !connecting) {
             connecting = true;
             DBOsuAccounts.getInstance().getBean().remove(event.getUserId());
 
@@ -156,7 +157,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
                     }
                 }
             });
-        } else if (event.getEmoji().getMentionTag().equals(EMOJI_CANCEL) && connecting) {
+        } else if (DiscordUtil.emojiIsString(event.getEmoji(), EMOJI_CANCEL) && connecting) {
             removeReactionListener();
             OsuAccountSync.getInstance().remove(event.getUserId());
             message.edit(EmbedFactory.getAbortEmbed(this)).get();
