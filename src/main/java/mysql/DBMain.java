@@ -3,7 +3,6 @@ package mysql;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import core.Bot;
 import core.SecretManager;
-import core.TaskQueue;
 import mysql.interfaces.SQLConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DBMain implements DriverAction {
 
@@ -26,7 +27,7 @@ public class DBMain implements DriverAction {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
-    private final TaskQueue taskQueue = new TaskQueue("mysql_queue");
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     private final ArrayList<DBCached> caches = new ArrayList<>();
 
@@ -94,7 +95,7 @@ public class DBMain implements DriverAction {
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
 
-        taskQueue.attach(() -> {
+        executorService.submit(() -> {
             try {
                 future.complete(update(sql, preparedStatementConsumer));
             } catch (SQLException | InterruptedException throwables) {

@@ -3,6 +3,7 @@ package commands.runnables.externalcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
+import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
@@ -13,6 +14,8 @@ import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -25,6 +28,8 @@ import java.util.Locale;
     executableWithoutArgs = true
 )
 public class AnimeNewsCommand extends Command implements OnTrackerRequestListener {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeNewsCommand.class);
 
     public AnimeNewsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -54,6 +59,9 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), slot.getArgs().orElse(null));
 
+        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+            LOGGER.info("Alert {}: postBundle: {} (size: {})", getTrigger(), postBundle, postBundle != null ? postBundle.getPosts().size() : -1);
+
         if (postBundle == null)
             return TrackerResult.CONTINUE;
 
@@ -61,6 +69,9 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         for(AnimeNewsPost post: postBundle.getPosts()) {
             channel.sendMessage(getEmbed(post)).get();
         }
+
+        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+            LOGGER.info("Alert {}: Save alert", getTrigger());
 
         slot.setArgs(postBundle.getNewestPost());
         return TrackerResult.CONTINUE_AND_SAVE;

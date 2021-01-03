@@ -1,8 +1,9 @@
 package websockets;
 
 import core.CustomThread;
-import core.utils.ExceptionUtil;
+import core.GlobalCachedThreadPool;
 import core.schedule.MainScheduler;
+import core.utils.ExceptionUtil;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
@@ -88,7 +89,7 @@ public class CustomWebSocketClient extends WebSocketClient {
                     send(event + "::" + responseJson.toString());
                 }, "websocket_" + event);
 
-                MainScheduler.getInstance().schedule(2, ChronoUnit.SECONDS, "websocket_" + event + "_observer", () -> {
+                MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "websocket_" + event + "_observer", () -> {
                     if (t.isAlive()) {
                         Exception e = ExceptionUtil.generateForStack(t);
                         LOGGER.error("websocket_" + event + " took too long to respond!", e);
@@ -144,14 +145,14 @@ public class CustomWebSocketClient extends WebSocketClient {
     public void onClose(int code, String reason, boolean remote) {
         if (connected) LOGGER.info("Web socket disconnected");
         connected = false;
-        new CustomThread(() -> {
+        GlobalCachedThreadPool.getExecutorService().submit(() -> {
             try {
                 Thread.sleep(2000);
                 reconnect();
             } catch (InterruptedException e) {
                 //Ignore
             }
-        }, "websocket_reconnect").start();
+        });
     }
 
     @Override

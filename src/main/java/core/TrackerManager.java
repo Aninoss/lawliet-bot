@@ -6,6 +6,7 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
+import constants.AssetIds;
 import constants.Permission;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -41,6 +42,8 @@ public class TrackerManager {
     private void manageTrackerShard() {
         IntervalBlock intervalBlock = Bot.isProductionMode() ? new IntervalBlock(1, ChronoUnit.MINUTES) : new IntervalBlock(5, ChronoUnit.SECONDS);
         while (intervalBlock.block() && active) {
+            if (Bot.isProductionMode())
+                LOGGER.info("Starting new alerts cycle");
             try {
                 for (ArrayList<TrackerBeanSlot> trackerBeanSlots : getGroupedByCommandTrigger()) {
                     if (trackerBeanSlots.size() > 0) {
@@ -92,6 +95,8 @@ public class TrackerManager {
                         break;
 
                     case CONTINUE_AND_SAVE:
+                        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+                            LOGGER.info("Alert {}: On CONTINUE_AND_SAVE", slot.getCommandTrigger());
                         slot.save();
                         break;
                 }

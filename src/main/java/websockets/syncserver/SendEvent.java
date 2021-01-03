@@ -1,5 +1,7 @@
 package websockets.syncserver;
 
+import core.Bot;
+import core.DiscordApiManager;
 import core.utils.DiscordUtil;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.json.JSONArray;
@@ -16,10 +18,16 @@ public class SendEvent {
     private SendEvent() {}
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
-        return SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
+        if (Bot.isProductionMode())
+            return SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
+        else
+            return CompletableFuture.completedFuture(null);
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalServerSize(long localServerSize) {
+        if (!Bot.isProductionMode())
+            return CompletableFuture.completedFuture(DiscordApiManager.getInstance().getLocalServerSize());
+
         return process("GLOBAL_SERVER_SIZE",
                 Map.of("local_server_size", localServerSize),
                 responseJson -> {

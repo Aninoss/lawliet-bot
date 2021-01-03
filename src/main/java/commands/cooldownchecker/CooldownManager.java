@@ -1,7 +1,11 @@
 package commands.cooldownchecker;
 
-import java.util.HashMap;
-import java.util.Optional;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.concurrent.TimeUnit;
 
 public class CooldownManager {
 
@@ -11,22 +15,17 @@ public class CooldownManager {
     }
     private CooldownManager() {}
 
-    public static final int MAX_ALLOWED = 2;
+    private final LoadingCache<Long, CooldownUserData> cooldownUserDataMap = CacheBuilder.newBuilder()
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .build(new CacheLoader<>() {
+                @Override
+                public CooldownUserData load(@NonNull Long userId) throws Exception {
+                    return new CooldownUserData();
+                }
+            });
 
-    private final HashMap<Long, CooldownData> cooldownDataMap = new HashMap<>();
-
-    public synchronized Optional<Integer> getWaitingSec(long userId, int cooldown) {
-        return cooldownDataMap.computeIfAbsent(userId, uid -> new CooldownData()).getWaitingSec(cooldown);
-    }
-
-    public synchronized boolean isFree(long userId) {
-        CooldownData data = cooldownDataMap.get(userId);
-        if (data != null) return data.isPostingFree();
-        return true;
-    }
-
-    public synchronized void clean() {
-        cooldownDataMap.entrySet().removeIf(set -> set == null || !set.getValue().isEmpty());
+    public synchronized CooldownUserData getCooldownData(long userId) {
+        return cooldownUserDataMap.getUnchecked(userId);
     }
 
 }

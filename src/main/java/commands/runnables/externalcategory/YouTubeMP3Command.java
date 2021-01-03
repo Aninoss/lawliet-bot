@@ -3,7 +3,6 @@ package commands.runnables.externalcategory;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import core.Bot;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -12,6 +11,7 @@ import modules.YouTubePlayer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+
 import java.io.File;
 import java.util.Locale;
 import java.util.Optional;
@@ -58,7 +58,7 @@ public class YouTubeMP3Command extends Command {
         }
 
         Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
-        SystemUtil.executeProcess(Bot.isProductionMode() ? "./ytmp3.sh" : "ytmp3.bat", meta.identifier);
+        SystemUtil.downloadYouTubeVideo(meta.identifier);
 
         File mp3File = new File(String.format("temp/%s.mp3", meta.identifier));
         if (!mp3File.exists()) {

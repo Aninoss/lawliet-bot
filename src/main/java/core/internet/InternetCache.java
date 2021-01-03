@@ -16,7 +16,7 @@ public class InternetCache {
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> shortLivedCache = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .softValues()
-            .maximumSize(100)
+            .maximumSize(200)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -28,7 +28,7 @@ public class InternetCache {
     private static final HashMap<String, Instant> expirationDates = new HashMap<>();
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> cache = CacheBuilder.newBuilder()
             .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))
-            .maximumSize(50)
+            .maximumSize(100)
             .build(
                     new CacheLoader<>() {
                         @Override

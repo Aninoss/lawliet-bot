@@ -3,7 +3,6 @@ package modules.repair;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;
-import core.TaskQueue;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
@@ -21,6 +20,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RolesRepair {
 
@@ -30,10 +31,10 @@ public class RolesRepair {
     public static RolesRepair getInstance() { return ourInstance; }
     private RolesRepair() { }
 
-    private final TaskQueue taskQueue = new TaskQueue("roles_repair");
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public void start(DiscordApi api, int hours) {
-        taskQueue.attach(() -> run(api, hours));
+        executorService.submit(() -> run(api, hours));
     }
 
     public void run(DiscordApi api, int hours) {

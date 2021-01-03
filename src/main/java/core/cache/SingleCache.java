@@ -1,6 +1,6 @@
 package core.cache;
 
-import core.CustomThread;
+import core.GlobalCachedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 public abstract class SingleCache <T> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SingleCache.class);
-    
+
     private Instant nextReset = null;
     private T value = null;
 
@@ -28,7 +28,7 @@ public abstract class SingleCache <T> {
 
         if (nextReset == null || Instant.now().isAfter(nextReset)) {
             resetUpdateTimer();
-            new CustomThread(this::fetch, "singlecache_refresh", 1).start();
+            GlobalCachedThreadPool.getExecutorService().submit(this::fetch);
         }
 
         return value;

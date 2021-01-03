@@ -36,6 +36,8 @@ public class PingCommand extends Command {
         ));
         event.getChannel().sendMessage(eb).get();
 
+        Thread.sleep(100000);
+
         return true;
     }
 

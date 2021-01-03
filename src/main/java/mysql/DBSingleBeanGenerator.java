@@ -1,12 +1,13 @@
 package mysql;
 
-import core.TaskQueue;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class DBSingleBeanGenerator<T> extends DBCached {
 
-    private static final TaskQueue refreshQueue = new TaskQueue("mysql_refresh");
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private T o = null;
     private Instant nextUpdate = null;
 
@@ -20,7 +21,7 @@ public abstract class DBSingleBeanGenerator<T> extends DBCached {
             setExpirationTimer();
         } else if (nextUpdate != null && Instant.now().isAfter(nextUpdate)) {
             setExpirationTimer();
-            refreshQueue.attach(() -> {
+            executorService.submit(() -> {
                 try {
                     o = loadBean();
                 } catch (Throwable e) {

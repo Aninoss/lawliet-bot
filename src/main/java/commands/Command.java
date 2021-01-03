@@ -52,8 +52,8 @@ public abstract class Command {
     private String[] options;
     private boolean navigationActive, loadingBlock = false, navigationPrivateMessage = false;
     private int state = DEFAULT_STATE, page = 0, pageMax = 0;
-    private final Thread thread;
     private final HashMap<Object, Object> attachments = new HashMap<>();
+    private final ArrayList<Runnable> completedListeners = new ArrayList<>();
 
     private enum LoadingStatus { OFF, ONGOING, FINISHED }
 
@@ -63,14 +63,12 @@ public abstract class Command {
 
         commandProperties = this.getClass().getAnnotation(CommandProperties.class);
         category = CategoryCalculator.getCategoryByCommand(this.getClass());
-        thread = Thread.currentThread();
     }
 
     protected abstract boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable;
 
-    public void onRecievedSuper(MessageCreateEvent event, String followedString) {
+    public void onReceivedSuper(MessageCreateEvent event, String followedString) {
         if (this instanceof PingCommand) getAttachments().put(13, Instant.now());
-        updateThreadName();
 
         starterMessage = event.getMessage();
         lastUserMessage = event.getMessage();
@@ -107,8 +105,6 @@ public abstract class Command {
     }
 
     public void onReactionAddSuper(SingleReactionEvent event) {
-        updateThreadName();
-
         if (countdown != null) countdown.reset();
 
         try {
@@ -119,8 +115,6 @@ public abstract class Command {
     }
 
     public boolean onForwardedRecievedSuper(MessageCreateEvent event) {
-        updateThreadName();
-
         Response success = null;
         if (commandProperties.withLoadingBar()) addLoadingReaction(event.getMessage());
         if (countdown != null) countdown.reset();
@@ -137,8 +131,7 @@ public abstract class Command {
     }
 
     public boolean onNavigationMessageSuper(MessageCreateEvent event, String followedString, boolean firstTime) {
-        updateThreadName();
-        resetNavigation();
+         resetNavigation();
 
         if (firstTime) {
             starterMessage = event.getMessage();
@@ -204,8 +197,6 @@ public abstract class Command {
     }
 
     public void onNavigationReactionSuper(SingleReactionEvent event) {
-        updateThreadName();
-
         if (countdown != null) countdown.reset();
 
         int index = getIndex(event);
@@ -516,13 +507,6 @@ public abstract class Command {
         removeReactionListener(navigationMessage);
     }
 
-    private void updateThreadName() {
-        String name = Thread.currentThread().getName();
-        if (name.contains(":")) name = name.split(":")[0];
-
-        Thread.currentThread().setName(name + ":" + getTrigger());
-    }
-
     public void stopCountdown() {
         if (countdown != null) countdown.stop();
     }
@@ -689,12 +673,16 @@ public abstract class Command {
         return page;
     }
 
-    public Thread getThread() {
-        return thread;
-    }
-
     public HashMap<Object, Object> getAttachments() {
         return attachments;
+    }
+
+    public void addCompletedListener(Runnable runnable) {
+        completedListeners.add(runnable);
+    }
+
+    public ArrayList<Runnable> getCompletedListeners() {
+        return completedListeners;
     }
 
     public static CommandProperties getClassProperties(Class<? extends Command> c) {

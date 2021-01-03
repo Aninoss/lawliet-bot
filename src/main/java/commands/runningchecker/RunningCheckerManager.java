@@ -1,8 +1,8 @@
 package commands.runningchecker;
 
+import commands.Command;
 import core.DiscordApiManager;
 import core.cache.PatreonCache;
-import core.schedule.MainScheduler;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,21 +12,20 @@ public class RunningCheckerManager {
 
     private static final RunningCheckerManager ourInstance = new RunningCheckerManager();
     public static RunningCheckerManager getInstance() { return ourInstance; }
-
     private RunningCheckerManager() {
         DiscordApiManager.getInstance().addShardDisconnectConsumer(this::clearShard);
     }
 
     private final HashMap<Long, ArrayList<RunningCheckerSlot>> runningCommandsMap = new HashMap<>();
 
-    public synchronized boolean canUserRunCommand(long userId, int shardId, int maxCalculationTimeSec) {
+    public synchronized boolean canUserRunCommand(Command command, long userId, int shardId, int maxCalculationTimeSec) {
         ArrayList<RunningCheckerSlot> runningCommandsList = runningCommandsMap.computeIfAbsent(userId, k -> new ArrayList<>());
         stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 
         if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(userId)) {
-            final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec);
+            final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, command.hasTimeOut());
             runningCommandsList.add(runningCheckerSlot);
-            removeOnThreadEnd(runningCommandsList, runningCheckerSlot, userId);
+            removeOnThreadEnd(command, runningCommandsList, runningCheckerSlot, userId);
 
             return true;
         }
@@ -34,17 +33,12 @@ public class RunningCheckerManager {
         return false;
     }
 
-    private void removeOnThreadEnd(ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
-        final Thread currentThread = Thread.currentThread();
-        MainScheduler.getInstance().poll(100, "runningchecker", () -> {
-            if (currentThread.isAlive())
-                return true;
-
+    private void removeOnThreadEnd(Command command, ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
+        command.addCompletedListener(() -> {
             synchronized (this) {
                 runningCommandsList.remove(runningCheckerSlot);
                 if (runningCommandsList.isEmpty())
                     runningCommandsMap.remove(userId);
-                return false;
             }
         });
     }

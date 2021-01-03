@@ -5,8 +5,8 @@ import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
 import constants.Permission;
-import core.CustomThread;
 import core.EmbedFactory;
+import core.GlobalCachedThreadPool;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import javafx.util.Pair;
@@ -101,7 +101,7 @@ public class Mod {
         eb.setFooter("");
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        new CustomThread(() -> {
+        GlobalCachedThreadPool.getExecutorService().submit(() -> {
             users.forEach(user -> {
                 if (!user.isBot()) {
                     user.sendMessage(eb)
@@ -110,7 +110,7 @@ public class Mod {
                 }
             });
             future.complete(null);
-        }, "mod_" + command.getTrigger()).start();
+        });
 
         moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), serverTextChannel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {

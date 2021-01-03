@@ -3,6 +3,7 @@ package commands.runnables.externalcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
+import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
@@ -14,6 +15,8 @@ import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -27,6 +30,8 @@ import java.util.Locale;
         aliases = { "animereleases", "animerelease" }
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeReleasesCommand.class);
 
     public AnimeReleasesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -73,6 +78,9 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
+        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+            LOGGER.info("Alert {}: postBundle: {} (size: {})", getTrigger(), postBundle, postBundle != null ? postBundle.getPosts().size() : -1);
+
         ServerTextChannel channel = slot.getChannel().get();
         for(int i = Math.min(4, postBundle.getPosts().size() - 1); i >= 0; i--) {
             AnimeReleasePost post = postBundle.getPosts().get(i);
@@ -84,6 +92,9 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.getChannel().get().sendMessage(eb).get();
         }
+
+        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+            LOGGER.info("Alert {}: Save alert", getTrigger());
 
         if (postBundle.getNewestPost() != null) slot.setArgs(postBundle.getNewestPost());
         return TrackerResult.CONTINUE_AND_SAVE;

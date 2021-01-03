@@ -4,7 +4,6 @@ import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.Permission;
 import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
-import core.TaskQueue;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import org.javacord.api.DiscordApi;
@@ -13,8 +12,11 @@ import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AutoChannelRepair {
 
@@ -24,10 +26,10 @@ public class AutoChannelRepair {
     public static AutoChannelRepair getInstance() { return ourInstance; }
     private AutoChannelRepair() { }
 
-    private final TaskQueue taskQueue = new TaskQueue("autochannel_repair");
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public void start(DiscordApi api) {
-        taskQueue.attach(() -> run(api));
+        executorService.submit(() -> run(api));
     }
 
     public void run(DiscordApi api) {

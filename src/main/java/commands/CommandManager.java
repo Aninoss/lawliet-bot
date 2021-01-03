@@ -1,6 +1,7 @@
 package commands;
 
 import commands.cooldownchecker.CooldownManager;
+import commands.cooldownchecker.CooldownUserData;
 import commands.listeners.OnForwardedRecievedListener;
 import commands.listeners.OnNavigationListener;
 import commands.listeners.OnReactionAddListener;
@@ -10,8 +11,8 @@ import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.*;
 import core.*;
-import core.cache.ServerPatreonBoostCache;
 import core.cache.PatreonCache;
+import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.modules.commandmanagement.DBCommandManagement;
@@ -25,8 +26,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -40,10 +39,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommandManager {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
     private final static int SEC_UNTIL_REMOVAL = 20;
 
     public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
@@ -76,12 +75,14 @@ public class CommandManager {
                 if (command instanceof OnNavigationListener)
                     command.onNavigationMessageSuper(event, followedString, true);
                 else
-                    command.onRecievedSuper(event, followedString);
+                    command.onReceivedSuper(event, followedString);
 
                 if (Bot.isPublicVersion())
                     maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getServerTextChannel().get());
+            } finally {
+                command.getCompletedListeners().forEach(Runnable::run);
             }
             command.removeLoadingReaction();
         }
@@ -116,6 +117,7 @@ public class CommandManager {
     private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (command instanceof PingCommand) command.getAttachments().put(0, Instant.now());
         if (RunningCheckerManager.getInstance().canUserRunCommand(
+                command,
                 event.getMessage().getUserAuthor().get().getId(),
                 event.getApi().getCurrentShard(),
                 command.getMaxCalculationTimeSec()
@@ -123,15 +125,17 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
+        if (CooldownManager.getInstance().getCooldownData(event.getMessageAuthor().getId()).canPostCooldownMessage()) {
+            String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-        if (event.getChannel().canYouEmbedLinks()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
-                    .setDescription(desc);
-            sendError(event, command.getLocale(), eb);
-        } else if (event.getChannel().canYouWrite()) {
-            sendErrorNoEmbed(event, command.getLocale(), desc);
+            if (event.getChannel().canYouEmbedLinks()) {
+                EmbedBuilder eb = EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
+                        .setDescription(desc);
+                sendError(event, command.getLocale(), eb);
+            } else if (event.getChannel().canYouWrite()) {
+                sendErrorNoEmbed(event, command.getLocale(), desc);
+            }
         }
 
         return false;
@@ -139,14 +143,14 @@ public class CommandManager {
 
     private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
         if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) >= 3) return true;
+        CooldownUserData cooldownUserData = CooldownManager.getInstance().getCooldownData(event.getMessageAuthor().getId());
 
-        Optional<Integer> waitingSec = CooldownManager.getInstance().getWaitingSec(event.getMessageAuthor().asUser().get().getId(), Settings.COOLDOWN_TIME_SEC);
+        Optional<Integer> waitingSec = cooldownUserData.getWaitingSec(Settings.COOLDOWN_TIME_SEC);
         if (waitingSec.isEmpty()) {
             return true;
         }
 
-        User user = event.getMessageAuthor().asUser().get();
-        if (CooldownManager.getInstance().isFree(user.getId())) {
+        if (cooldownUserData.canPostCooldownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
             if (event.getChannel().canYouEmbedLinks()) {
@@ -422,16 +426,18 @@ public class CommandManager {
     }
 
     private static void manageSlowCommandLoadingReaction(Command command) {
-        final Thread commandThread = Thread.currentThread();
+        AtomicBoolean commandIsActive = new AtomicBoolean(true);
+        command.addCompletedListener(() -> commandIsActive.set(false));
 
         MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "command_manager_add_loading_reaction", () -> {
-            if (commandThread.isAlive()) {
+            if (commandIsActive.get()) {
                 command.addLoadingReaction();
             }
         });
 
+        Thread commandThread = Thread.currentThread();
         MainScheduler.getInstance().schedule(command.getMaxCalculationTimeSec(), ChronoUnit.SECONDS, "command_manager_timeout", () -> {
-            if (commandThread.isAlive() && command.hasTimeOut()) {
+            if (command.hasTimeOut() && commandIsActive.get()) {
                 commandThread.interrupt();
             }
         });

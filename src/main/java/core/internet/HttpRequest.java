@@ -1,6 +1,6 @@
 package core.internet;
 
-import core.CustomThread;
+import core.GlobalCachedThreadPool;
 import core.utils.BotUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class HttpRequest {
 
     public static CompletableFuture<HttpResponse> getData(String urlString, String method, int pauseTimeMilis, String body, HttpProperty... headers) {
         CompletableFuture<HttpResponse> future = new CompletableFuture<>();
-        new CustomThread(() -> download(future, urlString, method, pauseTimeMilis, body, headers), "download_url").start();
+        GlobalCachedThreadPool.getExecutorService().submit(() -> download(future, urlString, method, pauseTimeMilis, body, headers));
         return future;
     }
 

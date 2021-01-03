@@ -9,13 +9,15 @@ public class RunningCheckerSlot {
     private final int shardId;
     private final Instant instant;
     private final int maxCalculationTimeSec;
+    private final boolean hasTimeOut;
 
-    public RunningCheckerSlot(long userId, int shardId, int maxCalculationTimeSec) {
+    public RunningCheckerSlot(long userId, int shardId, int maxCalculationTimeSec, boolean hasTimeOut) {
         this.userId = userId;
         this.thread = Thread.currentThread();
         this.shardId = shardId;
         this.instant = Instant.now();
         this.maxCalculationTimeSec = maxCalculationTimeSec;
+        this.hasTimeOut = hasTimeOut;
     }
 
     public long getUserId() {
@@ -27,7 +29,8 @@ public class RunningCheckerSlot {
     }
 
     public void stop() {
-        thread.interrupt();
+        if (hasTimeOut)
+            thread.interrupt();
     }
 
     public Instant getInstant() {

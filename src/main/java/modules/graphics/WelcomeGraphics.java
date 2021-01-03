@@ -153,22 +153,19 @@ public class WelcomeGraphics {
     }
 
     private static BufferedImage getBackgroundImage(Server server) throws IOException {
-        BufferedImage base = ImageIO.read(getBackgroundFile(server));
-        if (base == null) base = ImageIO.read(getDefaultBackgroundFile());
-        return base;
+        return ImageIO.read(getBackgroundFile(server));
     }
 
     private static File getBackgroundFile(Server server) {
-        File backgroundFile = getDefaultBackgroundFile();
-        String customBackgroundPath = "data/welcome_backgrounds/" + server.getIdAsString() + ".png";
-        if (new File(customBackgroundPath).exists())
-            backgroundFile = new File(customBackgroundPath);
+        File tempBackgroundFile = new File(String.format("temp/welcome_%d.png", server.getId()));
+        if (tempBackgroundFile.exists())
+            return tempBackgroundFile;
 
-        return backgroundFile;
-    }
+        File syncedBackgroundFile = new File(String.format("share/welcome_backgrounds/%d.png", server.getId()));
+        if (syncedBackgroundFile.exists())
+            return syncedBackgroundFile;
 
-    private static File getDefaultBackgroundFile() {
-        return new File("data/welcome_backgrounds/placeholder.png");
+        return new File("share/welcome_backgrounds/placeholder.png");
     }
 
 }

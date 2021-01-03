@@ -9,10 +9,7 @@ import constants.Permission;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.FileUtil;
-import core.utils.InternetUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
@@ -105,7 +102,9 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
             case 4:
                 List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), "data/welcome_backgrounds/" + event.getServer().get().getIdAsString() + ".png").isPresent()) {
+                    String downloadFileName = String.format("temp/welcome_%d.png", event.getServer().get().getId());
+                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), downloadFileName).isPresent()) {
+                        SystemUtil.rsyncPush(downloadFileName, String.format("welcome_backgrounds/%d.png", event.getServer().get().getId()));
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return Response.TRUE;

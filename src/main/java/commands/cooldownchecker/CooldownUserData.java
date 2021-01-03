@@ -1,19 +1,23 @@
 package commands.cooldownchecker;
 
+import constants.Settings;
+import core.schedule.MainScheduler;
+
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class CooldownData {
+public class CooldownUserData {
 
-    private Thread thread = null;
     private final ArrayList<Instant> commandInstants = new ArrayList<>();
+    private boolean canPostCooldownMessage = true;
 
     public Optional<Integer> getWaitingSec(int cooldown) {
         clean();
 
-        if (commandInstants.size() >= CooldownManager.MAX_ALLOWED) {
+        if (commandInstants.size() >= Settings.COOLDOWN_MAX_ALLOWED) {
             Duration duration = Duration.between(Instant.now(), commandInstants.get(0));
             return Optional.of((int) (duration.getSeconds() + 1));
         }
@@ -22,11 +26,13 @@ public class CooldownData {
         return Optional.empty();
     }
 
-    public boolean isPostingFree() {
-        if (thread == null || !thread.isAlive()) {
-            thread = Thread.currentThread();
+    public synchronized boolean canPostCooldownMessage() {
+        if (canPostCooldownMessage) {
+            canPostCooldownMessage = false;
+            MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "cooldown", () -> this.canPostCooldownMessage = true);
             return true;
         }
+
         return false;
     }
 

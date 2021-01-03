@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 
 public class Console {
-
     private final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
 
     private static final Console instance = new Console();
@@ -309,13 +308,13 @@ public class Console {
                     String[] args = br.readLine().split(" ");
                     ConsoleTask task = tasks.get(args[0]);
                     if (task != null) {
-                        new CustomThread(() -> {
+                        GlobalCachedThreadPool.getExecutorService().submit(() -> {
                             try {
                                 task.process(args);
                             } catch (Throwable throwable) {
                                 LOGGER.error("Console task {} endet with exception", args[0], throwable);
                             }
-                        }, "console_task", 1).start();
+                        });
                     } else {
                         System.err.printf("No result for \"%s\"\n", args[0]);
                     }
