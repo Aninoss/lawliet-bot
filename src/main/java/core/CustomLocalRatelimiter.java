@@ -1,40 +1,50 @@
 package core;
 
 import org.javacord.api.util.ratelimit.Ratelimiter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import websockets.syncserver.SendEvent;
+
+import java.util.concurrent.ExecutionException;
 
 public class CustomLocalRatelimiter implements Ratelimiter {
 
-    private volatile long nextResetNanos;
-    private volatile int remainingQuota;
+    private final static Logger LOGGER = LoggerFactory.getLogger(CustomLocalRatelimiter.class);
 
-    private final int amount;
-    private final int nanos;
+    private volatile long nextRequest = 0;
 
-    public CustomLocalRatelimiter(int amount, int nanos) {
-        this.amount = amount;
+    private final long nanos;
+
+    public CustomLocalRatelimiter(long nanos) {
         this.nanos = nanos;
     }
 
     @Override
     public synchronized void requestQuota() throws InterruptedException {
-        if (remainingQuota <= 0) {
-            // Wait until a new quota becomes available
+        if (System.nanoTime() < nextRequest) {
             long sleepTime;
-            while ((sleepTime = calculateSleepTime()) > 0) { // Sleep is unreliable, so we have to loop
+            while ((sleepTime = calculateLocalSleepTime()) > 0) { // Sleep is unreliable, so we have to loop
                 Thread.sleep(sleepTime / 1_000_000, (int) (sleepTime % 1_000_000));
             }
         }
 
-        // Reset the limit when the last reset timestamp is past
-        if (System.nanoTime() > nextResetNanos) {
-            remainingQuota = amount;
-            nextResetNanos = System.nanoTime() + nanos;
+        if (Bot.isProductionMode()) {
+            while (true) {
+                try {
+                    long syncedSleepTime = SendEvent.sendRequestSyncedRatelimit().get();
+                    Thread.sleep(syncedSleepTime / 1_000_000, (int) (syncedSleepTime % 1_000_000));
+                    break;
+                } catch (ExecutionException e) {
+                    LOGGER.error("Error when requesting synced waiting time", e);
+                    Thread.sleep(1000);
+                }
+            }
         }
 
-        remainingQuota--;
+        nextRequest = System.nanoTime() + nanos;
     }
 
-    private long calculateSleepTime() {
-        return (nextResetNanos - System.nanoTime());
+    private long calculateLocalSleepTime() {
+        return (nextRequest - System.nanoTime());
     }
 }

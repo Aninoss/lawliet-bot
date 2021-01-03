@@ -29,42 +29,33 @@ public class TrackerManager {
 
     private TrackerBean trackerBean;
     private boolean active = false;
-    private int size;
 
     public synchronized void start(TrackerBean trackerBean) {
         if (active) return;
         active = true;
 
         this.trackerBean = trackerBean;
-        size = (DiscordApiManager.getInstance().getLocalShards() / 5) + 1;
-        for (int i = 0; i < size; i++) {
-            final int trackerShard = i;
-            new CustomThread(() -> {
-                manageTrackerShard(trackerShard);
-            }, "trackers_" + i).start();
-        }
+        new CustomThread(this::manageTrackerShard, "alerts").start();
     }
 
-    private void manageTrackerShard(int trackerShard) {
+    private void manageTrackerShard() {
         IntervalBlock intervalBlock = Bot.isProductionMode() ? new IntervalBlock(1, ChronoUnit.MINUTES) : new IntervalBlock(5, ChronoUnit.SECONDS);
         while (intervalBlock.block() && active) {
             try {
                 for (ArrayList<TrackerBeanSlot> trackerBeanSlots : getGroupedByCommandTrigger()) {
                     if (trackerBeanSlots.size() > 0) {
-                        manageTrackerCommand(trackerBeanSlots, trackerShard);
+                        manageTrackerCommand(trackerBeanSlots);
                     }
                 }
             } catch (Throwable e) {
-                LOGGER.error("Exception on tracker shard {}", trackerShard, e);
+                LOGGER.error("Exception on tracker", e);
             }
         }
     }
 
-    private void manageTrackerCommand(ArrayList<TrackerBeanSlot> trackerBeanSlots, int trackerShard) throws InterruptedException {
+    private void manageTrackerCommand(ArrayList<TrackerBeanSlot> trackerBeanSlots) throws InterruptedException {
         for (TrackerBeanSlot slot : trackerBeanSlots) {
-            if (!slot.getNextRequest().isAfter(Instant.now()) &&
-                    trackerIsForShard(slot, trackerShard)
-            ) {
+            if (!slot.getNextRequest().isAfter(Instant.now())) {
                 try {
                     if (slot != null) manageTracker(slot);
                 } catch (InterruptedException e) {
@@ -76,10 +67,6 @@ public class TrackerManager {
                 }
             }
         }
-    }
-
-    private boolean trackerIsForShard(TrackerBeanSlot slot, int trackerShard) {
-        return (slot.getServerId() >> 22) % size == trackerShard;
     }
 
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {

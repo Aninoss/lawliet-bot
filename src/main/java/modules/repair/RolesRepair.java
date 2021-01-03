@@ -13,7 +13,6 @@ import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +20,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class RolesRepair {
 
@@ -69,7 +69,11 @@ public class RolesRepair {
                 .filter(role -> !user.getRoles(role.getServer()).contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> {
                     LOGGER.info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), user.getDiscriminatedName(), role.getServer().getName());
-                    role.addUser(user).exceptionally(ExceptionLogger.get());
+                    try {
+                        role.addUser(user).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOGGER.error("Exception", e);
+                    }
                 });
     }
 

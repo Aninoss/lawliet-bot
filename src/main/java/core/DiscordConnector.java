@@ -38,6 +38,7 @@ public class DiscordConnector {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
     private final DiscordEventManager discordEventManager = new DiscordEventManager();
+    private final CustomLocalRatelimiter customLocalRatelimiter = new CustomLocalRatelimiter(21_000_000);
     private boolean started = false;
 
     public void connect(int shardMin, int shardMax, int totalShards) {
@@ -55,7 +56,8 @@ public class DiscordConnector {
         apiBuilder.loginShards(shard -> shard >= shardMin && shard <= shardMax)
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
                         .exceptionally(e -> {
-                            LOGGER.error("EXIT - Error while connecting shard {}!", apiBuilder.getCurrentShard(), e);
+                            LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
+                            System.exit(-1);
                             return null;
                         })
                 );
@@ -78,7 +80,7 @@ public class DiscordConnector {
     private DiscordApiBuilder createBuilder() {
         return new DiscordApiBuilder()
                 .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
-                .setGlobalRatelimiter(new CustomLocalRatelimiter(1, 21_000_000))
+                .setGlobalRatelimiter(customLocalRatelimiter)
                 .setAllIntentsExcept(Intent.DIRECT_MESSAGE_TYPING, Intent.GUILD_MESSAGE_TYPING)
                 .setWaitForUsersOnStartup(true);
     }
