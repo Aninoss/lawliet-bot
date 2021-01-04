@@ -1,6 +1,6 @@
 package events.discordevents;
 
-import core.GlobalCachedThreadPool;
+import core.GlobalThreadPool;
 import events.discordevents.eventtypeabstracts.*;
 import org.javacord.api.DiscordApi;
 import org.reflections.Reflections;
@@ -50,31 +50,31 @@ public class DiscordEventManager {
     }
 
     public void registerApi(DiscordApi api) {
-        api.addMessageCreateListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> MessageCreateAbstract.onMessageCreateStatic(event, getListenerList(MessageCreateAbstract.class))));
-        api.addMessageEditListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> MessageEditAbstract.onMessageEditStatic(event, getListenerList(MessageEditAbstract.class))));
-        api.addMessageDeleteListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> MessageDeleteAbstract.onMessageDeleteStatic(event, getListenerList(MessageDeleteAbstract.class))));
+        api.addMessageCreateListener(event -> GlobalThreadPool.getExecutorService().submit(() -> MessageCreateAbstract.onMessageCreateStatic(event, getListenerList(MessageCreateAbstract.class))));
+        api.addMessageEditListener(event -> GlobalThreadPool.getExecutorService().submit(() -> MessageEditAbstract.onMessageEditStatic(event, getListenerList(MessageEditAbstract.class))));
+        api.addMessageDeleteListener(event -> GlobalThreadPool.getExecutorService().submit(() -> MessageDeleteAbstract.onMessageDeleteStatic(event, getListenerList(MessageDeleteAbstract.class))));
 
-        api.addReactionAddListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ReactionAddAbstract.onReactionAddStatic(event, getListenerList(ReactionAddAbstract.class))));
-        api.addReactionRemoveListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ReactionRemoveAbstract.onReactionRemoveStatic(event, getListenerList(ReactionRemoveAbstract.class))));
+        api.addReactionAddListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ReactionAddAbstract.onReactionAddStatic(event, getListenerList(ReactionAddAbstract.class))));
+        api.addReactionRemoveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ReactionRemoveAbstract.onReactionRemoveStatic(event, getListenerList(ReactionRemoveAbstract.class))));
 
-        api.addServerChannelDeleteListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerChannelDeleteAbstract.onServerChannelDeleteStatic(event, getListenerList(ServerChannelDeleteAbstract.class))));
+        api.addServerChannelDeleteListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerChannelDeleteAbstract.onServerChannelDeleteStatic(event, getListenerList(ServerChannelDeleteAbstract.class))));
 
-        api.addServerJoinListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerJoinAbstract.onServerJoinStatic(event, getListenerList(ServerJoinAbstract.class))));
-        api.addServerLeaveListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerLeaveAbstract.onServerLeaveStatic(event, getListenerList(ServerLeaveAbstract.class))));
+        api.addServerJoinListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerJoinAbstract.onServerJoinStatic(event, getListenerList(ServerJoinAbstract.class))));
+        api.addServerLeaveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerLeaveAbstract.onServerLeaveStatic(event, getListenerList(ServerLeaveAbstract.class))));
 
-        api.addServerMemberJoinListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerMemberJoinAbstract.onServerMemberJoinStatic(event, getListenerList(ServerMemberJoinAbstract.class))));
-        api.addServerMemberLeaveListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerMemberLeaveAbstract.onServerMemberLeaveStatic(event, getListenerList(ServerMemberLeaveAbstract.class))));
+        api.addServerMemberJoinListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerMemberJoinAbstract.onServerMemberJoinStatic(event, getListenerList(ServerMemberJoinAbstract.class))));
+        api.addServerMemberLeaveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerMemberLeaveAbstract.onServerMemberLeaveStatic(event, getListenerList(ServerMemberLeaveAbstract.class))));
 
-        api.addServerVoiceChannelChangeUserLimitListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerVoiceChannelChangeUserLimitAbstract.onServerVoiceChannelChangeUserLimitStatic(event, getListenerList(ServerVoiceChannelChangeUserLimitAbstract.class))));
-        api.addServerVoiceChannelMemberJoinListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerVoiceChannelMemberJoinAbstract.onServerVoiceChannelMemberJoinStatic(event, getListenerList(ServerVoiceChannelMemberJoinAbstract.class))));
-        api.addServerVoiceChannelMemberLeaveListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerVoiceChannelMemberLeaveAbstract.onServerVoiceChannelMemberLeaveStatic(event, getListenerList(ServerVoiceChannelMemberLeaveAbstract.class))));
+        api.addServerVoiceChannelChangeUserLimitListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerVoiceChannelChangeUserLimitAbstract.onServerVoiceChannelChangeUserLimitStatic(event, getListenerList(ServerVoiceChannelChangeUserLimitAbstract.class))));
+        api.addServerVoiceChannelMemberJoinListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerVoiceChannelMemberJoinAbstract.onServerVoiceChannelMemberJoinStatic(event, getListenerList(ServerVoiceChannelMemberJoinAbstract.class))));
+        api.addServerVoiceChannelMemberLeaveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerVoiceChannelMemberLeaveAbstract.onServerVoiceChannelMemberLeaveStatic(event, getListenerList(ServerVoiceChannelMemberLeaveAbstract.class))));
 
-        api.addUserRoleAddListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> UserRoleAddAbstract.onUserRoleAddStatic(event, getListenerList(UserRoleAddAbstract.class))));
-        api.addUserRoleRemoveListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> UserRoleRemoveAbstract.onUserRoleRemoveStatic(event, getListenerList(UserRoleRemoveAbstract.class))));
+        api.addUserRoleAddListener(event -> GlobalThreadPool.getExecutorService().submit(() -> UserRoleAddAbstract.onUserRoleAddStatic(event, getListenerList(UserRoleAddAbstract.class))));
+        api.addUserRoleRemoveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> UserRoleRemoveAbstract.onUserRoleRemoveStatic(event, getListenerList(UserRoleRemoveAbstract.class))));
 
-        api.addServerChangeBoostCountListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> ServerChangeBoostCountAbstract.onServerChangeBoostCountStatic(event, getListenerList(ServerChangeBoostCountAbstract.class))));
+        api.addServerChangeBoostCountListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerChangeBoostCountAbstract.onServerChangeBoostCountStatic(event, getListenerList(ServerChangeBoostCountAbstract.class))));
 
-        api.addUserChangeActivityListener(event -> GlobalCachedThreadPool.getExecutorService().submit(() -> UserChangeActivityAbstract.onUserChangeActivityStatic(event, getListenerList(UserChangeActivityAbstract.class))));
+        api.addUserChangeActivityListener(event -> GlobalThreadPool.getExecutorService().submit(() -> UserChangeActivityAbstract.onUserChangeActivityStatic(event, getListenerList(UserChangeActivityAbstract.class))));
     }
 
     private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz) {

@@ -1,6 +1,6 @@
 package core.cache;
 
-import core.GlobalCachedThreadPool;
+import core.GlobalThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public abstract class SingleCache <T> {
 
         if (nextReset == null || Instant.now().isAfter(nextReset)) {
             resetUpdateTimer();
-            GlobalCachedThreadPool.getExecutorService().submit(this::fetch);
+            GlobalThreadPool.getExecutorService().submit(this::fetch);
         }
 
         return value;

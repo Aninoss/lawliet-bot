@@ -6,7 +6,6 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
-import constants.AssetIds;
 import constants.Permission;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -95,7 +94,7 @@ public class TrackerManager {
                         break;
 
                     case CONTINUE_AND_SAVE:
-                        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+                        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
                             LOGGER.info("Alert {}: On CONTINUE_AND_SAVE", slot.getCommandTrigger());
                         slot.save();
                         break;

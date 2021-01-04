@@ -28,6 +28,11 @@ public class OnTopGG implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {
+        if (!jsonObject.has("user")) {
+            LOGGER.error("No user field:\n" + jsonObject.toString());
+            return null;
+        }
+
         long userId = jsonObject.getLong("user");
         if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
             return null;

@@ -4,6 +4,7 @@ import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
 import core.cache.PatreonCache;
+import core.utils.ExceptionUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import events.scheduleevents.events.SurveyResults;
@@ -62,7 +63,8 @@ public class Console {
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
         tasks.put("threads", this::onThreads);
-        tasks.put("threads_stop", this::onThreadStop);
+        tasks.put("threads_stack", this::onThreadsStack);
+        tasks.put("threads_interrupt", this::onThreadsInterrupt);
         tasks.put("ban", this::onBan);
         tasks.put("unban", this::onUnban);
         tasks.put("fish", this::onFish);
@@ -76,6 +78,7 @@ public class Console {
         tasks.put("clear", this::onClear);
         tasks.put("fonts", this::onReloadFonts);
         tasks.put("servers", this::onServers);
+        tasks.put("servers_mutual", this::onServersMutual);
         tasks.put("patreon", this::onPatreon);
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
@@ -131,6 +134,26 @@ public class Console {
     private void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
         LOGGER.info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getUserTier(userId));
+    }
+
+    private void onServersMutual(String[] args) {
+        DiscordApiManager.getInstance().getCachedUserById(Long.parseLong(args[1])).ifPresent(user -> {
+            LOGGER.info("--- MUTUAL SERVERS OF {} ---", user.getId());
+            ArrayList<Server> servers = new ArrayList<>(DiscordApiManager.getInstance().getLocalMutualServers(user));
+            servers.sort((s1, s2) -> Integer.compare(s2.getMemberCount(), s1.getMemberCount()));
+
+            for (Server server : servers) {
+                int bots = (int) server.getMembers().stream().filter(User::isBot).count();
+                LOGGER.info(
+                        "{} (ID: {}): {} Members & {} Bots",
+                        server.getName(),
+                        server.getId(),
+                        server.getMemberCount() - bots,
+                        bots
+                );
+            }
+            LOGGER.info("---------------");
+        });
     }
 
     private void onServers(String[] args) {
@@ -243,7 +266,16 @@ public class Console {
         LOGGER.info("User {} banned", userId);
     }
 
-    private void onThreadStop(String[] args) {
+    private void onThreadsStack(String[] args) {
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (args.length < 2 || t.getName().matches(args[1])) {
+                Exception e = ExceptionUtil.generateForStack(t);
+                LOGGER.error("\n--- {} ---", t.getName(), e);
+            }
+        }
+    }
+
+    private void onThreadsInterrupt(String[] args) {
         int stopped = 0;
 
         for (Thread t : Thread.getAllStackTraces().keySet()) {
@@ -308,11 +340,11 @@ public class Console {
                     String[] args = br.readLine().split(" ");
                     ConsoleTask task = tasks.get(args[0]);
                     if (task != null) {
-                        GlobalCachedThreadPool.getExecutorService().submit(() -> {
+                        GlobalThreadPool.getExecutorService().submit(() -> {
                             try {
                                 task.process(args);
                             } catch (Throwable throwable) {
-                                LOGGER.error("Console task {} endet with exception", args[0], throwable);
+                                LOGGER.error("Console task {} ended with exception", args[0], throwable);
                             }
                         });
                     } else {

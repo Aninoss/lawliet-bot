@@ -3,7 +3,6 @@ package commands.runnables.externalcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
@@ -59,7 +58,7 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), slot.getArgs().orElse(null));
 
-        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
             LOGGER.info("Alert {}: postBundle: {} (size: {})", getTrigger(), postBundle, postBundle != null ? postBundle.getPosts().size() : -1);
 
         if (postBundle == null)
@@ -70,7 +69,7 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
             channel.sendMessage(getEmbed(post)).get();
         }
 
-        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
             LOGGER.info("Alert {}: Save alert", getTrigger());
 
         slot.setArgs(postBundle.getNewestPost());

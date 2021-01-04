@@ -18,10 +18,11 @@ public class SendEvent {
     private SendEvent() {}
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
+        CompletableFuture<JSONObject> future = SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
         if (Bot.isProductionMode())
-            return SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
+            return future;
         else
-            return CompletableFuture.completedFuture(null);
+            return CompletableFuture.completedFuture(new JSONObject());
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalServerSize(long localServerSize) {

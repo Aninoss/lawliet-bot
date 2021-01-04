@@ -6,7 +6,7 @@ import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
 import constants.Permission;
 import core.EmbedFactory;
-import core.GlobalCachedThreadPool;
+import core.GlobalThreadPool;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import javafx.util.Pair;
@@ -101,7 +101,7 @@ public class Mod {
         eb.setFooter("");
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        GlobalCachedThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.getExecutorService().submit(() -> {
             users.forEach(user -> {
                 if (!user.isBot()) {
                     user.sendMessage(eb)

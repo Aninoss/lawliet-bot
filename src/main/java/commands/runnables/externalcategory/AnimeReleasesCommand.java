@@ -3,7 +3,6 @@ package commands.runnables.externalcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
@@ -78,7 +77,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
-        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
             LOGGER.info("Alert {}: postBundle: {} (size: {})", getTrigger(), postBundle, postBundle != null ? postBundle.getPosts().size() : -1);
 
         ServerTextChannel channel = slot.getChannel().get();
@@ -93,7 +92,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
             slot.getChannel().get().sendMessage(eb).get();
         }
 
-        if (slot.getServerId() == AssetIds.ANICORD_SERVER_ID) //TODO
+        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
             LOGGER.info("Alert {}: Save alert", getTrigger());
 
         if (postBundle.getNewestPost() != null) slot.setArgs(postBundle.getNewestPost());
