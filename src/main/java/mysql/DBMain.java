@@ -37,12 +37,13 @@ public class DBMain implements DriverAction {
         final MysqlDataSource rv = new MysqlDataSource();
         rv.setServerName(Bot.isProductionMode() ? SecretManager.getString("database.ip") : "localhost");
         rv.setPortNumber(3306);
-        rv.setDatabaseName(SecretManager.getString("database.database"));
+        rv.setDatabaseName("Lawliet");
         rv.setAllowMultiQueries(false);
         rv.setAutoReconnect(true);
         rv.setCharacterEncoding("UTF-8");
         rv.setUser(Bot.isProductionMode() ? SecretManager.getString("database.username") : "root");
-        if (Bot.isProductionMode()) rv.setPassword(SecretManager.getString("database.password"));
+        if (Bot.isProductionMode())
+            rv.setPassword(SecretManager.getString("database.password"));
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
         connect = rv.getConnection();
