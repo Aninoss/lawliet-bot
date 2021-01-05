@@ -40,7 +40,7 @@ public class SurveyResults implements ScheduleInterface {
     }
     
     public static void processCurrentResults() {
-        new CustomThread(() -> {
+        GlobalThreadPool.getExecutorService().submit(() -> {
             DBSurvey.getInstance().clear();
             SurveyBean lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
             try {
@@ -50,7 +50,7 @@ public class SurveyResults implements ScheduleInterface {
 
             LOGGER.info("Calculating survey results...");
             processSurvey(lastSurvey);
-        }, "survey_results").start();
+        });
     }
 
     private static void processSurvey(SurveyBean lastSurvey) {

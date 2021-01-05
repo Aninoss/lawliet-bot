@@ -10,7 +10,6 @@ import modules.repair.MainRepair;
 import modules.schedulers.GiveawayScheduler;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.survey.DBSurvey;
 import mysql.modules.tracker.DBTracker;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -103,7 +102,6 @@ public class DiscordConnector {
     }
 
     private void onConnectionCompleted() {
-        DBSurvey.getInstance().getCurrentSurvey();
         new ScheduleEventManager().start();
         DBTracker.getInstance().start();
         if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();
