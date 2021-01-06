@@ -28,7 +28,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             welcomeMessageBean = new WelcomeMessageBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getBoolean(1),
                     resultSet.getString(2),
                     resultSet.getString(3),
@@ -44,7 +44,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
             Locale locale = serverBean.getLocale();
 
             welcomeMessageBean = new WelcomeMessageBean(
-                    serverBean,
+                    serverId,
                     false,
                     TextManager.getString(locale, Category.UTILITY, "welcome_standard_title"),
                     TextManager.getString(locale, Category.UTILITY, "welcome_standard_description"),

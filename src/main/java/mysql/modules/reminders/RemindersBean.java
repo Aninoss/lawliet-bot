@@ -1,7 +1,6 @@
 package mysql.modules.reminders;
 
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 
 import java.time.Instant;
 
@@ -14,12 +13,12 @@ public class RemindersBean extends BeanWithServer {
     private boolean active = true;
     private final Runnable completedRunnable;
 
-    public RemindersBean(ServerBean serverBean, int id, long channelId, Instant time, String message) {
-        this(serverBean, id, channelId, time, message, null);
+    public RemindersBean(long serverId, int id, long channelId, Instant time, String message) {
+        this(serverId, id, channelId, time, message, null);
     }
 
-    public RemindersBean(ServerBean serverBean, int id, long channelId, Instant time, String message, Runnable completedRunnable) {
-        super(serverBean);
+    public RemindersBean(long serverId, int id, long channelId, Instant time, String message, Runnable completedRunnable) {
+        super(serverId);
         this.id = id;
         this.channelId = channelId;
         this.time = time;

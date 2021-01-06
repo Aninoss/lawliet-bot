@@ -3,10 +3,10 @@ package mysql.modules.fisheryusers;
 import core.CustomObservableList;
 import core.CustomObservableMap;
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,8 +17,8 @@ public class FisheryServerBean extends BeanWithServer {
     private final CustomObservableMap<Long, FisheryUserBean> users;
     private final CustomObservableList<Long> ignoredChannelIds, roleIds;
 
-    public FisheryServerBean(ServerBean serverBean, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryUserBean> users) {
-        super(serverBean);
+    public FisheryServerBean(long serverId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryUserBean> users) {
+        super(serverId);
         this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
         this.roleIds = new CustomObservableList<>(roleIds);
         this.users = new CustomObservableMap<>(users);
@@ -43,7 +43,7 @@ public class FisheryServerBean extends BeanWithServer {
 
     public synchronized FisheryUserBean getUserBean(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryUserBean(
-                getServerBean(),
+                getServerId(),
                 userId,
                 this,
                 0L,

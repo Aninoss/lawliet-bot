@@ -4,7 +4,7 @@ import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             autoChannelBean = new AutoChannelBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
                     resultSet.getString(3),
@@ -38,7 +38,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
             );
         } else {
             autoChannelBean = new AutoChannelBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     null,
                     false,
                     "%VCName [%Creator]",

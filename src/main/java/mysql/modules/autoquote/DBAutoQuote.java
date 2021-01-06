@@ -1,8 +1,7 @@
 package mysql.modules.autoquote;
 
-import mysql.DBMain;
 import mysql.DBBeanGenerator;
-import mysql.modules.server.DBServer;
+import mysql.DBMain;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,12 +23,12 @@ public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             autoQuoteBean = new AutoQuoteBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getBoolean(1)
             );
         } else {
             autoQuoteBean = new AutoQuoteBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     true
             );
         }

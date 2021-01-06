@@ -2,7 +2,6 @@ package mysql.modules.warning;
 
 import core.CustomObservableList;
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.user.User;
 
@@ -18,8 +17,8 @@ public class ServerWarningsBean extends BeanWithServer {
     private final long userId;
     private final CustomObservableList<ServerWarningsSlot> warnings;
 
-    public ServerWarningsBean(ServerBean serverBean, long userId, @NonNull ArrayList<ServerWarningsSlot> warnings) {
-        super(serverBean);
+    public ServerWarningsBean(long serverId, long userId, @NonNull ArrayList<ServerWarningsSlot> warnings) {
+        super(serverId);
         this.userId = userId;
         this.warnings = new CustomObservableList<>(warnings);
     }

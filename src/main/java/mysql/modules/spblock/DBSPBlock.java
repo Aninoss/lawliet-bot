@@ -3,7 +3,7 @@ package mysql.modules.spblock;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +26,7 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             spBlockBean = new SPBlockBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getBoolean(1),
                     SPBlockBean.ActionList.valueOf(resultSet.getString(2)),
                     getIgnoredUsers(serverId),
@@ -35,7 +35,7 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
             );
         } else {
             spBlockBean = new SPBlockBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     false,
                     SPBlockBean.ActionList.DELETE_MESSAGE,
                     getIgnoredUsers(serverId),

@@ -10,11 +10,10 @@ import constants.*;
 import core.DiscordApiManager;
 import core.EmbedFactory;
 import core.TextManager;
+import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
-import core.cache.PatreonCache;
 import core.utils.StringUtil;
-import mysql.modules.server.DBServer;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -333,7 +332,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
 
     private void addTracker(Command command, String commandKey, boolean firstTime) throws ExecutionException {
         TrackerBeanSlot slot = new TrackerBeanSlot(
-                DBServer.getInstance().getBean(serverId),
+                serverId,
                 channelId,
                 command.getTrigger(),
                 null,

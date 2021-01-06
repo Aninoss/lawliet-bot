@@ -3,7 +3,6 @@ package mysql.modules.whitelistedchannels;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChan
     @Override
     protected WhiteListedChannelsBean loadBean(Long serverId) throws Exception {
         WhiteListedChannelsBean whiteListedChannelsBean = new WhiteListedChannelsBean(
-                DBServer.getInstance().getBean(serverId),
+                serverId,
                 getChannelIds(serverId)
         );
 

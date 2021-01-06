@@ -130,7 +130,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
         CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().getBean();
 
         remindersBean = new RemindersBean(
-                DBServer.getInstance().getBean(channel.getServer().getId()),
+                channel.getServer().getId(),
                 generateNewId(remindersBeans),
                 channel.getId(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),

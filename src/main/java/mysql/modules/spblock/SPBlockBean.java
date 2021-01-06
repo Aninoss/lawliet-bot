@@ -2,7 +2,6 @@ package mysql.modules.spblock;
 
 import core.CustomObservableList;
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
@@ -15,8 +14,8 @@ public class SPBlockBean extends BeanWithServer {
     private ActionList action;
     private final CustomObservableList<Long> ignoredUserIds, ignoredChannelIds, logReceiverUserIds;
 
-    public SPBlockBean(ServerBean serverBean, boolean active, ActionList action, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> logReceiverUserIds) {
-        super(serverBean);
+    public SPBlockBean(long serverId, boolean active, ActionList action, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> logReceiverUserIds) {
+        super(serverId);
         this.active = active;
         this.action = action;
         this.ignoredUserIds = new CustomObservableList<>(ignoredUserIds);

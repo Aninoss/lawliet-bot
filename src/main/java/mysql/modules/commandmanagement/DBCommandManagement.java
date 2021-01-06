@@ -3,7 +3,6 @@ package mysql.modules.commandmanagement;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagement
     @Override
     protected CommandManagementBean loadBean(Long serverId) throws Exception {
         CommandManagementBean commandManagementBean = new CommandManagementBean(
-                DBServer.getInstance().getBean(serverId),
+                serverId,
                 getSwitchedOffElements(serverId)
         );
 

@@ -1,8 +1,8 @@
 package mysql.modules.warning;
 
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.user.User;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -13,8 +13,8 @@ public class ServerWarningsSlot extends BeanWithServer {
     private final long requesterUserId;
     private final String reason;
 
-    public ServerWarningsSlot(ServerBean serverBean, long userId, Instant time, long requesterUserId, String reason) {
-        super(serverBean);
+    public ServerWarningsSlot(long serverId, long userId, Instant time, long requesterUserId, String reason) {
+        super(serverId);
         this.userId = userId;
         this.time = time;
         this.requesterUserId = requesterUserId;

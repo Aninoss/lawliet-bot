@@ -2,7 +2,6 @@ package mysql.modules.bannedwords;
 
 import core.CustomObservableList;
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
@@ -13,8 +12,8 @@ public class BannedWordsBean extends BeanWithServer {
     private final CustomObservableList<Long> ignoredUserIds, logReceiverUserIds;
     private final CustomObservableList<String> words;
 
-    public BannedWordsBean(ServerBean serverBean, boolean active, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> logReceiverUserIds, @NonNull ArrayList<String> words) {
-        super(serverBean);
+    public BannedWordsBean(long serverId, boolean active, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> logReceiverUserIds, @NonNull ArrayList<String> words) {
+        super(serverId);
         this.active = active;
         this.ignoredUserIds = new CustomObservableList<>(ignoredUserIds);
         this.logReceiverUserIds = new CustomObservableList<>(logReceiverUserIds);

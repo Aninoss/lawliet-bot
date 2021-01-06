@@ -1,11 +1,9 @@
 package mysql.modules.warning;
 
+import javafx.util.Pair;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
-import javafx.util.Pair;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -20,12 +18,10 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
 
     @Override
     protected ServerWarningsBean loadBean(Pair<Long, Long> pair) throws Exception {
-        ServerBean serverBean = DBServer.getInstance().getBean(pair.getKey());
-
         ServerWarningsBean serverWarningsBean = new ServerWarningsBean(
-                serverBean,
+                pair.getKey(),
                 pair.getValue(),
-                getWarnings(serverBean, pair.getValue())
+                getWarnings(pair.getKey(), pair.getValue())
         );
 
         serverWarningsBean.getWarnings()
@@ -38,14 +34,14 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
     @Override
     protected void saveBean(ServerWarningsBean serverWarningsBean) {}
 
-    private ArrayList<ServerWarningsSlot> getWarnings(ServerBean serverBean, long userId) throws SQLException {
+    private ArrayList<ServerWarningsSlot> getWarnings(long serverId, long userId) throws SQLException {
         return new DBDataLoad<ServerWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
                 preparedStatement -> {
-                    preparedStatement.setLong(1, serverBean.getServerId());
+                    preparedStatement.setLong(1, serverId);
                     preparedStatement.setLong(2, userId);
                 }
         ).getArrayList(resultSet -> new ServerWarningsSlot(
-                serverBean,
+                serverId,
                 resultSet.getLong(1),
                 resultSet.getTimestamp(2).toInstant(),
                 resultSet.getLong(3),

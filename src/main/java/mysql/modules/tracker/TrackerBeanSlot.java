@@ -1,13 +1,11 @@
 package mysql.modules.tracker;
 
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -23,8 +21,8 @@ public class TrackerBeanSlot extends BeanWithServer {
     private Instant nextRequest;
     private boolean active = true;
 
-    public TrackerBeanSlot(ServerBean serverBean, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
-        super(serverBean);
+    public TrackerBeanSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
+        super(serverId);
         this.channelId = channelId;
         this.messageId = messageId;
         this.commandTrigger = commandTrigger;

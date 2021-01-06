@@ -8,7 +8,6 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.interfaces.IntervalSave;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,16 +34,14 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     @Override
     protected FisheryServerBean loadBean(Long serverId) throws Exception {
-        ServerBean serverBean = DBServer.getInstance().getBean(serverId);
-
         HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap = getFisheryHourlyIncomeMap(serverId);
         HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap = getFisheryPowerUpMap(serverId);
 
         FisheryServerBean fisheryServerBean = new FisheryServerBean(
-                serverBean,
+                serverId,
                 getIgnoredChannelIds(serverId),
                 getRoleIds(serverId),
-                getFisheryUsers(serverId, serverBean, fisheryHourlyIncomeMap, fisheryPowerUpMap)
+                getFisheryUsers(serverId, fisheryHourlyIncomeMap, fisheryPowerUpMap)
         );
 
         fisheryServerBean.getRoleIds()
@@ -155,7 +152,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         });
     }
 
-    private HashMap<Long, FisheryUserBean> getFisheryUsers(long serverId, ServerBean serverBean, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap) throws SQLException, ExecutionException {
+    private HashMap<Long, FisheryUserBean> getFisheryUsers(long serverId, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap) throws SQLException, ExecutionException {
         HashMap<Long, FisheryUserBean> usersMap = new HashMap<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins FROM PowerPlantUsers WHERE serverId = ?;");
@@ -166,7 +163,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         while (resultSet.next()) {
             long userId = resultSet.getLong(1);
             FisheryUserBean fisheryUserBean = new FisheryUserBean(
-                    serverBean,
+                    serverId,
                     userId,
                     resultSet.getLong(2),
                     resultSet.getLong(3),

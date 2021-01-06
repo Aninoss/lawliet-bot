@@ -1,5 +1,7 @@
 package mysql;
 
+import core.DiscordApiManager;
+import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.server.Server;
 import java.util.Observable;
@@ -7,18 +9,21 @@ import java.util.Optional;
 
 public abstract class BeanWithServer extends Observable {
 
-    private final ServerBean serverBean;
+    private final long serverId;
 
-    public BeanWithServer(ServerBean serverBean) {
-        this.serverBean = serverBean;
+    public BeanWithServer(long serverId) {
+        this.serverId = serverId;
     }
 
-    public ServerBean getServerBean() { return serverBean; }
+    public ServerBean getServerBean() {
+        return DBServer.getInstance().getBean(serverId);
+    }
+
     public long getServerId() {
-        return serverBean.getServerId();
+        return serverId;
     }
     public Optional<Server> getServer() {
-        return serverBean.getServer();
+        return DiscordApiManager.getInstance().getLocalServerById(serverId);
     }
 
 }

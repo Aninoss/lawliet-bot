@@ -6,14 +6,13 @@ import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
-import core.cache.ServerPatreonBoostCache;
 import core.cache.PatreonCache;
+import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -40,13 +39,17 @@ public class FisheryUserBean extends BeanWithServer {
     private FisheryServerBean fisheryServerBean = null;
     private final HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
     private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
-    private long fish, coins, dailyStreak;
+    private long fish;
+    private long coins;
+    private long dailyStreak;
     private LocalDate dailyReceived;
     private int upvoteStack;
     private int lastMessagePeriod = -1;
     private int lastMessageHour = -1;
     private int vcMinutes;
-    private boolean reminderSent, changed = false, banned = false;
+    private boolean reminderSent;
+    private boolean changed = false;
+    private boolean banned = false;
     private Boolean onServer = null;
     private Long fishIncome = null;
     private Instant fishIncomeUpdateTime = null;
@@ -57,8 +60,8 @@ public class FisheryUserBean extends BeanWithServer {
     private String lastContent = null;
     private LocalDate dailyValuesUpdated;
 
-    FisheryUserBean(ServerBean serverBean, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        super(serverBean);
+    FisheryUserBean(long serverId, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+        super(serverId);
         this.userId = userId;
         this.fish = fish;
         this.coins = coins;
@@ -73,11 +76,11 @@ public class FisheryUserBean extends BeanWithServer {
         this.dailyValuesUpdated = dailyValuesUpdated;
 
         for(int i = 0; i < 6; i++)
-            this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverBean.getServerId(), userId, i, 0));
+            this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverId, userId, i, 0));
     }
 
-    public FisheryUserBean(ServerBean serverBean, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        this(serverBean, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, fisheryHourlyIncomeMap, powerUpMap);
+    public FisheryUserBean(long serverId, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
+        this(serverId, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, fisheryHourlyIncomeMap, powerUpMap);
         setFisheryServerBean(fisheryServerBean);
     }
 

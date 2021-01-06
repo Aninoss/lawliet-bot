@@ -1,9 +1,8 @@
 package mysql.modules.membercountdisplays;
 
-import mysql.DBDataLoad;
 import mysql.DBBeanGenerator;
+import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -17,7 +16,7 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
     @Override
     protected MemberCountBean loadBean(Long serverId) throws Exception {
         MemberCountBean memberCountBean = new MemberCountBean(
-                DBServer.getInstance().getBean(serverId),
+                serverId,
                 getMemberCountBeanSlot(serverId)
         );
 

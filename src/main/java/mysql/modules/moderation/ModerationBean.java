@@ -1,7 +1,6 @@
 package mysql.modules.moderation;
 
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
 import java.util.Optional;
@@ -12,8 +11,8 @@ public class ModerationBean extends BeanWithServer {
     private boolean question;
     private int autoKick, autoBan, autoKickDays, autoBanDays;
 
-    public ModerationBean(ServerBean serverBean, Long announcementChannelId, boolean question, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
-        super(serverBean);
+    public ModerationBean(long serverId, Long announcementChannelId, boolean question, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
+        super(serverId);
         this.announcementChannelId = announcementChannelId;
         this.question = question;
         this.autoKick = autoKick;

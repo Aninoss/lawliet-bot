@@ -1,9 +1,8 @@
 package mysql.modules.autoroles;
 
+import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBBeanGenerator;
-import mysql.modules.server.DBServer;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
     @Override
     protected AutoRolesBean loadBean(Long serverId) throws Exception {
         AutoRolesBean autoRolesBean = new AutoRolesBean(
-                DBServer.getInstance().getBean(serverId),
+                serverId,
                 getRoleIds(serverId)
         );
 

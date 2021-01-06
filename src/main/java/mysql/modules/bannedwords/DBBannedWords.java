@@ -1,11 +1,12 @@
 package mysql.modules.bannedwords;
 
+import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBBeanGenerator;
-import mysql.modules.server.DBServer;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
@@ -25,7 +26,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             bannedWordsBean = new BannedWordsBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getBoolean(1),
                     getIgnoredUsers(serverId),
                     getLogReceivers(serverId),
@@ -33,7 +34,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
             );
         } else {
             bannedWordsBean = new BannedWordsBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     false,
                     getIgnoredUsers(serverId),
                     getLogReceivers(serverId),

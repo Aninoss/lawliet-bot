@@ -2,7 +2,6 @@ package mysql.modules.autochannel;
 
 import core.CustomObservableList;
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.slf4j.Logger;
@@ -20,8 +19,8 @@ public class AutoChannelBean extends BeanWithServer {
     private final CustomObservableList<Long> childChannels;
     private Long parentChannelId;
 
-    public AutoChannelBean(ServerBean serverBean, Long parentChannelId, boolean active, String nameMask, boolean locked, @NonNull ArrayList<Long> childChannels) {
-        super(serverBean);
+    public AutoChannelBean(long serverId, Long parentChannelId, boolean active, String nameMask, boolean locked, @NonNull ArrayList<Long> childChannels) {
+        super(serverId);
         this.parentChannelId = parentChannelId;
         this.active = active;
         this.nameMask = nameMask;

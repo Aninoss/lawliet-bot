@@ -1,15 +1,14 @@
 package core.cache;
 
+import core.Bot;
 import core.DiscordApiManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import websockets.syncserver.SendEvent;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PatreonCache.class);
     private static final PatreonCache ourInstance = new PatreonCache();
 
     public static PatreonCache getInstance() {
@@ -22,12 +21,19 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
         if (userId == DiscordApiManager.getInstance().getOwnerId())
             return 6;
 
+        if (!Bot.isProductionMode())
+            return 0;
+
         return getAsync().getOrDefault(userId, 0);
     }
 
     @Override
     protected HashMap<Long, Integer> fetchValue() {
-        return SendEvent.sendRequestPatreon().join();
+        try {
+            return SendEvent.sendRequestPatreon().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

@@ -6,7 +6,6 @@ import core.TrackerManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
-import mysql.modules.server.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,7 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
             preparedStatement.setInt(4, DiscordApiManager.getInstance().getShardIntervalMax());
         }).getArrayList(
                         resultSet -> new TrackerBeanSlot(
-                                DBServer.getInstance().getBean(resultSet.getLong(1)),
+                                resultSet.getLong(1),
                                 resultSet.getLong(2),
                                 resultSet.getString(3),
                                 resultSet.getLong(4),

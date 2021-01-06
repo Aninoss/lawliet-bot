@@ -4,7 +4,6 @@ import modules.suggestions.SuggestionMessage;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,14 +33,14 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             suggestionsBean = new SuggestionsBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getBoolean(1),
                     resultSet.getLong(2),
                     getSuggestionMessages(serverId)
             );
         } else {
             suggestionsBean = new SuggestionsBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     false,
                     null,
                     new HashMap<>()

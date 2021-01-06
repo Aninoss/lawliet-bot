@@ -1,7 +1,6 @@
 package mysql.modules.welcomemessage;
 
 import mysql.BeanWithServer;
-import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
@@ -15,8 +14,8 @@ public class WelcomeMessageBean extends BeanWithServer {
     private long welcomeChannelId, goodbyeChannelId;
     private boolean welcomeActive, goodbyeActive, dmActive;
 
-    public WelcomeMessageBean(ServerBean serverBean, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId, boolean dmActive, String dmText) {
-        super(serverBean);
+    public WelcomeMessageBean(long serverId, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId, boolean dmActive, String dmText) {
+        super(serverId);
         this.welcomeTitle = welcomeTitle;
         this.welcomeText = welcomeText;
         this.goodbyeText = goodbyeText;

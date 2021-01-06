@@ -12,7 +12,6 @@ import core.TextManager;
 import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
-import mysql.modules.server.DBServer;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningsBean;
 import mysql.modules.warning.ServerWarningsSlot;
@@ -40,7 +39,7 @@ public class Mod {
     public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason, boolean withAutoActions) throws ExecutionException {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
         serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
-                        DBServer.getInstance().getBean(server.getId()),
+                        server.getId(),
                         user.getId(),
                         Instant.now(),
                         requestor.getId(),

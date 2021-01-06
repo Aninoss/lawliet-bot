@@ -2,7 +2,7 @@ package mysql.modules.moderation;
 
 import mysql.DBBeanGenerator;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
@@ -25,7 +25,7 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
             moderationBean = new ModerationBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
                     resultSet.getInt(3),
@@ -35,7 +35,7 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
             );
         } else {
             moderationBean = new ModerationBean(
-                    DBServer.getInstance().getBean(serverId),
+                    serverId,
                     null,
                     true,
                     0,

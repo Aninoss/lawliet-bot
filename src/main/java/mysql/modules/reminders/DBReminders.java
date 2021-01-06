@@ -5,7 +5,6 @@ import core.DiscordApiManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
-import mysql.modules.server.DBServer;
 
 import java.util.HashMap;
 
@@ -34,7 +33,7 @@ public class DBReminders extends DBSingleBeanGenerator<CustomObservableMap<Integ
                 resultSet -> {
                     long serverId = resultSet.getLong(2);
                     return new RemindersBean(
-                            DBServer.getInstance().getBean(serverId),
+                            serverId,
                             resultSet.getInt(1),
                             resultSet.getLong(3),
                             resultSet.getTimestamp(4).toInstant(),

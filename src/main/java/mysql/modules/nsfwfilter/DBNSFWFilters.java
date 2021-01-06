@@ -3,7 +3,6 @@ package mysql.modules.nsfwfilter;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
 
 import java.util.ArrayList;
 
@@ -16,7 +15,7 @@ public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
     @Override
     protected NSFWFiltersBean loadBean(Long serverId) throws Exception {
         NSFWFiltersBean nsfwFiltersBean = new NSFWFiltersBean(
-                DBServer.getInstance().getBean(serverId),
+                serverId,
                 getKeywords(serverId)
         );
 
