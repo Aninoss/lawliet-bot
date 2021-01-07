@@ -78,11 +78,10 @@ public class CustomWebSocketClient extends WebSocketClient {
         JSONObject contentJson = new JSONObject(message.substring(event.length() + 2));
 
         int requestId = contentJson.getInt("request_id");
-        contentJson.remove("request_id");
-
-        if (outCache.containsKey(requestId)) {
-            outCache.remove(requestId)
-                    .complete(contentJson);
+        if (contentJson.getBoolean("is_response")) {
+            CompletableFuture<JSONObject> future = outCache.remove(requestId);
+            if (future != null)
+                future.complete(contentJson);
         } else {
             Function<JSONObject, JSONObject> eventFunction = eventHandlers.get(event);
             if (eventFunction != null) {
@@ -97,6 +96,7 @@ public class CustomWebSocketClient extends WebSocketClient {
                         responseJson = new JSONObject();
 
                     responseJson.put("request_id", requestId);
+                    responseJson.put("is_response", true);
                     send(event + "::" + responseJson.toString());
                     completed.set(true);
                 });
@@ -134,6 +134,7 @@ public class CustomWebSocketClient extends WebSocketClient {
         int id = r.nextInt();
 
         content.put("request_id", id);
+        content.put("is_response", false);
         try {
             send(event + "::" + content.toString());
         } catch (Throwable e) {
