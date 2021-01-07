@@ -64,16 +64,7 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
     }
 
     protected void insertTracker(TrackerBeanSlot slot) {
-        if (slot == null) //TODO
-            LOGGER.info("Alert: Slot is null");
-
         if (!Objects.isNull(slot)) {
-            if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-                LOGGER.info("Alert {}: !contains(slot): {}", slot.getCommandTrigger(), !getBean().getSlots().contains(slot));
-
-            if (!getBean().getSlots().contains(slot))
-                return;
-
             DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, slot.getServerId());
                 preparedStatement.setLong(2, slot.getChannelId());

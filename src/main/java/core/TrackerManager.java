@@ -101,7 +101,9 @@ public class TrackerManager {
                 }
             }
         } else if (slot.getServer().isPresent()) {
-            trackerBean.getSlots().removeIf(s -> s.getChannelId() == slot.getChannelId());
+            trackerBean.getSlots().stream()
+                    .filter(s -> s.getChannelId() == slot.getChannelId())
+                    .forEach(TrackerBeanSlot::delete);
         }
     }
 
