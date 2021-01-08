@@ -58,9 +58,6 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), slot.getArgs().orElse(null));
 
-        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-            LOGGER.info("Alert {}: postBundle: {} (size: {})", getTrigger(), postBundle, postBundle != null ? postBundle.getPosts().size() : -1);
-
         if (postBundle == null)
             return TrackerResult.CONTINUE;
 
@@ -68,9 +65,6 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         for(AnimeNewsPost post: postBundle.getPosts()) {
             channel.sendMessage(getEmbed(post)).get();
         }
-
-        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-            LOGGER.info("Alert {}: Save alert", getTrigger());
 
         slot.setArgs(postBundle.getNewestPost());
         return TrackerResult.CONTINUE_AND_SAVE;

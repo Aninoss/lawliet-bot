@@ -80,9 +80,6 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
                 Optional<String> argsOpt = slot.getArgs();
                 if (argsOpt.isPresent()) preparedStatement.setString(7, argsOpt.get());
                 else preparedStatement.setNull(7, Types.VARCHAR);
-
-                if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-                     LOGGER.info("Alert {}: Mysql finished with time: {}", slot.getCommandTrigger(), slot.getNextRequest());
             });
         }
     }

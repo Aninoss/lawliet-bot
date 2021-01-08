@@ -241,7 +241,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         return powerUpMap;
     }
 
-    private ArrayList<Long> getRoleIds(long serverId) throws SQLException {
+    private ArrayList<Long> getRoleIds(long serverId) {
         return new DBDataLoad<Long>("PowerPlantRoles", "roleId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -261,7 +261,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         });
     }
 
-    private ArrayList<Long> getIgnoredChannelIds(long serverId) throws SQLException {
+    private ArrayList<Long> getIgnoredChannelIds(long serverId) {
         return new DBDataLoad<Long>("PowerPlantIgnoredChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -293,6 +293,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
         DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         getCache().invalidate(serverId);
+        removeUpdateIf(fisheryServerBean -> fisheryServerBean.getServerId() == serverId);
     }
 
     @Override

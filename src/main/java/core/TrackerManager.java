@@ -94,8 +94,6 @@ public class TrackerManager {
                         break;
 
                     case CONTINUE_AND_SAVE:
-                        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-                            LOGGER.info("Alert {}: On CONTINUE_AND_SAVE", slot.getCommandTrigger());
                         slot.save();
                         break;
                 }

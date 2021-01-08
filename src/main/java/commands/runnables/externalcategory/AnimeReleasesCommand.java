@@ -77,9 +77,6 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
-        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-            LOGGER.info("Alert {}: postBundle: {} (size: {})", getTrigger(), postBundle, postBundle != null ? postBundle.getPosts().size() : -1);
-
         ServerTextChannel channel = slot.getChannel().get();
         for(int i = Math.min(4, postBundle.getPosts().size() - 1); i >= 0; i--) {
             AnimeReleasePost post = postBundle.getPosts().get(i);
@@ -91,9 +88,6 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.getChannel().get().sendMessage(eb).get();
         }
-
-        if (slot.getServerId() == 722073584759210044L || slot.getServerId() == 795104205554581524L) //TODO
-            LOGGER.info("Alert {}: Save alert", getTrigger());
 
         if (postBundle.getNewestPost() != null) slot.setArgs(postBundle.getNewestPost());
         return TrackerResult.CONTINUE_AND_SAVE;

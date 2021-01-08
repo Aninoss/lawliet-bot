@@ -73,6 +73,7 @@ public class Console {
         tasks.put("delete_fishery_user", this::onDeleteFisheryUser);
         tasks.put("fishery_vc", this::onFisheryVC);
         tasks.put("server", this::onServer);
+        tasks.put("server2", this::onServer2);
         tasks.put("leave_server", this::onLeaveServer);
         tasks.put("user", this::onUser);
         tasks.put("clear", this::onClear);
@@ -211,6 +212,13 @@ public class Console {
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
         DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server ->
+                LOGGER.info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard())
+        );
+    }
+
+    private void onServer2(String[] args) {
+        long serverId = Long.parseLong(args[1]);
+        DiscordApiManager.getInstance().getLocalServerById2(serverId).ifPresent(server ->
                 LOGGER.info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard())
         );
     }

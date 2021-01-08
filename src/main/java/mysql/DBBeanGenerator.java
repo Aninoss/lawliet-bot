@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 
 public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached implements Observer {
 
@@ -117,6 +118,12 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     protected void removeUpdate(U value) {
         synchronized (changed) {
             changed.remove(value);
+        }
+    }
+
+    protected void removeUpdateIf(Predicate<U> filter) {
+        synchronized (changed) {
+            changed.removeIf(filter);
         }
     }
 
