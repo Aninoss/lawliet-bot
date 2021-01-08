@@ -74,7 +74,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
                     false,
                     true
             );
-            if (serverPresent) insertBean(serverBean);
+            insertBean(serverBean);
         }
 
         resultSet.close();

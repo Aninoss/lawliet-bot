@@ -64,7 +64,7 @@ public class DiscordApiManager {
         this.totalShards = totalShards;
 
         if (Bot.isProductionMode()) {
-            MainScheduler.getInstance().schedule((long) Math.ceil(getLocalShards() / 5.0), ChronoUnit.MINUTES, "bootup_check", () -> {
+            MainScheduler.getInstance().schedule(3, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!fullyConnected) {
                     LOGGER.error("EXIT - Could not boot up");
                     System.exit(-1);
