@@ -1,0 +1,1302 @@
+-- MySQL dump 10.13  Distrib 8.0.22, for Linux (x86_64)
+--
+-- Host: localhost    Database: Lawliet
+-- ------------------------------------------------------
+-- Server version	8.0.22
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `Lawliet`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `Lawliet` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `Lawliet`;
+
+--
+-- Table structure for table `AutoChannel`
+--
+
+DROP TABLE IF EXISTS `AutoChannel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `AutoChannel` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned DEFAULT NULL,
+  `active` tinyint(1) NOT NULL,
+  `channelName` varchar(50) NOT NULL,
+  `locked` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `AutoChannelServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `AutoChannelChildChannels`
+--
+
+DROP TABLE IF EXISTS `AutoChannelChildChannels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `AutoChannelChildChannels` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`channelId`),
+  CONSTRAINT `AutoChannelChildChannelsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `AutoClaim`
+--
+
+DROP TABLE IF EXISTS `AutoClaim`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `AutoClaim` (
+  `userId` bigint unsigned NOT NULL,
+  `active` tinyint unsigned NOT NULL,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `AutoQuote`
+--
+
+DROP TABLE IF EXISTS `AutoQuote`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `AutoQuote` (
+  `serverId` bigint unsigned NOT NULL,
+  `active` tinyint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `AutoQuoteServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BannedUsers`
+--
+
+DROP TABLE IF EXISTS `BannedUsers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BannedUsers` (
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BannedWords`
+--
+
+DROP TABLE IF EXISTS `BannedWords`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BannedWords` (
+  `serverId` bigint unsigned NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '0',
+  `strict` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `BannedWordsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BannedWordsIgnoredUsers`
+--
+
+DROP TABLE IF EXISTS `BannedWordsIgnoredUsers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BannedWordsIgnoredUsers` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`userId`),
+  KEY `BannedWordsIgnoredUsersUserBase` (`userId`),
+  CONSTRAINT `BannedWordsIgnoredUsersServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BannedWordsLogRecievers`
+--
+
+DROP TABLE IF EXISTS `BannedWordsLogRecievers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BannedWordsLogRecievers` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`userId`),
+  KEY `BannedWordsLogRecieversUserBase` (`userId`),
+  CONSTRAINT `BannedWordsLogRecieversServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BannedWordsWords`
+--
+
+DROP TABLE IF EXISTS `BannedWordsWords`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BannedWordsWords` (
+  `serverId` bigint unsigned NOT NULL,
+  `word` varchar(20) NOT NULL,
+  PRIMARY KEY (`serverId`,`word`),
+  CONSTRAINT `BannedWordsWordsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BasicRole`
+--
+
+DROP TABLE IF EXISTS `BasicRole`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BasicRole` (
+  `serverId` bigint unsigned NOT NULL,
+  `roleId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`roleId`),
+  CONSTRAINT `RoleServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `BotActivitiy`
+--
+
+DROP TABLE IF EXISTS `BotActivitiy`;
+/*!50001 DROP VIEW IF EXISTS `BotActivitiy`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `BotActivitiy` AS SELECT 
+ 1 AS `Stundenzahl`,
+ 1 AS `Fische`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `Bump`
+--
+
+DROP TABLE IF EXISTS `Bump`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Bump` (
+  `next` timestamp NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CMChannels`
+--
+
+DROP TABLE IF EXISTS `CMChannels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CMChannels` (
+  `serverId` bigint unsigned NOT NULL,
+  `element` varchar(20) NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`element`,`channelId`),
+  CONSTRAINT `CMChannelsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CMOff`
+--
+
+DROP TABLE IF EXISTS `CMOff`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CMOff` (
+  `serverId` bigint unsigned NOT NULL,
+  `element` varchar(50) NOT NULL,
+  PRIMARY KEY (`serverId`,`element`),
+  CONSTRAINT `CMGeneralServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CMPermissions`
+--
+
+DROP TABLE IF EXISTS `CMPermissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CMPermissions` (
+  `serverId` bigint unsigned NOT NULL,
+  `element` varchar(20) NOT NULL,
+  `permissions` smallint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`element`),
+  CONSTRAINT `CMPermissionsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CMRole`
+--
+
+DROP TABLE IF EXISTS `CMRole`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CMRole` (
+  `serverId` bigint unsigned NOT NULL,
+  `element` varchar(20) NOT NULL,
+  `roleId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`element`,`roleId`),
+  KEY `CMRoleServerBase` (`roleId`),
+  CONSTRAINT `CMRoleServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CMRoleAllRequired`
+--
+
+DROP TABLE IF EXISTS `CMRoleAllRequired`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CMRoleAllRequired` (
+  `serverId` bigint unsigned NOT NULL,
+  `element` varchar(20) NOT NULL,
+  PRIMARY KEY (`serverId`,`element`),
+  CONSTRAINT `CMRoleAllRequiredServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CMUsers`
+--
+
+DROP TABLE IF EXISTS `CMUsers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CMUsers` (
+  `serverId` bigint unsigned NOT NULL,
+  `element` varchar(20) NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`element`,`userId`),
+  KEY `CMUsers` (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CommandUsages`
+--
+
+DROP TABLE IF EXISTS `CommandUsages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CommandUsages` (
+  `command` varchar(20) NOT NULL,
+  `usages` int NOT NULL DEFAULT '1',
+  PRIMARY KEY (`command`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `DServer`
+--
+
+DROP TABLE IF EXISTS `DServer`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `DServer` (
+  `serverId` bigint unsigned NOT NULL,
+  `prefix` char(5) DEFAULT 'L.',
+  `locale` char(7) DEFAULT 'en_us',
+  `powerPlant` enum('STOPPED','PAUSED','ACTIVE','') NOT NULL DEFAULT 'STOPPED',
+  `powerPlantSingleRole` tinyint(1) NOT NULL DEFAULT '0',
+  `powerPlantAnnouncementChannelId` bigint unsigned DEFAULT NULL,
+  `powerPlantTreasureChests` tinyint(1) NOT NULL DEFAULT '1',
+  `powerPlantReminders` tinyint(1) NOT NULL DEFAULT '1',
+  `powerPlantRoleMin` bigint unsigned NOT NULL DEFAULT '50000',
+  `powerPlantRoleMax` bigint unsigned NOT NULL DEFAULT '800000000',
+  `powerPlantVCHoursCap` int unsigned DEFAULT NULL,
+  `commandAuthorMessageRemove` tinyint(1) NOT NULL DEFAULT '0',
+  `fisheryCoinsGivenLimit` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Donators`
+--
+
+DROP TABLE IF EXISTS `Donators`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Donators` (
+  `userId` bigint unsigned NOT NULL,
+  `end` date NOT NULL,
+  `totalDollars` double unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FeatureRequestBoosts`
+--
+
+DROP TABLE IF EXISTS `FeatureRequestBoosts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FeatureRequestBoosts` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `boostDatetime` timestamp NOT NULL,
+  `boostUserId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
+  CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FeatureRequests`
+--
+
+DROP TABLE IF EXISTS `FeatureRequests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FeatureRequests` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `userId` bigint unsigned NOT NULL,
+  `date` date NOT NULL,
+  `type` enum('PENDING','COMPLETED','REJECTED') NOT NULL,
+  `public` tinyint unsigned NOT NULL DEFAULT '0',
+  `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `GameStatistics`
+--
+
+DROP TABLE IF EXISTS `GameStatistics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `GameStatistics` (
+  `game` varchar(10) NOT NULL,
+  `won` tinyint(1) NOT NULL,
+  `value` double NOT NULL,
+  PRIMARY KEY (`game`,`won`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Giveaways`
+--
+
+DROP TABLE IF EXISTS `Giveaways`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Giveaways` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  `messageId` bigint unsigned NOT NULL,
+  `emoji` varchar(100) NOT NULL,
+  `winners` tinyint NOT NULL DEFAULT '0',
+  `start` timestamp NOT NULL,
+  `durationMinutes` smallint unsigned NOT NULL,
+  `title` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `imageUrl` varchar(500) DEFAULT NULL,
+  `active` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`messageId`),
+  KEY `GiveawaysServerBase` (`serverId`),
+  CONSTRAINT `GiveawaysServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InviteTypeUsages`
+--
+
+DROP TABLE IF EXISTS `InviteTypeUsages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `InviteTypeUsages` (
+  `type` varchar(50) NOT NULL,
+  `usages` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `MemberCountDisplays`
+--
+
+DROP TABLE IF EXISTS `MemberCountDisplays`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `MemberCountDisplays` (
+  `serverId` bigint unsigned NOT NULL,
+  `vcId` bigint unsigned NOT NULL,
+  `name` char(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`serverId`,`vcId`),
+  CONSTRAINT `MemberStatsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Moderation`
+--
+
+DROP TABLE IF EXISTS `Moderation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Moderation` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned DEFAULT NULL,
+  `question` tinyint(1) NOT NULL DEFAULT '0',
+  `autoKick` int unsigned NOT NULL DEFAULT '0',
+  `autoBan` int unsigned NOT NULL DEFAULT '0',
+  `autoKickDays` int unsigned NOT NULL DEFAULT '30',
+  `autoBanDays` int unsigned NOT NULL DEFAULT '30',
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `ModerationServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `MostPopularFisheryPowerUps`
+--
+
+DROP TABLE IF EXISTS `MostPopularFisheryPowerUps`;
+/*!50001 DROP VIEW IF EXISTS `MostPopularFisheryPowerUps`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `MostPopularFisheryPowerUps` AS SELECT 
+ 1 AS `categoryId`,
+ 1 AS `SUM(LEVEL)`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `NSFWFilter`
+--
+
+DROP TABLE IF EXISTS `NSFWFilter`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `NSFWFilter` (
+  `serverId` bigint unsigned NOT NULL,
+  `keyword` char(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`serverId`,`keyword`),
+  CONSTRAINT `NSFWFilterServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `OsuAccounts`
+--
+
+DROP TABLE IF EXISTS `OsuAccounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `OsuAccounts` (
+  `userId` bigint unsigned NOT NULL,
+  `osuId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Patreon`
+--
+
+DROP TABLE IF EXISTS `Patreon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Patreon` (
+  `userId` bigint unsigned NOT NULL,
+  `tier` tinyint NOT NULL,
+  `expires` date NOT NULL,
+  PRIMARY KEY (`userId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PowerPlantIgnoredChannels`
+--
+
+DROP TABLE IF EXISTS `PowerPlantIgnoredChannels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `PowerPlantIgnoredChannels` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`channelId`),
+  CONSTRAINT `PowerPlantIgnoredChannelsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PowerPlantRoles`
+--
+
+DROP TABLE IF EXISTS `PowerPlantRoles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `PowerPlantRoles` (
+  `serverId` bigint unsigned NOT NULL,
+  `roleId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`roleId`),
+  CONSTRAINT `PowerPlantRolesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PowerPlantUserGained`
+--
+
+DROP TABLE IF EXISTS `PowerPlantUserGained`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `PowerPlantUserGained` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `time` timestamp NOT NULL,
+  `coinsGrowth` bigint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`,`userId`,`time`),
+  KEY `PowerPlantUserGainedUserBase` (`userId`),
+  KEY `serverId` (`serverId`) USING BTREE,
+  CONSTRAINT `PowerPlantUserGainedServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PowerPlantUserPowerUp`
+--
+
+DROP TABLE IF EXISTS `PowerPlantUserPowerUp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `PowerPlantUserPowerUp` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `categoryId` int unsigned NOT NULL,
+  `powerUpId` int unsigned NOT NULL DEFAULT '0',
+  `level` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`,`userId`,`categoryId`,`powerUpId`),
+  KEY `PowerPlantUserPowerUpCategoryBase2` (`categoryId`),
+  KEY `PowerPlantUserPowerUpUserBase` (`userId`),
+  KEY `serverId_userId` (`serverId`,`userId`),
+  KEY `serverId` (`serverId`),
+  CONSTRAINT `PowerPlantUserPowerUpServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PowerPlantUsers`
+--
+
+DROP TABLE IF EXISTS `PowerPlantUsers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `PowerPlantUsers` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `joule` bigint NOT NULL DEFAULT '0',
+  `coins` bigint NOT NULL DEFAULT '0',
+  `dailyRecieved` date NOT NULL DEFAULT '1000-01-01',
+  `dailyStreak` bigint unsigned NOT NULL DEFAULT '0',
+  `reminderSent` tinyint(1) NOT NULL DEFAULT '0',
+  `onServer` tinyint(1) NOT NULL DEFAULT '1',
+  `upvotesUnclaimed` int unsigned NOT NULL DEFAULT '0',
+  `dailyValuesUpdated` date NOT NULL DEFAULT '1000-01-01',
+  `dailyVCMinutes` int unsigned NOT NULL DEFAULT '0',
+  `dailyReceivedCoins` bigint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`,`userId`),
+  KEY `PowerPlantUsersUserBase` (`userId`),
+  KEY `serverId` (`serverId`),
+  CONSTRAINT `PowerPlantUsersServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `PowerPlantUsersExtended`
+--
+
+DROP TABLE IF EXISTS `PowerPlantUsersExtended`;
+/*!50001 DROP VIEW IF EXISTS `PowerPlantUsersExtended`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `PowerPlantUsersExtended` AS SELECT 
+ 1 AS `serverId`,
+ 1 AS `userId`,
+ 1 AS `joule`,
+ 1 AS `coins`,
+ 1 AS `dailyRecieved`,
+ 1 AS `reminderSent`,
+ 1 AS `growth`,
+ 1 AS `dailyStreak`,
+ 1 AS `onServer`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `Reminders`
+--
+
+DROP TABLE IF EXISTS `Reminders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Reminders` (
+  `id` int NOT NULL,
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  `time` timestamp NOT NULL,
+  `message` varchar(2048) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `RemindersServerBase` (`serverId`),
+  CONSTRAINT `RemindersServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SPBlock`
+--
+
+DROP TABLE IF EXISTS `SPBlock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SPBlock` (
+  `serverId` bigint unsigned NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '0',
+  `action` enum('DELETE_MESSAGE','KICK_USER','BAN_USER','') NOT NULL DEFAULT 'DELETE_MESSAGE',
+  `blockURLName` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `SPBlockServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SPBlockIgnoredChannels`
+--
+
+DROP TABLE IF EXISTS `SPBlockIgnoredChannels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SPBlockIgnoredChannels` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`channelId`),
+  CONSTRAINT `SPBlockIgnoredChannelsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SPBlockIgnoredUsers`
+--
+
+DROP TABLE IF EXISTS `SPBlockIgnoredUsers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SPBlockIgnoredUsers` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`userId`),
+  KEY `SPBlockIgnoredUsersUserBase` (`userId`),
+  CONSTRAINT `SPBlockIgnoredUsersServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SPBlockLogRecievers`
+--
+
+DROP TABLE IF EXISTS `SPBlockLogRecievers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SPBlockLogRecievers` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`userId`),
+  KEY `SPBlockLogRecieversUserBase` (`userId`),
+  CONSTRAINT `SPBlockLogRecieversServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ServerWelcomeMessage`
+--
+
+DROP TABLE IF EXISTS `ServerWelcomeMessage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ServerWelcomeMessage` (
+  `serverId` bigint unsigned NOT NULL,
+  `activated` tinyint(1) NOT NULL DEFAULT '0',
+  `title` varchar(20) NOT NULL,
+  `description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `channel` bigint unsigned NOT NULL,
+  `goodbye` tinyint(1) NOT NULL DEFAULT '0',
+  `goodbyeText` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `goodbyeChannel` bigint unsigned NOT NULL,
+  `dm` tinyint(1) NOT NULL DEFAULT '0',
+  `dmText` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `ServerWelcomeMessageServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `StatsCommandUsages`
+--
+
+DROP TABLE IF EXISTS `StatsCommandUsages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `StatsCommandUsages` (
+  `date` date NOT NULL,
+  `count` int unsigned NOT NULL,
+  PRIMARY KEY (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `StatsCommandUsagesExt`
+--
+
+DROP TABLE IF EXISTS `StatsCommandUsagesExt`;
+/*!50001 DROP VIEW IF EXISTS `StatsCommandUsagesExt`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `StatsCommandUsagesExt` AS SELECT 
+ 1 AS `date`,
+ 1 AS `count`,
+ 1 AS `delta`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `StatsServerCount`
+--
+
+DROP TABLE IF EXISTS `StatsServerCount`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `StatsServerCount` (
+  `date` date NOT NULL,
+  `count` int unsigned NOT NULL,
+  PRIMARY KEY (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `StatsServerCountExt`
+--
+
+DROP TABLE IF EXISTS `StatsServerCountExt`;
+/*!50001 DROP VIEW IF EXISTS `StatsServerCountExt`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `StatsServerCountExt` AS SELECT 
+ 1 AS `date`,
+ 1 AS `count`,
+ 1 AS `delta`,
+ 1 AS `expectation`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `StatsServerCountMonthlyGrowth`
+--
+
+DROP TABLE IF EXISTS `StatsServerCountMonthlyGrowth`;
+/*!50001 DROP VIEW IF EXISTS `StatsServerCountMonthlyGrowth`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `StatsServerCountMonthlyGrowth` AS SELECT 
+ 1 AS `mon`,
+ 1 AS `dailyGrowthInPercent`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `StatsServerCountWeeklyGrowth`
+--
+
+DROP TABLE IF EXISTS `StatsServerCountWeeklyGrowth`;
+/*!50001 DROP VIEW IF EXISTS `StatsServerCountWeeklyGrowth`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `StatsServerCountWeeklyGrowth` AS SELECT 
+ 1 AS `week start`,
+ 1 AS `dailyGrowthInPercent`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `StatsUniqueUsers`
+--
+
+DROP TABLE IF EXISTS `StatsUniqueUsers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `StatsUniqueUsers` (
+  `date` date NOT NULL,
+  `count` int unsigned NOT NULL,
+  PRIMARY KEY (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `StatsUpvotes`
+--
+
+DROP TABLE IF EXISTS `StatsUpvotes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `StatsUpvotes` (
+  `date` date NOT NULL,
+  `totalUpvotes` int unsigned NOT NULL,
+  `monthlyUpvotes` int unsigned NOT NULL,
+  PRIMARY KEY (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `StatsUpvotesExt`
+--
+
+DROP TABLE IF EXISTS `StatsUpvotesExt`;
+/*!50001 DROP VIEW IF EXISTS `StatsUpvotesExt`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `StatsUpvotesExt` AS SELECT 
+ 1 AS `date`,
+ 1 AS `totalUpvotes`,
+ 1 AS `monthlyUpvotes`,
+ 1 AS `delta`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `SuggestionConfig`
+--
+
+DROP TABLE IF EXISTS `SuggestionConfig`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SuggestionConfig` (
+  `serverId` bigint unsigned NOT NULL,
+  `active` tinyint unsigned NOT NULL DEFAULT '0',
+  `channelId` bigint unsigned DEFAULT '0',
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `SuggestionConfigServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SuggestionMessages`
+--
+
+DROP TABLE IF EXISTS `SuggestionMessages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SuggestionMessages` (
+  `serverId` bigint unsigned NOT NULL,
+  `messageId` bigint unsigned NOT NULL,
+  `content` varchar(2048) NOT NULL,
+  `author` varchar(100) NOT NULL,
+  PRIMARY KEY (`serverId`,`messageId`),
+  CONSTRAINT `SuggestionMessagesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SurveyDates`
+--
+
+DROP TABLE IF EXISTS `SurveyDates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SurveyDates` (
+  `surveyId` int unsigned NOT NULL,
+  `start` date NOT NULL,
+  PRIMARY KEY (`surveyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SurveyMajorityVotes`
+--
+
+DROP TABLE IF EXISTS `SurveyMajorityVotes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SurveyMajorityVotes` (
+  `surveyId` int unsigned NOT NULL,
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `majorityVote` tinyint(1) NOT NULL,
+  PRIMARY KEY (`surveyId`,`serverId`,`userId`),
+  KEY `SurveyMajorityVoteServerBase` (`serverId`),
+  KEY `SurveyMajorityVoteUserBase` (`userId`),
+  CONSTRAINT `SurveyMajorityVoteServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `SurveyMajorityVoteSurveyBase` FOREIGN KEY (`surveyId`) REFERENCES `SurveyDates` (`surveyId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SurveyNotifications`
+--
+
+DROP TABLE IF EXISTS `SurveyNotifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SurveyNotifications` (
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SurveyVotes`
+--
+
+DROP TABLE IF EXISTS `SurveyVotes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SurveyVotes` (
+  `surveyId` int unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `personalVote` tinyint(1) NOT NULL,
+  `locale` varchar(7) NOT NULL DEFAULT 'en_us',
+  PRIMARY KEY (`surveyId`,`userId`),
+  KEY `SurveyVotesUserBase` (`userId`),
+  CONSTRAINT `SurveyVotesSurveyDatesBase` FOREIGN KEY (`surveyId`) REFERENCES `SurveyDates` (`surveyId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Tracking`
+--
+
+DROP TABLE IF EXISTS `Tracking`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Tracking` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  `command` varchar(15) NOT NULL,
+  `messageId` bigint unsigned DEFAULT NULL,
+  `commandKey` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `time` timestamp NOT NULL,
+  `arg` mediumtext,
+  PRIMARY KEY (`serverId`,`channelId`,`command`,`commandKey`) USING BTREE,
+  CONSTRAINT `trackerServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Upvotes`
+--
+
+DROP TABLE IF EXISTS `Upvotes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Upvotes` (
+  `userId` bigint unsigned NOT NULL,
+  `lastDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Version`
+--
+
+DROP TABLE IF EXISTS `Version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Version` (
+  `version` char(8) NOT NULL,
+  `date` timestamp NOT NULL,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Warnings`
+--
+
+DROP TABLE IF EXISTS `Warnings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Warnings` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `requestorUserId` bigint unsigned NOT NULL,
+  `reason` varchar(300) DEFAULT NULL,
+  PRIMARY KEY (`serverId`,`userId`,`time`),
+  KEY `WarningsUserBase` (`userId`),
+  KEY `WarningsRequestorUserBase` (`requestorUserId`),
+  CONSTRAINT `WarningsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `WhiteListedChannels`
+--
+
+DROP TABLE IF EXISTS `WhiteListedChannels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `WhiteListedChannels` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`channelId`),
+  CONSTRAINT `WhiteListedChannelsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping routines for database 'Lawliet'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `RemoveUser` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`Aninoss`@`%` PROCEDURE `RemoveUser`(
+	IN `userIdRemove` BIGINT
+)
+    MODIFIES SQL DATA
+BEGIN
+	DELETE FROM PowerPlantUserGained WHERE userId = userIdRemove;
+	DELETE FROM PowerPlantUserPowerUp WHERE userId = userIdRemove;
+	DELETE FROM PowerPlantUsers WHERE userId = userIdRemove;
+	DELETE FROM AutoClaim WHERE userId = userIdRemove;
+	DELETE FROM BannedWordsIgnoredUsers WHERE userId = userIdRemove;
+	DELETE FROM BannedWordsLogRecievers WHERE userId = userIdRemove;
+	DELETE FROM Donators WHERE userId = userIdRemove;
+	DELETE FROM Giveaway WHERE userId = userIdRemove;
+	DELETE FROM SPBlockIgnoredUsers WHERE userId = userIdRemove;
+	DELETE FROM SPBlockLogRecievers WHERE userId = userIdRemove;
+	DELETE FROM SurveyMajorityVotes WHERE userId = userIdRemove;
+	DELETE FROM SurveyVotes WHERE userId = userIdRemove;
+	DELETE FROM Upvotes WHERE userId = userIdRemove;
+	DELETE FROM OsuAccounts WHERE userId = userIdRemove;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `TransferServerFishery` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`Aninoss`@`%` PROCEDURE `TransferServerFishery`(
+	IN `serverId0` BIGINT,
+	IN `serverId1` BIGINT
+)
+    MODIFIES SQL DATA
+BEGIN
+
+START TRANSACTION;
+
+DELETE FROM PowerPlantUserGained WHERE serverId = serverId1;
+DELETE FROM PowerPlantUserPowerUp WHERE serverId = serverId1;
+DELETE FROM PowerPlantUsers WHERE serverId = serverId1;
+DELETE FROM PowerPlantRoles WHERE serverId = serverId1;
+
+UPDATE PowerPlantUserGained SET serverId = serverId1 WHERE serverId = serverId0;
+UPDATE PowerPlantUserPowerUp SET serverId = serverId1 WHERE serverId = serverId0;
+UPDATE PowerPlantUsers SET serverId = serverId1 WHERE serverId = serverId0;
+UPDATE PowerPlantRoles SET serverId = serverId1 WHERE serverId = serverId0;
+
+COMMIT;
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Current Database: `Lawliet`
+--
+
+USE `Lawliet`;
+
+--
+-- Final view structure for view `BotActivitiy`
+--
+
+/*!50001 DROP VIEW IF EXISTS `BotActivitiy`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `BotActivitiy` AS select hour(`PowerPlantUserGained`.`time`) AS `Stundenzahl`,count(`PowerPlantUserGained`.`coinsGrowth`) AS `Fische` from `PowerPlantUserGained` group by hour(`PowerPlantUserGained`.`time`) order by `Fische` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `MostPopularFisheryPowerUps`
+--
+
+/*!50001 DROP VIEW IF EXISTS `MostPopularFisheryPowerUps`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `MostPopularFisheryPowerUps` AS select `PowerPlantUserPowerUp`.`categoryId` AS `categoryId`,sum(`PowerPlantUserPowerUp`.`level`) AS `SUM(LEVEL)` from `PowerPlantUserPowerUp` group by `PowerPlantUserPowerUp`.`categoryId` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `PowerPlantUsersExtended`
+--
+
+/*!50001 DROP VIEW IF EXISTS `PowerPlantUsersExtended`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `PowerPlantUsersExtended` AS select `a`.`serverId` AS `serverId`,`a`.`userId` AS `userId`,`a`.`joule` AS `joule`,`a`.`coins` AS `coins`,`a`.`dailyRecieved` AS `dailyRecieved`,`a`.`reminderSent` AS `reminderSent`,ifnull(sum(`b`.`coinsGrowth`),0) AS `growth`,`a`.`dailyStreak` AS `dailyStreak`,`a`.`onServer` AS `onServer` from (`PowerPlantUsers` `a` left join `PowerPlantUserGained` `b` on(((`a`.`serverId` = `b`.`serverId`) and (`a`.`userId` = `b`.`userId`) and (timestampdiff(HOUR,`b`.`time`,now()) <= 168)))) group by `a`.`serverId`,`a`.`userId` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `StatsCommandUsagesExt`
+--
+
+/*!50001 DROP VIEW IF EXISTS `StatsCommandUsagesExt`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `StatsCommandUsagesExt` AS select `a`.`date` AS `date`,`a`.`count` AS `count`,(`a`.`count` - `b`.`count`) AS `delta` from (`StatsCommandUsages` `a` join `StatsCommandUsages` `b` on((`a`.`date` = (`b`.`date` + interval 1 day)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `StatsServerCountExt`
+--
+
+/*!50001 DROP VIEW IF EXISTS `StatsServerCountExt`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `StatsServerCountExt` AS select `a`.`date` AS `date`,`a`.`count` AS `count`,(`a`.`count` - least(`b`.`count`,`a`.`count`)) AS `delta`,round((`a`.`count` * 0.009),0) AS `expectation` from (`StatsServerCount` `a` join `StatsServerCount` `b` on((`a`.`date` = (`b`.`date` + interval 1 day)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `StatsServerCountMonthlyGrowth`
+--
+
+/*!50001 DROP VIEW IF EXISTS `StatsServerCountMonthlyGrowth`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `StatsServerCountMonthlyGrowth` AS select date_format(`a`.`date`,'%Y-%m') AS `mon`,((sum(`a`.`delta`) / sum(`a`.`count`)) * 100) AS `dailyGrowthInPercent` from `StatsServerCountExt` `a` group by `mon` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `StatsServerCountWeeklyGrowth`
+--
+
+/*!50001 DROP VIEW IF EXISTS `StatsServerCountWeeklyGrowth`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `StatsServerCountWeeklyGrowth` AS select (`a`.`date` - interval (dayofweek(`a`.`date`) - 1) day) AS `week start`,((sum(`a`.`delta`) / sum(`a`.`count`)) * 100) AS `dailyGrowthInPercent` from `StatsServerCountExt` `a` group by `week start` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `StatsUpvotesExt`
+--
+
+/*!50001 DROP VIEW IF EXISTS `StatsUpvotesExt`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `StatsUpvotesExt` AS select `a`.`date` AS `date`,`a`.`totalUpvotes` AS `totalUpvotes`,`a`.`monthlyUpvotes` AS `monthlyUpvotes`,(`a`.`totalUpvotes` - least(`b`.`totalUpvotes`,`a`.`totalUpvotes`)) AS `delta` from (`StatsUpvotes` `a` join `StatsUpvotes` `b` on((`a`.`date` = (`b`.`date` + interval 1 day)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2021-01-09 16:39:37

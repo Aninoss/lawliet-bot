@@ -18,7 +18,6 @@ modules.xml
 .DS_Store
 .idea/libraries
 *.iml
-*.sql
 /temp/
 *.mp3
 *.exe
