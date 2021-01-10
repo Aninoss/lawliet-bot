@@ -2,9 +2,9 @@ package websockets.syncserver;
 
 import core.Bot;
 import core.DiscordApiManager;
+import core.cache.PatreonCache;
 import core.utils.DiscordUtil;
 import org.javacord.api.entity.emoji.CustomEmoji;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -58,18 +58,7 @@ public class SendEvent {
     public static CompletableFuture<HashMap<Long, Integer>> sendRequestPatreon() {
         return process("PATREON",
                 Map.of(),
-                responseJson -> {
-                    HashMap<Long, Integer> patreonUserTiers = new HashMap<>();
-                    JSONArray usersArray = responseJson.getJSONArray("users");
-                    for (int i = 0; i < usersArray.length(); i++) {
-                        JSONObject userJson = usersArray.getJSONObject(i);
-                        patreonUserTiers.put(
-                                userJson.getLong("user_id"),
-                                userJson.getInt("tier")
-                        );
-                    }
-                    return patreonUserTiers;
-                }
+                PatreonCache::userPatreonMapFromJson
         );
     }
 
@@ -78,6 +67,10 @@ public class SendEvent {
                 Map.of(),
                 responseJson -> responseJson.getLong("waiting_time_nanos")
         );
+    }
+
+    public static CompletableFuture<JSONObject> sendEmpty(String event) {
+        return SyncManager.getInstance().getClient().send(event, new JSONObject());
     }
 
     private static <T> CompletableFuture<T> process(String event, Map<String, Object> jsonMap, Function<JSONObject, T> function) {

@@ -2,6 +2,8 @@ package core.cache;
 
 import core.Bot;
 import core.DiscordApiManager;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import websockets.syncserver.SendEvent;
 
 import java.util.HashMap;
@@ -27,6 +29,10 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
         return getAsync().getOrDefault(userId, 0);
     }
 
+    public void requestUpdate() {
+        SendEvent.sendEmpty("PATREON_FETCH");
+    }
+
     @Override
     protected HashMap<Long, Integer> fetchValue() {
         try {
@@ -39,6 +45,19 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
     @Override
     protected int getRefreshRateMinutes() {
         return 5;
+    }
+
+    public static HashMap<Long, Integer> userPatreonMapFromJson(JSONObject responseJson) {
+        HashMap<Long, Integer> patreonUserTiers = new HashMap<>();
+        JSONArray usersArray = responseJson.getJSONArray("users");
+        for (int i = 0; i < usersArray.length(); i++) {
+            JSONObject userJson = usersArray.getJSONObject(i);
+            patreonUserTiers.put(
+                    userJson.getLong("user_id"),
+                    userJson.getInt("tier")
+            );
+        }
+        return patreonUserTiers;
     }
 
 }

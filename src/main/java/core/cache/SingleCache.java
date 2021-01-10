@@ -50,6 +50,11 @@ public abstract class SingleCache <T> {
         return this.value;
     }
 
+    public void setValue(T value) {
+        resetUpdateTimer();
+        this.value = value;
+    }
+
     protected int getRefreshRateMinutes() {
         return 5;
     }

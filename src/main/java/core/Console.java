@@ -56,6 +56,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("patreon_fetch", this::onPatreonFetch);
         tasks.put("survey", this::onSurvey);
         tasks.put("repair", this::onRepair);
         tasks.put("quit", this::onQuit);
@@ -84,6 +85,10 @@ public class Console {
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onPatreonFetch(String[] args) {
+        PatreonCache.getInstance().requestUpdate();
     }
 
     private void onSurvey(String[] args) {
