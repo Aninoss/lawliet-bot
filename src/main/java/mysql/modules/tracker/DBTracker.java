@@ -2,7 +2,7 @@ package mysql.modules.tracker;
 
 import core.CustomThread;
 import core.DiscordApiManager;
-import core.TrackerManager;
+import core.AlertScheduler;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
@@ -29,7 +29,7 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
         started = true;
 
         new CustomThread(() -> {
-            TrackerManager.getInstance().start(getBean());
+            AlertScheduler.getInstance().start(getBean());
             LOGGER.info("Tracker started");
         }, "tracker_init").start();
     }
@@ -56,7 +56,10 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
 
         TrackerBean trackerBean = new TrackerBean(slots);
         trackerBean.getSlots()
-                .addListAddListener(changeSlots -> changeSlots.forEach(this::insertTracker))
+                .addListAddListener(changeSlots -> changeSlots.forEach(s -> {
+                    insertTracker(s);
+                    AlertScheduler.getInstance().registerAlert(s);
+                }))
                 .addListUpdateListener(this::insertTracker)
                 .addListRemoveListener(changeSlots -> changeSlots.forEach(this::removeTracker));
 
