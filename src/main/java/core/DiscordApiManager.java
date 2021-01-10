@@ -168,7 +168,21 @@ public class DiscordApiManager {
     }
 
     public boolean serverIsManaged(long serverId) {
-        return getLocalServerById(serverId).isPresent();
+        if (!discordApiBlocker.serverIsAvailable(serverId))
+            return false;
+
+        for (DiscordApiExtended api : apiMap.values()) {
+            if (api.getApi().getServers().stream()
+                    .anyMatch(server -> server.getId() == serverId)
+            ) {
+                return true;
+            }
+
+            if (api.getApi().getUnavailableServers().contains(serverId))
+                return true;
+        }
+
+        return false;
     }
 
     public List<Server> getLocalServers() {

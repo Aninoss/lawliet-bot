@@ -178,7 +178,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         }
     }
 
-    private Response processAdd(String arg, boolean firstTime) throws ExecutionException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private Response processAdd(String arg, boolean firstTime) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (!enoughSpaceForNewTrackers())
             return null;
 
@@ -210,7 +210,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         }
     }
 
-    private Response processRemove(String arg) throws ExecutionException {
+    private Response processRemove(String arg) {
         List<TrackerBeanSlot> trackerSlots = getTrackersInChannel();
 
         if (!StringUtil.stringIsInt(arg))
@@ -230,7 +230,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         return Response.FALSE;
     }
 
-    private Response processKey(String arg, boolean firstTime) throws ExecutionException {
+    private Response processKey(String arg, boolean firstTime) {
         if (!enoughSpaceForNewTrackers())
             return Response.FALSE;
 
@@ -329,7 +329,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         return 12;
     }
 
-    private void addTracker(Command command, String commandKey, boolean firstTime) throws ExecutionException {
+    private void addTracker(Command command, String commandKey, boolean firstTime) {
         TrackerBeanSlot slot = new TrackerBeanSlot(
                 serverId,
                 channelId,

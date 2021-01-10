@@ -24,8 +24,13 @@ public class AlertScheduler {
     private final static Logger LOGGER = LoggerFactory.getLogger(AlertScheduler.class);
 
     private static final AlertScheduler ourInstance = new AlertScheduler();
-    public static AlertScheduler getInstance() { return ourInstance; }
-    private AlertScheduler() { }
+
+    public static AlertScheduler getInstance() {
+        return ourInstance;
+    }
+
+    private AlertScheduler() {
+    }
 
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private boolean active = false;
@@ -34,12 +39,14 @@ public class AlertScheduler {
         if (active) return;
         active = true;
 
-        trackerBean.getSlots().forEach(this::registerAlert);
+        LOGGER.info("Starting {} alerts", trackerBean.getSlots().size());
+        trackerBean.getSlots()
+                .forEach(this::registerAlert);
     }
 
     public void registerAlert(TrackerBeanSlot slot) {
         executorService.schedule(() -> {
-            if (slot.isActive() && manageAlert(slot)) {
+            if (slot.isActive() && DiscordApiManager.getInstance().serverIsManaged(slot.getServerId()) && manageAlert(slot)) {
                 registerAlert(slot);
             }
         }, TimeUtil.getMilisBetweenInstants(Instant.now(), slot.getNextRequest()), TimeUnit.MILLISECONDS);
@@ -51,8 +58,8 @@ public class AlertScheduler {
         try {
             processAlert(slot);
         } catch (Throwable throwable) {
-            minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
             LOGGER.error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
+            minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
             if (throwable.toString().contains("Unknown Channel"))
                 slot.delete();
         }
