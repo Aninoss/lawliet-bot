@@ -94,12 +94,4 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
         }
     }
 
-    @Override
-    public void clear() {
-        if (isCached()) {
-            super.clear();
-            start();
-        }
-    }
-
 }

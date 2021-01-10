@@ -53,7 +53,7 @@ public class DBMain implements DriverAction {
         if (!caches.contains(dbCached)) caches.add(dbCached);
     }
 
-    public void clearCache() { caches.forEach(DBCached::clear); }
+    public void clearCache() { caches.forEach(DBCached::autoClear); }
 
     public static String instantToDateTimeString(Instant instant) {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant,ZoneOffset.systemDefault()));

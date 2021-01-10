@@ -6,4 +6,6 @@ public abstract class DBCached {
 
     public abstract void clear();
 
+    public abstract void autoClear();
+
 }

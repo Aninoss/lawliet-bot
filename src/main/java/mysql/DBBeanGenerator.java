@@ -162,4 +162,9 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
             cache.invalidateAll();
     }
 
+    @Override
+    public void autoClear() {
+        clear();
+    }
+
 }

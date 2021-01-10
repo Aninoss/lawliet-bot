@@ -48,6 +48,11 @@ public abstract class DBSingleBeanGenerator<T> extends DBCached {
         o = null;
     }
 
+    @Override
+    public void autoClear() {
+        //DO NOTHING
+    }
+
     public Integer getExpirationTimeMinutes() {
         return null;
     }

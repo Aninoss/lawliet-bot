@@ -59,8 +59,12 @@ public class TrackerManager {
         for (TrackerBeanSlot slot : trackerBeanSlots) {
             if (!slot.getNextRequest().isAfter(Instant.now())) {
                 try {
-                    if (slot != null) manageTracker(slot);
+                    if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                        LOGGER.info("alert {}: 0", slot.getCommandKey());
+                    manageTracker(slot);
                 } catch (InterruptedException e) {
+                    if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                        LOGGER.info("alert {}: interrupted", slot.getCommandKey());
                     throw e;
                 } catch (Throwable throwable) {
                     LOGGER.error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
@@ -73,32 +77,54 @@ public class TrackerManager {
 
     private void manageTracker(TrackerBeanSlot slot) throws Throwable {
         OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix()).get();
+        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+            LOGGER.info("alert {}: 1", slot.getCommandKey());
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
+        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+            LOGGER.info("alert {}: 2", slot.getCommandKey());
         if (channelOpt.isPresent()) {
+            if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                LOGGER.info("alert {}: 3", slot.getCommandKey());
             if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+                if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                    LOGGER.info("alert {}: 4", slot.getCommandKey());
                 switch (command.onTrackerRequest(slot)) {
                     case STOP:
+                        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                            LOGGER.info("alert {}: 5 stop", slot.getCommandKey());
                         slot.stop();
                         break;
 
                     case STOP_AND_DELETE:
+                        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                            LOGGER.info("alert {}: 5 stop and delete", slot.getCommandKey());
                         slot.delete();
                         break;
 
                     case STOP_AND_SAVE:
+                        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                            LOGGER.info("alert {}: 5 stop and save", slot.getCommandKey());
                         slot.stop();
                         slot.save();
                         break;
 
                     case CONTINUE:
+                        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                            LOGGER.info("alert {}: 5 continue", slot.getCommandKey());
                         break;
 
                     case CONTINUE_AND_SAVE:
+                        if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                            LOGGER.info("alert {}: 5 continue and save", slot.getCommandKey());
                         slot.save();
                         break;
                 }
+                if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                    LOGGER.info("alert {}: 6 stop", slot.getCommandKey());
             }
         } else if (slot.getServer().isPresent()) {
+            if (slot.getServerId() == 797610509259374603L) //TODO Debug
+                LOGGER.info("alert {}: channel not present", slot.getCommandKey());
             trackerBean.getSlots().stream()
                     .filter(s -> s.getChannelId() == slot.getChannelId())
                     .forEach(TrackerBeanSlot::delete);
