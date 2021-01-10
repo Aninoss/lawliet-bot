@@ -296,8 +296,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         setOptions(new String[trackerSlots.size()]);
 
         for (int i = 0; i < getOptions().length; i++) {
-            Command command = CommandManager.createCommandByTrigger(trackerSlots.get(i).getCommandTrigger(), getLocale(), getPrefix()).get();
-            String trigger = command.getTrigger();
+            String trigger = trackerSlots.get(i).getCommandTrigger();
 
             getOptions()[i] = getString("slot_remove", trackerSlots.get(i).getCommandKey().length() > 0,
                     trigger,

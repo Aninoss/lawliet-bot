@@ -11,6 +11,7 @@ import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -66,7 +67,14 @@ public class AlertScheduler {
     }
 
     private void processAlert(TrackerBeanSlot slot) throws Throwable {
-        OnTrackerRequestListener command = (OnTrackerRequestListener) CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix()).get();
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix());
+        if (commandOpt.isEmpty()) {
+            LOGGER.error("Invalid command for alert: {}", slot.getCommandTrigger());
+            slot.stop();
+            return;
+        }
+
+        OnTrackerRequestListener command = commandOpt.map(c -> (OnTrackerRequestListener) c).get();
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
