@@ -21,8 +21,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,8 +35,6 @@ import java.util.Locale;
 )
 public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(VoteCommand.class);
-
     public VoteCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -48,7 +44,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         followedString = StringUtil.trimString(followedString.replace("\n", ""));
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String[] args = followedString.split("\\|");
-        if (args.length >= 3 && args.length <= 10) {
+        if (args.length >= 3 && args.length <= 13) {
             String topic = StringUtil.trimString(args[0]);
 
             if (topic.length() == 0) {
@@ -65,8 +61,9 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMessage().getUserAuthor().get().getId());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getServerTextChannel().get().sendMessage(eb).get();
+                message.addReaction("❌").exceptionally(ExceptionLogger.get());
                 for (int i = 0; i < answers.length; i++) {
-                    message.addReaction(LetterEmojis.LETTERS[i]);
+                    message.addReaction(LetterEmojis.LETTERS[i]).exceptionally(ExceptionLogger.get());
                 }
                 return true;
             }
