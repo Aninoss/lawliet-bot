@@ -80,7 +80,11 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     }
 
     private String getChoiceString(ServerTextChannel channel, int pos) {
-        if (pos == 1 && selection[0] == -1) return Emojis.EMPTY_EMOJI;
+        if (pos == 1 && selection[0] == -1)
+            return Emojis.EMPTY_EMOJI;
+
+        if (selection[0] != -1 && selection[1] == -1)
+            return Emojis.COUNTDOWN_3;
 
         switch (selection[pos]) {
             case 0:
@@ -102,9 +106,11 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
         eb.addField(Emojis.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringUtil.numToString(coinsInput)));
 
-        if (selection[0] == -1) eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
+        if (selection[0] == -1)
+            eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
 
-        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (coinsInput != 0)
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         if (!active) {
             eb = EmbedUtil.addLog(eb, logStatus, log);
@@ -118,7 +124,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         if (selection[0] == -1) return;
         removeReactionListener(getReactionMessage());
 
-        MainScheduler.getInstance().schedule(1500, "coinflip_cputhrow", () -> {
+        MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextInt(2);
             message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
 
