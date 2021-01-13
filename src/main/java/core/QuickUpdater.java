@@ -10,22 +10,29 @@ public class QuickUpdater {
     public static QuickUpdater getInstance() { return ourInstance; }
     private QuickUpdater() { }
 
-    private final HashMap<String, CompletableFuture<?>> futureMap = new HashMap<>();
+    private final HashMap<String, Supplier<CompletableFuture<?>>> supplierMap = new HashMap<>();
 
-    public void update(String type, Object key, Supplier<CompletableFuture<?>> supplier) {
+    public synchronized void update(String type, Object key, Supplier<CompletableFuture<?>> supplier) {
         String stringKey = type + ":" + key;
 
-        futureMap.computeIfPresent(stringKey, (k, future) -> {
-            future.cancel(true);
-            return future;
-        });
-
-        CompletableFuture<?> future = supplier.get();
-
-        if (future != null) {
-            futureMap.put(stringKey, future);
-            future.thenRun(() -> futureMap.remove(stringKey));
+        Supplier<CompletableFuture<?>> oldSupplier = supplierMap.get(stringKey);
+        if (oldSupplier == null) {
+            executeSupplier(stringKey, supplier);
+        } else {
+            supplierMap.put(stringKey, supplier);
         }
+    }
+
+    private void executeSupplier(String key, Supplier<CompletableFuture<?>> currentSupplier) {
+        supplierMap.put(key, currentSupplier);
+        currentSupplier.get().thenRun(() -> {
+            Supplier<CompletableFuture<?>> newSupplier = supplierMap.get(key);
+            if (!newSupplier.equals(currentSupplier)) {
+                executeSupplier(key, newSupplier);
+            } else {
+                supplierMap.remove(key);
+            }
+        });
     }
 
 }
