@@ -2,8 +2,8 @@ package modules;
 
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import constants.Permission;
-import core.QuickUpdater;
 import core.PermissionCheckRuntime;
+import core.QuickUpdater;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
@@ -11,9 +11,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,8 +20,6 @@ public class MemberCountDisplay {
     private static final MemberCountDisplay ourInstance = new MemberCountDisplay();
     public static MemberCountDisplay getInstance() { return ourInstance; }
     private MemberCountDisplay() { }
-
-    private final HashMap<Long, CompletableFuture<Void>> futureMap = new HashMap<>();
 
     public void manage(Locale locale, Server server) {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());

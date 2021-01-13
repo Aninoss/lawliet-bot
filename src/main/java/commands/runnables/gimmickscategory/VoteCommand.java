@@ -1,37 +1,38 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.*;
 import commands.Command;
-import constants.*;
-import core.*;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionAddStaticListener;
+import commands.listeners.OnReactionRemoveStaticListener;
+import constants.Emojis;
+import constants.LetterEmojis;
+import constants.LogStatus;
+import constants.Permission;
+import core.EmbedFactory;
+import core.QuickUpdater;
+import core.cache.VoteCache;
 import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
-import modules.VoteInfo;
 import core.utils.StringUtil;
+import modules.VoteInfo;
 import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.Reaction;
-import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.message.embed.EmbedField;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "vote",
         botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         emoji = "\uD83D\uDDF3",
         executableWithoutArgs = false,
-        aliases = {"poll"}
+        aliases = { "poll" }
 )
 public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
 
@@ -54,13 +55,13 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 return false;
             } else {
                 String[] answers = new String[args.length - 1];
-                int[] values = new int[answers.length];
+                System.arraycopy(args, 1, answers, 0, answers.length);
+                ArrayList<HashSet<Long>> userVotes = new ArrayList<>();
                 for (int i = 0; i < answers.length; i++) {
-                    answers[i] = args[i + 1];
-                    values[i] = 0;
+                    userVotes.add(new HashSet<>());
                 }
 
-                VoteInfo voteInfo = new VoteInfo(topic, answers, values, event.getMessage().getUserAuthor().get().getId());
+                VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMessage().getUserAuthor().get().getId());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getServerTextChannel().get().sendMessage(eb).get();
                 for (int i = 0; i < answers.length; i++) {
@@ -74,13 +75,13 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         }
     }
 
-    public EmbedBuilder getEmbed(VoteInfo voteInfo, boolean open) throws IOException {
+    public EmbedBuilder getEmbed(VoteInfo voteInfo, boolean open) {
         StringBuilder answerText = new StringBuilder();
         StringBuilder resultsText = new StringBuilder();
 
         for(int i=0; i < voteInfo.getSize(); i++) {
             answerText.append(LetterEmojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
-            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getValue(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getValue(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
+            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))
@@ -96,109 +97,46 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         return eb;
     }
 
-    private VoteInfo getValuesFromMessage(Message message) {
-        Embed embed = message.getEmbeds().get(0);
-        List<EmbedField> field = embed.getFields();
-
-        String topic = field.get(0).getValue();
-
-        String choiceString = field.get(1).getValue();
-        String[] choices = new String[choiceString.split("\n").length];
-        for(int i=0; i < choices.length; i++) {
-            String choiceLine = choiceString.split("\n")[i];
-            choices[i] = choiceLine.split("\\|")[1];
-        }
-
-        int[] values = new int[choices.length];
-        for(int i=0; i < values.length; i++) {
-            boolean found = false;
-            for (Reaction reaction: message.getReactions()) {
-                if (DiscordUtil.emojiIsString(reaction.getEmoji(), LetterEmojis.LETTERS[i])) {
-                    if (reaction.containsYou()) values[i] = reaction.getCount() - 1;
-                    else values[i] = reaction.getCount();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) values[i] = 0;
-        }
-
-        long creatorId = -1;
-        if (embed.getFooter().isPresent()) {
-            Optional<String> footerStringOptional = embed.getFooter().get().getText();
-            if (footerStringOptional.isPresent()) {
-                String footerString = footerStringOptional.get();
-                if (footerString.contains(" ")) {
-                    String creatorIdString = footerString.split(" ")[0];
-                    if (StringUtil.stringIsLong(creatorIdString)) {
-                        creatorId = Long.parseLong(creatorIdString);
-                    }
-                }
-            }
-
-        }
-
-        return new VoteInfo(topic, choices, values, creatorId);
-    }
-
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
         if (message.getEmbeds().size() == 0) return;
 
-        //Doppelte Reaktionen entfernen
-        boolean block = false;
-        boolean userFound = false;
-
-        //Update VoteInfo
-        VoteInfo voteInfo = getValuesFromMessage(message);
-        User user =  event.getUser().get();
-
-        if (DiscordUtil.emojiIsString(event.getEmoji(), "❌") &&
-                voteInfo.getCreatorId().isPresent() &&
-                voteInfo.getCreatorId().get() == event.getUserId() &&
-                message.getReactions().size() > 0
-        ) {
-            message.edit(getEmbed(voteInfo, false)).get();
-            if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers()) message.removeAllReactions();
-            return;
-        }
-
-        for (Reaction reaction : message.getReactions()) {
-            if (!DiscordUtil.emojiIsEmoji(reaction.getEmoji(), event.getEmoji())) {
-                try {
-                    List<User> userList = reaction.getUsers().get();
-                    if (userList.contains(user)) {
-                        reaction.removeUser(user);
-                        block = true;
-                    }
-                } catch (ExecutionException e) {
-                    LOGGER.error("Could not manage multiple reactions", e);
-                }
-            } else {
-                for(int i = 0; i < voteInfo.getValues().length; i++) {
-                    if (DiscordUtil.emojiIsString(event.getEmoji(), LetterEmojis.LETTERS[i])) {
-                        userFound = reaction.getUsers().get().contains(user);
-                        break;
-                    }
-                }
-                if (!userFound) reaction.removeUser(user);
+        VoteCache.getInstance().get(message, event.getUserId(), event.getEmoji().getMentionTag(), true).ifPresent(voteInfo -> {
+            if (DiscordUtil.emojiIsString(event.getEmoji(), "❌") &&
+                    voteInfo.getCreatorId().isPresent() &&
+                    voteInfo.getCreatorId().get() == event.getUserId() &&
+                    message.getReactions().size() > 0
+            ) {
+                QuickUpdater.getInstance().update(
+                        getTrigger(),
+                        message.getId(),
+                        () -> message.edit(getEmbed(voteInfo, false))
+                );
+                voteInfo.stop();
+                if (event.getServerTextChannel().get().canYouRemoveReactionsOfOthers())
+                    message.removeAllReactions();
+                return;
             }
-        }
 
-        //VoteInfo ausführen
-        if (!block && userFound) message.edit(getEmbed(voteInfo, true)).get();
+            QuickUpdater.getInstance().update(
+                    getTrigger(),
+                    message.getId(),
+                    () -> message.edit(getEmbed(voteInfo, true))
+            );
+        });
     }
 
     @Override
     public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) throws Throwable {
-        VoteInfo voteInfo = getValuesFromMessage(message);
-        for(int i = 0; i < voteInfo.getValues().length; i++) {
-            if (DiscordUtil.emojiIsString(event.getEmoji(), LetterEmojis.LETTERS[i])) {
-                message.edit(getEmbed(voteInfo, true)).get();
-                break;
-            }
-        }
+        if (message.getEmbeds().size() == 0) return;
+
+        VoteCache.getInstance().get(message, event.getUserId(), event.getEmoji().getMentionTag(), false).ifPresent(voteInfo -> {
+            QuickUpdater.getInstance().update(
+                    getTrigger(),
+                    message.getId(),
+                    () -> message.edit(getEmbed(voteInfo, true))
+            );
+        });
     }
 
     @Override

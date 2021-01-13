@@ -2,20 +2,25 @@ package modules;
 
 import core.utils.StringUtil;
 
-import java.util.Optional;
+import java.util.*;
 
 public class VoteInfo {
 
-    private String topic;
-    private String[] choices;
-    private int[] values;
+    private final String topic;
+    private final String[] choices;
+    private final ArrayList<HashSet<Long>> userVotes;
     private final long creatorId;
+    private boolean active = true;
 
-    public VoteInfo(String topic, String[] choices, int[] values, long creatorId) {
-        setTopic(topic);
-        setChoices(choices);
-        setValues(values);
+    public VoteInfo(String topic, String[] choices, ArrayList<HashSet<Long>> userVotes, long creatorId) {
+        this.topic = topic;
+        this.userVotes = userVotes;
         this.creatorId = creatorId;
+
+        for(int i=0; i < choices.length; i++) {
+            choices[i] = StringUtil.trimString(choices[i]);
+        }
+        this.choices = choices;
     }
 
     public String getTopic() {
@@ -30,39 +35,43 @@ public class VoteInfo {
         return choices[i];
     }
 
-    public int[] getValues() {
-        return values;
+    public void addVote(int i, long userId) {
+        userVotes.get(i).add(userId);
     }
 
-    public int getValue(int i) {
-        return values[i];
+    public void removeVote(int i, long userId) {
+        userVotes.get(i).remove(userId);
     }
 
-    public void setTopic(String topic) {
-        this.topic = StringUtil.trimString(topic);
-    }
-
-    public void setChoices(String[] choices) {
-        for(int i=0; i<choices.length; i++) {
-            choices[i] = StringUtil.trimString(choices[i]);
+    public int[] getUserVotes() {
+        HashMap<Long, Integer> userCounter = new HashMap<>();
+        for (HashSet<Long> userVoteSet : userVotes) {
+            userVoteSet.forEach(userId -> {
+                int c = userCounter.computeIfAbsent(userId, e -> 0);
+                userCounter.put(userId, c + 1);
+            });
         }
-        this.choices = choices;
+
+        int[] votes = new int[userVotes.size()];
+        for (int i = 0; i < userVotes.size(); i++) {
+            votes[i] = (int)userVotes.get(i).stream()
+                    .filter(userId -> userCounter.get(userId) == 1)
+                    .count();
+        }
+        return votes;
     }
 
-    public void setValues(int[] values) {
-        this.values = values;
+    public int getUserVotes(int i) {
+        return getUserVotes()[i];
     }
 
     public double getPercantage(int i) {
-        return getValues()[i] / (double) getTotalVotes();
+        return getUserVotes(i) / (double) getTotalVotes();
     }
 
     public int getTotalVotes() {
-        int votesTotal = 0;
-        for(int vote: getValues()) {
-            votesTotal += vote;
-        }
-        return votesTotal;
+        return Arrays.stream(getUserVotes())
+                .sum();
     }
 
     public int getSize() {
@@ -73,4 +82,13 @@ public class VoteInfo {
         if (creatorId == -1) return Optional.empty();
         return Optional.of(creatorId);
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void stop() {
+        active = false;
+    }
+
 }
