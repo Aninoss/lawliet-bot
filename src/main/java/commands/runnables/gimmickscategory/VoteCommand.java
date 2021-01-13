@@ -20,6 +20,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +119,11 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 return;
             }
 
+            if (voteInfo.getVotes(event.getUserId()) > 1) {
+                event.removeReaction().exceptionally(ExceptionLogger.get());
+                return;
+            }
+
             QuickUpdater.getInstance().update(
                     getTrigger(),
                     message.getId(),
@@ -131,11 +137,13 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
         if (message.getEmbeds().size() == 0) return;
 
         VoteCache.getInstance().get(message, event.getUserId(), event.getEmoji().getMentionTag(), false).ifPresent(voteInfo -> {
-            QuickUpdater.getInstance().update(
-                    getTrigger(),
-                    message.getId(),
-                    () -> message.edit(getEmbed(voteInfo, true))
-            );
+            if (voteInfo.getVotes(event.getUserId()) == 0) {
+                QuickUpdater.getInstance().update(
+                        getTrigger(),
+                        message.getId(),
+                        () -> message.edit(getEmbed(voteInfo, true))
+                );
+            }
         });
     }
 

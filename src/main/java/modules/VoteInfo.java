@@ -43,6 +43,16 @@ public class VoteInfo {
         userVotes.get(i).remove(userId);
     }
 
+    public int getVotes(long userId) {
+        int votes = 0;
+        for (HashSet<Long> userVoteSet : userVotes) {
+            votes += userVoteSet.stream()
+                    .filter(uId -> uId == userId)
+                    .count();
+        }
+        return votes;
+    }
+
     public int[] getUserVotes() {
         HashMap<Long, Integer> userCounter = new HashMap<>();
         for (HashSet<Long> userVoteSet : userVotes) {
