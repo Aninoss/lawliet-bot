@@ -127,7 +127,7 @@ public class NSFWFilterCommand extends Command implements OnNavigationListener {
                 if (i == -1) {
                     setState(0);
                     return true;
-                } else if (i < keywords.size()) {
+                } else if (i >= 0 && i < keywords.size()) {
                     keywords.remove(i);
                     setLog(LogStatus.SUCCESS, getString("keywordremove"));
                     if (keywords.size() == 0) setState(0);
