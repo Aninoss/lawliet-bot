@@ -59,7 +59,11 @@ public class DiscordEventManager {
 
         api.addServerChannelDeleteListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerChannelDeleteAbstract.onServerChannelDeleteStatic(event, getListenerList(ServerChannelDeleteAbstract.class))));
 
-        api.addServerJoinListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerJoinAbstract.onServerJoinStatic(event, getListenerList(ServerJoinAbstract.class))));
+        api.addServerJoinListener(event -> {
+            //TODO DEBUGGING
+            LOGGER.info("NEW SERVER: " + event.getServer().getId());
+            GlobalThreadPool.getExecutorService().submit(() -> ServerJoinAbstract.onServerJoinStatic(event, getListenerList(ServerJoinAbstract.class)));
+        });
         api.addServerLeaveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerLeaveAbstract.onServerLeaveStatic(event, getListenerList(ServerLeaveAbstract.class))));
 
         api.addServerMemberJoinListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerMemberJoinAbstract.onServerMemberJoinStatic(event, getListenerList(ServerMemberJoinAbstract.class))));
