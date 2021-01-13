@@ -226,12 +226,6 @@ public class DiscordApiManager {
                 .flatMap(api -> api.getServerById(serverId));
     }
 
-    public Optional<Server> getLocalServerById2(long serverId) { //TODO DEBUG
-        int shard = getResponsibleShard(serverId);
-        return getApi(shard)
-                .flatMap(api -> api.getServerById(serverId));
-    }
-
     public List<Server> getLocalMutualServers(User user) {
         return getLocalServers().stream()
                 .filter(server -> discordApiBlocker.serverIsAvailable(server.getId()) && server.isMember(user))

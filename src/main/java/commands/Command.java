@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -302,14 +303,22 @@ public abstract class Command {
         for(Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
-                return ((EmbedBuilder) method.invoke(this, api));
+                try {
+                    return ((EmbedBuilder) method.invoke(this, api));
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
 
         for(Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == -1) {
-                return ((EmbedBuilder) method.invoke(this, api));
+                try {
+                    return ((EmbedBuilder) method.invoke(this, api));
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
 
@@ -320,14 +329,22 @@ public abstract class Command {
         for(Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == state) {
-                return (Response) method.invoke(this, event, inputString);
+                try {
+                    return (Response) method.invoke(this, event, inputString);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
 
         for(Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == -1) {
-                return (Response) method.invoke(this, event, inputString);
+                try {
+                    return (Response) method.invoke(this, event, inputString);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
 
@@ -338,14 +355,22 @@ public abstract class Command {
         for(Method method : getClass().getDeclaredMethods()) {
             ControllerReaction c = method.getAnnotation(ControllerReaction.class);
             if (c != null && c.state() == state) {
-                return (boolean) method.invoke(this, event, i);
+                try {
+                    return (boolean) method.invoke(this, event, i);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
 
         for(Method method : getClass().getDeclaredMethods()) {
             ControllerReaction c = method.getAnnotation(ControllerReaction.class);
             if (c != null && c.state() == -1) {
-                return (boolean) method.invoke(this, event, i);
+                try {
+                    return (boolean) method.invoke(this, event, i);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         }
 

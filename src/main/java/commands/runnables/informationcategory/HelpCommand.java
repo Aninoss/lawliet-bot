@@ -101,6 +101,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDraw(DiscordApi api) throws Throwable {
+
         String arg = StringUtil.trimString(searchTerm);
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length()-1);
 
