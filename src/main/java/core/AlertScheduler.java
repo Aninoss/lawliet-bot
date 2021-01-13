@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,7 +41,7 @@ public class AlertScheduler {
         active = true;
 
         LOGGER.info("Starting {} alerts", trackerBean.getSlots().size());
-        trackerBean.getSlots()
+        new ArrayList<>(trackerBean.getSlots())
                 .forEach(this::registerAlert);
     }
 

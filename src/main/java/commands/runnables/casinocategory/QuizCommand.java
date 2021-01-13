@@ -163,7 +163,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         String label = "tutorial";
         if (active) label = "tutorial_start";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(coinsInput), Emojis.COUNTDOWN), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
 
         eb = EmbedUtil.addLog(eb, logStatus, log);
         if (!active) eb = addRetryOption(eb);
