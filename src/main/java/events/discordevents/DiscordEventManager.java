@@ -61,8 +61,9 @@ public class DiscordEventManager {
 
         api.addServerJoinListener(event -> {
             //TODO DEBUGGING
-            LOGGER.info("NEW SERVER: " + event.getServer().getId());
+            LOGGER.info("NEW SERVER START: " + event.getServer().getId());
             GlobalThreadPool.getExecutorService().submit(() -> ServerJoinAbstract.onServerJoinStatic(event, getListenerList(ServerJoinAbstract.class)));
+            LOGGER.info("NEW SERVER END: " + event.getServer().getId());
         });
         api.addServerLeaveListener(event -> GlobalThreadPool.getExecutorService().submit(() -> ServerLeaveAbstract.onServerLeaveStatic(event, getListenerList(ServerLeaveAbstract.class))));
 

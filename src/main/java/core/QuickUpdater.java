@@ -25,14 +25,17 @@ public class QuickUpdater {
 
     private void executeSupplier(String key, Supplier<CompletableFuture<?>> currentSupplier) {
         supplierMap.put(key, currentSupplier);
-        currentSupplier.get().thenRun(() -> {
-            Supplier<CompletableFuture<?>> newSupplier = supplierMap.get(key);
-            if (!newSupplier.equals(currentSupplier)) {
-                executeSupplier(key, newSupplier);
-            } else {
-                supplierMap.remove(key);
-            }
-        });
+        CompletableFuture<?> future = currentSupplier.get();
+        if (future != null) {
+            future.thenRun(() -> {
+                Supplier<CompletableFuture<?>> newSupplier = supplierMap.get(key);
+                if (!newSupplier.equals(currentSupplier)) {
+                    executeSupplier(key, newSupplier);
+                } else {
+                    supplierMap.remove(key);
+                }
+            });
+        }
     }
 
 }

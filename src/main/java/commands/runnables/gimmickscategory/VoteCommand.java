@@ -61,10 +61,10 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMessage().getUserAuthor().get().getId());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getServerTextChannel().get().sendMessage(eb).get();
-                message.addReaction("❌").exceptionally(ExceptionLogger.get());
                 for (int i = 0; i < answers.length; i++) {
                     message.addReaction(LetterEmojis.LETTERS[i]).exceptionally(ExceptionLogger.get());
                 }
+                message.addReaction("❌").exceptionally(ExceptionLogger.get());
                 return true;
             }
         } else {
