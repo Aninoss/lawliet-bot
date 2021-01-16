@@ -85,7 +85,7 @@ public class EmbedUtil {
         if (footer == null || footer.isEmpty())
             return setFooter(eb, command);
         if (command.getStarterMessage() != null)
-            command.getStarterMessage().getUserAuthor().ifPresent(user -> eb.setFooter(user.getDiscriminatedName() + " | " + footer));
+            command.getStarterMessage().getUserAuthor().ifPresent(user -> eb.setFooter(user.getDiscriminatedName() + "｜" + footer));
         return eb;
     }
 
