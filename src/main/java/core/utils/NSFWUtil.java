@@ -11,10 +11,10 @@ public final class NSFWUtil {
 
     public static String filterPornSearchKey(String str, ArrayList<String> additionalFilter) {
         for(String filter: Settings.NSFW_FILTERS) {
-            str = str.replaceAll("\\b" + Pattern.quote(filter) + "\\b", "");
+            str = str.replaceAll("(?i)\\b" + Pattern.quote(filter) + "\\b", "");
         }
         for(String filter: additionalFilter) {
-            str = str.replaceAll("\\b" + Pattern.quote(filter) + "\\b", "");
+            str = str.replaceAll("(?i)\\b" + Pattern.quote(filter) + "\\b", "");
         }
         return str;
     }
