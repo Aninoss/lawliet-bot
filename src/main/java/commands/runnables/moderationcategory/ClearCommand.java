@@ -9,12 +9,12 @@ import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
+import modules.ClearResults;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -29,8 +29,9 @@ import java.util.concurrent.TimeUnit;
         userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83D\uDDD1\uFE0F",
-        maxCalculationTimeSec = 3 * 60,
-        executableWithoutArgs = false
+        maxCalculationTimeSec = 10 * 60,
+        executableWithoutArgs = false,
+        aliases = { "clean", "purge" }
 )
 public class ClearCommand extends Command {
 
@@ -44,12 +45,13 @@ public class ClearCommand extends Command {
             boolean patreon = PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) >= 3;
             ClearResults clearResults = clear(event.getServerTextChannel().get(), patreon, event.getMessage(), Integer.parseInt(followedString));
 
-            String key = clearResults.remaining > 0 ? "finished_too_old" : "finished_description";
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.deleted != 1, String.valueOf(clearResults.deleted)));
+            String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-            event.getChannel().sendMessage(eb)
-                    .exceptionally(ExceptionLogger.get())
-                    .thenAccept(message -> startCountdown(event.getServerTextChannel().get(), new Message[]{ message, event.getMessage() }));
+            if (event.getChannel().getCurrentCachedInstance().isPresent() && event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+                Message m = event.getChannel().sendMessage(eb).get();
+                MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "clear_confirmation_autoremove", () -> event.getChannel().bulkDelete(m, event.getMessage()));
+            }
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(
@@ -114,19 +116,6 @@ public class ClearCommand extends Command {
 
     private void startCountdown(ServerTextChannel channel, Message[] messagesArray) {
         MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "clear_confirmation_autoremove", () -> channel.bulkDelete(messagesArray));
-    }
-
-
-    private class ClearResults {
-
-        final int deleted;
-        final int remaining;
-
-        public ClearResults(int deleted, int remaining) {
-            this.deleted = deleted;
-            this.remaining = remaining;
-        }
-
     }
 
 }

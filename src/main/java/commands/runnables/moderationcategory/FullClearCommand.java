@@ -11,17 +11,13 @@ import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import javafx.util.Pair;
+import modules.ClearResults;
 import mysql.modules.tracker.TrackerBeanSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -36,12 +32,10 @@ import java.util.concurrent.ExecutionException;
         withLoadingBar = true,
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
-        maxCalculationTimeSec = 5 * 60,
-        aliases = {"fclear", "allclear", "clearall" }
+        maxCalculationTimeSec = 10 * 60,
+        aliases = { "fclear", "allclear", "clearall" }
 )
 public class FullClearCommand extends Command implements OnTrackerRequestListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(FullClearCommand.class);
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -49,33 +43,44 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        Pair<Integer, Boolean> pair = fullClear(event.getServerTextChannel().get(), followedString, event.getMessage());
-        if (pair == null) return false;
-        boolean skipped = pair.getValue();
-        int deleted = pair.getKey();
+        Optional<Integer> hoursMin = extractHoursMin(event.getServerTextChannel().get(), followedString);
+        if (hoursMin.isPresent()) {
+            ClearResults clearResults = fullClear(event.getServerTextChannel().get(), hoursMin.get(), event.getMessage());
 
-        String key = skipped ? "finished_too_old" : "finished_description";
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)));
-        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-        if (event.getChannel().getCurrentCachedInstance().isPresent() && event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
-            Message m = event.getChannel().sendMessage(eb).get();
-            MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "fullclear_confirmation_autoremove", () -> event.getChannel().bulkDelete(m, event.getMessage()));
+            String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+            if (event.getChannel().getCurrentCachedInstance().isPresent() && event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+                Message m = event.getChannel().sendMessage(eb).get();
+                MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "fullclear_confirmation_autoremove", () -> event.getChannel().bulkDelete(m, event.getMessage()));
+            }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
-    private Pair<Integer, Boolean> fullClear(ServerTextChannel channel, String str, Message messageBefore) throws ExecutionException, InterruptedException, IOException {
-        int hours = 0;
+    private Optional<Integer> extractHoursMin(ServerTextChannel channel, String str) throws ExecutionException, InterruptedException {
         if (str.length() > 0) {
             if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
-                hours = Integer.parseInt(str);
+                return Optional.of(Integer.parseInt(str));
             } else {
-                channel.sendMessage(EmbedFactory.getEmbedError(this,
-                        getString("wrong_args", "0", "20159"))).get();
-                return null;
+                channel.sendMessage(EmbedFactory.getEmbedError(
+                        this,
+                        getString("wrong_args", "0", "20159")
+                )).get();
+                return Optional.empty();
             }
+        } else {
+            return Optional.of(0);
         }
+    }
 
+    private ClearResults fullClear(ServerTextChannel channel, int hours) throws ExecutionException, InterruptedException {
+        return fullClear(channel, hours, null);
+    }
+
+    private ClearResults fullClear(ServerTextChannel channel, int hours, Message messageBefore) throws ExecutionException, InterruptedException {
         int deleted = 0;
         boolean skipped = false;
 
@@ -90,27 +95,24 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
                 if (!message.getCreationTimestamp().isAfter(Instant.now().minus(14, ChronoUnit.DAYS))) {
                     skipped = true;
                     break;
-                } else {
+                } else if (!message.isPinned()) {
                     if (!message.getCreationTimestamp().isAfter(Instant.now().minus(hours, ChronoUnit.HOURS))) {
                         messagesDelete.add(message);
+                        deleted++;
                     }
                 }
             }
 
             if (messagesDelete.size() >= 1) {
-                try {
-                    if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
-                    else channel.bulkDelete(messagesDelete).get();
-                    deleted += messagesDelete.size();
-                } catch (ExecutionException e) {
-                    LOGGER.error("Could not remove message bulk", e);
-                }
+                if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
+                else channel.bulkDelete(messagesDelete).get();
             }
 
-            if (messageSet.size() > 0) messageSet = messageSet.getOldestMessage().get().getMessagesBefore(100).get();
+            if (messageSet.size() > 0)
+                messageSet = messageSet.getOldestMessage().get().getMessagesBefore(100).get();
         }
 
-        return new Pair<>(deleted, skipped);
+        return new ClearResults(deleted, skipped ? 1 : 0);
     }
 
     @Override
@@ -118,13 +120,16 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
         Optional<ServerTextChannel> channelOptional = slot.getChannel();
         if (channelOptional.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), Permission.READ_MESSAGE_HISTORY | Permission.MANAGE_MESSAGES)) {
-                Pair<Integer, Boolean> pair = fullClear(channelOptional.get(), slot.getCommandKey(), null);
-                if (pair == null) return TrackerResult.STOP_AND_DELETE;
+                Optional<Integer> hoursMin = extractHoursMin(channelOptional.get(), slot.getCommandKey());
+                if (hoursMin.isPresent()) {
+                    fullClear(channelOptional.get(), hoursMin.get());
+                    slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
+                    return TrackerResult.CONTINUE_AND_SAVE;
+                }
             }
         }
 
-        slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return TrackerResult.STOP_AND_DELETE;
     }
 
     @Override

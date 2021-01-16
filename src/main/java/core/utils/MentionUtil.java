@@ -420,7 +420,7 @@ public class MentionUtil {
     }
 
     public static long getTimeMinutesExt(String str) {
-        long sec = 0;
+        long min = 0;
         str = reformatForDigits(str);
 
         for (String part : str.split(" ")) {
@@ -432,15 +432,15 @@ public class MentionUtil {
                     switch (partPostfix) {
                         case "m":
                         case "min":
-                            sec += value;
+                            min += value;
                             break;
 
                         case "h":
-                            sec += value * 60;
+                            min += value * 60;
                             break;
 
                         case "d":
-                            sec += value * 60 * 24;
+                            min += value * 60 * 24;
                             break;
 
                         default:
@@ -449,7 +449,7 @@ public class MentionUtil {
             }
         }
 
-        return sec;
+        return min;
     }
 
     private static String reformatForDigits(String str) {
