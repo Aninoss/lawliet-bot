@@ -136,10 +136,13 @@ public class PornImageDownloader {
         } else instant = Instant.now();
 
         String fileURL;
-        if (postData.has("file_url")) fileURL = postData.getString("file_url");
-        else fileURL = imageTemplate.replace("%d", postData.get("directory").toString()).replace("%f", postData.getString("image"));
+        if (postData.has("file_url"))
+            fileURL = postData.getString("file_url");
+        else
+            fileURL = imageTemplate.replace("%d", postData.get("directory").toString()).replace("%f", postData.getString("image"));
 
-        if (fileURL.contains("?")) fileURL = fileURL.split("\\?")[0];
+        if (fileURL.contains("?"))
+            fileURL = fileURL.split("\\?")[0];
 
         int score = 0;
         try {

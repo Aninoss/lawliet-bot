@@ -13,13 +13,15 @@ public class QuickUpdater {
     private final HashMap<String, Supplier<CompletableFuture<?>>> supplierMap = new HashMap<>();
 
     public synchronized void update(String type, Object key, Supplier<CompletableFuture<?>> supplier) {
-        String stringKey = type + ":" + key;
+        if (supplier != null) {
+            String stringKey = type + ":" + key;
 
-        Supplier<CompletableFuture<?>> oldSupplier = supplierMap.get(stringKey);
-        if (oldSupplier == null) {
-            executeSupplier(stringKey, supplier);
-        } else {
-            supplierMap.put(stringKey, supplier);
+            Supplier<CompletableFuture<?>> oldSupplier = supplierMap.get(stringKey);
+            if (oldSupplier == null) {
+                executeSupplier(stringKey, supplier);
+            } else {
+                supplierMap.put(stringKey, supplier);
+            }
         }
     }
 

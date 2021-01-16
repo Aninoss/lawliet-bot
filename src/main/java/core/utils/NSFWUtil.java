@@ -3,6 +3,7 @@ package core.utils;
 import constants.Settings;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public final class NSFWUtil {
 
@@ -10,10 +11,10 @@ public final class NSFWUtil {
 
     public static String filterPornSearchKey(String str, ArrayList<String> additionalFilter) {
         for(String filter: Settings.NSFW_FILTERS) {
-            str = str.replace(filter, "");
+            str = str.replaceAll("\\b" + Pattern.quote(filter) + "\\b", "");
         }
         for(String filter: additionalFilter) {
-            str = str.replace(filter, "");
+            str = str.replaceAll("\\b" + Pattern.quote(filter) + "\\b", "");
         }
         return str;
     }
