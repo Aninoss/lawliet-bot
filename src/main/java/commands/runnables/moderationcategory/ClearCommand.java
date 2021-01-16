@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import constants.Permission;
 import core.EmbedFactory;
 import core.TextManager;
+import core.cache.PatreonCache;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -14,14 +15,11 @@ import org.javacord.api.entity.message.MessageSet;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "clear",
@@ -34,8 +32,6 @@ import java.util.concurrent.ExecutionException;
 )
 public class ClearCommand extends Command {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ClearCommand.class);
-
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -46,6 +42,7 @@ public class ClearCommand extends Command {
             int count = Integer.parseInt(followedString);
             int deleted = 0;
             boolean skipped = false;
+            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) >= 3;
 
             while(count > 0 && !skipped) {
                 //Check for message date and therefore permissions
@@ -57,25 +54,36 @@ public class ClearCommand extends Command {
                 for (Message message : messageSet.descendingSet()) {
                     if (message.getCreationTimestamp().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
                         skipped = true;
+                        break;
                     } else {
                         messagesDelete.add(message);
                     }
                 }
 
                 if (messagesDelete.size() >= 1) {
-                    try {
-                        if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
-                        else event.getChannel().bulkDelete(messagesDelete).get();
-                        deleted += messagesDelete.size();
-                    } catch (ExecutionException e) {
-                        LOGGER.error("Could not delete message", e);
-                    }
+                    if (messagesDelete.size() == 1) messagesDelete.get(0).delete().get();
+                    else event.getChannel().bulkDelete(messagesDelete).get();
+                    deleted += messagesDelete.size();
+                    count -= messagesDelete.size();
+                }
+            }
+
+            while (count > 0 && patreon) {
+                MessageSet messageSet = event.getMessage().getMessagesBefore(Math.min(100, count)).get();
+                if (messageSet.size() < 100)
+                    count = messageSet.size();
+
+                ArrayList<Message> messagesDelete = new ArrayList<>(messageSet.descendingSet());
+                for (Message message : messagesDelete) {
+                    message.delete().get();
+                    Thread.sleep(750);
+                    deleted++;
                 }
 
                 count -= messageSet.size();
             }
 
-            String key = skipped ? "finished_too_old" : "finished_description";
+            String key = count > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, deleted != 1, String.valueOf(deleted)));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
             event.getChannel().sendMessage(eb)
