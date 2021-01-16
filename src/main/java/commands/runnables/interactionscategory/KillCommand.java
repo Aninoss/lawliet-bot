@@ -45,7 +45,8 @@ public class KillCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736270438627278859/736270624300728320/kill.gif",
                 "https://media.discordapp.net/attachments/736270438627278859/736270633260023858/kill.gif",
                 "https://media.discordapp.net/attachments/736270438627278859/736270647235313775/kill.gif",
-                "https://media.discordapp.net/attachments/736270438627278859/736270655749619732/kill.gif"
+                "https://media.discordapp.net/attachments/736270438627278859/736270655749619732/kill.gif",
+                "https://media.discordapp.net/attachments/736270438627278859/800146821132451860/kill.gif"
         };
     }
 
