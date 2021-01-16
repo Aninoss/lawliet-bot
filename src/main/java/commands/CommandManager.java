@@ -269,7 +269,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(MessageCreateEvent event, Locale locale, String text) throws ExecutionException, InterruptedException {
-        if (event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+        if (event.getChannel().canYouSee() && event.getChannel().canYouWrite()) {
             Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMessage().getUserAuthor().get().getMentionTag())).get();
             autoRemoveMessageAfterCountdown(event, message);
         }
