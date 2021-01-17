@@ -51,13 +51,17 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+        final int MIN_MINUTES = 10;
         final int MAX_MINUTES = 10080;
         String key = slot.getCommandKey();
 
         long minutes = StringUtil.filterLongFromString(key);
-        if (minutes > MAX_MINUTES || minutes < 1) {
+        if (minutes > 0 && minutes < 10) //TODO only temporary
+            minutes = 10;
+
+        if (minutes > MAX_MINUTES || minutes < MIN_MINUTES) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(MAX_MINUTES)));
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", StringUtil.numToString(MIN_MINUTES), StringUtil.numToString(MAX_MINUTES)));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
             slot.getChannel().get().sendMessage(eb).get();
