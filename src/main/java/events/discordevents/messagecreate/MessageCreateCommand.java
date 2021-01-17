@@ -101,7 +101,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
         if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
             Locale locale = serverBean.getLocale();
-            ArrayList<Message> messages = MentionUtil.getMessagesURL(event.getMessage(), event.getMessage().getContent()).getList();
+            ArrayList<Message> messages = MentionUtil.getMessagesFromLinks(event.getMessage(), event.getMessage().getContent()).getList();
             if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {
                 try {
                     for (int i = 0; i < Math.min(3, messages.size()); i++) {

@@ -105,7 +105,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
     @ControllerMessage(state = EDIT_MESSAGE)
     public Response onMessageEditMessage(MessageCreateEvent event, String inputString) {
-        ArrayList<Message> messageArrayList = MentionUtil.getMessagesURL(event.getMessage(), inputString).getList();
+        ArrayList<Message> messageArrayList = MentionUtil.getMessagesFromLinks(event.getMessage(), inputString).getList();
         if (messageArrayList.size() > 0) {
             for (Message message : messageArrayList) {
                 if (messageIsReactionMessage(message)) {
