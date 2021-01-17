@@ -2,8 +2,7 @@ package commands;
 
 import commands.listeners.*;
 import commands.runnables.aitoyscategory.ColorCommand;
-import commands.runnables.aitoyscategory.ImitateCommand;
-import commands.runnables.aitoyscategory.Waifu2xCommand;
+import commands.runnables.aitoyscategory.*;
 import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.CommandManagementCommand;
 import commands.runnables.configurationcategory.LanguageCommand;
@@ -69,6 +68,7 @@ public class CommandContainer {
         commandList.add(ImitateCommand.class);
         commandList.add(Waifu2xCommand.class);
         commandList.add(ColorCommand.class);
+        commandList.add(DeepDreamCommand.class);
 
         //CONFIGURATION
         commandList.add(CommandManagementCommand.class);

@@ -209,7 +209,7 @@ public class MentionUtil {
             fileType = conn.getContentType().toLowerCase();
 
             for (int i = 0; i < 2; i++) {
-                if (fileType.endsWith("jpg") || fileType.endsWith("jpeg") || fileType.endsWith("png") || fileType.endsWith("bmp"))
+                if (fileType.endsWith("jpg") || fileType.endsWith("jpeg") || fileType.endsWith("png") || fileType.endsWith("bmp") || fileType.endsWith("webp"))
                     return true;
                 fileType = url.toLowerCase();
             }
