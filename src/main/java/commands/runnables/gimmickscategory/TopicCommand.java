@@ -56,9 +56,6 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
         String key = slot.getCommandKey();
 
         long minutes = StringUtil.filterLongFromString(key);
-        if (minutes > 0 && minutes < 10) //TODO only temporary
-            minutes = 10;
-
         if (minutes > MAX_MINUTES || minutes < MIN_MINUTES) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "number", StringUtil.numToString(MIN_MINUTES), StringUtil.numToString(MAX_MINUTES)));

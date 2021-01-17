@@ -95,9 +95,9 @@ public class Console {
     }
 
     private void onRepair(String[] args) {
-        int hours = Integer.parseInt(args[1]);
-        DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, hours));
-        LOGGER.info("Repair started with hours {}", hours);
+        int minutes = Integer.parseInt(args[1]);
+        DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, minutes));
+        LOGGER.info("Repair started with minutes {}", minutes);
     }
 
     private void onSendChannel(String[] args) {
