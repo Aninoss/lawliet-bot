@@ -71,7 +71,7 @@ public class SurveyResults implements ScheduleInterface {
         ArrayList<Long> notificationUsers = Bot.getClusterId() == 0 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
-                DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
+                DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                     try {
                         LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
                         processSurveyUser(secondVotesMap.get(userId), user, won);

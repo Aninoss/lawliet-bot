@@ -50,7 +50,7 @@ public class OnTopGG implements SyncServerFunction {
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
         UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean();
         if (upvotesBean.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
-            DiscordApiManager.getInstance().fetchUserById(userId).get().ifPresent(user -> {
+            DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                 LOGGER.info("UPVOTE | {}", user.getName());
 
                 DiscordApiManager.getInstance().getLocalMutualServers(user).stream()
