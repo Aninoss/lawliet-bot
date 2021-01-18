@@ -36,7 +36,7 @@ public class CustomLocalRatelimiter implements Ratelimiter {
                     break;
                 } catch (ExecutionException e) {
                     LOGGER.error("Error when requesting synced waiting time", e);
-                    Thread.sleep(1000);
+                    Thread.sleep(5000);
                 }
             }
         }

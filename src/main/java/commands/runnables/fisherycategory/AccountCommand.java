@@ -14,7 +14,7 @@ import java.util.Locale;
         botPermissions = Permission.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDE4B",
         executableWithoutArgs = true,
-        aliases = { "profile", "profil", "account", "balance", "fish", "bal", "a" }
+        aliases = { "profile", "profil", "account", "balance", "bal", "a" }
 )
 public class AccountCommand extends FisheryUserAccountAbstract {
 
