@@ -63,6 +63,7 @@ public class Console {
         tasks.put("stats", this::onStats);
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
+        tasks.put("mysql_connect", this::onMySQLConnect);
         tasks.put("threads", this::onThreads);
         tasks.put("threads_stack", this::onThreadsStack);
         tasks.put("threads_interrupt", this::onThreadsInterrupt);
@@ -306,6 +307,14 @@ public class Console {
         if (str.length() >= 2) str = str.substring(0, str.length() - 2);
 
         LOGGER.info("\n--- THREADS ({}) ---\n{}\n", Thread.getAllStackTraces().size(), str);
+    }
+
+    private void onMySQLConnect(String[] args) {
+        try {
+            DBMain.getInstance().connect();
+        } catch (SQLException e) {
+            LOGGER.error("Exception", e);
+        }
     }
 
     private void onReconnect(String[] args) {
