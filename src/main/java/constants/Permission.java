@@ -29,8 +29,9 @@ public interface Permission {
             MANAGE_CHANNEL = 0x1000000,
             MANAGE_WEBHOOKS = 0x2000000,
             CREATE_INSTANT_INVITE = 0x4000000,
-            CONNECT = 0x8000000;
+            CONNECT = 0x8000000,
+            CONNECT_ON_SERVER = 0x10000000;
 
-    int MAX = CONNECT;
+    int MAX = CONNECT_ON_SERVER;
 
 }

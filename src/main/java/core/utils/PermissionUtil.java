@@ -35,7 +35,8 @@ public class PermissionUtil {
     public static ArrayList<Integer> getMissingPermissionListForUser(Server server, ServerChannel channel, User user, int userPermissions) {
         userPermissions |= Permission.READ_MESSAGES;
         ArrayList<Integer> missingPermissions = new ArrayList<>();
-        if (hasAdminPermissions(server, user)) return missingPermissions;
+        if (hasAdminPermissions(server, user))
+            return missingPermissions;
 
         for(int permission: permissionsToNumberList(userPermissions)) {
             PermissionConvertion permissionConvertion = convertPermission(permission);
@@ -86,6 +87,7 @@ public class PermissionUtil {
             case Permission.MANAGE_WEBHOOKS: return new PermissionConvertion(PermissionType.MANAGE_WEBHOOKS, true);
             case Permission.CREATE_INSTANT_INVITE: return new PermissionConvertion(PermissionType.CREATE_INSTANT_INVITE, false);
             case Permission.CONNECT: return new PermissionConvertion(PermissionType.CONNECT, false);
+            case Permission.CONNECT_ON_SERVER: return new PermissionConvertion(PermissionType.CONNECT, true);
         }
 
         throw new RuntimeException("Faulty permission!");

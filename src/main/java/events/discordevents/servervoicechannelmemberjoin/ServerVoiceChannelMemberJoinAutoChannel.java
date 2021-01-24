@@ -36,7 +36,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
-            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS | Permission.CONNECT) &&
+            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getServer(), Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS | Permission.CONNECT) &&
                     (event.getChannel().getCategory().isEmpty() || PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), Permission.MANAGE_CHANNELS_ON_SERVER))
             ) {
                 int n = 1;
