@@ -20,10 +20,10 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -92,7 +92,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         return true;
     }
 
-    private void executeRemoval() throws IOException, ExecutionException, InterruptedException {
+    private void executeRemoval() throws ExecutionException, InterruptedException {
         removeReactionListener();
 
         for(User user: users) {
@@ -104,15 +104,13 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
                 getString("success", n != 1, nString, userString)
         ));
 
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
+                getString("modlog", n != 1, requestor.getMentionTag(), nString, userString)
+        );
+
+        users.forEach(user -> user.sendMessage(eb).exceptionally(ExceptionLogger.get()));
         DBModeration.getInstance().getBean(channel.getServer().getId()).getAnnouncementChannel().ifPresent(serverTextChannel -> {
-            try {
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
-                        getString("modlog", n != 1, requestor.getMentionTag(), nString, userString)
-                );
-                serverTextChannel.sendMessage(eb).get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Could not send mod log", e);
-            }
+            serverTextChannel.sendMessage(eb).exceptionally(ExceptionLogger.get());
         });
     }
 

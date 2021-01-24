@@ -25,7 +25,7 @@ public class MessageCreateAnicordAntiSpam extends MessageCreateAbstract {
                 event.getMessage().getUserAuthor().get().getJoinedAtTimestamp(event.getServer().get()).get().plus(30, ChronoUnit.MINUTES).isAfter(Instant.now())
         ) {
             User user = event.getMessageAuthor().asUser().get();
-            if (RatelimitManager.getInstance().checkAndSet("aninoss_spamming", user.getId(), 3, 5, ChronoUnit.SECONDS).isPresent()) {
+            if (RatelimitManager.getInstance().checkAndSet("aninoss_spamming", user.getId(), 3, 3, ChronoUnit.SECONDS).isPresent()) {
                 event.getServer().get().banUser(event.getMessage().getUserAuthor().get(), 1, "Anti Raid (Spam)").exceptionally(ExceptionLogger.get());
                 event.getServer().get().getTextChannelById(462420339364724751L).get().sendMessage("ANTI RAID (SPAM) FOR " + user.getDiscriminatedName() + " IN " + event.getServerTextChannel().get().getMentionTag()).exceptionally(ExceptionLogger.get());
                 return false;

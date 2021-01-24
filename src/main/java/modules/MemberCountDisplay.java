@@ -31,9 +31,6 @@ public class MemberCountDisplay {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
-                if (voiceChannel.getId() == 638158050972401664L)
-                    LOGGER.info("MCDisplay register"); //TODO
-
                 QuickUpdater.getInstance().update(
                         "member_count_displays",
                         voiceChannel.getId(),
@@ -43,23 +40,10 @@ public class MemberCountDisplay {
 
                             if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, vc, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
                                 String newVCName = generateNewVCName(s, display.getMask());
-                                if (vc.getId() == 638158050972401664L)
-                                    LOGGER.info("MCDisplay: " + newVCName); //TODO
-
                                 if (!newVCName.equals(vc.getName())) {
-                                    if (vc.getId() == 638158050972401664L)
-                                        LOGGER.info("MCDisplay exec"); //TODO
-
                                     return vc.createUpdater()
                                             .setName(newVCName)
-                                            .update()
-                                            .thenRun(() -> {
-                                                if (vc.getId() == 638158050972401664L)
-                                                    LOGGER.info("MCDisplay end"); //TODO
-                                            });
-                                } else {
-                                    if (vc.getId() == 638158050972401664L)
-                                        LOGGER.info("MCDisplay not exec"); //TODO
+                                            .update();
                                 }
                             }
                             return null;

@@ -31,9 +31,6 @@ public class QuickUpdater {
     }
 
     private void executeSupplier(String key, Supplier<CompletableFuture<?>> currentSupplier) {
-        if (key.endsWith("638158050972401664"))
-            LOGGER.info("MCDisplay QU start"); //TODO
-
         supplierMap.put(key, currentSupplier);
         CompletableFuture<?> future = null;
         try {
@@ -52,9 +49,6 @@ public class QuickUpdater {
     }
 
     private void executeNext(String key, Supplier<CompletableFuture<?>> currentSupplier) {
-        if (key.endsWith("638158050972401664"))
-            LOGGER.info("MCDisplay QU next"); //TODO
-
         Supplier<CompletableFuture<?>> newSupplier = supplierMap.get(key);
         if (!newSupplier.equals(currentSupplier)) {
             executeSupplier(key, newSupplier);
