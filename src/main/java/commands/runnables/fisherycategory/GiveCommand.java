@@ -70,7 +70,7 @@ public class GiveCommand extends FisheryAbstract {
                 value = cap;
                 limitCapped = true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getDisplayName(server))))).get();
                 return false;
             }
         }

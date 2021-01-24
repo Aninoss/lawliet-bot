@@ -175,7 +175,9 @@ public class PermissionUtil {
     }
 
     public static boolean userHasServerPermission(Server server, User user, PermissionType permissionType) {
-        if (hasAdminPermissions(server, user)) return true;
+        if (hasAdminPermissions(server, user))
+            return true;
+
         return server.getAllowedPermissions(user).contains(permissionType);
     }
 

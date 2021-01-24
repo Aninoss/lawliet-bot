@@ -25,7 +25,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "autochannel",
-        botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
+        botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS | Permission.CONNECT,
         userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
         emoji = "🔊",
         executableWithoutArgs = true,
