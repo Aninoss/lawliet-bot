@@ -22,7 +22,7 @@ public class FontContainer {
 
     public void init() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        for(File file : Objects.requireNonNull(new File("recourses/fonts").listFiles())) {
+        for(File file : Objects.requireNonNull(new File("data/resources/fonts").listFiles())) {
             try {
                 Font font = Font.createFont(Font.TRUETYPE_FONT, new File(file.getAbsolutePath()));
                 fontList.add(font);

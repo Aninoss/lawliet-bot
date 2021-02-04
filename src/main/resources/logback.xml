@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="core.ExceptionFilter"/>
-
-        <filter class="core.ExceptionEmergencyBreak">
-            <exceptionClassName>java.lang.OutOfMemoryError</exceptionClassName>
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
         </filter>
 
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%-5level] %msg%n</pattern>
+            <pattern>%d [%-5level] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>NEUTRAL</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <target>System.err</target>
+        <encoder>
+            <pattern>%d [%-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="Console" />
+        <appender-ref ref="stdout" />
+        <appender-ref ref="stderr" />
     </root>
 
 </configuration>

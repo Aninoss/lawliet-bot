@@ -13,7 +13,7 @@ import java.text.AttributedCharacterIterator;
 public class ShipGraphics {
 
     public static InputStream createImageShip(User user1, User user2, int n, int perc) throws IOException {
-        BufferedImage image = ImageIO.read(new File("recourses/ship/" + n + ".png"));
+        BufferedImage image = ImageIO.read(new File("data/resources/ship/" + n + ".png"));
         BufferedImage image1;
         BufferedImage image2;
         try {
@@ -26,7 +26,7 @@ public class ShipGraphics {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = Graphics.createGraphics(result);
-        FileReader fReader = new FileReader("recourses/ship/pos.txt");
+        FileReader fReader = new FileReader("data/resources/ship/pos.txt");
         BufferedReader reader = new BufferedReader(fReader);
 
         String text;

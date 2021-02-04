@@ -3,7 +3,6 @@ package modules.twitch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import core.SecretManager;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.utils.InternetUtil;
@@ -91,7 +90,7 @@ public class TwitchDownloader {
     private JSONObject fetchApi(String url) throws ExecutionException, InterruptedException {
         HttpProperty[] properties = {
                 new HttpProperty("Accept", "application/vnd.twitchtv.v5+json"),
-                new HttpProperty("Client-ID", SecretManager.getString("twitch.clientid"))
+                new HttpProperty("Client-ID", System.getenv("TWITCH_CLIENTID"))
         };
 
         return HttpRequest.getData(url, properties)

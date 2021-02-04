@@ -2,12 +2,12 @@ package websockets.syncserver;
 
 import core.Bot;
 import core.DiscordApiManager;
-import core.SecretManager;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.CustomWebSocketClient;
+
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Objects;
@@ -28,8 +28,12 @@ public class SyncManager {
 
     private SyncManager() {
         try {
-            String host = Bot.isProductionMode() ? SecretManager.getString("syncserver.ip") : "localhost";
-            client = new CustomWebSocketClient(host, 9998, "cluster_" + Bot.getClusterId(), getSocketClientHeaders());
+            client = new CustomWebSocketClient(
+                    System.getenv("SYNC_HOST"),
+                    Integer.parseInt(System.getenv("SYNC_PORT")),
+                    "cluster_" + Bot.getClusterId(),
+                    getSocketClientHeaders()
+            );
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

@@ -19,7 +19,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "roses",
     emoji = "🌹",
-    exlusiveUsers = { 397209883793162240L },
+    exlusiveUsers = { 397209883793162240L, 381156056660967426L },
     executableWithoutArgs = false
 )
 public class RosesCommand extends Command {

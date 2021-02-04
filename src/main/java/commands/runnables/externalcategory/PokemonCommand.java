@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
     trigger = "pokemon",
     withLoadingBar = true,
     emoji = "\uD83C\uDDF5",
-    exlusiveUsers = { 397209883793162240L },
+    exlusiveUsers = { 397209883793162240L, 381156056660967426L },
     executableWithoutArgs = false
 )
 public class PokemonCommand extends Command {

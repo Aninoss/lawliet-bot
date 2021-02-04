@@ -147,7 +147,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         getCache().invalidate(serverId);
 
-        File welcomeBackgroundFile = new File(String.format("share/welcome_backgrounds/%d.png", serverId));
+        File welcomeBackgroundFile = new File(String.format("data/welcome_backgrounds/%d.png", serverId));
         if (welcomeBackgroundFile.exists()) {
             SystemUtil.rsyncDelete(String.format("welcome_backgrounds/%d.png", serverId));
         }

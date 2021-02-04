@@ -1,6 +1,5 @@
 package modules;
 
-import core.SecretManager;
 import core.Security;
 
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +25,10 @@ public class ExchangeRate {
 
         int n = rateMap.computeIfAbsent(dateString, key -> -1);
         if (n == -1) {
-            int root = Security.getHashForString(SecretManager.getString("exchangerate.secret"), Security.getHashForString("DateString", dateString)).hashCode();
+            int root = Security.getHashForString(
+                    System.getenv("EX_SECRET"),
+                    Security.getHashForString("DateString", dateString)
+            ).hashCode();
             Random r = new Random(root);
 
             double result = r.nextDouble();

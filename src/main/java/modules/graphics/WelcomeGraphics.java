@@ -161,11 +161,11 @@ public class WelcomeGraphics {
         if (tempBackgroundFile.exists())
             return tempBackgroundFile;
 
-        File syncedBackgroundFile = new File(String.format("share/welcome_backgrounds/%d.png", server.getId()));
+        File syncedBackgroundFile = new File(String.format("data/welcome_backgrounds/%d.png", server.getId()));
         if (syncedBackgroundFile.exists())
             return syncedBackgroundFile;
 
-        return new File("share/welcome_backgrounds/placeholder.png");
+        return new File("data/welcome_backgrounds/placeholder.png");
     }
 
 }

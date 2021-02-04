@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
     trigger = "celebrate",
     emoji = "\uD83C\uDF89",
-    exlusiveUsers = { 397209883793162240L },
+    exlusiveUsers = { 397209883793162240L, 381156056660967426L },
     executableWithoutArgs = true
 )
 public class CelebrateCommand extends Command {

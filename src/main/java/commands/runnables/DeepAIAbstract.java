@@ -2,7 +2,6 @@ package commands.runnables;
 
 import commands.Command;
 import core.EmbedFactory;
-import core.SecretManager;
 import core.TextManager;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
@@ -11,6 +10,7 @@ import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ public abstract class DeepAIAbstract extends Command {
         String query = "image=" + url.toString();
 
         HttpProperty[] properties = new HttpProperty[]{
-                new HttpProperty("Api-Key", SecretManager.getString("deepai.token")),
+                new HttpProperty("Api-Key", System.getenv("DEEPAI_TOKEN")),
                 new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
         };
 

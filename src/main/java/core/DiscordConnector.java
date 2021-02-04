@@ -78,7 +78,7 @@ public class DiscordConnector {
 
     private DiscordApiBuilder createBuilder() {
         return new DiscordApiBuilder()
-                .setToken(SecretManager.getString(Bot.isProductionMode() ? "bot.token" : "bot.token.debugger"))
+                .setToken(System.getenv("BOT_TOKEN"))
                 .setGlobalRatelimiter(customLocalRatelimiter)
                 .setAllIntentsExcept(Intent.DIRECT_MESSAGE_TYPING, Intent.GUILD_MESSAGE_TYPING)
                 .setWaitForUsersOnStartup(true);

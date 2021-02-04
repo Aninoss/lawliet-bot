@@ -1,7 +1,6 @@
 package websockets;
 
 import constants.AssetIds;
-import core.SecretManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ public class TopGG {
 
     private TopGG() {
         dblApi = new DiscordBotListAPI.Builder()
-                .token(SecretManager.getString("discordbots.token"))
+                .token(System.getenv("TOPGG_TOKEN"))
                 .botId(String.valueOf(AssetIds.LAWLIET_USER_ID))
                 .build();
     }

@@ -1,7 +1,6 @@
 package websockets;
 
 import core.GlobalThreadPool;
-import core.SecretManager;
 import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import org.java_websocket.client.WebSocketClient;
@@ -36,13 +35,13 @@ public class CustomWebSocketClient extends WebSocketClient {
     public CustomWebSocketClient(String host, int port, String socketId, HashMap<String, String> httpHeaders) throws URISyntaxException {
         super(new URI(String.format("ws://%s:%d", host, port)), httpHeaders);
         addHeader("socket_id", socketId);
-        addHeader("auth", SecretManager.getString("syncserver.auth"));
+        addHeader("auth", System.getenv("SYNC_AUTH"));
     }
 
     public CustomWebSocketClient(String host, int port, String socketId) throws URISyntaxException {
         super(new URI(String.format("ws://%s:%d", host, port)));
         addHeader("socket_id", socketId);
-        addHeader("auth", SecretManager.getString("syncserver.auth"));
+        addHeader("auth", System.getenv("SYNC_AUTH"));
     }
 
     @Override

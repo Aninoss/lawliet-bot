@@ -1,7 +1,6 @@
 package websockets;
 
 import constants.AssetIds;
-import core.SecretManager;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -14,7 +13,7 @@ public class Botsfordiscord {
         jsonObject.put("server_count", String.valueOf(serverCount));
         HttpProperty[] properties = new HttpProperty[]{
                 new HttpProperty("Content-Type", "application/json"),
-                new HttpProperty("Authorization", SecretManager.getString("botsfordiscord.token"))
+                new HttpProperty("Authorization", System.getenv("BOTSFORDISCORD_TOKEN"))
         };
         HttpRequest.getData("https://botsfordiscord.com/api/bot/" + AssetIds.LAWLIET_USER_ID, jsonObject.toString(), properties).exceptionally(ExceptionLogger.get());
     }

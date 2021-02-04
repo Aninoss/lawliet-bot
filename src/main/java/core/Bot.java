@@ -3,23 +3,16 @@ package core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 public class Bot {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
-    private static boolean production = false;
     private static boolean stopped = false;
-    private static boolean selfHosted = false;
-    private static int clusterId = 0;
 
-    public static void init(boolean newProduction, int newClusterId) {
-        production = newProduction;
-        clusterId = newClusterId;
+    public static void init() {
         System.out.println("-------------------------------------");
-        System.out.println("Production Mode: " + production);
-        System.out.println("Cluster ID: " + clusterId);
+        System.out.println("Production Mode: " + isProductionMode());
+        System.out.println("Cluster ID: " + getClusterId());
         System.out.println("-------------------------------------");
     }
 
@@ -30,7 +23,7 @@ public class Bot {
     }
 
     public static boolean isProductionMode() {
-        return production;
+        return System.getenv("PRODUCTION").equals("true");
     }
 
     public static boolean isRunning() {
@@ -38,15 +31,11 @@ public class Bot {
     }
 
     public static boolean isPublicVersion() {
-        return !selfHosted;
-    }
-
-    public static boolean hasUpdate() {
-        return new File("update/Lawliet.jar").exists();
+        return true;
     }
 
     public static int getClusterId() {
-        return clusterId;
+        return Integer.parseInt(System.getenv("CLUSTER")) - 1;
     }
 
 }

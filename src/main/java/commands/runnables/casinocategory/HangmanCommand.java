@@ -49,7 +49,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         if (onGameStart(event, followedString)) {
             try {
                 Random r = new Random();
-                List<String> wordList = FileManager.readInList(new File("recourses/hangman_" + getLocale().getDisplayName() + ".txt"));
+                List<String> wordList = FileManager.readInList(new File("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
                 answer = wordList.get(r.nextInt(wordList.size()));
                 first = true;
                 health = MAX_HEALTH;
