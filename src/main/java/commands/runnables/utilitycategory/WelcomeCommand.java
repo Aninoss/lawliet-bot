@@ -102,9 +102,8 @@ public class WelcomeCommand extends Command implements OnNavigationListener {
             case 4:
                 List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-                    String downloadFileName = String.format("temp/welcome_%d.png", event.getServer().get().getId());
+                    String downloadFileName = String.format("data/welcome_backgrounds/%d.png", event.getServer().get().getId());
                     if (FileUtil.downloadMessageAttachment(attachmentList.get(0), downloadFileName).isPresent()) {
-                        SystemUtil.rsyncPush(downloadFileName, String.format("welcome_backgrounds/%d.png", event.getServer().get().getId()));
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return Response.TRUE;

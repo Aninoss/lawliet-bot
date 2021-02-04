@@ -133,3 +133,5 @@ gradle-app.setting
 .idea
 target
 temp
+data/welcome_backgrounds/*
+!data/welcome_backgrounds/placeholder.png

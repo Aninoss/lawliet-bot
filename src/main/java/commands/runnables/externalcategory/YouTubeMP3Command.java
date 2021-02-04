@@ -6,7 +6,6 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
-import core.utils.SystemUtil;
 import modules.YouTubePlayer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -58,7 +57,7 @@ public class YouTubeMP3Command extends Command {
         }
 
         Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
-        SystemUtil.downloadYouTubeVideo(meta.identifier);
+        //TODO: Send API request to youtube-dl
 
         File mp3File = new File(String.format("temp/%s.mp3", meta.identifier));
         if (!mp3File.exists()) {

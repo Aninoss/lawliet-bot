@@ -27,10 +27,12 @@ public class Main {
         }
 
         LOGGER.info("Waiting for sync server");
-        Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
         SyncManager.getInstance().start();
+
         if (!Bot.isProductionMode())
             DiscordConnector.getInstance().connect(0, 0, 1);
+        else
+            Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
     }
 
     private static void createTempDir() {

@@ -157,10 +157,6 @@ public class WelcomeGraphics {
     }
 
     private static File getBackgroundFile(Server server) {
-        File tempBackgroundFile = new File(String.format("temp/welcome_%d.png", server.getId()));
-        if (tempBackgroundFile.exists())
-            return tempBackgroundFile;
-
         File syncedBackgroundFile = new File(String.format("data/welcome_backgrounds/%d.png", server.getId()));
         if (syncedBackgroundFile.exists())
             return syncedBackgroundFile;
