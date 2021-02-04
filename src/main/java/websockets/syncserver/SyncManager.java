@@ -79,6 +79,8 @@ public class SyncManager {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("size", String.valueOf(Math.round(Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0))));
         headers.put("already_connected", "false");
+        headers.put("node", System.getenv("NODE"));
+        headers.put("docker_id", System.getenv("HOSTNAME"));
         return headers;
     }
 
