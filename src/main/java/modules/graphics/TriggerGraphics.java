@@ -1,5 +1,6 @@
 package modules.graphics;
 
+import core.ResourceHandler;
 import modules.GifSequenceWriter;
 import org.javacord.api.entity.user.User;
 
@@ -19,7 +20,7 @@ public class TriggerGraphics {
         image = Graphics.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        FileCacheImageOutputStream ios = new FileCacheImageOutputStream(os, new File("temp"));
+        FileCacheImageOutputStream ios = new FileCacheImageOutputStream(os, ResourceHandler.getFileResource("temp"));
 
         GifSequenceWriter gifSequenceWriter = new GifSequenceWriter(ios, image.getType(), 25, true);
 
@@ -51,8 +52,8 @@ public class TriggerGraphics {
             g.setColor(new Color(255, 0, 0, 255 / 4));
             g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
-            g.drawImage(ImageIO.read(new File("data/resources/triggeredsign.png")), 0, image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
-            g.drawImage(ImageIO.read(new File("data/resources/triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
+            g.drawImage(ImageIO.read(ResourceHandler.getFileResource("data/resources/triggeredsign.png")), 0, image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
+            g.drawImage(ImageIO.read(ResourceHandler.getFileResource("data/resources/triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
 
             gifSequenceWriter.writeToSequence(result);
             g.dispose();

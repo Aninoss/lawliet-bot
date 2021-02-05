@@ -1,5 +1,6 @@
 package core.utils;
 
+import core.ResourceHandler;
 import org.javacord.api.entity.message.MessageAttachment;
 
 import javax.imageio.ImageIO;
@@ -11,7 +12,7 @@ import java.util.Optional;
 public class FileUtil {
 
     public static Optional<File> downloadMessageAttachment(MessageAttachment messageAttachment, String fileName) throws IOException {
-        return downloadMessageAttachment(messageAttachment, new File(fileName));
+        return downloadMessageAttachment(messageAttachment, ResourceHandler.getFileResource(fileName));
     }
 
     public static Optional<File> downloadMessageAttachment(MessageAttachment messageAttachment, File file) throws IOException {

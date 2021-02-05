@@ -4,10 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.Command;
 import constants.TrackerResult;
-import core.EmbedFactory;
-import core.FileManager;
-import core.RandomPicker;
-import core.TextManager;
+import core.*;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -15,7 +12,6 @@ import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -42,7 +38,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
     }
 
     private void send(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
-        List<String> topicList = FileManager.readInList(new File("data/resources/topics_" + getLocale().getDisplayName() + ".txt"));
+        List<String> topicList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/topics_" + getLocale().getDisplayName() + ".txt"));
         int n = RandomPicker.getInstance().pick(getTrigger(), channel.getServer().getId(), topicList.size());
         String topic = topicList.get(n);
 

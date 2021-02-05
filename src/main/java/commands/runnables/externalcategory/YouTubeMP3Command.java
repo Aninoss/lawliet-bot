@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ResourceHandler;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.YouTubePlayer;
@@ -59,7 +60,7 @@ public class YouTubeMP3Command extends Command {
         Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
         //TODO: Send API request to youtube-dl
 
-        File mp3File = new File(String.format("temp/%s.mp3", meta.identifier));
+        File mp3File = ResourceHandler.getFileResource(String.format("temp/%s.mp3", meta.identifier));
         if (!mp3File.exists()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     getString("error"),
@@ -73,7 +74,7 @@ public class YouTubeMP3Command extends Command {
 
     private boolean handleFile(MessageCreateEvent event, Message message, AudioTrackInfo meta, File mp3File) throws InterruptedException {
         String newFileName = meta.title.replace(" ", "_").replaceAll("\\W+", "");
-        File newMp3File = new File(String.format("temp/%s.mp3", newFileName));
+        File newMp3File = ResourceHandler.getFileResource(String.format("temp/%s.mp3", newFileName));
 
         if (newFileName.length() > 0 && mp3File.renameTo(newMp3File))
             mp3File = newMp3File;

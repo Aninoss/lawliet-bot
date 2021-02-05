@@ -1,5 +1,6 @@
 package modules.graphics;
 
+import core.ResourceHandler;
 import org.javacord.api.entity.user.User;
 
 import javax.imageio.ImageIO;
@@ -14,7 +15,7 @@ public class RainbowGraphics {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;
         image = Graphics.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
-        BufferedImage rainbow = ImageIO.read(new File("data/resources/rainbow.png"));
+        BufferedImage rainbow = ImageIO.read(ResourceHandler.getFileResource("data/resources/rainbow.png"));
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
                 BufferedImage.TYPE_INT_ARGB);
 

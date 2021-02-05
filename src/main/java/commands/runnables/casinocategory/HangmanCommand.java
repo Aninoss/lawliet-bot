@@ -10,6 +10,7 @@ import constants.Permission;
 import constants.Response;
 import core.EmbedFactory;
 import core.FileManager;
+import core.ResourceHandler;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -18,7 +19,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -49,7 +49,7 @@ public class HangmanCommand extends CasinoAbstract implements OnForwardedRecieve
         if (onGameStart(event, followedString)) {
             try {
                 Random r = new Random();
-                List<String> wordList = FileManager.readInList(new File("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
+                List<String> wordList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
                 answer = wordList.get(r.nextInt(wordList.size()));
                 first = true;
                 health = MAX_HEALTH;

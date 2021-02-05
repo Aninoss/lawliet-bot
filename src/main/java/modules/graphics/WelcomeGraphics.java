@@ -1,6 +1,7 @@
 package modules.graphics;
 
 import core.AttributedStringGenerator;
+import core.ResourceHandler;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -157,11 +158,11 @@ public class WelcomeGraphics {
     }
 
     private static File getBackgroundFile(Server server) {
-        File syncedBackgroundFile = new File(String.format("data/welcome_backgrounds/%d.png", server.getId()));
+        File syncedBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", server.getId()));
         if (syncedBackgroundFile.exists())
             return syncedBackgroundFile;
 
-        return new File("data/welcome_backgrounds/placeholder.png");
+        return ResourceHandler.getFileResource("data/welcome_backgrounds/placeholder.png");
     }
 
 }

@@ -3,6 +3,7 @@ package mysql.modules.server;
 import constants.FisheryStatus;
 import constants.Locales;
 import core.DiscordApiManager;
+import core.ResourceHandler;
 import mysql.DBBeanGenerator;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
@@ -145,7 +146,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         getCache().invalidate(serverId);
 
-        File welcomeBackgroundFile = new File(String.format("data/welcome_backgrounds/%d.png", serverId));
+        File welcomeBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", serverId));
         if (welcomeBackgroundFile.exists())
             welcomeBackgroundFile.delete();
     }
