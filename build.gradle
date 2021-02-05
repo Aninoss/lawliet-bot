@@ -52,7 +52,7 @@ jar {
 }
 
 docker {
-    name 'registry.lawlietbot.xyz/lawliet:latest'
+    name 'registry.lawlietbot.xyz/lawliet-bot:latest'
     files 'build/libs', 'data'
-    tag 'DockerHub', "registry.lawlietbot.xyz/lawliet:latest"
+    tag 'DockerHub', "registry.lawlietbot.xyz/lawliet-bot:latest"
 }
