@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
@@ -52,7 +53,7 @@ public class HttpRequest {
             BufferedReader br;
             String line;
             StringBuilder text = new StringBuilder();
-            HttpsURLConnection connection = (HttpsURLConnection) (new URL(urlString)).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) (new URL(urlString)).openConnection();
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
             Thread.sleep(pauseTimeMilis);

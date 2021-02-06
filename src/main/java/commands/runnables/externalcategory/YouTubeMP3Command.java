@@ -3,19 +3,29 @@ package commands.runnables.externalcategory;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import constants.Response;
 import core.EmbedFactory;
 import core.ResourceHandler;
 import core.TextManager;
+import core.internet.HttpRequest;
+import core.internet.HttpResponse;
 import core.utils.StringUtil;
 import modules.YouTubePlayer;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
+import org.json.JSONObject;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.Optional;
+import java.io.FilenameFilter;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "ytmp3",
@@ -58,29 +68,45 @@ public class YouTubeMP3Command extends Command {
         }
 
         Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
-        //TODO: Send API request to youtube-dl
 
-        File mp3File = ResourceHandler.getFileResource(String.format("temp/%s.mp3", meta.identifier));
-        if (!mp3File.exists()) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    getString("error"),
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "error")
-            )).get();
-            return false;
+        if (sendApiRequest("https://www.youtube.com/watch?v=" + meta.identifier)) {
+            Pattern filePattern = Pattern.compile(String.format(".*\\[%s\\]\\.[A-Za-z0-9]*$", Pattern.quote(meta.identifier)));
+            for (int i = 0; i < 500; i++) {
+                Thread.sleep(100);
+                List<File> validFiles = getValidFiles(ResourceHandler.getFileResource("data/youtube-dl"), meta.identifier, filePattern);
+
+                if (validFiles.size() == 1 && validFiles.get(0).getAbsolutePath().endsWith(".mp3")) {
+                    return handleFile(event, message, meta, validFiles.get(0));
+                }
+            }
         }
 
-        return handleFile(event, message, meta, mp3File);
+        event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
+                getString("error"),
+                TextManager.getString(getLocale(), TextManager.GENERAL, "error")
+        )).get();
+        return false;
+    }
+
+    private List<File> getValidFiles(File root, String videoId, Pattern filePattern) {
+        return Arrays.stream(Objects.requireNonNull(root.listFiles()))
+                .filter(file -> filePattern.matcher(file.getAbsolutePath()).matches())
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    private boolean sendApiRequest(String url) throws ExecutionException, InterruptedException {
+        String body = String.format("url=%s&format=mp3", URLEncoder.encode(url, StandardCharsets.UTF_8));
+        HttpResponse response = HttpRequest.getData("http://youtube-dl:8080/youtube-dl/q", body).get();
+        return response
+                .getContent()
+                .map(data -> new JSONObject(data).getBoolean("success"))
+                .orElse(false);
     }
 
     private boolean handleFile(MessageCreateEvent event, Message message, AudioTrackInfo meta, File mp3File) throws InterruptedException {
-        String newFileName = meta.title.replace(" ", "_").replaceAll("\\W+", "");
-        File newMp3File = ResourceHandler.getFileResource(String.format("temp/%s.mp3", newFileName));
-
-        if (newFileName.length() > 0 && mp3File.renameTo(newMp3File))
-            mp3File = newMp3File;
-
         try {
-            event.getMessage().getUserAuthor().get().sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)), mp3File).get();
+            event.getMessage().getUserAuthor().get()
+                    .sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)), mp3File).get();
         } catch (ExecutionException e) {
             mp3File.delete();
             message.edit(EmbedFactory.getEmbedError(this,
