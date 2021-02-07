@@ -78,7 +78,6 @@ public class Console {
         tasks.put("leave_server", this::onLeaveServer);
         tasks.put("user", this::onUser);
         tasks.put("clear", this::onClear);
-        tasks.put("fonts", this::onReloadFonts);
         tasks.put("servers", this::onServers);
         tasks.put("servers_mutual", this::onServersMutual);
         tasks.put("patreon", this::onPatreon);
@@ -184,11 +183,6 @@ public class Console {
         LOGGER.info("---------------");
     }
 
-    private void onReloadFonts(String[] args) {
-        FontContainer.getInstance().reload();
-        LOGGER.info("Fonts reloaded!");
-    }
-
     private void onClear(String[] args) {
         DBMain.getInstance().clearCache();
         LOGGER.info("Cache cleared!");
@@ -229,14 +223,14 @@ public class Console {
         });
     }
 
-    private void onDeleteFisheryUser(String[] args) throws ExecutionException {
+    private void onDeleteFisheryUser(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         DBFishery.getInstance().getBean(serverId).getUserBean(userId).remove();
         LOGGER.info("Fishery user {} from server {} removed", userId, serverId);
     }
 
-    private void onDailyStreak(String[] args) throws ExecutionException {
+    private void onDailyStreak(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
@@ -244,7 +238,7 @@ public class Console {
         LOGGER.info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
     }
 
-    private void onCoins(String[] args) throws ExecutionException {
+    private void onCoins(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
@@ -252,7 +246,7 @@ public class Console {
         LOGGER.info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
     }
 
-    private void onFish(String[] args) throws ExecutionException {
+    private void onFish(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
@@ -260,13 +254,13 @@ public class Console {
         LOGGER.info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
     }
 
-    private void onUnban(String[] args) throws SQLException {
+    private void onUnban(String[] args) {
         long userId = Long.parseLong(args[1]);
         DBBannedUsers.getInstance().getBean().getUserIds().remove(userId);
         LOGGER.info("User {} unbanned", userId);
     }
 
-    private void onBan(String[] args) throws SQLException {
+    private void onBan(String[] args) {
         long userId = Long.parseLong(args[1]);
         DBBannedUsers.getInstance().getBean().getUserIds().add(userId);
         LOGGER.info("User {} banned", userId);
@@ -351,24 +345,28 @@ public class Console {
         while (true) {
             try {
                 if (br.ready()) {
-                    String[] args = br.readLine().split(" ");
-                    ConsoleTask task = tasks.get(args[0]);
-                    if (task != null) {
-                        GlobalThreadPool.getExecutorService().submit(() -> {
-                            try {
-                                task.process(args);
-                            } catch (Throwable throwable) {
-                                LOGGER.error("Console task {} ended with exception", args[0], throwable);
-                            }
-                        });
-                    } else {
-                        System.err.printf("No result for \"%s\"\n", args[0]);
-                    }
+                    processInput(br.readLine());
                 }
                 Thread.sleep(100);
             } catch (IOException | InterruptedException e) {
                 LOGGER.error("Unexpected console exception", e);
             }
+        }
+    }
+
+    public void processInput(String input) {
+        String[] args = input.split(" ");
+        ConsoleTask task = tasks.get(args[0]);
+        if (task != null) {
+            GlobalThreadPool.getExecutorService().submit(() -> {
+                try {
+                    task.process(args);
+                } catch (Throwable throwable) {
+                    LOGGER.error("Console task {} ended with exception", args[0], throwable);
+                }
+            });
+        } else {
+            System.err.printf("No result for \"%s\"\n", args[0]);
         }
     }
 
