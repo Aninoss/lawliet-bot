@@ -24,8 +24,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FisheryVCObserver {
 
     private static final FisheryVCObserver ourInstance = new FisheryVCObserver();
-    public static FisheryVCObserver getInstance() { return ourInstance; }
-    private FisheryVCObserver() { }
+
+    public static FisheryVCObserver getInstance() {
+        return ourInstance;
+    }
+
+    private FisheryVCObserver() {
+    }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FisheryVCObserver.class);
     private final int VC_CHECK_INTERVAL_MIN = 1;
@@ -89,20 +94,20 @@ public class FisheryVCObserver {
     public static ArrayList<User> getValidVCUsers(Server server, ServerVoiceChannel voiceChannel) {
         ArrayList<User> validUsers = new ArrayList<>();
         for (long userId : voiceChannel.getConnectedUserIds()) {
-            Optional<User> userOpt = server.getMemberById(userId);
-            if (userOpt.isEmpty())
-                LOGGER.error("VC Observer - missing user with id {} on server {}", userId, server.getId());
-            userOpt.ifPresent(user -> {
-                if (!user.isBot() &&
-                        !user.isMuted(server) &&
-                        !user.isDeafened(server) &&
-                        !user.isSelfDeafened(server) &&
-                        !user.isSelfMuted(server) &&
-                        !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                ) {
-                    validUsers.add(user);
-                }
-            });
+            server.getMemberById(userId)
+                    .ifPresentOrElse(user -> {
+                        if (!user.isBot() &&
+                                !user.isMuted(server) &&
+                                !user.isDeafened(server) &&
+                                !user.isSelfDeafened(server) &&
+                                !user.isSelfMuted(server) &&
+                                !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
+                        ) {
+                            validUsers.add(user);
+                        }
+                    }, () -> {
+                        LOGGER.error("VC Observer - missing user with id {} on server {}", userId, server.getId());
+                    });
         }
 
         return validUsers;

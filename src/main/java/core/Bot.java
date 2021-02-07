@@ -35,7 +35,7 @@ public class Bot {
     }
 
     public static int getClusterId() {
-        return Integer.parseInt(System.getenv("CLUSTER")) - 1;
+        return Integer.parseInt(System.getenv("CLUSTER"));
     }
 
 }
