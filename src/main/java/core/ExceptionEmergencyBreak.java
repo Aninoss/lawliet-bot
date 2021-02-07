@@ -32,7 +32,7 @@ public class ExceptionEmergencyBreak extends Filter<ILoggingEvent> {
         final Throwable throwable = throwableProxyImpl.getThrowable();
         if (ExceptionUtil.exceptionIsClass(throwable, exceptionClass)) {
             LOGGER.error("EXIT - Emergency break");
-            System.exit(-1);
+            System.exit(1);
             return FilterReply.NEUTRAL;
         }
 

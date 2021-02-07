@@ -56,7 +56,7 @@ public class DiscordConnector {
                 .forEach(apiFuture -> apiFuture.thenAccept(this::onApiJoin)
                         .exceptionally(e -> {
                             LOGGER.error("EXIT - Error while connecting to the Discord servers!", e);
-                            System.exit(-1);
+                            System.exit(1);
                             return null;
                         })
                 );

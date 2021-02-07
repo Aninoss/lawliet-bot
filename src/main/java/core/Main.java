@@ -15,24 +15,29 @@ public class Main {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws Throwable {
-        Bot.init();
-        createTempDir();
+    public static void main(String[] args) {
+        try {
+            Bot.init();
+            createTempDir();
 
-        Console.getInstance().start();
-        FontContainer.getInstance().init();
-        DBMain.getInstance().connect();
-        if (Bot.isPublicVersion()) {
-            initializeUpdate();
+            Console.getInstance().start();
+            FontContainer.getInstance().init();
+            DBMain.getInstance().connect();
+            if (Bot.isPublicVersion()) {
+                initializeUpdate();
+            }
+
+            LOGGER.info("Waiting for sync server");
+            SyncManager.getInstance().start();
+
+            if (!Bot.isProductionMode())
+                DiscordConnector.getInstance().connect(0, 0, 1);
+            else
+                Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
+        } catch (Throwable e) {
+            LOGGER.error("Error on startup", e);
+            System.exit(1);
         }
-
-        LOGGER.info("Waiting for sync server");
-        SyncManager.getInstance().start();
-
-        if (!Bot.isProductionMode())
-            DiscordConnector.getInstance().connect(0, 0, 1);
-        else
-            Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
     }
 
     private static void createTempDir() {

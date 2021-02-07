@@ -67,7 +67,7 @@ public class DiscordApiManager {
             MainScheduler.getInstance().schedule(3, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!fullyConnected) {
                     LOGGER.error("EXIT - Could not boot up");
-                    System.exit(-1);
+                    System.exit(1);
                 }
             });
         }
