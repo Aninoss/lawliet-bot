@@ -116,7 +116,8 @@ public class DiscordApiManager {
     }
 
     public void reconnectShard(int shard) {
-        getApi(shard).ifPresent(this::reconnectShard);
+        getApi(shard)
+                .ifPresent(this::reconnectShard);
     }
 
     public void reconnectShard(DiscordApi api) {

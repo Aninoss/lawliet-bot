@@ -97,7 +97,7 @@ public class Console {
     private void onRepair(String[] args) {
         int minutes = Integer.parseInt(args[1]);
         DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, minutes));
-        LOGGER.info("Repair started with minutes {}", minutes);
+        LOGGER.info("Repairing cluster {} with {}", Bot.getClusterId(), minutes);
     }
 
     private void onSendChannel(String[] args) {
@@ -113,7 +113,7 @@ public class Console {
         DiscordApiManager.getInstance().getLocalServerById(serverId)
                 .flatMap(server -> server.getTextChannelById(channelId))
                 .ifPresent(channel -> {
-                    LOGGER.info(">{} (#{}): {}", channel.getName(), channel.getId(), text);
+                    LOGGER.info("#{}: {}", channel.getName(), text);
                     channel.sendMessage(text).exceptionally(ExceptionLogger.get());
                 });
     }
@@ -127,13 +127,13 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
         DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
-            LOGGER.info(">{} ({}): {}", user.getDiscriminatedName(), user.getId(), text);
+            LOGGER.info("@{}: {}", user.getDiscriminatedName(), text);
             user.sendMessage(text).exceptionally(ExceptionLogger.get());
         });
     }
 
     private void onInternetConnection(String[] args) {
-        LOGGER.info("Internet connection: {}", InternetUtil.checkConnection());
+        LOGGER.info("Internet connection (Cluster {}): {}", Bot.getClusterId(), InternetUtil.checkConnection());
     }
 
     private void onPatreon(String[] args) {
@@ -143,54 +143,42 @@ public class Console {
 
     private void onServersMutual(String[] args) {
         DiscordApiManager.getInstance().getCachedUserById(Long.parseLong(args[1])).ifPresent(user -> {
-            LOGGER.info("--- MUTUAL SERVERS OF {} ---", user.getId());
-            ArrayList<Server> servers = new ArrayList<>(DiscordApiManager.getInstance().getLocalMutualServers(user));
-            servers.sort((s1, s2) -> Integer.compare(s2.getMemberCount(), s1.getMemberCount()));
-
-            for (Server server : servers) {
-                int bots = (int) server.getMembers().stream().filter(User::isBot).count();
-                LOGGER.info(
-                        "{} (ID: {}): {} Members & {} Bots",
-                        server.getName(),
-                        server.getId(),
-                        server.getMemberCount() - bots,
-                        bots
-                );
-            }
-            LOGGER.info("---------------");
+            DiscordApiManager.getInstance()
+                    .getLocalMutualServers(user)
+                    .forEach(this::printServer);
         });
     }
 
     private void onServers(String[] args) {
-        LOGGER.info("--- SERVERS ---");
         ArrayList<Server> servers = new ArrayList<>(DiscordApiManager.getInstance().getLocalServers());
-        servers.sort((s1, s2) -> Integer.compare(s2.getMemberCount(), s1.getMemberCount()));
-        int limit = servers.size();
-        if (args.length >= 2)
-            limit = Math.min(servers.size(), Integer.parseInt(args[1]));
+        int min = args.length > 1 ? Integer.parseInt(args[1]) : 0;
 
-        for (int i = 0; i < limit; i++) {
-            Server server = servers.get(i);
-            int bots = (int) server.getMembers().stream().filter(User::isBot).count();
-            LOGGER.info(
-                    "{} (ID: {}): {} Members & {} Bots",
-                    server.getName(),
-                    server.getId(),
-                    server.getMemberCount() - bots,
-                    bots
-            );
-        }
-        LOGGER.info("---------------");
+        servers.stream()
+                .filter(s -> s.getMemberCount() >= min)
+                .forEach(this::printServer);
+    }
+
+    private void printServer(Server server) {
+        int bots = (int) server.getMembers().stream().filter(User::isBot).count();
+        LOGGER.info(
+                "Name: {}; ID: {}; Shard: {}; Cluster: {}; Members: {}; Bots {}",
+                server.getName(),
+                server.getId(),
+                server.getApi().getCurrentShard(),
+                Bot.getClusterId(),
+                server.getMemberCount() - bots,
+                bots
+        );
     }
 
     private void onClear(String[] args) {
         DBMain.getInstance().clearCache();
-        LOGGER.info("Cache cleared!");
+        LOGGER.info("Cache cleared (Cluster {})!", Bot.getClusterId());
     }
 
     private void onUser(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> System.out.println(user.getDiscriminatedName()));
+        DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> LOGGER.info("{} => {}", user.getId(), user.getDiscriminatedName()));
     }
 
     private void onFisheryVC(String[] args) {
@@ -226,32 +214,44 @@ public class Console {
     private void onDeleteFisheryUser(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
-        DBFishery.getInstance().getBean(serverId).getUserBean(userId).remove();
-        LOGGER.info("Fishery user {} from server {} removed", userId, serverId);
+
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server -> {
+            DBFishery.getInstance().getBean(serverId).getUserBean(userId).remove();
+            LOGGER.info("Fishery user {} from server {} removed", userId, serverId);
+        });
     }
 
     private void onDailyStreak(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
-        DBFishery.getInstance().getBean(serverId).getUserBean(userId).setDailyStreak(value);
-        LOGGER.info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
+
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server -> {
+            DBFishery.getInstance().getBean(serverId).getUserBean(userId).setDailyStreak(value);
+            LOGGER.info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
+        });
     }
 
     private void onCoins(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
-        DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoinsRaw(value);
-        LOGGER.info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
+
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server -> {
+            DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoinsRaw(value);
+            LOGGER.info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
+        });
     }
 
     private void onFish(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
-        DBFishery.getInstance().getBean(serverId).getUserBean(userId).setFish(value);
-        LOGGER.info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
+
+        DiscordApiManager.getInstance().getLocalServerById(serverId).ifPresent(server -> {
+            DBFishery.getInstance().getBean(serverId).getUserBean(userId).setFish(value);
+            LOGGER.info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
+        });
     }
 
     private void onUnban(String[] args) {
@@ -270,7 +270,7 @@ public class Console {
         for (Thread t : Thread.getAllStackTraces().keySet()) {
             if (args.length < 2 || t.getName().matches(args[1])) {
                 Exception e = ExceptionUtil.generateForStack(t);
-                LOGGER.error("\n--- {} ---", t.getName(), e);
+                LOGGER.error("\n--- {} - {} ---", Bot.getClusterId(), t.getName(), e);
             }
         }
     }
@@ -285,7 +285,7 @@ public class Console {
             }
         }
 
-        LOGGER.info("{} thread/s interrupted", stopped);
+        LOGGER.info("{} thread/s interrupted in cluster {}", stopped, Bot.getClusterId());
     }
 
     private void onThreads(String[] args) {
@@ -300,7 +300,7 @@ public class Console {
         String str = sb.toString();
         if (str.length() >= 2) str = str.substring(0, str.length() - 2);
 
-        LOGGER.info("\n--- THREADS ({}) ---\n{}\n", Thread.getAllStackTraces().size(), str);
+        LOGGER.info("\n--- THREADS FOR CLUSTER {} ({}) ---\n{}\n", Bot.getClusterId(), Thread.getAllStackTraces().size(), str);
     }
 
     private void onMySQLConnect(String[] args) {
@@ -317,7 +317,7 @@ public class Console {
     }
 
     private void onShards(String[] args) {
-        LOGGER.info("Shards: {} / {}", DiscordApiManager.getInstance().getConnectedLocalApis().size(), DiscordApiManager.getInstance().getLocalShards());
+        LOGGER.info("Cluster: {} - Shards: {} / {}", Bot.getClusterId(), DiscordApiManager.getInstance().getConnectedLocalApis().size(), DiscordApiManager.getInstance().getLocalShards());
         for (int i = DiscordApiManager.getInstance().getShardIntervalMin(); i <= DiscordApiManager.getInstance().getShardIntervalMax(); i++) {
             if (DiscordApiManager.getInstance().getApi(i).isEmpty())
                 LOGGER.info("Shard {} is unavailable!", i);
@@ -329,7 +329,7 @@ public class Console {
     }
 
     private void onQuit(String[] args) {
-        LOGGER.info("EXIT - User commanded exit");
+        LOGGER.info("Stopping cluster {}", Bot.getClusterId());
         System.exit(0);
     }
 
@@ -371,7 +371,7 @@ public class Console {
     }
 
     public String getStats() {
-        StringBuilder sb = new StringBuilder("\n--- STATS ---\n");
+        StringBuilder sb = new StringBuilder(String.format("\n--- STATS CLUSTER %d ---\n", Bot.getClusterId()));
 
         //Memory
         double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
