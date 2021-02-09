@@ -68,7 +68,7 @@ public class SurveyResults implements ScheduleInterface {
         }
 
         LOGGER.info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
-        ArrayList<Long> notificationUsers = Bot.getClusterId() == 0 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
+        ArrayList<Long> notificationUsers = Bot.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
                 DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {

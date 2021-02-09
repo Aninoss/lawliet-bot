@@ -31,7 +31,7 @@ public class DBUpvotes extends DBSingleBeanGenerator<UpvotesBean> {
     }
 
     private void addUpvote(UpvoteSlot upvoteSlot) {
-        if (Bot.getClusterId() == 0) {
+        if (Bot.getClusterId() == 1) {
             DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
                 preparedStatement.setLong(1, upvoteSlot.getUserId());
                 preparedStatement.setString(2, DBMain.instantToDateTimeString(upvoteSlot.getLastUpdate()));

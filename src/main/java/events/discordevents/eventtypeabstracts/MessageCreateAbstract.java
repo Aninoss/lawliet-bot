@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public abstract class MessageCreateAbstract extends DiscordEventAbstract {
 
-    private static ArrayList<Long> usersDmNotified = new ArrayList<>();
+    private static final ArrayList<Long> usersDmNotified = new ArrayList<>();
 
     private Instant startTime;
 
@@ -32,8 +32,8 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         User user = event.getMessageAuthor().asUser().orElse(null);
         if (user == null || user.isYourself()) return;
 
-        if (event.getServer().isEmpty() && !user.isBot() && Bot.getClusterId() == 0) {
-            if (!usersDmNotified.contains(user.getId())) {
+        if (event.getServer().isEmpty()) {
+            if (!usersDmNotified.contains(user.getId()) && !user.isBot() && Bot.getClusterId() == 1) {
                 usersDmNotified.add(user.getId());
                 if (Bot.isPublicVersion()) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError()
