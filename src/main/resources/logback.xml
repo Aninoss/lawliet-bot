@@ -20,6 +20,8 @@
             <onMismatch>DENY</onMismatch>
         </filter>
 
+        <filter class="core.ExceptionFilter"/>
+
         <target>System.err</target>
         <encoder>
             <pattern>%d [%-5level] %msg%n</pattern>

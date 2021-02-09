@@ -19,6 +19,7 @@ import mysql.modules.fisheryusers.FisheryServerBean;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
+import org.checkerframework.checker.units.qual.m;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
@@ -196,12 +197,12 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
         ) {
             blockedTreasureMessages.add(message.getId());
             if (message.getChannel().canYouRemoveReactionsOfOthers())
-                message.removeAllReactions().exceptionally(ExceptionLogger.get());
+                message.getCurrentCachedInstance().ifPresent(m -> m.removeAllReactions().exceptionally(ExceptionLogger.get()));
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
-            message.edit(eb).exceptionally(ExceptionLogger.get());
+            message.getCurrentCachedInstance().ifPresent(m -> m.edit(eb).exceptionally(ExceptionLogger.get()));
 
             FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
             MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
@@ -222,9 +223,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
 
-                message.edit(eb2).exceptionally(ExceptionLogger.get());
+                message.getCurrentCachedInstance().ifPresent(m -> m.edit(eb2).exceptionally(ExceptionLogger.get()));
                 if (message.getChannel().canYouRemoveReactionsOfOthers())
-                    message.removeAllReactions().exceptionally(ExceptionLogger.get());
+                    message.getCurrentCachedInstance().ifPresent(m -> m.removeAllReactions().exceptionally(ExceptionLogger.get()));
 
                 ServerTextChannel channel = event.getServerTextChannel().get();
                 if (resultInt == 0 && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
@@ -232,13 +233,13 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                             .exceptionally(ExceptionLogger.get())
                             .thenAccept(m -> {
                                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
-                                    m.delete().exceptionally(ExceptionLogger.get());
+                                    m.getCurrentCachedInstance().ifPresent(m2 -> m2.delete().exceptionally(ExceptionLogger.get()));
                                 });
                             });
                 }
 
                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
-                    message.delete().exceptionally(ExceptionLogger.get());
+                    message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
                 });
 
                 blockedTreasureMessages.remove(message.getId());
