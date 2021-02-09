@@ -9,7 +9,7 @@
         </filter>
 
         <encoder>
-            <pattern>%d [%-5level] %msg%n</pattern>
+            <pattern>${CLUSTER} - %d [%-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -24,7 +24,7 @@
 
         <target>System.err</target>
         <encoder>
-            <pattern>%d [%-5level] %msg%n</pattern>
+            <pattern>${CLUSTER} - %d [%-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
