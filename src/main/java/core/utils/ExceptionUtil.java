@@ -51,7 +51,7 @@ public class ExceptionUtil {
         }
 
         String transmitStackTrace = StringUtil.shortenString(stacktrace, 1000);
-        String code = String.valueOf(transmitStackTrace.hashCode());
+        String code = Long.toHexString(Math.abs(transmitStackTrace.hashCode())).toUpperCase();
 
         if (postErrorMessage && channel.canYouWrite() && channel.canYouEmbedLinks()) {
             channel.sendMessage(EmbedFactory.getEmbedError()
