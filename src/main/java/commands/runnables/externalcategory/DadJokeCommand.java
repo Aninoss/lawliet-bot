@@ -9,7 +9,7 @@ import core.internet.HttpRequest;
 import core.utils.StringUtil;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
-
+import java.util.List;
 import java.util.Locale;
 
 @CommandProperties(
@@ -29,7 +29,10 @@ public class DadJokeCommand extends Command {
         String joke;
 
         if (StringUtil.getLanguage(getLocale()) == Language.DE) {
-            joke = HttpRequest.getData("https://api.opossum.media/streamacademy/commands/fun/flachwitz.php").get().getContent().get().split("\\|")[0];
+            /* taken from https://github.com/derphilipp/Flachwitze */
+            List<String> jokeList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/dadjokes_" + getLocale().getDisplayName() + ".txt"));
+            int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), jokeList.size());
+            joke = jokeList.get(n);
         } else {
             joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
         }
