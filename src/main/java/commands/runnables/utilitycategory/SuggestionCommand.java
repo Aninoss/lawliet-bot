@@ -4,6 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddStaticListener;
 import commands.listeners.OnReactionRemoveStaticListener;
+import constants.AssetIds;
 import constants.Emojis;
 import constants.Permission;
 import core.QuickUpdater;
@@ -40,7 +41,6 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
 
     private static final String EMOJI_LIKE = "👍";
     private static final String EMOJI_DISLIKE = "👎";
-    private static final HashMap<Long, CompletableFuture<Void>> messageUpdateMap = new HashMap<>();
 
     public SuggestionCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -57,7 +57,10 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
                     String author = event.getMessage().getUserAuthor().get().getDiscriminatedName();
                     String content = StringUtil.shortenString(followedString, 1024);
 
-                    Message message = channel.sendMessage(generateEmbed(content, author, generateFooter(0, 0))).get();
+                    Message message = channel.sendMessage(
+                            event.getServer().get().getId() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "",
+                            generateEmbed(content, author, generateFooter(0, 0))
+                    ).get();
                     message.addReaction(EMOJI_LIKE).get();
                     message.addReaction(EMOJI_DISLIKE).get();
 

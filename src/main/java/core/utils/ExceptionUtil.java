@@ -50,19 +50,22 @@ public class ExceptionUtil {
             LOGGER.error("Could not close String Writer", e);
         }
 
+        String transmitStackTrace = StringUtil.shortenString(stacktrace, 1000);
+        String code = String.valueOf(transmitStackTrace.hashCode());
+
         if (postErrorMessage && channel.canYouWrite() && channel.canYouEmbedLinks()) {
             channel.sendMessage(EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error"))
+                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))
             ).exceptionally(ExceptionLogger.get());
         }
 
         if (submitToDeveloper) {
-            LOGGER.error("Exception for command \"{}\" with state {}", command.getTrigger(), command.getState(), throwable);
+            LOGGER.error("Exception for command \"{}\" with state {} and code {}", command.getTrigger(), command.getState(), code, throwable);
             if (Bot.isProductionMode()) {
                 DiscordApiManager.getInstance().fetchOwner().join().sendMessage(EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error") + " \"" + command.getTrigger() + "\"")
-                        .setDescription(StringUtil.shortenString(stacktrace, 1000))).exceptionally(ExceptionLogger.get());
+                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
+                        .setDescription(transmitStackTrace)).exceptionally(ExceptionLogger.get());
             }
         }
     }
