@@ -44,7 +44,6 @@ public class FisheryVCObserver {
         new CustomThread(() -> {
             IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
-                LOGGER.info("VC Observer - Start");
                 AtomicInteger actions = new AtomicInteger(0);
                 DiscordApiManager.getInstance().getLocalServers().stream()
                         .filter(server -> {
@@ -62,7 +61,7 @@ public class FisheryVCObserver {
                                 LOGGER.error("Could not manage vc fish observer", e);
                             }
                         });
-                LOGGER.info("VC Observer - End ({} Actions)", actions.get());
+                LOGGER.info("VC Observer - {} Actions", actions.get());
             }
         }, "vc_observer", 1).start();
     }

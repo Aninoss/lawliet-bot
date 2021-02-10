@@ -2,16 +2,18 @@ package websockets.syncserver;
 
 import core.Bot;
 import core.DiscordApiManager;
+import core.schedule.MainScheduler;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.CustomWebSocketClient;
-
 import java.net.URISyntaxException;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class SyncManager {
 
@@ -25,6 +27,7 @@ public class SyncManager {
 
     private final CustomWebSocketClient client;
     private boolean started = false;
+    private int errors = 0;
 
     private SyncManager() {
         try {
@@ -60,6 +63,8 @@ public class SyncManager {
             return;
         started = true;
 
+        if (Bot.isProductionMode())
+            startConnectionChecker();
         this.client.connect();
     }
 
@@ -86,6 +91,24 @@ public class SyncManager {
         SyncServerEvent event = function.getClass().getAnnotation(SyncServerEvent.class);
         if (event != null)
             this.client.addEventHandler(event.event(), function);
+    }
+
+    private void startConnectionChecker() {
+        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, "sync_connection_checker", () -> {
+            try {
+                SendEvent.sendEmpty("PING").get();
+                errors = 0;
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.warn("Sync server connection lost");
+                errors++;
+                if (errors >= 6) {
+                    LOGGER.error("EXIT - No connection with sync server", e);
+                    System.exit(1);
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 
 }
