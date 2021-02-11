@@ -2,12 +2,14 @@ package core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.Instant;
 
 public class Bot {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
     private static boolean stopped = false;
+    private final static Instant startTime = Instant.now();
 
     public static void init() {
         System.out.println("-------------------------------------");
@@ -36,6 +38,10 @@ public class Bot {
 
     public static int getClusterId() {
         return Integer.parseInt(System.getenv("CLUSTER"));
+    }
+
+    public static Instant getStartTime() {
+        return startTime;
     }
 
 }
