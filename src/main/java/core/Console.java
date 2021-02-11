@@ -3,10 +3,12 @@ package core;
 import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
+import constants.Locales;
 import core.cache.PatreonCache;
 import core.utils.ExceptionUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import events.scheduleevents.events.SurveyResults;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
@@ -24,9 +26,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class Console {
@@ -61,6 +65,7 @@ public class Console {
         tasks.put("repair", this::onRepair);
         tasks.put("quit", this::onQuit);
         tasks.put("stats", this::onStats);
+        tasks.put("uptime", this::onUptime);
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
         tasks.put("mysql_connect", this::onMySQLConnect);
@@ -322,6 +327,10 @@ public class Console {
             if (DiscordApiManager.getInstance().getApi(i).isEmpty())
                 LOGGER.info("Shard {} is unavailable!", i);
         }
+    }
+
+    private void onUptime(String[] args) {
+        LOGGER.info("Uptime cluster {}: {}", Bot.getClusterId(), TimeUtil.getRemainingTimeString(new Locale(Locales.EN), Bot.getStartTime(), Instant.now(), false));
     }
 
     private void onStats(String[] args) {
