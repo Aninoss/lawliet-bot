@@ -19,6 +19,7 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,17 +109,19 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        if (!slot.getArgs().isPresent() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
+        if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
 
-            if (slot.getServerId() != AssetIds.SUPPORT_SERVER_ID)
-                slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot));
-            else {
-                Role role = slot.getServer().get().getRoleById(703879430799622155L).get();
-                slot.getChannel().get().sendMessage(role.getMentionTag(), getVersionsEmbed(newestSlot));
-            }
-            slot.setArgs(BotUtil.getCurrentVersion());
+            slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot))
+                    .exceptionally(ExceptionLogger.get());
 
+            if (slot.getServerId() == AssetIds.SUPPORT_SERVER_ID) {
+                Role role = slot.getServer().get().getRoleById(703879430799622155L).get();
+                slot.getChannel().get().sendMessage(role.getMentionTag())
+                        .thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
+            }
+
+            slot.setArgs(BotUtil.getCurrentVersion());
             return TrackerResult.STOP_AND_SAVE;
         }
 
