@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.github.Javacord.Javacord:javacord:development-SNAPSHOT'
     implementation 'com.sedmelluq:lavaplayer:1.3.60'
     implementation 'mysql:mysql-connector-java:8.0.17'
     implementation 'commons-io:commons-io:2.6'

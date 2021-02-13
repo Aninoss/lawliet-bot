@@ -14,7 +14,6 @@ import java.util.Locale;
 
 @CommandProperties(
     trigger = "dadjoke",
-    withLoadingBar = true,
     emoji = "\uD83D\uDE44",
     executableWithoutArgs = true
 )

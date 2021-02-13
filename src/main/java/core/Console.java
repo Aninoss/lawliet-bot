@@ -102,7 +102,7 @@ public class Console {
     private void onRepair(String[] args) {
         int minutes = Integer.parseInt(args[1]);
         DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, minutes));
-        LOGGER.info("Repairing cluster {} with {}", Bot.getClusterId(), minutes);
+        LOGGER.info("Repairing cluster {} with {} minutes", Bot.getClusterId(), minutes);
     }
 
     private void onSendChannel(String[] args) {
