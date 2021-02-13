@@ -38,7 +38,7 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
                 if (Bot.isPublicVersion()) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                             .setTitle("❌ Not Supported")
-                            .setDescription(String.format("Commands via dm are not supported, you need to [\uD83D\uDD17 invite](%s) Lawliet into a server!", ExternalLinks.BOT_INVITE_URL)));
+                            .setDescription(String.format("Commands via dm are not supported, you need to [invite](%s) Lawliet into a server!", ExternalLinks.BOT_INVITE_URL)));
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                             .setTitle("❌ Not Supported")
