@@ -8,6 +8,7 @@ import constants.Permission;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.DiscordUtil;
+import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.server.DBServer;
@@ -98,7 +99,7 @@ public class GiveawayScheduler {
                 .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
         giveawayBean.getImageUrl().ifPresent(eb::setImage);
         if (winners.size() > 0)
-            eb.addField(Emojis.EMPTY_EMOJI, new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + user.getDiscriminatedName() + "**"));
+            eb.addField(Emojis.EMPTY_EMOJI, new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getDiscriminatedName()) + "**"));
         else
             eb.setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results_empty"));
 
