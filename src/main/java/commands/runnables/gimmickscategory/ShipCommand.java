@@ -52,7 +52,7 @@ public class ShipCommand extends Command {
 
         if (list.get(0).getId() == 272037078919938058L && list.get(1).getId() == 326714012022865930L)
             percentage = 100;
-        if (list.get(0).getId() == 397209883793162240L && list.get(1).getId() == 381156056660967426L)
+        if (list.get(0).getId() == 397209883793162240L && list.get(1).getId() == 710120672499728426L)
             percentage = 100;
 
         int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), 7);
