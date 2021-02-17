@@ -1,5 +1,7 @@
 package mysql.modules.fisheryusers;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
 import constants.FisheryStatus;
 import core.Bot;
 import mysql.DBBatch;
@@ -10,7 +12,6 @@ import mysql.interfaces.IntervalSave;
 import mysql.modules.server.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
 
@@ -31,6 +33,19 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
+
+    @Override
+    protected CacheBuilder<Object, Object> getCacheBuilder() {
+        return CacheBuilder.newBuilder()
+                .expireAfterAccess(5, TimeUnit.MINUTES)
+                .removalListener(e -> {
+                    FisheryServerBean serverBean = (FisheryServerBean) e.getValue();
+                    if (e.getCause() == RemovalCause.EXPIRED && isChanged(serverBean)) {
+                        removeUpdate(serverBean);
+                        saveBean(serverBean);
+                    }
+                });
+    }
 
     @Override
     protected FisheryServerBean loadBean(Long serverId) throws Exception {
@@ -65,8 +80,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                 new ArrayList<>(fisheryServerBean.getUsers().values()).stream()
                         .filter(FisheryUserBean::checkChanged)
                         .forEach(fisheryUserBean -> saveFisheryUserBean(fisheryUserBean, userBatch, hourlyBatch, powerUpBatch));
-
-                LOGGER.debug("### FISHERY SAVED SERVER {} ###", fisheryServerBean.getServerId());
 
                 userBatch.execute();
                 hourlyBatch.execute();
