@@ -46,7 +46,6 @@ public class Console {
         registerTasks();
     }
 
-    private double maxMemory = 0;
     private boolean started = false;
     private final HashMap<String, ConsoleTask> tasks = new HashMap<>();
 
@@ -387,10 +386,6 @@ public class Console {
         double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
         sb.append("Memory: ").append(String.format("%1$.2f", memoryUsed) + " / " + String.format("%1$.2f", memoryTotal) + " MB").append("\n");
 
-        //Max Memory
-        maxMemory = Math.max(maxMemory, memoryUsed);
-        sb.append("Max Memory: ").append(String.format("%1$.2f", maxMemory) + " / " + String.format("%1$.2f", memoryTotal) + " MB").append("\n");
-
         //Threads
         sb.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append("\n");
 
@@ -412,14 +407,6 @@ public class Console {
         sb.append("CPU Total: ").append(Math.floor(cpuTotal * 1000) / 10 + "%").append("\n");
 
         return sb.toString();
-    }
-
-    public double getMaxMemory() {
-        return maxMemory;
-    }
-
-    public void setMaxMemory(double maxMemory) {
-        this.maxMemory = maxMemory;
     }
 
 
