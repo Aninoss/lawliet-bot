@@ -29,8 +29,6 @@ public class DBMain implements DriverAction {
     private final ArrayList<DBCached> caches = new ArrayList<>();
 
     public void connect() throws SQLException {
-        LOGGER.info("Connecting with database");
-
         final MysqlDataSource rv = new MysqlDataSource();
         rv.setServerName(System.getenv("DB_HOST"));
         rv.setPortNumber(Integer.parseInt(System.getenv("DB_PORT")));
@@ -42,6 +40,8 @@ public class DBMain implements DriverAction {
         rv.setPassword(System.getenv("DB_PASSWORD"));
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
+
+        LOGGER.info("Connecting with database {}", rv.getUrl());
         connect = rv.getConnection();
     }
 

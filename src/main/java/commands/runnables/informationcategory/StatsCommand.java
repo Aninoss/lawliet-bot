@@ -36,7 +36,7 @@ public class StatsCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         String dephordName = DiscordApiManager.getInstance().fetchUserById(303085910784737281L).get().map(User::getDiscriminatedName).orElse("???");
         String neverCookFirstName = DiscordApiManager.getInstance().fetchUserById(298153126223937538L).get().map(User::getDiscriminatedName).orElse("???");
-        String owner = DiscordApiManager.getInstance().fetchOwner().get().getMentionTag();
+        String owner = DiscordApiManager.getInstance().fetchOwner().get().getDiscriminatedName();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,

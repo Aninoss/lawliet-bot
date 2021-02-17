@@ -3,11 +3,11 @@ package websockets.syncserver;
 import core.Bot;
 import core.DiscordApiManager;
 import core.schedule.MainScheduler;
+import org.java_websocket.client.WebSocketJsonClient;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import websockets.CustomWebSocketClient;
 import java.net.URISyntaxException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -25,16 +25,17 @@ public class SyncManager {
         return ourInstance;
     }
 
-    private final CustomWebSocketClient client;
+    private final WebSocketJsonClient client;
     private boolean started = false;
     private int errors = 0;
 
     private SyncManager() {
         try {
-            client = new CustomWebSocketClient(
+            client = new WebSocketJsonClient(
                     System.getenv("SYNC_HOST"),
                     Integer.parseInt(System.getenv("SYNC_PORT")),
                     "cluster_" + Bot.getClusterId(),
+                    System.getenv("SYNC_AUTH"),
                     getSocketClientHeaders()
             );
         } catch (URISyntaxException e) {
@@ -68,7 +69,7 @@ public class SyncManager {
         this.client.connect();
     }
 
-    public CustomWebSocketClient getClient() {
+    public WebSocketJsonClient getClient() {
         return client;
     }
 

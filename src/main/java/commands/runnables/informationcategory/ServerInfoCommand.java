@@ -32,7 +32,7 @@ public class ServerInfoCommand extends Command {
         String[] args = {
                 StringUtil.escapeMarkdown(server.getName()),
                 server.getIdAsString(),
-                StringUtil.escapeMarkdown(server.getOwner().get().getDiscriminatedName()),
+                server.getOwner().map(owner -> StringUtil.escapeMarkdown(owner.getDiscriminatedName())).orElse("-"),
                 server.getRegion().getName(),
                 TimeUtil.getInstantString(getLocale(), server.getCreationTimestamp(), true),
                 server.getIcon().isPresent() ? server.getIcon().get().getUrl().toString() : "-",
