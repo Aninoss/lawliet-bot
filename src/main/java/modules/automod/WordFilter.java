@@ -67,7 +67,7 @@ public class WordFilter extends AutoModAbstract {
                 .replace("7","t")
                 .replace("0","o")
                 .replace("9","g")
-                .replaceAll("[\n]", " ")
+                .replace("\n", " ")
                 .replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic} ]", "");
     }
 
