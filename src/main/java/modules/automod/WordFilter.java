@@ -67,7 +67,7 @@ public class WordFilter extends AutoModAbstract {
         input = input.replace("7","t");
         input = input.replace("0","o");
         input = input.replace("9","g");
-        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic}]", " ");
+        return input.toLowerCase().replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic} \n]", "");
     }
 
 }
