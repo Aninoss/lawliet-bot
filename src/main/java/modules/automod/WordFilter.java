@@ -58,17 +58,16 @@ public class WordFilter extends AutoModAbstract {
     }
 
     public static String translateString(String input) {
-        input = input.replace("1","i");
-        input = input.replace("!","i");
-        input = input.replace("3","e");
-        input = input.replace("4","a");
-        input = input.replace("@","a");
-        input = input.replace("5","s");
-        input = input.replace("7","t");
-        input = input.replace("0","o");
-        input = input.replace("9","g");
         return input.toLowerCase()
-                .replace("\n", " ")
+                .replace("1","i")
+                .replace("3","e")
+                .replace("4","a")
+                .replace("@","a")
+                .replace("5","s")
+                .replace("7","t")
+                .replace("0","o")
+                .replace("9","g")
+                .replaceAll("[\n]", " ")
                 .replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic} ]", "");
     }
 
