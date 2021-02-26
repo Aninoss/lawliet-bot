@@ -13,8 +13,6 @@ public class IntervalBlock {
     private final ChronoUnit chronoUnit;
     Instant nextRequest;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(IntervalBlock.class);
-
     public IntervalBlock(int time, ChronoUnit chronoUnit) {
         this.time = time;
         this.chronoUnit = chronoUnit;

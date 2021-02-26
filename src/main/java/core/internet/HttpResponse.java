@@ -7,7 +7,7 @@ import java.util.Optional;
 public class HttpResponse {
 
     private String content;
-    private int code;
+    private final int code;
     private Map<String, List<String>> headerFields;
 
     public HttpResponse(String content, Map<String, List<String>> headerFields, int code) {

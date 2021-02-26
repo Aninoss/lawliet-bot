@@ -1,5 +1,8 @@
 package core;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -7,14 +10,19 @@ import java.util.Random;
 public class RandomPicker {
 
     private static final RandomPicker ourInstance = new RandomPicker();
-    public static RandomPicker getInstance() { return ourInstance; }
-    private RandomPicker() {}
 
-    private final HashMap<String, HashMap<Long, ArrayList<Integer>>> picks = new HashMap<>();
+    public static RandomPicker getInstance() {
+        return ourInstance;
+    }
+
+    private RandomPicker() {
+    }
+
+    private final HashMap<String, Cache<Long, ArrayList<Integer>>> picks = new HashMap<>();
 
     public synchronized int pick(String tag, long serverId, int size) {
-        HashMap<Long, ArrayList<Integer>> tagPicks = picks.computeIfAbsent(tag, k -> new HashMap<>());
-        ArrayList<Integer> serverPicks = tagPicks.computeIfAbsent(serverId, k -> new ArrayList<>());
+        Cache<Long, ArrayList<Integer>> tagPicks = picks.computeIfAbsent(tag, k -> generateCache());
+        ArrayList<Integer> serverPicks = tagPicks.asMap().computeIfAbsent(serverId, k -> new ArrayList<>());
 
         Random n = new Random();
         int i;
@@ -26,6 +34,12 @@ public class RandomPicker {
             serverPicks.remove(0);
 
         return i;
+    }
+
+    private Cache<Long, ArrayList<Integer>> generateCache() {
+        return CacheBuilder.newBuilder()
+                .expireAfterAccess(Duration.ofMinutes(10))
+                .build();
     }
 
 }

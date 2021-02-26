@@ -1,5 +1,7 @@
 package core;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import constants.AssetIds;
 import core.cache.ExternalEmojiCache;
 import core.cache.ExternalServerNameCache;
@@ -16,7 +18,7 @@ import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.syncserver.SendEvent;
-
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -41,7 +43,11 @@ public class DiscordApiManager {
     private final DiscordApiBlocker discordApiBlocker = new DiscordApiBlocker();
     private final HashMap<Integer, DiscordApiExtended> apiMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
-    private final HashMap<Long, User> userCache = new HashMap<>();
+
+    private final Cache<Long, User> userCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(5))
+            .build();
+
     private final SingleCache<Long> globalServerSizeCache = new SingleCache<>() {
         @Override
         protected Long fetchValue() {
@@ -255,8 +261,9 @@ public class DiscordApiManager {
         if (userOpt.isPresent())
             return CompletableFuture.completedFuture(userOpt);
 
-        if (userCache.containsKey(userId))
-            return CompletableFuture.completedFuture(Optional.of(userCache.get(userId)));
+        if (userCache.asMap().containsKey(userId)) {
+            return CompletableFuture.completedFuture(Optional.ofNullable(userCache.getIfPresent(userId)));
+        }
 
         CompletableFuture<Optional<User>> future = new CompletableFuture<>();
         Optional<DiscordApi> apiOpt = getAnyApi();

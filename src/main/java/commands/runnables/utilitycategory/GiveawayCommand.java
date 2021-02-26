@@ -183,7 +183,7 @@ public class GiveawayCommand extends Command implements OnNavigationListener {
     public Response onMessageUpdateImage(MessageCreateEvent event, String inputString) throws IOException, ExecutionException, InterruptedException {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
-            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", IDGenerator.getInstance().getId()));
+            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", System.nanoTime()));
             if (file.isPresent()) {
                 imageLink = uploadFile(file.get());
                 file.get().delete();

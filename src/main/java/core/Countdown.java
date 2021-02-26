@@ -8,9 +8,7 @@ import java.time.temporal.ChronoUnit;
 
 public class Countdown {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Countdown.class);
-
-    public enum TimePeriod {MILISECONDS, SECONDS, MINUTES}
+    public enum TimePeriod { MILISECONDS, SECONDS, MINUTES }
 
     private long startTime;
     private boolean active = true;

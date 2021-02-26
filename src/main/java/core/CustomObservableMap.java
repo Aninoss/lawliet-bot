@@ -10,8 +10,6 @@ import java.util.function.Function;
 
 public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implements Observer {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CustomObservableMap.class);
-
     private final ArrayList<MapAddListener<T, U>> mapAddListeners = new ArrayList<>();
     private final ArrayList<MapRemoveListener<T, U>> mapRemoveListeners = new ArrayList<>();
     private final ArrayList<MapUpdateListener<T, U>> mapUpdateListeners = new ArrayList<>();

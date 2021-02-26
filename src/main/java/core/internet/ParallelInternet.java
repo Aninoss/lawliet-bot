@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 public class ParallelInternet {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ParallelInternet.class);
-    private HashMap<String, CompletableFuture<HttpResponse>> responseHashMap = new HashMap<>();
+    private final HashMap<String, CompletableFuture<HttpResponse>> responseHashMap = new HashMap<>();
     int size;
 
     public ParallelInternet(String... urlArray) {

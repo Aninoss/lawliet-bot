@@ -1,14 +1,18 @@
 package core;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import constants.Permission;
 import core.utils.PermissionUtil;
 import core.utils.StringUtil;
+import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerChannel;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -18,7 +22,9 @@ public class PermissionCheckRuntime {
     private static final PermissionCheckRuntime instance = new PermissionCheckRuntime();
     private static final int PERMISSION_ROLE_POS = -1;
 
-    private final Map<Long, Map<Integer, Instant>> errorTimes = new HashMap<>();
+    private final Cache<Pair<Long, Integer>, Boolean> errorCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofHours(6))
+            .build();
 
     private PermissionCheckRuntime() {}
     public static PermissionCheckRuntime getInstance() {
@@ -79,16 +85,15 @@ public class PermissionCheckRuntime {
     }
 
     private boolean canContactOwner(Server server) {
-        return canPostError(server, Permission.MANAGE_ROLES) && server.getOwner() != null;
+        return canPostError(server, Permission.MANAGE_ROLES) && server.getOwner().isPresent();
     }
 
     private boolean canPostError(Server server, int permission) {
-        Instant instant = errorTimes.computeIfAbsent(server.getId(), k -> new HashMap<>()).get(permission);
-        return instant == null || instant.plus(6, ChronoUnit.HOURS).isBefore(Instant.now());
+        return errorCache.asMap().containsKey(new Pair<>(server.getId(), permission));
     }
 
     private void setErrorInstant(Server server, int permission) {
-        errorTimes.computeIfAbsent(server.getId(), k -> new HashMap<>()).put(permission, Instant.now());
+        errorCache.put(new Pair<>(server.getId(), permission), true);
     }
 
 }

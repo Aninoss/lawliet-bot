@@ -1,5 +1,7 @@
 package core.cache;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import constants.LetterEmojis;
 import core.utils.DiscordUtil;
 import core.utils.StringUtil;
@@ -10,6 +12,7 @@ import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.entity.message.embed.EmbedField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -18,17 +21,24 @@ public class VoteCache {
     private final static Logger LOGGER = LoggerFactory.getLogger(VoteCache.class);
 
     private static final VoteCache ourInstance = new VoteCache();
-    public static VoteCache getInstance() { return ourInstance; }
-    private VoteCache() { }
 
-    private final HashMap<Long, VoteInfo> voteCache = new HashMap<>();
+    public static VoteCache getInstance() {
+        return ourInstance;
+    }
+
+    private VoteCache() {
+    }
+
+    private final Cache<Long, VoteInfo> voteCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
 
     public void put(long messageId, VoteInfo voteInfo) {
         voteCache.put(messageId, voteInfo);
     }
 
     public Optional<VoteInfo> get(Message message, long userId, String emoji, boolean add) {
-        VoteInfo voteInfo = voteCache.get(message.getId());
+        VoteInfo voteInfo = voteCache.getIfPresent(message.getId());
 
         if (voteInfo != null) {
             int i = -1;
@@ -66,15 +76,15 @@ public class VoteCache {
         String choiceString = field.get(1).getValue();
         String[] choices = new String[choiceString.split("\n").length];
 
-        for(int i = 0; i < choices.length; i++) {
+        for (int i = 0; i < choices.length; i++) {
             String choiceLine = choiceString.split("\n")[i];
             choices[i] = choiceLine.split("\\|")[1];
         }
 
-        for(int i = 0; i < choices.length; i++) {
+        for (int i = 0; i < choices.length; i++) {
             HashSet<Long> voteUsers = new HashSet<>();
 
-            for (Reaction reaction: message.getReactions()) {
+            for (Reaction reaction : message.getReactions()) {
                 if (DiscordUtil.emojiIsString(reaction.getEmoji(), LetterEmojis.LETTERS[i])) {
                     try {
                         reaction.getUsers().get().forEach(user -> {

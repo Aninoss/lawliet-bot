@@ -7,7 +7,7 @@ import core.DiscordApiManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.server.invite.Invite;
-
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -18,6 +18,7 @@ public class InviteCache {
     private InviteCache() { }
 
     private final LoadingCache<String, Optional<Invite>> cache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofHours(1))
             .build(
                     new CacheLoader<>() {
                         @Override

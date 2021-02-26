@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -21,6 +22,7 @@ public class ServerPatreonBoostCache {
     }
 
     private final LoadingCache<Long, Boolean> cache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(10))
             .build(
                     new CacheLoader<>() {
                         @Override

@@ -20,7 +20,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,9 +30,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public class Console {
+
     private final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
 
     private static final Console instance = new Console();
@@ -388,9 +387,6 @@ public class Console {
 
         //Threads
         sb.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append("\n");
-
-        //LOGGER.info("RAM: {} & {}", memoryUsed, maxMemory);
-        //LOGGER.info("Threads: : {}", Thread.getAllStackTraces().keySet().size());
 
         //Activities
         sb.append("Activities: ").append(CommandContainer.getInstance().getActivitiesSize()).append("\n");

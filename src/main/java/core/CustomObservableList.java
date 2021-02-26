@@ -8,9 +8,9 @@ import java.util.function.Function;
 
 public class CustomObservableList<T> extends ObservableListWrapper<T> implements Observer {
 
-    private ArrayList<ListAddListener<T>> listAddListeners = new ArrayList<>();
-    private ArrayList<ListRemoveListener<T>> listRemoveListeners = new ArrayList<>();
-    private ArrayList<ListUpdateListener<T>> listUpdateListeners = new ArrayList<>();
+    private final ArrayList<ListAddListener<T>> listAddListeners = new ArrayList<>();
+    private final ArrayList<ListRemoveListener<T>> listRemoveListeners = new ArrayList<>();
+    private final ArrayList<ListUpdateListener<T>> listUpdateListeners = new ArrayList<>();
 
     public CustomObservableList(ArrayList<T> list) {
         super(list);

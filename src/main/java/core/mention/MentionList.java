@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 public class MentionList<E> {
 
-    private ArrayList<E> list;
-    private String resultMessageString;
+    private final ArrayList<E> list;
+    private final String resultMessageString;
 
     public MentionList(String resultMessageString, ArrayList<E> list) {
         this.resultMessageString = resultMessageString;
