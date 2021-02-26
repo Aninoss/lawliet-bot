@@ -1,5 +1,7 @@
 package commands;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import commands.listeners.*;
 import commands.runnables.aitoyscategory.ColorCommand;
 import commands.runnables.aitoyscategory.*;
@@ -21,32 +23,41 @@ import commands.runnables.splatoon2category.MapsCommand;
 import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
+import constants.Settings;
 import core.DiscordApiManager;
 import org.javacord.api.DiscordApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
 public class CommandContainer {
 
+    final Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
+
     private static final CommandContainer ourInstance = new CommandContainer();
+
     public static CommandContainer getInstance() {
         return ourInstance;
     }
-
-    final Logger LOGGER = LoggerFactory.getLogger(CommandContainer.class);
 
     private final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
     private final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
     private final ArrayList<Class<? extends OnReactionAddStaticListener>> staticReactionAddCommands = new ArrayList<>();
     private final ArrayList<Class<? extends OnReactionRemoveStaticListener>> staticReactionRemoveCommands = new ArrayList<>();
     private final ArrayList<Class<? extends OnTrackerRequestListener>> trackerCommands = new ArrayList<>();
-    private final ArrayList<Command> commandsReaction = new ArrayList<>();
-    private final ArrayList<Command> commandsMessageForward = new ArrayList<>();
+
+    private final Cache<Long, Command> reactionCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMillis(Settings.TIME_OUT_TIME))
+            .build();
+
+    private final Cache<Long, Command> forwardCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMillis(Settings.TIME_OUT_TIME))
+            .build();
 
     private CommandContainer() {
         final ArrayList<Class<? extends Command>> commandList = new ArrayList<>();
@@ -253,15 +264,18 @@ public class CommandContainer {
         commandList.add(CelebrateCommand.class);
         commandList.add(PokemonCommand.class);
 
-        for(Class<? extends Command> clazz: commandList) {
+        for (Class<? extends Command> clazz : commandList) {
             try {
                 Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
                 addCommand(command.getTrigger(), command);
-                for(String str: command.getAliases()) addCommand(str, command);
+                for (String str : command.getAliases()) addCommand(str, command);
 
-                if (command instanceof OnReactionAddStaticListener) staticReactionAddCommands.add(((OnReactionAddStaticListener)command).getClass());
-                if (command instanceof OnReactionRemoveStaticListener) staticReactionRemoveCommands.add(((OnReactionRemoveStaticListener)command).getClass());
-                if (command instanceof OnTrackerRequestListener) trackerCommands.add(((OnTrackerRequestListener)command).getClass());
+                if (command instanceof OnReactionAddStaticListener)
+                    staticReactionAddCommands.add(((OnReactionAddStaticListener) command).getClass());
+                if (command instanceof OnReactionRemoveStaticListener)
+                    staticReactionRemoveCommands.add(((OnReactionRemoveStaticListener) command).getClass());
+                if (command instanceof OnTrackerRequestListener)
+                    trackerCommands.add(((OnTrackerRequestListener) command).getClass());
 
                 if (command.canRunOnServer(0L, 0L))
                     addCommandCategoryMap(command);
@@ -274,7 +288,7 @@ public class CommandContainer {
     }
 
     public void clearShard(int shardId) {
-        for(Command command: new ArrayList<>(commandsReaction)) {
+        for (Command command : new ArrayList<>(reactionCache.asMap().values())) {
             if (command != null) {
                 DiscordApi api;
                 if (command instanceof OnReactionAddListener)
@@ -282,11 +296,11 @@ public class CommandContainer {
                 else api = command.getNavigationMessage().getApi();
                 if (api.getCurrentShard() == shardId) {
                     command.stopCountdown();
-                    commandsReaction.remove(command);
+                    reactionCache.invalidate(command.getId());
                 }
             }
         }
-        for(Command command: new ArrayList<>(commandsMessageForward)) {
+        for (Command command : new ArrayList<>(forwardCache.asMap().values())) {
             if (command != null) {
                 DiscordApi api;
                 if (command instanceof OnForwardedRecievedListener)
@@ -294,7 +308,7 @@ public class CommandContainer {
                 else api = command.getNavigationMessage().getApi();
                 if (api.getCurrentShard() == shardId) {
                     command.stopCountdown();
-                    commandsReaction.remove(command);
+                    forwardCache.invalidate(command.getId());
                 }
             }
         }
@@ -326,10 +340,10 @@ public class CommandContainer {
     public int getActivitiesSize() {
         ArrayList<Command> commandList = new ArrayList<>();
 
-        for(Command command: getReactionInstances()) {
+        for (Command command : getReactionInstances()) {
             if (!commandList.contains(command)) commandList.add(command);
         }
-        for(Command command: getMessageForwardInstances()) {
+        for (Command command : getMessageForwardInstances()) {
             if (!commandList.contains(command)) commandList.add(command);
         }
 
@@ -337,37 +351,39 @@ public class CommandContainer {
     }
 
     public ArrayList<Command> getReactionInstances() {
-        return new ArrayList<>(commandsReaction);
+        return new ArrayList<>(reactionCache.asMap().values());
     }
 
     public ArrayList<Command> getMessageForwardInstances() {
-        return new ArrayList<>(commandsMessageForward);
+        return new ArrayList<>(forwardCache.asMap().values());
     }
 
     public void addReactionListener(Command commandParent) {
-        if (commandParent != null && !commandsReaction.contains(commandParent))
-            commandsReaction.add(commandParent);
+        if (commandParent != null) {
+            reactionCache.put(commandParent.getId(), commandParent);
+        }
     }
 
     public void addMessageForwardListener(Command commandParent) {
-        if (commandParent != null && !commandsMessageForward.contains(commandParent))
-            commandsMessageForward.add(commandParent);
+        if (commandParent != null) {
+            forwardCache.put(commandParent.getId(), commandParent);
+        }
     }
 
     public void removeReactionListener(Command commandParent) {
-        commandsReaction.remove(commandParent);
+        reactionCache.invalidate(commandParent.getId());
     }
 
     public void removeForwarder(Command commandParent) {
-        commandsMessageForward.remove(commandParent);
+        forwardCache.invalidate(commandParent.getId());
     }
 
     public boolean reactionListenerContains(Command commandParent) {
-        return commandsReaction.contains(commandParent);
+        return reactionCache.asMap().containsKey(commandParent.getId());
     }
 
     public boolean forwarderContains(Command commandParent) {
-        return commandsMessageForward.contains(commandParent);
+        return forwardCache.asMap().containsKey(commandParent.getId());
     }
 
     public ArrayList<Class<? extends OnTrackerRequestListener>> getTrackerCommands() {

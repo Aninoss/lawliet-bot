@@ -14,7 +14,6 @@ public class ClearCaches implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         SubredditContainer.getInstance().reset();
-        RunningCheckerManager.getInstance().clear();
         PornImageCache.getInstance().reset();
         DBUpvotes.getInstance().cleanUp();
         ServerPatreonBoostCache.getInstance().reset();

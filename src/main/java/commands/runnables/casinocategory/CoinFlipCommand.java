@@ -33,8 +33,6 @@ import java.util.Random;
 )
 public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CoinFlipCommand.class);
-
     private String log;
     private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};
     private final int[] selection = {-1, -1};

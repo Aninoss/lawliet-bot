@@ -37,8 +37,9 @@ public class CooldownUserData {
     }
 
     private void clean() {
-        while(commandInstants.size() > 0 && commandInstants.get(0).isBefore(Instant.now()))
+        while (commandInstants.size() > 0 && commandInstants.get(0).isBefore(Instant.now())) {
             commandInstants.remove(0);
+        }
     }
 
     public boolean isEmpty() {

@@ -1,5 +1,7 @@
 package commands.runnables.fisherysettingscategory;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -33,6 +35,7 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -48,8 +51,6 @@ import java.util.Random;
 )
 public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(FisheryCommand.class);
-
     private static final int MAX_CHANNELS = 50;
 
     private ServerBean serverBean;
@@ -59,7 +60,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
 
     public static final String treasureEmoji = "💰";
     public static final String keyEmoji = "🔑";
-    private static final ArrayList<Long> blockedTreasureMessages = new ArrayList<>();
+    private static final Cache<Long, Boolean> treasureBlockCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(1))
+            .build();
 
     public FisheryCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -193,9 +196,9 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
         if (DiscordUtil.emojiIsString(event.getEmoji(), keyEmoji) &&
-                blockedTreasureMessages.stream().noneMatch(messageId -> messageId == message.getId())
+                !treasureBlockCache.asMap().containsKey(message.getId())
         ) {
-            blockedTreasureMessages.add(message.getId());
+            treasureBlockCache.put(message.getId(), true);
             if (message.getChannel().canYouRemoveReactionsOfOthers())
                 message.getCurrentCachedInstance().ifPresent(m -> m.removeAllReactions().exceptionally(ExceptionLogger.get()));
 
@@ -241,8 +244,6 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
                     message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
                 });
-
-                blockedTreasureMessages.remove(message.getId());
             });
         }
     }

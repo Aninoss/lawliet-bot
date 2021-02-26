@@ -2,11 +2,10 @@ package commands;
 
 public class CommandLanguage {
 
-    private final String title, descShort, descLong, usage, examples;
+    private final String title, descLong, usage, examples;
 
-    public CommandLanguage(String title, String descShort, String descLong, String usage, String examples) {
+    public CommandLanguage(String title, String descLong, String usage, String examples) {
         this.title = title;
-        this.descShort = descShort;
         this.descLong = descLong;
         this.usage = usage;
         this.examples = examples;
@@ -14,10 +13,6 @@ public class CommandLanguage {
 
     public String getTitle() {
         return title;
-    }
-
-    public String getDescShort() {
-        return descShort;
     }
 
     public String getDescLong() {

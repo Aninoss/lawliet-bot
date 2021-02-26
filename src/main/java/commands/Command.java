@@ -40,6 +40,7 @@ public abstract class Command {
     private final static Logger LOGGER = LoggerFactory.getLogger(Command.class);
     protected static final int DEFAULT_STATE = 0;
 
+    private final long id = System.nanoTime();
     private final String category;
     private final String prefix;
     private final CommandProperties commandProperties;
@@ -536,6 +537,9 @@ public abstract class Command {
         if (countdown != null) countdown.stop();
     }
 
+    public long getId() {
+        return id;
+    }
 
     public String getString(String key, String... args) {
         String text = TextManager.getString(locale, category,commandProperties.trigger()+"_"+key, args);
@@ -557,11 +561,10 @@ public abstract class Command {
 
     public CommandLanguage getCommandLanguage() {
         String title = getString("title");
-        String descShort = getString("description");
         String descLong = getString("helptext");
         String usage = getString("usage");
         String examples = getString("examples");
-        return new CommandLanguage(title, descShort, descLong, usage, examples);
+        return new CommandLanguage(title, descLong, usage, examples);
     }
 
     public boolean checkWriteInChannelWithLog(ServerTextChannel channel) {
@@ -713,7 +716,6 @@ public abstract class Command {
     public static CommandProperties getClassProperties(Class<? extends Command> c) {
         return c.getAnnotation(CommandProperties.class);
     }
-
 
     @Retention(RetentionPolicy.RUNTIME)
     protected @interface ControllerMessage {

@@ -1,5 +1,7 @@
 package commands.runnables.utilitycategory;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListener;
@@ -38,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -76,7 +79,9 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private Message editMessage;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
-    private static final ArrayList<Long> block = new ArrayList<>();
+    private static final Cache<Long, Boolean> blockCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(1))
+            .build();
 
     public ReactionRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -596,10 +601,10 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
         }
 
         updateValuesFromMessage(message);
-        if (!block.contains(user.getId())) {
+        if (!blockCache.asMap().containsKey(user.getId())) {
             try {
                 if (!multipleRoles) {
-                    block.add(user.getId());
+                    blockCache.put(user.getId(), true);
                     if (removeMultipleRoles(event))
                         return;
                 }
@@ -610,8 +615,9 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                 event.removeReaction();
                 throw e;
             } finally {
-                if (!multipleRoles)
-                    block.remove(user.getId());
+                if (!multipleRoles) {
+                    blockCache.invalidate(user.getId());
+                }
             }
         }
     }
