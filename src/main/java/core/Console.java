@@ -337,7 +337,7 @@ public class Console {
     }
 
     private void onQuit(String[] args) {
-        LOGGER.info("Stopping cluster {}", Bot.getClusterId());
+        LOGGER.info("EXIT - Stopping cluster {}", Bot.getClusterId());
         System.exit(0);
     }
 

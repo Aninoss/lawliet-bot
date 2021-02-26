@@ -35,7 +35,7 @@ public class Main {
             else
                 Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
         } catch (Throwable e) {
-            LOGGER.error("Error on startup", e);
+            LOGGER.error("EXIT - Error on startup", e);
             System.exit(1);
         }
     }

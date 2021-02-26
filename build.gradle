@@ -45,6 +45,12 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+jib {
+    from {
+        image = 'adoptopenjdk:15.0.2_7-jdk-openj9-0.24.0'
+    }
+}
+
 jar {
     manifest {
         attributes 'Main-Class': javaMainClass

@@ -104,7 +104,7 @@ public class SyncManager {
                 errors++;
                 if (errors >= 6) {
                     LOGGER.error("EXIT - No connection with sync server", e);
-                    System.exit(1);
+                    //System.exit(1); TODO: DEBUG
                     return false;
                 }
             }
