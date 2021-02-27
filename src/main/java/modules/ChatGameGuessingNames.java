@@ -5,8 +5,13 @@ import java.util.Random;
 public class ChatGameGuessingNames {
 
     private static final ChatGameGuessingNames ourInstance = new ChatGameGuessingNames();
-    public static ChatGameGuessingNames getInstance() { return ourInstance; }
-    private ChatGameGuessingNames() { }
+
+    public static ChatGameGuessingNames getInstance() {
+        return ourInstance;
+    }
+
+    private ChatGameGuessingNames() {
+    }
 
     private final Random r = new Random();
     private int num = r.nextInt(100000) + 1;

@@ -14,8 +14,13 @@ import java.util.Locale;
 public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> {
 
     private static final DBWelcomeMessage ourInstance = new DBWelcomeMessage();
-    public static DBWelcomeMessage getInstance() { return ourInstance; }
-    private DBWelcomeMessage() {}
+
+    public static DBWelcomeMessage getInstance() {
+        return ourInstance;
+    }
+
+    private DBWelcomeMessage() {
+    }
 
     @Override
     protected WelcomeMessageBean loadBean(Long serverId) throws Exception {

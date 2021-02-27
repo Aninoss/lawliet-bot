@@ -10,8 +10,13 @@ import java.util.function.Consumer;
 public class OsuAccountSync {
 
     private static final OsuAccountSync ourInstance = new OsuAccountSync();
-    public static OsuAccountSync getInstance() { return ourInstance; }
-    private OsuAccountSync() { }
+
+    public static OsuAccountSync getInstance() {
+        return ourInstance;
+    }
+
+    private OsuAccountSync() {
+    }
 
     private final Cache<Long, Consumer<String>> osuSyncCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)

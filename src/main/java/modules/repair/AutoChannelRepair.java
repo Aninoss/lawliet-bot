@@ -23,8 +23,13 @@ public class AutoChannelRepair {
     private final static Logger LOGGER = LoggerFactory.getLogger(AutoChannelRepair.class);
 
     private static final AutoChannelRepair ourInstance = new AutoChannelRepair();
-    public static AutoChannelRepair getInstance() { return ourInstance; }
-    private AutoChannelRepair() { }
+
+    public static AutoChannelRepair getInstance() {
+        return ourInstance;
+    }
+
+    private AutoChannelRepair() {
+    }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 

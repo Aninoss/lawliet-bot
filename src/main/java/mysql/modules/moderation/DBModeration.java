@@ -11,8 +11,13 @@ import java.util.Optional;
 public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
 
     private static final DBModeration ourInstance = new DBModeration();
-    public static DBModeration getInstance() { return ourInstance; }
-    private DBModeration() {}
+
+    public static DBModeration getInstance() {
+        return ourInstance;
+    }
+
+    private DBModeration() {
+    }
 
     @Override
     protected ModerationBean loadBean(Long serverId) throws Exception {
@@ -39,7 +44,7 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
                     null,
                     true,
                     0,
-                   0,
+                    0,
                     0,
                     0
             );

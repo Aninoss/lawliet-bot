@@ -10,8 +10,13 @@ import java.util.HashMap;
 public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean> {
 
     private static final DBMemberCountDisplays ourInstance = new DBMemberCountDisplays();
-    public static DBMemberCountDisplays getInstance() { return ourInstance; }
-    private DBMemberCountDisplays() {}
+
+    public static DBMemberCountDisplays getInstance() {
+        return ourInstance;
+    }
+
+    private DBMemberCountDisplays() {
+    }
 
     @Override
     protected MemberCountBean loadBean(Long serverId) throws Exception {
@@ -28,7 +33,8 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
     }
 
     @Override
-    protected void saveBean(MemberCountBean memberCountBean) {}
+    protected void saveBean(MemberCountBean memberCountBean) {
+    }
 
     private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) throws SQLException {
         return new DBDataLoad<MemberCountDisplaySlot>("MemberCountDisplays", "vcId, name", "serverId = ?",

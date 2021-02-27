@@ -45,10 +45,6 @@ public class ServerPatreonBoostCache {
         cache.put(serverId, true);
     }
 
-    public void reset() {
-        cache.invalidateAll();
-    }
-
     public boolean get(long serverId) throws ExecutionException {
         return cache.get(serverId);
     }

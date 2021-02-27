@@ -11,8 +11,13 @@ import java.time.temporal.ChronoUnit;
 public class AninossRaidProtection {
 
     private static final AninossRaidProtection ourInstance = new AninossRaidProtection();
-    public static AninossRaidProtection getInstance() { return ourInstance; }
-    private AninossRaidProtection() { }
+
+    public static AninossRaidProtection getInstance() {
+        return ourInstance;
+    }
+
+    private AninossRaidProtection() {
+    }
 
     private User lastUser = null;
     private Instant lastInstant = null;

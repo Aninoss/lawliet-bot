@@ -10,8 +10,13 @@ import java.sql.ResultSet;
 public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> implements IntervalSave {
 
     private static final DBCommandUsages ourInstance = new DBCommandUsages();
-    public static DBCommandUsages getInstance() { return ourInstance; }
-    private DBCommandUsages() {}
+
+    public static DBCommandUsages getInstance() {
+        return ourInstance;
+    }
+
+    private DBCommandUsages() {
+    }
 
     @Override
     protected CommandUsagesBean loadBean(String command) throws Exception {
@@ -51,6 +56,8 @@ public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> 
     }
 
     @Override
-    public int getIntervalMinutes() { return 20; }
+    public int getIntervalMinutes() {
+        return 20;
+    }
 
 }

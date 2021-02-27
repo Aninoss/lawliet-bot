@@ -97,7 +97,7 @@ public class ServerBean extends Observable {
         return Optional.ofNullable(fisheryVcHoursCap);
     }
 
-    public boolean isCached() {
+    public boolean isSaved() {
         return DBServer.getInstance().containsServerId(serverId);
     }
 

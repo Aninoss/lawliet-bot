@@ -15,8 +15,13 @@ import java.util.Optional;
 public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
 
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
-    public static DBAutoChannel getInstance() { return ourInstance; }
-    private DBAutoChannel() {}
+
+    public static DBAutoChannel getInstance() {
+        return ourInstance;
+    }
+
+    private DBAutoChannel() {
+    }
 
     @Override
     protected AutoChannelBean loadBean(Long serverId) throws Exception {

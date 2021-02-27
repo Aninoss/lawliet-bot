@@ -9,13 +9,19 @@ import java.util.HashMap;
 public class DBUpvotes extends DBSingleBeanGenerator<UpvotesBean> {
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
-    public static DBUpvotes getInstance() { return ourInstance; }
-    private DBUpvotes() {}
+
+    public static DBUpvotes getInstance() {
+        return ourInstance;
+    }
+
+    private DBUpvotes() {
+    }
 
     @Override
     protected UpvotesBean loadBean() throws Exception {
         HashMap<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1",
-                preparedStatement -> {}
+                preparedStatement -> {
+                }
         ).getHashMap(
                 UpvoteSlot::getUserId,
                 resultSet -> new UpvoteSlot(
@@ -40,7 +46,8 @@ public class DBUpvotes extends DBSingleBeanGenerator<UpvotesBean> {
     }
 
     public void cleanUp() {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();", preparedStatement -> {});
+        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();", preparedStatement -> {
+        });
     }
 
     @Override

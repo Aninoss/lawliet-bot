@@ -11,10 +11,13 @@ import java.util.HashMap;
 public class DBGiveaway extends DBSingleBeanGenerator<CustomObservableMap<Long, GiveawayBean>> {
 
     private static final DBGiveaway ourInstance = new DBGiveaway();
+
     public static DBGiveaway getInstance() {
         return ourInstance;
     }
-    private DBGiveaway() {}
+
+    private DBGiveaway() {
+    }
 
     @Override
     protected CustomObservableMap<Long, GiveawayBean> loadBean() {

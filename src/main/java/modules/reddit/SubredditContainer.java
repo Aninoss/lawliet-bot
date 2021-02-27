@@ -1,34 +1,34 @@
 package modules.reddit;
 
-import java.util.ArrayList;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import java.time.Duration;
 
 public class SubredditContainer {
 
-    private static SubredditContainer ourInstance = new SubredditContainer();
-    private ArrayList<Subreddit> subreddits;
+    private static final SubredditContainer ourInstance = new SubredditContainer();
 
     public static SubredditContainer getInstance() {
         return ourInstance;
     }
 
     private SubredditContainer() {
-        subreddits = new ArrayList<>();
     }
+
+    private final LoadingCache<String, Subreddit> subredditCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(30))
+            .maximumSize(50)
+            .build(new CacheLoader<>() {
+                @Override
+                public Subreddit load(@NonNull String subredditName) {
+                    return new Subreddit(subredditName);
+                }
+            });
 
     public Subreddit get(String name) {
-        for(Subreddit subreddit: subreddits) {
-            if (subreddit.getName().equalsIgnoreCase(name)) return subreddit;
-        }
-
-        Subreddit subreddit = new Subreddit(name);
-        subreddits.add(subreddit);
-        while(subreddits.size() > 20) subreddits.remove(0);
-
-        return subreddit;
-    }
-
-    public void reset() {
-        subreddits = new ArrayList<>();
+        return subredditCache.getIfPresent(name.toLowerCase());
     }
 
 }

@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.text.AttributedCharacterIterator;
 import java.util.function.Consumer;
 
-public class Graphics {
+public class GraphicsUtil {
 
     public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
         return makeRoundedCorner(image, cornerRadius, image.getWidth(), image.getHeight());

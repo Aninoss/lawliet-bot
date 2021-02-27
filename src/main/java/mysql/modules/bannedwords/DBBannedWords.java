@@ -12,8 +12,13 @@ import java.util.ArrayList;
 public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
 
     private static final DBBannedWords ourInstance = new DBBannedWords();
-    public static DBBannedWords getInstance() { return ourInstance; }
-    private DBBannedWords() {}
+
+    public static DBBannedWords getInstance() {
+        return ourInstance;
+    }
+
+    private DBBannedWords() {
+    }
 
     @Override
     protected BannedWordsBean loadBean(Long serverId) throws Exception {
@@ -52,7 +57,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
                 .addListAddListener(list -> list.forEach(userId -> addLogReceiver(bannedWordsBean.getServerId(), userId)))
                 .addListRemoveListener(list -> list.forEach(userId -> removeLogReceiver(bannedWordsBean.getServerId(), userId)));
         bannedWordsBean.getWords()
-                .addListAddListener(list -> list.forEach(word -> addWord(bannedWordsBean.getServerId(), word )))
+                .addListAddListener(list -> list.forEach(word -> addWord(bannedWordsBean.getServerId(), word)))
                 .addListRemoveListener(list -> list.forEach(word -> removeWord(bannedWordsBean.getServerId(), word)));
 
         return bannedWordsBean;

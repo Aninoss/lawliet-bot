@@ -16,7 +16,10 @@ import java.util.stream.Stream;
 public class MuteManager {
 
     private static final MuteManager instance = new MuteManager();
-    private MuteManager() {}
+
+    private MuteManager() {
+    }
+
     public static MuteManager getInstance() {
         return instance;
     }
@@ -34,13 +37,13 @@ public class MuteManager {
         Map<Long, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
         //Map<User, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
 
-        for(User user: users) {
+        for (User user : users) {
             PermissionsBuilder permissions = null;
 
             boolean cont = true;
             if (userPermissions.containsKey(user.getId()))
                 permissions = userPermissions.get(user.getId()).toBuilder();
-            //if (userPermissions.containsKey(user))
+                //if (userPermissions.containsKey(user))
                 //permissions = userPermissions.get(user).toBuilder();
             else {
                 if (mute) permissions = new PermissionsBuilder().setAllUnset();

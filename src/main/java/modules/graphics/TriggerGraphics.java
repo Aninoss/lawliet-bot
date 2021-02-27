@@ -17,7 +17,7 @@ public class TriggerGraphics {
     public static InputStream createImageTriggered(User user) throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;
-        image = Graphics.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
+        image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         FileCacheImageOutputStream ios = new FileCacheImageOutputStream(os, ResourceHandler.getFileResource("temp"));

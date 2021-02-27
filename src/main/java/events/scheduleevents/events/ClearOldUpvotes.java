@@ -9,14 +9,11 @@ import modules.reddit.SubredditContainer;
 import mysql.modules.upvotes.DBUpvotes;
 
 @ScheduleEventDaily
-public class ClearCaches implements ScheduleInterface {
+public class ClearOldUpvotes implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        SubredditContainer.getInstance().reset();
-        PornImageCache.getInstance().reset();
         DBUpvotes.getInstance().cleanUp();
-        ServerPatreonBoostCache.getInstance().reset();
     }
 
 }

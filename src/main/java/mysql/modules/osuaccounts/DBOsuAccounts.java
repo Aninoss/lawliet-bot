@@ -9,9 +9,14 @@ import java.util.HashMap;
 public class DBOsuAccounts extends DBSingleBeanGenerator<CustomObservableMap<Long, OsuBeanBean>> {
 
     private static final DBOsuAccounts ourInstance = new DBOsuAccounts();
-    public static DBOsuAccounts getInstance() { return ourInstance; }
-    private DBOsuAccounts() { }
-    
+
+    public static DBOsuAccounts getInstance() {
+        return ourInstance;
+    }
+
+    private DBOsuAccounts() {
+    }
+
     @Override
     protected CustomObservableMap<Long, OsuBeanBean> loadBean() throws Exception {
         HashMap<Long, OsuBeanBean> osuMap = new DBDataLoad<OsuBeanBean>("OsuAccounts", "userId, osuId", "1", preparedStatement -> {})

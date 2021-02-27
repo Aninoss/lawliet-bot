@@ -10,8 +10,13 @@ import java.util.ArrayList;
 public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChannelsBean> {
 
     private static final DBWhiteListedChannels ourInstance = new DBWhiteListedChannels();
-    public static DBWhiteListedChannels getInstance() { return ourInstance; }
-    private DBWhiteListedChannels() {}
+
+    public static DBWhiteListedChannels getInstance() {
+        return ourInstance;
+    }
+
+    private DBWhiteListedChannels() {
+    }
 
     @Override
     protected WhiteListedChannelsBean loadBean(Long serverId) throws Exception {
@@ -28,7 +33,8 @@ public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChan
     }
 
     @Override
-    protected void saveBean(WhiteListedChannelsBean whiteListedChannelsBean) {}
+    protected void saveBean(WhiteListedChannelsBean whiteListedChannelsBean) {
+    }
 
     private ArrayList<Long> getChannelIds(long serverId) throws SQLException {
         return new DBDataLoad<Long>("WhiteListedChannels", "channelId", "serverId = ?",

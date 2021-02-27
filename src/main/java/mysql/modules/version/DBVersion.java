@@ -8,12 +8,18 @@ import java.util.ArrayList;
 public class DBVersion extends DBSingleBeanGenerator<VersionBean> {
 
     private static final DBVersion ourInstance = new DBVersion();
-    public static DBVersion getInstance() { return ourInstance; }
-    private DBVersion() {}
+
+    public static DBVersion getInstance() {
+        return ourInstance;
+    }
+
+    private DBVersion() {
+    }
 
     @Override
     protected VersionBean loadBean() {
-        ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date", preparedStatement -> {})
+        ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date", preparedStatement -> {
+        })
                 .getArrayList(
                         resultSet -> new VersionBeanSlot(
                                 resultSet.getString(1),

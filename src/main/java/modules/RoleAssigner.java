@@ -1,13 +1,15 @@
 package modules;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import core.CustomThread;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -17,14 +19,21 @@ public class RoleAssigner {
     private final static Logger LOGGER = LoggerFactory.getLogger(RoleAssigner.class);
 
     private static final RoleAssigner ourInstance = new RoleAssigner();
-    public static RoleAssigner getInstance() { return ourInstance; }
-    private RoleAssigner() {}
 
-    private final HashMap<Long, Thread> busyServers = new HashMap<>();
+    public static RoleAssigner getInstance() {
+        return ourInstance;
+    }
+
+    private RoleAssigner() {
+    }
+
+    private final Cache<Long, Thread> busyServers = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofHours(1))
+            .build();
 
     public Optional<CompletableFuture<Boolean>> assignRoles(Server server, Role role, boolean add) {
         synchronized (server) {
-            if (busyServers.containsKey(server.getId())) return Optional.empty();
+            if (busyServers.asMap().containsKey(server.getId())) return Optional.empty();
 
             CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
@@ -43,7 +52,7 @@ public class RoleAssigner {
                 } catch (ExecutionException e) {
                     LOGGER.error("Exception in role assignment", e);
                 } finally {
-                    busyServers.remove(server.getId());
+                    busyServers.invalidate(server.getId());
                 }
                 completableFuture.complete(false);
             }, "role_assignment", 1);
@@ -55,8 +64,10 @@ public class RoleAssigner {
     }
 
     public void cancel(long serverId) {
-        Thread t = busyServers.get(serverId);
-        if (t != null) t.interrupt();
+        Thread t = busyServers.getIfPresent(serverId);
+        if (t != null) {
+            t.interrupt();
+        }
     }
 
 }

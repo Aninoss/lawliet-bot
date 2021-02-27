@@ -9,8 +9,13 @@ import java.util.ArrayList;
 public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
 
     private static final DBNSFWFilters ourInstance = new DBNSFWFilters();
-    public static DBNSFWFilters getInstance() { return ourInstance; }
-    private DBNSFWFilters() {}
+
+    public static DBNSFWFilters getInstance() {
+        return ourInstance;
+    }
+
+    private DBNSFWFilters() {
+    }
 
     @Override
     protected NSFWFiltersBean loadBean(Long serverId) throws Exception {
@@ -27,7 +32,8 @@ public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
     }
 
     @Override
-    protected void saveBean(NSFWFiltersBean nsfwFiltersBean) {}
+    protected void saveBean(NSFWFiltersBean nsfwFiltersBean) {
+    }
 
     private ArrayList<String> getKeywords(long serverId) {
         return new DBDataLoad<String>("NSFWFilter", "keyword", "serverId = ?",

@@ -21,11 +21,14 @@ import java.util.regex.Pattern;
 
 public class MemberCountDisplay {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MemberCountDisplay.class);
-
     private static final MemberCountDisplay ourInstance = new MemberCountDisplay();
-    public static MemberCountDisplay getInstance() { return ourInstance; }
-    private MemberCountDisplay() { }
+
+    public static MemberCountDisplay getInstance() {
+        return ourInstance;
+    }
+
+    private MemberCountDisplay() {
+    }
 
     public void manage(Locale locale, Server server) {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());

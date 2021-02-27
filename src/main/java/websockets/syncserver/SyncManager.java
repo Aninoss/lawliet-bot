@@ -96,14 +96,12 @@ public class SyncManager {
 
     private void startConnectionChecker() {
         MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, "sync_connection_checker", () -> {
-            try {
-                SendEvent.sendEmpty("PING").get();
+            if (client.isConnected()) {
                 errors = 0;
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.warn("Sync server connection lost");
+            } else {
                 errors++;
                 if (errors >= 6) {
-                    LOGGER.error("EXIT - No connection with sync server", e);
+                    LOGGER.error("EXIT - No connection with sync server");
                     //System.exit(1); TODO: DEBUG
                     return false;
                 }

@@ -13,6 +13,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -28,7 +29,8 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
     private final LoadingCache<T, U> cache;
 
     protected CacheBuilder<Object, Object> getCacheBuilder() {
-        return CacheBuilder.newBuilder();
+        return CacheBuilder.newBuilder()
+                .expireAfterAccess(Duration.ofMinutes(20));
     }
 
     protected DBBeanGenerator() {
@@ -75,7 +77,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         ArrayList<U> tempList = new ArrayList<>(changed);
         changed = new ArrayList<>();
         tempList.stream()
-                .filter(value -> !(value instanceof BeanWithServer) || ((BeanWithServer)value).getServerBean().isCached())
+                .filter(value -> !(value instanceof BeanWithServer) || ((BeanWithServer)value).getServerBean().isSaved())
                 .forEach(value -> {
                     try {
                         saveBean(value);

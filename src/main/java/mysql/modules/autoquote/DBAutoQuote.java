@@ -9,8 +9,13 @@ import java.sql.ResultSet;
 public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
 
     private static final DBAutoQuote ourInstance = new DBAutoQuote();
-    public static DBAutoQuote getInstance() { return ourInstance; }
-    private DBAutoQuote() {}
+
+    public static DBAutoQuote getInstance() {
+        return ourInstance;
+    }
+
+    private DBAutoQuote() {
+    }
 
     @Override
     protected AutoQuoteBean loadBean(Long serverId) throws Exception {

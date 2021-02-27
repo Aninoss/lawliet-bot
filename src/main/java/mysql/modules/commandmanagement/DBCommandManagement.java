@@ -10,8 +10,13 @@ import java.util.ArrayList;
 public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagementBean> {
 
     private static final DBCommandManagement ourInstance = new DBCommandManagement();
-    public static DBCommandManagement getInstance() { return ourInstance; }
-    private DBCommandManagement() {}
+
+    public static DBCommandManagement getInstance() {
+        return ourInstance;
+    }
+
+    private DBCommandManagement() {
+    }
 
     @Override
     protected CommandManagementBean loadBean(Long serverId) throws Exception {
@@ -28,7 +33,8 @@ public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagement
     }
 
     @Override
-    protected void saveBean(CommandManagementBean commandManagementBean) {}
+    protected void saveBean(CommandManagementBean commandManagementBean) {
+    }
 
     private ArrayList<String> getSwitchedOffElements(long serverId) throws SQLException {
         return new DBDataLoad<String>("CMOff", "element", "serverId = ?",

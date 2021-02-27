@@ -135,7 +135,7 @@ public class RedditDownloader {
             postedIdList.remove(0);
 
         StringBuilder newArg = new StringBuilder();
-        for(int i = 0; i < postedIdList.size(); i++) {
+        for (int i = 0; i < postedIdList.size(); i++) {
             if (i > 0) newArg.append("|");
             newArg.append(postedIdList.get(i));
         }

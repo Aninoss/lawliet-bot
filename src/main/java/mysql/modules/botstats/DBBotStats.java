@@ -12,14 +12,17 @@ public class DBBotStats {
     private final static Logger LOGGER = LoggerFactory.getLogger(DBBotStats.class);
 
     public static void saveStatsServers(long serverCount) {
-        DBMain.getInstance().asyncUpdate("INSERT INTO StatsServerCount VALUES(NOW(), ?);",
+        DBMain.getInstance().asyncUpdate(
+                "INSERT INTO StatsServerCount VALUES(NOW(), ?);",
                 preparedStatement -> preparedStatement.setLong(1, serverCount)
         );
     }
 
     public static void saveStatsCommandUsages() {
-        DBMain.getInstance().asyncUpdate("INSERT INTO StatsCommandUsages VALUES(NOW(), (SELECT SUM(usages) FROM CommandUsages));",
-                preparedStatement -> {}
+        DBMain.getInstance().asyncUpdate(
+                "INSERT INTO StatsCommandUsages VALUES(NOW(), (SELECT SUM(usages) FROM CommandUsages));",
+                preparedStatement -> {
+                }
         );
     }
 

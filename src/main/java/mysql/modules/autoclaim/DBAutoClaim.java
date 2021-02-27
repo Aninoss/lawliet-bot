@@ -3,18 +3,25 @@ package mysql.modules.autoclaim;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
+
 import java.util.ArrayList;
 
 public class DBAutoClaim extends DBSingleBeanGenerator<AutoClaimBean> {
 
     private static final DBAutoClaim ourInstance = new DBAutoClaim();
-    public static DBAutoClaim getInstance() { return ourInstance; }
-    private DBAutoClaim() {}
+
+    public static DBAutoClaim getInstance() {
+        return ourInstance;
+    }
+
+    private DBAutoClaim() {
+    }
 
     @Override
     protected AutoClaimBean loadBean() throws Exception {
         ArrayList<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1",
-                preparedStatement -> {}
+                preparedStatement -> {
+                }
         ).getArrayList(resultSet -> resultSet.getLong(1));
 
         AutoClaimBean autoClaimBean = new AutoClaimBean(autoClaimList);

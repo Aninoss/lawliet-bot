@@ -15,7 +15,8 @@ import java.util.function.Function;
 
 public class SendEvent {
 
-    private SendEvent() {}
+    private SendEvent() {
+    }
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
         CompletableFuture<JSONObject> future = SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
@@ -29,7 +30,8 @@ public class SendEvent {
         if (!Bot.isProductionMode())
             return CompletableFuture.completedFuture(DiscordApiManager.getInstance().getLocalServerSize());
 
-        return process("GLOBAL_SERVER_SIZE",
+        return process(
+                "GLOBAL_SERVER_SIZE",
                 Map.of("local_server_size", localServerSize),
                 responseJson -> {
                     long size = responseJson.getLong("size");
@@ -39,7 +41,8 @@ public class SendEvent {
     }
 
     public static CompletableFuture<Optional<CustomEmoji>> sendRequestCustomEmoji(long emojiId) {
-        return process("CUSTOM_EMOJI",
+        return process(
+                "CUSTOM_EMOJI",
                 Map.of("emoji_id", emojiId),
                 responseJson -> {
                     Optional<String> tag = responseJson.has("tag") ? Optional.of(responseJson.getString("tag")) : Optional.empty();
@@ -49,21 +52,24 @@ public class SendEvent {
     }
 
     public static CompletableFuture<Optional<String>> sendRequestServerName(long serverId) {
-        return process("SERVER_NAME",
+        return process(
+                "SERVER_NAME",
                 Map.of("server_id", serverId),
                 responseJson -> responseJson.has("name") ? Optional.of(responseJson.getString("name")) : Optional.empty()
         );
     }
 
     public static CompletableFuture<HashMap<Long, Integer>> sendRequestPatreon() {
-        return process("PATREON",
+        return process(
+                "PATREON",
                 Map.of(),
                 PatreonCache::userPatreonMapFromJson
         );
     }
 
     public static CompletableFuture<Long> sendRequestSyncedRatelimit() {
-        return process("SYNCED_RATELIMIT",
+        return process(
+                "SYNCED_RATELIMIT",
                 Map.of(),
                 responseJson -> responseJson.getLong("waiting_time_nanos")
         );

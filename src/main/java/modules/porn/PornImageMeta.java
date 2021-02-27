@@ -2,9 +2,9 @@ package modules.porn;
 
 public class PornImageMeta {
 
-    private String imageUrl;
-    private int index;
-    private long score;
+    private final String imageUrl;
+    private final int index;
+    private final long score;
 
     public PornImageMeta(String imageUrl, long score, int index) {
         this.imageUrl = imageUrl;

@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutionException;
 
 public class TopGG {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TopGG.class);
     private static final TopGG ourInstance = new TopGG();
     private final DiscordBotListAPI dblApi;
 
@@ -25,7 +24,7 @@ public class TopGG {
     }
 
     public void updateServerCount(long totalServerSize) {
-        dblApi.setStats((int)totalServerSize);
+        dblApi.setStats((int) totalServerSize);
     }
 
     public int getTotalUpvotes() throws ExecutionException, InterruptedException {
@@ -35,4 +34,5 @@ public class TopGG {
     public int getMonthlyUpvotes() throws ExecutionException, InterruptedException {
         return dblApi.getBot(String.valueOf(AssetIds.LAWLIET_USER_ID)).toCompletableFuture().get().getMonthlyPoints();
     }
+
 }

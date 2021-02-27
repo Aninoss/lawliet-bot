@@ -1,5 +1,7 @@
 package events.discordevents.eventtypeabstracts;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import constants.ExternalLinks;
 import core.Bot;
 import core.EmbedFactory;
@@ -7,15 +9,18 @@ import events.discordevents.DiscordEventAbstract;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
-
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 
 public abstract class MessageCreateAbstract extends DiscordEventAbstract {
 
-    private static final ArrayList<Long> usersDmNotified = new ArrayList<>();
-
     private Instant startTime;
+
+    private static final Cache<Long, Boolean> usersDmNotified = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofHours(1))
+            .build();
+
 
     public abstract boolean onMessageCreate(MessageCreateEvent event) throws Throwable;
 
@@ -33,8 +38,8 @@ public abstract class MessageCreateAbstract extends DiscordEventAbstract {
         if (user == null || user.isYourself()) return;
 
         if (event.getServer().isEmpty()) {
-            if (!usersDmNotified.contains(user.getId()) && !user.isBot() && Bot.getClusterId() == 1) {
-                usersDmNotified.add(user.getId());
+            if (!usersDmNotified.asMap().containsKey(user.getId()) && !user.isBot() && Bot.getClusterId() == 1) {
+                usersDmNotified.put(user.getId(), true);
                 if (Bot.isPublicVersion()) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError()
                             .setTitle("❌ Not Supported")

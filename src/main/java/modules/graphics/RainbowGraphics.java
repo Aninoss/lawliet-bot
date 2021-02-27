@@ -14,7 +14,7 @@ public class RainbowGraphics {
     public static InputStream createImageRainbow(User user, long opacity) throws ExecutionException, InterruptedException, IOException {
         BufferedImage image = user.getAvatar().asBufferedImage().get();
         double scale = 1.5;
-        image = Graphics.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
+        image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
         BufferedImage rainbow = ImageIO.read(ResourceHandler.getFileResource("data/resources/rainbow.png"));
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
                 BufferedImage.TYPE_INT_ARGB);

@@ -5,15 +5,14 @@ import java.util.Random;
 
 public class Subreddit {
 
-    private String name, postReference, tempReference;
-    private ArrayList<Integer> used;
+    private final String name;
+    private String postReference = "";
+    private String tempReference = postReference;
+    private ArrayList<Integer> used = new ArrayList<>();
     private int limit = 25;
 
     public Subreddit(String name) {
         this.name = name;
-        postReference = "";
-        tempReference = postReference;
-        used = new ArrayList<>();
     }
 
     public int getRemainingIndex(String postReference, int limit) {
@@ -27,6 +26,9 @@ public class Subreddit {
         } while (used.contains(n));
 
         used.add(n);
+        if (used.size() >= limit) {
+            used.remove(0);
+        }
 
         return n;
     }

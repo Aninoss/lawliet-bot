@@ -16,8 +16,13 @@ import java.util.Locale;
 public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
     private static final DBSurvey ourInstance = new DBSurvey();
-    public static DBSurvey getInstance() { return ourInstance; }
-    private DBSurvey() {}
+
+    public static DBSurvey getInstance() {
+        return ourInstance;
+    }
+
+    private DBSurvey() {
+    }
 
     private Integer currentSurveyId = null;
 
@@ -98,13 +103,15 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     }
 
     @Override
-    protected void saveBean(SurveyBean surveyBean) {}
+    protected void saveBean(SurveyBean surveyBean) {
+    }
 
     private HashMap<Long, SurveyFirstVote> getFirstVotes(int surveyId) {
         return new DBDataLoad<SurveyFirstVote>("SurveyVotes", "userId, personalVote, locale", "surveyId = ?",
                 preparedStatement -> preparedStatement.setInt(1, surveyId)
         ).getHashMap(SurveyFirstVote::getUserId, resultSet ->
-                new SurveyFirstVote(resultSet.getLong(1),
+                new SurveyFirstVote(
+                        resultSet.getLong(1),
                         resultSet.getByte(2),
                         new Locale(resultSet.getString(3))
                 )
@@ -129,7 +136,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
     private HashMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes(int surveyId) throws SQLException {
         return new DBDataLoad<SurveySecondVote>("SurveyMajorityVotes", "serverId, userId, majorityVote", "surveyId = ?",
-            preparedStatement -> preparedStatement.setInt(1, surveyId)
+                preparedStatement -> preparedStatement.setInt(1, surveyId)
         ).getHashMap(secondVote -> new Pair<>(secondVote.getServerId(), secondVote.getUserId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
     }
 
@@ -152,7 +159,8 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
 
     private ArrayList<Long> getNotificationUserIds() throws SQLException {
         return new DBDataLoad<Long>("SurveyNotifications", "userId", "1",
-                preparedStatement -> {}
+                preparedStatement -> {
+                }
         ).getArrayList(resultSet -> resultSet.getLong(1));
     }
 

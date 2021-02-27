@@ -19,8 +19,13 @@ import java.util.concurrent.Executors;
 public class DBMain implements DriverAction {
 
     private static final DBMain ourInstance = new DBMain();
-    public static DBMain getInstance() { return ourInstance; }
-    private DBMain() {}
+
+    public static DBMain getInstance() {
+        return ourInstance;
+    }
+
+    private DBMain() {
+    }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
@@ -54,7 +59,7 @@ public class DBMain implements DriverAction {
     }
 
     public static String instantToDateTimeString(Instant instant) {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant,ZoneOffset.systemDefault()));
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
     }
 
     public static String localDateToDateString(LocalDate localDate) {
@@ -73,7 +78,7 @@ public class DBMain implements DriverAction {
 
     public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             try {
                 PreparedStatement preparedStatement = preparedStatement(sql);
                 preparedStatementConsumer.accept(preparedStatement);

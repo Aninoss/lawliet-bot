@@ -11,12 +11,13 @@ import java.util.Locale;
 
 public class SyncLocaleUtil {
 
-    private SyncLocaleUtil() {}
+    private SyncLocaleUtil() {
+    }
 
     public static JSONObject getLanguagePack(String category, String key) {
         JSONObject jsonObject = new JSONObject();
 
-        for(String localeString: Locales.LIST) {
+        for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
             jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, category, key).replace("%PREFIX", "L."));
         }
@@ -27,7 +28,7 @@ public class SyncLocaleUtil {
     public static JSONObject getCommandPermissions(Command command) {
         JSONObject jsonObject = new JSONObject();
 
-        for(String localeString: Locales.LIST) {
+        for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
             String permissionsList = new ListGen<Integer>().getList(
                     PermissionUtil.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_NONE,
@@ -42,7 +43,7 @@ public class SyncLocaleUtil {
     public static JSONObject getCommandSpecs(String commandCategory, String key, String commandTrigger) {
         JSONObject jsonObject = new JSONObject();
 
-        for(String localeString: Locales.LIST) {
+        for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
             String str = solveVariablesOfCommandText(TextManager.getString(locale, commandCategory, key));
             if (!str.isEmpty())

@@ -26,7 +26,7 @@ public class ShipGraphics {
         }
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-        Graphics2D g = Graphics.createGraphics(result);
+        Graphics2D g = GraphicsUtil.createGraphics(result);
         FileReader fReader = new FileReader(ResourceHandler.translateRelativePath("data/resources/ship/pos.txt"));
         BufferedReader reader = new BufferedReader(fReader);
 
@@ -55,7 +55,7 @@ public class ShipGraphics {
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
         int y = (int) (image.getHeight() / 5.0 * 4.0);
-        Graphics.drawStringWithBorder(g, simIterator, fontSimilarity.getStringBounds(perc + "%", frc),  mainColor,image.getWidth()/2, y - (int) (0.252 * fsize),4,-1);
+        GraphicsUtil.drawStringWithBorder(g, simIterator, fontSimilarity.getStringBounds(perc + "%", frc),  mainColor,image.getWidth()/2, y - (int) (0.252 * fsize),4,-1);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageIO.write(result, "png", os);

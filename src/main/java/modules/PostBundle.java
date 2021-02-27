@@ -3,6 +3,7 @@ package modules;
 import java.util.List;
 
 public class PostBundle<T> {
+
     private final List<T> posts;
     private final String newestPost;
 
@@ -18,4 +19,5 @@ public class PostBundle<T> {
     public String getNewestPost() {
         return newestPost;
     }
+
 }

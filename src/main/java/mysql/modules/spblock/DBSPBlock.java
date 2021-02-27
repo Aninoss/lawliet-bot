@@ -12,8 +12,13 @@ import java.util.ArrayList;
 public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
 
     private static final DBSPBlock ourInstance = new DBSPBlock();
-    public static DBSPBlock getInstance() { return ourInstance; }
-    private DBSPBlock() {}
+
+    public static DBSPBlock getInstance() {
+        return ourInstance;
+    }
+
+    private DBSPBlock() {
+    }
 
     @Override
     protected SPBlockBean loadBean(Long serverId) throws Exception {

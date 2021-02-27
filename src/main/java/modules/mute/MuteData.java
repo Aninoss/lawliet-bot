@@ -10,10 +10,10 @@ import java.util.Optional;
 
 public class MuteData {
 
-    private Server server;
-    private ServerTextChannel channel;
-    private ArrayList<User> users;
-    private Instant stopTime;
+    private final Server server;
+    private final ServerTextChannel channel;
+    private final ArrayList<User> users;
+    private final Instant stopTime;
 
     public MuteData(Server server, ServerTextChannel channel, ArrayList<User> users, Instant stopTime) {
         this.server = server;

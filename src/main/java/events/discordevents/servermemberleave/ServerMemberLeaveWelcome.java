@@ -22,8 +22,6 @@ import java.util.Locale;
 @DiscordEvent(allowBots = true)
 public class ServerMemberLeaveWelcome extends ServerMemberLeaveAbstract {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeaveWelcome.class);
-
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {
         Server server = event.getServer();

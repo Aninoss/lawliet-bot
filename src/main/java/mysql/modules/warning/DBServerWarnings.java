@@ -13,8 +13,13 @@ import java.util.Optional;
 public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWarningsBean> {
 
     private static final DBServerWarnings ourInstance = new DBServerWarnings();
-    public static DBServerWarnings getInstance() { return ourInstance; }
-    private DBServerWarnings() {}
+
+    public static DBServerWarnings getInstance() {
+        return ourInstance;
+    }
+
+    private DBServerWarnings() {
+    }
 
     @Override
     protected ServerWarningsBean loadBean(Pair<Long, Long> pair) throws Exception {
@@ -32,7 +37,8 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
     }
 
     @Override
-    protected void saveBean(ServerWarningsBean serverWarningsBean) {}
+    protected void saveBean(ServerWarningsBean serverWarningsBean) {
+    }
 
     private ArrayList<ServerWarningsSlot> getWarnings(long serverId, long userId) throws SQLException {
         return new DBDataLoad<ServerWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",

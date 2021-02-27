@@ -10,11 +10,16 @@ import java.util.concurrent.TimeUnit;
 public class TextAICache {
 
     public static TextAICache ourInstance = new TextAICache();
-    public static TextAICache getInstance() { return ourInstance; }
-    private TextAICache() {}
+
+    public static TextAICache getInstance() {
+        return ourInstance;
+    }
+
+    private TextAICache() {
+    }
 
     private final LoadingCache<String, TextAI.WordMap> cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(2, TimeUnit.HOURS)
+            .expireAfterWrite(1, TimeUnit.HOURS)
             .build(new CacheLoader<>() {
                 @Override
                 public TextAI.WordMap load(@NonNull String userOnServer) {
@@ -31,11 +36,7 @@ public class TextAICache {
     }
 
     public TextAI.WordMap get(long serverId, int contextSize) {
-        try {
-            return cache.get(generateKey(serverId, contextSize));
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return cache.getIfPresent(generateKey(serverId, contextSize));
     }
 
     private String generateKey(long serverId, int contextSize) {

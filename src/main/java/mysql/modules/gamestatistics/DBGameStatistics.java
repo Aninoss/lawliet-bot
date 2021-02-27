@@ -10,8 +10,13 @@ import java.sql.ResultSet;
 public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean> {
 
     private static final DBGameStatistics ourInstance = new DBGameStatistics();
-    public static DBGameStatistics getInstance() { return ourInstance; }
-    private DBGameStatistics() {}
+
+    public static DBGameStatistics getInstance() {
+        return ourInstance;
+    }
+
+    private DBGameStatistics() {
+    }
 
     @Override
     protected GameStatisticsBean loadBean(String command) throws Exception {
@@ -19,9 +24,11 @@ public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean
         preparedStatement.setString(1, command);
         preparedStatement.execute();
 
-        double[] values = {0.0, 0.0};
+        double[] values = { 0.0, 0.0 };
         ResultSet resultSet = preparedStatement.getResultSet();
-        while(resultSet.next()) values[resultSet.getInt(1)] = resultSet.getDouble(2);
+        while (resultSet.next()) {
+            values[resultSet.getInt(1)] = resultSet.getDouble(2);
+        }
 
         resultSet.close();
         preparedStatement.close();

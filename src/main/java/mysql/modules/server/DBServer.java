@@ -1,5 +1,7 @@
 package mysql.modules.server;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import constants.Locales;
 import core.DiscordApiManager;
@@ -12,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
@@ -19,10 +22,17 @@ import java.util.Optional;
 public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
     private static final DBServer ourInstance = new DBServer();
-    public static DBServer getInstance() { return ourInstance; }
-    private DBServer() {}
 
-    private final ArrayList<Long> removedServerIds = new ArrayList<>();
+    public static DBServer getInstance() {
+        return ourInstance;
+    }
+
+    private DBServer() {
+    }
+
+    private final Cache<Long, Boolean> removedServerIds = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofHours(1))
+            .build();
 
     @Override
     protected ServerBean loadBean(Long serverId) throws Exception {
@@ -31,7 +41,9 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
             throw new Exception("Invalid server");
 
         boolean serverPresent = DiscordApiManager.getInstance().getLocalServerById(serverId).isPresent();
-        if (serverPresent) removedServerIds.remove(serverId);
+        if (serverPresent) {
+            removedServerIds.invalidate(serverId);
+        }
 
         ServerBean serverBean;
 
@@ -83,7 +95,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     }
 
     public boolean containsServerId(long serverId) {
-        return !removedServerIds.contains(serverId);
+        return !removedServerIds.asMap().containsKey(serverId);
     }
 
     private void insertBean(ServerBean serverBean) throws SQLException, InterruptedException {
@@ -142,13 +154,14 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     }
 
     public void remove(long serverId) {
-        removedServerIds.add(serverId);
+        removedServerIds.put(serverId, true);
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         getCache().invalidate(serverId);
 
         File welcomeBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", serverId));
-        if (welcomeBackgroundFile.exists())
+        if (welcomeBackgroundFile.exists()) {
             welcomeBackgroundFile.delete();
+        }
     }
 
     public ArrayList<Long> getAllServerIds() throws SQLException {

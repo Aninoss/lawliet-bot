@@ -9,19 +9,24 @@ import core.utils.InternetUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class TwitchDownloader {
 
     private static final TwitchDownloader ourInstance = new TwitchDownloader();
-    public static TwitchDownloader getInstance() { return ourInstance; }
-    private TwitchDownloader() {}
+
+    public static TwitchDownloader getInstance() {
+        return ourInstance;
+    }
+
+    private TwitchDownloader() {
+    }
 
     private final LoadingCache<String, Optional<TwitchUser>> userCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(10))
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -29,8 +34,9 @@ public class TwitchDownloader {
                             return getTwitchUser(channelName);
                         }
                     });
+
     private final LoadingCache<String, JSONObject> channelMetaCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(4, TimeUnit.MINUTES)
+            .expireAfterWrite(Duration.ofMinutes(4))
             .build(
                     new CacheLoader<>() {
                         @Override

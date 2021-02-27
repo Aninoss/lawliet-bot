@@ -36,7 +36,7 @@ public class WelcomeGraphics {
             BufferedImage backgroundImage = getBackgroundImage(server);
             BufferedImage avatarImage = getAvatarImage(user);
             BufferedImage drawImage = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = Graphics.createGraphics(drawImage);
+            Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
             drawBackground(g2d, backgroundImage);
             double lumi = drawLumi(g2d, drawImage);
@@ -46,7 +46,7 @@ public class WelcomeGraphics {
             drawTexts(g2d, welcome, server, user, shadowOpacity);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(Graphics.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
+            ImageIO.write(GraphicsUtil.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
             g2d.dispose();
             return new ByteArrayInputStream(os.toByteArray());
         } catch (IOException e) {
@@ -62,14 +62,14 @@ public class WelcomeGraphics {
         AttributedStringGenerator fontWelcome = new AttributedStringGenerator(TEXT_FONT_LARGE);
         AttributedStringGenerator fontName = new AttributedStringGenerator(TEXT_FONT_SMALL);
 
-        AttributedCharacterIterator welcomeIterator = Graphics.getNameIterator(frc, fontWelcome, welcomeText, BASE_WIDTH - BASE_HEIGHT);
-        AttributedCharacterIterator nameIterator = Graphics.getNameIterator(frc, fontName, user.getDisplayName(server), BASE_WIDTH - BASE_HEIGHT - SPACE);
+        AttributedCharacterIterator welcomeIterator = GraphicsUtil.getNameIterator(frc, fontWelcome, welcomeText, BASE_WIDTH - BASE_HEIGHT);
+        AttributedCharacterIterator nameIterator = GraphicsUtil.getNameIterator(frc, fontName, user.getDisplayName(server), BASE_WIDTH - BASE_HEIGHT - SPACE);
         Rectangle2D welcomeBounds = fontWelcome.getStringBounds(welcomeIterator, frc);
         Rectangle2D nameBounds = fontName.getStringBounds(nameIterator, frc);
 
         g2d.setColor(Color.BLACK);
-        Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
-        Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
+        GraphicsUtil.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()) + offset, getTextHeight(frc, fontWelcome) + BORDER + offset));
+        GraphicsUtil.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawString(nameIterator, getTextX(nameBounds.getWidth()) + offset, BASE_HEIGHT - BORDER + offset));
 
         g2d.setColor(Color.WHITE);
         g2d.drawString(welcomeIterator, getTextX(welcomeBounds.getWidth()), getTextHeight(frc, fontWelcome) + BORDER);
@@ -87,11 +87,11 @@ public class WelcomeGraphics {
     private static void drawAvatar(Graphics2D g2d, BufferedImage avatarImage, float shadowOpacity) {
         final int size = BASE_HEIGHT - SPACE * 2;
 
-        Graphics.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.BLACK), SPACE + offset, SPACE + offset, size, size, null));
+        GraphicsUtil.drawShadow(g2d, SHADOW_SIZE, shadowOpacity, offset -> g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED, Color.BLACK), SPACE + offset, SPACE + offset, size, size, null));
         g2d.drawImage(generateAvatarBlock(size, AVATAR_ROUNDED + 2, Color.WHITE), SPACE + 1, SPACE + 1, size - 2, size - 2, null);
 
         if (avatarImage != null) {
-            avatarImage = Graphics.makeRoundedCorner(avatarImage, AVATAR_ROUNDED, size, size);
+            avatarImage = GraphicsUtil.makeRoundedCorner(avatarImage, AVATAR_ROUNDED, size, size);
             g2d.drawImage(avatarImage, SPACE, SPACE, null);
         }
     }
@@ -102,7 +102,7 @@ public class WelcomeGraphics {
         black2d.setColor(color);
         black2d.fillRect(0, 0, black.getWidth(), black.getHeight());
         black2d.dispose();
-        return Graphics.makeRoundedCorner(black, radius);
+        return GraphicsUtil.makeRoundedCorner(black, radius);
     }
 
     private static double getAverageLuminance(BufferedImage image) {

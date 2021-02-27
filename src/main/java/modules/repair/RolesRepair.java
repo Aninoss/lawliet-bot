@@ -28,8 +28,13 @@ public class RolesRepair {
     private final static Logger LOGGER = LoggerFactory.getLogger(RolesRepair.class);
 
     private static final RolesRepair ourInstance = new RolesRepair();
-    public static RolesRepair getInstance() { return ourInstance; }
-    private RolesRepair() { }
+
+    public static RolesRepair getInstance() {
+        return ourInstance;
+    }
+
+    private RolesRepair() {
+    }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -38,7 +43,7 @@ public class RolesRepair {
     }
 
     public void run(DiscordApi api, int minutes) {
-        for(Server server : api.getServers()) {
+        for (Server server : api.getServers()) {
             processAutoRoles(server, minutes);
             processFisheryRoles(server, minutes);
         }

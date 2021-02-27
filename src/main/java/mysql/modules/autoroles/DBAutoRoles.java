@@ -10,8 +10,13 @@ import java.util.ArrayList;
 public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
 
     private static final DBAutoRoles ourInstance = new DBAutoRoles();
-    public static DBAutoRoles getInstance() { return ourInstance; }
-    private DBAutoRoles() {}
+
+    public static DBAutoRoles getInstance() {
+        return ourInstance;
+    }
+
+    private DBAutoRoles() {
+    }
 
     @Override
     protected AutoRolesBean loadBean(Long serverId) throws Exception {
@@ -28,7 +33,8 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
     }
 
     @Override
-    protected void saveBean(AutoRolesBean autoRolesBean) {}
+    protected void saveBean(AutoRolesBean autoRolesBean) {
+    }
 
     private ArrayList<Long> getRoleIds(long serverId) throws SQLException {
         return new DBDataLoad<Long>("BasicRole", "roleId", "serverId = ?",
