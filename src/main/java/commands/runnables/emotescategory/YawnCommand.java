@@ -43,7 +43,8 @@ public class YawnCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736262435501113465/736262624517423224/yawn.gif",
                 "https://media.discordapp.net/attachments/736262435501113465/736262631064731668/yawn.gif",
                 "https://media.discordapp.net/attachments/736262435501113465/736262644293697546/yawn.gif",
-                "https://media.discordapp.net/attachments/736262435501113465/741228041199681546/yawn.gif"
+                "https://media.discordapp.net/attachments/736262435501113465/741228041199681546/yawn.gif",
+                "https://media.discordapp.net/attachments/736262435501113465/815214009128976424/yawn.gif"
         };
     }
 
