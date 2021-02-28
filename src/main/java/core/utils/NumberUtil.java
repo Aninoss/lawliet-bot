@@ -2,7 +2,7 @@ package core.utils;
 
 public class NumberUtil {
 
-    public static long sliceLong(long value, int sliceKeepDigits) {
+    public static long flattenLong(long value, int sliceKeepDigits) {
         int digits = countDigits(value);
         if (digits > sliceKeepDigits) {
             return (long)(Math.round(value / Math.pow(10, digits - sliceKeepDigits)) * Math.pow(10, digits - sliceKeepDigits));

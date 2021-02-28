@@ -63,7 +63,7 @@ public class FisheryUserPowerUpBean {
     /* Tools */
 
     public long getPrice() {
-        return NumberUtil.sliceLong(Math.round(Math.pow(getValue(level), 1.02) * startPrice), 4);
+        return NumberUtil.flattenLong(Math.round(Math.pow(getValue(level), 1.02) * startPrice), 4);
     }
 
     public long getEffect() {
