@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class AutoClaimBean {
 
-    CustomObservableList<Long> userList;
+    private CustomObservableList<Long> userList;
 
     public AutoClaimBean(@NonNull ArrayList<Long> userList) {
         this.userList = new CustomObservableList<>(userList);

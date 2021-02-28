@@ -100,7 +100,9 @@ public class SyncManager {
                 errors = 0;
             } else {
                 errors++;
-                if (errors >= 6) {
+                if (errors == 3) {
+                    client.reconnect();
+                } else if (errors >= 6) {
                     LOGGER.error("EXIT - No connection with sync server");
                     //System.exit(1); TODO: DEBUG
                     return false;
@@ -108,6 +110,10 @@ public class SyncManager {
             }
             return true;
         });
+    }
+
+    public void reconnect() {
+        client.reconnect();
     }
 
 }

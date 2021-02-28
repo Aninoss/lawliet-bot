@@ -20,16 +20,15 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import websockets.syncserver.SyncManager;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
+import java.util.*;
 
 public class Console {
 
@@ -66,6 +65,7 @@ public class Console {
         tasks.put("uptime", this::onUptime);
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
+        tasks.put("sync_reconnect", this::onSyncReconnect);
         tasks.put("mysql_connect", this::onMySQLConnect);
         tasks.put("threads", this::onThreads);
         tasks.put("threads_stack", this::onThreadsStack);
@@ -314,6 +314,10 @@ public class Console {
         }
     }
 
+    private void onSyncReconnect(String[] args) {
+        SyncManager.getInstance().reconnect();
+    }
+
     private void onReconnect(String[] args) {
         int shardId = Integer.parseInt(args[1]);
         DiscordApiManager.getInstance().reconnectShard(shardId);
@@ -348,20 +352,20 @@ public class Console {
     }
 
     private void manageConsole() {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        Scanner scanner = new Scanner(System.in);
         while (true) {
-            try {
-                if (br.ready()) {
-                    processInput(br.readLine());
+            if (scanner.hasNext()) {
+                String line = scanner.nextLine();
+                if (line.length() > 0) {
+                    processInput(line);
                 }
-                Thread.sleep(100);
-            } catch (IOException | InterruptedException e) {
-                LOGGER.error("Unexpected console exception", e);
             }
         }
     }
 
     public void processInput(String input) {
+        System.out.println(input);
+
         String[] args = input.split(" ");
         ConsoleTask task = tasks.get(args[0]);
         if (task != null) {

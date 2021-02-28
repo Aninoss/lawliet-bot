@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class VersionBean extends Observable {
 
-    private CustomObservableList<VersionBeanSlot> slots;
+    private final CustomObservableList<VersionBeanSlot> slots;
 
     public VersionBean(ArrayList<VersionBeanSlot> slots) {
         this.slots = new CustomObservableList<>(slots);

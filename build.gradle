@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.discordbots:DBL-Java-Library:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'com.vdurmont:emoji-java:5.1.1'
-    implementation 'com.github.Aninoss:Java-WebSocket:sending-json-events-SNAPSHOT'
+    implementation 'com.github.Aninoss:Java-WebSocket:94609ebb95'
     implementation 'com.google.guava:guava:28.1-jre'
     implementation 'net.java.openjfx.backport:openjfx-78-backport:1.8.0-ea-b96.1'
     implementation 'org.reflections:reflections:0.9.11'
