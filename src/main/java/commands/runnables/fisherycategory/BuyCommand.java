@@ -176,7 +176,10 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
             FisheryUserPowerUpBean slot = fisheryUserBean.getPowerUp(i);
 
             long price = slot.getPrice();
-            if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) price = calculateRolePrice(slot);
+            if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
+                price = calculateRolePrice(slot);
+            }
+
             if (fisheryUserBean.getCoins() >= price) {
                 upgrade(slot, price, roles, user);
                 setLog(LogStatus.SUCCESS, getString("levelup", getString("product_" + slot.getPowerUpId() + "_0")));
@@ -244,9 +247,9 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                     ) {
                         String productDescription = "???";
                         long price = slot.getPrice();
-                        if (slot.getPowerUpId() != FisheryCategoryInterface.ROLE)
+                        if (slot.getPowerUpId() != FisheryCategoryInterface.ROLE) {
                             productDescription = getString("product_des_" + slot.getPowerUpId(), StringUtil.numToString(slot.getDeltaEffect()));
-                        else if (roles.get(slot.getLevel()) != null) {
+                        } else if (roles.get(slot.getLevel()) != null) {
                             price = calculateRolePrice(slot);
                             productDescription = getString("product_des_" + slot.getPowerUpId(), roles.get(slot.getLevel()).getMentionTag());
                         }

@@ -2,6 +2,7 @@ package mysql.modules.fisheryusers;
 
 import constants.FisheryCategoryInterface;
 import core.DiscordApiManager;
+import core.utils.NumberUtil;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import java.util.Optional;
@@ -62,7 +63,7 @@ public class FisheryUserPowerUpBean {
     /* Tools */
 
     public long getPrice() {
-        return Math.round(Math.pow(getValue(level), 1.02) * startPrice);
+        return NumberUtil.sliceLong(Math.round(Math.pow(getValue(level), 1.02) * startPrice), 4);
     }
 
     public long getEffect() {
