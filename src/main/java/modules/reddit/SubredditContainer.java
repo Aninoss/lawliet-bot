@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 
 public class SubredditContainer {
 
@@ -28,7 +29,11 @@ public class SubredditContainer {
             });
 
     public Subreddit get(String name) {
-        return subredditCache.getIfPresent(name.toLowerCase());
+        try {
+            return subredditCache.get(name.toLowerCase());
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

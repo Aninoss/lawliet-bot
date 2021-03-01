@@ -36,7 +36,11 @@ public class TextAICache {
     }
 
     public TextAI.WordMap get(long serverId, int contextSize) {
-        return cache.getIfPresent(generateKey(serverId, contextSize));
+        try {
+            return cache.get(generateKey(serverId, contextSize));
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String generateKey(long serverId, int contextSize) {

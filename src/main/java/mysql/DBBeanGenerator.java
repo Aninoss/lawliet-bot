@@ -30,7 +30,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
 
     protected CacheBuilder<Object, Object> getCacheBuilder() {
         return CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(20));
+                .expireAfterAccess(Duration.ofMinutes(10));
     }
 
     protected DBBeanGenerator() {

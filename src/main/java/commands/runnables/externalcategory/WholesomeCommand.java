@@ -17,6 +17,8 @@ public class WholesomeCommand extends RedditAbstract {
     }
 
     @Override
-    public String getSubreddit() { return "wholesomememes"; }
+    public String getSubreddit() {
+        return "wholesomememes";
+    }
 
 }
