@@ -266,7 +266,9 @@ public class FisheryUserBean extends BeanWithServer {
     }
 
     public boolean registerMessage(Message message, ServerTextChannel channel) throws ExecutionException, InterruptedException {
-        if (banned) return false;
+        if (banned) {
+            return false;
+        }
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
         messagesThisHour++;

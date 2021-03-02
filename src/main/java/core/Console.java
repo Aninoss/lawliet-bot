@@ -364,8 +364,6 @@ public class Console {
     }
 
     public void processInput(String input) {
-        System.out.println(input);
-
         String[] args = input.split(" ");
         ConsoleTask task = tasks.get(args[0]);
         if (task != null) {

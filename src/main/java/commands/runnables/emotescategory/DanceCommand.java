@@ -35,7 +35,6 @@ public class DanceCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736255695296528484/736255778809446510/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255781896192040/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255785176399972/dance.gif",
-                "https://media.discordapp.net/attachments/736255695296528484/736255794114461881/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255798123954337/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255805346676797/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255811684401274/dance.gif",
@@ -49,7 +48,9 @@ public class DanceCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736255695296528484/750018053256904806/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/755839947096719390/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/758372718806171788/dance.gif",
-                "https://media.discordapp.net/attachments/736255695296528484/781298738953715722/dance.gif"
+                "https://media.discordapp.net/attachments/736255695296528484/781298738953715722/dance.gif",
+                "https://media.discordapp.net/attachments/736255695296528484/816316872294137916/dance.gif",
+                "https://media.discordapp.net/attachments/736255695296528484/816323356437381160/dance.gif"
         };
     }
 

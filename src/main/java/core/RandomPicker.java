@@ -38,7 +38,7 @@ public class RandomPicker {
 
     private Cache<Long, ArrayList<Integer>> generateCache() {
         return CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(10))
+                .expireAfterAccess(Duration.ofMinutes(30))
                 .build();
     }
 

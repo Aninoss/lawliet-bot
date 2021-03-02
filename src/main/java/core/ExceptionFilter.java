@@ -26,7 +26,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "timeout",
             "connect timed out",
             "java.util.concurrent.TimeoutException",
-            "Unknown Message"
+            "Unknown Message",
+            "return value of \"java.util.Queue.poll()\" is null"
     };
 
     public ExceptionFilter() {}
