@@ -62,6 +62,7 @@ public class Console {
         tasks.put("repair", this::onRepair);
         tasks.put("quit", this::onQuit);
         tasks.put("stats", this::onStats);
+        tasks.put("memory", this::onMemory);
         tasks.put("uptime", this::onUptime);
         tasks.put("shards", this::onShards);
         tasks.put("reconnect", this::onReconnect);
@@ -337,6 +338,19 @@ public class Console {
 
     private void onStats(String[] args) {
         LOGGER.info(getStats());
+    }
+
+    private void onMemory(String[] args) {
+        StringBuilder sb = new StringBuilder();
+        double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
+        double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
+        sb.append(String.format("Memory of Cluster %d: ", Bot.getClusterId()))
+                .append(String.format("%1$.2f", memoryUsed))
+                .append(" / ")
+                .append(String.format("%1$.2f", memoryTotal))
+                .append(" MB");
+
+        LOGGER.info(sb.toString());
     }
 
     private void onQuit(String[] args) {
