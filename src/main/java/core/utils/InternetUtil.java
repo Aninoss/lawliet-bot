@@ -15,7 +15,8 @@ import java.util.concurrent.ExecutionException;
 
 public final class InternetUtil {
 
-    private InternetUtil() {}
+    private InternetUtil() {
+    }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
 
@@ -40,13 +41,15 @@ public final class InternetUtil {
                 (str.contains("http://") || str.contains("https://") || str.contains("www."))
         ) return true;
 
-        String [] parts = str.split("\\s+");
+        String[] parts = str.split("\\s+");
 
-        for( String item : parts ) try {
-            new URL(item);
-            return true;
-        } catch (MalformedURLException e) {
-            //Ignore
+        for (String item : parts) {
+            try {
+                new URL(item);
+                return true;
+            } catch (MalformedURLException e) {
+                //Ignore
+            }
         }
 
         return false;

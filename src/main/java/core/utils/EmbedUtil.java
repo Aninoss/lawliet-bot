@@ -5,6 +5,7 @@ import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Emojis;
 import constants.LogStatus;
 import core.TextManager;
+import mysql.modules.tracker.DBTracker;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -23,7 +24,9 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder addTrackerNoteLog(Locale locale, Server server, User user, EmbedBuilder eb, String prefix, String trigger) {
-        if (PermissionUtil.getMissingPermissionListForUser(server, null, user, Command.getClassProperties(AlertsCommand.class).userPermissions()).isEmpty()) {
+        if (PermissionUtil.getMissingPermissionListForUser(server, null, user, Command.getClassProperties(AlertsCommand.class).userPermissions()).isEmpty() &&
+                DBTracker.getInstance().getBean().getSlots().stream().noneMatch(s -> s.getServerId() == server.getId() && s.getCommandTrigger().equals(trigger))
+        ) {
             addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
         }
         return eb;
