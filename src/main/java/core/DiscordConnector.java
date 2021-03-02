@@ -116,10 +116,11 @@ public class DiscordConnector {
     public void updateActivity(DiscordApi api) {
         api.updateStatus(UserStatus.ONLINE);
         Optional<Long> serverSizeOpt = DiscordApiManager.getInstance().getGlobalServerSize();
-        if (serverSizeOpt.isPresent())
+        if (serverSizeOpt.isPresent()) {
             api.updateActivity(ActivityType.WATCHING, "L.help | " + StringUtil.numToString(serverSizeOpt.get()) + " | www.lawlietbot.xyz");
-        else
+        } else {
             api.updateActivity(ActivityType.WATCHING, "L.help | www.lawlietbot.xyz");
+        }
     }
 
     private void onSessionResume(DiscordApi api) {

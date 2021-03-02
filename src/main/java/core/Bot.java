@@ -1,5 +1,6 @@
 package core;
 
+import core.utils.BotUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.Instant;
@@ -15,6 +16,7 @@ public class Bot {
         System.out.println("-------------------------------------");
         System.out.println("Production Mode: " + isProductionMode());
         System.out.println("Cluster ID: " + getClusterId());
+        System.out.println("Version: " + BotUtil.getCurrentVersion());
         System.out.println("-------------------------------------");
     }
 
