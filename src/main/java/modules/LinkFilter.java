@@ -19,7 +19,6 @@ public class LinkFilter {
                 !channel.canEmbedLinks(message.getUserAuthor().get()) &&
                 InternetUtil.stringHasURL(message.getContent(), false)
         ) {
-            DiscordApiManager.getInstance().fetchOwner().join().sendMessage(String.format("Link in **%s** from **%s**: %s", StringUtil.escapeMarkdown(server.getName()), message.getUserAuthor().get().getDiscriminatedName(), message.getContent()));
             message.delete().exceptionally(ExceptionLogger.get());
             if (server.getId() == AssetIds.ANICORD_SERVER_ID) {
                 message.getUserAuthor().get().sendMessage("⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>").exceptionally(ExceptionLogger.get());

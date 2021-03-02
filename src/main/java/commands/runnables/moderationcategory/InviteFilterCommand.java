@@ -26,7 +26,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "invitefilter",
-        botPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+        botPermissions = Permission.MANAGE_MESSAGES,
         userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
         emoji = "✉️",
         executableWithoutArgs = true,

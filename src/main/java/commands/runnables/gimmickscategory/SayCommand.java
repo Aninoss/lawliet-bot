@@ -27,22 +27,24 @@ public class SayCommand extends Command {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(followedString);
-        EmbedUtil.setFooter(eb, this);
+                .setDescription(followedString)
+                .setFooter(getString("author", event.getMessage().getUserAuthor().get().getDiscriminatedName()));
 
         if (attachments.size() > 0) {
             MessageAttachment attachment = attachments.get(0);
-            if (attachment.getUrl().toString().endsWith("gif"))
+            if (attachment.getUrl().toString().endsWith("gif")) {
                 eb.setImage(attachment.getUrl().toString());
-            else
+            } else {
                 eb.setImage(attachment.downloadAsInputStream());
+            }
         }
         if (attachments.size() > 1) {
             MessageAttachment attachment = attachments.get(1);
-            if (attachment.getUrl().toString().endsWith("gif"))
+            if (attachment.getUrl().toString().endsWith("gif")) {
                 eb.setThumbnail(attachment.getUrl().toString());
-            else
+            } else {
                 eb.setThumbnail(attachment.downloadAsInputStream());
+            }
         }
 
         event.getChannel().sendMessage(eb).get();

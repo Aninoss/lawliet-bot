@@ -9,6 +9,7 @@ import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.InviteCache;
 import core.utils.DiscordUtil;
+import core.utils.PermissionUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
 import org.javacord.api.entity.DiscordEntity;
@@ -69,7 +70,8 @@ public class InviteFilter extends AutoModAbstract {
     protected boolean checkCondition(Message message) {
         if (spBlockBean.isActive() &&
                 !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
-                !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId())
+                !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
+                !PermissionUtil.hasAdminPermissions(message.getServer().get(), message.getUserAuthor().get())
         ) {
             ArrayList<String> inviteLinks = DiscordUtil.filterServerInviteLinks(message.getContent());
             if (inviteLinks.size() > 0) {

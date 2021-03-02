@@ -4,6 +4,7 @@ import commands.Command;
 import commands.runnables.moderationcategory.WordFilterCommand;
 import constants.Category;
 import core.TextManager;
+import core.utils.PermissionUtil;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
 import org.javacord.api.entity.DiscordEntity;
@@ -45,7 +46,8 @@ public class WordFilter extends AutoModAbstract {
     protected boolean checkCondition(Message message) {
         return bannedWordsBean.isActive() &&
                 stringContainsWord(message.getContent(), new ArrayList<>(bannedWordsBean.getWords())) &&
-                !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId());
+                !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
+                !PermissionUtil.hasAdminPermissions(message.getServer().get(), message.getUserAuthor().get());
     }
 
     private boolean stringContainsWord(String input, ArrayList<String> badWords) {
