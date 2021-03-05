@@ -22,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 public class AlertScheduler {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AlertScheduler.class);
-
     private static final AlertScheduler ourInstance = new AlertScheduler();
 
     public static AlertScheduler getInstance() {

@@ -10,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.LavaplayerAudioSource;
+import core.MainLogger;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.audio.AudioSource;
@@ -21,8 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class YouTubePlayer {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(YouTubePlayer.class);
 
     private static final YouTubePlayer ourInstance = new YouTubePlayer();
 

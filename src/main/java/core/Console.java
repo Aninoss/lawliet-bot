@@ -29,8 +29,6 @@ import java.util.*;
 
 public class Console {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Console.class);
-
     private static final Console instance = new Console();
 
     public static Console getInstance() {

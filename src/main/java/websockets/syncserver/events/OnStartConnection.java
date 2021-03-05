@@ -10,8 +10,6 @@ import websockets.syncserver.SyncServerFunction;
 @SyncServerEvent(event = "START_CONNECTION")
 public class OnStartConnection implements SyncServerFunction {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(OnStartConnection.class);
-
     @Override
     public JSONObject apply(JSONObject jsonObject) {
         int shardMin = jsonObject.getInt("shard_min");

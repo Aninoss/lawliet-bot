@@ -1,5 +1,6 @@
 package mysql;
 
+import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
 import mysql.interfaces.SQLFunction;
 import org.slf4j.Logger;
@@ -13,8 +14,6 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class DBDataLoad<T> {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBDataLoad.class);
 
     private final PreparedStatement preparedStatement;
 

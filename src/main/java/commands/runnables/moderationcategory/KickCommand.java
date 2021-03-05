@@ -2,6 +2,7 @@ package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
 import constants.PermissionDeprecated;
+import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
@@ -19,8 +20,6 @@ import java.util.concurrent.ExecutionException;
     executableWithoutArgs = false
 )
 public class KickCommand extends WarnCommand  {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(KickCommand.class);
 
     public KickCommand(Locale locale, String prefix) {
         super(locale, prefix);

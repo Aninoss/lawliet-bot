@@ -1,6 +1,7 @@
 package mysql;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,6 @@ public class DBMain implements DriverAction {
     private DBMain() {
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBMain.class);
     private Connection connect = null;
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 

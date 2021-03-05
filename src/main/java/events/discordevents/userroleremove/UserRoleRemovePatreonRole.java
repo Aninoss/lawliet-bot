@@ -3,6 +3,7 @@ package events.discordevents.userroleremove;
 import constants.AssetIds;
 import constants.Settings;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.UserRoleRemoveAbstract;
@@ -13,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(UserRoleRemovePatreonRole.class);
 
     @Override
     public boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable {

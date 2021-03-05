@@ -7,8 +7,6 @@ import java.time.Instant;
 
 public class Bot {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
-
     private static boolean stopped = false;
     private final static Instant startTime = Instant.now();
 

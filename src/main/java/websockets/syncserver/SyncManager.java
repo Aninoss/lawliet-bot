@@ -2,6 +2,7 @@ package websockets.syncserver;
 
 import core.Bot;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.schedule.MainScheduler;
 import org.java_websocket.client.WebSocketJsonClient;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -16,8 +17,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class SyncManager {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(SyncManager.class);
 
     private static final SyncManager ourInstance = new SyncManager();
 

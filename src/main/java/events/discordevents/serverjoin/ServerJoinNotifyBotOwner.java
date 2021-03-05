@@ -1,6 +1,7 @@
 package events.discordevents.serverjoin;
 
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerJoinAbstract;
@@ -11,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class ServerJoinNotifyBotOwner extends ServerJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerJoinNotifyBotOwner.class);
 
     @Override
     public boolean onServerJoin(ServerJoinEvent event) throws Throwable {

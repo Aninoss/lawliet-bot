@@ -14,8 +14,6 @@ import java.util.Locale;
 
 public class ExceptionUtil {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionUtil.class);
-
     public static void handleCommandException(Throwable throwable, Command command, TextChannel channel) {
         Locale locale = command.getLocale();
         boolean postErrorMessage = true;

@@ -26,8 +26,6 @@ import java.util.Locale;
 @ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
 public class SurveyResults implements ScheduleInterface {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SurveyResults.class);
-
     @Override
     public void run() throws Throwable {
         if (Bot.isProductionMode()) {

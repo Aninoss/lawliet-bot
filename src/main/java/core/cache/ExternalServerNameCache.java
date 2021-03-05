@@ -3,6 +3,7 @@ package core.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import core.MainLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class ExternalServerNameCache {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExternalServerNameCache.class);
     
     private static final ExternalServerNameCache ourInstance = new ExternalServerNameCache();
     public static ExternalServerNameCache getInstance() { return ourInstance; }

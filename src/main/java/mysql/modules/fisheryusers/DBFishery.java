@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import constants.FisheryStatus;
 import core.Bot;
+import core.MainLogger;
 import mysql.DBBatch;
 import mysql.DBBeanGenerator;
 import mysql.DBDataLoad;
@@ -31,8 +32,6 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     private DBFishery() {
     }
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBFishery.class);
 
     @Override
     protected CacheBuilder<Object, Object> getCacheBuilder() {

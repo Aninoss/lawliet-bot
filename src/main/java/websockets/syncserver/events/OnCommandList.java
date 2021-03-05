@@ -5,6 +5,7 @@ import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
 import constants.Category;
+import core.MainLogger;
 import core.TextManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,8 +21,6 @@ import java.util.Locale;
 
 @SyncServerEvent(event = "COMMAND_LIST")
 public class OnCommandList implements SyncServerFunction {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(OnCommandList.class);
     
     @Override
     public JSONObject apply(JSONObject jsonObject) {

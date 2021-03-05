@@ -6,6 +6,7 @@ import commands.runnables.UserAccountAbstract;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
@@ -39,7 +40,6 @@ import java.util.concurrent.ExecutionException;
 )
 public class OsuCommand extends UserAccountAbstract implements OnReactionAddListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(OsuCommand.class);
     private final static String EMOJI_CONNECT = "🔍";
     private final static String EMOJI_CANCEL = "❌";
     private final static String GUEST = "Guest";

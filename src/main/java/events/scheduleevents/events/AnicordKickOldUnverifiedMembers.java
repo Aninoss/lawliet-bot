@@ -3,6 +3,7 @@ package events.scheduleevents.events;
 import constants.AssetIds;
 import core.Bot;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventHourly;
 import org.javacord.api.entity.permission.Role;
@@ -15,8 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @ScheduleEventHourly
 public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AnicordKickOldUnverifiedMembers.class);
 
     @Override
     public void run() throws Throwable {

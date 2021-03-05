@@ -1,6 +1,7 @@
 package modules.animenews;
 
 import constants.Language;
+import core.MainLogger;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.StringUtil;
@@ -18,8 +19,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class AnimeNewsDownloader {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeNewsDownloader.class);
 
     public static AnimeNewsPost getPost(Locale locale) throws InterruptedException, ExecutionException {
         String downloadUrl;

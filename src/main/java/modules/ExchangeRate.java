@@ -3,6 +3,7 @@ package modules;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import core.MainLogger;
 import core.Security;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
@@ -15,8 +16,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class ExchangeRate {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExchangeRate.class);
 
     private static final ExchangeRate instance = new ExchangeRate();
 

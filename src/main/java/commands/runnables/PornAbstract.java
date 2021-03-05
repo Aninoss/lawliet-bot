@@ -8,6 +8,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.cache.PatternCache;
 import core.cache.PatreonCache;
@@ -40,8 +41,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class PornAbstract extends Command {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(PornAbstract.class);
 
     private static final Cache<String, ArrayList<PornImage>> alertsCache = CacheBuilder.newBuilder()
             .expireAfterWrite(9, TimeUnit.MINUTES)

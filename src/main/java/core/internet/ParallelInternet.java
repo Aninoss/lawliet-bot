@@ -1,5 +1,6 @@
 package core.internet;
 
+import core.MainLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ParallelInternet {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ParallelInternet.class);
     private final HashMap<String, CompletableFuture<HttpResponse>> responseHashMap = new HashMap<>();
     int size;
 

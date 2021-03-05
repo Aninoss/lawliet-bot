@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 
 public class CustomThread extends Thread {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CustomThread.class);
-
     public CustomThread(Runnable target, String name) {
         this(target, name, 0);
     }

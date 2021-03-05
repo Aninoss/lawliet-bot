@@ -31,8 +31,6 @@ import java.util.Locale;
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RedditCommand.class);
-
     public RedditCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }

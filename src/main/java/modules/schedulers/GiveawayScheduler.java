@@ -28,7 +28,6 @@ import java.util.List;
 
 public class GiveawayScheduler {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(GiveawayScheduler.class);
     private static final GiveawayScheduler ourInstance = new GiveawayScheduler();
 
     public static GiveawayScheduler getInstance() {

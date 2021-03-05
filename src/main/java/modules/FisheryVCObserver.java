@@ -1,10 +1,7 @@
 package modules;
 
 import constants.FisheryStatus;
-import core.Bot;
-import core.CustomThread;
-import core.IntervalBlock;
-import core.DiscordApiManager;
+import core.*;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryServerBean;
@@ -32,7 +29,6 @@ public class FisheryVCObserver {
     private FisheryVCObserver() {
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(FisheryVCObserver.class);
     private final int VC_CHECK_INTERVAL_MIN = 1;
 
     private boolean active = false;

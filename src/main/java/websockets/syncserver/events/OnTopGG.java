@@ -2,6 +2,7 @@ package websockets.syncserver.events;
 
 import constants.FisheryStatus;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.cache.PatreonCache;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
@@ -23,8 +24,6 @@ import java.util.concurrent.ExecutionException;
 
 @SyncServerEvent(event = "TOPGG")
 public class OnTopGG implements SyncServerFunction {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(OnTopGG.class);
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {

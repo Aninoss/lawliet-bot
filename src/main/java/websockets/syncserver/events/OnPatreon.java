@@ -1,5 +1,6 @@
 package websockets.syncserver.events;
 
+import core.MainLogger;
 import core.cache.PatreonCache;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -11,8 +12,6 @@ import java.util.HashMap;
 
 @SyncServerEvent(event = "PATREON")
 public class OnPatreon implements SyncServerFunction {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(OnPatreon.class);
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {

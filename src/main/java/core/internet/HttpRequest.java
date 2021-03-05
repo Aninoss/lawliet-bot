@@ -1,6 +1,7 @@
 package core.internet;
 
 import core.GlobalThreadPool;
+import core.MainLogger;
 import core.utils.BotUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class HttpRequest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
     private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss", BotUtil.getCurrentVersion());
 
     public static CompletableFuture<HttpResponse> getData(String urlString, HttpProperty... headers) {

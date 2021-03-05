@@ -78,7 +78,6 @@ public class ReactionRolesCommandReactionAddReactionRemove extends Command imple
     private boolean removeRole = true, editMode = false, multipleRoles = true;
     private Message editMessage;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommandReactionAddReactionRemove.class);
     private static final Cache<Long, Boolean> blockCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
             .build();

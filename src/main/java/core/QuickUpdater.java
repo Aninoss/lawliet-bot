@@ -19,8 +19,6 @@ public class QuickUpdater {
     private QuickUpdater() {
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(QuickUpdater.class);
-
     private final Cache<String, Supplier<CompletableFuture<?>>> supplierMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();

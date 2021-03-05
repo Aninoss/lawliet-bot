@@ -10,6 +10,7 @@ import constants.LogStatus;
 import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import mysql.modules.commandmanagement.CommandManagementBean;
 import mysql.modules.commandmanagement.DBCommandManagement;
@@ -36,8 +37,6 @@ import java.util.stream.Collectors;
         aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman"}
 )
 public class CommandManagementCommand extends Command implements OnNavigationListenerOld {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(CommandManagementCommand.class);
 
     private CommandManagementBean commandManagementBean;
     private String category;

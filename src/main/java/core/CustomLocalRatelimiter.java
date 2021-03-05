@@ -10,8 +10,6 @@ import java.util.concurrent.ExecutionException;
 //TODO: remove
 public class CustomLocalRatelimiter implements Ratelimiter {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CustomLocalRatelimiter.class);
-
     private volatile long nextRequest = 0;
 
     private final long nanos;

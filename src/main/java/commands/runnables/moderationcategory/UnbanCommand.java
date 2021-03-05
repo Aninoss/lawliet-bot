@@ -2,6 +2,7 @@ package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
 import constants.PermissionDeprecated;
+import core.MainLogger;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import org.javacord.api.entity.message.Message;
@@ -24,8 +25,6 @@ import java.util.stream.Collectors;
         executableWithoutArgs = false
 )
 public class UnbanCommand extends WarnCommand  {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(UnbanCommand.class);
 
     public UnbanCommand(Locale locale, String prefix) {
         super(locale, prefix);

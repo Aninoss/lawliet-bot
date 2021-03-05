@@ -2,6 +2,7 @@ package modules.schedulers;
 
 import commands.runnables.utilitycategory.ReminderCommand;
 import constants.PermissionDeprecated;
+import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
@@ -13,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 public class ReminderScheduler {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReminderScheduler.class);
 
     private static final ReminderScheduler ourInstance = new ReminderScheduler();
 

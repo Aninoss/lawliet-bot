@@ -37,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 )
 public class WarnRemoveCommand extends Command implements OnReactionAddListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(WarnRemoveCommand.class);
     private ArrayList<User> users;
     private int n;
     private String nString, userString;

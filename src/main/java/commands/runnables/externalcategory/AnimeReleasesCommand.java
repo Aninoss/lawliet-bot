@@ -30,8 +30,6 @@ import java.util.Locale;
 )
 public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AnimeReleasesCommand.class);
-
     public AnimeReleasesCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }

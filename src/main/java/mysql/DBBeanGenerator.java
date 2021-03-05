@@ -3,6 +3,7 @@ package mysql;
 import core.Bot;
 import core.CustomThread;
 import core.IntervalBlock;
+import core.MainLogger;
 import mysql.interfaces.CompleteLoadOnStartup;
 import mysql.interfaces.IntervalSave;
 import com.google.common.cache.CacheBuilder;
@@ -20,8 +21,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 
 public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached implements Observer {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBBeanGenerator.class);
 
     private final DBBeanGenerator<T, U> instance = this;
     private ArrayList<U> changed;

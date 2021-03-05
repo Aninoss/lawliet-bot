@@ -1,6 +1,7 @@
 package events.discordevents;
 
 import core.DiscordApiManager;
+import core.MainLogger;
 import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
@@ -9,10 +10,7 @@ import java.util.ArrayList;
 
 public abstract class DiscordEventAbstract {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordEventAbstract.class);
-
     private final DiscordEvent discordEvent;
-
 
     public DiscordEventAbstract() {
         discordEvent = this.getClass().getAnnotation(DiscordEvent.class);

@@ -5,6 +5,7 @@ import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
@@ -32,8 +33,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class FisheryUserBean extends BeanWithServer {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(FisheryUserBean.class);
 
     private final long userId;
     private FisheryServerBean fisheryServerBean = null;

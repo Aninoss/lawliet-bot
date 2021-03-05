@@ -42,7 +42,6 @@ public class DiscordConnector {
         DiscordApiManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
     }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordConnector.class);
     private final DiscordEventManagerDeprecated discordEventManagerDeprecated = new DiscordEventManagerDeprecated();
     private boolean started = false;
 

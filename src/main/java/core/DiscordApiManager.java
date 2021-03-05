@@ -13,8 +13,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import websockets.syncserver.SendEvent;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -24,8 +22,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class DiscordApiManager {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordApiManager.class);
 
     private static final DiscordApiManager ourInstance = new DiscordApiManager();
 

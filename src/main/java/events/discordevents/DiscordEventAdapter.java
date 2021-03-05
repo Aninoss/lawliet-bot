@@ -2,6 +2,7 @@ package events.discordevents;
 
 import core.DiscordConnector;
 import core.GlobalThreadPool;
+import core.MainLogger;
 import core.cache.MessageCache;
 import events.discordevents.eventtypeabstracts.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -35,8 +36,6 @@ import java.util.Objects;
 import java.util.Set;
 
 public class DiscordEventAdapter extends ListenerAdapter {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
 
     private final HashMap<Class<?>, ArrayList<DiscordEventAbstract>> listenerMap;
 

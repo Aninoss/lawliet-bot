@@ -13,8 +13,6 @@ import java.time.Instant;
 
 public class Main {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Main.class);
-
     public static void main(String[] args) {
         try {
             Bot.init();

@@ -1,6 +1,7 @@
 package mysql.modules.autochannel;
 
 import core.CustomObservableList;
+import core.MainLogger;
 import mysql.BeanWithServer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -11,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class AutoChannelBean extends BeanWithServer {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AutoChannelBean.class);
 
     private boolean active, locked;
     private String nameMask;

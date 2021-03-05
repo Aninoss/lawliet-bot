@@ -8,6 +8,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.PermissionDeprecated;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -33,8 +34,6 @@ import java.util.concurrent.ExecutionException;
         aliases = {"slots", "slotmachine"}
 )
 public class SlotCommand extends CasinoAbstract implements OnReactionAddListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(SlotCommand.class);
 
     private String log;
     private int winLevel;

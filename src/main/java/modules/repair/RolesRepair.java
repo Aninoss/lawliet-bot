@@ -2,6 +2,7 @@ package modules.repair;
 
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
+import core.MainLogger;
 import core.PermissionCheckRuntime;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
@@ -25,8 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class RolesRepair {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(RolesRepair.class);
 
     private static final RolesRepair ourInstance = new RolesRepair();
 

@@ -6,6 +6,7 @@ import commands.listeners.OnReactionAddListener;
 import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.BotPermissionUtil;
@@ -35,8 +36,6 @@ import java.util.concurrent.ExecutionException;
         aliases = { "giverole", "assign" }
 )
 public class AssignRoleCommand extends Command implements OnReactionAddListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AssignRoleCommand.class);
 
     private static final String CANCEL_EMOJI = "❌";
 

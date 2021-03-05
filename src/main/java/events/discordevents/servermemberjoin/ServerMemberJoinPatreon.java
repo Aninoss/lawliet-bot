@@ -3,6 +3,7 @@ package events.discordevents.servermemberjoin;
 import constants.AssetIds;
 import constants.Settings;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -14,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class ServerMemberJoinPatreon extends ServerMemberJoinAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberJoinPatreon.class);
 
     @Override
     public boolean onServerMemberJoin(ServerMemberJoinEvent event) throws Throwable {

@@ -1,6 +1,7 @@
 package modules.graphics;
 
 import core.AttributedStringGenerator;
+import core.MainLogger;
 import core.ResourceHandler;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -17,8 +18,6 @@ import java.net.URL;
 import java.text.AttributedCharacterIterator;
 
 public class WelcomeGraphics {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(WelcomeGraphics.class);
 
     private static final int BASE_WIDTH = 800;
     private static final int BASE_HEIGHT = 270;

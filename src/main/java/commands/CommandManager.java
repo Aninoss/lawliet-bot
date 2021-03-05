@@ -6,7 +6,6 @@ import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
-import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.*;
 import core.*;
@@ -309,23 +308,6 @@ public class CommandManager {
         }
 
         return false;
-    }
-
-    private static void sendOverwrittenSignals(MessageCreateEvent event) {
-        ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
-        for (int i = list.size() - 1; i >= 0; i--) {
-            Command command = list.get(i);
-            if (command != null &&
-                    (event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) &&
-                    (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)
-            ) {
-                if (command instanceof OnMessageInputListener)
-                    ((OnMessageInputListener) command).onNewActivityOverwrite();
-                else if (command instanceof OnNavigationListenerOld)
-                    ((OnNavigationListenerOld) command).onNewActivityOverwrite();
-                break;
-            }
-        }
     }
 
     private static void sendOverwrittenSignals(Command command, Member member) {

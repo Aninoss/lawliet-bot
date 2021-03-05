@@ -5,10 +5,7 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import constants.Category;
 import constants.PermissionDeprecated;
-import core.EmbedFactory;
-import core.DiscordApiManager;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import modules.Mod;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
@@ -24,8 +21,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public abstract class AutoModAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AutoModAbstract.class);
 
     private final Message message;
 

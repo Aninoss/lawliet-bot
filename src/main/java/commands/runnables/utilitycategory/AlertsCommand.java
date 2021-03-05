@@ -9,6 +9,7 @@ import commands.listeners.OnTrackerRequestListener;
 import constants.*;
 import core.DiscordApiManager;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
@@ -41,8 +42,6 @@ import java.util.stream.Collectors;
         aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize", "feed", "feeds" }
 )
 public class AlertsCommand extends Command implements OnNavigationListenerOld {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AlertsCommand.class);
 
     private final int
             STATE_ADD = 1,

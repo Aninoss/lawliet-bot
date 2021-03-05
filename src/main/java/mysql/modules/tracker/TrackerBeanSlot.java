@@ -1,5 +1,6 @@
 package mysql.modules.tracker;
 
+import core.MainLogger;
 import mysql.BeanWithServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -11,8 +12,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class TrackerBeanSlot extends BeanWithServer {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(TrackerBeanSlot.class);
 
     private final long channelId;
     private Long messageId;

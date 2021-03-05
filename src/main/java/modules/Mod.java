@@ -5,10 +5,7 @@ import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
 import constants.PermissionDeprecated;
-import core.EmbedFactory;
-import core.GlobalThreadPool;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
@@ -33,7 +30,6 @@ import java.util.concurrent.ExecutionException;
 
 public class Mod {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Mod.class);
     private static final String EMOJI_AUTOMOD = "👷";
 
     public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason, boolean withAutoActions) throws ExecutionException {

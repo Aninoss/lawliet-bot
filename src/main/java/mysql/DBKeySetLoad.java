@@ -1,5 +1,6 @@
 package mysql;
 
+import core.MainLogger;
 import mysql.interfaces.SQLFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +11,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class DBKeySetLoad<T> {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(DBKeySetLoad.class);
 
    private final Statement statement;
 

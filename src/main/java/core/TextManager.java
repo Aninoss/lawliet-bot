@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 
 public class TextManager {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TextManager.class);
     public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", VERSIONS = "versions", FAQ = "faq";
 
     public static String getString(Locale locale, String category, String key, String... args) {

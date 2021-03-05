@@ -3,6 +3,7 @@ package modules;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.CustomThread;
+import core.MainLogger;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -15,8 +16,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class RoleAssigner {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(RoleAssigner.class);
 
     private static final RoleAssigner ourInstance = new RoleAssigner();
 

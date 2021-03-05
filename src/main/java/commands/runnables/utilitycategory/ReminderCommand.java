@@ -6,6 +6,7 @@ import commands.listeners.OnReactionAddListener;
 import constants.PermissionDeprecated;
 import core.CustomObservableMap;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
@@ -38,8 +39,6 @@ import java.util.Locale;
         aliases = { "remindme", "remind", "reminders", "schedule", "scheduler", "schedulers" }
 )
 public class ReminderCommand extends Command implements OnReactionAddListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReminderCommand.class);
 
     private final String CANCEL_EMOJI = "❌";
 

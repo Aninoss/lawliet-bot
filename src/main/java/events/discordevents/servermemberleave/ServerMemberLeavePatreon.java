@@ -2,6 +2,7 @@ package events.discordevents.servermemberleave;
 
 import constants.AssetIds;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -13,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 @DiscordEvent
 public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerMemberLeavePatreon.class);
 
     @Override
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {

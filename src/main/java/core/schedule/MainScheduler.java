@@ -3,6 +3,7 @@ package core.schedule;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.Bot;
+import core.MainLogger;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
 import org.slf4j.Logger;
@@ -18,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class MainScheduler {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(MainScheduler.class);
 
     private static final MainScheduler ourInstance = new MainScheduler();
 

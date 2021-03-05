@@ -5,6 +5,7 @@ import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.*;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
@@ -35,8 +36,6 @@ import java.util.concurrent.ExecutionException;
         executableWithoutArgs = true
 )
 public class QuizCommand extends CasinoAbstract implements OnReactionAddListener {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(QuizCommand.class);
 
     private String log;
     private LogStatus logStatus;

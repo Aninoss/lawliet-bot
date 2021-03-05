@@ -2,6 +2,7 @@ package core.utils;
 
 import com.vdurmont.emoji.EmojiParser;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.TextManager;
 import core.UnicodeEmoji;
 import core.cache.PatternCache;
@@ -32,8 +33,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MentionUtil {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(MentionUtil.class);
 
     public static MentionList<User> getUsers(Message message, String content) {
         return getUsers(message, content, message.getServer().get().getMembers());

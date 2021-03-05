@@ -2,6 +2,7 @@ package modules.reddit;
 
 import constants.Category;
 import constants.Locales;
+import core.MainLogger;
 import core.TextManager;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
@@ -24,7 +25,6 @@ import java.util.concurrent.ExecutionException;
 
 public class RedditDownloader {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RedditDownloader.class);
     private final static int TIMEOUT_MIN = 60;
     private static Instant nextRequestBlockUntil = null;
 

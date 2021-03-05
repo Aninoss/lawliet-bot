@@ -2,6 +2,7 @@ package modules;
 
 import constants.AssetIds;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
@@ -21,8 +22,6 @@ public class BumpReminder {
 
     private BumpReminder() {
     }
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(BumpReminder.class);
 
     private boolean started = false;
     private boolean countdownRunning = false;

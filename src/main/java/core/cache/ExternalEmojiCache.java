@@ -3,6 +3,7 @@ package core.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import core.MainLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.emoji.CustomEmoji;
 import org.slf4j.Logger;
@@ -14,8 +15,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class ExternalEmojiCache {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExternalEmojiCache.class);
 
     private static final ExternalEmojiCache ourInstance = new ExternalEmojiCache();
     public static ExternalEmojiCache getInstance() { return ourInstance; }

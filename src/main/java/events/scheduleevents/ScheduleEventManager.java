@@ -1,5 +1,6 @@
 package events.scheduleevents;
 
+import core.MainLogger;
 import core.schedule.ScheduleAdapter;
 import core.schedule.ScheduleInterface;
 import core.utils.TimeUtil;
@@ -16,7 +17,6 @@ import java.util.function.Consumer;
 
 public class ScheduleEventManager {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleEventManager.class);
     private final int DELAY = 1000;
 
     private boolean started = false;

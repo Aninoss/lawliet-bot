@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
+import core.MainLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
@@ -14,8 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class ServerPatreonBoostCache {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ServerPatreonBoostCache.class);
 
     private static final ServerPatreonBoostCache ourInstance = new ServerPatreonBoostCache();
 

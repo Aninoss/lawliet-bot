@@ -2,6 +2,7 @@ package core.utils;
 
 import com.google.common.net.UrlEscapers;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.schedule.MainScheduler;
 import org.javacord.api.entity.message.Message;
 import org.slf4j.Logger;
@@ -17,8 +18,6 @@ public final class InternetUtil {
 
     private InternetUtil() {
     }
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(InternetUtil.class);
 
     public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
         Message message = DiscordApiManager.getInstance().fetchCacheUser().get()

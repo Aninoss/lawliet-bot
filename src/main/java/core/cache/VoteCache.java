@@ -3,6 +3,7 @@ package core.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.LetterEmojis;
+import core.MainLogger;
 import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
@@ -17,8 +18,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class VoteCache {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(VoteCache.class);
 
     private static final VoteCache ourInstance = new VoteCache();
 

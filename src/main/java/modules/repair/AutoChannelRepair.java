@@ -3,6 +3,7 @@ package modules.repair;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.PermissionDeprecated;
 import core.DiscordApiManager;
+import core.MainLogger;
 import core.PermissionCheckRuntime;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
@@ -19,8 +20,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AutoChannelRepair {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(AutoChannelRepair.class);
 
     private static final AutoChannelRepair ourInstance = new AutoChannelRepair();
 
