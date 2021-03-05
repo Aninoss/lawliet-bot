@@ -316,8 +316,7 @@ public class CommandContainer {
     }
 
 
-
-    public <T> void registerListener(Class<?> clazz, CommandListenerMeta<T> commandListenerMeta) {
+    public synchronized <T> void registerListener(Class<?> clazz, CommandListenerMeta<T> commandListenerMeta) {
         Cache<Long, CommandListenerMeta<?>> cache = listenerMap.computeIfAbsent(
                 clazz,
                 e -> CacheBuilder.newBuilder()
@@ -332,28 +331,28 @@ public class CommandContainer {
         cache.put(commandListenerMeta.getCommand().getId(), commandListenerMeta);
     }
 
-    public void deregisterListener(Class<?> clazz, Command command) {
+    public synchronized void deregisterListener(Class<?> clazz, Command command) {
         if (listenerMap.containsKey(clazz)) {
             Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(clazz);
             cache.invalidate(command.getId());
         }
     }
 
-    public Collection<CommandListenerMeta<?>> getListeners(Class<?> clazz) {
+    public synchronized Collection<CommandListenerMeta<?>> getListeners(Class<?> clazz) {
         if (!listenerMap.containsKey(clazz)) {
             return Collections.emptyList();
         }
         return listenerMap.get(clazz).asMap().values();
     }
 
-    public Optional<CommandListenerMeta<?>> getListener(Class<?> clazz, Command command) {
+    public synchronized Optional<CommandListenerMeta<?>> getListener(Class<?> clazz, Command command) {
         if (!listenerMap.containsKey(clazz)) {
             return Optional.empty();
         }
         return Optional.ofNullable(listenerMap.get(clazz).getIfPresent(command.getId()));
     }
 
-    public void refreshListener(Class<?> clazz, Command command) {
+    public synchronized void refreshListener(Class<?> clazz, Command command) {
         if (listenerMap.containsKey(clazz)) {
             Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(clazz);
             CommandListenerMeta<?> meta = cache.getIfPresent(command.getId());
@@ -361,6 +360,12 @@ public class CommandContainer {
                 cache.put(command.getId(), meta);
             }
         }
+    }
+
+    public synchronized int getListenerSize() {
+        return (int) listenerMap.values().stream()
+                .mapToLong(Cache::size)
+                .sum();
     }
 
 }

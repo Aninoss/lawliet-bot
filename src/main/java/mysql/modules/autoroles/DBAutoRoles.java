@@ -26,8 +26,8 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
         );
 
         autoRolesBean.getRoleIds()
-                .addListAddListener(list -> list.forEach(roleId -> addRoleId(autoRolesBean.getServerId(), roleId)))
-                .addListRemoveListener(list -> list.forEach(roleId -> removeRoleId(autoRolesBean.getServerId(), roleId)));
+                .addListAddListener(list -> list.forEach(roleId -> addRoleId(autoRolesBean.getGuildId(), roleId)))
+                .addListRemoveListener(list -> list.forEach(roleId -> removeRoleId(autoRolesBean.getGuildId(), roleId)));
 
         return autoRolesBean;
     }

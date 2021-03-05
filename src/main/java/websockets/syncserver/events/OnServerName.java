@@ -1,6 +1,6 @@
 package websockets.syncserver.events;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import org.javacord.api.entity.Nameable;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
@@ -14,7 +14,7 @@ public class OnServerName implements SyncServerFunction {
         long serverId = jsonObject.getLong("server_id");
         JSONObject responseJson = new JSONObject();
 
-        DiscordApiManager.getInstance().getLocalGuildById(serverId)
+        ShardManager.getInstance().getLocalGuildById(serverId)
                 .map(Nameable::getName)
                 .ifPresent(name ->  responseJson.put("name", name));
 

@@ -1,6 +1,6 @@
 package websockets.syncserver.events;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.EmbedFactory;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -29,7 +29,7 @@ public class OnNotifyOwner implements SyncServerFunction {
         if (jsonObject.has("footer"))
             eb.setFooter(jsonObject.getString("footer"));
 
-        DiscordApiManager.getInstance().fetchUserById(userId)
+        ShardManager.getInstance().fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(userOpt -> {
                     userOpt.ifPresent(user -> user.sendMessage(eb)

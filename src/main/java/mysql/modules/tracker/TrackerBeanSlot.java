@@ -2,14 +2,10 @@ package mysql.modules.tracker;
 
 import core.MainLogger;
 import mysql.BeanWithServer;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class TrackerBeanSlot extends BeanWithServer {
 
@@ -35,15 +31,19 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     public long getChannelId() { return channelId; }
 
-    public Optional<ServerTextChannel> getChannel() { return getServer().flatMap(server -> server.getTextChannelById(channelId)); }
+    public Optional<TextChannel> getChannel() {
+        return getServer().flatMap(guild -> Optional.ofNullable(guild.getTextChannelById(channelId)));
+    }
 
-    public Optional<Long> getMessageId() { return Optional.ofNullable(messageId); }
+    public Optional<Long> getMessageId() {
+        return Optional.ofNullable(messageId);
+    }
 
     public Optional<Message> getMessage() {
         return getChannel().flatMap(channel -> {
             try {
-                return Optional.ofNullable(channel.getMessageById(messageId != null ? messageId : 0L).get());
-            } catch (InterruptedException | ExecutionException e) {
+                return Optional.ofNullable(channel.retrieveMessageById(messageId != null ? messageId : 0L).complete());
+            } catch (Throwable e) {
                 //Ignore
             }
             return Optional.empty();

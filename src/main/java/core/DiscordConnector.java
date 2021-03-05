@@ -2,7 +2,6 @@ package core;
 
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
-import events.discordevents.DiscordEventManagerDeprecated;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
 import modules.FisheryVCObserver;
@@ -14,20 +13,13 @@ import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ReconnectedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import websockets.syncserver.SyncManager;
-
 import javax.security.auth.login.LoginException;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class DiscordConnector {
@@ -39,17 +31,16 @@ public class DiscordConnector {
     }
 
     private DiscordConnector() {
-        DiscordApiManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
+        ShardManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
     }
 
-    private final DiscordEventManagerDeprecated discordEventManagerDeprecated = new DiscordEventManagerDeprecated();
     private boolean started = false;
 
     public void connect(int shardMin, int shardMax, int totalShards) {
         if (started) return;
         started = true;
 
-        DiscordApiManager.getInstance().init(shardMin, shardMax, totalShards);
+        ShardManager.getInstance().init(shardMin, shardMax, totalShards);
         DBFishery.getInstance().cleanUp();
         FisheryVCObserver.getInstance().start();
 
@@ -72,7 +63,7 @@ public class DiscordConnector {
         MainLogger.get().info("Shard {} is getting reconnected...", shardId);
 
         try {
-            createBuilder().useSharding(shardId, DiscordApiManager.getInstance().getTotalShards())
+            createBuilder().useSharding(shardId, ShardManager.getInstance().getTotalShards())
                     .build();
         } catch (LoginException e) {
             MainLogger.get().error("EXIT - Login exception", e);
@@ -83,22 +74,22 @@ public class DiscordConnector {
     private JDABuilder createBuilder() {
         //TODO: Add SessionController for global rate limits
         return JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
-                .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .setChunkingFilter(ChunkingFilter.ALL)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
-                .disableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
+                .disableCache(CacheFlag.ROLE_TAGS)
+                .setActivity(Activity.watching(getActivityText()))
                 .addEventListeners(new DiscordEventAdapter());
     }
 
-    public void onApiJoin(JDA jda) {
-        DiscordApiManager.getInstance().addApi(jda);
+    public void onJDAJoin(JDA jda) {
+        ShardManager.getInstance().addJDA(jda);
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
-        if (DiscordApiManager.getInstance().isEverythingConnected() && !DiscordApiManager.getInstance().isFullyConnected()) {
+        if (ShardManager.getInstance().isEverythingConnected() && !ShardManager.getInstance().isReady()) {
             onConnectionCompleted();
         }
 
-        updateActivity(jda);
         MainRepair.start(jda, 5);
     }
 
@@ -109,23 +100,19 @@ public class DiscordConnector {
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
 
-        DiscordApiManager.getInstance().start();
+        ShardManager.getInstance().start();
         SyncManager.getInstance().setFullyConnected();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
     public void updateActivity(JDA jda) {
-        Optional<Long> serverSizeOpt = DiscordApiManager.getInstance().getGlobalServerSize();
-        if (serverSizeOpt.isPresent()) {
-            jda.getPresence().setActivity(Activity.watching("L.help | " + StringUtil.numToString(serverSizeOpt.get()) + " | www.lawlietbot.xyz"));
-        } else {
-            jda.getPresence().setActivity(Activity.watching("L.help | www.lawlietbot.xyz"));
-        }
+        jda.getPresence().setActivity(Activity.watching(getActivityText()));
     }
 
-    public void onSessionResume(JDA jda) {
-        MainLogger.get().debug("Connection has been reestablished!");
-        updateActivity(jda);
+    private String getActivityText() {
+        return ShardManager.getInstance().getGlobalGuildSize()
+                .map(globalGuildSize -> "L.help | " + StringUtil.numToString(globalGuildSize) + " | www.lawlietbot.xyz")
+                .orElse("L.help | www.lawlietbot.xyz");
     }
 
     public boolean isStarted() {

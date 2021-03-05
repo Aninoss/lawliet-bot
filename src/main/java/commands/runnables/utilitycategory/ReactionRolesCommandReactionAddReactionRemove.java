@@ -12,7 +12,7 @@ import constants.LogStatus;
 import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
@@ -36,8 +36,6 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -184,7 +182,7 @@ public class ReactionRolesCommandReactionAddReactionRemove extends Command imple
     }
 
     private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
+        if (emoji.isUnicodeEmoji() || ShardManager.getInstance().emoteIsKnown(emoji.asCustomEmoji().get())) {
             for(EmojiConnection emojiConnection: new ArrayList<>(emojiConnections)) {
                 if(DiscordUtil.emojiIsString(emoji, emojiConnection.getEmojiTag())) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
@@ -428,7 +426,7 @@ public class ReactionRolesCommandReactionAddReactionRemove extends Command imple
     }
 
     private boolean calculateEmoji(Emoji emoji) {
-        if (emoji == null || (emoji.isCustomEmoji() && !DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get()))) {
+        if (emoji == null || (emoji.isCustomEmoji() && !ShardManager.getInstance().emoteIsKnown(emoji.asCustomEmoji().get()))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
         }

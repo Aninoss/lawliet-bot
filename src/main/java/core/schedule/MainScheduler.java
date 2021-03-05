@@ -54,7 +54,7 @@ public class MainScheduler {
     }
 
     public void schedule(Instant dueInstant, String name, Runnable listener) {
-        long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), dueInstant);
+        long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), dueInstant);
         schedule(millis, name, listener);
     }
 

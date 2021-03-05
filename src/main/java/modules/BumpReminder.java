@@ -1,14 +1,12 @@
 package modules;
 
 import constants.AssetIds;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
@@ -32,7 +30,7 @@ public class BumpReminder {
 
         try {
             Instant nextBump = DBBump.getNextBump();
-            long milis = TimeUtil.getMilisBetweenInstants(Instant.now(), nextBump);
+            long milis = TimeUtil.getMillisBetweenInstants(Instant.now(), nextBump);
             startCountdown(milis);
         } catch (Throwable e) {
             MainLogger.get().error("Exception on bump reminder init");
@@ -47,7 +45,7 @@ public class BumpReminder {
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
         MainScheduler.getInstance().schedule(milis, "anicord_bump", () -> {
-            DiscordApiManager.getInstance().getLocalGuildById(ANINOSS_SERVER_ID)
+            ShardManager.getInstance().getLocalGuildById(ANINOSS_SERVER_ID)
                     .flatMap(server -> server.getTextChannelById(BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {
                         channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").exceptionally(ExceptionLogger.get());

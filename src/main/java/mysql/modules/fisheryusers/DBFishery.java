@@ -11,8 +11,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.interfaces.IntervalSave;
 import mysql.modules.server.DBServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,11 +58,11 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         );
 
         fisheryServerBean.getRoleIds()
-                .addListAddListener(list -> list.forEach(roleId -> addRoleId(fisheryServerBean.getServerId(), roleId)))
-                .addListRemoveListener(list -> list.forEach(roleId -> removeRoleId(fisheryServerBean.getServerId(), roleId)));
+                .addListAddListener(list -> list.forEach(roleId -> addRoleId(fisheryServerBean.getGuildId(), roleId)))
+                .addListRemoveListener(list -> list.forEach(roleId -> removeRoleId(fisheryServerBean.getGuildId(), roleId)));
         fisheryServerBean.getIgnoredChannelIds()
-                .addListAddListener(list -> list.forEach(channelId -> addIgnoredChannelId(fisheryServerBean.getServerId(), channelId)))
-                .addListRemoveListener(list -> list.forEach(channelId -> removeIgnoredChannelId(fisheryServerBean.getServerId(), channelId)));
+                .addListAddListener(list -> list.forEach(channelId -> addIgnoredChannelId(fisheryServerBean.getGuildId(), channelId)))
+                .addListRemoveListener(list -> list.forEach(channelId -> removeIgnoredChannelId(fisheryServerBean.getGuildId(), channelId)));
 
         return fisheryServerBean;
     }
@@ -89,14 +88,14 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);
-            MainLogger.get().error("Could not save fishery server {}", fisheryServerBean.getServerId(), e);
+            MainLogger.get().error("Could not save fishery server {}", fisheryServerBean.getGuildId(), e);
         }
     }
 
     private void saveFisheryUserBean(FisheryUserBean fisheryUserBean, DBBatch userBatch, DBBatch hourlyBatch, DBBatch powerUpBatch) {
         try {
             userBatch.add(preparedStatement -> {
-                preparedStatement.setLong(1, fisheryUserBean.getServerId());
+                preparedStatement.setLong(1, fisheryUserBean.getGuildId());
                 preparedStatement.setLong(2, fisheryUserBean.getUserId());
                 preparedStatement.setLong(3, fisheryUserBean.getFish());
                 preparedStatement.setLong(4, fisheryUserBean.getCoinsRaw());
@@ -115,7 +114,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .forEach(powerUpBean -> saveFisheryUserPowerUpBean(powerUpBean, powerUpBatch));
         } catch (Throwable e) {
             fisheryUserBean.setChanged();
-            MainLogger.get().error("Could not save fishery user {} on server {}", fisheryUserBean.getUserId(), fisheryUserBean.getServerId(), e);
+            MainLogger.get().error("Could not save fishery user {} on server {}", fisheryUserBean.getUserId(), fisheryUserBean.getGuildId(), e);
         }
     }
 
@@ -149,17 +148,17 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
     protected void removeFisheryUserBean(FisheryUserBean fisheryUserBean) {
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, fisheryUserBean.getServerId());
+            preparedStatement.setLong(1, fisheryUserBean.getGuildId());
             preparedStatement.setLong(2, fisheryUserBean.getUserId());
         });
 
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserPowerUp WHERE serverId = ? AND userId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, fisheryUserBean.getServerId());
+            preparedStatement.setLong(1, fisheryUserBean.getGuildId());
             preparedStatement.setLong(2, fisheryUserBean.getUserId());
         });
 
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE serverId = ? AND userId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, fisheryUserBean.getServerId());
+            preparedStatement.setLong(1, fisheryUserBean.getGuildId());
             preparedStatement.setLong(2, fisheryUserBean.getUserId());
         });
     }
@@ -305,7 +304,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
 
         DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         getCache().invalidate(serverId);
-        removeUpdateIf(fisheryServerBean -> fisheryServerBean.getServerId() == serverId);
+        removeUpdateIf(fisheryServerBean -> fisheryServerBean.getGuildId() == serverId);
     }
 
     @Override

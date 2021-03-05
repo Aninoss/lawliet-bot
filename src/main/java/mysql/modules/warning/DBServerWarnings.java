@@ -57,7 +57,7 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
 
     private void addWarning(ServerWarningsSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Warnings (serverId, userId, time, requestorUserId, reason) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, serverWarningsSlot.getServerId());
+            preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getUserId());
             preparedStatement.setString(3, DBMain.instantToDateTimeString(serverWarningsSlot.getTime()));
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());
@@ -70,7 +70,7 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
 
     private void removeWarning(ServerWarningsSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Warnings WHERE serverId = ? AND userId = ? AND time = ? AND requestorUserId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, serverWarningsSlot.getServerId());
+            preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getUserId());
             preparedStatement.setString(3, DBMain.instantToDateTimeString(serverWarningsSlot.getTime()));
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());

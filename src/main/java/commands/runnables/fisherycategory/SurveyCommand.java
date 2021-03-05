@@ -5,7 +5,7 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryAbstract;
 import constants.*;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
@@ -95,7 +95,7 @@ public class SurveyCommand extends FisheryAbstract implements OnStaticReactionAd
         else voteStrings[1] = "";
 
         for (SurveySecondVote surveySecondVote : surveySecondVotes) {
-            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(DiscordApiManager.getInstance().getServerName(surveySecondVote.getServerId()).orElse(String.valueOf(surveySecondVote.getServerId()))) + ")\n";
+            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getServerId()).orElse(String.valueOf(surveySecondVote.getServerId()))) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)

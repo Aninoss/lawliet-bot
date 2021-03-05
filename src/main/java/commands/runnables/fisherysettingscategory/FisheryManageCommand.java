@@ -55,7 +55,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             return false;
         }
 
-        MentionList<User> userMentions = MentionUtil.getUsers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
         List<User> list = userMentions
                 .getList()
                 .stream()

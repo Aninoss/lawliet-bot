@@ -1,11 +1,11 @@
 package events.discordevents;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import mysql.modules.bannedusers.DBBannedUsers;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 
 public abstract class DiscordEventAbstract {
@@ -36,8 +36,10 @@ public abstract class DiscordEventAbstract {
         execute(listenerList, user, 0L, function);
     }
 
-    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long serverId, EventExecution function) {
-        if ((user != null && DiscordApiManager.getInstance().getSelfId() == user.getIdLong()) || !DiscordApiManager.getInstance().getDiscordApiBlocker().serverIsAvailable(serverId)) {
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long guildId, EventExecution function) {
+        if ((user != null && ShardManager.getInstance().getSelfId() == user.getIdLong()) ||
+                !ShardManager.getInstance().getJDABlocker().guildIsAvailable(guildId)
+        ) {
             return;
         }
 

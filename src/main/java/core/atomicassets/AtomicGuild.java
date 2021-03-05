@@ -1,6 +1,6 @@
 package core.atomicassets;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.Optional;
@@ -8,6 +8,10 @@ import java.util.Optional;
 public class AtomicGuild implements AtomicAsset<Guild> {
 
     private final long guildId;
+
+    public AtomicGuild(long guildId) {
+        this.guildId = guildId;
+    }
 
     public AtomicGuild(Guild guild) {
         guildId = guild.getIdLong();
@@ -20,7 +24,7 @@ public class AtomicGuild implements AtomicAsset<Guild> {
 
     @Override
     public Optional<Guild> get() {
-        return DiscordApiManager.getInstance().getLocalGuildById(guildId);
+        return ShardManager.getInstance().getLocalGuildById(guildId);
     }
 
 }

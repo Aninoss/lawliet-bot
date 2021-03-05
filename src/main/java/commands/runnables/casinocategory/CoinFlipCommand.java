@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -18,8 +19,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.Random;
@@ -90,7 +89,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
             case 1:
                 return EMOJIS[1];
             default:
-                return StringUtil.getLoadingReaction(channel);
+                return JDAUtil.getLoadingReaction(channel);
         }
     }
 

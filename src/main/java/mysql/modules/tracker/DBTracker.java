@@ -2,7 +2,7 @@ package mysql.modules.tracker;
 
 import core.AlertScheduler;
 import core.CustomThread;
-import core.DiscordApiManager;
+import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
@@ -35,10 +35,10 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
     @Override
     protected TrackerBean loadBean() throws Exception {
         ArrayList<TrackerBeanSlot> slots = new DBDataLoad<TrackerBeanSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?", preparedStatement -> {
-            preparedStatement.setInt(1, DiscordApiManager.getInstance().getTotalShards());
-            preparedStatement.setInt(2, DiscordApiManager.getInstance().getShardIntervalMin());
-            preparedStatement.setInt(3, DiscordApiManager.getInstance().getTotalShards());
-            preparedStatement.setInt(4, DiscordApiManager.getInstance().getShardIntervalMax());
+            preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
+            preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
+            preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
+            preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
         }).getArrayList(
                 resultSet -> new TrackerBeanSlot(
                         resultSet.getLong(1),
@@ -66,7 +66,7 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
 
     protected void insertTracker(TrackerBeanSlot slot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, slot.getServerId());
+            preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getChannelId());
             preparedStatement.setString(3, slot.getCommandTrigger());
 

@@ -115,7 +115,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
             slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot))
                     .exceptionally(ExceptionLogger.get());
 
-            if (slot.getServerId() == AssetIds.SUPPORT_SERVER_ID) {
+            if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
                 Role role = slot.getServer().get().getRoleById(703879430799622155L).get();
                 slot.getChannel().get().sendMessage(role.getMentionTag())
                         .thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));

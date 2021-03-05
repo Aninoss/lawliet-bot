@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import core.utils.TimeUtil;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -21,32 +20,30 @@ public class RatelimitManager {
     }
 
     private final Cache<String, ArrayList<Instant>> eventCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(5))
+            .expireAfterAccess(Duration.ofMinutes(10))
             .build();
 
     /*
     @return the remaining amount of seconds
      */
-    public Optional<Integer> checkAndSet(String type, Object key, int cap, int capTimeAmount, ChronoUnit capTimeUnit) {
+    public synchronized Optional<Integer> checkAndSet(String type, Object key, int cap, Duration duration) {
         String stringKey = type + ":" + key;
 
         ArrayList<Instant> events = eventCache.asMap().computeIfAbsent(stringKey, k -> new ArrayList<>());
-        synchronized (events) {
-            if (events.size() >= cap) {
-                Instant firstOccurence = events.get(0);
-                long milisAgo = TimeUtil.getMilisBetweenInstants(firstOccurence, Instant.now());
-                long milisCap = Duration.of(capTimeAmount, capTimeUnit).toMillis();
+        if (events.size() >= cap) {
+            Instant firstOccurence = events.get(0);
+            long millisAgo = TimeUtil.getMillisBetweenInstants(firstOccurence, Instant.now());
+            long millisCap = duration.toMillis();
 
-                if (milisAgo < milisCap) {
-                    return Optional.of((int) Math.ceil((milisCap - milisAgo) / 1000.0));
-                } else {
-                    events.remove(0);
-                }
+            if (millisAgo < millisCap) {
+                return Optional.of((int) Math.ceil((millisCap - millisAgo) / 1000.0));
+            } else {
+                events.remove(0);
             }
-
-            events.add(Instant.now());
-            return Optional.empty();
         }
+
+        events.add(Instant.now());
+        return Optional.empty();
     }
 
 }

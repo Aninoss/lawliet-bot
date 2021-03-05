@@ -1,7 +1,7 @@
 package websockets.syncserver.events;
 
 import constants.FisheryStatus;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.cache.PatreonCache;
 import modules.Fishery;
@@ -13,8 +13,6 @@ import mysql.modules.server.DBServer;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvotesBean;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
 
@@ -49,10 +47,10 @@ public class OnTopGG implements SyncServerFunction {
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
         UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean();
         if (upvotesBean.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
-            DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
+            ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                 MainLogger.get().info("UPVOTE | {}", user.getName());
 
-                DiscordApiManager.getInstance().getLocalMutualServers(user).stream()
+                ShardManager.getInstance().getLocalMutualGuilds(user).stream()
                         .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)
                         .forEach(server -> {
                             int value = isWeekend ? 2 : 1;

@@ -1,29 +1,30 @@
 package mysql;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import org.javacord.api.entity.server.Server;
+import net.dv8tion.jda.api.entities.Guild;
 import java.util.Observable;
 import java.util.Optional;
 
 public abstract class BeanWithServer extends Observable {
 
-    private final long serverId;
+    private final long guildId;
 
-    public BeanWithServer(long serverId) {
-        this.serverId = serverId;
+    public BeanWithServer(long guildId) {
+        this.guildId = guildId;
     }
 
     public ServerBean getServerBean() {
-        return DBServer.getInstance().getBean(serverId);
+        return DBServer.getInstance().getBean(guildId);
     }
 
-    public long getServerId() {
-        return serverId;
+    public long getGuildId() {
+        return guildId;
     }
-    public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalGuildById(serverId);
+
+    public Optional<Guild> getServer() {
+        return ShardManager.getInstance().getLocalGuildById(guildId);
     }
 
 }

@@ -4,7 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.PermissionDeprecated;
 import core.EmbedFactory;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.TextManager;
 import core.mention.Mention;
 import core.utils.MentionUtil;
@@ -61,7 +61,7 @@ public class ChannelMuteCommand extends Command {
             return false;
         }
 
-        List<User> userList = MentionUtil.getUsers(message, followedString).getList();
+        List<User> userList = MentionUtil.getMembers(message, followedString).getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
@@ -88,7 +88,7 @@ public class ChannelMuteCommand extends Command {
         if (doneSomething)
             Mod.postLog(this, actionEmbed, event.getServer().get(), userList).join();
 
-        if (!mute || !successfulUsers.contains(DiscordApiManager.getInstance().getSelf()) || channel.getId() != event.getServerTextChannel().get().getId()) {
+        if (!mute || !successfulUsers.contains(ShardManager.getInstance().getSelf()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;
 
             if (doneSomething)

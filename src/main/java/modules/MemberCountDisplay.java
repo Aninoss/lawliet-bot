@@ -2,7 +2,7 @@ package modules;
 
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import constants.PermissionDeprecated;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.PermissionCheckRuntime;
 import core.QuickUpdater;
 import core.utils.StringUtil;
@@ -36,7 +36,7 @@ public class MemberCountDisplay {
                         "member_count_displays",
                         voiceChannel.getId(),
                         () -> {
-                            Server s = DiscordApiManager.getInstance().getLocalGuildById(server.getId()).get();
+                            Server s = ShardManager.getInstance().getLocalGuildById(server.getId()).get();
                             ServerVoiceChannel vc = s.getVoiceChannelById(voiceChannel.getId()).get();
 
                             if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, vc, PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.CONNECT)) {

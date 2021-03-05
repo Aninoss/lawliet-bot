@@ -1,7 +1,7 @@
 package events.scheduleevents.events;
 
 import core.Bot;
-import core.DiscordApiManager;
+import core.ShardManager;
 import events.scheduleevents.ScheduleEventFixedRate;
 import core.schedule.ScheduleInterface;
 import websockets.*;
@@ -14,7 +14,7 @@ public class SendBotServerCount implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 1) {
-            DiscordApiManager.getInstance().getGlobalServerSize().ifPresent(totalServers -> {
+            ShardManager.getInstance().getGlobalGuildSize().ifPresent(totalServers -> {
                 TopGG.getInstance().updateServerCount(totalServers);
                 Botsfordiscord.updateServerCount(totalServers);
                 BotsOnDiscord.updateServerCount(totalServers);

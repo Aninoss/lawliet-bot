@@ -19,14 +19,14 @@ public class AttributedStringGenerator {
     }
 
     public AttributedCharacterIterator getIterator(String str) {
-        AttributedString astr = new AttributedString(str);
+        AttributedString attributedString = new AttributedString(str);
         if (str.length() > 0) {
             int i = 0;
             while (i < str.length()) {
                 Optional<FontBounds> fontBoundsOpt = getFontBounds(str.substring(i));
                 if (fontBoundsOpt.isPresent()) {
                     FontBounds fontBounds = fontBoundsOpt.get();
-                    astr.addAttribute(TextAttribute.FONT, fontBounds.font, i, i + fontBounds.length);
+                    attributedString.addAttribute(TextAttribute.FONT, fontBounds.font, i, i + fontBounds.length);
                     i += fontBounds.length;
                 } else {
                     i++;
@@ -34,7 +34,7 @@ public class AttributedStringGenerator {
             }
         }
 
-        return astr.getIterator();
+        return attributedString.getIterator();
     }
 
     private Optional<FontBounds> getFontBounds(String str) {

@@ -5,8 +5,7 @@ import core.schedule.ScheduleAdapter;
 import core.schedule.ScheduleInterface;
 import core.utils.TimeUtil;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.lang.annotation.Annotation;
 import java.time.Duration;
 import java.time.Instant;
@@ -62,7 +61,7 @@ public class ScheduleEventManager {
     private void attachHourly(ScheduleInterface listener) {
         ScheduleEventHourly fixedRateHourly = listener.getClass().getAnnotation(ScheduleEventHourly.class);
         if (fixedRateHourly != null) {
-            long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.instantToNextHour(Instant.now()));
+            long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.instantToNextHour(Instant.now()));
             timer.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 60 * 60 * 1000);
         }
     }
@@ -70,7 +69,7 @@ public class ScheduleEventManager {
     private void attachDaily(ScheduleInterface listener) {
         ScheduleEventDaily fixedRateDaily = listener.getClass().getAnnotation(ScheduleEventDaily.class);
         if (fixedRateDaily != null) {
-            long millis = TimeUtil.getMilisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextDay(Instant.now()));
+            long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextDay(Instant.now()));
             timer.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 24 * 60 * 60 * 1000);
         }
     }

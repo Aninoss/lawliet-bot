@@ -1,7 +1,7 @@
 package mysql.modules.fisheryusers;
 
 import constants.FisheryCategoryInterface;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.utils.NumberUtil;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -31,7 +31,7 @@ public class FisheryUserPowerUpBean {
         return serverId;
     }
 
-    public Optional<Server> getServer() { return DiscordApiManager.getInstance().getLocalGuildById(serverId); }
+    public Optional<Server> getServer() { return ShardManager.getInstance().getLocalGuildById(serverId); }
 
     public long getUserId() { return userId; }
 

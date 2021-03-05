@@ -14,7 +14,7 @@ public class FileManager {
                 new InputStreamReader(
                         new FileInputStream(file), StandardCharsets.UTF_8));
 
-        String line = "";
+        String line;
         while((line = br.readLine()) != null) {
             list.add(line);
         }

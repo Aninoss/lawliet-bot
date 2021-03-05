@@ -51,14 +51,14 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
         preparedStatement.close();
 
         bannedWordsBean.getIgnoredUserIds()
-                .addListAddListener(list -> list.forEach(userId -> addIgnoredUser(bannedWordsBean.getServerId(), userId)))
-                .addListRemoveListener(list -> list.forEach(userId -> removeIgnoredUser(bannedWordsBean.getServerId(), userId)));
+                .addListAddListener(list -> list.forEach(userId -> addIgnoredUser(bannedWordsBean.getGuildId(), userId)))
+                .addListRemoveListener(list -> list.forEach(userId -> removeIgnoredUser(bannedWordsBean.getGuildId(), userId)));
         bannedWordsBean.getLogReceiverUserIds()
-                .addListAddListener(list -> list.forEach(userId -> addLogReceiver(bannedWordsBean.getServerId(), userId)))
-                .addListRemoveListener(list -> list.forEach(userId -> removeLogReceiver(bannedWordsBean.getServerId(), userId)));
+                .addListAddListener(list -> list.forEach(userId -> addLogReceiver(bannedWordsBean.getGuildId(), userId)))
+                .addListRemoveListener(list -> list.forEach(userId -> removeLogReceiver(bannedWordsBean.getGuildId(), userId)));
         bannedWordsBean.getWords()
-                .addListAddListener(list -> list.forEach(word -> addWord(bannedWordsBean.getServerId(), word)))
-                .addListRemoveListener(list -> list.forEach(word -> removeWord(bannedWordsBean.getServerId(), word)));
+                .addListAddListener(list -> list.forEach(word -> addWord(bannedWordsBean.getGuildId(), word)))
+                .addListRemoveListener(list -> list.forEach(word -> removeWord(bannedWordsBean.getGuildId(), word)));
 
         return bannedWordsBean;
     }
@@ -66,7 +66,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     @Override
     protected void saveBean(BannedWordsBean bannedWordsBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO BannedWords (serverId, active) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, bannedWordsBean.getServerId());
+            preparedStatement.setLong(1, bannedWordsBean.getGuildId());
             preparedStatement.setBoolean(2, bannedWordsBean.isActive());
         });
     }

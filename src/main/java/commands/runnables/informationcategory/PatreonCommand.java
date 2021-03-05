@@ -5,7 +5,7 @@ import commands.listeners.CommandProperties;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.Settings;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
@@ -60,7 +60,7 @@ public class PatreonCommand extends Command {
 
         userTiers.keySet().stream()
                 .filter(userId -> userTiers.get(userId) == patreonTier + 1 && Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(uid -> uid == userId))
-                .map(userId -> DiscordApiManager.getInstance().fetchUserById(userId).join())
+                .map(userId -> ShardManager.getInstance().fetchUserById(userId).join())
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .forEach(user -> {

@@ -25,7 +25,7 @@ public abstract class UserAccountAbstract extends Command {
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        MentionList<User> userMention = MentionUtil.getUsers(message,followedString);
+        MentionList<User> userMention = MentionUtil.getMembers(message,followedString);
         ArrayList<User> list = userMention.getList();
 
         if (list.size() > 5) {

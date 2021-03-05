@@ -1,7 +1,7 @@
 package core.cache;
 
 import core.Bot;
-import core.DiscordApiManager;
+import core.ShardManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import websockets.syncserver.SendEvent;
@@ -20,7 +20,7 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
     private PatreonCache() {}
 
     public int getUserTier(long userId) {
-        if (userId == DiscordApiManager.getInstance().getOwnerId())
+        if (userId == ShardManager.getInstance().getOwnerId())
             return 6;
 
         if (!Bot.isProductionMode())

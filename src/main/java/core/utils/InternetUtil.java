@@ -1,7 +1,7 @@
 package core.utils;
 
 import com.google.common.net.UrlEscapers;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import net.dv8tion.jda.api.entities.Message;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ public final class InternetUtil {
     }
 
     public static String getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
-        Message message = JDAUtil.sendPrivateFile(DiscordApiManager.getInstance().fetchCacheUser().get(), inputStream, "welcome.png")
+        Message message = JDAUtil.sendPrivateFile(ShardManager.getInstance().fetchCacheUser().get(), inputStream, "welcome.png")
                 .complete();
 
         String url = message.getAttachments().get(0).getUrl();

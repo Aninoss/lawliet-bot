@@ -1,6 +1,6 @@
 package core.atomicassets;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import net.dv8tion.jda.api.entities.TextChannel;
 import java.util.Optional;
 
@@ -8,6 +8,11 @@ public class AtomicTextChannel implements AtomicAsset<TextChannel> {
 
     private final long guildId;
     private final long channelId;
+
+    public AtomicTextChannel(long guildId, long channelId) {
+        this.guildId = guildId;
+        this.channelId = channelId;
+    }
 
     public AtomicTextChannel(TextChannel channel) {
         channelId = channel.getIdLong();
@@ -21,7 +26,7 @@ public class AtomicTextChannel implements AtomicAsset<TextChannel> {
 
     @Override
     public Optional<TextChannel> get() {
-        return DiscordApiManager.getInstance().getLocalGuildById(guildId)
+        return ShardManager.getInstance().getLocalGuildById(guildId)
                 .flatMap(guild -> Optional.ofNullable(guild.getTextChannelById(channelId)));
     }
 

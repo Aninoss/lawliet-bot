@@ -20,8 +20,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.time.Instant;
@@ -119,7 +117,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public HashMap<Integer, FisheryUserPowerUpBean> getPowerUpMap() { return powerUpMap; }
 
-    public FisheryUserPowerUpBean getPowerUp(int powerUpId) { return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryUserPowerUpBean(getServerId(), userId, powerUpId, 0)); }
+    public FisheryUserPowerUpBean getPowerUp(int powerUpId) { return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryUserPowerUpBean(getGuildId(), userId, powerUpId, 0)); }
 
     public List<FisheryHourlyIncomeBean> getAllFishHourlyIncomeChanged() {
         return fisheryHourlyIncomeMap.values().stream()
@@ -218,7 +216,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     private FisheryHourlyIncomeBean getCurrentFisheryHourlyIncome() {
         Instant currentTimeHour = TimeUtil.instantRoundDownToHour(Instant.now());
-        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(getServerId(), userId, currentTimeHour, 0));
+        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(getGuildId(), userId, currentTimeHour, 0));
     }
 
     public LocalDate getDailyReceived() { return dailyReceived; }
@@ -328,7 +326,7 @@ public class FisheryUserBean extends BeanWithServer {
     public void registerVC(int minutes) throws ExecutionException {
         if (!banned) {
             Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
-            if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getServerId()))
+            if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getGuildId()))
                 minutes = Math.min(minutes, limitOpt.get() * 60 - getVcMinutes());
 
             if (minutes > 0) {

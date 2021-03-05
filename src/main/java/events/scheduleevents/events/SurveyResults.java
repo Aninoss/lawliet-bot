@@ -13,8 +13,6 @@ import mysql.modules.survey.*;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -31,7 +29,7 @@ public class SurveyResults implements ScheduleInterface {
         if (Bot.isProductionMode()) {
             SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
             LocalDate today = LocalDate.now();
-            if (!today.isBefore(surveyBean.getNextDate()) && DiscordApiManager.getInstance().isEverythingConnected()) {
+            if (!today.isBefore(surveyBean.getNextDate()) && ShardManager.getInstance().isEverythingConnected()) {
                 processCurrentResults();
             }
         }
@@ -69,7 +67,7 @@ public class SurveyResults implements ScheduleInterface {
         ArrayList<Long> notificationUsers = Bot.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
-                DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
+                ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                     try {
                         MainLogger.get().info("### SURVEY MANAGE USER {} ###", user.getName());
                         processSurveyUser(secondVotesMap.get(userId), user, won);
@@ -88,7 +86,7 @@ public class SurveyResults implements ScheduleInterface {
         }
 
         notificationUsers.forEach(userId -> {
-            DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
+            ShardManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
                 try {
                     sendSurveyResult(lastSurvey, user, won, percent);
                     Thread.sleep(100);

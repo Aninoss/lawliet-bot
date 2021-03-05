@@ -1,7 +1,7 @@
 package mysql.modules.server;
 
 import constants.FisheryStatus;
-import core.DiscordApiManager;
+import core.ShardManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 import java.util.Locale;
@@ -50,7 +50,7 @@ public class ServerBean extends Observable {
     }
 
     public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalGuildById(serverId);
+        return ShardManager.getInstance().getLocalGuildById(serverId);
     }
 
     public long getFisheryRoleMin() {

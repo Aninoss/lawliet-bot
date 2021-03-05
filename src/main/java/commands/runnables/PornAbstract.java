@@ -24,8 +24,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -162,7 +160,7 @@ public abstract class PornAbstract extends Command {
             return TrackerResult.STOP_AND_DELETE;
         }
 
-        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(slot.getServerId()).getKeywords());
+        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(slot.getGuildId()).getKeywords());
         ArrayList<PornImage> pornImages;
         pornImages = alertsCache.get(getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
                 () -> getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())

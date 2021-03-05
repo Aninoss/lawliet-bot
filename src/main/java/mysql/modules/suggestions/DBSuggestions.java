@@ -60,7 +60,7 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
     @Override
     protected void saveBean(SuggestionsBean suggestionsBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SuggestionConfig (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, suggestionsBean.getServerId());
+            preparedStatement.setLong(1, suggestionsBean.getGuildId());
             preparedStatement.setBoolean(2, suggestionsBean.isActive());
 
             Optional<Long> channelIdOpt = suggestionsBean.getChannelId();

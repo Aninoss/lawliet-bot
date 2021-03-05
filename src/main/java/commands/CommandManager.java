@@ -77,7 +77,7 @@ public class CommandManager {
                 BotPermissionUtil.canWriteEmbed(event.getChannel())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setThumbnail(DiscordApiManager.getInstance().getSelf().getAvatarUrl())
+                    .setThumbnail(ShardManager.getInstance().getSelf().getAvatarUrl())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", ExternalLinks.BOT_INVITE_REMINDER_URL));
 
             event.getChannel().sendMessage(eb.build()).queue();

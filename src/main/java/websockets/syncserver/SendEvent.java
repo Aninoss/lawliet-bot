@@ -1,7 +1,7 @@
 package websockets.syncserver;
 
 import core.Bot;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.cache.PatreonCache;
 import org.json.JSONObject;
 import java.util.HashMap;
@@ -23,9 +23,9 @@ public class SendEvent {
             return CompletableFuture.completedFuture(new JSONObject());
     }
 
-    public static CompletableFuture<Optional<Long>> sendRequestGlobalServerSize(long localServerSize) {
+    public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
         if (!Bot.isProductionMode())
-            return CompletableFuture.completedFuture(DiscordApiManager.getInstance().getLocalServerSize());
+            return CompletableFuture.completedFuture(ShardManager.getInstance().getLocalGuildSize());
 
         return process(
                 "GLOBAL_SERVER_SIZE",

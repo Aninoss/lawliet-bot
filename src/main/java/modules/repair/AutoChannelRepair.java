@@ -2,7 +2,7 @@ package modules.repair;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.PermissionDeprecated;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import mysql.modules.autochannel.AutoChannelBean;
@@ -11,8 +11,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Objects;
@@ -39,7 +37,7 @@ public class AutoChannelRepair {
     public void run(JDA jda) {
         try {
             DBAutoChannel.getInstance().getAllChildChannelServerIds().stream()
-                    .filter(serverId -> DiscordApiManager.getInstance().getResponsibleShard(serverId) == jda.getShardInfo().getShardId())
+                    .filter(serverId -> ShardManager.getInstance().getResponsibleShard(serverId) == jda.getShardInfo().getShardId())
                     .map(jda::getGuildById)
                     .filter(Objects::nonNull)
                     .forEach(this::deleteEmptyVoiceChannels);

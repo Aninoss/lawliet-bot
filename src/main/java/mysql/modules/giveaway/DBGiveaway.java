@@ -1,7 +1,7 @@
 package mysql.modules.giveaway;
 
 import core.CustomObservableMap;
-import core.DiscordApiManager;
+import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleBeanGenerator;
@@ -23,10 +23,10 @@ public class DBGiveaway extends DBSingleBeanGenerator<CustomObservableMap<Long, 
     protected CustomObservableMap<Long, GiveawayBean> loadBean() {
         HashMap<Long, GiveawayBean> giveawaysMap = new DBDataLoad<GiveawayBean>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?",
                 preparedStatement -> {
-                    preparedStatement.setInt(1, DiscordApiManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(2, DiscordApiManager.getInstance().getShardIntervalMin());
-                    preparedStatement.setInt(3, DiscordApiManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(4, DiscordApiManager.getInstance().getShardIntervalMax());
+                    preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
+                    preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
+                    preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
+                    preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
                 }
         ).getHashMap(
                 GiveawayBean::getMessageId,

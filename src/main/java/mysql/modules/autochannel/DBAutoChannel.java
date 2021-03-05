@@ -56,8 +56,8 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         preparedStatement.close();
 
         autoChannelBean.getChildChannelIds()
-                .addListAddListener(list -> list.forEach(channelId -> addChildChannel(autoChannelBean.getServerId(), channelId)))
-                .addListRemoveListener(list -> list.forEach(channelId -> removeChildChannel(autoChannelBean.getServerId(), channelId)));
+                .addListAddListener(list -> list.forEach(channelId -> addChildChannel(autoChannelBean.getGuildId(), channelId)))
+                .addListRemoveListener(list -> list.forEach(channelId -> removeChildChannel(autoChannelBean.getGuildId(), channelId)));
 
         return autoChannelBean;
     }
@@ -65,7 +65,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
     @Override
     protected void saveBean(AutoChannelBean autoChannelBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, locked) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, autoChannelBean.getServerId());
+            preparedStatement.setLong(1, autoChannelBean.getGuildId());
 
             Optional<Long> channelIdOpt = autoChannelBean.getParentChannelId();
             if (channelIdOpt.isPresent()) preparedStatement.setLong(2, channelIdOpt.get());

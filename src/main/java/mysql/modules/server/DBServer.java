@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import constants.Locales;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.ResourceHandler;
 import mysql.DBBeanGenerator;
 import mysql.DBKeySetLoad;
@@ -36,11 +36,11 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
 
     @Override
     protected ServerBean loadBean(Long serverId) throws Exception {
-        int shard = DiscordApiManager.getInstance().getResponsibleShard(serverId);
-        if (shard < DiscordApiManager.getInstance().getShardIntervalMin() || shard > DiscordApiManager.getInstance().getShardIntervalMax())
+        int shard = ShardManager.getInstance().getResponsibleShard(serverId);
+        if (shard < ShardManager.getInstance().getShardIntervalMin() || shard > ShardManager.getInstance().getShardIntervalMax())
             throw new Exception("Invalid server");
 
-        boolean serverPresent = DiscordApiManager.getInstance().getLocalGuildById(serverId).isPresent();
+        boolean serverPresent = ShardManager.getInstance().getLocalGuildById(serverId).isPresent();
         if (serverPresent) {
             removedServerIds.invalidate(serverId);
         }

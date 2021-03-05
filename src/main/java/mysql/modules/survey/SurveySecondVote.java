@@ -1,6 +1,6 @@
 package mysql.modules.survey;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import org.javacord.api.entity.server.Server;
 
 import java.util.Optional;
@@ -21,7 +21,7 @@ public class SurveySecondVote {
     }
 
     public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalGuildById(getServerId());
+        return ShardManager.getInstance().getLocalGuildById(getServerId());
     }
 
     public long getUserId() {

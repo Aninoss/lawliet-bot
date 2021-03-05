@@ -26,8 +26,8 @@ public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChan
         );
 
         whiteListedChannelsBean.getChannelIds()
-                .addListAddListener(list -> list.forEach(channelId -> addChannelId(whiteListedChannelsBean.getServerId(), channelId)))
-                .addListRemoveListener(list -> list.forEach(channelI -> removeChannelId(whiteListedChannelsBean.getServerId(), channelI)));
+                .addListAddListener(list -> list.forEach(channelId -> addChannelId(whiteListedChannelsBean.getGuildId(), channelId)))
+                .addListRemoveListener(list -> list.forEach(channelI -> removeChannelId(whiteListedChannelsBean.getGuildId(), channelI)));
 
         return whiteListedChannelsBean;
     }

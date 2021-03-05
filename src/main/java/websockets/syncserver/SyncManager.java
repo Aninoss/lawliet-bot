@@ -1,20 +1,18 @@
 package websockets.syncserver;
 
 import core.Bot;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.schedule.MainScheduler;
 import org.java_websocket.client.WebSocketJsonClient;
 import org.javacord.api.util.logging.ExceptionLogger;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.net.URISyntaxException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 public class SyncManager {
 
@@ -74,9 +72,9 @@ public class SyncManager {
 
     public void setFullyConnected() {
         getClient().addHeader("already_connected", "true");
-        getClient().addHeader("shard_min", String.valueOf(DiscordApiManager.getInstance().getShardIntervalMin()));
-        getClient().addHeader("shard_max", String.valueOf(DiscordApiManager.getInstance().getShardIntervalMax()));
-        getClient().addHeader("total_shards", String.valueOf(DiscordApiManager.getInstance().getTotalShards()));
+        getClient().addHeader("shard_min", String.valueOf(ShardManager.getInstance().getShardIntervalMin()));
+        getClient().addHeader("shard_max", String.valueOf(ShardManager.getInstance().getShardIntervalMax()));
+        getClient().addHeader("total_shards", String.valueOf(ShardManager.getInstance().getTotalShards()));
         SendEvent.sendFullyConnected().exceptionally(ExceptionLogger.get());
     }
 

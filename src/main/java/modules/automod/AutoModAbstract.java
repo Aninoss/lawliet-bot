@@ -13,8 +13,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
@@ -62,7 +60,7 @@ public abstract class AutoModAbstract {
             Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
             Mod.postLog(command, eb, server, author).thenRun(() -> {
                 try {
-                    Mod.insertWarning(serverBean.getLocale(), server, author, DiscordApiManager.getInstance().getSelf(), commandTitle, withAutoActions(message, serverBean.getLocale()));
+                    Mod.insertWarning(serverBean.getLocale(), server, author, ShardManager.getInstance().getSelf(), commandTitle, withAutoActions(message, serverBean.getLocale()));
                 } catch (ExecutionException e) {
                     MainLogger.get().error("Error when creating command instance");
                 }

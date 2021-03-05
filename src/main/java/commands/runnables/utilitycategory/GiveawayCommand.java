@@ -203,7 +203,7 @@ public class GiveawayCommand extends Command implements OnNavigationListenerOld 
             imageMessage = null;
         }
 
-        imageMessage = DiscordApiManager.getInstance().fetchCacheUser().get()
+        imageMessage = ShardManager.getInstance().fetchCacheUser().get()
                 .sendMessage(file).get();
         return imageMessage.getAttachments().get(0).getUrl().toString();
     }
@@ -400,7 +400,7 @@ public class GiveawayCommand extends Command implements OnNavigationListenerOld 
     }
 
     private boolean processEmoji(Emoji emoji) {
-        if (emoji.isUnicodeEmoji() || DiscordApiManager.getInstance().customEmojiIsKnown(emoji.asCustomEmoji().get())) {
+        if (emoji.isUnicodeEmoji() || ShardManager.getInstance().emoteIsKnown(emoji.asCustomEmoji().get())) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);
@@ -517,7 +517,7 @@ public class GiveawayCommand extends Command implements OnNavigationListenerOld 
             if (instant.plus(durationMinutes, ChronoUnit.MINUTES).isBefore(Instant.now()))
                 return Optional.empty();
 
-            Optional<Message> messageOptional = DiscordApiManager.getInstance().getMessageById(channel, messageId).join();
+            Optional<Message> messageOptional = ShardManager.getInstance().getMessageById(channel, messageId).join();
             if (messageOptional.isPresent()) {
                 messageOptional.get().edit(getMessageEmbed()).exceptionally(ExceptionLogger.get());
                 return Optional.of(messageOptional.get());

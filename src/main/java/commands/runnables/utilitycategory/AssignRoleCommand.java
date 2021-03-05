@@ -5,19 +5,17 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import constants.PermissionDeprecated;
 import core.EmbedFactory;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.TextManager;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.BotPermissionUtil;
-import core.utils.StringUtil;
 import modules.RoleAssigner;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -60,7 +58,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         role = roles.get(0);
 
          /* check for missing role manage permissions bot */
-        if (!BotPermissionUtil.canManageRole(DiscordApiManager.getInstance().getSelf(), role)) {
+        if (!BotPermissionUtil.canManageRole(ShardManager.getInstance().getSelf(), role)) {
             event.getChannel()
                     .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getMentionTag()))).get();
             return false;
@@ -86,7 +84,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
         future.thenAccept(this::onAssignmentFinished);
 
         message = event.getChannel()
-                .sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", role.getMentionTag(), StringUtil.getLoadingReaction(event.getServerTextChannel().get()), CANCEL_EMOJI))).get();
+                .sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", role.getMentionTag(), JDAUtil.getLoadingReaction(event.getServerTextChannel().get()), CANCEL_EMOJI))).get();
         message.addReaction(CANCEL_EMOJI).get();
 
         return true;

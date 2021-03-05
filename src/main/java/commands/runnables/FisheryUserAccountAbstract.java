@@ -24,7 +24,7 @@ public abstract class FisheryUserAccountAbstract extends FisheryAbstract {
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        MentionList<User> userMention = MentionUtil.getUsers(message,followedString);
+        MentionList<User> userMention = MentionUtil.getMembers(message,followedString);
         ArrayList<User> list = userMention.getList();
 
         if (list.size() > 5) {

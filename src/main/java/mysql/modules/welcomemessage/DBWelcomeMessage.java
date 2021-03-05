@@ -71,7 +71,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
     @Override
     protected void saveBean(WelcomeMessageBean welcomeMessageBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, welcomeMessageBean.getServerId());
+            preparedStatement.setLong(1, welcomeMessageBean.getGuildId());
 
             preparedStatement.setBoolean(2, welcomeMessageBean.isWelcomeActive());
             preparedStatement.setString(3, welcomeMessageBean.getWelcomeTitle());

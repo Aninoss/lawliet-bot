@@ -21,8 +21,6 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -52,7 +50,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
-        MentionList<User> userMentions = MentionUtil.getUsers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
         users = userMentions.getList();
         followedString = StringUtil.trimString(userMentions.getResultMessageString());
 

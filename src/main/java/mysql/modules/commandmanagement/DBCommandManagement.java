@@ -26,8 +26,8 @@ public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagement
         );
 
         commandManagementBean.getSwitchedOffElements()
-                .addListAddListener(list -> list.forEach(element -> addSwitchedOffElement(commandManagementBean.getServerId(), element)))
-                .addListRemoveListener(list -> list.forEach(element -> removeSwitchedOffElement(commandManagementBean.getServerId(), element)));
+                .addListAddListener(list -> list.forEach(element -> addSwitchedOffElement(commandManagementBean.getGuildId(), element)))
+                .addListRemoveListener(list -> list.forEach(element -> removeSwitchedOffElement(commandManagementBean.getGuildId(), element)));
 
         return commandManagementBean;
     }

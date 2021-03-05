@@ -59,7 +59,7 @@ public class ExceptionUtil {
             MainLogger.get().error("Exception for command \"{}\"} and code {}", command.getTrigger(), code, throwable);
             if (Bot.isProductionMode()) {
                 JDAUtil.sendPrivateMessage(
-                        DiscordApiManager.getInstance().fetchOwner().join(),
+                        ShardManager.getInstance().fetchOwner().join(),
                         EmbedFactory.getEmbedError()
                                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
                                 .setDescription(transmitStackTrace)

@@ -3,7 +3,7 @@ package core.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.Permission;
@@ -30,7 +30,7 @@ public class ServerPatreonBoostCache {
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            Optional<Guild> guildOptional = DiscordApiManager.getInstance().getLocalGuildById(serverId);
+                            Optional<Guild> guildOptional = ShardManager.getInstance().getLocalGuildById(serverId);
                             if (guildOptional.isPresent()) {
                                 Guild guild = guildOptional.get();
 

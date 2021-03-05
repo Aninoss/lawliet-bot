@@ -59,7 +59,7 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
     @Override
     protected void saveBean(ModerationBean moderationBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, autoKick, autoBan, autoKickDays, autoBanDays) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, moderationBean.getServerId());
+            preparedStatement.setLong(1, moderationBean.getGuildId());
 
             Optional<Long> channelIdOpt = moderationBean.getAnnouncementChannelId();
             if (channelIdOpt.isPresent()) preparedStatement.setLong(2, channelIdOpt.get());

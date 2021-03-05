@@ -5,21 +5,15 @@ import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Locales;
 import core.cache.PatreonCache;
-import core.utils.ExceptionUtil;
-import core.utils.InternetUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import events.scheduleevents.events.SurveyResults;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import websockets.syncserver.SyncManager;
 
 import java.lang.management.ManagementFactory;
@@ -95,7 +89,7 @@ public class Console {
 
     private void onRepair(String[] args) {
         int minutes = Integer.parseInt(args[1]);
-        DiscordApiManager.getInstance().getConnectedLocalApis().forEach(api -> MainRepair.start(api, minutes));
+        ShardManager.getInstance().getConnectedLocalJDAs().forEach(jda -> MainRepair.start(jda, minutes));
         MainLogger.get().info("Repairing cluster {} with {} minutes", Bot.getClusterId(), minutes);
     }
 
@@ -109,11 +103,11 @@ public class Console {
         }
         String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
 
-        DiscordApiManager.getInstance().getLocalGuildById(serverId)
-                .flatMap(server -> server.getTextChannelById(channelId))
+        ShardManager.getInstance().getLocalGuildById(serverId)
+                .flatMap(server -> Optional.ofNullable(server.getTextChannelById(channelId)))
                 .ifPresent(channel -> {
                     MainLogger.get().info("#{}: {}", channel.getName(), text);
-                    channel.sendMessage(text).exceptionally(ExceptionLogger.get());
+                    channel.sendMessage(text).queue();
                 });
     }
 
@@ -125,9 +119,9 @@ public class Console {
 
         long userId = Long.parseLong(args[1]);
         String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
-        DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
-            MainLogger.get().info("@{}: {}", user.getDiscriminatedName(), text);
-            user.sendMessage(text).exceptionally(ExceptionLogger.get());
+        ShardManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
+            MainLogger.get().info("@{}: {}", user.getAsTag(), text);
+            JDAUtil.sendPrivateMessage(user, text).queue();
         });
     }
 
@@ -141,31 +135,30 @@ public class Console {
     }
 
     private void onServersMutual(String[] args) {
-        DiscordApiManager.getInstance().getCachedUserById(Long.parseLong(args[1])).ifPresent(user -> {
-            DiscordApiManager.getInstance()
-                    .getLocalMutualServers(user)
-                    .forEach(this::printServer);
-        });
+        ShardManager.getInstance().getCachedUserById(Long.parseLong(args[1])).ifPresent(user ->
+                ShardManager.getInstance()
+                        .getLocalMutualGuilds(user)
+                        .forEach(this::printGuild));
     }
 
     private void onServers(String[] args) {
-        ArrayList<Server> servers = new ArrayList<>(DiscordApiManager.getInstance().getLocalServers());
+        ArrayList<Guild> guilds = new ArrayList<>(ShardManager.getInstance().getLocalGuilds());
         int min = args.length > 1 ? Integer.parseInt(args[1]) : 0;
 
-        servers.stream()
-                .filter(s -> s.getMemberCount() >= min)
-                .forEach(this::printServer);
+        guilds.stream()
+                .filter(g -> g.getMemberCount() >= min)
+                .forEach(this::printGuild);
     }
 
-    private void printServer(Server server) {
-        int bots = (int) server.getMembers().stream().filter(User::isBot).count();
+    private void printGuild(Guild guild) {
+        int bots = (int) guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         MainLogger.get().info(
                 "Name: {}; ID: {}; Shard: {}; Cluster: {}; Members: {}; Bots {}",
-                server.getName(),
-                server.getId(),
-                server.getApi().getCurrentShard(),
+                guild.getName(),
+                guild.getId(),
+                guild.getJDA().getShardInfo().getShardId(),
                 Bot.getClusterId(),
-                server.getMemberCount() - bots,
+                guild.getMemberCount() - bots,
                 bots
         );
     }
@@ -177,35 +170,34 @@ public class Console {
 
     private void onUser(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DiscordApiManager.getInstance().fetchUserById(userId).join().ifPresent(user -> MainLogger.get().info("{} => {}", user.getId(), user.getDiscriminatedName()));
+        ShardManager.getInstance().fetchUserById(userId).join()
+                .ifPresent(user -> MainLogger.get().info("{} => {}", user.getId(), user.getAsTag()));
     }
 
     private void onFisheryVC(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            HashSet<User> users = new HashSet<>();
-            server.getVoiceChannels().forEach(vc -> {
-                users.addAll(FisheryVCObserver.getValidVCUsers(server, vc));
-            });
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(guild -> {
+            HashSet<Member> members = new HashSet<>();
+            guild.getVoiceChannels().forEach(vc -> members.addAll(FisheryVCObserver.getValidVCMembers(vc)));
 
-            String title = String.format("### VALID VC MEMBERS OF %s ###", server.getName());
+            String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
             System.out.println(title);
-            users.forEach(user -> System.out.println(user.getDiscriminatedName()));
+            members.forEach(member -> System.out.println(member.getUser().getAsTag()));
             System.out.println("-".repeat(title.length()));
         });
     }
 
     private void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server ->
-                MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {}", server.getName(), server.getMemberCount(), server.getOwner().get().getDiscriminatedName(), server.getApi().getCurrentShard())
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(guild ->
+                MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {}", guild.getName(), guild.getMemberCount(), guild.getOwner().getUser().getAsTag(), guild.getJDA().getShardInfo().getShardId())
         );
     }
 
     private void onLeaveServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            server.leave().exceptionally(ExceptionLogger.get());
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+            server.leave().queue();
             MainLogger.get().info("Left server: {}", server.getName());
         });
     }
@@ -214,7 +206,7 @@ public class Console {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
 
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().getBean(serverId).getUserBean(userId).remove();
             MainLogger.get().info("Fishery user {} from server {} removed", userId, serverId);
         });
@@ -225,7 +217,7 @@ public class Console {
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
 
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().getBean(serverId).getUserBean(userId).setDailyStreak(value);
             MainLogger.get().info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
         });
@@ -236,7 +228,7 @@ public class Console {
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
 
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoinsRaw(value);
             MainLogger.get().info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
         });
@@ -247,7 +239,7 @@ public class Console {
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
 
-        DiscordApiManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().getBean(serverId).getUserBean(userId).setFish(value);
             MainLogger.get().info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
         });
@@ -316,13 +308,13 @@ public class Console {
 
     private void onReconnect(String[] args) {
         int shardId = Integer.parseInt(args[1]);
-        DiscordApiManager.getInstance().reconnectShard(shardId);
+        ShardManager.getInstance().reconnectShard(shardId);
     }
 
     private void onShards(String[] args) {
-        MainLogger.get().info("Cluster: {} - Shards: {} / {}", Bot.getClusterId(), DiscordApiManager.getInstance().getConnectedLocalApis().size(), DiscordApiManager.getInstance().getLocalShards());
-        for (int i = DiscordApiManager.getInstance().getShardIntervalMin(); i <= DiscordApiManager.getInstance().getShardIntervalMax(); i++) {
-            if (DiscordApiManager.getInstance().getApi(i).isEmpty())
+        MainLogger.get().info("Cluster: {} - Shards: {} / {}", Bot.getClusterId(), ShardManager.getInstance().getConnectedLocalJDAs().size(), ShardManager.getInstance().getLocalShards());
+        for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
+            if (ShardManager.getInstance().getJDA(i).isEmpty())
                 MainLogger.get().info("Shard {} is unavailable!", i);
         }
     }
@@ -398,24 +390,39 @@ public class Console {
         //Memory
         double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
         double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
-        sb.append("Memory: ").append(String.format("%1$.2f", memoryUsed) + " / " + String.format("%1$.2f", memoryTotal) + " MB").append("\n");
+        sb.append("Memory: ")
+                .append(String.format("%1$.2f", memoryUsed))
+                .append(" / ")
+                .append(String.format("%1$.2f", memoryTotal))
+                .append(" MB\n");
 
         //Threads
-        sb.append("Threads: ").append(Thread.getAllStackTraces().keySet().size()).append("\n");
+        sb.append("Threads: ")
+                .append(Thread.getAllStackTraces().keySet().size())
+                .append("\n");
 
         //Activities
-        sb.append("Activities: ").append(CommandContainer.getInstance().getActivitiesSize()).append("\n");
+        sb.append("Activities: ")
+                .append(CommandContainer.getInstance().getListenerSize())
+                .append("\n");
 
         //Running Commands
-        sb.append("Running Commands: ").append(RunningCheckerManager.getInstance().getRunningCommandsMap().size()).append("\n");
+        sb.append("Running Commands: ")
+                .append(RunningCheckerManager.getInstance().getRunningCommandsMap().size())
+                .append("\n");
 
         //CPU Usage
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
         double cpuJvm = osBean.getProcessCpuLoad();
         double cpuTotal = osBean.getSystemCpuLoad();
 
-        sb.append("CPU JVM: ").append(Math.floor(cpuJvm * 1000) / 10 + "%").append("\n");
-        sb.append("CPU Total: ").append(Math.floor(cpuTotal * 1000) / 10 + "%").append("\n");
+        sb.append("CPU JVM: ")
+                .append(Math.floor(cpuJvm * 1000) / 10)
+                .append("%\n");
+
+        sb.append("CPU Total: ")
+                .append(Math.floor(cpuTotal * 1000) / 10)
+                .append("%\n");
 
         return sb.toString();
     }

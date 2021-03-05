@@ -1,6 +1,6 @@
 package websockets.syncserver.events;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
@@ -13,7 +13,7 @@ public class OnBlockShards implements SyncServerFunction {
         int totalShards = jsonObject.getInt("total_shards");
         int shardsMin = jsonObject.getInt("shards_min");
         int shardsMax = jsonObject.getInt("shards_max");
-        DiscordApiManager.getInstance().getDiscordApiBlocker().add(totalShards, shardsMin, shardsMax);
+        ShardManager.getInstance().getJDABlocker().add(totalShards, shardsMin, shardsMax);
         return null;
     }
 

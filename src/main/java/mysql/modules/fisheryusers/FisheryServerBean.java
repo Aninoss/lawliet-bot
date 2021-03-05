@@ -43,7 +43,7 @@ public class FisheryServerBean extends BeanWithServer {
 
     public synchronized FisheryUserBean getUserBean(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryUserBean(
-                getServerId(),
+                getGuildId(),
                 userId,
                 this,
                 0L,

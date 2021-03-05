@@ -2,10 +2,9 @@ package core.utils;
 
 import constants.Emojis;
 import constants.Language;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.TextManager;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
+import net.dv8tion.jda.api.entities.Message;
 import org.jsoup.Jsoup;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -225,14 +224,14 @@ public final class StringUtil {
 
     public static String solveVariablesOfCommandText(String string, Message message, String prefix) {
         return string
-                .replaceAll("(?i)%MessageContent",message.getContent())
-                .replaceAll("(?i)%#Channel",message.getServerTextChannel().get().getMentionTag())
-                .replaceAll("(?i)%MessageID", message.getIdAsString())
-                .replaceAll("(?i)%ChannelID",message.getServerTextChannel().get().getIdAsString())
-                .replaceAll("(?i)%ServerID",message.getServer().get().getIdAsString())
-                .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
-                .replaceAll("(?i)%@Bot", DiscordApiManager.getInstance().getSelf().getMentionTag())
-                .replaceAll("(?i)%Prefix",prefix);
+                .replaceAll("(?i)%MessageContent", message.getContentRaw())
+                .replaceAll("(?i)%#Channel", message.getTextChannel().getAsMention())
+                .replaceAll("(?i)%MessageID", message.getId())
+                .replaceAll("(?i)%ChannelID", message.getChannel().getId())
+                .replaceAll("(?i)%ServerID", message.getGuild().getId())
+                .replaceAll("(?i)%@User", message.getMember().getAsMention())
+                .replaceAll("(?i)%@Bot", ShardManager.getInstance().getSelf().getAsMention())
+                .replaceAll("(?i)%Prefix", prefix);
     }
 
     public static String doubleToString(double d, int placesAfterPoint) {
@@ -242,22 +241,12 @@ public final class StringUtil {
     public static String doubleToString(double d, int placesAfterPoint, Locale locale) {
         StringBuilder pattern = new StringBuilder("#");
         if (placesAfterPoint > 0) pattern.append(".");
-        for(int i=0; i<placesAfterPoint; i++) {
-            pattern.append("#");
-        }
+        pattern.append("#".repeat(Math.max(0, placesAfterPoint)));
 
         DecimalFormat df = new DecimalFormat(pattern.toString(), DecimalFormatSymbols.getInstance(Locale.US));
         String str = df.format(d);
-        switch (StringUtil.getLanguage(locale)) {
-            case DE:
-                str = str.replace(".", ",");
-                break;
-
-            case RU:
-                str = str.replace(".", ",");
-                break;
-
-            default:
+        if (StringUtil.getLanguage(locale) != Language.EN) {
+            str = str.replace(".", ",");
         }
 
         return str;
@@ -293,12 +282,6 @@ public final class StringUtil {
             case "ru": return Language.RU;
             default: return Language.EN;
         }
-    }
-
-    public static String getLoadingReaction(ServerTextChannel channel) {
-        if (channel.canYouUseExternalEmojis())
-            return Emojis.LOADING;
-        else return "⏳";
     }
 
     public static String decryptString(String str) {

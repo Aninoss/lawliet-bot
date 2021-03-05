@@ -47,7 +47,7 @@ public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
     @Override
     protected void saveBean(AutoQuoteBean serverBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO AutoQuote (serverId, active) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, serverBean.getServerId());
+            preparedStatement.setLong(1, serverBean.getGuildId());
             preparedStatement.setBoolean(2, serverBean.isActive());
         });
     }

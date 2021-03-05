@@ -10,6 +10,7 @@ import core.MainLogger;
 import core.TextManager;
 import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.osu.OsuAccount;
 import modules.osu.OsuAccountCheck;
@@ -23,8 +24,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -134,7 +133,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
                 }
             }
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", JDAUtil.getLoadingReaction(event.getServerTextChannel().get())));
             EmbedUtil.addLog(eb, null, getString("synch_abort", EMOJI_CANCEL));
 
             message.edit(eb).get();

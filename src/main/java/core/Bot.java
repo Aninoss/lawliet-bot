@@ -1,8 +1,6 @@
 package core;
 
 import core.utils.BotUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.time.Instant;
 
 public class Bot {
@@ -22,7 +20,7 @@ public class Bot {
         MainLogger.get().info(Console.getInstance().getMemory());
         MainLogger.get().info("### STOPPING BOT ###");
         stopped = true;
-        DiscordApiManager.getInstance().stop();
+        ShardManager.getInstance().stop();
     }
 
     public static boolean isProductionMode() {

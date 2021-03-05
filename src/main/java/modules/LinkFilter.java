@@ -1,9 +1,7 @@
 package modules;
 
 import constants.AssetIds;
-import core.DiscordApiManager;
 import core.utils.InternetUtil;
-import core.utils.StringUtil;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;

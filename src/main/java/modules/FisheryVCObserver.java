@@ -6,15 +6,15 @@ import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryServerBean;
 import mysql.modules.server.DBServer;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +41,7 @@ public class FisheryVCObserver {
             IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
                 AtomicInteger actions = new AtomicInteger(0);
-                DiscordApiManager.getInstance().getLocalServers().stream()
+                ShardManager.getInstance().getLocalGuilds().stream()
                         .filter(server -> {
                             try {
                                 return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
@@ -67,7 +67,7 @@ public class FisheryVCObserver {
 
         for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
             try {
-                ArrayList<User> validUsers = getValidVCUsers(server, voiceChannel);
+                ArrayList<User> validUsers = getValidVCMembers(server, voiceChannel);
                 if (validUsers.size() > (Bot.isProductionMode() ? 1 : 0) &&
                         (server.getAfkChannel().isEmpty() || voiceChannel.getId() != server.getAfkChannel().get().getId())
                 ) {
@@ -86,26 +86,22 @@ public class FisheryVCObserver {
         }
     }
 
-    public static ArrayList<User> getValidVCUsers(Server server, ServerVoiceChannel voiceChannel) {
-        ArrayList<User> validUsers = new ArrayList<>();
-        for (long userId : voiceChannel.getConnectedUserIds()) {
-            server.getMemberById(userId)
-                    .ifPresentOrElse(user -> {
-                        if (!user.isBot() &&
-                                !user.isMuted(server) &&
-                                !user.isDeafened(server) &&
-                                !user.isSelfDeafened(server) &&
-                                !user.isSelfMuted(server) &&
-                                !DBBannedUsers.getInstance().getBean().getUserIds().contains(user.getId())
-                        ) {
-                            validUsers.add(user);
-                        }
-                    }, () -> {
-                        MainLogger.get().error("VC Observer - missing user with id {} on server {}", userId, server.getId());
-                    });
+    public static ArrayList<Member> getValidVCMembers(VoiceChannel voiceChannel) {
+        ArrayList<Member> validMembers = new ArrayList<>();
+        for (Member member : voiceChannel.getMembers()) {
+            GuildVoiceState voice = member.getVoiceState();
+            if (!member.getUser().isBot() &&
+                    !voice.isMuted() &&
+                    !voice.isDeafened() &&
+                    !voice.isSelfMuted() &&
+                    !voice.isSelfDeafened() &&
+                    !DBBannedUsers.getInstance().getBean().getUserIds().contains(member.getIdLong())
+            ) {
+                validMembers.add(member);
+            }
         }
 
-        return validUsers;
+        return validMembers;
     }
 
 }

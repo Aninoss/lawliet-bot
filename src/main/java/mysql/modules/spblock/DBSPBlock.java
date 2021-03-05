@@ -67,7 +67,7 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
     @Override
     protected void saveBean(SPBlockBean spBlockBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SPBlock (serverId, active, action) VALUES (?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, spBlockBean.getServerId());
+            preparedStatement.setLong(1, spBlockBean.getGuildId());
             preparedStatement.setBoolean(2, spBlockBean.isActive());
             preparedStatement.setString(3, spBlockBean.getAction().name());
         });

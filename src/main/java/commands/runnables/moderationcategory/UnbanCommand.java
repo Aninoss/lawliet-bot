@@ -9,8 +9,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Ban;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +31,7 @@ public class UnbanCommand extends WarnCommand  {
     @Override
     protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {
         List<User> users = message.getServer().get().getBans().get().stream().map(Ban::getUser).collect(Collectors.toList());
-        return MentionUtil.getUsers(message, followedString, users);
+        return MentionUtil.getMembers(message, followedString, users);
     }
 
     @Override

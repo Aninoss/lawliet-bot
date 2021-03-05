@@ -86,7 +86,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
     }
 
     protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {
-        return MentionUtil.getUsers(message, followedString);
+        return MentionUtil.getMembers(message, followedString);
     }
 
     private boolean execute(ServerTextChannel channel, User executer) throws Throwable {

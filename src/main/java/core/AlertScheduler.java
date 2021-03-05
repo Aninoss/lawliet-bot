@@ -4,13 +4,11 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
-import constants.PermissionDeprecated;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -45,10 +43,10 @@ public class AlertScheduler {
 
     public void registerAlert(TrackerBeanSlot slot) {
         executorService.schedule(() -> {
-            if (slot.isActive() && DiscordApiManager.getInstance().serverIsManaged(slot.getServerId()) && manageAlert(slot)) {
+            if (slot.isActive() && ShardManager.getInstance().guildIsManaged(slot.getGuildId()) && manageAlert(slot)) {
                 registerAlert(slot);
             }
-        }, TimeUtil.getMilisBetweenInstants(Instant.now(), slot.getNextRequest()), TimeUnit.MILLISECONDS);
+        }, TimeUtil.getMillisBetweenInstants(Instant.now(), slot.getNextRequest()), TimeUnit.MILLISECONDS);
     }
 
     private boolean manageAlert(TrackerBeanSlot slot) {
@@ -81,9 +79,9 @@ public class AlertScheduler {
         }
 
         OnTrackerRequestListener command = commandOpt.map(c -> (OnTrackerRequestListener) c).get();
-        Optional<ServerTextChannel> channelOpt = slot.getChannel();
+        Optional<TextChannel> channelOpt = slot.getChannel();
         if (channelOpt.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 switch (command.onTrackerRequest(slot)) {
                     case STOP:
                         slot.stop();

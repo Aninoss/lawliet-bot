@@ -1,5 +1,7 @@
 package core.utils;
 
+import constants.Emojis;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.RestAction;
 
@@ -22,6 +24,10 @@ public class JDAUtil {
         }
 
         return Optional.empty();
+    }
+
+    public static String emoteToTag(Emote emote) {
+        return (emote.isAnimated() ? "a:" : "") + emote.getName() + ":" + emote.getId();
     }
 
     @CheckReturnValue
@@ -53,6 +59,12 @@ public class JDAUtil {
         return user.openPrivateChannel().flatMap(
                 channel -> channel.sendFile(inputStream, filename)
         );
+    }
+
+    public static String getLoadingReaction(TextChannel channel) {
+        if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_EXT_EMOJI))
+            return Emojis.LOADING;
+        else return "⏳";
     }
 
 }

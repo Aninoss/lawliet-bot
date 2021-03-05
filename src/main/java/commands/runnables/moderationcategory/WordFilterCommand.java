@@ -64,7 +64,7 @@ public class WordFilterCommand extends Command implements OnNavigationListenerOl
     public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> userIgnoredList = MentionUtil.getMembers(event.getMessage(), inputString).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;
@@ -77,7 +77,7 @@ public class WordFilterCommand extends Command implements OnNavigationListenerOl
                 }
 
             case 2:
-                ArrayList<User> logRecieverList = MentionUtil.getUsers(event.getMessage(), inputString).getList();
+                ArrayList<User> logRecieverList = MentionUtil.getMembers(event.getMessage(), inputString).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
                     return Response.FALSE;

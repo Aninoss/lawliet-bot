@@ -5,8 +5,6 @@ import mysql.DBMain;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import websockets.syncserver.SyncManager;
 import java.io.File;
 import java.time.Instant;

@@ -8,7 +8,7 @@ import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.ListGen;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.BotPermissionUtil;
@@ -81,7 +81,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
             } else {
                 ServerVoiceChannel channel = vcList.get(0);
 
-                ArrayList<Integer> missingPermissions = BotPermissionUtil.getMissingPermissions(channel.getServer(), channel, DiscordApiManager.getInstance().getSelf(), PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.CONNECT);
+                ArrayList<Integer> missingPermissions = BotPermissionUtil.getMissingPermissions(channel.getServer(), channel, ShardManager.getInstance().getSelf(), PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.CONNECT);
                 if (missingPermissions.size() > 0) {
                     String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(n)));
                     setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));
@@ -161,7 +161,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                         updater.addPermissionOverwrite(everyoneRole, permissions.build());
 
-                        User yourself = DiscordApiManager.getInstance().getSelf();
+                        User yourself = ShardManager.getInstance().getSelf();
                         Permissions ownPermissions = currentVC.getOverwrittenPermissions(yourself)
                                 .toBuilder()
                                 .setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED)

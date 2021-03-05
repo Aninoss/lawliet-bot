@@ -8,6 +8,7 @@ import core.ResourceHandler;
 import core.TextManager;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.YouTubePlayer;
 import org.javacord.api.entity.message.Message;
@@ -63,7 +64,7 @@ public class YouTubeMP3Command extends Command {
             return false;
         }
 
-        Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), StringUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
+        Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), JDAUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
 
         if (sendApiRequest("https://www.youtube.com/watch?v=" + meta.identifier)) {
             Pattern filePattern = Pattern.compile(String.format(".*\\[%s\\]\\.[A-Za-z0-9]*$", Pattern.quote(meta.identifier)));

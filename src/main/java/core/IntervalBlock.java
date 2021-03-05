@@ -1,8 +1,6 @@
 package core;
 
 import core.utils.TimeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -20,16 +18,9 @@ public class IntervalBlock {
         nextRequest = Instant.now().plus(time, chronoUnit);
     }
 
-    public boolean blockInterruptable() throws InterruptedException {
-        long wait = TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest);
-        Thread.sleep(wait);
-        nextRequest = Instant.now().plus(time, chronoUnit);
-        return true;
-    }
-
     public boolean block() {
         try {
-            long wait = TimeUtil.getMilisBetweenInstants(Instant.now(), nextRequest);
+            long wait = TimeUtil.getMillisBetweenInstants(Instant.now(), nextRequest);
             Thread.sleep(wait);
             nextRequest = Instant.now().plus(time, chronoUnit);
             return true;

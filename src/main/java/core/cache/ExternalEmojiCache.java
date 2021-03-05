@@ -26,7 +26,7 @@ public class ExternalEmojiCache {
                     }
             );
 
-    public Optional<String> getCustomEmojiById(long emojiId) {
+    public Optional<String> getEmoteById(long emojiId) {
         try {
             return cache.get(emojiId);
         } catch (ExecutionException e) {

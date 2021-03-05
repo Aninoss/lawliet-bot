@@ -3,7 +3,7 @@ package core.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import core.DiscordApiManager;
+import core.ShardManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Invite;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -23,7 +23,7 @@ public class InviteCache {
                     new CacheLoader<>() {
                         @Override
                         public Optional<Invite> load(@NonNull String code) throws ExecutionException {
-                            JDA jda = DiscordApiManager.getInstance().getAnyJDA().get();
+                            JDA jda = ShardManager.getInstance().getAnyJDA().get();
                             return Optional.of(Invite.resolve(jda, code).complete());
                         }
                     }

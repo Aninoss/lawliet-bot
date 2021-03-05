@@ -3,7 +3,7 @@ package commands.runnables.interactionscategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
@@ -49,7 +49,7 @@ public class RosesCommand extends Command {
         Server server = event.getServer().get();
         User user0 = event.getMessage().getUserAuthor().get();
 
-        MentionList<User> userMention = MentionUtil.getUsers(event.getMessage(), followedString);
+        MentionList<User> userMention = MentionUtil.getMembers(event.getMessage(), followedString);
         List<User> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));
@@ -60,7 +60,7 @@ public class RosesCommand extends Command {
 
         if (user0.getId() != SEELE_USER_ID &&
                 user1.getId() != SEELE_USER_ID &&
-                DiscordApiManager.getInstance().getOwnerId() != user0.getId()
+                ShardManager.getInstance().getOwnerId() != user0.getId()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb).get();

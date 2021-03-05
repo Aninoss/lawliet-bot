@@ -1,6 +1,6 @@
 package mysql.modules.giveaway;
 
-import core.DiscordApiManager;
+import core.ShardManager;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.server.Server;
@@ -43,7 +43,7 @@ public class GiveawayBean extends Observable {
     }
 
     public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalGuildById(serverId);
+        return ShardManager.getInstance().getLocalGuildById(serverId);
     }
 
     public long getMessageId() {
@@ -59,7 +59,7 @@ public class GiveawayBean extends Observable {
     }
 
     public Optional<Message> getMessage() {
-        return DiscordApiManager.getInstance().getMessageById(serverId, channelId, messageId).join();
+        return ShardManager.getInstance().getMessageById(serverId, channelId, messageId).join();
     }
 
     public String getEmoji() {

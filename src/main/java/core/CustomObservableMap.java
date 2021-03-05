@@ -2,9 +2,6 @@ package core;
 
 import com.sun.javafx.collections.ObservableMapWrapper;
 import javafx.collections.MapChangeListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.function.Function;
 
@@ -59,7 +56,7 @@ public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implem
     public <V> void trim(Function<T, Optional<V>> function) {
         for(T key: new HashMap<>(this).keySet()) {
             Optional<V> opt = function.apply(key);
-            if (!opt.isPresent()) {
+            if (opt.isEmpty()) {
                 remove(key);
             }
         }

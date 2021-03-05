@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.Command;
 import constants.PermissionDeprecated;
 import core.EmbedFactory;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.TextManager;
@@ -58,7 +58,7 @@ public class QuoteCommand extends Command {
 
             //ID with channel
             if (StringUtil.stringIsLong(newString)) {
-                Message message = DiscordApiManager.getInstance().getMessageById(channel, Long.parseLong(newString)).join().orElse(null);
+                Message message = ShardManager.getInstance().getMessageById(channel, Long.parseLong(newString)).join().orElse(null);
                 if (message != null) {
                     postEmbed(event.getMessage().getServerTextChannel().get(), message);
                     return true;

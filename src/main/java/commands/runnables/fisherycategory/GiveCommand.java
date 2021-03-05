@@ -39,7 +39,7 @@ public class GiveCommand extends FisheryAbstract {
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         Server server = event.getServer().get();
         Message message = event.getMessage();
-        MentionList<User> userMarked = MentionUtil.getUsers(message, followedString);
+        MentionList<User> userMarked = MentionUtil.getMembers(message, followedString);
         ArrayList<User> list = userMarked.getList();
         list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
 

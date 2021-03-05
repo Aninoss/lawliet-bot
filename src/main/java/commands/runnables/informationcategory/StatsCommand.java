@@ -34,9 +34,9 @@ public class StatsCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        String dephordName = DiscordApiManager.getInstance().fetchUserById(303085910784737281L).get().map(User::getDiscriminatedName).orElse("???");
-        String neverCookFirstName = DiscordApiManager.getInstance().fetchUserById(298153126223937538L).get().map(User::getDiscriminatedName).orElse("???");
-        String owner = DiscordApiManager.getInstance().fetchOwner().get().getDiscriminatedName();
+        String dephordName = ShardManager.getInstance().fetchUserById(303085910784737281L).get().map(User::getDiscriminatedName).orElse("???");
+        String neverCookFirstName = ShardManager.getInstance().fetchUserById(298153126223937538L).get().map(User::getDiscriminatedName).orElse("???");
+        String owner = ShardManager.getInstance().fetchOwner().get().getDiscriminatedName();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
@@ -46,7 +46,7 @@ public class StatsCommand extends Command {
                         ExternalLinks.BOT_INVITE_URL,
                         BotUtil.getCurrentVersion(),
                         TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
-                        DiscordApiManager.getInstance().getGlobalServerSize().map(StringUtil::numToString).orElse("-"),
+                        ShardManager.getInstance().getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
                         StringUtil.numToString(DBTracker.getInstance().getBean().getSlots().size()),
                         owner,
                         StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())

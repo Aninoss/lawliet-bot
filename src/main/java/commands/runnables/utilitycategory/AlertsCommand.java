@@ -7,7 +7,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnTrackerRequestListener;
 import constants.*;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
@@ -24,8 +24,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
@@ -188,7 +186,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
         }
 
         Command command = commandOpt.get();
-        if (command.isNsfw() && !DiscordApiManager.getInstance().getLocalGuildById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
+        if (command.isNsfw() && !ShardManager.getInstance().getLocalGuildById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
             return Response.FALSE;
         }
@@ -389,7 +387,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
 
     private List<TrackerBeanSlot> getTrackersInServer() {
         return new ArrayList<>(trackerBean.getSlots()).stream()
-                .filter(slot -> slot.getServerId() == serverId)
+                .filter(slot -> slot.getGuildId() == serverId)
                 .collect(Collectors.toList());
     }
 

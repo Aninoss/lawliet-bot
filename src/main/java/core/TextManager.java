@@ -3,9 +3,6 @@ package core;
 import constants.Emojis;
 import constants.Locales;
 import core.utils.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -39,7 +36,7 @@ public class TextManager {
                 text = text.replace("%<" + reference + ">", newString);
             }
 
-            //Calculte Multi Option Element
+            // calculate multi option element
             if (option >= 0) {
                 String[] parts = text.split("%\\[");
                 for (int i = 1; i < parts.length; i++) {
@@ -84,8 +81,4 @@ public class TextManager {
         return texts.keySet().size();
     }
 
-    public static int getKeySize(Locale locale, String category) {
-        ResourceBundle texts = ResourceBundle.getBundle(category, locale);
-        return texts.keySet().size() - 1;
-    }
 }

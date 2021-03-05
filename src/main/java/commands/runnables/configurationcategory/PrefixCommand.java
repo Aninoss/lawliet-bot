@@ -4,7 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.PermissionDeprecated;
 import core.EmbedFactory;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
@@ -33,13 +33,13 @@ public class PrefixCommand extends Command {
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = StringUtil.trimString(server.getDisplayName(DiscordApiManager.getInstance().getSelf()));
+                    String nickname = StringUtil.trimString(server.getDisplayName(ShardManager.getInstance().getSelf()));
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
-                        server.updateNickname(DiscordApiManager.getInstance().getSelf(), nickname + " [" + followedString + "]");
+                        server.updateNickname(ShardManager.getInstance().getSelf(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(DiscordApiManager.getInstance().getSelf(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(ShardManager.getInstance().getSelf(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
                     }
                 }
 

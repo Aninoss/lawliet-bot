@@ -19,8 +19,6 @@ import org.javacord.api.entity.message.Reaction;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +56,7 @@ public class GiveawayScheduler {
 
     private void onGiveawayDue(GiveawayBean giveawayBean) {
         if (giveawayBean.isActive()) {
-            DiscordApiManager.getInstance().getLocalGuildById(giveawayBean.getServerId())
+            ShardManager.getInstance().getLocalGuildById(giveawayBean.getServerId())
                     .flatMap(server -> server.getTextChannelById(giveawayBean.getChannelId()))
                     .ifPresent(channel -> {
                         try {
@@ -71,7 +69,7 @@ public class GiveawayScheduler {
     }
 
     private void processGiveawayUsers(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) {
-        DiscordApiManager.getInstance().getMessageById(channel, giveawayBean.getMessageId())
+        ShardManager.getInstance().getMessageById(channel, giveawayBean.getMessageId())
                 .thenAccept(messageOpt -> messageOpt.ifPresent(message -> {
                     for (Reaction reaction : message.getReactions()) {
                         if (DiscordUtil.emojiIsString(reaction.getEmoji(), giveawayBean.getEmoji())) {

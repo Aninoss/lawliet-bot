@@ -35,7 +35,7 @@ public class ShipCommand extends Command {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         Message message = event.getMessage();
-        ArrayList<User> list = MentionUtil.getUsers(message,followedString).getList();
+        ArrayList<User> list = MentionUtil.getMembers(message,followedString).getList();
         if (list.size() == 1 && list.get(0).getId() != event.getMessage().getUserAuthor().get().getId()) {
             list.add(event.getMessage().getUserAuthor().get());
         }

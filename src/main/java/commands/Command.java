@@ -11,6 +11,7 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -58,13 +59,7 @@ public abstract class Command implements OnTriggerListener {
         if (!loadingReactionSet && BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
             loadingReactionSet = true;
 
-            String reaction;
-            if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
-                reaction = Emojis.LOADING;
-            } else {
-                reaction = "⏳";
-            }
-
+            String reaction = JDAUtil.getLoadingReaction(message.getTextChannel());
             message.addReaction(reaction).queue();
             MainScheduler.getInstance().poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {

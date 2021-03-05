@@ -1,8 +1,5 @@
 package core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class CustomThread extends Thread {
 
     public CustomThread(Runnable target, String name) {

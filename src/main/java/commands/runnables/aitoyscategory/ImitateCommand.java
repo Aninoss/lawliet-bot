@@ -5,10 +5,7 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
-import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
-import core.utils.BotPermissionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.textai.TextAI;
 import modules.textai.TextAICache;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -41,7 +38,7 @@ public class ImitateCommand extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        MentionList<User> userMentions = MentionUtil.getUsers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
         ArrayList<User> users = userMentions.getList();
 
         ArrayList<Message> tempMessageCache = new ArrayList<>();
@@ -54,7 +51,7 @@ public class ImitateCommand extends Command {
 
         String search = user != null ? user.getMentionTag() : "**" + StringUtil.escapeMarkdown(event.getServer().get().getName()) + "**";
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, StringUtil.getLoadingReaction(event.getServerTextChannel().get())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, JDAUtil.getLoadingReaction(event.getServerTextChannel().get())));
         Message message = event.getChannel().sendMessage(eb).get();
 
         eb = getEmbed(event.getServer().get(), user, 2, tempMessageCache);

@@ -1,32 +1,20 @@
 package core.utils;
 
 import com.vdurmont.emoji.EmojiParser;
-import core.DiscordApiManager;
+import core.ShardManager;
 import core.MainLogger;
 import core.TextManager;
-import core.UnicodeEmoji;
 import core.cache.PatternCache;
 import core.mention.Mention;
 import core.mention.MentionList;
-import net.dv8tion.jda.api.entities.Role;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.emoji.CustomEmoji;
-import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.util.DiscordRegexPattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -34,81 +22,81 @@ import java.util.regex.Pattern;
 
 public class MentionUtil {
 
-    public static MentionList<User> getUsers(Message message, String content) {
-        return getUsers(message, content, message.getServer().get().getMembers());
+    public static MentionList<Member> getMembers(Message message, String content) {
+        return getMembers(message, content, message.getGuild().getMembers());
     }
 
-    public static MentionList<User> getUsers(Message message, String content, Collection<User> users) {
-        ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
-        if (!content.contains(DiscordApiManager.getInstance().getSelf().getIdAsString()))
-            list.remove(DiscordApiManager.getInstance().getSelf());
-        list.removeIf(user -> !users.contains(user));
+    public static MentionList<Member> getMembers(Message message, String content, List<Member> members) {
+        ArrayList<Member> list = new ArrayList<>(message.getMentionedMembers());
+        if (!content.contains(ShardManager.getInstance().getSelf().getId()))
+            list.remove(message.getGuild().getSelfMember());
+        list.removeIf(member -> !members.contains(member));
 
-        for (User user : list) {
+        for (Member member : list) {
             content = content
-                    .replace(user.getMentionTag(), "")
-                    .replace(getUserMentionTag(user.getId()), "");
+                    .replace(member.getAsMention(), "")
+                    .replace(getUserMentionTag(member.getIdLong()), "");
         }
 
         return generateMentionList(
-                users,
+                members,
                 list,
                 content,
-                u -> ((User)u).getIdAsString(),
-                u -> "@" + ((User)u).getDiscriminatedName(),
-                u -> "@" + ((User)u).getName(),
-                u -> "@" + ((User)u).getDisplayName(message.getServer().get()) + "#" + ((User)u).getDiscriminator(),
-                u -> "@" + ((User)u).getDisplayName(message.getServer().get()),
-                u -> ((User)u).getDiscriminatedName(),
-                u -> ((User)u).getName(),
-                u -> ((User)u).getDisplayName(message.getServer().get())
+                u -> ((Member)u).getId(),
+                u -> "@" + ((Member)u).getUser().getAsTag(),
+                u -> "@" + ((Member)u).getUser().getName(),
+                u -> "@" + ((Member)u).getEffectiveName() + "#" + ((Member)u).getUser().getDiscriminator(),
+                u -> "@" + ((Member)u).getEffectiveName(),
+                u -> ((Member)u).getUser().getAsTag(),
+                u -> ((Member)u).getUser().getName(),
+                u -> ((Member)u).getEffectiveName()
         );
     }
 
     public static MentionList<Role> getRoles(Message message, String content) {
         ArrayList<Role> list = new ArrayList<>(message.getMentionedRoles());
-        list.removeIf(role -> !message.getServer().get().getRoles().contains(role));
+        list.removeIf(role -> !message.getGuild().getRoles().contains(role));
 
         for (Role role : list)
-            content = content.replace(role.getMentionTag(), "");
+            content = content.replace(role.getAsMention(), "");
 
         return generateMentionList(
-                message.getServer().get().getRoles(),
+                message.getGuild().getRoles(),
                 list,
                 content,
-                r -> ((Role)r).getIdAsString(),
+                r -> ((Role)r).getId(),
                 r -> "@" + ((Role)r).getName(),
                 r -> ((Role)r).getName()
         );
     }
 
-    public static MentionList<ServerTextChannel> getTextChannels(Message message, String content) {
-        ArrayList<ServerTextChannel> list = new ArrayList<>(message.getMentionedChannels());
-        list.removeIf(channel -> !message.getServer().get().getTextChannels().contains(channel));
+    public static MentionList<TextChannel> getTextChannels(Message message, String content) {
+        ArrayList<TextChannel> list = new ArrayList<>(message.getMentionedChannels());
+        list.removeIf(channel -> !message.getGuild().getTextChannels().contains(channel));
 
-        for (ServerTextChannel channel : list)
-            content = content.replace(channel.getMentionTag(), "");
+        for (TextChannel channel : list)
+            content = content.replace(channel.getAsMention(), "");
 
         return generateMentionList(
-                message.getServer().get().getTextChannels(),
+                message.getGuild().getTextChannels(),
                 list,
                 content,
-                c -> ((ServerTextChannel)c).getIdAsString(),
-                c -> "#" + ((ServerTextChannel)c).getName(),
-                c -> ((ServerTextChannel)c).getName()
+                c -> ((TextChannel)c).getId(),
+                c -> "#" + ((TextChannel)c).getName(),
+                c -> ((TextChannel)c).getName()
         );
     }
 
-    public static MentionList<ServerVoiceChannel> getVoiceChannels(Message message, String content) {
-        ArrayList<ServerVoiceChannel> list = new ArrayList<>();
+    public static MentionList<VoiceChannel> getVoiceChannels(Message message, String content) {
+        ArrayList<VoiceChannel> list = new ArrayList<>();
 
         return generateMentionList(
-                message.getServer().get().getVoiceChannels(),
+                message.getGuild().getVoiceChannels(),
                 list,
                 content,
-                c -> ((ServerVoiceChannel)c).getIdAsString(),
-                c -> "#" + ((ServerVoiceChannel)c).getName(),
-                c -> ((ServerVoiceChannel)c).getName()
+                c -> ((VoiceChannel)c).getId(),
+                c -> "#" + ((VoiceChannel)c).getName(),
+                c -> ((VoiceChannel)c).getName()
         );
     }
 
@@ -202,7 +190,7 @@ public class MentionUtil {
     }
 
     private static boolean urlContainsImage(String url) {
-        String fileType = "";
+        String fileType;
         try {
             URLConnection conn = new URL(url).openConnection();
             if (conn == null) return false;
@@ -223,17 +211,17 @@ public class MentionUtil {
 
     public static MentionList<Message> getMessagesFromLinks(Message message, String link) {
         ArrayList<Message> list = new ArrayList<>();
-        Server server = message.getServer().get();
-        String serverId = server.getIdAsString();
-        Matcher m = DiscordRegexPattern.MESSAGE_LINK.matcher(link);
+        Guild guild = message.getGuild();
+        String guildId = guild.getId();
+        Matcher m = Message.JUMP_URL_PATTERN.matcher(link);
         while (m.find()) {
-            String groupString = m.group("server");
-            if (groupString != null && groupString.equals(serverId)) {
-                server.getTextChannelById(m.group("channel")).ifPresent(channel -> {
+            String groupString = m.group("guild");
+            if (groupString != null && groupString.equals(guildId)) {
+                Optional.ofNullable(guild.getTextChannelById(m.group("channel"))).ifPresent(channel -> {
                     try {
-                        if (channel.canYouSee() && channel.canYouReadMessageHistory())
-                            list.add(channel.getMessageById(m.group("message")).get());
-                    } catch (InterruptedException | ExecutionException e) {
+                        if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_HISTORY))
+                            list.add(channel.retrieveMessageById(m.group("message")).complete());
+                    } catch (Throwable e) {
                         //Ignore
                     }
                 });
@@ -242,19 +230,19 @@ public class MentionUtil {
         return new MentionList<>(link, list);
     }
 
-    public static MentionList<Emoji> getEmojis(Message message, String content) {
-        ArrayList<Emoji> emojiList = new ArrayList<>();
+    public static MentionList<String> getEmojis(Message message, String content) {
+        ArrayList<String> emojiList = new ArrayList<>();
 
         if (message != null) {
-            for (CustomEmoji customEmoji : message.getCustomEmojis()) {
-                emojiList.add(customEmoji);
-                content = content.replace(customEmoji.getMentionTag(), "");
+            for (Emote emote : message.getEmotes()) {
+                emojiList.add(JDAUtil.emoteToTag(emote));
+                content = content.replace(emote.getAsMention(), "");
             }
         }
 
         List<String> unicodeEmojis = EmojiParser.extractEmojis(content);
         for (String unicodeEmoji : unicodeEmojis) {
-            emojiList.add(UnicodeEmoji.fromString(unicodeEmoji));
+            emojiList.add(unicodeEmoji);
             content = content.replace(unicodeEmoji, "");
         }
 
@@ -278,22 +266,21 @@ public class MentionUtil {
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser);
     }
 
-    public static Mention getMentionedString(Locale locale, Message message, String followedString, User blockedUser) {
-        Server server = message.getServer().get();
+    public static Mention getMentionedString(Locale locale, Message message, String followedString, Member blockedMember) {
         boolean multi = false;
         AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
-        MentionList<User> userMention = MentionUtil.getUsers(message, followedString);
-        userMention.getList().forEach(user -> {
-            if (blockedUser != null && user.getId() == blockedUser.getId()) {
+        MentionList<Member> memberMention = MentionUtil.getMembers(message, followedString);
+        memberMention.getList().forEach(member -> {
+            if (blockedMember != null && member.getIdLong() == blockedMember.getIdLong()) {
                 containedBlockedUser.set(true);
             } else {
-                mentions.add(StringUtil.escapeMarkdown(user.getDisplayName(server)));
+                mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName()));
             }
         });
-        followedString = userMention.getResultMessageString();
+        followedString = memberMention.getResultMessageString();
 
         /* add role names */
         MentionList<Role> roleMention = MentionUtil.getRoles(message, followedString);
@@ -317,39 +304,36 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, followedString, multi, containedBlockedUser.get());
     }
 
-    public static Mention getMentionedStringOfUsers(Locale locale, Server server, List<User> userList) {
-        boolean multi = false;
+    public static Mention getMentionedStringOfMembers(Locale locale, List<Member> memberList) {
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
-        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getDisplayName(server))));
+        memberList.forEach(member -> mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName())));
 
-        return getMentionStringOfMentions(mentions, locale, null, multi, false);
+        return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
-    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) throws IOException {
-        boolean multi = false;
+    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<Member> memberList) {
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
-        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getDiscriminatedName())));
+        memberList.forEach(member -> mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName())));
 
-        return getMentionStringOfMentions(mentions, locale, null, multi, false);
+        return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
     public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) {
-        boolean multi = false;
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
         roleList.forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
 
-        return getMentionStringOfMentions(mentions, locale, null, multi, false);
+        return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
-    public static Optional<Role> getRoleByTag(Server server, String tag) {
+    public static Optional<Role> getRoleByTag(Guild guild, String tag) {
         String id = tag.substring(3, tag.length() - 1);
-        return server.getRoleById(id);
+        return Optional.ofNullable(guild.getRoleById(id));
     }
 
     public static long getAmountExt(String str) {

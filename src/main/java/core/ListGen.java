@@ -1,9 +1,6 @@
 package core;
 
 import core.utils.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
@@ -27,9 +24,8 @@ public class ListGen<T> {
     }
 
     public String getList(Collection<T> objs, Locale locale, int slotType, Function<T, String> getNames) {
-        String valueIfEmpty = "";
+        String valueIfEmpty;
         valueIfEmpty = TextManager.getString(locale, TextManager.GENERAL, "notset");
-
         return getList(objs, valueIfEmpty, slotType, getNames);
     }
 
