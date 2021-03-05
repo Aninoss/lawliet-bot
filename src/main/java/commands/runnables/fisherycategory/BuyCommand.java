@@ -1,13 +1,13 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.runnables.FisheryAbstract;
 import constants.*;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
@@ -34,12 +34,12 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "buy",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "📥",
         executableWithoutArgs = true,
         aliases = { "shop", "upgrade", "invest", "levelup", "b" }
 )
-public class BuyCommand extends FisheryAbstract implements OnNavigationListener {
+public class BuyCommand extends FisheryAbstract implements OnNavigationListenerOld {
 
     private FisheryUserBean fisheryUserBean;
     private FisheryServerBean fisheryServerBean;
@@ -162,7 +162,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
             List<Role> roles = fisheryServerBean.getRoles();
 
             boolean canUseTreasureChests = serverBean.isFisheryTreasureChests();
-            boolean canUseRoles = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryServerBean.getRoleIds().size() && PermissionUtil.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
+            boolean canUseRoles = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryServerBean.getRoleIds().size() && BotPermissionUtil.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
 
             if (transferableSlots) {
                 if (i >= FisheryCategoryInterface.PER_TREASURE && !canUseTreasureChests) i++;
@@ -215,7 +215,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                 }
 
                 Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
-                if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.SEND_MESSAGES)) {
+                if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), PermissionDeprecated.SEND_MESSAGES)) {
                     String announcementText = getString("newrole", user.getMentionTag(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
                     announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).exceptionally(ExceptionLogger.get());
                 }
@@ -242,7 +242,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListener 
                     if (
                             (slot .getPowerUpId() != FisheryCategoryInterface.ROLE ||
                             (slot.getLevel() < fisheryServerBean.getRoleIds().size() &&
-                                    PermissionUtil.canYouManageRole(roles.get(slot.getLevel())))) &&
+                                    BotPermissionUtil.canYouManageRole(roles.get(slot.getLevel())))) &&
                             (slot.getPowerUpId() != FisheryCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
                     ) {
                         String productDescription = "???";

@@ -18,7 +18,7 @@ public class OnPatreon implements SyncServerFunction {
     public JSONObject apply(JSONObject jsonObject) {
         HashMap<Long, Integer> userPatreonMap = PatreonCache.userPatreonMapFromJson(jsonObject);
         PatreonCache.getInstance().setValue(userPatreonMap);
-        LOGGER.info("Received new Patreon list with {} entries", userPatreonMap.size());
+        MainLogger.get().info("Received new Patreon list with {} entries", userPatreonMap.size());
         return null;
     }
 

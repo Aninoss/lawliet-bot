@@ -1,10 +1,10 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.FisheryAbstract;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.utils.MentionUtil;
@@ -27,12 +27,12 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "sell",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = true,
         aliases = { "s" }
 )
-public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnForwardedRecievedListener {
+public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnMessageInputListener {
 
     private Message message;
     private FisheryUserBean userBean;

@@ -1,10 +1,10 @@
 package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import commands.NavigationHelper;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
@@ -25,13 +25,13 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "autoroles",
-        botPermissions = Permission.MANAGE_ROLES,
-        userPermissions = Permission.MANAGE_ROLES,
+        botPermissions = PermissionDeprecated.MANAGE_ROLES,
+        userPermissions = PermissionDeprecated.MANAGE_ROLES,
         emoji = "👪",
         executableWithoutArgs = true,
         aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
 )
-public class AutoRolesCommand extends Command implements OnNavigationListener {
+public class AutoRolesCommand extends Command implements OnNavigationListenerOld {
 
     private static final int MAX_ROLES = 12;
 

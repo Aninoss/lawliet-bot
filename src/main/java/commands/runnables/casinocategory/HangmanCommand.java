@@ -1,12 +1,12 @@
 package commands.runnables.casinocategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.FileManager;
@@ -25,11 +25,11 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "hangman",
         emoji = "\uD83D\uDD21",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         executableWithoutArgs = true,
         aliases = {"hm"}
 )
-public class HangmanCommand extends CasinoAbstract implements OnForwardedRecievedListener, OnReactionAddListener {
+public class HangmanCommand extends CasinoAbstract implements OnMessageInputListener, OnReactionAddListener {
 
     private String answer, log;
     private int health;

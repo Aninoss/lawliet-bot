@@ -7,7 +7,7 @@ import core.TextManager;
 import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.textai.TextAI;
 import modules.textai.TextAICache;
@@ -113,7 +113,7 @@ public class ImitateCommand extends Command {
                         channel.canYouSee() &&
                         channel.canYouReadMessageHistory() &&
                         (user == null || channel.canWrite(user)) &&
-                        PermissionUtil.channelIsPublic(channel)
+                        BotPermissionUtil.channelIsPublic(channel)
                 ).limit(REQUESTS)
                 .collect(Collectors.toCollection(ArrayList::new));
 

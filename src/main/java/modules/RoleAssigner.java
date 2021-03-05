@@ -50,7 +50,7 @@ public class RoleAssigner {
                 } catch (InterruptedException interruptedException) {
                     //Ignore
                 } catch (ExecutionException e) {
-                    LOGGER.error("Exception in role assignment", e);
+                    MainLogger.get().error("Exception in role assignment", e);
                 } finally {
                     busyServers.invalidate(server.getId());
                 }

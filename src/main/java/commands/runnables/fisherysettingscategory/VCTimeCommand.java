@@ -1,10 +1,10 @@
 package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnForwardedRecievedListener;
+import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionAddListener;
 import commands.Command;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -22,14 +22,14 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "vctime",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        userPermissions = Permission.MANAGE_SERVER,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits", "vctimeout" }
 )
-public class VCTimeCommand extends Command implements OnReactionAddListener, OnForwardedRecievedListener {
+public class VCTimeCommand extends Command implements OnReactionAddListener, OnMessageInputListener {
 
     private static final String CLEAR_EMOJI = "\uD83D\uDDD1️";
     private static final String QUIT_EMOJI = "❌";

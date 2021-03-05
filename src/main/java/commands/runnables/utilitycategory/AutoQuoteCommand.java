@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 
 import commands.Command;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
 import core.utils.StringUtil;
@@ -17,7 +17,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "autoquote",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true
 )

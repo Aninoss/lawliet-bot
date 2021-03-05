@@ -1,10 +1,10 @@
 package events.discordevents.servervoicechannelmemberjoin;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerVoiceChannelMemberJoinAbstract;
 import modules.AutoChannel;
@@ -36,8 +36,8 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
             ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
-            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getServer(), Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS | Permission.CONNECT) &&
-                    (event.getChannel().getCategory().isEmpty() || PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), Permission.MANAGE_CHANNELS_ON_SERVER))
+            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getServer(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS | PermissionDeprecated.CONNECT) &&
+                    (event.getChannel().getCategory().isEmpty() || PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER))
             ) {
                 int n = 1;
 
@@ -95,16 +95,16 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
         PermissionsBuilder pb = new PermissionsBuilder();
 
         originalPermissions.getAllowedPermission().forEach(permissionType -> {
-            if (PermissionUtil.botHasServerPermission(server, permissionType) &&
-                    (PermissionUtil.hasAdminPermissions(server, DiscordApiManager.getInstance().getYourself()) || permissionType != PermissionType.MANAGE_ROLES)
+            if (BotPermissionUtil.botHasServerPermission(server, permissionType) &&
+                    (BotPermissionUtil.hasAdminPermissions(server, DiscordApiManager.getInstance().getSelf()) || permissionType != PermissionType.MANAGE_ROLES)
             ) {
                 pb.setAllowed(permissionType);
             }
         });
 
         originalPermissions.getDeniedPermissions().forEach(permissionType -> {
-            if (PermissionUtil.botHasServerPermission(server, permissionType) &&
-                    (PermissionUtil.hasAdminPermissions(server, DiscordApiManager.getInstance().getYourself()) || permissionType != PermissionType.MANAGE_ROLES)
+            if (BotPermissionUtil.botHasServerPermission(server, permissionType) &&
+                    (BotPermissionUtil.hasAdminPermissions(server, DiscordApiManager.getInstance().getSelf()) || permissionType != PermissionType.MANAGE_ROLES)
             ) {
                 pb.setDenied(permissionType);
             }
@@ -137,7 +137,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
     private void addBotPermissions(ServerVoiceChannel sourceChannel, ServerVoiceChannelBuilder newChannel) {
         Permissions botPermission = null;
         for (Map.Entry<Long, Permissions> entry : sourceChannel.getOverwrittenUserPermissions().entrySet()) {
-            if (DiscordApiManager.getInstance().getYourself().getId() == entry.getKey()) {
+            if (DiscordApiManager.getInstance().getSelf().getId() == entry.getKey()) {
                 botPermission = entry.getValue();
                 break;
             }
@@ -149,7 +149,7 @@ public class ServerVoiceChannelMemberJoinAutoChannel extends ServerVoiceChannelM
                 .setState(PermissionType.CONNECT, PermissionState.ALLOWED)
                 .build();
 
-        newChannel.addPermissionOverwrite(DiscordApiManager.getInstance().getYourself(), permissions);
+        newChannel.addPermissionOverwrite(DiscordApiManager.getInstance().getSelf(), permissions);
     }
 
     private String getNewVCName(AutoChannelBean autoChannelBean, ServerVoiceChannelMemberJoinEvent event, int n) {

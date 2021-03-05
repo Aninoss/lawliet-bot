@@ -4,12 +4,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
-import commands.listeners.OnReactionAddStaticListener;
-import commands.listeners.OnReactionRemoveStaticListener;
+import commands.listeners.OnNavigationListenerOld;
+import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.DiscordApiManager;
@@ -18,7 +18,7 @@ import core.TextManager;
 import core.emojiconnection.EmojiConnection;
 import core.utils.DiscordUtil;
 import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
@@ -49,13 +49,13 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "reactionroles",
-        botPermissions = Permission.MANAGE_ROLES | Permission.READ_MESSAGE_HISTORY,
-        userPermissions = Permission.MANAGE_ROLES,
+        botPermissions = PermissionDeprecated.MANAGE_ROLES | PermissionDeprecated.READ_MESSAGE_HISTORY,
+        userPermissions = PermissionDeprecated.MANAGE_ROLES,
         emoji = "☑️️",
         executableWithoutArgs = true,
         aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
 )
-public class ReactionRolesCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener, OnReactionRemoveStaticListener {
+public class ReactionRolesCommandReactionAddReactionRemove extends Command implements OnNavigationListenerOld, OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
     private static final int MAX_LINKS = 20;
     private final static int
@@ -78,12 +78,12 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     private boolean removeRole = true, editMode = false, multipleRoles = true;
     private Message editMessage;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommand.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ReactionRolesCommandReactionAddReactionRemove.class);
     private static final Cache<Long, Boolean> blockCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
             .build();
 
-    public ReactionRolesCommand(Locale locale, String prefix) {
+    public ReactionRolesCommandReactionAddReactionRemove(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
@@ -595,7 +595,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
 
         if (event.getEmoji().isUnicodeEmoji() &&
                 event.getEmoji().asUnicodeEmoji().get().equals("⭐") &&
-                PermissionUtil.getMissingPermissionListForUser(event.getServer().get(), event.getServerTextChannel().get(),  user, getUserPermissions()).isEmpty()
+                BotPermissionUtil.getMissingPermissions(event.getServer().get(), event.getServerTextChannel().get(),  user, getUserPermissions()).isEmpty()
         ) {
             user.sendMessage(EmbedFactory.getEmbedDefault(this, getString("messageid", message.getLink().toString())));
         }
@@ -668,7 +668,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
                         if (event.getServer().get().getMembers().contains(user) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r))
                             user.removeRole(r).get();
                     } catch (ExecutionException e) {
-                        LOGGER.error("Could not remove role", e);
+                        MainLogger.get().error("Could not remove role", e);
                     }
                     break;
                 }
@@ -677,7 +677,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     @Override
-    public String getTitleStartIndicator() {
+    public String titleStartIndicator() {
         return getEmoji();
     }
 

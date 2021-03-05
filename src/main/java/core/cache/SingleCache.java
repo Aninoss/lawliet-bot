@@ -45,7 +45,7 @@ public abstract class SingleCache <T> {
             if (newValue != null)
                 this.value = newValue;
         } catch (Throwable e) {
-            LOGGER.error("Uncaught exception", e); 
+            MainLogger.get().error("Uncaught exception", e);
         }
         return this.value;
     }

@@ -1,14 +1,14 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 
 import java.util.Locale;
 
 @CommandProperties(
         trigger = "chunmute",
-        userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
-        botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
+        userPermissions = PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.MANAGE_CHANNEL,
+        botPermissions = PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.MANAGE_CHANNEL,
         emoji = "\uD83D\uDED1",
         executableWithoutArgs = false,
         aliases = {"channelunmute", "unmute", "unchmute", "unchannelmute"}

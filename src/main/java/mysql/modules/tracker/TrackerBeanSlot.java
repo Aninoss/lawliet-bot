@@ -89,7 +89,7 @@ public class TrackerBeanSlot extends BeanWithServer {
         try {
             DBTracker.getInstance().getBean().getSlots().remove(this);
         } catch (RuntimeException e) {
-            LOGGER.error("Could not remove tracker", e);
+            MainLogger.get().error("Could not remove tracker", e);
         }
     }
 

@@ -46,7 +46,7 @@ public class DBMain implements DriverAction {
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
 
-        LOGGER.info("Connecting with database {}", rv.getUrl());
+        MainLogger.get().info("Connecting with database {}", rv.getUrl());
         connect = rv.getConnection();
     }
 
@@ -104,7 +104,7 @@ public class DBMain implements DriverAction {
                 future.complete(update(sql, preparedStatementConsumer));
             } catch (SQLException | InterruptedException throwables) {
                 future.completeExceptionally(throwables);
-                LOGGER.error("Exception for query: " + sql, throwables);
+                MainLogger.get().error("Exception for query: " + sql, throwables);
             }
         });
 
@@ -121,7 +121,7 @@ public class DBMain implements DriverAction {
             resultSet.close();
             statement.close();
         } catch (SQLException e) {
-            LOGGER.error("Database error", e);
+            MainLogger.get().error("Database error", e);
         }
 
         return success;
@@ -129,7 +129,7 @@ public class DBMain implements DriverAction {
 
     @Override
     public void deregister() {
-        LOGGER.info("Driver deregistered");
+        MainLogger.get().info("Driver deregistered");
     }
 
 }

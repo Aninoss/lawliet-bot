@@ -2,10 +2,9 @@ package events.discordevents;
 
 import core.DiscordApiManager;
 import mysql.modules.bannedusers.DBBannedUsers;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 
 public abstract class DiscordEventAbstract {
@@ -31,28 +30,28 @@ public abstract class DiscordEventAbstract {
         return discordEvent.allowBots();
     }
 
-    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, boolean multiThreadded, long serverId, EventExecution function) {
-        execute(listenerList, null, multiThreadded, serverId, function);
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, long serverId, EventExecution function) {
+        execute(listenerList, null, serverId, function);
     }
 
-    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, boolean multiThreadded, EventExecution function) {
-        execute(listenerList, user, multiThreadded, 0L, function);
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, EventExecution function) {
+        execute(listenerList, user, 0L, function);
     }
 
-    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, boolean multiThreadded, long serverId, EventExecution function) {
-        if ((user != null && user.isYourself()) || !DiscordApiManager.getInstance().getDiscordApiBlocker().serverIsAvailable(serverId)) {
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long serverId, EventExecution function) {
+        if ((user != null && DiscordApiManager.getInstance().getSelfId() == user.getIdLong()) || !DiscordApiManager.getInstance().getDiscordApiBlocker().serverIsAvailable(serverId)) {
             return;
         }
 
-        boolean banned = user != null && userIsBanned(user.getId());
+        boolean banned = user != null && userIsBanned(user.getIdLong());
         boolean bot = user != null && user.isBot();
         for (EventPriority priority : EventPriority.values())
-            if (!runListenerPriority(listenerList, function, priority, banned, bot, multiThreadded))
+            if (!runListenerPriority(listenerList, function, priority, banned, bot))
                 return;
     }
 
     private static boolean runListenerPriority(ArrayList<DiscordEventAbstract> listenerList, EventExecution function,
-                                               EventPriority priority, boolean banned, boolean bot, boolean multiThreadded) {
+                                               EventPriority priority, boolean banned, boolean bot) {
         for (DiscordEventAbstract listener : listenerList) {
             if (listener.getPriority() == priority && (!banned || listener.isAllowingBannedUser()) &&
                     (!bot || listener.isAllowingBots()) && !run(function, listener)
@@ -72,7 +71,7 @@ public abstract class DiscordEventAbstract {
         try {
             return function.apply(listener);
         } catch (Throwable throwable) {
-            LOGGER.error("Uncaught Exception", throwable);
+            MainLogger.get().error("Uncaught Exception", throwable);
         }
         return true;
     }

@@ -2,7 +2,7 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.UserAccountAbstract;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -18,7 +18,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "rainbow",
-        botPermissions = Permission.ATTACH_FILES,
+        botPermissions = PermissionDeprecated.ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83C\uDF08",
         executableWithoutArgs = true,

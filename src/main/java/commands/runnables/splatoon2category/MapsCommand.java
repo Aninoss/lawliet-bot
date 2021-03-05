@@ -3,7 +3,7 @@ package commands.runnables.splatoon2category;
 import commands.listeners.*;
 import commands.Command;
 import constants.Emojis;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.*;
 import core.internet.InternetCache;
@@ -23,7 +23,7 @@ import java.util.Locale;
 
 @CommandProperties(
     trigger = "maps",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+    botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDDFA",
     executableWithoutArgs = true

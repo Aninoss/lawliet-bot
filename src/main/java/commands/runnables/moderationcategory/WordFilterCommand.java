@@ -3,9 +3,9 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -32,13 +32,13 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "wordfilter",
-        botPermissions = Permission.MANAGE_MESSAGES,
-        userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS,
+        botPermissions = PermissionDeprecated.MANAGE_MESSAGES,
+        userPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.KICK_MEMBERS,
         emoji = "️🚧️",
         executableWithoutArgs = true,
         aliases = { "wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords" }
 )
-public class WordFilterCommand extends Command implements OnNavigationListener {
+public class WordFilterCommand extends Command implements OnNavigationListenerOld {
 
     private static final int MAX_WORDS = 20;
     private static final int MAX_LETTERS = 20;

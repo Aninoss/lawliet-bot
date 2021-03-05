@@ -1,7 +1,7 @@
 package modules;
 
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
 import core.QuickUpdater;
@@ -11,8 +11,6 @@ import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -38,10 +36,10 @@ public class MemberCountDisplay {
                         "member_count_displays",
                         voiceChannel.getId(),
                         () -> {
-                            Server s = DiscordApiManager.getInstance().getLocalServerById(server.getId()).get();
+                            Server s = DiscordApiManager.getInstance().getLocalGuildById(server.getId()).get();
                             ServerVoiceChannel vc = s.getVoiceChannelById(voiceChannel.getId()).get();
 
-                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, vc, Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, vc, PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.CONNECT)) {
                                 String newVCName = generateNewVCName(s, display.getMask());
                                 if (!newVCName.equals(vc.getName())) {
                                     return vc.createUpdater()

@@ -4,11 +4,12 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import org.javacord.api.entity.Mentionable;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
@@ -17,13 +18,13 @@ public class NavigationHelper<T> {
 
     private enum Type { Unknown, Role, TextChannel, User };
 
-    private final Command command;
+    private final NavigationCommand command;
     private final List<T> srcList;
     private final int max;
     private Type type = Type.Unknown;
     private String typeString = "";
 
-    public NavigationHelper(Command command, List<T> srcList, Class<T> typeClass, int max) {
+    public NavigationHelper(NavigationCommand command, List<T> srcList, Class<T> typeClass, int max) {
         this.command = command;
         this.srcList = srcList;
         this.max = max;
@@ -31,21 +32,22 @@ public class NavigationHelper<T> {
         if (typeClass == Role.class) {
             this.type = Type.Role;
             this.typeString = "_role";
-        } else if (typeClass == ServerTextChannel.class) {
+        } else if (typeClass == TextChannel.class) {
             this.type = Type.TextChannel;
             this.typeString = "_channel";
-        } else if (typeClass == User.class) {
+        } else if (typeClass == Member.class) {
             this.type = Type.User;
             this.typeString = "_user";
         }
     }
 
-    public Response addData(List<T> newList, String inputString, User author, int stateBack) throws IOException {
+    public Response addData(List<T> newList, String inputString, Member author, int stateBack) throws IOException {
         if (newList.size() == 0) {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return Response.FALSE;
         } else {
-            if (type == Type.Role && !command.checkRolesWithLog((List<Role>) newList, author)) return Response.FALSE;
+            if (type == Type.Role && !command.checkRolesWithLog(author, (List<Role>) newList))
+                return Response.FALSE;
 
             int existingRoles = 0;
             for(T t: newList) {
@@ -108,7 +110,7 @@ public class NavigationHelper<T> {
     public EmbedBuilder drawDataRemove(String title, String desc) throws IOException {
         Function<T, String> nameFunction;
         if (type == Type.Unknown) nameFunction = Object::toString;
-        else nameFunction = obj -> ((Mentionable)obj).getMentionTag();
+        else nameFunction = obj -> ((IMentionable)obj).getAsMention();
 
         String[] strings = new String[srcList.size()];
         for(int i = 0; i < strings.length; i++) {

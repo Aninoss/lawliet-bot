@@ -3,8 +3,8 @@ package events.discordevents.messagecreate;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import commands.listeners.OnForwardedRecievedListener;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnMessageInputListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import commands.runnables.informationcategory.HelpCommand;
 import core.utils.ExceptionUtil;
@@ -42,8 +42,8 @@ public class MessageCreateCommand extends MessageCreateAbstract {
 
         String[] prefixes = {
                 prefix,
-                DiscordApiManager.getInstance().getYourself().getMentionTag(),
-                "<@!" + DiscordApiManager.getInstance().getYourself().getIdAsString() + ">"
+                DiscordApiManager.getInstance().getSelf().getMentionTag(),
+                "<@!" + DiscordApiManager.getInstance().getSelf().getIdAsString() + ">"
         };
 
         int prefixFound = -1;
@@ -110,7 +110,7 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                         quoteCommand.postEmbed(event.getServerTextChannel().get(), message, true);
                     }
                 } catch (Throwable throwable) {
-                    LOGGER.error("Exception in Auto Quote", throwable);
+                    MainLogger.get().error("Exception in Auto Quote", throwable);
                 }
             }
         }
@@ -125,11 +125,11 @@ public class MessageCreateCommand extends MessageCreateAbstract {
                     (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)
             ) {
                 try {
-                    if (command instanceof OnForwardedRecievedListener) {
+                    if (command instanceof OnMessageInputListener) {
                         boolean end = command.onForwardedRecievedSuper(event);
                         if (end) return true;
                     }
-                    if (command instanceof OnNavigationListener) {
+                    if (command instanceof OnNavigationListenerOld) {
                         boolean end = command.onNavigationMessageSuper(event, event.getMessage().getContent(), false);
                         if (end) return true;
                     }

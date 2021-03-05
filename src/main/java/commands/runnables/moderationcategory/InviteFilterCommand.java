@@ -1,10 +1,10 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
@@ -26,13 +26,13 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "invitefilter",
-        botPermissions = Permission.MANAGE_MESSAGES,
-        userPermissions = Permission.MANAGE_MESSAGES | Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
+        botPermissions = PermissionDeprecated.MANAGE_MESSAGES,
+        userPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.KICK_MEMBERS | PermissionDeprecated.BAN_MEMBERS,
         emoji = "✉️",
         executableWithoutArgs = true,
         aliases = { "invitesfilter", "spblock", "inviteblock", "spfilter", "invitesblock" }
 )
-public class InviteFilterCommand extends Command implements OnNavigationListener {
+public class InviteFilterCommand extends Command implements OnNavigationListenerOld {
     
     private SPBlockBean spBlockBean;
     private CustomObservableList<User> ignoredUsers, logReceivers;

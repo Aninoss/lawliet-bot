@@ -1,13 +1,13 @@
 package modules.repair;
 
-import org.javacord.api.DiscordApi;
+import net.dv8tion.jda.api.JDA;
 
 public class MainRepair {
 
-    public static void start(DiscordApi api, int minutes) {
-        if (api != null) {
-            AutoChannelRepair.getInstance().start(api);
-            RolesRepair.getInstance().start(api, minutes);
+    public static void start(JDA jda, int minutes) {
+        if (jda != null) {
+            AutoChannelRepair.getInstance().start(jda);
+            RolesRepair.getInstance().start(jda, minutes);
         }
     }
 

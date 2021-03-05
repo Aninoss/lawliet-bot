@@ -2,7 +2,7 @@ package modules;
 
 import commands.Command;
 import commands.CommandContainer;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnReactionAddListener;
 import core.utils.ExceptionUtil;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
@@ -15,7 +15,7 @@ public class ReactionCommandCheck {
                 if (event.getUserId() == command.getReactionUserID()) {
                     try {
                         if (command instanceof OnReactionAddListener) command.onReactionAddSuper(event);
-                        if (command instanceof OnNavigationListener) command.onNavigationReactionSuper(event);
+                        if (command instanceof OnNavigationListenerOld) command.onNavigationReactionSuper(event);
                     } catch (Throwable e) {
                         ExceptionUtil.handleCommandException(e, command, event.getMessage().get().getChannel());
                     }

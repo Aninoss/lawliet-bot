@@ -28,7 +28,7 @@ public class FontContainer {
                 fontList.add(font);
                 ge.registerFont(font);
             } catch (FontFormatException | IOException e) {
-                LOGGER.error("Error for file {}", file.getName(), e);
+                MainLogger.get().error("Error for file {}", file.getName(), e);
             }
         }
     }

@@ -153,7 +153,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
                         Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
                         update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
                     } catch (ExecutionException | InterruptedException e) {
-                        LOGGER.error("osu download error", e);
+                        MainLogger.get().error("osu download error", e);
                     }
                 }
             });

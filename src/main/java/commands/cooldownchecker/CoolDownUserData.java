@@ -9,12 +9,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class CooldownUserData {
+public class CoolDownUserData {
 
     private final ArrayList<Instant> commandInstants = new ArrayList<>();
-    private boolean canPostCooldownMessage = true;
+    private boolean canPostCoolDownMessage = true;
 
-    public Optional<Integer> getWaitingSec(int cooldown) {
+    public Optional<Integer> getWaitingSec(int coolDown) {
         clean();
 
         if (commandInstants.size() >= Settings.COOLDOWN_MAX_ALLOWED) {
@@ -22,14 +22,14 @@ public class CooldownUserData {
             return Optional.of((int) (duration.getSeconds() + 1));
         }
 
-        commandInstants.add(Instant.now().plusSeconds(cooldown));
+        commandInstants.add(Instant.now().plusSeconds(coolDown));
         return Optional.empty();
     }
 
-    public synchronized boolean canPostCooldownMessage() {
-        if (canPostCooldownMessage) {
-            canPostCooldownMessage = false;
-            MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "cooldown", () -> this.canPostCooldownMessage = true);
+    public synchronized boolean canPostCoolDownMessage() {
+        if (canPostCoolDownMessage) {
+            canPostCoolDownMessage = false;
+            MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "cool_down", () -> this.canPostCoolDownMessage = true);
             return true;
         }
 

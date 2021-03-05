@@ -5,7 +5,7 @@ import commands.runnables.FisheryAbstract;
 import constants.ExternalLinks;
 import constants.FisheryCategoryInterface;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
@@ -24,7 +24,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "daily",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDDD3",
         executableWithoutArgs = true,
         aliases = { "d" }

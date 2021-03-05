@@ -1,14 +1,14 @@
 package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 
 import java.util.Locale;
 
 @CommandProperties(
         trigger = "revokerole",
-        userPermissions = Permission.MANAGE_ROLES,
-        botPermissions = Permission.MANAGE_ROLES,
+        userPermissions = PermissionDeprecated.MANAGE_ROLES,
+        botPermissions = PermissionDeprecated.MANAGE_ROLES,
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = false,
         patreonRequired = true,

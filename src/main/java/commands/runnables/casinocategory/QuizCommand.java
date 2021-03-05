@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "quiz",
         emoji = "❔",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         withLoadingBar = true,
         deleteOnTimeOut = true,
         executableWithoutArgs = true
@@ -131,7 +131,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                 onAnswerSelected(-1);
             }
         } catch (ExecutionException e) {
-            LOGGER.error("Exception on countdown", e);
+            MainLogger.get().error("Exception on countdown", e);
         }
     }
 

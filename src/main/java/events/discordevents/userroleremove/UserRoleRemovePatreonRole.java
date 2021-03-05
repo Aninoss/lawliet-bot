@@ -21,7 +21,7 @@ public class UserRoleRemovePatreonRole extends UserRoleRemoveAbstract {
         if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
-                    LOGGER.info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
+                    MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                     DiscordApiManager.getInstance().fetchOwner().get().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
                     break;
                 }

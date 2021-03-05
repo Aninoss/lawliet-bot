@@ -1,7 +1,7 @@
 package events.discordevents.servervoicechannelchangeuserlimit;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerVoiceChannelChangeUserLimitAbstract;
@@ -31,7 +31,7 @@ public class ServerVoiceChannelChangeUserLimitAutoChannel extends ServerVoiceCha
                         ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
                         Locale locale = serverBean.getLocale();
 
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), PermissionDeprecated.MANAGE_CHANNEL)) {
                             event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().exceptionally(ExceptionLogger.get());
                         }
                     }

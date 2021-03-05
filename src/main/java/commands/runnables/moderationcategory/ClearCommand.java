@@ -2,7 +2,7 @@ package commands.runnables.moderationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 @CommandProperties(
         trigger = "clear",
-        botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
-        userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+        botPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.READ_MESSAGE_HISTORY,
+        userPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83D\uDDD1\uFE0F",
         maxCalculationTimeSec = 10 * 60,

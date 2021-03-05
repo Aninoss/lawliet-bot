@@ -229,7 +229,7 @@ public abstract class PornAbstract extends Command {
                         PornImageDownloader.getPicture(domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults)
                 );
             } catch (ExecutionException e) {
-                LOGGER.error("Error while downloading porn", e);
+                MainLogger.get().error("Error while downloading porn", e);
             }
         }
 
@@ -241,7 +241,7 @@ public abstract class PornAbstract extends Command {
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 if (!e.toString().contains("java.util.NoSuchElementException"))
-                    LOGGER.error("Error while downloading porn", e);
+                    MainLogger.get().error("Error while downloading porn", e);
             }
         });
 

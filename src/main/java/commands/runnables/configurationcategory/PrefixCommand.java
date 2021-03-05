@@ -2,7 +2,7 @@ package commands.runnables.configurationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.DiscordApiManager;
 import core.TextManager;
@@ -15,7 +15,7 @@ import java.util.Locale;
 
 @CommandProperties(
     trigger = "prefix",
-    userPermissions = Permission.MANAGE_SERVER,
+    userPermissions = PermissionDeprecated.MANAGE_SERVER,
     emoji = "\uD83D\uDCDB",
     executableWithoutArgs = false
 )
@@ -33,13 +33,13 @@ public class PrefixCommand extends Command {
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = StringUtil.trimString(server.getDisplayName(DiscordApiManager.getInstance().getYourself()));
+                    String nickname = StringUtil.trimString(server.getDisplayName(DiscordApiManager.getInstance().getSelf()));
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
-                        server.updateNickname(DiscordApiManager.getInstance().getYourself(), nickname + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiManager.getInstance().getSelf(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(DiscordApiManager.getInstance().getYourself(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(DiscordApiManager.getInstance().getSelf(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
                     }
                 }
 

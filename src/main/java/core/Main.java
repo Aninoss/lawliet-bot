@@ -27,15 +27,16 @@ public class Main {
                 initializeUpdate();
             }
 
-            LOGGER.info("Waiting for sync server");
+            MainLogger.get().info("Waiting for sync server");
             SyncManager.getInstance().start();
 
-            if (!Bot.isProductionMode())
+            if (!Bot.isProductionMode()) {
                 DiscordConnector.getInstance().connect(0, 0, 1);
-            else
+            } else {
                 Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
+            }
         } catch (Throwable e) {
-            LOGGER.error("EXIT - Error on startup", e);
+            MainLogger.get().error("EXIT - Error on startup", e);
             System.exit(1);
         }
     }

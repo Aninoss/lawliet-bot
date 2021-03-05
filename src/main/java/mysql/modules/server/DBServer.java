@@ -40,7 +40,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
         if (shard < DiscordApiManager.getInstance().getShardIntervalMin() || shard > DiscordApiManager.getInstance().getShardIntervalMax())
             throw new Exception("Invalid server");
 
-        boolean serverPresent = DiscordApiManager.getInstance().getLocalServerById(serverId).isPresent();
+        boolean serverPresent = DiscordApiManager.getInstance().getLocalGuildById(serverId).isPresent();
         if (serverPresent) {
             removedServerIds.invalidate(serverId);
         }

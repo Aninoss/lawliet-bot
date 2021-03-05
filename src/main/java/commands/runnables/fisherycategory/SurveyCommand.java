@@ -1,7 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddStaticListener;
+import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryAbstract;
 import constants.*;
@@ -37,11 +37,11 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "survey",
-    botPermissions = Permission.MANAGE_MESSAGES,
+    botPermissions = PermissionDeprecated.MANAGE_MESSAGES,
     emoji = "✅",
     executableWithoutArgs = true
 )
-public class SurveyCommand extends FisheryAbstract implements OnReactionAddStaticListener, OnTrackerRequestListener {
+public class SurveyCommand extends FisheryAbstract implements OnStaticReactionAddListener, OnTrackerRequestListener {
 
     private static final String BELL_EMOJI = "🔔";
 
@@ -57,7 +57,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
 
     @Override
     public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) return;
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), PermissionDeprecated.MANAGE_MESSAGES)) return;
         event.removeReaction().get();
 
         removeUserReactions(message);
@@ -254,7 +254,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
     }
 
     @Override
-    public String getTitleStartIndicator() {
+    public String titleStartIndicator() {
         return getEmoji();
     }
 
@@ -265,7 +265,7 @@ public class SurveyCommand extends FisheryAbstract implements OnReactionAddStati
             return TrackerResult.CONTINUE;
 
         ServerTextChannel channel = slot.getChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.ADD_REACTIONS))
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, PermissionDeprecated.ADD_REACTIONS))
             return TrackerResult.CONTINUE;
 
         slot.getMessage().ifPresent(Message::delete);

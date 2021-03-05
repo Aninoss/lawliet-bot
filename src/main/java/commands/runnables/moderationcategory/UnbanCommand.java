@@ -1,7 +1,7 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import org.javacord.api.entity.message.Message;
@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "unban",
-        botPermissions = Permission.BAN_MEMBERS,
-        userPermissions = Permission.BAN_MEMBERS,
+        botPermissions = PermissionDeprecated.BAN_MEMBERS,
+        userPermissions = PermissionDeprecated.BAN_MEMBERS,
         emoji = "\uD83C\uDF3C",
         executableWithoutArgs = false
 )
@@ -42,7 +42,7 @@ public class UnbanCommand extends WarnCommand  {
         try {
             server.unbanUser(user, reason).get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Exception on ban", e);
+            MainLogger.get().error("Exception on ban", e);
             server.unbanUser(user).get();
         }
     }

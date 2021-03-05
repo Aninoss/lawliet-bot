@@ -2,16 +2,16 @@ package commands.runnables.utilitycategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.ListGen;
 import core.DiscordApiManager;
 import core.TextManager;
 import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.MemberCountDisplay;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
@@ -37,12 +37,12 @@ import java.util.concurrent.TimeoutException;
 
 @CommandProperties(
         trigger = "mcdisplays",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "️🧮️",
         executableWithoutArgs = true,
         aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
-public class MemberCountDisplayCommand extends Command implements OnNavigationListener {
+public class MemberCountDisplayCommand extends Command implements OnNavigationListenerOld {
 
     private MemberCountBean memberCountBean;
     private ServerVoiceChannel currentVC = null;
@@ -81,7 +81,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
             } else {
                 ServerVoiceChannel channel = vcList.get(0);
 
-                ArrayList<Integer> missingPermissions = PermissionUtil.getMissingPermissionListForUser(channel.getServer(), channel, DiscordApiManager.getInstance().getYourself(), Permission.MANAGE_CHANNEL | Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.CONNECT);
+                ArrayList<Integer> missingPermissions = BotPermissionUtil.getMissingPermissions(channel.getServer(), channel, DiscordApiManager.getInstance().getSelf(), PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.CONNECT);
                 if (missingPermissions.size() > 0) {
                     String permissionsList = new ListGen<Integer>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, n -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(n)));
                     setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));
@@ -161,7 +161,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         permissions.setState(PermissionType.CONNECT, PermissionState.DENIED);
                         updater.addPermissionOverwrite(everyoneRole, permissions.build());
 
-                        User yourself = DiscordApiManager.getInstance().getYourself();
+                        User yourself = DiscordApiManager.getInstance().getSelf();
                         Permissions ownPermissions = currentVC.getOverwrittenPermissions(yourself)
                                 .toBuilder()
                                 .setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED)

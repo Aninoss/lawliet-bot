@@ -44,7 +44,7 @@ public class QuickUpdater {
         try {
             future = currentSupplier.get();
         } catch (Throwable e) {
-            LOGGER.error("Exception", e);
+            MainLogger.get().error("Exception", e);
         }
 
         if (future != null) {

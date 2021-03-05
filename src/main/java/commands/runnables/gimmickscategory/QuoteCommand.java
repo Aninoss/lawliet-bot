@@ -2,7 +2,7 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
 import commands.Command;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.DiscordApiManager;
 import core.mention.MentionList;
@@ -24,8 +24,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "quote",
-        botPermissions = Permission.READ_MESSAGE_HISTORY,
-        userPermissions = Permission.READ_MESSAGE_HISTORY,
+        botPermissions = PermissionDeprecated.READ_MESSAGE_HISTORY,
+        userPermissions = PermissionDeprecated.READ_MESSAGE_HISTORY,
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = false,
         aliases = {"qoute"}

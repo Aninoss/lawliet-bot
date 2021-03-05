@@ -15,7 +15,7 @@ public class CustomThread extends Thread {
         super(target);
         if (priority > 0) setPriority(priority);
         setName(name);
-        setUncaughtExceptionHandler((t1, e) -> LOGGER.error("Uncaught Exception", e));
+        setUncaughtExceptionHandler((t1, e) -> MainLogger.get().error("Uncaught Exception", e));
     }
 
 }

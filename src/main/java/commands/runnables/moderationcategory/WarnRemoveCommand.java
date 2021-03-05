@@ -3,7 +3,7 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.TextManager;
@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "warnremove",
         emoji = "\uD83D\uDDD1",
-        userPermissions = Permission.KICK_MEMBERS,
+        userPermissions = PermissionDeprecated.KICK_MEMBERS,
         executableWithoutArgs = false,
         aliases = { "unwarn", "removewarn" }
 )

@@ -7,14 +7,12 @@ import core.cache.ExternalEmojiCache;
 import core.cache.ExternalServerNameCache;
 import core.cache.SingleCache;
 import core.schedule.MainScheduler;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.Nameable;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.emoji.CustomEmoji;
-import org.javacord.api.entity.emoji.KnownCustomEmoji;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import websockets.syncserver.SendEvent;
@@ -72,7 +70,7 @@ public class DiscordApiManager {
         if (Bot.isProductionMode()) {
             MainScheduler.getInstance().schedule(5, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!fullyConnected) {
-                    LOGGER.error("EXIT - Could not boot up");
+                    MainLogger.get().error("EXIT - Could not boot up");
                     System.exit(1);
                 }
             });
@@ -87,12 +85,13 @@ public class DiscordApiManager {
         shardDisconnectConsumers.add(consumer);
     }
 
-    public synchronized void addApi(DiscordApi api) {
+    public synchronized void addApi(JDA jda) {
         if (ownerId == 0) {
-            ownerId = api.getOwnerId();
+            ownerId = -1;
+            jda.retrieveApplicationInfo().queue(applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong());
             fetchUserById(AssetIds.CACHE_USER_ID);
         }
-        apiMap.put(api.getCurrentShard(), new DiscordApiExtended(api));
+        apiMap.put(jda.getShardInfo().getShardId(), new DiscordApiExtended(api));
     }
 
     public synchronized Optional<DiscordApi> getApi(int shard) {
@@ -115,7 +114,7 @@ public class DiscordApiManager {
                 new ArrayList<>(apiMap.values())
                         .forEach(DiscordApiExtended::checkConnection);
             } catch (Throwable e) {
-                LOGGER.error("Error while polling apis", e);
+                MainLogger.get().error("Error while polling apis", e);
             }
             return true;
         });
@@ -224,7 +223,7 @@ public class DiscordApiManager {
         return globalServerSize != null ? Optional.of(globalServerSize) : Optional.empty();
     }
 
-    public Optional<Server> getLocalServerById(long serverId) {
+    public Optional<Guild> getLocalGuildById(long serverId) {
         if (!discordApiBlocker.serverIsAvailable(serverId))
             return Optional.empty();
 
@@ -240,7 +239,7 @@ public class DiscordApiManager {
     }
 
     public Optional<String> getServerName(long serverId) {
-        Optional<String> serverNameOptional = getLocalServerById(serverId).map(Nameable::getName);
+        Optional<String> serverNameOptional = getLocalGuildById(serverId).map(Nameable::getName);
         return serverNameOptional.or(() -> ExternalServerNameCache.getInstance().getServerNameById(serverId));
     }
 
@@ -311,20 +310,20 @@ public class DiscordApiManager {
     }
 
 
-    public long getYourselfId() {
+    public long getSelfId() {
         return getAnyApi()
                 .map(api -> api.getYourself().getId())
                 .orElseThrow();
     }
 
-    public User getYourself() {
+    public User getSelf() {
         return getAnyApi()
                 .map(DiscordApi::getYourself)
                 .orElseThrow();
     }
 
     public CompletableFuture<Optional<Message>> getMessageById(long serverId, long channelId, long messageId) {
-        Optional<Server> server = getLocalServerById(serverId);
+        Optional<Server> server = getLocalGuildById(serverId);
         if (server.isPresent()) {
             return getMessageById(server.get(), channelId, messageId);
         } else {
@@ -374,17 +373,22 @@ public class DiscordApiManager {
 
     private static class DiscordApiExtended {
 
-        private final DiscordApi api;
+        private final JDA jda;
         private boolean alive = true;
         private int errors = 0;
 
-        public DiscordApiExtended(DiscordApi api) {
-            this.api = api;
-            api.addMessageCreateListener(event -> alive = true);
+        public DiscordApiExtended(JDA jda) {
+            this.jda = jda;
+            jda.addEventListener(new ListenerAdapter() {
+                @Override
+                public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+                    alive = true;
+                }
+            });
         }
 
-        public DiscordApi getApi() {
-            return api;
+        public JDA getJDA() {
+            return jda;
         }
 
         public void checkConnection() {
@@ -392,10 +396,10 @@ public class DiscordApiManager {
                 errors = 0;
                 alive = false;
             } else {
-                LOGGER.debug("No data from shard {}", api.getCurrentShard());
+                MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
                 if (++errors >= 6) { /* reconnect after 60 seconds */
-                    LOGGER.warn("Shard {} temporarely offline", api.getCurrentShard());
-                    DiscordApiManager.getInstance().reconnectShard(api.getCurrentShard());
+                    MainLogger.get().warn("Shard {} temporarely offline", jda.getShardInfo().getShardId());
+                    DiscordApiManager.getInstance().reconnectShard(jda.getShardInfo().getShardId());
                 }
             }
         }

@@ -21,7 +21,8 @@ public class Bot {
     }
 
     public static void onStop() {
-        LOGGER.info("### STOPPING BOT ###");
+        MainLogger.get().info(Console.getInstance().getMemory());
+        MainLogger.get().info("### STOPPING BOT ###");
         stopped = true;
         DiscordApiManager.getInstance().stop();
     }

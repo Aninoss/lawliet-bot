@@ -1,7 +1,7 @@
 package events.discordevents.servervoicechannelmemberleave;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ServerVoiceChannelMemberLeaveAbstract;
@@ -22,7 +22,7 @@ public class ServerVoiceChannelMemberLeaveAutoChannel extends ServerVoiceChannel
         for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getId() == childChannelId) {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
-                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL | Permission.CONNECT)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.CONNECT)) {
                     if (event.getChannel().getConnectedUserIds().size() == 0) {
                         event.getChannel().delete(); //No error log
                     }

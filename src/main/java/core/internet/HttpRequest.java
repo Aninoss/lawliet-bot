@@ -48,7 +48,7 @@ public class HttpRequest {
 
     private static void download(CompletableFuture<HttpResponse> future, String urlString, String method, int pauseTimeMilis, String body, HttpProperty... headers) {
         try {
-            if (LOGGER.isDebugEnabled()) LOGGER.debug("Downloading from url {}", urlString);
+            if (MainLogger.get().isDebugEnabled()) MainLogger.get().debug("Downloading from url {}", urlString);
 
             BufferedReader br;
             String line;
@@ -80,7 +80,7 @@ public class HttpRequest {
 
             int code = connection.getResponseCode();
             if (code / 100 != 2) {
-                LOGGER.warn("Error code {} for URL {}", code, urlString);
+                MainLogger.get().warn("Error code {} for URL {}", code, urlString);
                 future.complete(new HttpResponse(code));
                 return;
             }

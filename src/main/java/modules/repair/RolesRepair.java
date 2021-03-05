@@ -7,14 +7,15 @@ import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryServerBean;
-import org.javacord.api.DiscordApi;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -38,55 +39,52 @@ public class RolesRepair {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public void start(DiscordApi api, int minutes) {
-        executorService.submit(() -> run(api, minutes));
+    public void start(JDA jda, int minutes) {
+        executorService.submit(() -> run(jda, minutes));
     }
 
-    public void run(DiscordApi api, int minutes) {
-        for (Server server : api.getServers()) {
-            processAutoRoles(server, minutes);
-            processFisheryRoles(server, minutes);
+    public void run(JDA jda, int minutes) {
+        for (Guild guild : jda.getGuilds()) {
+            processAutoRoles(guild, minutes);
+            processFisheryRoles(guild, minutes);
         }
     }
 
-    private void processFisheryRoles(Server server, int minutes) {
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
+    private void processFisheryRoles(Guild guild, int minutes) {
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(guild.getIdLong());
         Locale locale = fisheryServerBean.getServerBean().getLocale();
         if (fisheryServerBean.getServerBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getRoleIds().size() > 0) {
-            server.getMembers().stream()
-                    .filter(user -> !user.isBot() && userJoinedRecently(server, user, minutes))
-                    .forEach(user -> checkRoles(locale, user, fisheryServerBean.getUserBean(user.getId()).getRoles()));
+            guild.getMembers().stream()
+                    .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
+                    .forEach(member -> checkRoles(locale, member, fisheryServerBean.getUserBean(member.getIdLong()).getRoles()));
         }
     }
 
-    private void processAutoRoles(Server server, int minutes) {
-        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().getBean(server.getId());
+    private void processAutoRoles(Guild guild, int minutes) {
+        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().getBean(guild.getIdLong());
         Locale locale = autoRolesBean.getServerBean().getLocale();
         if (autoRolesBean.getRoleIds().size() > 0) {
-            List<Role> roles = autoRolesBean.getRoleIds().transform(server::getRoleById, DiscordEntity::getId);
-            server.getMembers().stream()
-                    .filter(user -> userJoinedRecently(server, user, minutes))
-                    .forEach(user -> checkRoles(locale, user, roles));
+            List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+            guild.getMembers().stream()
+                    .filter(member -> userJoinedRecently(member, minutes))
+                    .forEach(member -> checkRoles(locale, member, roles));
         }
     }
 
-    private void checkRoles(Locale locale, User user, List<Role> roles) {
+    private void checkRoles(Locale locale, Member member, List<Role> roles) {
         roles.stream()
-                .filter(role -> !user.getRoles(role.getServer()).contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
+                .filter(role -> !member.getRoles().contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> {
-                    LOGGER.info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), user.getDiscriminatedName(), role.getServer().getName());
-                    try {
-                        role.addUser(user).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOGGER.error("Exception", e);
-                    }
+                    MainLogger.get().info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), member.getUser().getAsTag(), role.getGuild().getName());
+                    role.getGuild().addRoleToMember(member, role).queue();
                 });
     }
 
-    private boolean userJoinedRecently(Server server, User user, int minutes) {
-        return server.getJoinedAtTimestamp(user)
-                .map(instant -> instant.isAfter(Instant.now().minus(minutes, ChronoUnit.MINUTES)))
-                .orElse(false);
+    private boolean userJoinedRecently(Member member, int minutes) {
+        if (member.hasTimeJoined()) {
+            return member.getTimeJoined().toInstant().isAfter(Instant.now().minus(minutes, ChronoUnit.MINUTES));
+        }
+        return false;
     }
 
 }

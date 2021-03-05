@@ -20,7 +20,7 @@ public class ScheduleAdapter extends TimerTask {
         try {
             scheduleEvent.run();
         } catch (Throwable throwable) {
-            LOGGER.error("Scheduled event failed", throwable);
+            MainLogger.get().error("Scheduled event failed", throwable);
         }
     }
 

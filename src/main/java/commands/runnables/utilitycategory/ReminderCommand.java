@@ -3,19 +3,18 @@ package commands.runnables.utilitycategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
-import mysql.modules.server.DBServer;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -32,7 +31,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "reminder",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = false,
         releaseDate = { 2020, 10, 21 },
@@ -72,20 +71,20 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             return false;
         }
 
-        EmbedBuilder missingPermissionsEmbed = PermissionUtil.getUserAndBotPermissionMissingEmbed(
+        EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 getLocale(),
                 event.getServer().get(),
                 channel,
                 event.getMessage().getUserAuthor().get(),
-                Permission.READ_MESSAGES | Permission.SEND_MESSAGES,
-                Permission.READ_MESSAGES | Permission.SEND_MESSAGES
+                PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES,
+                PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES
         );
         if (missingPermissionsEmbed != null) {
             event.getChannel().sendMessage(missingPermissionsEmbed).get();
             return false;
         }
 
-        if (!PermissionUtil.userCanMentionRoles(channel, event.getMessageAuthor().asUser().get(), event.getMessageContent())) {
+        if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMessageAuthor().asUser().get(), event.getMessageContent())) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("user_nomention"))).get();
             return false;
         }
@@ -165,7 +164,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             try {
                 DBReminders.getInstance().getBean().remove(remindersBean.getId(), remindersBean);
             } catch (Throwable e) {
-                LOGGER.error("Could not load reminders", e);
+                MainLogger.get().error("Could not load reminders", e);
             }
         }
     }

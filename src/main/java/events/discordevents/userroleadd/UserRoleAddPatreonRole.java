@@ -22,7 +22,7 @@ public class UserRoleAddPatreonRole extends UserRoleAddAbstract {
         if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRole().getId() == roleId) {
-                    LOGGER.info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
+                    MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                     DiscordApiManager.getInstance().fetchOwner().get().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
                     PatreonCache.getInstance().requestUpdate();
                     break;

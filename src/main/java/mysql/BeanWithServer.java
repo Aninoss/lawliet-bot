@@ -23,7 +23,7 @@ public abstract class BeanWithServer extends Observable {
         return serverId;
     }
     public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalServerById(serverId);
+        return DiscordApiManager.getInstance().getLocalGuildById(serverId);
     }
 
 }

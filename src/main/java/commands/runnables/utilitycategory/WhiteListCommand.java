@@ -1,11 +1,11 @@
 package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import commands.NavigationHelper;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
@@ -25,12 +25,12 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "whitelist",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "✅",
         executableWithoutArgs = true,
         aliases = {"wl"}
 )
-public class WhiteListCommand extends Command implements OnNavigationListener {
+public class WhiteListCommand extends Command implements OnNavigationListenerOld {
 
     private static final int MAX_CHANNELS = 50;
 

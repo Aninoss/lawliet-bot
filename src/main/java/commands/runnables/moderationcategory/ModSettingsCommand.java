@@ -2,9 +2,9 @@ package commands.runnables.moderationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -26,13 +26,13 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "mod",
-        botPermissions = Permission.KICK_MEMBERS | Permission.BAN_MEMBERS,
-        userPermissions = Permission.MANAGE_SERVER,
+        botPermissions = PermissionDeprecated.KICK_MEMBERS | PermissionDeprecated.BAN_MEMBERS,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
         aliases = {"modsettings"}
 )
-public class ModSettingsCommand extends Command implements OnNavigationListener {
+public class ModSettingsCommand extends Command implements OnNavigationListenerOld {
 
     private ModerationBean moderationBean;
     private int autoKickTemp, autoBanTemp;

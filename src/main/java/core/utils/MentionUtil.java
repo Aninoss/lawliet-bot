@@ -7,6 +7,7 @@ import core.UnicodeEmoji;
 import core.cache.PatternCache;
 import core.mention.Mention;
 import core.mention.MentionList;
+import net.dv8tion.jda.api.entities.Role;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.emoji.CustomEmoji;
@@ -40,8 +41,8 @@ public class MentionUtil {
 
     public static MentionList<User> getUsers(Message message, String content, Collection<User> users) {
         ArrayList<User> list = new ArrayList<>(message.getMentionedUsers());
-        if (!content.contains(DiscordApiManager.getInstance().getYourself().getIdAsString()))
-            list.remove(DiscordApiManager.getInstance().getYourself());
+        if (!content.contains(DiscordApiManager.getInstance().getSelf().getIdAsString()))
+            list.remove(DiscordApiManager.getInstance().getSelf());
         list.removeIf(user -> !users.contains(user));
 
         for (User user : list) {
@@ -155,7 +156,7 @@ public class MentionUtil {
                         if (!list.contains(urlTemp)) list.add(urlTemp);
                         string = string.replace(part, "");
                     } catch (MalformedURLException e) {
-                        LOGGER.error("Wrong url", e);
+                        MainLogger.get().error("Wrong url", e);
                     }
                 }
             }

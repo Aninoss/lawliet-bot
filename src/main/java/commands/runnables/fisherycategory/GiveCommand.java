@@ -3,7 +3,7 @@ package commands.runnables.fisherycategory;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.mention.MentionList;
 import core.utils.EmbedUtil;
@@ -24,7 +24,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "give",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
         aliases = {"gift", "pay" }

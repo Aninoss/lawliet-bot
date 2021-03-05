@@ -3,7 +3,7 @@ package commands.runnables.utilitycategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.Command;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
 import core.utils.StringUtil;
@@ -16,7 +16,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "triggerdelete",
-        userPermissions = Permission.MANAGE_SERVER | Permission.MANAGE_MESSAGES,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER | PermissionDeprecated.MANAGE_MESSAGES,
         emoji = "\uD83D\uDDD1",
         executableWithoutArgs = true,
         patreonRequired = true,

@@ -2,7 +2,7 @@ package commands.runnables.gimmickscategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.RandomPicker;
 import core.utils.MentionUtil;
@@ -21,7 +21,7 @@ import java.util.Random;
 
 @CommandProperties(
     trigger = "ship",
-    botPermissions = Permission.ATTACH_FILES,
+    botPermissions = PermissionDeprecated.ATTACH_FILES,
     withLoadingBar = true,
     emoji = "\uD83D\uDC6B",
     executableWithoutArgs = false

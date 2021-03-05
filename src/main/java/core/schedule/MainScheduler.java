@@ -44,7 +44,7 @@ public class MainScheduler {
                     monitorTimeOuts(slot);
                     listener.run();
                 } catch (Throwable e) {
-                    LOGGER.error("Unchecked exception in schedule timer");
+                    MainLogger.get().error("Unchecked exception in schedule timer");
                 }
                 slotCache.invalidate(slot.getId());
             }, millis, TimeUnit.MILLISECONDS);
@@ -75,7 +75,7 @@ public class MainScheduler {
                         poll(millis, name, listener);
                     }
                 } catch (Throwable e) {
-                    LOGGER.error("Unchecked exception in schedule timer");
+                    MainLogger.get().error("Unchecked exception in schedule timer");
                 }
                 slotCache.invalidate(slot.getId());
             }, millis, TimeUnit.MILLISECONDS);
@@ -94,7 +94,7 @@ public class MainScheduler {
             public void run() {
                 if (slotCache.asMap().containsKey(slot.getId())) {
                     Exception e = ExceptionUtil.generateForStack(runnerThread);
-                    LOGGER.error("Task \"{}\" stuck in scheduler {}", slot.name, runnerThread.getName(), e);
+                    MainLogger.get().error("Task \"{}\" stuck in scheduler {}", slot.name, runnerThread.getName(), e);
                 }
             }
         }, 1000);

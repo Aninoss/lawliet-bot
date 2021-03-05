@@ -2,7 +2,7 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.UserAccountAbstract;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import modules.graphics.TriggerGraphics;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -13,7 +13,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "trigger",
-        botPermissions = Permission.ATTACH_FILES,
+        botPermissions = PermissionDeprecated.ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,

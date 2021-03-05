@@ -3,7 +3,7 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -27,8 +27,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fullclear",
-        botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
-        userPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+        botPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.READ_MESSAGE_HISTORY,
+        userPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.READ_MESSAGE_HISTORY,
         withLoadingBar = true,
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
@@ -119,7 +119,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         Optional<ServerTextChannel> channelOptional = slot.getChannel();
         if (channelOptional.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), Permission.READ_MESSAGE_HISTORY | Permission.MANAGE_MESSAGES)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOptional.get(), PermissionDeprecated.READ_MESSAGE_HISTORY | PermissionDeprecated.MANAGE_MESSAGES)) {
                 Optional<Integer> hoursMin = extractHoursMin(channelOptional.get(), slot.getCommandKey());
                 if (hoursMin.isPresent()) {
                     fullClear(channelOptional.get(), hoursMin.get());

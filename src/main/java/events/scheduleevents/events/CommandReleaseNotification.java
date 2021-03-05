@@ -26,7 +26,7 @@ public class CommandReleaseNotification implements ScheduleInterface {
                     command.getReleaseDate().ifPresent(date -> {
                         if (date.isEqual(LocalDate.now())) {
                             String message = "<@&703879430799622155> `L." + command.getTrigger() + "` is now publicly available!";
-                            DiscordApiManager.getInstance().getLocalServerById(AssetIds.SUPPORT_SERVER_ID)
+                            DiscordApiManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
                                     .flatMap(server -> server.getTextChannelById(557960859792441357L))
                                     .ifPresent(channel -> channel.sendMessage(message).exceptionally(ExceptionLogger.get()));
                         }

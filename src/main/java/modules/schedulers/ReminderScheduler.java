@@ -1,7 +1,7 @@
 package modules.schedulers;
 
 import commands.runnables.utilitycategory.ReminderCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
@@ -34,7 +34,7 @@ public class ReminderScheduler {
         try {
             DBReminders.getInstance().getBean().values().forEach(this::loadReminderBean);
         } catch (Throwable e) {
-            LOGGER.error("Could not start reminder", e);
+            MainLogger.get().error("Could not start reminder", e);
         }
     }
 
@@ -56,7 +56,7 @@ public class ReminderScheduler {
                                 remindersBean.getServerBean().getLocale(),
                                 ReminderCommand.class,
                                 channel,
-                                Permission.READ_MESSAGES | Permission.SEND_MESSAGES
+                                PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES
                         )) {
                             channel.sendMessage(remindersBean.getMessage()).exceptionally(ExceptionLogger.get());
                         }
@@ -69,7 +69,7 @@ public class ReminderScheduler {
         try {
             DBReminders.getInstance().getBean().remove(remindersBean.getId(), remindersBean);
         } catch (Throwable e) {
-            LOGGER.error("Could not load reminders", e);
+            MainLogger.get().error("Could not load reminders", e);
         }
     }
 

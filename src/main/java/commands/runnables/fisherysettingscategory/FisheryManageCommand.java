@@ -1,7 +1,7 @@
 package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.*;
 import core.*;
@@ -27,14 +27,14 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "fisherymanage",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        userPermissions = Permission.MANAGE_SERVER,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "💰",
         executableWithoutArgs = false,
         patreonRequired = true,
         aliases = {"fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager"}
 )
-public class FisheryManageCommand extends Command implements OnNavigationListener {
+public class FisheryManageCommand extends Command implements OnNavigationListenerOld {
 
     private long userId;
     private Server server;

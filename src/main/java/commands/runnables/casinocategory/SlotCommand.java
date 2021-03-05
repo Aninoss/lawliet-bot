@@ -6,7 +6,7 @@ import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "slot",
         emoji = "🎰",
         executableWithoutArgs = true,
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         aliases = {"slots", "slotmachine"}
 )
 public class SlotCommand extends CasinoAbstract implements OnReactionAddListener {
@@ -225,7 +225,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
                         manageEnd();
                         message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
                     } catch (ExecutionException e) {
-                        LOGGER.error("Slot exception", e);
+                        MainLogger.get().error("Slot exception", e);
                     }
                 });
             }

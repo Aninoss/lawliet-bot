@@ -52,7 +52,7 @@ public class AnimeNewsDownloader {
         try {
             compareTime = newestTimeString == null || newestTimeString.isEmpty() ? new Date(0).toInstant() : Instant.parse(newestTimeString);
         } catch (DateTimeParseException e) {
-            LOGGER.error("Could not parse post date", e);
+            MainLogger.get().error("Could not parse post date", e);
             compareTime = Instant.now();
         }
         Instant newestTime = compareTime;
@@ -65,7 +65,7 @@ public class AnimeNewsDownloader {
                 if (StringUtil.getLanguage(locale) == Language.DE) post = getPostDE(postString);
                 else post = getPostEN(postString);
             } catch (NullPointerException e) {
-                LOGGER.error("Could not extract news post", e);
+                MainLogger.get().error("Could not extract news post", e);
                 return null;
             }
 

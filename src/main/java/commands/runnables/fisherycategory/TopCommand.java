@@ -3,7 +3,7 @@ package commands.runnables.fisherycategory;
 import commands.listeners.*;
 import commands.runnables.ListAbstract;
 import constants.Emojis;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.FisheryStatus;
 import core.*;
 import core.utils.StringUtil;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @CommandProperties(
         trigger = "top",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDFC6",
         executableWithoutArgs = true,
         aliases = { "rankings", "ranking", "rank", "ranks", "leaderboard", "t" }

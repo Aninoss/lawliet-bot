@@ -2,7 +2,7 @@ package core;
 
 import commands.Command;
 import core.utils.EmbedUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 import java.util.Locale;
@@ -19,7 +19,7 @@ public class EmbedFactory {
     public static EmbedBuilder getEmbedDefault(Command command, String description) {
         EmbedBuilder eb = getEmbedDefault()
                 .setColor(DEFAULT_EMBED_COLOR)
-                .setTitle(command.getEmoji() + " " + TextManager.getString(command.getLocale(), command.getCategory(), command.getTrigger()+"_title"));
+                .setTitle(command.getCommandProperties().emoji() + " " + TextManager.getString(command.getLocale(), command.getCategory(), command.getTrigger()+"_title"));
 
         if (description != null && description.length() > 0)
             eb.setDescription(description);
@@ -29,7 +29,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getEmbedDefault(Command command, String description, String title) {
         return getEmbedDefault(command, description)
-                .setTitle(command.getEmoji()+" "+title);
+                .setTitle(command.getCommandProperties().emoji() + " " + title);
     }
 
     public static EmbedBuilder getEmbedDefault() {

@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import constants.Category;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.DiscordApiManager;
 import core.PermissionCheckRuntime;
@@ -41,13 +41,13 @@ public abstract class AutoModAbstract {
             try {
                 ServerBean serverBean = DBServer.getInstance().getBean(message.getServer().get().getId());
                 Class<? extends Command> commandClass = getCommandClass();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), commandClass, message.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), commandClass, message.getServerTextChannel().get(), PermissionDeprecated.MANAGE_MESSAGES)) {
                     message.delete();
                 }
                 punish(message, serverBean, commandClass);
                 return false;
             } catch (Throwable e) {
-                LOGGER.error("Exception in server bean", e);
+                MainLogger.get().error("Exception in server bean", e);
             }
         }
 
@@ -67,13 +67,13 @@ public abstract class AutoModAbstract {
             Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
             Mod.postLog(command, eb, server, author).thenRun(() -> {
                 try {
-                    Mod.insertWarning(serverBean.getLocale(), server, author, DiscordApiManager.getInstance().getYourself(), commandTitle, withAutoActions(message, serverBean.getLocale()));
+                    Mod.insertWarning(serverBean.getLocale(), server, author, DiscordApiManager.getInstance().getSelf(), commandTitle, withAutoActions(message, serverBean.getLocale()));
                 } catch (ExecutionException e) {
-                    LOGGER.error("Error when creating command instance");
+                    MainLogger.get().error("Error when creating command instance");
                 }
             });
         } catch (ExecutionException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            LOGGER.error("Error when creating command instance");
+            MainLogger.get().error("Error when creating command instance");
         }
     }
 

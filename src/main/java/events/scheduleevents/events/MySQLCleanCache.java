@@ -25,7 +25,7 @@ public class MySQLCleanCache implements ScheduleInterface {
             if (hour == Settings.RESTART_HOUR && ready) {
                 ready = false;
                 DBMain.getInstance().clearCache();
-                LOGGER.info("Cache cleaned");
+                MainLogger.get().info("Cache cleaned");
             } else if (hour < Settings.RESTART_HOUR) {
                 ready = true;
             }

@@ -5,8 +5,8 @@ import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
-import commands.listeners.OnReactionAddStaticListener;
+import commands.listeners.OnNavigationListenerOld;
+import commands.listeners.OnStaticReactionAddListener;
 import constants.*;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -21,7 +21,6 @@ import mysql.modules.fisheryusers.FisheryServerBean;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import org.checkerframework.checker.units.qual.m;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
@@ -32,8 +31,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -43,13 +40,13 @@ import java.util.Random;
 
 @CommandProperties(
         trigger = "fishery",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        userPermissions = Permission.MANAGE_SERVER,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
         aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
 )
-public class FisheryCommand extends Command implements OnNavigationListener, OnReactionAddStaticListener {
+public class FisheryCommand extends Command implements OnNavigationListenerOld, OnStaticReactionAddListener {
 
     private static final int MAX_CHANNELS = 50;
 
@@ -249,7 +246,7 @@ public class FisheryCommand extends Command implements OnNavigationListener, OnR
     }
 
     @Override
-    public String getTitleStartIndicator() {
+    public String titleStartIndicator() {
         return treasureEmoji;
     }
 

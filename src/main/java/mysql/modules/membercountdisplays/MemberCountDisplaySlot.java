@@ -20,7 +20,7 @@ public class MemberCountDisplaySlot {
     }
 
     public Optional<ServerVoiceChannel> getVoiceChannel() {
-        return DiscordApiManager.getInstance().getLocalServerById(serverId).flatMap(server -> server.getVoiceChannelById(voiceChannelId));
+        return DiscordApiManager.getInstance().getLocalGuildById(serverId).flatMap(server -> server.getVoiceChannelById(voiceChannelId));
     }
 
     public String getMask() {

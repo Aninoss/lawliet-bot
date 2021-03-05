@@ -159,7 +159,7 @@ public class RedditDownloader {
         try {
             return getPost(new Locale(Locales.EN), "memes") != null;
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Error in reddit check", e);
+            MainLogger.get().error("Error in reddit check", e);
         }
         return false;
     }

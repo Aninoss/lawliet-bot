@@ -56,13 +56,13 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     public interface ListRemoveListener<T> { void onListRemove(List<? extends T> list); }
     public interface ListUpdateListener<T> { void onListUpdate(T t); }
 
-    public <U> CustomObservableList<U> transform(Function<T, Optional<U>> function, Function<U, T> backFunction) {
+    public <U> CustomObservableList<U> transform(Function<T, U> function, Function<U, T> backFunction) {
         ArrayList<U> listTemp = new ArrayList<>();
 
         for(T t: new ArrayList<>(this)) {
-            Optional<U> opt = function.apply(t);
-            if (opt.isPresent()) {
-                listTemp.add(opt.get());
+            U u = function.apply(t);
+            if (u != null) {
+                listTemp.add(u);
             } else {
                 remove(t);
             }

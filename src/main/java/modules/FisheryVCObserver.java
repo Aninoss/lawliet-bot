@@ -50,7 +50,7 @@ public class FisheryVCObserver {
                             try {
                                 return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
                             } catch (Throwable e) {
-                                LOGGER.error("Could not get server bean", e);
+                                MainLogger.get().error("Could not get server bean", e);
                             }
                             return false;
                         })
@@ -58,10 +58,10 @@ public class FisheryVCObserver {
                             try {
                                 manageVCFish(server, actions);
                             } catch (Throwable e) {
-                                LOGGER.error("Could not manage vc fish observer", e);
+                                MainLogger.get().error("Could not manage vc fish observer", e);
                             }
                         });
-                LOGGER.info("VC Observer - {} Actions", actions.get());
+                MainLogger.get().info("VC Observer - {} Actions", actions.get());
             }
         }, "vc_observer", 1).start();
     }
@@ -80,12 +80,12 @@ public class FisheryVCObserver {
                             serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
                             actions.incrementAndGet();
                         } catch (ExecutionException e) {
-                            LOGGER.error("Exception when registering vc", e);
+                            MainLogger.get().error("Exception when registering vc", e);
                         }
                     });
                 }
             } catch (Throwable e) {
-                LOGGER.error("Error while fetching VC member list", e);
+                MainLogger.get().error("Error while fetching VC member list", e);
             }
         }
     }
@@ -105,7 +105,7 @@ public class FisheryVCObserver {
                             validUsers.add(user);
                         }
                     }, () -> {
-                        LOGGER.error("VC Observer - missing user with id {} on server {}", userId, server.getId());
+                        MainLogger.get().error("VC Observer - missing user with id {} on server {}", userId, server.getId());
                     });
         }
 

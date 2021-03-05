@@ -4,7 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
 import constants.Emojis;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.DiscordUtil;
@@ -49,7 +49,7 @@ public class GiveawayScheduler {
                     .filter(GiveawayBean::isActive)
                     .forEach(this::loadGiveawayBean);
         } catch (Throwable e) {
-            LOGGER.error("Could not start giveaway", e);
+            MainLogger.get().error("Could not start giveaway", e);
         }
     }
 
@@ -59,13 +59,13 @@ public class GiveawayScheduler {
 
     private void onGiveawayDue(GiveawayBean giveawayBean) {
         if (giveawayBean.isActive()) {
-            DiscordApiManager.getInstance().getLocalServerById(giveawayBean.getServerId())
+            DiscordApiManager.getInstance().getLocalGuildById(giveawayBean.getServerId())
                     .flatMap(server -> server.getTextChannelById(giveawayBean.getChannelId()))
                     .ifPresent(channel -> {
                         try {
                             processGiveawayUsers(channel, DBServer.getInstance().getBean(channel.getServer().getId()), giveawayBean);
                         } catch (Throwable e) {
-                            LOGGER.error("Error in giveaway", e);
+                            MainLogger.get().error("Error in giveaway", e);
                         }
                     });
         }
@@ -105,7 +105,7 @@ public class GiveawayScheduler {
 
         giveawayBean.stop();
         message.edit(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
-        if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.READ_MESSAGE_HISTORY | Permission.SEND_MESSAGES | Permission.EMBED_LINKS))
+        if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, PermissionDeprecated.READ_MESSAGE_HISTORY | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS))
             channel.sendMessage(mentions.toString()).thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
     }
 

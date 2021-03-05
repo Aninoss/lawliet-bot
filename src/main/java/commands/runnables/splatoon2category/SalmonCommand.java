@@ -4,7 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import constants.Emojis;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.internet.InternetCache;
@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "salmon",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+    botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDC1F",
     executableWithoutArgs = true

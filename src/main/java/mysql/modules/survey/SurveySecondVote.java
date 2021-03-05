@@ -21,7 +21,7 @@ public class SurveySecondVote {
     }
 
     public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalServerById(getServerId());
+        return DiscordApiManager.getInstance().getLocalGuildById(getServerId());
     }
 
     public long getUserId() {

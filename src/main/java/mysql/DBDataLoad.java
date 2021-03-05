@@ -42,7 +42,7 @@ public class DBDataLoad<T> {
                     T value = function.apply(resultSet);
                     if (!Objects.isNull(value)) list.add(value);
                 } catch (Throwable e) {
-                    LOGGER.error("Exception", e);
+                    MainLogger.get().error("Exception", e);
                 }
             }
 
@@ -65,7 +65,7 @@ public class DBDataLoad<T> {
                     T value = function.apply(resultSet);
                     if (value != null) map.put(getKeyFunction.apply(value), value);
                 } catch (Throwable e) {
-                    LOGGER.error("Exception", e);
+                    MainLogger.get().error("Exception", e);
                 }
             }
 

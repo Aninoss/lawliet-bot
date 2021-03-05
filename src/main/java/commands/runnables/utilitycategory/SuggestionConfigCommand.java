@@ -2,9 +2,9 @@ package commands.runnables.utilitycategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -24,13 +24,13 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "suggconfig",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "❕",
         executableWithoutArgs = true,
         releaseDate = { 2020, 12, 7 },
         aliases = { "suggestionconfig", "suggestionsconfig" }
 )
-public class SuggestionConfigCommand extends Command implements OnNavigationListener {
+public class SuggestionConfigCommand extends Command implements OnNavigationListenerOld {
 
     private SuggestionsBean suggestionsBean;
 

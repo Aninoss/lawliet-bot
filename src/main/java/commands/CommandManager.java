@@ -1,10 +1,9 @@
 package commands;
 
-import commands.cooldownchecker.CooldownManager;
-import commands.cooldownchecker.CooldownUserData;
-import commands.listeners.OnForwardedRecievedListener;
-import commands.listeners.OnNavigationListener;
-import commands.listeners.OnReactionAddListener;
+import commands.cooldownchecker.CoolDownManager;
+import commands.cooldownchecker.CoolDownUserData;
+import commands.listeners.OnMessageInputListener;
+import commands.listeners.OnReactionListener;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
@@ -16,17 +15,12 @@ import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.modules.commandmanagement.DBCommandManagement;
-import mysql.modules.commandusages.DBCommandUsages;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -34,21 +28,18 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class CommandManager {
 
     private final static int SEC_UNTIL_REMOVAL = 20;
 
-    public static void manage(MessageCreateEvent event, Command command, String followedString, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
+    public static void manage(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
-                checkCooldown(event, command) &&
+                checkCoolDown(event, command) &&
                 botCanUseEmbeds(event, command) &&
                 canRunOnServer(event, command) &&
                 isNSFWCompliant(event, command) &&
@@ -58,82 +49,62 @@ public class CommandManager {
                 checkReleased(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            if (Bot.isPublicVersion())
-                DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
-
-            cleanPreviousActivities(event.getServer().get(), event.getMessageAuthor().asUser().get());
-            manageSlowCommandLoadingReaction(command);
-            if (command.isPatreonRequired() && (command.getUserPermissions() & Permission.MANAGE_SERVER) != 0) {
-                ServerPatreonBoostCache.getInstance().setTrue(event.getServer().get().getId());
+            if (command.getCommandProperties().patreonRequired() &&
+                    (Arrays.stream(command.getCommandProperties().userGuildPermissions()).anyMatch(p -> p == Permission.MANAGE_SERVER))
+            ) {
+                ServerPatreonBoostCache.getInstance().setTrue(event.getGuild().getIdLong());
             }
 
             try {
-                sendOverwrittenSignals(event);
-                checkTriggerDelete(event);
+                cleanPreviousListeners(command, event.getMember());
+                sendOverwrittenSignals(command, event.getMember());
 
-                if (command instanceof PingCommand) command.getAttachments().put("starting_time", startTime);
-                if (command instanceof OnNavigationListener)
-                    command.onNavigationMessageSuper(event, followedString, true);
-                else
-                    command.onReceivedSuper(event, followedString);
+                if (command instanceof PingCommand)
+                    command.getAttachments().put("starting_time", startTime);
 
+                command.onTrigger(event, args);
                 if (Bot.isPublicVersion())
                     maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
-                ExceptionUtil.handleCommandException(e, command, event.getServerTextChannel().get());
-            } finally {
-                command.getCompletedListeners().forEach(Runnable::run);
+                ExceptionUtil.handleCommandException(e, command, event.getChannel());
             }
-            command.removeLoadingReaction();
         }
     }
 
-    private static void checkTriggerDelete(MessageCreateEvent event) throws ExecutionException {
-        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-        if (serverBean.isCommandAuthorMessageRemove() &&
-                ServerPatreonBoostCache.getInstance().get(event.getServer().get().getId()) &&
-                PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), TriggerDeleteCommand.class, event.getServerTextChannel().get(), Permission.MANAGE_MESSAGES)
-        ) {
-            event.getMessage().delete(); //no log
-        }
-    }
-
-    private static void maybeSendInvite(MessageCreateEvent event, Locale locale) {
-        User author = event.getMessage().getUserAuthor().get();
-
+    private static void maybeSendInvite(GuildMessageReceivedEvent event, Locale locale) {
         if (new Random().nextInt(200) == 0 &&
-                !event.getServer().get().canManage(author) &&
-                !event.getChannel().canManageMessages(author) &&
-                event.getChannel().canYouEmbedLinks()
+                !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
+                !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
+                BotPermissionUtil.canWriteEmbed(event.getChannel())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setThumbnail(DiscordApiManager.getInstance().getYourself().getAvatar())
+                    .setThumbnail(DiscordApiManager.getInstance().getSelf().getAvatarUrl())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", ExternalLinks.BOT_INVITE_REMINDER_URL));
 
-            event.getChannel().sendMessage(eb).exceptionally(ExceptionLogger.get());
+            event.getChannel().sendMessage(eb.build()).queue();
         }
     }
 
-    private static boolean checkRunningCommands(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (command instanceof PingCommand) command.getAttachments().put(0, Instant.now());
+    private static boolean checkRunningCommands(GuildMessageReceivedEvent event, Command command) {
+        if (command instanceof PingCommand) command.getAttachments().put("start_instant", Instant.now());
         if (RunningCheckerManager.getInstance().canUserRunCommand(
                 command,
-                event.getMessage().getUserAuthor().get().getId(),
-                event.getApi().getCurrentShard(),
-                command.getMaxCalculationTimeSec()
+                event.getMember().getIdLong(),
+                event.getJDA().getShardInfo().getShardId(),
+                command.getCommandProperties().maxCalculationTimeSec()
         )) {
             return true;
         }
 
-        if (CooldownManager.getInstance().getCooldownData(event.getMessageAuthor().getId()).canPostCooldownMessage()) {
+        if (CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-            if (event.getChannel().canYouEmbedLinks()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
                 sendError(event, command.getLocale(), eb);
-            } else if (event.getChannel().canYouWrite()) {
+            } else if (BotPermissionUtil.canWrite(event.getChannel())) {
                 sendErrorNoEmbed(event, command.getLocale(), desc);
             }
         }
@@ -141,24 +112,25 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkCooldown(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) >= 3) return true;
-        CooldownUserData cooldownUserData = CooldownManager.getInstance().getCooldownData(event.getMessageAuthor().getId());
+    private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) throws ExecutionException, InterruptedException {
+        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3)
+            return true;
+        CoolDownUserData cooldownUserData = CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong());
 
         Optional<Integer> waitingSec = cooldownUserData.getWaitingSec(Settings.COOLDOWN_TIME_SEC);
         if (waitingSec.isEmpty()) {
             return true;
         }
 
-        if (cooldownUserData.canPostCooldownMessage()) {
+        if (cooldownUserData.canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
-            if (event.getChannel().canYouEmbedLinks()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
                 sendError(event, command.getLocale(), eb);
-            } else if (event.getChannel().canYouWrite()) {
+            } else if (BotPermissionUtil.canWrite(event.getChannel())) {
                 sendErrorNoEmbed(event, command.getLocale(), desc);
             }
 
@@ -168,89 +140,93 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkReleased(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
+    private static boolean checkReleased(GuildMessageReceivedEvent event, Command command) {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
-        if (!releaseDate.isAfter(LocalDate.now()) || PatreonCache.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) > 1) {
+        if (!releaseDate.isAfter(LocalDate.now()) || PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) > 1) {
             return true;
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description", ExternalLinks.PATREON_PAGE);
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(command.getLocale(), Instant.now(), TimeUtil.localDateToInstant(releaseDate), false));
 
-        if (event.getChannel().canYouEmbedLinks()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
             EmbedUtil.addLog(eb, LogStatus.TIME, waitTime);
             sendError(event, command.getLocale(), eb);
-        } else if (event.getChannel().canYouWrite()) {
+        } else if (BotPermissionUtil.canWrite(event.getChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`");
         }
 
         return false;
     }
 
-    private static boolean checkPatreon(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (!command.isPatreonRequired() || PatreonCache.getInstance().getUserTier(event.getMessageAuthor().asUser().get().getId()) > 1) {
+    private static boolean checkPatreon(GuildMessageReceivedEvent event, Command command) {
+        if (!command.getCommandProperties().patreonRequired() || PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) > 1) {
             return true;
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", ExternalLinks.PATREON_PAGE);
 
-        if (event.getChannel().canYouEmbedLinks()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
             sendError(event, command.getLocale(), eb);
-        } else if (event.getChannel().canYouWrite()) {
+        } else if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), desc);
         }
 
         return false;
     }
 
-    private static boolean checkPermissions(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        EmbedBuilder errEmbed = PermissionUtil.getUserAndBotPermissionMissingEmbed(command.getLocale(), event.getServer().get(), event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get(), command.getUserPermissions(), command.getBotPermissions());
+    private static boolean checkPermissions(GuildMessageReceivedEvent event, Command command) throws ExecutionException, InterruptedException {
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                command.getLocale(),
+                event.getChannel(),
+                event.getMember(),
+                command.getUserGuildPermissions(),
+                command.getUserChannelPermissions(),
+                command.getBotPermissions()
+        );
         if (errEmbed == null || command instanceof HelpCommand) {
             return true;
         }
 
-        if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks())
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()))
             sendError(event, command.getLocale(), errEmbed);
         return false;
     }
 
-    private static boolean checkTurnedOn(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        Server server = event.getServer().get();
-        User user = event.getMessage().getUserAuthor().get();
-
-        if (PermissionUtil.hasAdminPermissions(server, user) ||
-                DBCommandManagement.getInstance().getBean(server.getId()).commandIsTurnedOn(command)
+    private static boolean checkTurnedOn(GuildMessageReceivedEvent event, Command command) {
+        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
+                DBCommandManagement.getInstance().getBean(event.getGuild().getIdLong()).commandIsTurnedOn(command)
         ) {
             return true;
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
 
-        if (event.getChannel().canYouEmbedLinks()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, command.getLocale(), eb);
-        } else if (event.getChannel().canYouWrite()) {
+        } else if (BotPermissionUtil.canWrite(event.getChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), desc);
         }
         return false;
     }
 
-    private static boolean canRunOnServer(MessageCreateEvent event, Command command) {
-        return command.canRunOnServer(event.getServer().get().getId(), event.getMessage().getUserAuthor().get().getId());
+    private static boolean canRunOnServer(GuildMessageReceivedEvent event, Command command) {
+        return command.canRunOnGuild(event.getGuild().getIdLong(), event.getMember().getIdLong());
     }
 
-    private static boolean botCanUseEmbeds(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (event.getChannel().canYouEmbedLinks() || !command.requiresEmbeds()) {
+    private static boolean botCanUseEmbeds(GuildMessageReceivedEvent event, Command command) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || !command.getCommandProperties().requiresEmbeds()) {
             return true;
         }
 
@@ -258,8 +234,8 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean isNSFWCompliant(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (!command.isNsfw() || event.getServerTextChannel().get().isNsfw()) {
+    private static boolean isNSFWCompliant(GuildMessageReceivedEvent event, Command command) {
+        if (!command.getCommandProperties().nsfw() || event.getChannel().isNSFW()) {
             return true;
         }
 
@@ -268,179 +244,122 @@ public class CommandManager {
         return false;
     }
 
-    private static void sendErrorNoEmbed(MessageCreateEvent event, Locale locale, String text) throws ExecutionException, InterruptedException {
-        if (event.getChannel().canYouSee() && event.getChannel().canYouWrite()) {
-            Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMessage().getUserAuthor().get().getMentionTag())).get();
+    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+            Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMember().getAsMention())).complete();
             autoRemoveMessageAfterCountdown(event, message);
         }
     }
 
-    private static void sendError(MessageCreateEvent event, Locale locale, EmbedBuilder eb) throws ExecutionException, InterruptedException {
-        if (event.getChannel().canYouSee() && event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
+    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            Message message = event.getChannel().sendMessage(event.getMessage().getUserAuthor().get().getMentionTag(), eb).get();
+            Message message = event.getChannel().sendMessage(
+                    new EmbedWithContent(event.getMessage().getMember().getAsMention(), eb.build()).build()
+            ).complete();
             autoRemoveMessageAfterCountdown(event, message);
         }
     }
 
-    private static void autoRemoveMessageAfterCountdown(MessageCreateEvent event, Message message) {
+    private static void autoRemoveMessageAfterCountdown(GuildMessageReceivedEvent event, Message message) {
         MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
-            if (event.getChannel().canYouManageMessages())
-                event.getChannel().bulkDelete(message, event.getMessage());
+            if (BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE))
+                event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue();
             else
-                message.delete();
+                message.delete().queue();
         });
     }
 
-    private static boolean isWhiteListed(MessageCreateEvent event, Command command) throws ExecutionException, InterruptedException {
-        if (event.getServer().get().canManage(event.getMessage().getUserAuthor().get()) || DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId()).isWhiteListed(event.getServerTextChannel().get().getId())) {
+    private static boolean isWhiteListed(GuildMessageReceivedEvent event, Command command) {
+        if (BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) || DBWhiteListedChannels.getInstance().getBean(event.getGuild().getIdLong()).isWhiteListed(event.getChannel().getIdLong())) {
             return true;
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_description");
 
-        if (event.getChannel().canYouEmbedLinks()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, command.getLocale(), eb);
-        } else if (event.getChannel().canYouWrite()) {
+        } else if (BotPermissionUtil.canWrite(event.getChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), desc);
         }
         return false;
     }
 
-    private static boolean botCanPost(MessageCreateEvent event, Command command) {
-        if (event.getChannel().canYouWrite() || command instanceof HelpCommand) {
+    private static boolean botCanPost(GuildMessageReceivedEvent event, Command command) {
+        if (BotPermissionUtil.canWrite(event.getChannel()) || command instanceof HelpCommand) {
             return true;
         }
 
-        if (event.getChannel().canYouAddNewReactions()) {
-            if (event.getChannel().canYouUseExternalEmojis())
-                event.addReactionsToMessage(DiscordUtil.createCustomEmojiFromTag(Emojis.NO));
+        if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI))
+                event.getMessage().addReaction(Emojis.NO).queue();
             else
-                event.addReactionsToMessage("❌");
-            event.addReactionsToMessage("✍️");
+                event.getMessage().addReaction("❌").queue();
+            event.getMessage().addReaction("✍️").queue();
         }
 
-        if (PermissionUtil.hasAdminPermissions(event.getServer().get(), event.getMessageAuthor().asUser().get()))
-            event.getMessage().getUserAuthor().get().sendMessage(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getServerTextChannel().get().getName())));
+        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
+            JDAUtil.sendPrivateMessage(
+                    event.getMember(),
+                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getChannel().getName()))
+            ).queue();
+        }
 
         return false;
     }
 
     private static void sendOverwrittenSignals(MessageCreateEvent event) {
         ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
-        for (int i=list.size() - 1; i >= 0; i--) {
+        for (int i = list.size() - 1; i >= 0; i--) {
             Command command = list.get(i);
             if (command != null &&
                     (event.getChannel().getId() == command.getForwardChannelID() || command.getForwardChannelID() == -1) &&
                     (event.getMessage().getUserAuthor().get().getId() == command.getForwardUserID() || command.getForwardUserID() == -1)
             ) {
-                if (command instanceof OnForwardedRecievedListener) ((OnForwardedRecievedListener)command).onNewActivityOverwrite();
-                else if (command instanceof OnNavigationListener) ((OnNavigationListener)command).onNewActivityOverwrite();
+                if (command instanceof OnMessageInputListener)
+                    ((OnMessageInputListener) command).onNewActivityOverwrite();
+                else if (command instanceof OnNavigationListenerOld)
+                    ((OnNavigationListenerOld) command).onNewActivityOverwrite();
                 break;
             }
         }
     }
 
-    private static void cleanPreviousActivities(Server server, User user) {
-        ArrayList<Long> openedMessages = new ArrayList<>();
+    private static void sendOverwrittenSignals(Command command, Member member) {
+        sendOverwrittenSignals(command, member, OnReactionListener.class);
+        sendOverwrittenSignals(command, member, OnMessageInputListener.class);
+    }
 
-        //Count Forwarded Listeners
-        ArrayList<Command> list = CommandContainer.getInstance().getMessageForwardInstances();
-        for (Command command : list) {
-            if (command != null) {
-                Message message = null;
-                long activityUserId = command.getReactionUserID();
-
-                if (command instanceof OnForwardedRecievedListener)
-                    message = ((OnForwardedRecievedListener) command).getForwardedMessage();
-                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
-
-                if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
-                    long messageID = message.getId();
-                    if (!openedMessages.contains(messageID)) openedMessages.add(messageID);
-                }
-            }
-        }
-
-        //Count Reaction Listeners
-        list = CommandContainer.getInstance().getReactionInstances();
-        for (Command command : list) {
-            if (command != null) {
-                Message message = null;
-                long activityUserId = command.getReactionUserID();
-
-                if (command instanceof OnReactionAddListener)
-                    message = ((OnReactionAddListener) command).getReactionMessage();
-                else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
-
-                if (message != null && message.getServer().isPresent() && message.getServer().get().getId() == server.getId() && activityUserId == user.getId()) {
-                    long messageID = message.getId();
-                    if (!openedMessages.contains(messageID)) openedMessages.add(messageID);
-                }
-            }
-        }
-
-        while (openedMessages.size() >= 3) {
-            long removeMessageId = openedMessages.get(0);
-            openedMessages.remove(0);
-
-            //Remove Forwarded Listeners
-            list = CommandContainer.getInstance().getMessageForwardInstances();
-            for (Command command : list) {
-                if (command != null) {
-                    Message message = null;
-
-                    if (command instanceof OnForwardedRecievedListener)
-                        message = ((OnForwardedRecievedListener) command).getForwardedMessage();
-                    else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
-
-                    if (message != null && removeMessageId == message.getId()) {
-                        if (command instanceof OnNavigationListener) command.removeNavigation();
-                        else command.removeReactionListener(message);
-                        break;
-                    }
-                }
-            }
-
-            //Remove Reaction Listeners
-            list = CommandContainer.getInstance().getReactionInstances();
-            for (Command command : list) {
-                if (command != null) {
-                    Message message = null;
-
-                    if (command instanceof OnReactionAddListener)
-                        message = ((OnReactionAddListener) command).getReactionMessage();
-                    else if (command instanceof OnNavigationListener) message = command.getNavigationMessage();
-
-                    if (message != null && removeMessageId == message.getId()) {
-                        if (command instanceof OnNavigationListener) command.removeNavigation();
-                        else command.removeMessageForwarder();
-                        break;
-                    }
-                }
-            }
+    private static void sendOverwrittenSignals(Command command, Member member, Class<?> clazz) {
+        if (clazz.isInstance(command)) {
+            CommandContainer.getInstance().getListeners(clazz).stream()
+                    .filter(meta -> meta.getAuthorId() == member.getIdLong())
+                    .forEach(CommandListenerMeta::override);
         }
     }
 
-    private static void manageSlowCommandLoadingReaction(Command command) {
-        AtomicBoolean commandIsActive = new AtomicBoolean(true);
-        command.addCompletedListener(() -> commandIsActive.set(false));
+    private static void cleanPreviousListeners(Command command, Member member) {
+        cleanPreviousListeners(command, member, OnReactionListener.class);
+        cleanPreviousListeners(command, member, OnMessageInputListener.class);
+    }
 
-        MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "command_manager_add_loading_reaction", () -> {
-            if (commandIsActive.get()) {
-                command.addLoadingReaction();
-            }
-        });
+    private static void cleanPreviousListeners(Command command, Member member, Class<?> clazz) {
+        //TODO: check if it works
+        if (clazz.isInstance(command)) {
+            ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getInstance().getListeners(clazz).stream()
+                    .filter(meta -> meta.getAuthorId() == member.getIdLong())
+                    .sorted(Comparator.comparing(CommandListenerMeta::getCreationTime))
+                    .collect(Collectors.toCollection(ArrayList::new));
 
-        Thread commandThread = Thread.currentThread();
-        MainScheduler.getInstance().schedule(command.getMaxCalculationTimeSec(), ChronoUnit.SECONDS, "command_manager_timeout", () -> {
-            if (command.hasTimeOut() && commandIsActive.get()) {
-                commandThread.interrupt();
+            while (metaList.size() >= 2) {
+                CommandListenerMeta<?> meta = metaList.remove(0);
+                CommandContainer.getInstance().deregisterListener(clazz, meta.getCommand());
+                meta.timeOut();
             }
-        });
+        }
     }
 
     public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
@@ -454,7 +373,7 @@ public class CommandManager {
     }
 
     public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        for(Constructor<?> s : clazz.getConstructors()) {
+        for (Constructor<?> s : clazz.getConstructors()) {
             if (s.getParameterCount() == 2)
                 return (Command) s.newInstance(locale, prefix);
         }

@@ -2,13 +2,13 @@ package commands.runnables.moderationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.DiscordApiManager;
 import core.TextManager;
 import core.mention.Mention;
 import core.utils.MentionUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import modules.Mod;
 import modules.mute.MuteData;
 import modules.mute.MuteManager;
@@ -25,13 +25,13 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "chmute",
-        userPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
-        botPermissions = Permission.MANAGE_CHANNEL_PERMISSIONS | Permission.MANAGE_CHANNEL,
+        userPermissions = PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.MANAGE_CHANNEL,
+        botPermissions = PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.MANAGE_CHANNEL,
         emoji = "\uD83D\uDED1",
         executableWithoutArgs = false,
         aliases = {"channelmute", "mute"}
 )
-public class ChannelMuteCommand extends Command  {
+public class ChannelMuteCommand extends Command {
 
     private final boolean mute;
 
@@ -55,7 +55,7 @@ public class ChannelMuteCommand extends Command  {
         if (channelList.size() > 0)
             channel = channelList.get(0);
 
-        EmbedBuilder errorEmbed = PermissionUtil.getUserAndBotPermissionMissingEmbed(getLocale(), server, channel, message.getUserAuthor().get(), getUserPermissions(), getBotPermissions());
+        EmbedBuilder errorEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(getLocale(), server, channel, message.getUserAuthor().get(), getUserPermissions(), getBotPermissions());
         if (errorEmbed != null) {
             message.getChannel().sendMessage(errorEmbed).get();
             return false;
@@ -70,7 +70,7 @@ public class ChannelMuteCommand extends Command  {
 
         ArrayList<User> successfulUsers = new ArrayList<>();
         for(User user: userList) {
-            if (!PermissionUtil.hasAdminPermissions(server, user)) successfulUsers.add(user);
+            if (!BotPermissionUtil.hasAdminPermissions(server, user)) successfulUsers.add(user);
         }
 
         if (successfulUsers.size() == 0) {
@@ -88,7 +88,7 @@ public class ChannelMuteCommand extends Command  {
         if (doneSomething)
             Mod.postLog(this, actionEmbed, event.getServer().get(), userList).join();
 
-        if (!mute || !successfulUsers.contains(DiscordApiManager.getInstance().getYourself()) || channel.getId() != event.getServerTextChannel().get().getId()) {
+        if (!mute || !successfulUsers.contains(DiscordApiManager.getInstance().getSelf()) || channel.getId() != event.getServerTextChannel().get().getId()) {
             EmbedBuilder eb;
 
             if (doneSomething)

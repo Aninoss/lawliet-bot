@@ -5,7 +5,7 @@ import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "tower",
         emoji = "🏗️️",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         executableWithoutArgs = true,
         aliases = { "crash" }
 )

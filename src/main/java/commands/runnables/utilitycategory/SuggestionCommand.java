@@ -2,11 +2,11 @@ package commands.runnables.utilitycategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddStaticListener;
-import commands.listeners.OnReactionRemoveStaticListener;
+import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.QuickUpdater;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -26,10 +26,8 @@ import org.javacord.api.event.message.reaction.ReactionAddEvent;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @CommandProperties(
         trigger = "suggestion",
@@ -37,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
         executableWithoutArgs = false,
         aliases = { "sugg" }
 )
-public class SuggestionCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
+public class SuggestionCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
     private static final String EMOJI_LIKE = "👍";
     private static final String EMOJI_DISLIKE = "👎";
@@ -51,7 +49,7 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
         SuggestionsBean suggestionsBean = DBSuggestions.getInstance().getBean(event.getServer().get().getId());
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
-            if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ADD_REACTIONS)) {
+            if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ADD_REACTIONS)) {
                 if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES).isEmpty()) {
                     ServerTextChannel channel = channelOpt.get();
                     String author = event.getMessage().getUserAuthor().get().getDiscriminatedName();
@@ -150,7 +148,7 @@ public class SuggestionCommand extends Command implements OnReactionAddStaticLis
     }
 
     @Override
-    public String getTitleStartIndicator() {
+    public String titleStartIndicator() {
         return getEmoji();
     }
 

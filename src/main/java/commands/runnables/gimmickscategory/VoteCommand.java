@@ -2,12 +2,12 @@ package commands.runnables.gimmickscategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddStaticListener;
-import commands.listeners.OnReactionRemoveStaticListener;
+import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
 import constants.LetterEmojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.QuickUpdater;
 import core.cache.VoteCache;
@@ -28,12 +28,12 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "vote",
-        botPermissions = Permission.MANAGE_MESSAGES | Permission.READ_MESSAGE_HISTORY,
+        botPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.READ_MESSAGE_HISTORY,
         emoji = "\uD83D\uDDF3",
         executableWithoutArgs = false,
         aliases = { "poll" }
 )
-public class VoteCommand extends Command implements OnReactionAddStaticListener, OnReactionRemoveStaticListener {
+public class VoteCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
     public VoteCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -145,7 +145,7 @@ public class VoteCommand extends Command implements OnReactionAddStaticListener,
     }
 
     @Override
-    public String getTitleStartIndicator() {
+    public String titleStartIndicator() {
         return getEmoji();
     }
 }

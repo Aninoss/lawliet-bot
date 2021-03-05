@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryUserAccountAbstract;
 import constants.Category;
 import constants.FisheryCategoryInterface;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
@@ -25,7 +25,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "gear",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDFA3",
         executableWithoutArgs = true,
         aliases = { "equip", "equipment", "inventory", "level", "g" }

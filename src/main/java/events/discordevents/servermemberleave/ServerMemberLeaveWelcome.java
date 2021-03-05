@@ -1,7 +1,7 @@
 package events.discordevents.servermemberleave;
 
 import commands.runnables.utilitycategory.WelcomeCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -14,8 +14,6 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
@@ -30,7 +28,7 @@ public class ServerMemberLeaveWelcome extends ServerMemberLeaveAbstract {
         WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
         if (welcomeMessageBean.isGoodbyeActive()) {
             welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ATTACH_FILES)) {
                     User user = event.getUser();
                     channel.sendMessage(
                             StringUtil.defuseMassPing(

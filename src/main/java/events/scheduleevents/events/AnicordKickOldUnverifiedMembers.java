@@ -21,7 +21,7 @@ public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         if (Bot.isProductionMode() && Bot.isPublicVersion()) {
-            DiscordApiManager.getInstance().getLocalServerById(AssetIds.ANICORD_SERVER_ID).ifPresent(server -> {
+            DiscordApiManager.getInstance().getLocalGuildById(AssetIds.ANICORD_SERVER_ID).ifPresent(server -> {
                 Role memberRole = server.getRoleById(462410205288726531L).get();
                 AtomicInteger counter = new AtomicInteger(0);
                 server.getMembers().forEach(member -> {
@@ -29,12 +29,12 @@ public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
                             !member.isBot() &&
                             member.getJoinedAtTimestamp(server).map(instant -> instant.isBefore(Instant.now().minus(Duration.ofDays(3)))).orElse(true)
                     ) {
-                        LOGGER.info("Kicked Unverified Member: " + member.getDiscriminatedName());
+                        MainLogger.get().info("Kicked Unverified Member: " + member.getDiscriminatedName());
                         counter.incrementAndGet();
                         server.kickUser(member).exceptionally(ExceptionLogger.get());
                     }
                 });
-                LOGGER.info("Removed Members: " + counter.get());
+                MainLogger.get().info("Removed Members: " + counter.get());
             });
         }
     }

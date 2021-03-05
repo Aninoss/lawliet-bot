@@ -63,7 +63,7 @@ public final class InternetUtil {
 
             return true;
         } catch (Throwable e) {
-            LOGGER.error("Could not create connection to google", e);
+            MainLogger.get().error("Could not create connection to google", e);
         }
         return false;
     }

@@ -32,7 +32,7 @@ public class DBKeySetLoad<T> {
                 try {
                     list.add(function.apply(resultSet));
                 } catch (Throwable e) {
-                    LOGGER.error("Exception", e);
+                    MainLogger.get().error("Exception", e);
                 }
             }
 

@@ -48,7 +48,7 @@ public class SurveyResults implements ScheduleInterface {
             } catch (InterruptedException ignored) {}
             DBSurvey.getInstance().next();
 
-            LOGGER.info("Calculating survey results...");
+            MainLogger.get().info("Calculating survey results...");
             processSurvey(lastSurvey);
         });
     }
@@ -67,13 +67,13 @@ public class SurveyResults implements ScheduleInterface {
             }
         }
 
-        LOGGER.info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
+        MainLogger.get().info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
         ArrayList<Long> notificationUsers = Bot.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
                 DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                     try {
-                        LOGGER.info("### SURVEY MANAGE USER {} ###", user.getName());
+                        MainLogger.get().info("### SURVEY MANAGE USER {} ###", user.getName());
                         processSurveyUser(secondVotesMap.get(userId), user, won);
                         if (notificationUsers.contains(userId)) {
                             notificationUsers.remove(userId);
@@ -81,11 +81,11 @@ public class SurveyResults implements ScheduleInterface {
                             Thread.sleep(100);
                         }
                     } catch (Throwable e) {
-                        LOGGER.error("Exception while managing user {}", userId, e);
+                        MainLogger.get().error("Exception while managing user {}", userId, e);
                     }
                 });
             } catch (Throwable e) {
-                LOGGER.error("Exception while managing user {}", userId, e);
+                MainLogger.get().error("Exception while managing user {}", userId, e);
             }
         }
 
@@ -95,12 +95,12 @@ public class SurveyResults implements ScheduleInterface {
                     sendSurveyResult(lastSurvey, user, won, percent);
                     Thread.sleep(100);
                 } catch (Throwable e) {
-                    LOGGER.error("Exception while managing user {}", userId, e);
+                    MainLogger.get().error("Exception while managing user {}", userId, e);
                 }
             });
         });
 
-        LOGGER.info("Survey results finished");
+        MainLogger.get().info("Survey results finished");
     }
 
     private static void processSurveyUser(ArrayList<SurveySecondVote> secondVotes, User user, byte won) {

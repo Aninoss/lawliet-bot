@@ -93,7 +93,7 @@ public class VoteCache {
                             }
                         });
                     } catch (InterruptedException | ExecutionException e) {
-                        LOGGER.error("Exception", e);
+                        MainLogger.get().error("Exception", e);
                     }
 
                     break;

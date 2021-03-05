@@ -2,7 +2,7 @@ package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryUserAccountAbstract;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import mysql.modules.fisheryusers.DBFishery;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
@@ -11,7 +11,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "acc",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDE4B",
         executableWithoutArgs = true,
         aliases = { "profile", "profil", "account", "balance", "bal", "a" }

@@ -4,12 +4,12 @@ import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
 import constants.AssetIds;
 import constants.Category;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.InviteCache;
 import core.utils.DiscordUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
 import org.javacord.api.entity.DiscordEntity;
@@ -34,14 +34,14 @@ public class InviteFilter extends AutoModAbstract {
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
         if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER &&
-                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getServerTextChannel().get(), Permission.BAN_MEMBERS)
+                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getServerTextChannel().get(), PermissionDeprecated.BAN_MEMBERS)
         ) {
             message.getServer().get()
                     .banUser(message.getUserAuthor().get(), 0, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
                     .exceptionally(ExceptionLogger.get());
             return false;
         } else if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER &&
-                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getServerTextChannel().get(), Permission.KICK_MEMBERS)
+                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getServerTextChannel().get(), PermissionDeprecated.KICK_MEMBERS)
         ) {
             message.getServer().get()
                     .kickUser(message.getUserAuthor().get(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
@@ -71,7 +71,7 @@ public class InviteFilter extends AutoModAbstract {
         if (spBlockBean.isActive() &&
                 !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
                 !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
-                !PermissionUtil.hasAdminPermissions(message.getServer().get(), message.getUserAuthor().get())
+                !BotPermissionUtil.hasAdminPermissions(message.getServer().get(), message.getUserAuthor().get())
         ) {
             ArrayList<String> inviteLinks = DiscordUtil.filterServerInviteLinks(message.getContent());
             if (inviteLinks.size() > 0) {

@@ -3,7 +3,6 @@ package commands.runnables.externalcategory;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Response;
 import core.EmbedFactory;
 import core.ResourceHandler;
 import core.TextManager;
@@ -17,13 +16,10 @@ import org.javacord.api.util.logging.ExceptionLogger;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 

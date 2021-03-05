@@ -55,7 +55,7 @@ public class YouTubePlayer {
 
             @Override
             public void loadFailed(FriendlyException throwable) {
-                LOGGER.error("Could not load music track", throwable);
+                MainLogger.get().error("Could not load music track", throwable);
             }
         }).get();
 
@@ -89,7 +89,7 @@ public class YouTubePlayer {
 
             @Override
             public void loadFailed(FriendlyException throwable) {
-                LOGGER.error("Could not load music track", throwable);
+                MainLogger.get().error("Could not load music track", throwable);
             }
         });
     }

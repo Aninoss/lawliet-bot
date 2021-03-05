@@ -90,7 +90,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             }
         } catch (Throwable e) {
             update(fisheryServerBean, null);
-            LOGGER.error("Could not save fishery server {}", fisheryServerBean.getServerId(), e);
+            MainLogger.get().error("Could not save fishery server {}", fisheryServerBean.getServerId(), e);
         }
     }
 
@@ -116,7 +116,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     .forEach(powerUpBean -> saveFisheryUserPowerUpBean(powerUpBean, powerUpBatch));
         } catch (Throwable e) {
             fisheryUserBean.setChanged();
-            LOGGER.error("Could not save fishery user {} on server {}", fisheryUserBean.getUserId(), fisheryUserBean.getServerId(), e);
+            MainLogger.get().error("Could not save fishery user {} on server {}", fisheryUserBean.getUserId(), fisheryUserBean.getServerId(), e);
         }
     }
 
@@ -130,7 +130,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             });
         } catch (Throwable e) {
             fisheryHourlyIncomeBean.setChanged();
-            LOGGER.error("Could not save fishery hourly income", e);
+            MainLogger.get().error("Could not save fishery hourly income", e);
         }
     }
 
@@ -144,7 +144,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
             });
         } catch (Throwable e) {
             fisheryUserPowerUpBean.setChanged();
-            LOGGER.error("Could not save fishery power up bean", e);
+            MainLogger.get().error("Could not save fishery power up bean", e);
         }
     }
 

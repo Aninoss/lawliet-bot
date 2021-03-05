@@ -60,7 +60,7 @@ public class OnCommandList implements SyncServerFunction {
 
                 categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                LOGGER.error("Could not create class", e);
+                MainLogger.get().error("Could not create class", e);
             }
         }
 

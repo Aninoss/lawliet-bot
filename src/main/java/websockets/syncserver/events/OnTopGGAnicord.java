@@ -21,7 +21,7 @@ public class OnTopGGAnicord extends OnTopGG {
 
     @Override
     protected void processUpvote(long userId, boolean isWeekend) {
-        Server server = DiscordApiManager.getInstance().getLocalServerById(AssetIds.ANICORD_SERVER_ID).get();
+        Server server = DiscordApiManager.getInstance().getLocalGuildById(AssetIds.ANICORD_SERVER_ID).get();
         Locale locale = new Locale(Locales.DE);
         server.getMemberById(userId).ifPresent(user -> {
             final ServerTextChannel bumpChannel = server.getTextChannelById(713849992611102781L).get();

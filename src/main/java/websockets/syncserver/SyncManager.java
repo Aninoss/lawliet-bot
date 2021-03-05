@@ -49,7 +49,7 @@ public class SyncManager {
                     try {
                         return clazz.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        LOGGER.error("Error when creating sync event class", e);
+                        MainLogger.get().error("Error when creating sync event class", e);
                     }
                     return null;
                 })
@@ -103,7 +103,7 @@ public class SyncManager {
                 if (errors == 3) {
                     client.reconnect();
                 } else if (errors >= 6) {
-                    LOGGER.error("EXIT - No connection with sync server");
+                    MainLogger.get().error("EXIT - No connection with sync server");
                     //System.exit(1); TODO: DEBUG
                     return false;
                 }

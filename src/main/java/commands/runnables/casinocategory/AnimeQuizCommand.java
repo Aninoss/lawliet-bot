@@ -1,14 +1,14 @@
 package commands.runnables.casinocategory;
 
 import commands.listeners.CommandProperties;
-import constants.Permission;
+import constants.PermissionDeprecated;
 
 import java.util.Locale;
 
 @CommandProperties(
         trigger = "animequiz",
         emoji = "❔",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         withLoadingBar = true,
         deleteOnTimeOut = true,
         executableWithoutArgs = true

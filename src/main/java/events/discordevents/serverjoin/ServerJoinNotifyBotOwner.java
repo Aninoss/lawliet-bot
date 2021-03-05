@@ -19,7 +19,7 @@ public class ServerJoinNotifyBotOwner extends ServerJoinAbstract {
         if (event.getServer().getMemberCount() >= 5000)
             DiscordApiManager.getInstance().fetchOwner().get().sendMessage("**+++** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")").exceptionally(ExceptionLogger.get());
 
-        LOGGER.info("+++ {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
+        MainLogger.get().info("+++ {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
         return true;
     }
 

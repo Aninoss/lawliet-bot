@@ -6,7 +6,7 @@ import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
@@ -25,7 +25,7 @@ import java.util.Random;
 @CommandProperties(
         trigger = "blackjack",
         emoji = "\uD83C\uDCCF",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         executableWithoutArgs = true,
         aliases = { "bj" }
 )

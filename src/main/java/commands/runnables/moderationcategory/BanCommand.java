@@ -1,8 +1,8 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import constants.Permission;
-import core.utils.PermissionUtil;
+import constants.PermissionDeprecated;
+import core.utils.BotPermissionUtil;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.slf4j.Logger;
@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "ban",
-    botPermissions = Permission.BAN_MEMBERS,
-    userPermissions = Permission.BAN_MEMBERS,
+    botPermissions = PermissionDeprecated.BAN_MEMBERS,
+    userPermissions = PermissionDeprecated.BAN_MEMBERS,
     emoji = "\uD83D\uDEAB",
     executableWithoutArgs = false
 )
@@ -31,7 +31,7 @@ public class BanCommand extends WarnCommand  {
         try {
             server.banUser(user, 1, reason).get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Exception on ban", e);
+            MainLogger.get().error("Exception on ban", e);
             server.banUser(user).get();
         }
     }
@@ -43,7 +43,7 @@ public class BanCommand extends WarnCommand  {
 
     @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
-        return PermissionUtil.canYouBanUser(server, userAim) && server.canBanUser(userStarter, userAim);
+        return BotPermissionUtil.canBan(server, userAim) && server.canBanUser(userStarter, userAim);
     }
     
 }

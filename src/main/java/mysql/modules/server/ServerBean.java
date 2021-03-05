@@ -50,7 +50,7 @@ public class ServerBean extends Observable {
     }
 
     public Optional<Server> getServer() {
-        return DiscordApiManager.getInstance().getLocalServerById(serverId);
+        return DiscordApiManager.getInstance().getLocalGuildById(serverId);
     }
 
     public long getFisheryRoleMin() {

@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 
 import commands.Command;
 import constants.ExternalLinks;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.*;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
@@ -20,7 +20,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "stats",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCCA",
         executableWithoutArgs = true,
         onlyPublicVersion = true,

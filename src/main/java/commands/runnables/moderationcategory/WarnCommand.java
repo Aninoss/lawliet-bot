@@ -3,7 +3,7 @@ package commands.runnables.moderationcategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.Command;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.mention.Mention;
 import core.mention.MentionList;
@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "warn",
-    userPermissions = Permission.KICK_MEMBERS,
+    userPermissions = PermissionDeprecated.KICK_MEMBERS,
     emoji = "\uD83D\uDEA8",
     executableWithoutArgs = false
 )

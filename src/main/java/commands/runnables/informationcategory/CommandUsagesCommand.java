@@ -5,7 +5,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.runnables.ListAbstract;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.utils.StringUtil;
 import mysql.modules.commandusages.CommandUsagesBean;
 import mysql.modules.commandusages.DBCommandUsages;
@@ -18,7 +18,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "commandusages",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCD3",
         executableWithoutArgs = true,
         onlyPublicVersion = true,

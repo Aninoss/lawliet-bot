@@ -56,7 +56,7 @@ public class ExchangeRate {
         try {
             return rateCache.get(dateString);
         } catch (ExecutionException e) {
-            LOGGER.error("Exception", e);
+            MainLogger.get().error("Exception", e);
         }
         return 100;
     }

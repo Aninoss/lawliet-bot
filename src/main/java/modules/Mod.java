@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.GlobalThreadPool;
 import core.PermissionCheckRuntime;
@@ -56,7 +56,7 @@ public class Mod {
             boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
             boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
 
-            if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.BAN_MEMBERS) && server.canYouBanUser(user)) {
+            if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, PermissionDeprecated.BAN_MEMBERS) && server.canYouBanUser(user)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
@@ -66,9 +66,9 @@ public class Mod {
                         server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).exceptionally(ExceptionLogger.get());
                     });
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    LOGGER.error("Error when creating command class");
+                    MainLogger.get().error("Error when creating command class");
                 }
-            } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, Permission.KICK_MEMBERS) && server.canYouKickUser(user)) {
+            } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, PermissionDeprecated.KICK_MEMBERS) && server.canYouKickUser(user)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
@@ -78,7 +78,7 @@ public class Mod {
                         server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).exceptionally(ExceptionLogger.get());
                     });
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    LOGGER.error("Error when creating command class");
+                    MainLogger.get().error("Error when creating command class");
                 }
             }
         }
@@ -112,7 +112,7 @@ public class Mod {
         });
 
         moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), serverTextChannel, Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), serverTextChannel, PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS)) {
                 serverTextChannel.sendMessage(eb)
                         .exceptionally(e -> null)
                         .join();

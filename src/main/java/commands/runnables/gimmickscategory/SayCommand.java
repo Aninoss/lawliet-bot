@@ -3,7 +3,6 @@ package commands.runnables.gimmickscategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.utils.EmbedUtil;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;

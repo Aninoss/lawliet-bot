@@ -32,7 +32,7 @@ public class DBBotStats {
                 preparedStatement.setInt(1, TopGG.getInstance().getTotalUpvotes());
                 preparedStatement.setInt(2, TopGG.getInstance().getMonthlyUpvotes());
             } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Error while fetching topgg upvotes", e);
+                MainLogger.get().error("Error while fetching topgg upvotes", e);
             }
         });
     }

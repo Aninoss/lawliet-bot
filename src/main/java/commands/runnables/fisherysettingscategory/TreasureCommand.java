@@ -2,7 +2,7 @@ package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -13,7 +13,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "treasure",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "\uD83C\uDFF4\u200D☠️",
         executableWithoutArgs = true,
         patreonRequired = true,

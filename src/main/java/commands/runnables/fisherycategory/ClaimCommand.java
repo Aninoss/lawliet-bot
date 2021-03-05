@@ -4,7 +4,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.ExternalLinks;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
@@ -24,7 +24,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "claim",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83C\uDF80",
         executableWithoutArgs = true,
         onlyPublicVersion = true,

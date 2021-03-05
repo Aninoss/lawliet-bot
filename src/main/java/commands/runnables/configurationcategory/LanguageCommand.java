@@ -3,7 +3,7 @@ package commands.runnables.configurationcategory;
 import commands.listeners.*;
 import commands.Command;
 import constants.Locales;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
 import mysql.modules.server.DBServer;
@@ -14,7 +14,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "language",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "\uD83C\uDF10",
         executableWithoutArgs = true,
         aliases = { "sprache", "lang" }

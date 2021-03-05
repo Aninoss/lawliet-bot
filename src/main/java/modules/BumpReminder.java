@@ -36,7 +36,7 @@ public class BumpReminder {
             long milis = TimeUtil.getMilisBetweenInstants(Instant.now(), nextBump);
             startCountdown(milis);
         } catch (Throwable e) {
-            LOGGER.error("Exception on bump reminder init");
+            MainLogger.get().error("Exception on bump reminder init");
         }
     }
 
@@ -48,7 +48,7 @@ public class BumpReminder {
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
         MainScheduler.getInstance().schedule(milis, "anicord_bump", () -> {
-            DiscordApiManager.getInstance().getLocalServerById(ANINOSS_SERVER_ID)
+            DiscordApiManager.getInstance().getLocalGuildById(ANINOSS_SERVER_ID)
                     .flatMap(server -> server.getTextChannelById(BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {
                         channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").exceptionally(ExceptionLogger.get());

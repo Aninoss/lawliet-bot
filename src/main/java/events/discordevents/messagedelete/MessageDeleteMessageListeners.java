@@ -1,7 +1,7 @@
 package events.discordevents.messagedelete;
 
-import commands.listeners.OnForwardedRecievedListener;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnMessageInputListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnReactionAddListener;
 import commands.Command;
 import commands.CommandContainer;
@@ -22,9 +22,9 @@ public class MessageDeleteMessageListeners extends MessageDeleteAbstract {
             Command command = list.get(i);
             long messageId = 0;
             if (command != null) {
-                if (command instanceof OnForwardedRecievedListener)
-                    messageId = ((OnForwardedRecievedListener) command).getForwardedMessage().getId();
-                else if (command instanceof OnNavigationListener) messageId = command.getNavigationMessage().getId();
+                if (command instanceof OnMessageInputListener)
+                    messageId = ((OnMessageInputListener) command).getForwardedMessage().getId();
+                else if (command instanceof OnNavigationListenerOld) messageId = command.getNavigationMessage().getId();
 
                 if (event.getMessageId() == messageId) {
                     CommandContainer.getInstance().removeForwarder(command);
@@ -40,7 +40,7 @@ public class MessageDeleteMessageListeners extends MessageDeleteAbstract {
             if (command != null) {
                 if (command instanceof OnReactionAddListener)
                     messageId = ((OnReactionAddListener) command).getReactionMessage().getId();
-                else if (command instanceof OnNavigationListener) messageId = command.getNavigationMessage().getId();
+                else if (command instanceof OnNavigationListenerOld) messageId = command.getNavigationMessage().getId();
 
                 if (event.getMessageId() == messageId) {
                     CommandContainer.getInstance().removeReactionListener(command);

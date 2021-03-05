@@ -2,10 +2,10 @@ package commands.runnables.utilitycategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.*;
@@ -37,13 +37,13 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "giveaway",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "🎆",
         releaseDate = { 2020, 10, 28 },
         executableWithoutArgs = true,
         aliases = { "giveaways" }
 )
-public class GiveawayCommand extends Command implements OnNavigationListener {
+public class GiveawayCommand extends Command implements OnNavigationListenerOld {
 
     private final static int
             ADD_OR_EDIT = 0,

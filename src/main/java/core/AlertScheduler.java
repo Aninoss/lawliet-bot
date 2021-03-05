@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -40,7 +40,7 @@ public class AlertScheduler {
         if (active) return;
         active = true;
 
-        LOGGER.info("Starting {} alerts", trackerBean.getSlots().size());
+        MainLogger.get().info("Starting {} alerts", trackerBean.getSlots().size());
         new ArrayList<>(trackerBean.getSlots())
                 .forEach(this::registerAlert);
     }
@@ -59,7 +59,7 @@ public class AlertScheduler {
         try {
             processAlert(slot);
         } catch (Throwable throwable) {
-            LOGGER.error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
+            MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
             minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
             if (throwable.toString().contains("Unknown Channel"))
                 slot.delete();
@@ -77,7 +77,7 @@ public class AlertScheduler {
     private void processAlert(TrackerBeanSlot slot) throws Throwable {
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix());
         if (commandOpt.isEmpty()) {
-            LOGGER.error("Invalid command for alert: {}", slot.getCommandTrigger());
+            MainLogger.get().error("Invalid command for alert: {}", slot.getCommandTrigger());
             slot.stop();
             return;
         }
@@ -85,7 +85,7 @@ public class AlertScheduler {
         OnTrackerRequestListener command = commandOpt.map(c -> (OnTrackerRequestListener) c).get();
         Optional<ServerTextChannel> channelOpt = slot.getChannel();
         if (channelOpt.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS)) {
                 switch (command.onTrackerRequest(slot)) {
                     case STOP:
                         slot.stop();

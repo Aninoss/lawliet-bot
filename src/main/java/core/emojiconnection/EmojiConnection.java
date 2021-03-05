@@ -2,6 +2,7 @@ package core.emojiconnection;
 
 import constants.LetterEmojis;
 import core.utils.DiscordUtil;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.emoji.Emoji;
 import org.javacord.api.entity.message.Message;

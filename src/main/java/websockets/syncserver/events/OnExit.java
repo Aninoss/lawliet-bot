@@ -13,7 +13,7 @@ public class OnExit implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        LOGGER.info("EXIT - Received exit signal from sync server");
+        MainLogger.get().info("EXIT - Received exit signal from sync server");
         System.exit(0);
         return null;
     }

@@ -1,13 +1,13 @@
 package commands.runnables.configurationcategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import constants.Category;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "commandmanagement",
-        userPermissions = Permission.ADMINISTRATOR,
+        userPermissions = PermissionDeprecated.ADMINISTRATOR,
         emoji = "🚦",
         executableWithoutArgs = true,
         aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman"}
 )
-public class CommandManagementCommand extends Command implements OnNavigationListener {
+public class CommandManagementCommand extends Command implements OnNavigationListenerOld {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CommandManagementCommand.class);
 
@@ -101,7 +101,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                             try {
                                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                                LOGGER.error("Could not create command", e);
+                                MainLogger.get().error("Could not create command", e);
                                 return null;
                             }
                         })
@@ -142,7 +142,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                 if (clazz == null) return false;
                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                LOGGER.error("Error when creating command", e);
+                MainLogger.get().error("Error when creating command", e);
                 return false;
             }
         });
@@ -172,7 +172,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                             try {
                                 return getString("category", getCategoryStatus(id), name);
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                                LOGGER.error("Error while creating command", e);
+                                MainLogger.get().error("Error while creating command", e);
                                 return null;
                             }
                         })
@@ -192,7 +192,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
                             try {
                                 return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                                LOGGER.error("Could not create command", e);
+                                MainLogger.get().error("Could not create command", e);
                                 return null;
                             }
                         })

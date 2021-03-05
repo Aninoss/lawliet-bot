@@ -4,7 +4,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import constants.Emojis;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.internet.InternetCache;
@@ -23,7 +23,7 @@ import java.util.Locale;
 
 @CommandProperties(
     trigger = "splatnet",
-    botPermissions = Permission.USE_EXTERNAL_EMOJIS,
+    botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
     withLoadingBar = true,
     emoji = "\uD83D\uDED2",
     executableWithoutArgs = true

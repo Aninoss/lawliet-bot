@@ -1,7 +1,7 @@
 package events.discordevents.servermemberjoin;
 
 import commands.runnables.utilitycategory.WelcomeCommand;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
@@ -70,7 +70,7 @@ public class ServerMemberJoinWelcome extends ServerMemberJoinAbstract {
     private void sendWelcomeMessage(ServerMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean, ServerTextChannel channel, Locale locale) {
         Server server = channel.getServer();
 
-        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.READ_MESSAGES | Permission.SEND_MESSAGES | Permission.EMBED_LINKS | Permission.ATTACH_FILES)) {
+        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ATTACH_FILES)) {
             InputStream image = WelcomeGraphics.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
             User user = event.getUser();
             if (image != null) {

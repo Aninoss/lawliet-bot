@@ -183,7 +183,7 @@ public class FisheryUserBean extends BeanWithServer {
             }
             return count;
         } catch (ConcurrentModificationException e) {
-            LOGGER.error("Concurrent modification exception", e);
+            MainLogger.get().error("Concurrent modification exception", e);
             return 0;
         }
     }
@@ -210,7 +210,7 @@ public class FisheryUserBean extends BeanWithServer {
                 fishIncomeUpdateTime = currentHourInstance;
                 checkValuesBound();
             } catch (Throwable e) {
-                if (i == 2) LOGGER.error("Exception", e);
+                if (i == 2) MainLogger.get().error("Exception", e);
             }
         }
 
@@ -274,7 +274,7 @@ public class FisheryUserBean extends BeanWithServer {
         messagesThisHour++;
         if (messagesThisHour >= 3400) {
             banned = true;
-            LOGGER.warn("### User temporarely banned with id " + userId);
+            MainLogger.get().warn("### User temporarely banned with id " + userId);
             return false;
         }
 

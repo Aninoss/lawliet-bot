@@ -231,7 +231,7 @@ public final class StringUtil {
                 .replaceAll("(?i)%ChannelID",message.getServerTextChannel().get().getIdAsString())
                 .replaceAll("(?i)%ServerID",message.getServer().get().getIdAsString())
                 .replaceAll("(?i)%@User",message.getUserAuthor().get().getMentionTag())
-                .replaceAll("(?i)%@Bot", DiscordApiManager.getInstance().getYourself().getMentionTag())
+                .replaceAll("(?i)%@Bot", DiscordApiManager.getInstance().getSelf().getMentionTag())
                 .replaceAll("(?i)%Prefix",prefix);
     }
 

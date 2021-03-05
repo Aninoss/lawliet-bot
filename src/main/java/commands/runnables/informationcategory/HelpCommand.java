@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;
@@ -13,7 +13,7 @@ import core.*;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
 import core.utils.EmbedUtil;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import mysql.modules.commandmanagement.CommandManagementBean;
 import mysql.modules.commandmanagement.DBCommandManagement;
@@ -38,7 +38,7 @@ import java.util.Locale;
         requiresEmbeds = false,
         aliases = {"commands"}
 )
-public class HelpCommand extends Command implements OnNavigationListener {
+public class HelpCommand extends Command implements OnNavigationListenerOld {
 
     String[] LIST = new String[]{ Category.GIMMICKS, Category.AI_TOYS, Category.CONFIGURATION, Category.UTILITY, Category.MODERATION, Category.INFORMATION, Category.FISHERY_SETTINGS, Category.FISHERY, Category.CASINO, Category.EMOTES, Category.INTERACTIONS, Category.EXTERNAL, Category.NSFW, Category.PATREON_ONLY, Category.SPLATOON_2 };
 
@@ -169,7 +169,8 @@ public class HelpCommand extends Command implements OnNavigationListener {
                     emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0],"exec:"+command.getClass().getName()));
                 }
 
-                String permissionsList = new ListGen<Integer>().getList(PermissionUtil.permissionsToNumberList(command.getUserPermissions()), getLocale(), ListGen.SLOT_TYPE_BULLET,
+                String permissionsList = new ListGen<Integer>().getList(
+                        BotPermissionUtil.permissionsToNumberList(command.getUserPermissions()), getLocale(), ListGen.SLOT_TYPE_BULLET,
                         i -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, String.valueOf(i))
                 );
 
@@ -249,7 +250,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (commandManagementBean.commandIsTurnedOn(command) ||
-                    PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())
+                    BotPermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())
             ) {
                 stringBuilder
                         .append("• `")
@@ -296,7 +297,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
                 String commandTrigger = command.getTrigger();
                 if (command.isPatreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
+                        (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
                 ) {
                     StringBuilder title = new StringBuilder();
                     title.append(command.getEmoji())
@@ -339,7 +340,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
+                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get()))
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getEmoji())
@@ -380,7 +381,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
             if (commandManagementBean.commandIsTurnedOn(command) ||
-                    PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())
+                    BotPermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())
             ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
@@ -441,7 +442,7 @@ public class HelpCommand extends Command implements OnNavigationListener {
 
         int i = 0;
         for (String string : LIST) {
-            if (!commandManagementBean.getSwitchedOffElements().contains(string) || PermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())) {
+            if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.hasAdminPermissions(authorEvent.getServer().get(), authorEvent.getMessage().getUserAuthor().get())) {
                 categoriesSB.append(LetterEmojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
                 emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], string));
                 i++;

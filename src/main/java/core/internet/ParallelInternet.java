@@ -24,7 +24,7 @@ public class ParallelInternet {
                     completableFuture.complete(HttpRequest.getData(url).get());
                 }
             } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Could not fetch data", e);
+                MainLogger.get().error("Could not fetch data", e);
             }
         });
     }

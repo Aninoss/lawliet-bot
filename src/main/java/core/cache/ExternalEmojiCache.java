@@ -35,7 +35,7 @@ public class ExternalEmojiCache {
         try {
             return cache.get(emojiId);
         } catch (ExecutionException e) {
-            LOGGER.error("Exception", e);
+            MainLogger.get().error("Exception", e);
             return Optional.empty();
         }
     }

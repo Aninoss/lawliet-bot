@@ -1,6 +1,6 @@
 package events.discordevents.reactionremove;
 
-import commands.listeners.OnReactionRemoveStaticListener;
+import commands.listeners.OnStaticReactionRemoveListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
@@ -37,10 +37,10 @@ public class ReactionRemoveCommandsStatic extends ReactionRemoveAbstract {
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
                 String title = embed.getTitle().get();
-                for (Class<? extends OnReactionRemoveStaticListener> clazz : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
+                for (Class<? extends OnStaticReactionRemoveListener> clazz : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>)clazz, serverBean.getLocale(), serverBean.getPrefix());
-                    if (title.toLowerCase().startsWith(((OnReactionRemoveStaticListener)command).getTitleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
-                        ((OnReactionRemoveStaticListener)command).onReactionRemoveStatic(message, event);
+                    if (title.toLowerCase().startsWith(((OnStaticReactionRemoveListener)command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
+                        ((OnStaticReactionRemoveListener)command).onStaticReactionRemove(message, event);
 
                         return false;
                     }

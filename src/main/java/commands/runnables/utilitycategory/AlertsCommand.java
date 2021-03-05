@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnTrackerRequestListener;
 import constants.*;
 import core.DiscordApiManager;
@@ -34,13 +34,13 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "alerts",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        userPermissions = Permission.MANAGE_SERVER,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "🔔",
         executableWithoutArgs = true,
         aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize", "feed", "feeds" }
 )
-public class AlertsCommand extends Command implements OnNavigationListener {
+public class AlertsCommand extends Command implements OnNavigationListenerOld {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(AlertsCommand.class);
 
@@ -189,7 +189,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
         }
 
         Command command = commandOpt.get();
-        if (command.isNsfw() && !DiscordApiManager.getInstance().getLocalServerById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
+        if (command.isNsfw() && !DiscordApiManager.getInstance().getLocalGuildById(serverId).get().getTextChannelById(channelId).get().isNsfw()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
             return Response.FALSE;
         }
@@ -355,7 +355,7 @@ public class AlertsCommand extends Command implements OnNavigationListener {
                     try {
                         return CommandManager.createCommandByClass((Class<? extends Command>)clazz, getLocale(), getPrefix());
                     } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                        LOGGER.error("Error while creating command class", e);
+                        MainLogger.get().error("Error while creating command class", e);
                         return null;
                     }
                 })

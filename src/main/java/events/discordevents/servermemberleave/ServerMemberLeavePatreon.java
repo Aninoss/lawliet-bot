@@ -20,7 +20,7 @@ public class ServerMemberLeavePatreon extends ServerMemberLeaveAbstract {
     public boolean onServerMemberLeave(ServerMemberLeaveEvent event) throws Throwable {
         if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
             if (PatreonCache.getInstance().getUserTier(event.getUser().getId()) > 0) {
-                LOGGER.info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
+                MainLogger.get().info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
                 DiscordApiManager.getInstance().fetchOwner().get().sendMessage("PATREON USER LEFT (LEFT SERVER): " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
             }
         }

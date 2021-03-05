@@ -6,11 +6,16 @@ import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class ServerPatreonBoostCache {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerPatreonBoostCache.class);
 
     private static final ServerPatreonBoostCache ourInstance = new ServerPatreonBoostCache();
 
@@ -27,7 +32,7 @@ public class ServerPatreonBoostCache {
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            Optional<Server> serverOptional = DiscordApiManager.getInstance().getLocalServerById(serverId);
+                            Optional<Server> serverOptional = DiscordApiManager.getInstance().getLocalGuildById(serverId);
                             if (serverOptional.isPresent()) {
                                 Server server = serverOptional.get();
 
@@ -45,8 +50,12 @@ public class ServerPatreonBoostCache {
         cache.put(serverId, true);
     }
 
-    public boolean get(long serverId) throws ExecutionException {
-        return cache.get(serverId);
+    public boolean get(long serverId) {
+        try {
+            return cache.get(serverId);
+        } catch (ExecutionException e) {
+            MainLogger.get().error("Unknown error", e);
+        }
     }
 
 }

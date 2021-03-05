@@ -1,8 +1,8 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import constants.Permission;
-import core.utils.PermissionUtil;
+import constants.PermissionDeprecated;
+import core.utils.BotPermissionUtil;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.entity.server.Server;
 import org.slf4j.Logger;
@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "kick",
-    botPermissions = Permission.KICK_MEMBERS,
-    userPermissions = Permission.KICK_MEMBERS,
+    botPermissions = PermissionDeprecated.KICK_MEMBERS,
+    userPermissions = PermissionDeprecated.KICK_MEMBERS,
     emoji = "\uD83D\uDEAA",
     executableWithoutArgs = false
 )
@@ -31,7 +31,7 @@ public class KickCommand extends WarnCommand  {
         try {
             server.kickUser(user, reason).get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Exception on kick", e);
+            MainLogger.get().error("Exception on kick", e);
             server.kickUser(user).get();
         }
     }
@@ -43,7 +43,7 @@ public class KickCommand extends WarnCommand  {
 
     @Override
     public boolean canProcess(Server server, User userStarter, User userAim) {
-        return PermissionUtil.canYouKickUser(server, userAim) && server.canKickUser(userStarter, userAim);
+        return BotPermissionUtil.canKick(server, userAim) && server.canKickUser(userStarter, userAim);
     }
 
 }

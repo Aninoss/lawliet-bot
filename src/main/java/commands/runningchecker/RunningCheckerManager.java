@@ -3,7 +3,6 @@ package commands.runningchecker;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
-import core.DiscordApiManager;
 import core.cache.PatreonCache;
 
 import java.time.Duration;
@@ -31,7 +30,7 @@ public class RunningCheckerManager {
         stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 
         if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(userId)) {
-            final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, command.hasTimeOut());
+            final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, !command.getCommandProperties().turnOffTimeout());
             runningCommandsList.add(runningCheckerSlot);
             removeOnThreadEnd(command, runningCommandsList, runningCheckerSlot, userId);
 

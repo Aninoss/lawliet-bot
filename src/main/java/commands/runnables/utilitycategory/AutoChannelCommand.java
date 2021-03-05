@@ -1,10 +1,10 @@
 package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
@@ -25,13 +25,13 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "autochannel",
-        botPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS | Permission.CONNECT_ON_SERVER,
-        userPermissions = Permission.MANAGE_CHANNELS_ON_SERVER | Permission.MOVE_MEMBERS,
+        botPermissions = PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS | PermissionDeprecated.CONNECT_ON_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS,
         emoji = "🔊",
         executableWithoutArgs = true,
         aliases = { "tempchannel" }
 )
-public class AutoChannelCommand extends Command implements OnNavigationListener {
+public class AutoChannelCommand extends Command implements OnNavigationListenerOld {
     
     private AutoChannelBean autoChannelBean;
 

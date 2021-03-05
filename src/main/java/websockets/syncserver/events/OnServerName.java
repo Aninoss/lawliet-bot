@@ -14,7 +14,7 @@ public class OnServerName implements SyncServerFunction {
         long serverId = jsonObject.getLong("server_id");
         JSONObject responseJson = new JSONObject();
 
-        DiscordApiManager.getInstance().getLocalServerById(serverId)
+        DiscordApiManager.getInstance().getLocalGuildById(serverId)
                 .map(Nameable::getName)
                 .ifPresent(name ->  responseJson.put("name", name));
 

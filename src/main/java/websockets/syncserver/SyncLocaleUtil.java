@@ -5,7 +5,7 @@ import constants.AssetIds;
 import constants.Locales;
 import core.ListGen;
 import core.TextManager;
-import core.utils.PermissionUtil;
+import core.utils.BotPermissionUtil;
 import org.json.JSONObject;
 import java.util.Locale;
 
@@ -31,7 +31,7 @@ public class SyncLocaleUtil {
         for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
             String permissionsList = new ListGen<Integer>().getList(
-                    PermissionUtil.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_NONE,
+                    BotPermissionUtil.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_NONE,
                     i -> TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(i))
             );
             jsonObject.put(locale.getDisplayName(), permissionsList);

@@ -1,5 +1,7 @@
 package commands.listeners;
 
+import net.dv8tion.jda.api.Permission;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -13,8 +15,9 @@ public @interface CommandProperties {
     boolean withLoadingBar() default false;
     boolean executableWithoutArgs();
     boolean deleteOnTimeOut() default false;
-    int botPermissions() default 0;
-    int userPermissions() default 0;
+    Permission[] botPermissions() default {};
+    Permission[] userChannelPermissions() default {};
+    Permission[] userGuildPermissions() default {};
     boolean requiresEmbeds() default true;
     int maxCalculationTimeSec() default 30;
     boolean patreonRequired() default false;

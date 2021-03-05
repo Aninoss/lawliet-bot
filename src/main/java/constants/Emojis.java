@@ -2,9 +2,9 @@ package constants;
 
 public interface Emojis {
 
-    String BACK_EMOJI = "<:back:511165137202446346>";
+    String BACK_EMOJI = "back:511165137202446346";
     String BACK_EMOJI_UNICODE = "⏪";
-    String LOADING = "<a:loading:407189379749117981>";
+    String LOADING = "a:loading:407189379749117981";
     String EMPTY_EMOJI = "⠀";
     String NO = "<:no_writing_permissions:707952533267677204>";
 

@@ -1,7 +1,7 @@
 package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.*;
 import core.*;
@@ -29,13 +29,13 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "fisheryroles",
-        botPermissions = Permission.USE_EXTERNAL_EMOJIS,
-        userPermissions = Permission.MANAGE_SERVER,
+        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "📜",
         executableWithoutArgs = true,
         aliases = {"fishingroles", "fishroles", "fisheryr"}
 )
-public class FisheryRolesCommand extends Command implements OnNavigationListener {
+public class FisheryRolesCommand extends Command implements OnNavigationListenerOld {
 
     private static final int MAX_ROLES = 50;
     private final static Logger LOGGER = LoggerFactory.getLogger(FisheryRolesCommand.class);
@@ -229,7 +229,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
         try {
             return getString("state0_rolestring", role.getMentionTag(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryServerBean.getRoleIds()), n)));
         } catch (ExecutionException e) {
-            LOGGER.error("Exception", e);
+            MainLogger.get().error("Exception", e);
             return "";
         }
     }

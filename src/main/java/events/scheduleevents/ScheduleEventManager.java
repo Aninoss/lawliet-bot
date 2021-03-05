@@ -41,7 +41,7 @@ public class ScheduleEventManager {
                     try {
                         return clazz.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        LOGGER.error("Error when creating listener class", e);
+                        MainLogger.get().error("Error when creating listener class", e);
                     }
                     return null;
                 })

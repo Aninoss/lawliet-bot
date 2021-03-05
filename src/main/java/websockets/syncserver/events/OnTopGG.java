@@ -39,10 +39,10 @@ public class OnTopGG implements SyncServerFunction {
             try {
                 processUpvote(userId, isWeekend);
             } catch (ExecutionException | InterruptedException e) {
-                LOGGER.error("Exception", e);
+                MainLogger.get().error("Exception", e);
             }
         } else {
-            LOGGER.error("Wrong type: " + type);
+            MainLogger.get().error("Wrong type: " + type);
         }
         return null;
     }
@@ -51,7 +51,7 @@ public class OnTopGG implements SyncServerFunction {
         UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean();
         if (upvotesBean.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
             DiscordApiManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
-                LOGGER.info("UPVOTE | {}", user.getName());
+                MainLogger.get().info("UPVOTE | {}", user.getName());
 
                 DiscordApiManager.getInstance().getLocalMutualServers(user).stream()
                         .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)

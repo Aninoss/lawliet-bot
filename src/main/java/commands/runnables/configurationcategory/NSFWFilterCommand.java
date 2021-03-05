@@ -1,10 +1,10 @@
 package commands.runnables.configurationcategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -23,12 +23,12 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "nsfwfilter",
-        userPermissions = Permission.MANAGE_SERVER,
+        userPermissions = PermissionDeprecated.MANAGE_SERVER,
         emoji = "⛔",
         executableWithoutArgs = true,
         aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
 )
-public class NSFWFilterCommand extends Command implements OnNavigationListener {
+public class NSFWFilterCommand extends Command implements OnNavigationListenerOld {
 
     private static final int MAX_FILTERS = 18;
 

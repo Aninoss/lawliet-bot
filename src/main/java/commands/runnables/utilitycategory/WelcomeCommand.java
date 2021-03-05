@@ -2,10 +2,10 @@ package commands.runnables.utilitycategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListener;
+import commands.listeners.OnNavigationListenerOld;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Permission;
+import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -32,12 +32,12 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "welcome",
-    botPermissions = Permission.ATTACH_FILES,
-    userPermissions = Permission.MANAGE_SERVER,
+    botPermissions = PermissionDeprecated.ATTACH_FILES,
+    userPermissions = PermissionDeprecated.MANAGE_SERVER,
     emoji = "🙋",
     executableWithoutArgs = true
 )
-public class WelcomeCommand extends Command implements OnNavigationListener {
+public class WelcomeCommand extends Command implements OnNavigationListenerOld {
     
     private WelcomeMessageBean welcomeMessageBean;
     private User author;

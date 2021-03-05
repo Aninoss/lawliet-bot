@@ -2,8 +2,8 @@ package core.utils;
 
 import commands.Command;
 import core.*;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.entities.TextChannel;
+import org.apache.http.ExceptionLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,25 +47,30 @@ public class ExceptionUtil {
         try {
             sw.close();
         } catch (IOException e) {
-            LOGGER.error("Could not close String Writer", e);
+            MainLogger.get().error("Could not close String Writer", e);
         }
 
         String transmitStackTrace = StringUtil.shortenString(stacktrace, 1000);
         String code = Long.toHexString(Math.abs(transmitStackTrace.hashCode())).toUpperCase();
 
-        if (postErrorMessage && channel.canYouWrite() && channel.canYouEmbedLinks()) {
+        if (postErrorMessage && BotPermissionUtil.canWriteEmbed(channel)) {
             channel.sendMessage(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))
-            ).exceptionally(ExceptionLogger.get());
+                    .build()
+            ).queue();
         }
 
         if (submitToDeveloper) {
-            LOGGER.error("Exception for command \"{}\" with state {} and code {}", command.getTrigger(), command.getState(), code, throwable);
+            MainLogger.get().error("Exception for command \"{}\"} and code {}", command.getTrigger(), code, throwable);
             if (Bot.isProductionMode()) {
-                DiscordApiManager.getInstance().fetchOwner().join().sendMessage(EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
-                        .setDescription(transmitStackTrace)).exceptionally(ExceptionLogger.get());
+                JDAUtil.sendPrivateMessage(
+                        DiscordApiManager.getInstance().fetchOwner().join(),
+                        EmbedFactory.getEmbedError()
+                                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
+                                .setDescription(transmitStackTrace)
+                                .build()
+                ).queue();
             }
         }
     }
@@ -79,7 +84,6 @@ public class ExceptionUtil {
         e.setStackTrace(t.getStackTrace());
         return e;
     }
-
 
 
 }

@@ -62,11 +62,11 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                 IntervalBlock intervalBlock = new IntervalBlock(Bot.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
                 while(intervalBlock.block()) {
                     if (this instanceof DBFishery)
-                        LOGGER.info("Fishery update");
+                        MainLogger.get().info("Fishery update");
                     if (changed.size() > 0)
                         intervalSave();
                     if (this instanceof DBFishery)
-                        LOGGER.info("Fishery update completed");
+                        MainLogger.get().info("Fishery update completed");
                 }
             }, "dbbean_interval_save", 1);
             t.start();
@@ -82,7 +82,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                     try {
                         saveBean(value);
                     } catch (Throwable e) {
-                        LOGGER.error("Could not save bean", e);
+                        MainLogger.get().error("Could not save bean", e);
                     }
                 });
     }
@@ -143,7 +143,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
                         try {
                             cache.get(value);
                         } catch (Throwable e) {
-                            LOGGER.error("Could not fetch cache data", e);
+                            MainLogger.get().error("Could not fetch cache data", e);
                         }
                     });
                 } catch (SQLException throwables) {

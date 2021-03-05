@@ -33,7 +33,7 @@ public class ExternalServerNameCache {
         try {
             return cache.get(serverId);
         } catch (ExecutionException e) {
-            LOGGER.error("Exception", e);
+            MainLogger.get().error("Exception", e);
             return Optional.empty();
         }
     }

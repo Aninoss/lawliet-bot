@@ -50,7 +50,7 @@ public class WelcomeGraphics {
             g2d.dispose();
             return new ByteArrayInputStream(os.toByteArray());
         } catch (IOException e) {
-            LOGGER.error("Exception", e);
+            MainLogger.get().error("Exception", e);
         }
         return null;
     }
