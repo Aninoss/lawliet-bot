@@ -3,19 +3,17 @@ package core.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.LetterEmojis;
-import core.MainLogger;
-import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.Reaction;
-import org.javacord.api.entity.message.embed.Embed;
-import org.javacord.api.entity.message.embed.EmbedField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class VoteCache {
 
@@ -37,7 +35,7 @@ public class VoteCache {
     }
 
     public Optional<VoteInfo> get(Message message, long userId, String emoji, boolean add) {
-        VoteInfo voteInfo = voteCache.getIfPresent(message.getId());
+        VoteInfo voteInfo = voteCache.getIfPresent(message.getIdLong());
 
         if (voteInfo != null) {
             int i = -1;
@@ -59,7 +57,7 @@ public class VoteCache {
             }
         } else {
             voteInfo = extractVoteInfoFromMessage(message);
-            voteCache.put(message.getId(), voteInfo);
+            voteCache.put(message.getIdLong(), voteInfo);
         }
 
         return Optional.of(voteInfo);
@@ -68,8 +66,8 @@ public class VoteCache {
     private VoteInfo extractVoteInfoFromMessage(Message message) {
         ArrayList<HashSet<Long>> votes = new ArrayList<>();
 
-        Embed embed = message.getEmbeds().get(0);
-        List<EmbedField> field = embed.getFields();
+        MessageEmbed embed = message.getEmbeds().get(0);
+        List<MessageEmbed.Field> field = embed.getFields();
 
         String topic = field.get(0).getValue();
         String choiceString = field.get(1).getValue();
@@ -83,17 +81,13 @@ public class VoteCache {
         for (int i = 0; i < choices.length; i++) {
             HashSet<Long> voteUsers = new HashSet<>();
 
-            for (Reaction reaction : message.getReactions()) {
-                if (DiscordUtil.emojiIsString(reaction.getEmoji(), LetterEmojis.LETTERS[i])) {
-                    try {
-                        reaction.getUsers().get().forEach(user -> {
-                            if (!user.isBot()) {
-                                voteUsers.add(user.getId());
-                            }
-                        });
-                    } catch (InterruptedException | ExecutionException e) {
-                        MainLogger.get().error("Exception", e);
-                    }
+            for (MessageReaction reaction : message.getReactions()) {
+                if (reaction.getReactionEmote().getAsReactionCode().equals(LetterEmojis.LETTERS[i])) {
+                    reaction.retrieveUsers().forEach(user -> {
+                        if (!user.isBot()) {
+                            voteUsers.add(user.getIdLong());
+                        }
+                    });
 
                     break;
                 }
@@ -102,22 +96,19 @@ public class VoteCache {
             votes.add(voteUsers);
         }
 
-        long creatorId = -1;
-        if (embed.getFooter().isPresent()) {
-            Optional<String> footerStringOptional = embed.getFooter().get().getText();
-            if (footerStringOptional.isPresent()) {
-                String footerString = footerStringOptional.get();
+        AtomicLong creatorId = new AtomicLong(-1);
+        if (embed.getFooter() != null) {
+            Optional.ofNullable(embed.getFooter().getText()).ifPresent(footerString -> {
                 if (footerString.contains(" ")) {
                     String creatorIdString = footerString.split(" ")[0];
                     if (StringUtil.stringIsLong(creatorIdString)) {
-                        creatorId = Long.parseLong(creatorIdString);
+                        creatorId.set(Long.parseLong(creatorIdString));
                     }
                 }
-            }
-
+            });
         }
 
-        return new VoteInfo(topic, choices, votes, creatorId);
+        return new VoteInfo(topic, choices, votes, creatorId.get());
     }
 
 }

@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 public class NavigationHelper<T> {
 
-    private enum Type { Unknown, Role, TextChannel, User };
+    private enum Type { Unknown, Role, TextChannel, User }
 
     private final NavigationCommand command;
     private final List<T> srcList;
@@ -41,7 +41,7 @@ public class NavigationHelper<T> {
         }
     }
 
-    public Response addData(List<T> newList, String inputString, Member author, int stateBack) throws IOException {
+    public Response addData(List<T> newList, String inputString, Member author, int stateBack) {
         if (newList.size() == 0) {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return Response.FALSE;

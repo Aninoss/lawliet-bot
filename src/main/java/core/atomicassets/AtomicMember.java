@@ -2,7 +2,6 @@ package core.atomicassets;
 
 import core.DiscordApiManager;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Optional;
 

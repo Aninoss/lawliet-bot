@@ -6,8 +6,6 @@ import core.Bot;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalUnit;
@@ -28,7 +26,7 @@ public class MainScheduler {
 
     private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(3);
     private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(2);
-    private final Timer timeOutMonitorer = new Timer();
+    private final Timer timeOutObserver = new Timer();
 
     private final Cache<Long, ScheduleSlot> slotCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
@@ -88,7 +86,7 @@ public class MainScheduler {
 
     private void monitorTimeOuts(ScheduleSlot slot) {
         Thread runnerThread = Thread.currentThread();
-        timeOutMonitorer.schedule(new TimerTask() {
+        timeOutObserver.schedule(new TimerTask() {
             @Override
             public void run() {
                 if (slotCache.asMap().containsKey(slot.getId())) {

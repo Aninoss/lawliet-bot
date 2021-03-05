@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 import java.util.Optional;
 
 public class JDAUtil {
@@ -44,6 +45,13 @@ public class JDAUtil {
     public static RestAction<Message> sendPrivateMessage(User user, MessageEmbed eb) {
         return user.openPrivateChannel().flatMap(
                 channel -> channel.sendMessage(eb)
+        );
+    }
+
+    @CheckReturnValue
+    public static RestAction<Message> sendPrivateFile(User user, InputStream inputStream, String filename) {
+        return user.openPrivateChannel().flatMap(
+                channel -> channel.sendFile(inputStream, filename)
         );
     }
 

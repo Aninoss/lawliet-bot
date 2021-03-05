@@ -111,7 +111,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) throws ExecutionException, InterruptedException {
+    private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) throws InterruptedException {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3)
             return true;
         CoolDownUserData cooldownUserData = CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong());
@@ -182,7 +182,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkPermissions(GuildMessageReceivedEvent event, Command command) throws ExecutionException, InterruptedException {
+    private static boolean checkPermissions(GuildMessageReceivedEvent event, Command command) {
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 command.getLocale(),
                 event.getChannel(),

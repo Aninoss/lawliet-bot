@@ -3,10 +3,7 @@ package websockets.syncserver;
 import core.Bot;
 import core.DiscordApiManager;
 import core.cache.PatreonCache;
-import core.utils.DiscordUtil;
-import org.javacord.api.entity.emoji.CustomEmoji;
 import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -40,13 +37,13 @@ public class SendEvent {
         );
     }
 
-    public static CompletableFuture<Optional<CustomEmoji>> sendRequestCustomEmoji(long emojiId) {
+    public static CompletableFuture<Optional<String>> sendRequestCustomEmoji(long emojiId) {
         return process(
                 "CUSTOM_EMOJI",
                 Map.of("emoji_id", emojiId),
                 responseJson -> {
                     Optional<String> tag = responseJson.has("tag") ? Optional.of(responseJson.getString("tag")) : Optional.empty();
-                    return tag.map(DiscordUtil::createCustomEmojiFromTag);
+                    return tag;
                 }
         );
     }

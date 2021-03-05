@@ -3,28 +3,25 @@ package core.utils;
 import com.google.common.net.UrlEscapers;
 import core.DiscordApiManager;
 import core.MainLogger;
-import core.schedule.MainScheduler;
-import org.javacord.api.entity.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.entities.Message;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public final class InternetUtil {
 
     private InternetUtil() {
     }
 
-    public static URL getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
-        Message message = DiscordApiManager.getInstance().fetchCacheUser().get()
-                .sendMessage(inputStream, "welcome.png").get();
-        URL url = message.getAttachments().get(0).getUrl();
+    public static String getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
+        Message message = JDAUtil.sendPrivateFile(DiscordApiManager.getInstance().fetchCacheUser().get(), inputStream, "welcome.png")
+                .complete();
 
-        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "mediamessage_remove", message::delete);
+        String url = message.getAttachments().get(0).getUrl();
+        message.delete().queueAfter(10, TimeUnit.SECONDS);
         return url;
     }
 

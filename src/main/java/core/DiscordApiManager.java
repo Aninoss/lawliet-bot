@@ -94,8 +94,8 @@ public class DiscordApiManager {
         return Optional.ofNullable(apiMap.get(shard)).map(DiscordApiExtended::getApi);
     }
 
-    public synchronized Optional<DiscordApi> getAnyApi() {
-        return new ArrayList<>(apiMap.values()).stream().findFirst().map(DiscordApiExtended::getApi);
+    public synchronized Optional<JDA> getAnyJDA() {
+        return new ArrayList<>(apiMap.values()).stream().findFirst().map(DiscordApiExtended::getJDA);
     }
 
     public synchronized List<DiscordApi> getConnectedLocalApis() {

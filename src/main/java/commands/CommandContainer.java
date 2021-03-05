@@ -25,6 +25,7 @@ import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
 import constants.Settings;
+import core.MainLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;

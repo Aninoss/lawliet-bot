@@ -2,7 +2,6 @@ package core.atomicassets;
 
 import core.DiscordApiManager;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 
 import java.util.Optional;
 

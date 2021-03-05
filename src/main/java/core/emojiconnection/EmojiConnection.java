@@ -1,13 +1,8 @@
 package core.emojiconnection;
 
 import constants.LetterEmojis;
-import core.utils.DiscordUtil;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.message.Message;
-
-import java.util.concurrent.CompletableFuture;
 
 public class EmojiConnection {
 
@@ -19,19 +14,12 @@ public class EmojiConnection {
         this.emoji = emoji;
     }
 
-    public EmojiConnection(Emoji emoji, String connection) {
-        this.connection = connection;
-        this.emoji = emoji.getMentionTag();
+    public void addReaction(Message message) {
+        message.addReaction(emoji).queue();
     }
 
-    public CompletableFuture<Void> addReaction(Message message) {
-        if (emoji.startsWith("<"))
-            return message.addReaction(DiscordUtil.createCustomEmojiFromTag(emoji));
-        return message.addReaction(emoji);
-    }
-
-    public boolean isEmoji(Emoji emoji) {
-        return DiscordUtil.emojiIsString(emoji, this.emoji);
+    public boolean isEmoji(String emoji) {
+        return this.emoji.equals(emoji);
     }
 
     public String getConnection() {
@@ -56,23 +44,6 @@ public class EmojiConnection {
         }
 
         return array;
-    }
-
-    public static String getOptionsString(EmojiConnection... emojiConnections) {
-        StringBuilder sb = new StringBuilder();
-
-        for(EmojiConnection emojiConnection: emojiConnections) { ;
-            sb.append(emojiConnection.getEmojiTag());
-            sb.append(" | ");
-            sb.append(emojiConnection.getConnection());
-            sb.append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    public static String getOptionsString(TextChannel channel, boolean withBackButton, String... connections) {
-        return getOptionsString(channel, withBackButton, -1, connections);
     }
 
     public static String getOptionsString(TextChannel channel, boolean withBackButton, int pageSize, String... connections) {

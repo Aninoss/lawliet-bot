@@ -5,11 +5,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
 import core.MainLogger;
+import core.utils.BotPermissionUtil;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.server.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -31,13 +30,13 @@ public class ServerPatreonBoostCache {
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            Optional<Server> serverOptional = DiscordApiManager.getInstance().getLocalGuildById(serverId);
-                            if (serverOptional.isPresent()) {
-                                Server server = serverOptional.get();
+                            Optional<Guild> guildOptional = DiscordApiManager.getInstance().getLocalGuildById(serverId);
+                            if (guildOptional.isPresent()) {
+                                Guild guild = guildOptional.get();
 
-                                return server.getMembers().stream()
-                                        .filter(user -> !user.isBot() && server.canManage(user))
-                                        .anyMatch(user -> PatreonCache.getInstance().getUserTier(user.getId()) > 1);
+                                return guild.getMembers().stream()
+                                        .filter(member -> !member.getUser().isBot() && BotPermissionUtil.can(member, Permission.MANAGE_SERVER))
+                                        .anyMatch(member -> PatreonCache.getInstance().getUserTier(member.getIdLong()) > 1);
                             }
 
                             return false;
@@ -55,6 +54,7 @@ public class ServerPatreonBoostCache {
         } catch (ExecutionException e) {
             MainLogger.get().error("Unknown error", e);
         }
+        return false;
     }
 
 }

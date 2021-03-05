@@ -1,7 +1,7 @@
 package core.utils;
 
 import core.ResourceHandler;
-import org.javacord.api.entity.message.MessageAttachment;
+import net.dv8tion.jda.api.entities.Message;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -11,14 +11,14 @@ import java.util.Optional;
 
 public class FileUtil {
 
-    public static Optional<File> downloadMessageAttachment(MessageAttachment messageAttachment, String fileName) throws IOException {
+    public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, String fileName) throws IOException {
         return downloadMessageAttachment(messageAttachment, ResourceHandler.getFileResource(fileName));
     }
 
-    public static Optional<File> downloadMessageAttachment(MessageAttachment messageAttachment, File file) throws IOException {
+    public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, File file) throws IOException {
         BufferedImage bi;
         try {
-            bi = messageAttachment.downloadAsImage().get();
+            bi = ImageIO.read(messageAttachment.retrieveInputStream().get());
         } catch (Throwable e) {
             return Optional.empty();
         }

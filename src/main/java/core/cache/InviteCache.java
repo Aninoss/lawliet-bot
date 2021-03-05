@@ -4,9 +4,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.DiscordApiManager;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Invite;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.server.invite.Invite;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -22,13 +22,9 @@ public class InviteCache {
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public Optional<Invite> load(@NonNull String code) {
-                            DiscordApi api = DiscordApiManager.getInstance().getAnyApi().get();
-                            try {
-                                return Optional.of(api.getInviteByCode(code).get());
-                            } catch (InterruptedException | ExecutionException e) {
-                                return Optional.empty(); //Ignore
-                            }
+                        public Optional<Invite> load(@NonNull String code) throws ExecutionException {
+                            JDA jda = DiscordApiManager.getInstance().getAnyJDA().get();
+                            return Optional.of(Invite.resolve(jda, code).complete());
                         }
                     }
             );

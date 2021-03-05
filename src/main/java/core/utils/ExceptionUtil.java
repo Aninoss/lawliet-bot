@@ -3,10 +3,6 @@ package core.utils;
 import commands.Command;
 import core.*;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.apache.http.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;

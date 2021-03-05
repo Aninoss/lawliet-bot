@@ -3,10 +3,6 @@ package core.internet;
 import core.GlobalThreadPool;
 import core.MainLogger;
 import core.utils.BotUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

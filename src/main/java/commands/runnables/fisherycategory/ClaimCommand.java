@@ -72,7 +72,7 @@ public class ClaimCommand extends FisheryAbstract {
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) {
         if (nextUpvote.isAfter(Instant.now())) {
             EmbedUtil.addLog(eb, LogStatus.TIME, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
-            EmbedUtil.addReminaingTime(getLocale(), eb, nextUpvote);
+            EmbedUtil.addRemainingTime(eb, nextUpvote);
         } else {
             EmbedUtil.addLog(eb, LogStatus.TIME, getString("next_now"));
         }

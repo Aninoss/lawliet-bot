@@ -9,8 +9,13 @@ import java.util.regex.Pattern;
 public class PatternCache {
 
     private static final PatternCache ourInstance = new PatternCache();
-    public static PatternCache getInstance() { return ourInstance; }
-    private PatternCache() { }
+
+    public static PatternCache getInstance() {
+        return ourInstance;
+    }
+
+    private PatternCache() {
+    }
 
     private final Cache<String, Pattern> patternMap = CacheBuilder.newBuilder().build();
 

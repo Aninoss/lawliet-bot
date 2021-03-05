@@ -1,8 +1,6 @@
 package core.utils;
 
 import commands.Command;
-import commands.Command;
-import commands.listeners.OnTriggerListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Emojis;
 import constants.LogStatus;
@@ -10,7 +8,6 @@ import core.TextManager;
 import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-
 import java.time.Instant;
 import java.util.Locale;
 
@@ -25,7 +22,7 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder addTrackerNoteLog(Locale locale, Member member, EmbedBuilder eb, String prefix, String trigger) {
-        if (BotPermissionUtil.can(member, Command.getClassProperties(AlertsCommand.class).userServerPermissions()) &&
+        if (BotPermissionUtil.can(member, Command.getCommandProperties(AlertsCommand.class).userGuildPermissions()) &&
                 DBTracker.getInstance().getBean().getSlots().stream().noneMatch(s -> s.getServerId() == member.getGuild().getIdLong() && s.getCommandTrigger().equals(trigger))
         ) {
             addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
@@ -73,16 +70,14 @@ public class EmbedUtil {
         return eb;
     }
 
-    public static EmbedBuilder addReminaingTime(Locale locale, EmbedBuilder eb, Instant instant) {
+    public static EmbedBuilder addRemainingTime(EmbedBuilder eb, Instant instant) {
         if (instant.isAfter(Instant.now()))
             eb.setTimestamp(instant);
         return eb;
     }
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command) {
-        command.getMember().ifPresent(member -> {
-            eb.setFooter(member.getUser().getAsTag());
-        });
+        command.getMember().ifPresent(member -> eb.setFooter(member.getUser().getAsTag()));
 
         return eb;
     }
@@ -91,9 +86,7 @@ public class EmbedUtil {
         if (footer == null || footer.isEmpty())
             return setFooter(eb, command);
 
-        command.getMember().ifPresent(member -> {
-            eb.setFooter(member.getUser().getAsTag() + "｜" + footer);
-        });
+        command.getMember().ifPresent(member -> eb.setFooter(member.getUser().getAsTag() + "｜" + footer));
 
         return eb;
     }

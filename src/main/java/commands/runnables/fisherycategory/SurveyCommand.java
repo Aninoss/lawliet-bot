@@ -248,7 +248,7 @@ public class SurveyCommand extends FisheryAbstract implements OnStaticReactionAd
 
         Instant after = TimeUtil.localDateToInstant(surveyBean.getNextDate());
         if (!tracker) EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
-        EmbedUtil.addReminaingTime(getLocale(), eb, after);
+        EmbedUtil.addRemainingTime(eb, after);
 
         return eb;
     }
