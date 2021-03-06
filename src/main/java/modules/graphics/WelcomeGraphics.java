@@ -3,10 +3,9 @@ package modules.graphics;
 import core.AttributedStringGenerator;
 import core.MainLogger;
 import core.ResourceHandler;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,10 +29,10 @@ public class WelcomeGraphics {
     private static final int SHADOW_SIZE = 10;
     private static final double SHADOW_OPACITY = 0.18;
 
-    public static InputStream createImageWelcome(User user, Server server, String welcome) {
+    public static InputStream createImageWelcome(Member member, String welcome) {
         try {
-            BufferedImage backgroundImage = getBackgroundImage(server);
-            BufferedImage avatarImage = getAvatarImage(user);
+            BufferedImage backgroundImage = getBackgroundImage(member.getGuild());
+            BufferedImage avatarImage = getAvatarImage(member.getUser());
             BufferedImage drawImage = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
@@ -42,7 +41,7 @@ public class WelcomeGraphics {
             float shadowOpacity = (float) (SHADOW_OPACITY * lumi);
 
             drawAvatar(g2d, avatarImage, shadowOpacity);
-            drawTexts(g2d, welcome, server, user, shadowOpacity);
+            drawTexts(g2d, welcome, member, shadowOpacity);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(GraphicsUtil.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
@@ -54,7 +53,7 @@ public class WelcomeGraphics {
         return null;
     }
 
-    private static void drawTexts(Graphics2D g2d, String welcomeText, Server server, User user, float shadowOpacity) {
+    private static void drawTexts(Graphics2D g2d, String welcomeText, Member member, float shadowOpacity) {
         final int BORDER = SPACE + TEXT_SPACE;
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
@@ -62,7 +61,7 @@ public class WelcomeGraphics {
         AttributedStringGenerator fontName = new AttributedStringGenerator(TEXT_FONT_SMALL);
 
         AttributedCharacterIterator welcomeIterator = GraphicsUtil.getNameIterator(frc, fontWelcome, welcomeText, BASE_WIDTH - BASE_HEIGHT);
-        AttributedCharacterIterator nameIterator = GraphicsUtil.getNameIterator(frc, fontName, user.getDisplayName(server), BASE_WIDTH - BASE_HEIGHT - SPACE);
+        AttributedCharacterIterator nameIterator = GraphicsUtil.getNameIterator(frc, fontName, member.getEffectiveName(), BASE_WIDTH - BASE_HEIGHT - SPACE);
         Rectangle2D welcomeBounds = fontWelcome.getStringBounds(welcomeIterator, frc);
         Rectangle2D nameBounds = fontName.getStringBounds(nameIterator, frc);
 
@@ -145,19 +144,19 @@ public class WelcomeGraphics {
     private static BufferedImage getAvatarImage(User user) {
         BufferedImage profilePicture = null;
         try {
-            profilePicture = ImageIO.read(new URL(user.getAvatar().getUrl().toString() + "?size=256"));
+            profilePicture = ImageIO.read(new URL(user.getEffectiveAvatarUrl() + "?size=256"));
         } catch (IOException e) {
             //Ignore
         }
         return profilePicture;
     }
 
-    private static BufferedImage getBackgroundImage(Server server) throws IOException {
-        return ImageIO.read(getBackgroundFile(server));
+    private static BufferedImage getBackgroundImage(Guild guild) throws IOException {
+        return ImageIO.read(getBackgroundFile(guild));
     }
 
-    private static File getBackgroundFile(Server server) {
-        File syncedBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", server.getId()));
+    private static File getBackgroundFile(Guild guild) {
+        File syncedBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", guild.getIdLong()));
         if (syncedBackgroundFile.exists())
             return syncedBackgroundFile;
 

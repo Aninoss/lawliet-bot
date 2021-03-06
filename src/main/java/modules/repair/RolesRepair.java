@@ -1,9 +1,11 @@
 package modules.repair;
 
 import commands.runnables.utilitycategory.AutoRolesCommand;
+import constants.Category;
 import constants.FisheryStatus;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
+import core.TextManager;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
@@ -13,15 +15,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.server.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,7 +52,11 @@ public class RolesRepair {
         if (fisheryServerBean.getServerBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getRoleIds().size() > 0) {
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
-                    .forEach(member -> checkRoles(locale, member, fisheryServerBean.getUserBean(member.getIdLong()).getRoles()));
+                    .forEach(member -> checkRoles(locale,
+                            TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisheryroles_title"),
+                            member,
+                            fisheryServerBean.getUserBean(member.getIdLong()).getRoles()
+                    ));
         }
     }
 
@@ -66,16 +67,20 @@ public class RolesRepair {
             List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
             guild.getMembers().stream()
                     .filter(member -> userJoinedRecently(member, minutes))
-                    .forEach(member -> checkRoles(locale, member, roles));
+                    .forEach(member -> checkRoles(locale,
+                            TextManager.getString(locale, Category.UTILITY, "autoroles_title"),
+                            member,
+                            roles
+                    ));
         }
     }
 
-    private void checkRoles(Locale locale, Member member, List<Role> roles) {
+    private void checkRoles(Locale locale, String reason, Member member, List<Role> roles) {
         roles.stream()
                 .filter(role -> !member.getRoles().contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> {
                     MainLogger.get().info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), member.getUser().getAsTag(), role.getGuild().getName());
-                    role.getGuild().addRoleToMember(member, role).queue();
+                    role.getGuild().addRoleToMember(member, role).reason(reason).queue();
                 });
     }
 

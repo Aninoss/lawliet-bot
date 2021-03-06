@@ -9,7 +9,7 @@ import websockets.*;
 import java.time.temporal.ChronoUnit;
 
 @ScheduleEventFixedRate(rateValue = 5, rateUnit = ChronoUnit.MINUTES)
-public class SendBotServerCount implements ScheduleInterface {
+public class SendBotGuildCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

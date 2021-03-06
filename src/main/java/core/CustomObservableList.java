@@ -2,6 +2,8 @@ package core;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.collections.ListChangeListener;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.ISnowflake;
 
 import java.util.*;
 import java.util.function.Function;
@@ -55,6 +57,11 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     public interface ListAddListener<T> { void onListAdd(List<? extends T> list); }
     public interface ListRemoveListener<T> { void onListRemove(List<? extends T> list); }
     public interface ListUpdateListener<T> { void onListUpdate(T t); }
+
+    public <U> CustomObservableList<U> transformJDA(Function<Long, ? extends ISnowflake> function) {
+        Function<U, Long> backFunction = u -> ((ISnowflake) u).getIdLong();
+        return transform((Function<T, U>) function, (Function<U, T>) backFunction);
+    }
 
     public <U> CustomObservableList<U> transform(Function<T, U> function, Function<U, T> backFunction) {
         ArrayList<U> listTemp = new ArrayList<>();

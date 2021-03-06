@@ -5,8 +5,6 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import org.w3c.dom.Text;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -23,14 +21,22 @@ public class BotPermissionUtil {
     }
 
     public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
+        permissions = Arrays.copyOf(permissions, permissions.length + 1);
+        permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
+
+        Permission[] finalPermissions = permissions;
         return Arrays.stream(permissions)
-                .filter(permission -> !member.hasPermission(permissions))
+                .filter(permission -> !member.hasPermission(finalPermissions))
                 .collect(Collectors.toList());
     }
 
     public static List<Permission> getMissingPermissions(GuildChannel channel, Member member, Permission... permissions) {
+        permissions = Arrays.copyOf(permissions, permissions.length + 1);
+        permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
+
+        Permission[] finalPermissions = permissions;
         return Arrays.stream(permissions)
-                .filter(permission -> !member.hasPermission(channel, permissions))
+                .filter(permission -> !member.hasPermission(channel, finalPermissions))
                 .collect(Collectors.toList());
     }
 
@@ -86,32 +92,28 @@ public class BotPermissionUtil {
 
     public static boolean can(Guild guild, Permission... permissions) {
         return Arrays.stream(permissions)
-                .allMatch(permission -> guild.getSelfMember().hasPermission(permissions));
+                        .allMatch(permission -> guild.getSelfMember().hasPermission(permissions));
     }
 
     public static boolean can(GuildChannel channel, Permission... permissions) {
-        return Arrays.stream(permissions)
-                .allMatch(permission -> channel.getGuild().getSelfMember().hasPermission(channel, permissions));
+        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL) &&
+                Arrays.stream(permissions)
+                        .allMatch(permission -> channel.getGuild().getSelfMember().hasPermission(channel, permissions));
     }
 
     public static boolean can(Member member, Permission... permissions) {
         return Arrays.stream(permissions)
-                .allMatch(permission -> member.hasPermission(permissions));
+                        .allMatch(permission -> member.hasPermission(permissions));
     }
 
     public static boolean can(Member member, GuildChannel channel, Permission... permissions) {
-        return Arrays.stream(permissions)
-                .allMatch(permission -> member.hasPermission(channel, permissions));
-    }
-
-    public static boolean canAccess(GuildChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL) &&
-                can(channel, permissions);
+        return member.hasPermission(channel, Permission.VIEW_CHANNEL) &&
+                Arrays.stream(permissions)
+                        .allMatch(permission -> member.hasPermission(channel, permissions));
     }
 
     public static boolean canRead(TextChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL) &&
-                channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_HISTORY) &&
+        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_HISTORY) &&
                 can(channel, permissions);
     }
 
@@ -121,10 +123,8 @@ public class BotPermissionUtil {
     }
 
     public static boolean canWriteEmbed(TextChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_READ) &&
-                channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE) &&
-                channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) &&
-                can(channel, permissions);
+        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) &&
+                canWrite(channel, permissions);
     }
 
     public static List<Role> getMemberRoles(Guild guild) {

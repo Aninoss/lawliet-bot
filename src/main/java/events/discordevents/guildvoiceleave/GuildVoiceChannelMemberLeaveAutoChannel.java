@@ -1,7 +1,6 @@
 package events.discordevents.guildvoiceleave;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildVoiceLeaveAbstract;
@@ -9,14 +8,14 @@ import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import java.util.ArrayList;
 
 @DiscordEvent(allowBots = true)
 public class GuildVoiceChannelMemberLeaveAutoChannel extends GuildVoiceLeaveAbstract {
 
     @Override
-    public boolean onGuildVoiceLeave(ServerVoiceChannelMemberLeaveEvent event) throws Throwable {
+    public boolean onGuildVoiceLeave(GuildVoiceLeaveEvent event) throws Throwable {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
 
         for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannelIds())) {

@@ -76,11 +76,11 @@ public abstract class DiscordEventAbstract {
         return true;
     }
 
+
     public interface EventExecution {
 
         boolean apply(DiscordEventAbstract discordEventAbstract) throws Throwable;
 
     }
-
 
 }

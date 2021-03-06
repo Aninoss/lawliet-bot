@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 
 public class JDAUtil {

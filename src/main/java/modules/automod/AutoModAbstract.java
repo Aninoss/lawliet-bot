@@ -4,16 +4,15 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import constants.Category;
-import constants.PermissionDeprecated;
 import core.*;
 import modules.Mod;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -30,12 +29,12 @@ public abstract class AutoModAbstract {
     * returns true if the message is fine
      */
     public boolean check() {
-        if (!message.getUserAuthor().get().isBot() && checkCondition(message)) {
+        if (!message.getAuthor().isBot() && checkCondition(message)) {
             try {
-                ServerBean serverBean = DBServer.getInstance().getBean(message.getServer().get().getId());
+                ServerBean serverBean = DBServer.getInstance().getBean(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), commandClass, message.getServerTextChannel().get(), PermissionDeprecated.MANAGE_MESSAGES)) {
-                    message.delete();
+                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                    message.delete().queue();
                 }
                 punish(message, serverBean, commandClass);
                 return false;
@@ -48,9 +47,9 @@ public abstract class AutoModAbstract {
     }
 
     private void punish(Message message, ServerBean serverBean, Class<? extends Command> commandClass) {
-        Server server = message.getServer().get();
-        User author = message.getUserAuthor().get();
-        CommandProperties commandProperties = Command.getClassProperties(commandClass);
+        Guild guild = message.getGuild();
+        Member member = message.getMember();
+        CommandProperties commandProperties = Command.getCommandProperties(commandClass);
         String commandTitle = TextManager.getString(serverBean.getLocale(), Category.MODERATION, commandProperties.trigger() + "_title");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
@@ -58,9 +57,9 @@ public abstract class AutoModAbstract {
 
         try {
             Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
-            Mod.postLog(command, eb, server, author).thenRun(() -> {
+            Mod.postLog(command, eb, guild, member).thenRun(() -> {
                 try {
-                    Mod.insertWarning(serverBean.getLocale(), server, author, ShardManager.getInstance().getSelf(), commandTitle, withAutoActions(message, serverBean.getLocale()));
+                    Mod.insertWarning(serverBean.getLocale(), guild, member, guild.getSelfMember(), commandTitle, withAutoActions(message, serverBean.getLocale()));
                 } catch (ExecutionException e) {
                     MainLogger.get().error("Error when creating command instance");
                 }

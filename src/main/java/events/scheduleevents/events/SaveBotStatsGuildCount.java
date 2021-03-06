@@ -7,7 +7,7 @@ import core.schedule.ScheduleInterface;
 import mysql.modules.botstats.DBBotStats;
 
 @ScheduleEventDaily
-public class SaveBotStatsServerCount implements ScheduleInterface {
+public class SaveBotStatsGuildCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

@@ -4,7 +4,6 @@ import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
-import constants.PermissionDeprecated;
 import core.*;
 import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
@@ -12,13 +11,10 @@ import mysql.modules.moderation.ModerationBean;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningsBean;
 import mysql.modules.warning.ServerWarningsSlot;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import org.apache.http.ExceptionLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -32,7 +28,7 @@ public class Mod {
 
     private static final String EMOJI_AUTOMOD = "👷";
 
-    public static void insertWarning(Locale locale, Server server, User user, User requestor, String reason, boolean withAutoActions) throws ExecutionException {
+    public static void insertWarning(Locale locale, Guild guild, Member member, Member requestor, String reason, boolean withAutoActions) throws ExecutionException {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
         serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
                         server.getId(),
@@ -80,12 +76,12 @@ public class Mod {
         }
     }
 
-    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Server server, User user) throws ExecutionException {
-        return postLog(command, eb, server, Collections.singletonList(user));
+    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Guild guild, Member member) throws ExecutionException {
+        return postLog(command, eb, guild, Collections.singletonList(member));
     }
 
-    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Server server, List<User> users) throws ExecutionException {
-        return postLog(command, eb, DBModeration.getInstance().getBean(server.getId()), users);
+    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Guild guild, List<Member> members) throws ExecutionException {
+        return postLog(command, eb, DBModeration.getInstance().getBean(guild.getIdLong()), members);
     }
 
     public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, User user) {

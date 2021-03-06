@@ -3,6 +3,7 @@ package core.atomicassets;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Member;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class AtomicMember implements AtomicAsset<Member> {
@@ -29,6 +30,19 @@ public class AtomicMember implements AtomicAsset<Member> {
     public Optional<Member> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
                 .flatMap(guild -> Optional.ofNullable(guild.getMemberById(memberId)));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AtomicMember that = (AtomicMember) o;
+        return memberId == that.memberId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(memberId);
     }
 
 }

@@ -274,7 +274,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     }
 
     public boolean checkManageChannelWithLog(GuildChannel channel) {
-        if (BotPermissionUtil.canAccess(channel, Permission.MANAGE_CHANNEL)) {
+        if (BotPermissionUtil.can(channel, Permission.MANAGE_CHANNEL)) {
             return true;
         }
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.getType() == ChannelType.TEXT ? "#" : "") + channel.getName()));
@@ -282,7 +282,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     }
 
     public boolean checkRoleWithLog(Role role) {
-        if (role.getGuild().getSelfMember().canInteract(role) && role.getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
+        if (role.getGuild().getSelfMember().canInteract(role) && BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES)) {
             return true;
         }
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@" + role.getName()));
@@ -310,7 +310,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         if (unmanagableRoles.size() == 0) {
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
             for(Role role: roles) {
-                if (!member.canInteract(role) || !member.hasPermission(Permission.MANAGE_ROLES)) {
+                if (!member.canInteract(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES)) {
                     forbiddenRoles.add(role);
                 }
             }

@@ -1,15 +1,6 @@
 package modules.mute;
 
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.channel.ServerTextChannelUpdater;
-import org.javacord.api.entity.permission.PermissionState;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.entity.permission.Permissions;
-import org.javacord.api.entity.permission.PermissionsBuilder;
-import org.javacord.api.entity.user.User;
-
-import java.util.ArrayList;
-import java.util.Map;
+import java.security.Permissions;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
@@ -33,7 +24,7 @@ public class MuteManager {
 
         ServerTextChannel channel = muteData.getChannel();
         ServerTextChannelUpdater updateChannel = channel.createUpdater();
-        ArrayList<User> users = muteData.getUsers();
+        ArrayList<User> users = muteData.getMembers();
         Map<Long, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
         //Map<User, Permissions> userPermissions = channel.getOverwrittenUserPermissions();
 

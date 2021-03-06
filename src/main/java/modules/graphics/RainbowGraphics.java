@@ -1,18 +1,18 @@
 package modules.graphics;
 
 import core.ResourceHandler;
-import org.javacord.api.entity.user.User;
-
+import net.dv8tion.jda.api.entities.User;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 public class RainbowGraphics {
 
     public static InputStream createImageRainbow(User user, long opacity) throws ExecutionException, InterruptedException, IOException {
-        BufferedImage image = user.getAvatar().asBufferedImage().get();
+        BufferedImage image = ImageIO.read(new URL(user.getEffectiveAvatarUrl()));
         double scale = 1.5;
         image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
         BufferedImage rainbow = ImageIO.read(ResourceHandler.getFileResource("data/resources/rainbow.png"));

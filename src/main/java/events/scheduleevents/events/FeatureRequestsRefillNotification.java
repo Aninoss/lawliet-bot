@@ -6,10 +6,10 @@ import core.Bot;
 import core.ShardManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventDaily;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import java.util.Calendar;
+import java.util.Optional;
 
 @ScheduleEventDaily
 public class FeatureRequestsRefillNotification implements ScheduleInterface {
@@ -19,14 +19,13 @@ public class FeatureRequestsRefillNotification implements ScheduleInterface {
         if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && Bot.isPublicVersion()) {
             String message = "It's the beginning of a new week, therefore you can now boost again for your favorite Lawliet feature requests: " + ExternalLinks.FEATURE_REQUESTS_WEBSITE;
             ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                    .flatMap(server -> server.getTextChannelById(557960859792441357L))
+                    .flatMap(server -> Optional.ofNullable(server.getTextChannelById(557960859792441357L)))
                     .ifPresent(channel -> {
-                        channel.sendMessage(message)
-                                .exceptionally(ExceptionLogger.get());
+                        channel.sendMessage(message).queue();
 
-                        Role role = channel.getServer().getRoleById(703879430799622155L).get();
-                        channel.sendMessage(role.getMentionTag())
-                                .thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
+                        Role role = channel.getGuild().getRoleById(703879430799622155L);
+                        channel.sendMessage(role.getAsMention())
+                                .flatMap(Message::delete).queue();
                     });
         }
     }

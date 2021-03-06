@@ -9,10 +9,10 @@ import core.Bot;
 import core.ShardManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventDaily;
-import org.javacord.api.util.logging.ExceptionLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Optional;
 
 @ScheduleEventDaily
 public class CommandReleaseNotification implements ScheduleInterface {
@@ -27,8 +27,8 @@ public class CommandReleaseNotification implements ScheduleInterface {
                         if (date.isEqual(LocalDate.now())) {
                             String message = "<@&703879430799622155> `L." + command.getTrigger() + "` is now publicly available!";
                             ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                                    .flatMap(server -> server.getTextChannelById(557960859792441357L))
-                                    .ifPresent(channel -> channel.sendMessage(message).exceptionally(ExceptionLogger.get()));
+                                    .flatMap(guild -> Optional.ofNullable(guild.getTextChannelById(557960859792441357L)))
+                                    .ifPresent(channel -> channel.sendMessage(message).queue());
                         }
                     });
                 } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {

@@ -14,12 +14,8 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.BeanWithServer;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
 import java.time.Instant;

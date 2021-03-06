@@ -9,7 +9,6 @@ import modules.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +28,7 @@ public class AnimeReleaseDownloader {
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
         ArrayList<AnimeReleasePost> postList = new ArrayList<>();
-        List<AnimeReleasePost> animeReleasePosts = getAnimeReleasePostList(postArray, locale);
+        List<AnimeReleasePost> animeReleasePosts = getAnimeReleasePostList(postArray);
 
         List<Integer> currentUsedIds = (newestPostId == null || newestPostId.isEmpty()) ? new ArrayList<>() : Arrays.stream(newestPostId.split("\\|")).map(Integer::parseInt).collect(Collectors.toList());
         ArrayList<String> newUsedIds = new ArrayList<>();
@@ -64,15 +63,15 @@ public class AnimeReleaseDownloader {
                 filter.stream().anyMatch(f -> StringUtil.stringContainsVague(post.getUrl(), f));
     }
 
-    private static List<AnimeReleasePost> getAnimeReleasePostList(JSONArray data, Locale locale) {
+    private static List<AnimeReleasePost> getAnimeReleasePostList(JSONArray data) {
         ArrayList<AnimeReleasePost> list = new ArrayList<>();
 
         for (int i = 0; i < data.length(); i++) {
-            AnimeReleasePost post = parseEpisode(data.getJSONObject(i), locale);
+            AnimeReleasePost post = parseEpisode(data.getJSONObject(i));
             AnimeReleasePost nextPost = null;
             AnimeReleasePost tempPost;
 
-            while (i + 1 < data.length() && (tempPost = parseEpisode(data.getJSONObject(i + 1), locale)).getAnime().equals(post.getAnime())) {
+            while (i + 1 < data.length() && (tempPost = parseEpisode(data.getJSONObject(i + 1))).getAnime().equals(post.getAnime())) {
                 nextPost = tempPost;
                 i++;
             }
@@ -101,10 +100,10 @@ public class AnimeReleaseDownloader {
         return list;
     }
 
-    private static AnimeReleasePost parseEpisode(JSONObject data, Locale locale) {
+    private static AnimeReleasePost parseEpisode(JSONObject data) {
         String anime = data.getString("title");
-        if (anime.contains(" - Folge ")) anime = anime.substring(0, anime.indexOf(" - Folge "));
-        else if (anime.contains(" - Episode ")) anime = anime.substring(0, anime.indexOf(" - Episode "));
+        if (anime.contains(" - Episode "))
+            anime = anime.substring(0, anime.indexOf(" - Episode "));
         else anime = data.getString("crunchyroll:seriesTitle");
 
         String description = data.getString("description");

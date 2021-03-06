@@ -4,6 +4,10 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
+import core.atomicassets.AtomicAsset;
+import core.atomicassets.AtomicMember;
+import core.atomicassets.AtomicRole;
+import core.atomicassets.AtomicTextChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -16,7 +20,7 @@ import java.util.function.Function;
 
 public class NavigationHelper<T> {
 
-    private enum Type { Unknown, Role, TextChannel, User }
+    private enum Type { Unknown, Role, TextChannel, Member }
 
     private final NavigationCommand command;
     private final List<T> srcList;
@@ -29,14 +33,14 @@ public class NavigationHelper<T> {
         this.srcList = srcList;
         this.max = max;
 
-        if (typeClass == Role.class) {
+        if (typeClass == AtomicRole.class) {
             this.type = Type.Role;
             this.typeString = "_role";
-        } else if (typeClass == TextChannel.class) {
+        } else if (typeClass == AtomicTextChannel.class) {
             this.type = Type.TextChannel;
             this.typeString = "_channel";
-        } else if (typeClass == Member.class) {
-            this.type = Type.User;
+        } else if (typeClass == AtomicMember.class) {
+            this.type = Type.Member;
             this.typeString = "_user";
         }
     }
@@ -51,7 +55,8 @@ public class NavigationHelper<T> {
 
             int existingRoles = 0;
             for(T t: newList) {
-                if (srcList.contains(t)) existingRoles ++;
+                if (srcList.contains(t))
+                    existingRoles ++;
             }
 
             if (existingRoles >= newList.size()) {
@@ -89,14 +94,14 @@ public class NavigationHelper<T> {
         return false;
     }
 
-    public EmbedBuilder drawDataAdd() throws IOException {
+    public EmbedBuilder drawDataAdd() {
         return drawDataAdd(
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_title" + typeString),
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_desc" + typeString)
         );
     }
 
-    public EmbedBuilder drawDataAdd(String title, String desc) throws IOException {
+    public EmbedBuilder drawDataAdd(String title, String desc) {
         return EmbedFactory.getEmbedDefault(command, desc, title);
     }
 
@@ -110,7 +115,7 @@ public class NavigationHelper<T> {
     public EmbedBuilder drawDataRemove(String title, String desc) throws IOException {
         Function<T, String> nameFunction;
         if (type == Type.Unknown) nameFunction = Object::toString;
-        else nameFunction = obj -> ((IMentionable)obj).getAsMention();
+        else nameFunction = obj -> ((AtomicAsset<?>)obj).get().map(IMentionable::getAsMention).orElse("-");
 
         String[] strings = new String[srcList.size()];
         for(int i = 0; i < strings.length; i++) {

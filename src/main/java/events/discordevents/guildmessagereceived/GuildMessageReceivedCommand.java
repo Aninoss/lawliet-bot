@@ -7,6 +7,7 @@ import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnNavigationListenerOld;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import commands.runnables.informationcategory.HelpCommand;
+import core.MainLogger;
 import core.utils.ExceptionUtil;
 import core.ShardManager;
 import core.utils.MentionUtil;
@@ -28,8 +29,6 @@ import java.util.concurrent.ExecutionException;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
-
-    final Logger LOGGER = LoggerFactory.getLogger(GuildMessageReceivedCommand.class);
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {

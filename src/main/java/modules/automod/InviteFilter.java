@@ -4,20 +4,18 @@ import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
 import constants.AssetIds;
 import constants.Category;
-import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.InviteCache;
-import core.utils.DiscordUtil;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.util.logging.ExceptionLogger;
-
-import java.util.ArrayList;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Message;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -28,24 +26,24 @@ public class InviteFilter extends AutoModAbstract {
 
     public InviteFilter(Message message) throws ExecutionException {
         super(message);
-        spBlockBean = DBSPBlock.getInstance().getBean(message.getServer().get().getId());
+        spBlockBean = DBSPBlock.getInstance().getBean(message.getGuild().getIdLong());
     }
 
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
         if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER &&
-                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getServerTextChannel().get(), PermissionDeprecated.BAN_MEMBERS)
+                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.BAN_MEMBERS)
         ) {
-            message.getServer().get()
-                    .banUser(message.getUserAuthor().get(), 0, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
-                    .exceptionally(ExceptionLogger.get());
+            message.getGuild()
+                    .ban(message.getMember(), 0, TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .queue();
             return false;
         } else if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER &&
-                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getServerTextChannel().get(), PermissionDeprecated.KICK_MEMBERS)
+                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.KICK_MEMBERS)
         ) {
-            message.getServer().get()
-                    .kickUser(message.getUserAuthor().get(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
-                    .exceptionally(ExceptionLogger.get());
+            message.getGuild()
+                    .kick(message.getMember(), TextManager.getString(spBlockBean.getServerBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .queue();
             return false;
         }
 
@@ -54,11 +52,12 @@ public class InviteFilter extends AutoModAbstract {
 
     @Override
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
-        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getUserAuthor().get().getDiscriminatedName()))
+        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getAuthor().getAsTag()))
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true);
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true);
 
-        spBlockBean.getLogReceiverUserIds().transform(message.getServer().get()::getMemberById, DiscordEntity::getId).forEach(user -> user.sendMessage(eb));
+        spBlockBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
+                .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());
     }
 
     @Override
@@ -69,21 +68,20 @@ public class InviteFilter extends AutoModAbstract {
     @Override
     protected boolean checkCondition(Message message) {
         if (spBlockBean.isActive() &&
-                !spBlockBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
-                !spBlockBean.getIgnoredChannelIds().contains(message.getServerTextChannel().get().getId()) &&
-                !BotPermissionUtil.hasAdminPermissions(message.getServer().get(), message.getUserAuthor().get())
+                !spBlockBean.getIgnoredUserIds().contains(message.getAuthor().getIdLong()) &&
+                !spBlockBean.getIgnoredChannelIds().contains(message.getAuthor().getIdLong()) &&
+                !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR)
         ) {
-            ArrayList<String> inviteLinks = DiscordUtil.filterServerInviteLinks(message.getContent());
+            List<String> inviteLinks = message.getInvites();
             if (inviteLinks.size() > 0) {
                 return inviteLinks.stream()
-                        .map(str -> {
-                            String[] parts = str.split("/");
-                            return parts[parts.length - 1];
-                        })
                         .map(inviteCode -> InviteCache.getInstance().getInviteByCode(inviteCode))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .anyMatch(invite -> invite.getServerId() != message.getServer().get().getId() && invite.getServerId() != AssetIds.SUPPORT_SERVER_ID);
+                        .anyMatch(invite -> invite.getGuild() != null &&
+                                invite.getGuild().getIdLong() != message.getGuild().getIdLong() &&
+                                invite.getGuild().getIdLong() != AssetIds.SUPPORT_SERVER_ID
+                        );
             }
         }
 

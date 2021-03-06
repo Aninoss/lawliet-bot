@@ -7,9 +7,6 @@ import core.internet.InternetCache;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.PostBundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -26,7 +23,7 @@ public class AnimeNewsDownloader {
         else downloadUrl = "https://www.animenewsnetwork.com/news/";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (!httpResponse.getContent().isPresent()) return null;
+        if (httpResponse.getContent().isEmpty()) return null;
         String dataString = httpResponse.getContent().get();
 
         if (StringUtil.getLanguage(locale) == Language.DE) return getPostDE(getCurrentPostStringDE(dataString)[0]);

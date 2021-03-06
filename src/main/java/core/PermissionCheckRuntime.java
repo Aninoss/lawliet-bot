@@ -19,16 +19,19 @@ import java.util.*;
 public class PermissionCheckRuntime {
 
     private static final PermissionCheckRuntime instance = new PermissionCheckRuntime();
+
+    private PermissionCheckRuntime() {}
+
+    public static PermissionCheckRuntime getInstance() {
+        return instance;
+    }
+
+
     private static final long PERMISSION_ROLE_POS = -1;
 
     private final Cache<Pair<Long, Long>, Boolean> errorCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(6))
             .build();
-
-    private PermissionCheckRuntime() {}
-    public static PermissionCheckRuntime getInstance() {
-        return instance;
-    }
 
     public boolean botHasPermission(Locale locale, Class<? extends Command> c, Guild guild, Permission... permissions) {
         return botHasPermission(locale, c, guild, null, permissions);
@@ -81,7 +84,7 @@ public class PermissionCheckRuntime {
         }
 
         Guild guild = roles[0].getGuild();
-        if (guild.getSelfMember().hasPermission(Permission.MANAGE_ROLES) && canPostError(guild, PERMISSION_ROLE_POS) && canContactOwner(guild)) {
+        if (BotPermissionUtil.can(guild, Permission.MANAGE_ROLES) && canPostError(guild, PERMISSION_ROLE_POS) && canContactOwner(guild)) {
             String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> "**@" + StringUtil.escapeMarkdown(role.getName()) + "**");
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));

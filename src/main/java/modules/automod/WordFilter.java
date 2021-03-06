@@ -5,11 +5,13 @@ import commands.runnables.moderationcategory.WordFilterCommand;
 import constants.Category;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Message;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +22,7 @@ public class WordFilter extends AutoModAbstract {
 
     public WordFilter(Message message) throws ExecutionException {
         super(message);
-        bannedWordsBean = DBBannedWords.getInstance().getBean(message.getServer().get().getId());
+        bannedWordsBean = DBBannedWords.getInstance().getBean(message.getGuild().getIdLong());
     }
 
     @Override
@@ -30,11 +32,12 @@ public class WordFilter extends AutoModAbstract {
 
     @Override
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
-        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log", message.getUserAuthor().get().getDiscriminatedName()))
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getServerTextChannel().get().getMentionTag(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContent(), true);
+        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log", message.getAuthor().getAsTag()))
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getTextChannel().getAsMention(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContentRaw(), true);
 
-        bannedWordsBean.getLogReceiverUserIds().transform(message.getServer().get()::getMemberById, DiscordEntity::getId).forEach(user -> user.sendMessage(eb));
+        bannedWordsBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
+                .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());
     }
 
     @Override
@@ -45,9 +48,9 @@ public class WordFilter extends AutoModAbstract {
     @Override
     protected boolean checkCondition(Message message) {
         return bannedWordsBean.isActive() &&
-                stringContainsWord(message.getContent(), new ArrayList<>(bannedWordsBean.getWords())) &&
-                !bannedWordsBean.getIgnoredUserIds().contains(message.getUserAuthor().get().getId()) &&
-                !BotPermissionUtil.hasAdminPermissions(message.getServer().get(), message.getUserAuthor().get());
+                stringContainsWord(message.getContentRaw(), new ArrayList<>(bannedWordsBean.getWords())) &&
+                !bannedWordsBean.getIgnoredUserIds().contains(message.getAuthor().getIdLong()) &&
+                !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR);
     }
 
     private boolean stringContainsWord(String input, ArrayList<String> badWords) {

@@ -5,15 +5,14 @@ import constants.FisheryCategoryInterface;
 import constants.FisheryStatus;
 import core.*;
 import core.schedule.ScheduleInterface;
+import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryUserBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.survey.*;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -103,14 +102,14 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryUserBean userBean = DBFishery.getInstance().getBean(secondVote.getServerId()).getUserBean(user.getId());
+                    FisheryUserBean userBean = DBFishery.getInstance().getBean(secondVote.getServerId()).getUserBean(user.getIdLong());
                     long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                     userBean.changeValues(0, price);
                 });
     }
 
     private static void sendSurveyResult(SurveyBean lastSurvey, User user, byte won, int percent) throws IOException {
-        SurveyFirstVote surveyFirstVote = lastSurvey.getFirstVotes().get(user.getId());
+        SurveyFirstVote surveyFirstVote = lastSurvey.getFirstVotes().get(user.getIdLong());
         if (surveyFirstVote != null) {
             Locale locale = surveyFirstVote.getLocale();
             SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(locale);
@@ -125,7 +124,7 @@ public class SurveyResults implements ScheduleInterface {
                             String.valueOf(percent)
                     ));
 
-            user.sendMessage(eb).exceptionally(ExceptionLogger.get());
+            JDAUtil.sendPrivateMessage(user, eb.build()).queue();
         }
     }
 
