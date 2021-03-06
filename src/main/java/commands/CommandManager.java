@@ -254,9 +254,9 @@ public class CommandManager {
     private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            event.getMessage().reply(
-                    new EmbedWithContent(event.getMessage().getMember().getAsMention(), eb.build()).build()
-            ).queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            event.getMessage().reply(event.getMessage().getMember().getAsMention())
+                    .embed(eb.build())
+                    .queue(message -> autoRemoveMessageAfterCountdown(event, message));
         }
     }
 

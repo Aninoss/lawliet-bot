@@ -2,24 +2,26 @@ package events.discordevents.guildmemberroleremove;
 
 import constants.AssetIds;
 import constants.Settings;
+import core.ExceptionLogger;
 import core.ShardManager;
 import core.MainLogger;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRoleRemoveAbstract;
-import org.javacord.api.event.server.role.UserRoleRemoveEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 
 @DiscordEvent
 public class GuildMemberRoleRemovePatreonRole extends GuildMemberRoleRemoveAbstract {
 
     @Override
-    public boolean onUserRoleRemove(UserRoleRemoveEvent event) throws Throwable {
-        if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
+    public boolean onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) throws Throwable {
+        if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
             for(long roleId : Settings.PATREON_ROLE_IDS) {
-                if (event.getRole().getId() == roleId) {
-                    MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    ShardManager.getInstance().fetchOwner().get().sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
+                if (event.getRoles().get(0).getIdLong() == roleId) {
+                    MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getAsTag(), event.getUser().getId());
+                    JDAUtil.sendPrivateMessage(ShardManager.getInstance().fetchOwner().get(), "PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getAsTag()))
+                            .queue();
                     break;
                 }
             }

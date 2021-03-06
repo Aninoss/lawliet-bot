@@ -4,20 +4,16 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUpdateBoostCountAbstract;
 import modules.MemberCountDisplay;
 import mysql.modules.server.DBServer;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.server.ServerChangeBoostCountEvent;
-
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import java.util.Locale;
 
 @DiscordEvent()
 public class GuildUpdateBoostCountMCDisplays extends GuildUpdateBoostCountAbstract {
 
     @Override
-    public boolean onServerChangeBoostCount(ServerChangeBoostCountEvent event) throws Throwable {
-        Server server = event.getServer();
-        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
-
-        MemberCountDisplay.getInstance().manage(locale, server);
+    public boolean onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) throws Throwable {
+        Locale locale = DBServer.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
+        MemberCountDisplay.getInstance().manage(locale, event.getGuild());
         return true;
     }
 

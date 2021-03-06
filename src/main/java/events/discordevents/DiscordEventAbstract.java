@@ -44,9 +44,11 @@ public abstract class DiscordEventAbstract {
 
         boolean banned = user != null && userIsBanned(user.getIdLong());
         boolean bot = user != null && user.isBot();
-        for (EventPriority priority : EventPriority.values())
-            if (!runListenerPriority(listenerList, function, priority, banned, bot))
+        for (EventPriority priority : EventPriority.values()) {
+            if (!runListenerPriority(listenerList, function, priority, banned, bot)) {
                 return;
+            }
+        }
     }
 
     private static boolean runListenerPriority(ArrayList<DiscordEventAbstract> listenerList, EventExecution function,

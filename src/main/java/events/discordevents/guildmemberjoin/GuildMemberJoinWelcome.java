@@ -1,9 +1,9 @@
 package events.discordevents.guildmemberjoin;
 
 import commands.runnables.utilitycategory.WelcomeCommand;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
@@ -12,13 +12,10 @@ import modules.graphics.WelcomeGraphics;
 import mysql.modules.server.DBServer;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.server.member.ServerMemberJoinEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import java.io.InputStream;
 import java.util.Locale;
 
@@ -26,13 +23,13 @@ import java.util.Locale;
 public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        Server server = event.getServer();
-        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+        Guild guild = event.getGuild();
+        Locale locale = DBServer.getInstance().retrieve(guild.getIdLong()).getLocale();
 
-        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(server.getId());
+        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageBean.isDmActive()) {
-            sendDmMessage(event, welcomeMessageBean, locale);
+            sendDmMessage(event, welcomeMessageBean);
         }
 
         if (welcomeMessageBean.isWelcomeActive()) {
@@ -44,63 +41,50 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         return true;
     }
 
-    private void sendDmMessage(ServerMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean, Locale locale) {
-        Server server = event.getServer();
-        User user = event.getUser();
+    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean) {
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
         String text = welcomeMessageBean.getDmText();
 
         if (text.length() > 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setAuthor(server.getName(), "", server.getIcon().map(icon -> icon.getUrl().toString()).orElse(""))
+                    .setAuthor(guild.getName(), "", guild.getIconUrl())
                     .setDescription(
                             Welcome.resolveVariables(
-                                welcomeMessageBean.getDmText(),
-                                StringUtil.escapeMarkdown(server.getName()),
-                                user.getMentionTag(),
-                                StringUtil.escapeMarkdown(user.getName()),
-                                StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                StringUtil.numToString(server.getMemberCount())
-                        )
+                                    welcomeMessageBean.getDmText(),
+                                    StringUtil.escapeMarkdown(guild.getName()),
+                                    member.getAsMention(),
+                                    StringUtil.escapeMarkdown(member.getEffectiveName()),
+                                    StringUtil.escapeMarkdown(event.getUser().getAsTag()),
+                                    StringUtil.numToString(guild.getMemberCount())
+                            )
                     );
-            event.getUser().sendMessage(eb)
-                    .exceptionally(ExceptionLogger.get());
+
+            JDAUtil.sendPrivateMessage(member, eb.build()).queue();
         }
     }
 
-    private void sendWelcomeMessage(ServerMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean, ServerTextChannel channel, Locale locale) {
-        Server server = channel.getServer();
+    private void sendWelcomeMessage(GuildMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean, TextChannel channel, Locale locale) {
+        Guild guild = event.getGuild();
 
-        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ATTACH_FILES)) {
-            InputStream image = WelcomeGraphics.createImageWelcome(event.getUser(), server, welcomeMessageBean.getWelcomeTitle());
-            User user = event.getUser();
+        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
+            InputStream image = WelcomeGraphics.createImageWelcome(event.getMember(), welcomeMessageBean.getWelcomeTitle());
+            Member member = event.getMember();
+            String content = StringUtil.defuseMassPing(
+                    Welcome.resolveVariables(
+                            welcomeMessageBean.getWelcomeText(),
+                            StringUtil.escapeMarkdown(guild.getName()),
+                            event.getUser().getAsMention(),
+                            StringUtil.escapeMarkdown(member.getEffectiveName()),
+                            StringUtil.escapeMarkdown(event.getUser().getAsTag()),
+                            StringUtil.numToString(guild.getMemberCount())
+                    )
+            );
+
             if (image != null) {
-                channel.sendMessage(
-                        StringUtil.defuseMassPing(
-                                Welcome.resolveVariables(
-                                        welcomeMessageBean.getWelcomeText(),
-                                        StringUtil.escapeMarkdown(server.getName()),
-                                        user.getMentionTag(),
-                                        StringUtil.escapeMarkdown(user.getName()),
-                                        StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                        StringUtil.numToString(server.getMemberCount())
-                                )
-                        ),
-                        image,
-                        "welcome.png"
-                ).exceptionally(ExceptionLogger.get());
+                channel.sendMessage(content).addFile(image, "welcome.png").queue();
             } else {
-                channel.sendMessage(
-                        StringUtil.defuseMassPing(
-                                Welcome.resolveVariables(
-                                        welcomeMessageBean.getWelcomeText(),
-                                        StringUtil.escapeMarkdown(server.getName()),
-                                        user.getMentionTag(),
-                                        StringUtil.escapeMarkdown(user.getName()),
-                                        StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                        StringUtil.numToString(server.getMemberCount())
-                                )
-                        )
-                ).exceptionally(ExceptionLogger.get());
+                channel.sendMessage(content).queue();
             }
         }
     }

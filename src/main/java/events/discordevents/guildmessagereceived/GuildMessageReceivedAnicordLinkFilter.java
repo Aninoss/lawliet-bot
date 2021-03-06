@@ -4,13 +4,13 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.LinkFilter;
-import org.javacord.api.event.message.MessageCreateEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.MEDIUM, allowBannedUser = true)
 public class GuildMessageReceivedAnicordLinkFilter extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
         return LinkFilter.check(event.getMessage());
     }
 

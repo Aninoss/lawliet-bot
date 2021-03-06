@@ -5,22 +5,23 @@ import constants.Settings;
 import core.ShardManager;
 import core.MainLogger;
 import core.cache.PatreonCache;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRoleAddAbstract;
-import org.javacord.api.event.server.role.UserRoleAddEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 
 @DiscordEvent
 public class GuildMemberRoleAddPatreonRole extends GuildMemberRoleAddAbstract {
 
     @Override
-    public boolean onGuildMemberRoleAdd(UserRoleAddEvent event) throws Throwable {
-        if (event.getServer().getId() == AssetIds.SUPPORT_SERVER_ID) {
-            for(long roleId : Settings.PATREON_ROLE_IDS) {
-                if (event.getRole().getId() == roleId) {
-                    MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getDiscriminatedName(), event.getUser().getId());
-                    ShardManager.getInstance().fetchOwner().get().sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getDiscriminatedName())).exceptionally(ExceptionLogger.get());
+    public boolean onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) throws Throwable {
+        if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
+            for (long roleId : Settings.PATREON_ROLE_IDS) {
+                if (event.getRoles().get(0).getIdLong() == roleId) {
+                    MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getAsTag(), event.getUser().getId());
+                    JDAUtil.sendPrivateMessage(ShardManager.getInstance().fetchOwner().get(), "NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getAsTag()))
+                            .queue();
                     PatreonCache.getInstance().requestUpdate();
                     break;
                 }

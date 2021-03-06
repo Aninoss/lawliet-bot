@@ -1,17 +1,17 @@
 package events.discordevents.voicechannelupdateuserlimit;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.PermissionDeprecated;
+import constants.Category;
 import core.PermissionCheckRuntime;
+import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.VoiceChannelUpdateUserLimitAbstract;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.GuildBean;
-import org.javacord.api.event.channel.server.voice.ServerVoiceChannelChangeUserLimitEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdateUserLimitEvent;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -19,20 +19,20 @@ import java.util.Locale;
 public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUserLimitAbstract {
 
     @Override
-    public boolean onVoiceChannelUpdateUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().getId());
+    public boolean onVoiceChannelUpdateUserLimit(VoiceChannelUpdateUserLimitEvent event) throws Throwable {
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
-            if (event.getChannel().getId() == childChannelId) {
+            if (event.getChannel().getIdLong() == childChannelId) {
                 autoChannelBean.getParentChannel().ifPresent(channel -> {
-                    int childUserLimit = event.getNewUserLimit().orElse(-1);
-                    int parentUserLimit = channel.getUserLimit().orElse(-1);
+                    int childUserLimit = event.getNewUserLimit();
+                    int parentUserLimit = channel.getUserLimit();
 
-                    if (parentUserLimit != -1 && (childUserLimit == -1 || childUserLimit > parentUserLimit)) {
-                        GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().getId());
+                    if (parentUserLimit != 0 && (childUserLimit == 0 || childUserLimit > parentUserLimit)) {
+                        GuildBean guildBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
                         Locale locale = guildBean.getLocale();
 
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), PermissionDeprecated.MANAGE_CHANNEL)) {
-                            event.getChannel().createUpdater().setUserLimit(parentUserLimit).update().exceptionally(ExceptionLogger.get());
+                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                            event.getChannel().getManager().setUserLimit(parentUserLimit).reason(TextManager.getString(locale, Category.UTILITY, "autochannel_title")).queue();
                         }
                     }
                 });

@@ -1,5 +1,7 @@
 package modules;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import core.PermissionCheckRuntime;
 import core.QuickUpdater;
@@ -10,6 +12,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.requests.RestAction;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -23,6 +27,10 @@ public class MemberCountDisplay {
         return ourInstance;
     }
 
+    private final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(20))
+            .build();
+
     private MemberCountDisplay() {
     }
 
@@ -31,11 +39,20 @@ public class MemberCountDisplay {
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
-                    String newVCName = generateNewVCName(guild, display.getMask());
-                    rename(voiceChannel, newVCName);
+                    String newVoiceName = generateNewVCName(guild, display.getMask());
+                    if (!getCurrentVoiceName(voiceChannel).equals(newVoiceName)) {
+                        rename(voiceChannel, newVoiceName);
+                        voiceNameCache.put(voiceChannel.getIdLong(), newVoiceName);
+                    }
                 }
             });
         }
+    }
+
+    private String getCurrentVoiceName(VoiceChannel voiceChannel) {
+        if (voiceNameCache.asMap().containsKey(voiceChannel.getIdLong()))
+            return voiceNameCache.getIfPresent(voiceChannel.getIdLong());
+        return voiceChannel.getName();
     }
 
     private void rename(VoiceChannel voiceChannel, String newVCName) {

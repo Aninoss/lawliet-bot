@@ -4,14 +4,14 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildJoinAbstract;
 import mysql.modules.server.DBServer;
-import org.javacord.api.event.server.ServerJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 
 @DiscordEvent(priority = EventPriority.HIGH)
 public class GuildJoinRegister extends GuildJoinAbstract {
 
     @Override
-    public boolean onGuildJoin(ServerJoinEvent event) throws Throwable {
-        DBServer.getInstance().retrieve(event.getServer().getId());
+    public boolean onGuildJoin(GuildJoinEvent event) {
+        DBServer.getInstance().retrieve(event.getGuild().getIdLong());
         return true;
     }
 

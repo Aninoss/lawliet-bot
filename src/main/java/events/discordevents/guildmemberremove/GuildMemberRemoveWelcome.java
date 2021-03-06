@@ -1,7 +1,6 @@
 package events.discordevents.guildmemberremove;
 
 import commands.runnables.utilitycategory.WelcomeCommand;
-import constants.PermissionDeprecated;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -10,38 +9,37 @@ import modules.Welcome;
 import mysql.modules.server.DBServer;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import java.util.Locale;
 
 @DiscordEvent(allowBots = true)
 public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
 
     @Override
-    public boolean onGuildMemberRemove(ServerMemberLeaveEvent event) throws Throwable {
-        Server server = event.getServer();
-        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
+    public boolean onGuildMemberRemove(GuildMemberRemoveEvent event) {
+        Guild guild = event.getGuild();
+        Locale locale = DBServer.getInstance().retrieve(guild.getIdLong()).getLocale();
 
-        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(server.getId());
+        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageBean.isGoodbyeActive()) {
             welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ATTACH_FILES)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
                     User user = event.getUser();
                     channel.sendMessage(
                             StringUtil.defuseMassPing(
                                     Welcome.resolveVariables(
                                             welcomeMessageBean.getGoodbyeText(),
-                                            StringUtil.escapeMarkdown(server.getName()),
-                                            user.getMentionTag(),
+                                            StringUtil.escapeMarkdown(guild.getName()),
+                                            user.getAsMention(),
                                             StringUtil.escapeMarkdown(user.getName()),
-                                            StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                                            StringUtil.numToString(server.getMemberCount())
+                                            StringUtil.escapeMarkdown(user.getAsTag()),
+                                            StringUtil.numToString(guild.getMemberCount())
                                     )
                             )
-                    ).exceptionally(ExceptionLogger.get());
+                    ).queue();
                 }
             });
         }

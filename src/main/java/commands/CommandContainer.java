@@ -26,7 +26,6 @@ import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
 import constants.Settings;
 import core.MainLogger;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.*;
 
@@ -252,23 +251,19 @@ public class CommandContainer {
         commandList.add(PokemonCommand.class);
 
         for (Class<? extends Command> clazz : commandList) {
-            try {
-                Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
-                addCommand(command.getTrigger(), command);
-                for (String str : command.getCommandProperties().aliases()) addCommand(str, command);
+            Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
+            addCommand(command.getTrigger(), command);
+            for (String str : command.getCommandProperties().aliases()) addCommand(str, command);
 
-                if (command instanceof OnStaticReactionAddListener)
-                    staticReactionAddCommands.add(((OnStaticReactionAddListener) command).getClass());
-                if (command instanceof OnStaticReactionRemoveListener)
-                    staticReactionRemoveCommands.add(((OnStaticReactionRemoveListener) command).getClass());
-                if (command instanceof OnTrackerRequestListener)
-                    trackerCommands.add(((OnTrackerRequestListener) command).getClass());
+            if (command instanceof OnStaticReactionAddListener)
+                staticReactionAddCommands.add(((OnStaticReactionAddListener) command).getClass());
+            if (command instanceof OnStaticReactionRemoveListener)
+                staticReactionRemoveCommands.add(((OnStaticReactionRemoveListener) command).getClass());
+            if (command instanceof OnTrackerRequestListener)
+                trackerCommands.add(((OnTrackerRequestListener) command).getClass());
 
-                if (command.canRunOnGuild(0L, 0L))
-                    addCommandCategoryMap(command);
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                MainLogger.get().error("Could not create class", e);
-            }
+            if (command.canRunOnGuild(0L, 0L))
+                addCommandCategoryMap(command);
         }
     }
 

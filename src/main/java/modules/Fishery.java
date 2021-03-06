@@ -39,8 +39,8 @@ public class Fishery {
         return Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect() * 0.25);
     }
 
-    public static void spawnTreasureChest(long serverId, TextChannel channel) throws ExecutionException, InterruptedException {
-        GuildBean guildBean = DBServer.getInstance().retrieve(serverId);
+    public static void spawnTreasureChest(TextChannel channel) {
+        GuildBean guildBean = DBServer.getInstance().retrieve(channel.getGuild().getIdLong());
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)

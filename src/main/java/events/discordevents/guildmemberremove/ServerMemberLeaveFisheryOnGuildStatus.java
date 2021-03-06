@@ -5,22 +5,18 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 
 @DiscordEvent
 public class ServerMemberLeaveFisheryOnGuildStatus extends GuildMemberRemoveAbstract {
 
     @Override
-    public boolean onGuildMemberRemove(ServerMemberLeaveEvent event) throws Throwable {
-        Server server = event.getServer();
-
-        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(server.getId());
+    public boolean onGuildMemberRemove(GuildMemberRemoveEvent event) {
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;
 
-        fisheryGuildBean.getUserBean(event.getUser().getId()).setOnServer(false);
-
+        fisheryGuildBean.getUserBean(event.getUser().getIdLong()).setOnServer(false);
         return true;
     }
 

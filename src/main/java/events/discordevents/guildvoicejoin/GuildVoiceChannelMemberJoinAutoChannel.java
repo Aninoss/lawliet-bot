@@ -1,10 +1,9 @@
 package events.discordevents.guildvoicejoin;
 
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.PermissionDeprecated;
-import core.ShardManager;
+import constants.Category;
 import core.PermissionCheckRuntime;
-import core.utils.BotPermissionUtil;
+import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildVoiceJoinAbstract;
 import modules.AutoChannel;
@@ -12,156 +11,115 @@ import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.GuildBean;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
-import org.javacord.api.entity.permission.PermissionState;
-import org.javacord.api.entity.permission.PermissionType;
-import org.javacord.api.entity.permission.Permissions;
-import org.javacord.api.entity.permission.PermissionsBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.channel.server.voice.ServerVoiceChannelMemberJoinEvent;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 @DiscordEvent
 public class GuildVoiceChannelMemberJoinAutoChannel extends GuildVoiceJoinAbstract {
 
     @Override
-    public boolean onGuildVoiceJoin(ServerVoiceChannelMemberJoinEvent event) throws Throwable {
-        if (userIsNotConnected(event.getChannel(), event.getUser())) return true;
+    public boolean onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        if (!event.getChannelJoined().getMembers().contains(event.getMember()))
+            return true;
 
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().getId());
-        if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
-            GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().getId());
-            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getServer(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS | PermissionDeprecated.CONNECT) &&
-                    (event.getChannel().getCategory().isEmpty() || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER))
+        Guild guild = event.getGuild();
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
+        if (autoChannelBean.isActive() && event.getChannelJoined().getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
+            GuildBean guildBean = DBServer.getInstance().retrieve(guild.getIdLong());
+            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getGuild(), Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT) &&
+                    (event.getChannelJoined().getParent() != null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getChannelJoined().getParent(), Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT))
             ) {
                 int n = 1;
-
                 for (int i = 0; i < 50; i++) {
-                    if (!event.getServer().getChannelsByName(getNewVCName(autoChannelBean, event, n)).isEmpty()) n++;
+                    if (!event.getGuild().getVoiceChannelsByName(getNewVoiceName(autoChannelBean, event.getChannelJoined(), event.getMember(), n), true).isEmpty())
+                        n++;
                     else break;
                 }
 
-                if (userIsNotConnected(event.getChannel(), event.getUser()))
+                if (!event.getChannelJoined().getMembers().contains(event.getMember()))
                     return true;
 
-                //Create channel
-                ServerVoiceChannelBuilder vcb = new ServerVoiceChannelBuilder(event.getServer())
-                        .setName(getNewVCName(autoChannelBean, event, n))
-                        .setBitrate(event.getChannel().getBitrate());
-                if (event.getChannel().getCategory().isPresent())
-                    vcb.setCategory(event.getChannel().getCategory().get());
-                if (event.getChannel().getUserLimit().isPresent())
-                    vcb.setUserlimit(event.getChannel().getUserLimit().get());
-                if (autoChannelBean.isLocked())
-                    vcb.setUserlimit(1);
-
-                addOriginalPermissions(event.getChannel(), vcb);
-                addBotPermissions(event.getChannel(), vcb);
-                addCreaterPermissions(event.getUser(), vcb);
-
-                ServerVoiceChannel vc;
-                try {
-                    vc = vcb.create().get();
-                } catch (ExecutionException e) {
-                    vcb.setName("???");
-                    vc = vcb.create().get();
-                }
-
-                try {
-                    event.getUser().move(vc).get();
-                } catch (Throwable e) {
-                    //Ignore
-                    vc.delete().get();
-                    return true;
-                }
-
-                autoChannelBean.getChildChannelIds().add(vc.getId());
-                if (userIsNotConnected(vc, event.getUser())) {
-                    vc.delete().get();
-                    autoChannelBean.getChildChannelIds().remove(vc.getId());
-                }
+                ChannelAction<VoiceChannel> channelAction = createNewVoice(autoChannelBean, event.getChannelJoined(), event.getMember(), n);
+                channelAction.queue(voiceChannel -> processCreatedVoice(autoChannelBean, voiceChannel, event.getMember()),
+                        e -> channelAction.setName("???")
+                                .queue(voiceChannel -> processCreatedVoice(autoChannelBean, voiceChannel, event.getMember()))
+                );
             }
         }
 
         return true;
     }
 
-    private Permissions extractValidPermissions(Server server, Permissions originalPermissions) {
-        PermissionsBuilder pb = new PermissionsBuilder();
-
-        originalPermissions.getAllowedPermission().forEach(permissionType -> {
-            if (BotPermissionUtil.botHasServerPermission(server, permissionType) &&
-                    (BotPermissionUtil.hasAdminPermissions(server, ShardManager.getInstance().getSelf()) || permissionType != PermissionType.MANAGE_ROLES)
-            ) {
-                pb.setAllowed(permissionType);
+    private void processCreatedVoice(AutoChannelBean autoChannelBean, VoiceChannel voiceChannel, Member member) {
+        member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
+            autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
+            if (!voiceChannel.getMembers().contains(member)) {
+                voiceChannel.delete()
+                        .reason(TextManager.getString(autoChannelBean.getGuildBean().getLocale(), Category.UTILITY, "autochannel_title"))
+                        .queue();
+                autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
             }
+        }, e -> {
+            voiceChannel.delete()
+                    .reason(TextManager.getString(autoChannelBean.getGuildBean().getLocale(), Category.UTILITY, "autochannel_title"))
+                    .queue();
         });
-
-        originalPermissions.getDeniedPermissions().forEach(permissionType -> {
-            if (BotPermissionUtil.botHasServerPermission(server, permissionType) &&
-                    (BotPermissionUtil.hasAdminPermissions(server, ShardManager.getInstance().getSelf()) || permissionType != PermissionType.MANAGE_ROLES)
-            ) {
-                pb.setDenied(permissionType);
-            }
-        });
-
-        return pb.build();
     }
 
-    private void addOriginalPermissions(ServerVoiceChannel sourceChannel, ServerVoiceChannelBuilder newChannel) {
-        for (Map.Entry<Long, Permissions> entry : sourceChannel.getOverwrittenUserPermissions().entrySet()) {
-            newChannel.addPermissionOverwrite(
-                    sourceChannel.getServer().getMemberById(entry.getKey()).get(),
-                    extractValidPermissions(sourceChannel.getServer(), entry.getValue())
-            );
+    private ChannelAction<VoiceChannel> createNewVoice(AutoChannelBean autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
+        ChannelAction<VoiceChannel> channelAction;
+        if (parentVoice.getParent() != null) {
+            channelAction = parentVoice.getParent().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
+        } else {
+            channelAction = parentVoice.getGuild().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
         }
-        for (Map.Entry<Long, Permissions> entry : sourceChannel.getOverwrittenRolePermissions().entrySet()) {
-            newChannel.addPermissionOverwrite(
-                    sourceChannel.getServer().getRoleById(entry.getKey()).get(),
-                    extractValidPermissions(sourceChannel.getServer(), entry.getValue())
-            );
-        }
+        channelAction = channelAction.setBitrate(parentVoice.getBitrate())
+                .setUserlimit(parentVoice.getUserLimit());
+
+        if (autoChannelBean.isLocked())
+            channelAction = channelAction.setUserlimit(1);
+
+        channelAction = addOriginalPermissions(parentVoice, channelAction);
+        channelAction = addBotPermissions(parentVoice, channelAction);
+        return addCreatorPermissions(parentVoice, channelAction, member);
     }
 
-    private void addCreaterPermissions(User user, ServerVoiceChannelBuilder newChannel) {
-        PermissionsBuilder pb = new PermissionsBuilder();
-        pb.setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED);
-        newChannel.addPermissionOverwrite(user, pb.build());
-    }
-
-    private void addBotPermissions(ServerVoiceChannel sourceChannel, ServerVoiceChannelBuilder newChannel) {
-        Permissions botPermission = null;
-        for (Map.Entry<Long, Permissions> entry : sourceChannel.getOverwrittenUserPermissions().entrySet()) {
-            if (ShardManager.getInstance().getSelf().getId() == entry.getKey()) {
-                botPermission = entry.getValue();
-                break;
+    private ChannelAction<VoiceChannel> addOriginalPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction) {
+        for(PermissionOverride permissionOverride : parentVoice.getPermissionOverrides()) {
+            if (permissionOverride.getPermissionHolder() != null) {
+                channelAction = channelAction.addPermissionOverride(permissionOverride.getPermissionHolder(), permissionOverride.getAllowed(), permissionOverride.getDenied());
             }
         }
-
-        PermissionsBuilder botPermsBuilder = botPermission != null ? botPermission.toBuilder() : new PermissionsBuilder();
-        Permissions permissions = botPermsBuilder
-                .setState(PermissionType.MANAGE_CHANNELS, PermissionState.ALLOWED)
-                .setState(PermissionType.CONNECT, PermissionState.ALLOWED)
-                .build();
-
-        newChannel.addPermissionOverwrite(ShardManager.getInstance().getSelf(), permissions);
+        return channelAction;
     }
 
-    private String getNewVCName(AutoChannelBean autoChannelBean, ServerVoiceChannelMemberJoinEvent event, int n) {
+    private ChannelAction<VoiceChannel> addBotPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction) {
+        PermissionOverride botPermission = parentVoice.getPermissionOverride(parentVoice.getGuild().getSelfMember());
+        long allowRaw = botPermission != null ? botPermission.getAllowedRaw() : 0L;
+        long denyRaw = botPermission != null ? botPermission.getDeniedRaw() : 0L;
+
+        return channelAction.addPermissionOverride(
+                parentVoice.getGuild().getSelfMember(),
+                allowRaw | Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue(),
+                denyRaw
+        );
+    }
+
+    private ChannelAction<VoiceChannel> addCreatorPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction, Member member) {
+        PermissionOverride botPermission = parentVoice.getPermissionOverride(member);
+        long allowRaw = botPermission != null ? botPermission.getAllowedRaw() : 0L;
+        long denyRaw = botPermission != null ? botPermission.getDeniedRaw() : 0L;
+
+        return channelAction.addPermissionOverride(member, allowRaw | Permission.MANAGE_CHANNEL.getRawValue(), denyRaw);
+    }
+
+    private String getNewVoiceName(AutoChannelBean autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
         String name = autoChannelBean.getNameMask();
-        name = AutoChannel.resolveVariables(name, event.getChannel().getName(), String.valueOf(n), event.getUser().getDisplayName(event.getServer()));
+        name = AutoChannel.resolveVariables(name, parentVoice.getName(), String.valueOf(n), member.getEffectiveName());
         name = name.substring(0, Math.min(100, name.length()));
         return name;
-    }
-
-    private boolean userIsNotConnected(ServerVoiceChannel channel, User user) {
-        Optional<ServerVoiceChannel> channelOpt = user.getConnectedVoiceChannel(channel.getServer());
-        return channelOpt.isEmpty() || channelOpt.get().getId() != channel.getId();
     }
 
 }

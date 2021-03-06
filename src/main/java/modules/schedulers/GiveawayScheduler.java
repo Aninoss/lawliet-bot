@@ -106,7 +106,9 @@ public class GiveawayScheduler {
         }
 
         giveawayBean.stop();
-        message.editMessage(new EmbedWithContent(mentions.toString(), eb.build()).build()).queue();
+        message.editMessage(mentions.toString())
+                .embed(eb.build())
+                .queue();
         if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
             channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
         }

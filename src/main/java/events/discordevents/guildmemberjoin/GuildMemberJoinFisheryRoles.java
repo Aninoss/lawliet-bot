@@ -7,26 +7,27 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
-import org.javacord.api.event.server.member.ServerMemberJoinEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import java.util.Locale;
 
 @DiscordEvent
 public class GuildMemberJoinFisheryRoles extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getServer().getId());
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         Locale locale = fisheryGuildBean.getGuildBean().getLocale();
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;
 
-        fisheryGuildBean.getUserBean(event.getUser().getId())
+        fisheryGuildBean.getUserBean(event.getUser().getIdLong())
                 .getRoles()
-                .forEach(role -> {
-                    if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
-                        role.addUser(event.getUser()).exceptionally(ExceptionLogger.get());
-                    }
+                .ifPresent(roles -> {
+                    roles.forEach(role -> {
+                        if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
+                            event.getGuild().addRoleToMember(event.getMember(), role).queue();
+                        }
+                    });
                 });
 
         return true;

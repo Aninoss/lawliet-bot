@@ -6,19 +6,17 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.ChatGameGuessingNames;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
         final long GAME_CHANNEL_ID = 758285721877479504L;
 
-        if (event.getServer().map(DiscordEntity::getId).orElse(0L) == AssetIds.ANICORD_SERVER_ID && event.getChannel().getId() == GAME_CHANNEL_ID) {
-            String numStr = event.getMessageContent();
+        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getChannel().getIdLong() == GAME_CHANNEL_ID) {
+            String numStr = event.getMessage().getContentRaw();
             if (numStr.contains(" "))
                 numStr = numStr.split(" ")[0];
 
@@ -28,13 +26,14 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
                     int tries = ChatGameGuessingNames.getInstance().getTries() + 1;
                     int res = ChatGameGuessingNames.getInstance().check(val);
                     if (res == 0) {
-                        event.getMessage().addReaction("✅").exceptionally(ExceptionLogger.get());
-                        event.getChannel().sendMessage(String.format("%s hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", event.getMessageAuthor().asUser().get().getMentionTag(), StringUtil.numToString(val), tries));
+                        event.getMessage().addReaction("✅").queue();
+                        event.getMessage().reply(String.format("**%s** hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), StringUtil.numToString(val), tries))
+                                .queue();
                     } else {
                         if (res > 0)
-                            event.getMessage().addReaction("⬆️").exceptionally(ExceptionLogger.get());
+                            event.getMessage().addReaction("⬆️").queue();
                         else
-                            event.getMessage().addReaction("⬇️").exceptionally(ExceptionLogger.get());
+                            event.getMessage().addReaction("⬇️").queue();
                     }
                 }
             }

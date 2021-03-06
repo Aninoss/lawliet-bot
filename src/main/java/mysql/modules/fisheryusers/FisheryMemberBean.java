@@ -5,7 +5,6 @@ import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
-import core.EmbedWithContent;
 import core.MainLogger;
 import core.TextManager;
 import core.assets.MemberAsset;
@@ -20,7 +19,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-
 import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -339,9 +337,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
                             .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix));
                     EmbedUtil.setMemberAuthor(eb, member);
 
-                    message.getTextChannel().sendMessage(new EmbedWithContent(member.getAsMention(), eb.build()).build()).queue(m -> {
-                        m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES);
-                    });
+                    message.getTextChannel().sendMessage(member.getAsMention())
+                            .embed(eb.build())
+                            .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
                 }
 
                 return true;

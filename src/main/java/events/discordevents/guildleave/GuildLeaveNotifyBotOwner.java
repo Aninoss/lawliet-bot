@@ -2,21 +2,23 @@ package events.discordevents.guildleave;
 
 import core.ShardManager;
 import core.MainLogger;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildLeaveAbstract;
-import org.javacord.api.event.server.ServerLeaveEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 
 @DiscordEvent
 public class GuildLeaveNotifyBotOwner extends GuildLeaveAbstract {
 
     @Override
-    public boolean onGuildLeave(ServerLeaveEvent event) throws Throwable {
-        if (event.getServer().getMemberCount() >= 5000)
-            ShardManager.getInstance().fetchOwner().get().sendMessage("**---** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")").exceptionally(ExceptionLogger.get());
+    public boolean onGuildLeave(GuildLeaveEvent event) throws Throwable {
+        if (event.getGuild().getMemberCount() >= 5000) {
+            JDAUtil.sendPrivateMessage(ShardManager.getInstance().fetchOwner().get(), "**---** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")")
+                    .queue();
+        }
 
-        MainLogger.get().info("--- {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
+        MainLogger.get().info("--- {} ({})", event.getGuild().getName(), event.getGuild().getMemberCount());
         return true;
     }
 

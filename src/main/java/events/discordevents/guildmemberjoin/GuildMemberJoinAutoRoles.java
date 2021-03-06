@@ -7,12 +7,9 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.AninossRaidProtection;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.server.DBServer;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.server.member.ServerMemberJoinEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -21,14 +18,18 @@ import java.util.Locale;
 public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        Server server = event.getServer();
-        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+        Locale locale = DBServer.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
 
-        for (Role role : DBAutoRoles.getInstance().retrieve(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
+        for (Role role : DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong()).getRoleIds()
+                .transform(event.getGuild()::getRoleById, ISnowflake::getIdLong)
+        ) {
             if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) {
-                if (role.getId() != 462410205288726531L || (AninossRaidProtection.getInstance().check(event.getUser(), role) && event.getUser().getCreationTimestamp().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()))) {
-                    event.getUser().addRole(role).exceptionally(ExceptionLogger.get());
+                if (role.getIdLong() != 462410205288726531L ||
+                        (AninossRaidProtection.getInstance().check(event.getMember(), role) &&
+                                event.getUser().getTimeCreated().toInstant().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()))
+                ) {
+                    event.getGuild().addRoleToMember(event.getMember(), role).queue();
                 }
             }
         }

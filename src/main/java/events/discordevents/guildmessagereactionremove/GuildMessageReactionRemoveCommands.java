@@ -1,15 +1,15 @@
 package events.discordevents.guildmessagereactionremove;
 
+import core.ReactionCommandCheck;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionRemoveAbstract;
-import modules.ReactionCommandCheck;
-import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 
-@DiscordEvent()
+@DiscordEvent
 public class GuildMessageReactionRemoveCommands extends GuildMessageReactionRemoveAbstract {
 
     @Override
-    public boolean onGuildMessageReactionRemove(ReactionRemoveEvent event) throws Throwable {
+    public boolean onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
         return ReactionCommandCheck.manage(event);
     }
 

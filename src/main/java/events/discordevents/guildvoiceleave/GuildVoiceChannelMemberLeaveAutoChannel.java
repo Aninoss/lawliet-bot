@@ -6,8 +6,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildVoiceLeaveAbstract;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import java.util.ArrayList;
 
@@ -15,15 +14,14 @@ import java.util.ArrayList;
 public class GuildVoiceChannelMemberLeaveAutoChannel extends GuildVoiceLeaveAbstract {
 
     @Override
-    public boolean onGuildVoiceLeave(GuildVoiceLeaveEvent event) throws Throwable {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().getId());
+    public boolean onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
 
         for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannelIds())) {
-            if (event.getChannel().getId() == childChannelId) {
-                GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().getId());
-                if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getChannel(), PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.CONNECT)) {
-                    if (event.getChannel().getConnectedUserIds().size() == 0) {
-                        event.getChannel().delete(); //No error log
+            if (event.getChannelLeft().getIdLong() == childChannelId) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, event.getChannelLeft(), Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
+                    if (event.getChannelLeft().getMembers().size() == 0) {
+                        event.getChannelLeft().delete().queue();
                     }
                 }
                 break;

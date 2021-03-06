@@ -83,7 +83,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(@NotNull PrivateMessageReceivedEvent event) {
-        //TODO: private message received
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> PrivateMessageReceivedAbstract.onPrivateMessageReceivedStatic(event, getListenerList(PrivateMessageReceivedAbstract.class)));
     }
 
     @Override

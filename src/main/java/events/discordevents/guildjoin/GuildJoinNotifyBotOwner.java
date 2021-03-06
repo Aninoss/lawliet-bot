@@ -2,21 +2,25 @@ package events.discordevents.guildjoin;
 
 import core.ShardManager;
 import core.MainLogger;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildJoinAbstract;
-import org.javacord.api.event.server.ServerJoinEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import java.util.concurrent.ExecutionException;
 
 @DiscordEvent
 public class GuildJoinNotifyBotOwner extends GuildJoinAbstract {
 
     @Override
-    public boolean onGuildJoin(ServerJoinEvent event) throws Throwable {
-        if (event.getServer().getMemberCount() >= 5000)
-            ShardManager.getInstance().fetchOwner().get().sendMessage("**+++** " + StringUtil.escapeMarkdown(event.getServer().getName()) + " (" + event.getServer().getMemberCount() + ")").exceptionally(ExceptionLogger.get());
+    public boolean onGuildJoin(GuildJoinEvent event) throws ExecutionException, InterruptedException {
+        if (event.getGuild().getMemberCount() >= 5000) {
+            JDAUtil.sendPrivateMessage(ShardManager.getInstance().fetchOwner().get(),
+                    "**+++** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")"
+            ).queue();
+        }
 
-        MainLogger.get().info("+++ {} ({})", event.getServer().getName(), event.getServer().getMemberCount());
+        MainLogger.get().info("+++ {} ({})", event.getGuild().getName(), event.getGuild().getMemberCount());
         return true;
     }
 
