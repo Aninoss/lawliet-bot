@@ -45,9 +45,9 @@ public class StatsCommand extends Command {
                         owner,
                         ExternalLinks.BOT_INVITE_URL,
                         BotUtil.getCurrentVersion(),
-                        TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().getBean().getCurrentVersion().getDate(), true),
+                        TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().retrieve().getCurrentVersion().getDate(), true),
                         ShardManager.getInstance().getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
-                        StringUtil.numToString(DBTracker.getInstance().getBean().getSlots().size()),
+                        StringUtil.numToString(DBTracker.getInstance().retrieve().getSlots().size()),
                         owner,
                         StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
                 ) +

@@ -1,7 +1,7 @@
 package mysql.modules.warning;
 
 import javafx.util.Pair;
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
@@ -10,7 +10,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWarningsBean> {
+public class DBServerWarnings extends DBMapCache<Pair<Long, Long>, ServerWarningsBean> {
 
     private static final DBServerWarnings ourInstance = new DBServerWarnings();
 
@@ -22,7 +22,7 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
     }
 
     @Override
-    protected ServerWarningsBean loadBean(Pair<Long, Long> pair) throws Exception {
+    protected ServerWarningsBean load(Pair<Long, Long> pair) throws Exception {
         ServerWarningsBean serverWarningsBean = new ServerWarningsBean(
                 pair.getKey(),
                 pair.getValue(),
@@ -37,16 +37,16 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
     }
 
     @Override
-    protected void saveBean(ServerWarningsBean serverWarningsBean) {
+    protected void save(ServerWarningsBean serverWarningsBean) {
     }
 
-    private ArrayList<ServerWarningsSlot> getWarnings(long serverId, long userId) throws SQLException {
-        return new DBDataLoad<ServerWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
+    private ArrayList<GuildWarningsSlot> getWarnings(long serverId, long userId) throws SQLException {
+        return new DBDataLoad<GuildWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
                 preparedStatement -> {
                     preparedStatement.setLong(1, serverId);
                     preparedStatement.setLong(2, userId);
                 }
-        ).getArrayList(resultSet -> new ServerWarningsSlot(
+        ).getArrayList(resultSet -> new GuildWarningsSlot(
                 serverId,
                 resultSet.getLong(1),
                 resultSet.getTimestamp(2).toInstant(),
@@ -55,7 +55,7 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
         ));
     }
 
-    private void addWarning(ServerWarningsSlot serverWarningsSlot) {
+    private void addWarning(GuildWarningsSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Warnings (serverId, userId, time, requestorUserId, reason) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getUserId());
@@ -68,7 +68,7 @@ public class DBServerWarnings extends DBBeanGenerator<Pair<Long, Long>, ServerWa
         });
     }
 
-    private void removeWarning(ServerWarningsSlot serverWarningsSlot) {
+    private void removeWarning(GuildWarningsSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Warnings WHERE serverId = ? AND userId = ? AND time = ? AND requestorUserId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getUserId());

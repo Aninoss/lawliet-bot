@@ -1,12 +1,12 @@
 package mysql.modules.nsfwfilter;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
 import java.util.ArrayList;
 
-public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
+public class DBNSFWFilters extends DBMapCache<Long, NSFWFiltersBean> {
 
     private static final DBNSFWFilters ourInstance = new DBNSFWFilters();
 
@@ -18,7 +18,7 @@ public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
     }
 
     @Override
-    protected NSFWFiltersBean loadBean(Long serverId) throws Exception {
+    protected NSFWFiltersBean load(Long serverId) throws Exception {
         NSFWFiltersBean nsfwFiltersBean = new NSFWFiltersBean(
                 serverId,
                 getKeywords(serverId)
@@ -32,7 +32,7 @@ public class DBNSFWFilters extends DBBeanGenerator<Long, NSFWFiltersBean> {
     }
 
     @Override
-    protected void saveBean(NSFWFiltersBean nsfwFiltersBean) {
+    protected void save(NSFWFiltersBean nsfwFiltersBean) {
     }
 
     private ArrayList<String> getKeywords(long serverId) {

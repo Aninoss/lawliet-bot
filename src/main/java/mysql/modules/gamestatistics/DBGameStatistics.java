@@ -1,13 +1,13 @@
 package mysql.modules.gamestatistics;
 
 import core.Bot;
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBMain;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean> {
+public class DBGameStatistics extends DBMapCache<String, GameStatisticsBean> {
 
     private static final DBGameStatistics ourInstance = new DBGameStatistics();
 
@@ -19,7 +19,7 @@ public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean
     }
 
     @Override
-    protected GameStatisticsBean loadBean(String command) throws Exception {
+    protected GameStatisticsBean load(String command) throws Exception {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT won, value FROM GameStatistics WHERE game = ?;");
         preparedStatement.setString(1, command);
         preparedStatement.execute();
@@ -37,7 +37,7 @@ public class DBGameStatistics extends DBBeanGenerator<String, GameStatisticsBean
     }
 
     @Override
-    protected void saveBean(GameStatisticsBean gameStatisticsBean) {
+    protected void save(GameStatisticsBean gameStatisticsBean) {
         if (Bot.isPublicVersion()) {
             DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
                 preparedStatement.setString(1, gameStatisticsBean.getCommand());

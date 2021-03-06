@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.http.ExceptionLogger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +40,7 @@ public class GiveawayScheduler {
         started = true;
 
         try {
-            DBGiveaway.getInstance().getBean().values().stream()
+            DBGiveaway.getInstance().retrieve().values().stream()
                     .filter(GiveawayBean::isActive)
                     .forEach(this::loadGiveawayBean);
         } catch (Throwable e) {
@@ -58,7 +58,7 @@ public class GiveawayScheduler {
                     .map(guild -> guild.getTextChannelById(giveawayBean.getChannelId()))
                     .ifPresent(channel -> {
                         try {
-                            processGiveawayUsers(channel, DBServer.getInstance().getBean(channel.getGuild().getIdLong()), giveawayBean);
+                            processGiveawayUsers(channel, DBServer.getInstance().retrieve(channel.getGuild().getIdLong()), giveawayBean);
                         } catch (Throwable e) {
                             MainLogger.get().error("Error in giveaway", e);
                         }

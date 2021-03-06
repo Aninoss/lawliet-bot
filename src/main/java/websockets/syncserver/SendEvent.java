@@ -41,10 +41,7 @@ public class SendEvent {
         return process(
                 "CUSTOM_EMOJI",
                 Map.of("emoji_id", emojiId),
-                responseJson -> {
-                    Optional<String> tag = responseJson.has("tag") ? Optional.of(responseJson.getString("tag")) : Optional.empty();
-                    return tag;
-                }
+                responseJson -> responseJson.has("tag") ? Optional.of(responseJson.getString("tag")) : Optional.empty()
         );
     }
 

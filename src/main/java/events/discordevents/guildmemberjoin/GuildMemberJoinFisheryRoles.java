@@ -16,7 +16,7 @@ public class GuildMemberJoinFisheryRoles extends GuildMemberJoinAbstract {
 
     @Override
     public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().getId());
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(event.getServer().getId());
         Locale locale = fisheryServerBean.getGuildBean().getLocale();
         if (fisheryServerBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;

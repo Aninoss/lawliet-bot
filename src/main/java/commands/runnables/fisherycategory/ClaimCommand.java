@@ -38,15 +38,15 @@ public class ClaimCommand extends FisheryAbstract {
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        Instant nextUpvote = DBUpvotes.getInstance().getBean().getLastUpvote(event.getMessage().getUserAuthor().get().getId()).plus(12, ChronoUnit.HOURS);
-        FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMessage().getUserAuthor().get().getId()).plus(12, ChronoUnit.HOURS);
+        FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
             if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) >= 2 &&
-                    DBAutoClaim.getInstance().getBean().isActive(event.getMessageAuthor().getId())
+                    DBAutoClaim.getInstance().retrieve().isActive(event.getMessageAuthor().getId())
             ) {
                 eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));
             } else {

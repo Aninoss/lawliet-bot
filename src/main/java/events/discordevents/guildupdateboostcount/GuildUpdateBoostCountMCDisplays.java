@@ -15,7 +15,7 @@ public class GuildUpdateBoostCountMCDisplays extends GuildUpdateBoostCountAbstra
     @Override
     public boolean onServerChangeBoostCount(ServerChangeBoostCountEvent event) throws Throwable {
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
+        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
 
         MemberCountDisplay.getInstance().manage(locale, server);
         return true;

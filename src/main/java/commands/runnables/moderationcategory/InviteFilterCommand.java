@@ -44,7 +44,7 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        spBlockBean = DBSPBlock.getInstance().getBean(event.getServer().get().getId());
+        spBlockBean = DBSPBlock.getInstance().retrieve(event.getServer().get().getId());
         ignoredUsers = spBlockBean.getIgnoredUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
         logReceivers = spBlockBean.getLogReceiverUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
         ignoredChannels = spBlockBean.getIgnoredChannelIds().transform(userId -> event.getServer().get().getTextChannelById(userId), DiscordEntity::getId);

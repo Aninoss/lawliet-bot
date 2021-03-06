@@ -162,7 +162,7 @@ public class SurveyCommand extends FisheryAbstract implements OnStaticReactionAd
 
     private Message sendMessages(ServerTextChannel channel, User userRequested, boolean tracker, User user) throws InterruptedException, IOException, SQLException, ExecutionException {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
-        SurveyBean lastSurvey = DBSurvey.getInstance().getBean(currentSurvey.getSurveyId() - 1);
+        SurveyBean lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
         //Results Message
         channel.sendMessage(getResultsEmbed(lastSurvey, channel.getServer(), user));

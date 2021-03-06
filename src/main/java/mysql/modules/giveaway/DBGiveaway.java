@@ -4,11 +4,11 @@ import core.CustomObservableMap;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 
 import java.util.HashMap;
 
-public class DBGiveaway extends DBSingleBeanGenerator<CustomObservableMap<Long, GiveawayBean>> {
+public class DBGiveaway extends DBSingleCache<CustomObservableMap<Long, GiveawayBean>> {
 
     private static final DBGiveaway ourInstance = new DBGiveaway();
 

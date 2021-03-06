@@ -2,10 +2,10 @@ package mysql.modules.version;
 
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 import java.util.ArrayList;
 
-public class DBVersion extends DBSingleBeanGenerator<VersionBean> {
+public class DBVersion extends DBSingleCache<VersionBean> {
 
     private static final DBVersion ourInstance = new DBVersion();
 

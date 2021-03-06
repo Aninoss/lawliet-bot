@@ -2,16 +2,17 @@ package mysql;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class DBSingleBeanGenerator<T> extends DBCached {
+public abstract class DBSingleCache<T> extends DBCache {
 
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private T o = null;
     private Instant nextUpdate = null;
 
-    public synchronized T getBean() {
+    public synchronized T retrieve() {
         if (o == null) {
             try {
                 o = loadBean();
@@ -46,11 +47,6 @@ public abstract class DBSingleBeanGenerator<T> extends DBCached {
     @Override
     public void clear() {
         o = null;
-    }
-
-    @Override
-    public void autoClear() {
-        //DO NOTHING
     }
 
     public Integer getExpirationTimeMinutes() {

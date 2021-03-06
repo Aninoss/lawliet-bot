@@ -28,7 +28,7 @@ public class MuteManager {
 
     private boolean updatePermissions(MuteData muteData, boolean mute) {
         TextChannel channel = muteData.getTextChannel().get();
-        Locale locale = DBServer.getInstance().getBean(channel.getGuild().getIdLong()).getLocale();
+        Locale locale = DBServer.getInstance().retrieve(channel.getGuild().getIdLong()).getLocale();
         ChannelManager manager = channel.getManager();
         ArrayList<Member> members = muteData.getMembers();
         List<PermissionOverride> userPermissions = channel.getMemberPermissionOverrides();

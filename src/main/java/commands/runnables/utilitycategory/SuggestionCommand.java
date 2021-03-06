@@ -46,7 +46,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        SuggestionsBean suggestionsBean = DBSuggestions.getInstance().getBean(event.getServer().get().getId());
+        SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getServer().get().getId());
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ADD_REACTIONS)) {
@@ -113,7 +113,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     private void onReactionStatic(Message message, SingleReactionEvent event) {
         DBSuggestions.getInstance()
-                .getBean(event.getServer().get().getId())
+                .retrieve(event.getServer().get().getId())
                 .getSuggestionMessages()
                 .computeIfPresent(message.getId(), (messageId, suggestionMessage) -> {
                     Emoji emoji = event.getEmoji();

@@ -1,8 +1,8 @@
 package mysql.modules.autoquote;
 
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 
-public class AutoQuoteBean extends BeanWithServer {
+public class AutoQuoteBean extends BeanWithGuild {
 
     private boolean active;
 

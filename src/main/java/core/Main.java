@@ -44,7 +44,7 @@ public class Main {
     }
 
     private static void initializeUpdate() {
-        VersionBean versionBean = DBVersion.getInstance().getBean();
+        VersionBean versionBean = DBVersion.getInstance().retrieve();
 
         String currentVersionDB = versionBean.getCurrentVersion().getVersion();
         if (!BotUtil.getCurrentVersion().equals(currentVersionDB))

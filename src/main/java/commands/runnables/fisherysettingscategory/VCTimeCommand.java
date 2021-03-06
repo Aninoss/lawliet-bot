@@ -43,7 +43,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-            serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {

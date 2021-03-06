@@ -1,13 +1,13 @@
 package mysql.modules.commandmanagement;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagementBean> {
+public class DBCommandManagement extends DBMapCache<Long, CommandManagementBean> {
 
     private static final DBCommandManagement ourInstance = new DBCommandManagement();
 
@@ -19,7 +19,7 @@ public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagement
     }
 
     @Override
-    protected CommandManagementBean loadBean(Long serverId) throws Exception {
+    protected CommandManagementBean load(Long serverId) throws Exception {
         CommandManagementBean commandManagementBean = new CommandManagementBean(
                 serverId,
                 getSwitchedOffElements(serverId)
@@ -33,7 +33,7 @@ public class DBCommandManagement extends DBBeanGenerator<Long, CommandManagement
     }
 
     @Override
-    protected void saveBean(CommandManagementBean commandManagementBean) {
+    protected void save(CommandManagementBean commandManagementBean) {
     }
 
     private ArrayList<String> getSwitchedOffElements(long serverId) throws SQLException {

@@ -1,7 +1,7 @@
 package mysql.modules.suggestions;
 
 import modules.suggestions.SuggestionMessage;
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
@@ -11,7 +11,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Optional;
 
-public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
+public class DBSuggestions extends DBMapCache<Long, SuggestionsBean> {
 
     private static final DBSuggestions ourInstance = new DBSuggestions();
 
@@ -23,7 +23,7 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
     }
 
     @Override
-    protected SuggestionsBean loadBean(Long serverId) throws Exception {
+    protected SuggestionsBean load(Long serverId) throws Exception {
         SuggestionsBean suggestionsBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;");
@@ -58,7 +58,7 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
     }
 
     @Override
-    protected void saveBean(SuggestionsBean suggestionsBean) {
+    protected void save(SuggestionsBean suggestionsBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SuggestionConfig (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, suggestionsBean.getGuildId());
             preparedStatement.setBoolean(2, suggestionsBean.isActive());

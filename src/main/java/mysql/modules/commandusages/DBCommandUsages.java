@@ -1,13 +1,13 @@
 package mysql.modules.commandusages;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBMain;
 import mysql.interfaces.IntervalSave;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> implements IntervalSave {
+public class DBCommandUsages extends DBMapCache<String, CommandUsagesBean> implements IntervalSave {
 
     private static final DBCommandUsages ourInstance = new DBCommandUsages();
 
@@ -19,7 +19,7 @@ public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> 
     }
 
     @Override
-    protected CommandUsagesBean loadBean(String command) throws Exception {
+    protected CommandUsagesBean load(String command) throws Exception {
         CommandUsagesBean commandUsagesBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT usages FROM CommandUsages WHERE command = ?;");
@@ -46,7 +46,7 @@ public class DBCommandUsages extends DBBeanGenerator<String, CommandUsagesBean> 
     }
 
     @Override
-    protected void saveBean(CommandUsagesBean commandUsagesBean) {
+    protected void save(CommandUsagesBean commandUsagesBean) {
         DBMain.getInstance().asyncUpdate("INSERT INTO CommandUsages (command, usages) VALUES (?, ?) ON DUPLICATE KEY UPDATE usages = usages + ?;", preparedStatement -> {
             long inc = commandUsagesBean.flushIncrement();
             preparedStatement.setString(1, commandUsagesBean.getCommand());

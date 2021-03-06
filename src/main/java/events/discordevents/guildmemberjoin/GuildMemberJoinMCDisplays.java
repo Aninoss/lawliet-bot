@@ -11,7 +11,7 @@ public class GuildMemberJoinMCDisplays extends GuildMemberJoinAbstract {
 
     @Override
     public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
-        MemberCountDisplay.getInstance().manage(DBServer.getInstance().getBean(event.getServer().getId()).getLocale(), event.getServer());
+        MemberCountDisplay.getInstance().manage(DBServer.getInstance().retrieve(event.getServer().getId()).getLocale(), event.getServer());
         return true;
     }
     

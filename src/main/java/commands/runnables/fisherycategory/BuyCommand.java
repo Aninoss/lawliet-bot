@@ -53,9 +53,9 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
         server = event.getServer().get();
-        fisheryUserBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(event.getMessageAuthor().getId());
+        fisheryUserBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(event.getMessageAuthor().getId());
         fisheryServerBean = fisheryUserBean.getFisheryServerBean();
 
         checkRolesWithLog(fisheryServerBean.getRoles(), null);

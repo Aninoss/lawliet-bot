@@ -1,12 +1,12 @@
 package mysql.modules.spblock;
 
 import core.CustomObservableList;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 
-public class SPBlockBean extends BeanWithServer {
+public class SPBlockBean extends BeanWithGuild {
 
     public enum ActionList { DELETE_MESSAGE, KICK_USER, BAN_USER }
 

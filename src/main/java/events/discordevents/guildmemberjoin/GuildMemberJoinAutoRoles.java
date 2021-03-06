@@ -23,9 +23,9 @@ public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
+        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
 
-        for (Role role : DBAutoRoles.getInstance().getBean(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
+        for (Role role : DBAutoRoles.getInstance().retrieve(server.getId()).getRoleIds().transform(server::getRoleById, DiscordEntity::getId)) {
             if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) {
                 if (role.getId() != 462410205288726531L || (AninossRaidProtection.getInstance().check(event.getUser(), role) && event.getUser().getCreationTimestamp().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()))) {
                     event.getUser().addRole(role).exceptionally(ExceptionLogger.get());

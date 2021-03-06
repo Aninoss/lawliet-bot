@@ -11,7 +11,7 @@ public class GuildJoinRegister extends GuildJoinAbstract {
 
     @Override
     public boolean onGuildJoin(ServerJoinEvent event) throws Throwable {
-        DBServer.getInstance().getBean(event.getServer().getId());
+        DBServer.getInstance().retrieve(event.getServer().getId());
         return true;
     }
 

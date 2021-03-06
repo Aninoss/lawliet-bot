@@ -70,7 +70,6 @@ public class Console {
         tasks.put("server", this::onServer);
         tasks.put("leave_server", this::onLeaveServer);
         tasks.put("user", this::onUser);
-        tasks.put("clear", this::onClear);
         tasks.put("servers", this::onServers);
         tasks.put("servers_mutual", this::onServersMutual);
         tasks.put("patreon", this::onPatreon);
@@ -119,10 +118,12 @@ public class Console {
 
         long userId = Long.parseLong(args[1]);
         String text = message.toString().trim().replace("\\n", "\n");
-        ShardManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
-            MainLogger.get().info("@{}: {}", user.getAsTag(), text);
-            JDAUtil.sendPrivateMessage(user, text).queue();
-        });
+        ShardManager.getInstance().fetchUserById(userId)
+                .exceptionally(ExceptionLogger.get())
+                .thenAccept(user -> {
+                    MainLogger.get().info("@{}: {}", user.getAsTag(), text);
+                    JDAUtil.sendPrivateMessage(user, text).queue();
+                });
     }
 
     private void onInternetConnection(String[] args) {
@@ -163,15 +164,11 @@ public class Console {
         );
     }
 
-    private void onClear(String[] args) {
-        DBMain.getInstance().clearCache();
-        MainLogger.get().info("Cache cleared (Cluster {})!", Bot.getClusterId());
-    }
-
     private void onUser(String[] args) {
         long userId = Long.parseLong(args[1]);
-        ShardManager.getInstance().fetchUserById(userId).join()
-                .ifPresent(user -> MainLogger.get().info("{} => {}", user.getId(), user.getAsTag()));
+        ShardManager.getInstance().fetchUserById(userId)
+                .exceptionally(ExceptionLogger.get())
+                .thenAccept(user -> MainLogger.get().info("{} => {}", user.getId(), user.getAsTag()));
     }
 
     private void onFisheryVC(String[] args) {
@@ -207,7 +204,7 @@ public class Console {
         long userId = Long.parseLong(args[2]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().getBean(serverId).getUserBean(userId).remove();
+            DBFishery.getInstance().retrieve(serverId).getUserBean(userId).remove();
             MainLogger.get().info("Fishery user {} from server {} removed", userId, serverId);
         });
     }
@@ -218,7 +215,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().getBean(serverId).getUserBean(userId).setDailyStreak(value);
+            DBFishery.getInstance().retrieve(serverId).getUserBean(userId).setDailyStreak(value);
             MainLogger.get().info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
@@ -229,7 +226,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().getBean(serverId).getUserBean(userId).setCoinsRaw(value);
+            DBFishery.getInstance().retrieve(serverId).getUserBean(userId).setCoinsRaw(value);
             MainLogger.get().info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
@@ -240,20 +237,20 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().getBean(serverId).getUserBean(userId).setFish(value);
+            DBFishery.getInstance().retrieve(serverId).getUserBean(userId).setFish(value);
             MainLogger.get().info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
 
     private void onUnban(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DBBannedUsers.getInstance().getBean().getUserIds().remove(userId);
+        DBBannedUsers.getInstance().retrieve().getUserIds().remove(userId);
         MainLogger.get().info("User {} unbanned", userId);
     }
 
     private void onBan(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DBBannedUsers.getInstance().getBean().getUserIds().add(userId);
+        DBBannedUsers.getInstance().retrieve().getUserIds().add(userId);
         MainLogger.get().info("User {} banned", userId);
     }
 

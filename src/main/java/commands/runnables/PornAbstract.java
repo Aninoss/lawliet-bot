@@ -55,7 +55,7 @@ public abstract class PornAbstract extends Command {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords());
+        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(event.getServer().get().getId()).getKeywords());
         followedString = StringUtil.defuseMassPing(NSFWUtil.filterPornSearchKey(followedString, nsfwFilter)).replace("`", "");
 
         Pattern pattern = PatternCache.getInstance().generate("\\b[0-9]{1,6}\\b");
@@ -160,7 +160,7 @@ public abstract class PornAbstract extends Command {
             return TrackerResult.STOP_AND_DELETE;
         }
 
-        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().getBean(slot.getGuildId()).getKeywords());
+        ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         ArrayList<PornImage> pornImages;
         pornImages = alertsCache.get(getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
                 () -> getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())

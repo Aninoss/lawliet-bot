@@ -20,7 +20,7 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
 
     @Override
     public boolean onVoiceChannelUpdateUserLimit(ServerVoiceChannelChangeUserLimitEvent event) throws Throwable {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().getId());
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getId() == childChannelId) {
                 autoChannelBean.getParentChannel().ifPresent(channel -> {
@@ -28,7 +28,7 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
                     int parentUserLimit = channel.getUserLimit().orElse(-1);
 
                     if (parentUserLimit != -1 && (childUserLimit == -1 || childUserLimit > parentUserLimit)) {
-                        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
+                        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().getId());
                         Locale locale = serverBean.getLocale();
 
                         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), PermissionDeprecated.MANAGE_CHANNEL)) {

@@ -3,10 +3,10 @@ package mysql.modules.upvotes;
 import core.Bot;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 import java.util.HashMap;
 
-public class DBUpvotes extends DBSingleBeanGenerator<UpvotesBean> {
+public class DBUpvotes extends DBSingleCache<UpvotesBean> {
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
 

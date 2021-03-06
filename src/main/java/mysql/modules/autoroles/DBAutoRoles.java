@@ -1,13 +1,13 @@
 package mysql.modules.autoroles;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
+public class DBAutoRoles extends DBMapCache<Long, AutoRolesBean> {
 
     private static final DBAutoRoles ourInstance = new DBAutoRoles();
 
@@ -19,7 +19,7 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
     }
 
     @Override
-    protected AutoRolesBean loadBean(Long serverId) throws Exception {
+    protected AutoRolesBean load(Long serverId) throws Exception {
         AutoRolesBean autoRolesBean = new AutoRolesBean(
                 serverId,
                 getRoleIds(serverId)
@@ -33,7 +33,7 @@ public class DBAutoRoles extends DBBeanGenerator<Long, AutoRolesBean> {
     }
 
     @Override
-    protected void saveBean(AutoRolesBean autoRolesBean) {
+    protected void save(AutoRolesBean autoRolesBean) {
     }
 
     private ArrayList<Long> getRoleIds(long serverId) throws SQLException {

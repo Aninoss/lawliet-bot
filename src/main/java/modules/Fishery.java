@@ -11,7 +11,6 @@ import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 public class Fishery {
 
     public static long getFisheryRolePrice(Guild guild, List<Long> roleIds, int n) throws ExecutionException {
-        ServerBean serverBean = DBServer.getInstance().getBean(guild.getIdLong());
+        ServerBean serverBean = DBServer.getInstance().retrieve(guild.getIdLong());
 
         double priceIdealMin = serverBean.getFisheryRoleMin();
         double priceIdealMax = serverBean.getFisheryRoleMax();
@@ -41,7 +40,7 @@ public class Fishery {
     }
 
     public static void spawnTreasureChest(long serverId, TextChannel channel) throws ExecutionException, InterruptedException {
-        ServerBean serverBean = DBServer.getInstance().getBean(serverId);
+        ServerBean serverBean = DBServer.getInstance().retrieve(serverId);
         Locale locale = serverBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)

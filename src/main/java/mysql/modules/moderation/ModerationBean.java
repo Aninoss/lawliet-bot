@@ -1,11 +1,11 @@
 package mysql.modules.moderation;
 
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Optional;
 
-public class ModerationBean extends BeanWithServer {
+public class ModerationBean extends BeanWithGuild {
 
     private Long announcementChannelId;
     private boolean question;

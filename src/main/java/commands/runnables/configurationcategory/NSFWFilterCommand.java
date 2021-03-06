@@ -41,7 +41,7 @@ public class NSFWFilterCommand extends Command implements OnNavigationListenerOl
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        keywords = DBNSFWFilters.getInstance().getBean(event.getServer().get().getId()).getKeywords();
+        keywords = DBNSFWFilters.getInstance().retrieve(event.getServer().get().getId()).getKeywords();
         return true;
     }
 

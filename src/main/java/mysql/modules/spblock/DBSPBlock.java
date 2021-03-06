@@ -1,6 +1,6 @@
 package mysql.modules.spblock;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
+public class DBSPBlock extends DBMapCache<Long, SPBlockBean> {
 
     private static final DBSPBlock ourInstance = new DBSPBlock();
 
@@ -21,7 +21,7 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
     }
 
     @Override
-    protected SPBlockBean loadBean(Long serverId) throws Exception {
+    protected SPBlockBean load(Long serverId) throws Exception {
         SPBlockBean spBlockBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, action FROM SPBlock WHERE serverId = ?;");
@@ -65,7 +65,7 @@ public class DBSPBlock extends DBBeanGenerator<Long, SPBlockBean> {
     }
 
     @Override
-    protected void saveBean(SPBlockBean spBlockBean) {
+    protected void save(SPBlockBean spBlockBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SPBlock (serverId, active, action) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, spBlockBean.getGuildId());
             preparedStatement.setBoolean(2, spBlockBean.isActive());

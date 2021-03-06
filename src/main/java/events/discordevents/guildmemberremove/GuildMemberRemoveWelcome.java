@@ -23,9 +23,9 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
     @Override
     public boolean onGuildMemberRemove(ServerMemberLeaveEvent event) throws Throwable {
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
+        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
 
-        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
+        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(server.getId());
         if (welcomeMessageBean.isGoodbyeActive()) {
             welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ATTACH_FILES)) {

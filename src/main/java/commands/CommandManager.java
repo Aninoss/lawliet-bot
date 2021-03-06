@@ -202,7 +202,7 @@ public class CommandManager {
 
     private static boolean checkTurnedOn(GuildMessageReceivedEvent event, Command command) {
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
-                DBCommandManagement.getInstance().getBean(event.getGuild().getIdLong()).commandIsTurnedOn(command)
+                DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOn(command)
         ) {
             return true;
         }
@@ -245,20 +245,18 @@ public class CommandManager {
 
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            Message message = event.getMessage()
+            event.getMessage()
                     .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMember().getAsMention()))
-                    .complete();
-            autoRemoveMessageAfterCountdown(event, message);
+                    .queue(message -> autoRemoveMessageAfterCountdown(event, message));
         }
     }
 
     private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            Message message = event.getMessage().reply(
+            event.getMessage().reply(
                     new EmbedWithContent(event.getMessage().getMember().getAsMention(), eb.build()).build()
-            ).complete();
-            autoRemoveMessageAfterCountdown(event, message);
+            ).queue(message -> autoRemoveMessageAfterCountdown(event, message));
         }
     }
 
@@ -272,7 +270,9 @@ public class CommandManager {
     }
 
     private static boolean isWhiteListed(GuildMessageReceivedEvent event, Command command) {
-        if (BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) || DBWhiteListedChannels.getInstance().getBean(event.getGuild().getIdLong()).isWhiteListed(event.getChannel().getIdLong())) {
+        if (BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) ||
+                DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getChannel().getIdLong())
+        ) {
             return true;
         }
 

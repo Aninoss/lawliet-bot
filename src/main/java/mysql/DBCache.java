@@ -1,13 +1,11 @@
 package mysql;
 
-public abstract class DBCached {
+public abstract class DBCache {
 
-    public DBCached() {
+    public DBCache() {
         DBMain.getInstance().addDBCached(this);
     }
 
     public abstract void clear();
-
-    public abstract void autoClear();
 
 }

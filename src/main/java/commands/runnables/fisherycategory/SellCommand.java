@@ -43,7 +43,7 @@ public class SellCommand extends FisheryAbstract implements OnReactionAddListene
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         if (followedString.length() > 0) {
             return mainExecution(event, followedString);
         } else {

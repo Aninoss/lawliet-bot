@@ -19,11 +19,11 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
 
         //manage message
         boolean messageRegistered = false;
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
         if (!event.getMessage().getContent().isEmpty()
                 && serverBean.getFisheryStatus() == FisheryStatus.ACTIVE
                 && !fisheryServerBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
@@ -40,7 +40,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 event.getChannel().canYouAddNewReactions()
         ) {
             boolean noSpamChannel = true;
-            CustomObservableList<Long> ignoredChannelIds = DBFishery.getInstance().getBean(event.getServer().get().getId()).getIgnoredChannelIds();
+            CustomObservableList<Long> ignoredChannelIds = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getIgnoredChannelIds();
             for (long channelId : ignoredChannelIds) {
                 if (channelId == event.getChannel().getId()) {
                     noSpamChannel = false;

@@ -1,13 +1,13 @@
 package mysql.modules.whitelistedchannels;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChannelsBean> {
+public class DBWhiteListedChannels extends DBMapCache<Long, WhiteListedChannelsBean> {
 
     private static final DBWhiteListedChannels ourInstance = new DBWhiteListedChannels();
 
@@ -19,7 +19,7 @@ public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChan
     }
 
     @Override
-    protected WhiteListedChannelsBean loadBean(Long serverId) throws Exception {
+    protected WhiteListedChannelsBean load(Long serverId) throws Exception {
         WhiteListedChannelsBean whiteListedChannelsBean = new WhiteListedChannelsBean(
                 serverId,
                 getChannelIds(serverId)
@@ -33,7 +33,7 @@ public class DBWhiteListedChannels extends DBBeanGenerator<Long, WhiteListedChan
     }
 
     @Override
-    protected void saveBean(WhiteListedChannelsBean whiteListedChannelsBean) {
+    protected void save(WhiteListedChannelsBean whiteListedChannelsBean) {
     }
 
     private ArrayList<Long> getChannelIds(long serverId) throws SQLException {

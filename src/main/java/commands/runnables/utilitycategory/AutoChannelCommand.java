@@ -41,7 +41,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().get().getId());
+        autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().get().getId());
         return true;
     }
 

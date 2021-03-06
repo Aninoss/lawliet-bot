@@ -18,8 +18,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -66,7 +64,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                     data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
                     diffString = data.getString("difficulty");
                 } catch (Throwable e) {
-                    DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
+                    DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
                     throw e;
                 }
 

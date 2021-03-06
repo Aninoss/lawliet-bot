@@ -1,7 +1,7 @@
 package mysql.modules.survey;
 
 import javafx.util.Pair;
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
+public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
 
     private static final DBSurvey ourInstance = new DBSurvey();
 
@@ -27,7 +27,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     private Integer currentSurveyId = null;
 
     @Override
-    protected SurveyBean loadBean(Integer surveyId) throws Exception {
+    protected SurveyBean load(Integer surveyId) throws Exception {
         SurveyBean surveyBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT start FROM SurveyDates WHERE surveyId = ?;");
@@ -70,7 +70,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     }
 
     public SurveyBean getCurrentSurvey() {
-        return getBean(getCurrentSurveyId());
+        return retrieve(getCurrentSurveyId());
     }
 
     public synchronized int getCurrentSurveyId() {
@@ -103,7 +103,7 @@ public class DBSurvey extends DBBeanGenerator<Integer, SurveyBean> {
     }
 
     @Override
-    protected void saveBean(SurveyBean surveyBean) {
+    protected void save(SurveyBean surveyBean) {
     }
 
     private HashMap<Long, SurveyFirstVote> getFirstVotes(int surveyId) {

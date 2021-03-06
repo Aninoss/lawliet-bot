@@ -26,7 +26,7 @@ public interface OnTriggerListener {
         command.setTextChannelAndMember(event.getChannel(), event.getMember());
 
         if (Bot.isPublicVersion()) {
-            DBCommandUsages.getInstance().getBean(command.getTrigger()).increase();
+            DBCommandUsages.getInstance().retrieve(command.getTrigger()).increase();
         }
 
         command.addLoadingReaction(event.getMessage(), isProcessing);
@@ -59,12 +59,12 @@ public interface OnTriggerListener {
     }
 
     default void checkTriggerDelete(GuildMessageReceivedEvent event) {
-        ServerBean serverBean = DBServer.getInstance().getBean(event.getGuild().getIdLong());
+        ServerBean serverBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
         if (serverBean.isCommandAuthorMessageRemove() &&
                 ServerPatreonBoostCache.getInstance().get(event.getGuild().getIdLong()) &&
                 PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
         ) {
-            event.getMessage().delete().complete();
+            event.getMessage().delete().queue();
         }
     }
 

@@ -1,6 +1,6 @@
 package mysql.modules.bannedwords;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
+public class DBBannedWords extends DBMapCache<Long, BannedWordsBean> {
 
     private static final DBBannedWords ourInstance = new DBBannedWords();
 
@@ -21,7 +21,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     @Override
-    protected BannedWordsBean loadBean(Long serverId) throws Exception {
+    protected BannedWordsBean load(Long serverId) throws Exception {
         BannedWordsBean bannedWordsBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM BannedWords WHERE serverId = ?;");
@@ -64,7 +64,7 @@ public class DBBannedWords extends DBBeanGenerator<Long, BannedWordsBean> {
     }
 
     @Override
-    protected void saveBean(BannedWordsBean bannedWordsBean) {
+    protected void save(BannedWordsBean bannedWordsBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO BannedWords (serverId, active) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, bannedWordsBean.getGuildId());
             preparedStatement.setBoolean(2, bannedWordsBean.isActive());

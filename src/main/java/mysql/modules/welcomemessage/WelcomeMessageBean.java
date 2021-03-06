@@ -1,6 +1,6 @@
 package mysql.modules.welcomemessage;
 
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.server.Server;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class WelcomeMessageBean extends BeanWithServer {
+public class WelcomeMessageBean extends BeanWithGuild {
 
     private String welcomeTitle, welcomeText, goodbyeText, dmText;
     private long welcomeChannelId, goodbyeChannelId;

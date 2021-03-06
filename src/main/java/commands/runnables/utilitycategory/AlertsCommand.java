@@ -67,7 +67,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         serverId = event.getServer().get().getId();
         channelId = event.getServerTextChannel().get().getId();
-        trackerBean = DBTracker.getInstance().getBean();
+        trackerBean = DBTracker.getInstance().retrieve();
         patreonLevel = PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId());
         controll(followedString, true);
         return true;

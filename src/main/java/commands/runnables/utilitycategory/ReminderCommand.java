@@ -22,8 +22,6 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -125,7 +123,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
     }
 
     private void insertReminderBean(ServerTextChannel channel, long minutes, String messageText) {
-        CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().getBean();
+        CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().retrieve();
 
         remindersBean = new RemindersBean(
                 channel.getServer().getId(),
@@ -161,7 +159,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             removeReactionListener();
             message.edit(EmbedFactory.getEmbedDefault(this, getString("canceled"))).exceptionally(ExceptionLogger.get());
             try {
-                DBReminders.getInstance().getBean().remove(remindersBean.getId(), remindersBean);
+                DBReminders.getInstance().retrieve().remove(remindersBean.getId(), remindersBean);
             } catch (Throwable e) {
                 MainLogger.get().error("Could not load reminders", e);
             }

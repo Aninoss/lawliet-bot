@@ -40,12 +40,12 @@ public class GearCommand extends FisheryUserAccountAbstract {
 
     @Override
     protected void init(MessageCreateEvent event, String followedString) throws Throwable {
-        buyableRoles = DBFishery.getInstance().getBean(event.getServer().get().getId()).getRoles();
+        buyableRoles = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getRoles();
     }
 
     @Override
     protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
-        FisheryUserBean fisheryUserBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(user.getId());
+        FisheryUserBean fisheryUserBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(user.getId());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(getString("desc", StringUtil.numToString(fisheryUserBean.getFish()), StringUtil.numToString(fisheryUserBean.getCoins())));
         EmbedUtil.setFooter(eb, this);

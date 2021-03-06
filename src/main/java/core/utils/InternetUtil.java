@@ -1,6 +1,7 @@
 package core.utils;
 
 import com.google.common.net.UrlEscapers;
+import core.ExceptionLogger;
 import core.ShardManager;
 import core.MainLogger;
 import net.dv8tion.jda.api.entities.Message;
@@ -8,6 +9,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -16,13 +18,15 @@ public final class InternetUtil {
     private InternetUtil() {
     }
 
-    public static String getURLFromInputStream(InputStream inputStream) throws ExecutionException, InterruptedException {
-        Message message = JDAUtil.sendPrivateFile(ShardManager.getInstance().fetchCacheUser().get(), inputStream, "welcome.png")
-                .complete();
-
-        String url = message.getAttachments().get(0).getUrl();
-        message.delete().queueAfter(10, TimeUnit.SECONDS);
-        return url;
+    public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename) throws ExecutionException, InterruptedException {
+        return JDAUtil.sendPrivateFile(ShardManager.getInstance().fetchCacheUser().get(), inputStream, filename)
+                .submit()
+                .exceptionally(ExceptionLogger.get())
+                .thenApply(m -> {
+                    String url = m.getAttachments().get(0).getUrl();
+                    m.delete().queueAfter(10, TimeUnit.SECONDS);
+                    return url;
+                });
     }
 
     public static boolean urlContainsImage(String url) {

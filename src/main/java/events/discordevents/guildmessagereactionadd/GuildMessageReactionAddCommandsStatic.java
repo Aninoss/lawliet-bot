@@ -33,7 +33,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                 message.getAuthor().isYourself() &&
                 message.getEmbeds().size() > 0
         ) {
-            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 String title = embed.getTitle().get();

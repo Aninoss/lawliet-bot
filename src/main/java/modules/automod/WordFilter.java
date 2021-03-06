@@ -22,7 +22,7 @@ public class WordFilter extends AutoModAbstract {
 
     public WordFilter(Message message) throws ExecutionException {
         super(message);
-        bannedWordsBean = DBBannedWords.getInstance().getBean(message.getGuild().getIdLong());
+        bannedWordsBean = DBBannedWords.getInstance().retrieve(message.getGuild().getIdLong());
     }
 
     @Override

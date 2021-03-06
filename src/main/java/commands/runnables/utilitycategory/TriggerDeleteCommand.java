@@ -47,11 +47,11 @@ public class TriggerDeleteCommand extends Command implements OnReactionAddListen
             }
 
             boolean active = option == 1;
-            DBServer.getInstance().getBean(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
+            DBServer.getInstance().retrieve(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
             event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
             return true;
         } else {
-            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBServer.getInstance().getBean(event.getServer().get().getId()).isCommandAuthorMessageRemove());
+            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBServer.getInstance().retrieve(event.getServer().get().getId()).isCommandAuthorMessageRemove());
             message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText))).get();
             for(int i = 0; i < 2; i++) {
                 message.addReaction(StringUtil.getEmojiForBoolean(i == 1));
@@ -66,7 +66,7 @@ public class TriggerDeleteCommand extends Command implements OnReactionAddListen
             String str = StringUtil.getEmojiForBoolean(i == 1);
             if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 boolean active = i == 1;
-                DBServer.getInstance().getBean(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
+                DBServer.getInstance().retrieve(event.getServer().get().getId()).setCommandAuthorMessageRemove(active);
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
                 removeReactionListener(getReactionMessage());
                 return;

@@ -1,9 +1,9 @@
 package websockets;
 
 import constants.AssetIds;
+import core.ExceptionLogger;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.json.JSONObject;
 
 public class BotsOnDiscord {
@@ -15,7 +15,8 @@ public class BotsOnDiscord {
                 new HttpProperty("Content-Type", "application/json"),
                 new HttpProperty("Authorization", System.getenv("BOTSONDISCORD_TOKEN"))
         };
-        HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + AssetIds.LAWLIET_USER_ID + "/guilds", jsonObject.toString(), properties).exceptionally(ExceptionLogger.get());
+        HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + AssetIds.LAWLIET_USER_ID + "/guilds", jsonObject.toString(), properties)
+                .exceptionally(ExceptionLogger.get());
     }
 
 }

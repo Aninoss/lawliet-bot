@@ -56,7 +56,7 @@ public class SurveyResults implements ScheduleInterface {
         HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
         for (SurveySecondVote surveySecondVote : lastSurvey.getSecondVotes().values()) {
             if (surveySecondVote.getServer().isPresent() &&
-                    DBServer.getInstance().getBean(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE
+                    DBServer.getInstance().retrieve(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE
             ) {
                 secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
             }
@@ -102,7 +102,7 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryUserBean userBean = DBFishery.getInstance().getBean(secondVote.getServerId()).getUserBean(user.getIdLong());
+                    FisheryUserBean userBean = DBFishery.getInstance().retrieve(secondVote.getServerId()).getUserBean(user.getIdLong());
                     long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                     userBean.changeValues(0, price);
                 });

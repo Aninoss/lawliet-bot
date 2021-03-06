@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
+
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Objects;
@@ -36,19 +37,15 @@ public class AutoChannelRepair {
     }
 
     public void run(JDA jda) {
-        try {
-            DBAutoChannel.getInstance().getAllChildChannelServerIds().stream()
-                    .filter(serverId -> ShardManager.getInstance().getResponsibleShard(serverId) == jda.getShardInfo().getShardId())
-                    .map(jda::getGuildById)
-                    .filter(Objects::nonNull)
-                    .forEach(this::deleteEmptyVoiceChannels);
-        } catch (SQLException e) {
-            MainLogger.get().error("Error in auto channel synchronization");
-        }
+        DBAutoChannel.getInstance().retrieveAllChildChannelServerIds().stream()
+                .filter(serverId -> ShardManager.getInstance().getResponsibleShard(serverId) == jda.getShardInfo().getShardId())
+                .map(jda::getGuildById)
+                .filter(Objects::nonNull)
+                .forEach(this::deleteEmptyVoiceChannels);
     }
 
     private void deleteEmptyVoiceChannels(Guild guild) {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(guild.getIdLong());
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         Locale locale = autoChannelBean.getGuildBean().getLocale();
         autoChannelBean.getChildChannelIds().transform(guild::getVoiceChannelById, ISnowflake::getIdLong).stream()
                 .filter(vc -> vc.getMembers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT))

@@ -9,7 +9,7 @@ import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningsBean;
-import mysql.modules.warning.ServerWarningsSlot;
+import mysql.modules.warning.GuildWarningsSlot;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
@@ -35,13 +35,13 @@ public class WarnLogCommand extends UserAccountAbstract {
 
     @Override
     protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
+        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(server.getId(), user.getId()));
 
         StringBuilder latestWarnings = new StringBuilder();
 
-        List<ServerWarningsSlot> slots = serverWarningsBean.getLatest(3);
+        List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(3);
         Collections.reverse(slots);
-        for(ServerWarningsSlot serverWarningsSlot: slots) {
+        for(GuildWarningsSlot serverWarningsSlot: slots) {
             Optional<User> requestor = serverWarningsSlot.getRequesterUser();
             Optional<String> reason = serverWarningsSlot.getReason();
             String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", StringUtil.escapeMarkdown(requestor.get().getName()))) : TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user");

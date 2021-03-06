@@ -3,8 +3,6 @@ package mysql;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -31,7 +29,7 @@ public class DBMain implements DriverAction {
     private Connection connect = null;
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-    private final ArrayList<DBCached> caches = new ArrayList<>();
+    private final ArrayList<DBCache> caches = new ArrayList<>();
 
     public void connect() throws SQLException {
         final MysqlDataSource rv = new MysqlDataSource();
@@ -50,12 +48,8 @@ public class DBMain implements DriverAction {
         connect = rv.getConnection();
     }
 
-    public void addDBCached(DBCached dbCached) {
-        if (!caches.contains(dbCached)) caches.add(dbCached);
-    }
-
-    public void clearCache() {
-        caches.forEach(DBCached::autoClear);
+    public void addDBCached(DBCache dbCache) {
+        if (!caches.contains(dbCache)) caches.add(dbCache);
     }
 
     public static String instantToDateTimeString(Instant instant) {
@@ -109,22 +103,6 @@ public class DBMain implements DriverAction {
         });
 
         return future;
-    }
-
-    public boolean checkConnection() {
-        boolean success = false;
-
-        try {
-            Statement statement = statementExecuted("SELECT 1;");
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next() && resultSet.getInt(1) == 1) success = true;
-            resultSet.close();
-            statement.close();
-        } catch (SQLException e) {
-            MainLogger.get().error("Database error", e);
-        }
-
-        return success;
     }
 
     @Override

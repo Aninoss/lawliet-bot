@@ -13,7 +13,7 @@ import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.warning.DBServerWarnings;
-import mysql.modules.warning.ServerWarningsSlot;
+import mysql.modules.warning.GuildWarningsSlot;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -78,7 +78,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         nString = removeAll ? getString("all") : StringUtil.numToString(n);
         userString = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), users).getMentionText();
 
-        if (DBModeration.getInstance().getBean(channel.getServer().getId()).isQuestion()) {
+        if (DBModeration.getInstance().retrieve(channel.getServer().getId()).isQuestion()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("confirmation", n != 1, nString, userString));
             postMessage(eb);
             for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
@@ -93,7 +93,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         removeReactionListener();
 
         for(User user: users) {
-            CustomObservableList<ServerWarningsSlot> serverWarningsSlots = DBServerWarnings.getInstance().getBean(new Pair<>(channel.getServer().getId(), user.getId())).getWarnings();
+            CustomObservableList<GuildWarningsSlot> serverWarningsSlots = DBServerWarnings.getInstance().retrieve(new Pair<>(channel.getServer().getId(), user.getId())).getWarnings();
             serverWarningsSlots.remove(Math.max(0, serverWarningsSlots.size() - n), serverWarningsSlots.size());
         }
 
@@ -106,7 +106,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         );
 
         users.forEach(user -> user.sendMessage(eb).exceptionally(ExceptionLogger.get()));
-        DBModeration.getInstance().getBean(channel.getServer().getId()).getAnnouncementChannel().ifPresent(serverTextChannel -> {
+        DBModeration.getInstance().retrieve(channel.getServer().getId()).getAnnouncementChannel().ifPresent(serverTextChannel -> {
             serverTextChannel.sendMessage(eb).exceptionally(ExceptionLogger.get());
         });
     }

@@ -40,7 +40,7 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        suggestionsBean = DBSuggestions.getInstance().getBean(event.getServer().get().getId());
+        suggestionsBean = DBSuggestions.getInstance().retrieve(event.getServer().get().getId());
         return true;
     }
 

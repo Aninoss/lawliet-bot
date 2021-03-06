@@ -104,7 +104,7 @@ public class ReactionRolesCommandReactionAddReactionRemove extends Command imple
 
     @ControllerMessage(state = EDIT_MESSAGE)
     public Response onMessageEditMessage(MessageCreateEvent event, String inputString) {
-        ArrayList<Message> messageArrayList = MentionUtil.getMessagesFromLinks(event.getMessage(), inputString).getList();
+        ArrayList<Message> messageArrayList = MentionUtil.getMessageWithLinks(event.getMessage(), inputString).getList();
         if (messageArrayList.size() > 0) {
             for (Message message : messageArrayList) {
                 if (messageIsReactionMessage(message)) {

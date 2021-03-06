@@ -1,12 +1,12 @@
 package mysql.modules.membercountdisplays;
 
 import core.CustomObservableMap;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.HashMap;
 
-public class MemberCountBean extends BeanWithServer {
+public class MemberCountBean extends BeanWithGuild {
 
     private final CustomObservableMap<Long, MemberCountDisplaySlot> memberCountBeanSlots;
 

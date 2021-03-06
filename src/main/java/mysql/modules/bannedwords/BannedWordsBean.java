@@ -1,12 +1,12 @@
 package mysql.modules.bannedwords;
 
 import core.CustomObservableList;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 
-public class BannedWordsBean extends BeanWithServer {
+public class BannedWordsBean extends BeanWithGuild {
 
     private boolean active;
     private final CustomObservableList<Long> ignoredUserIds, logReceiverUserIds;

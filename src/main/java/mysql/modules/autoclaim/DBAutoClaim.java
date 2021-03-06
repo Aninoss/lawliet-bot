@@ -2,11 +2,11 @@ package mysql.modules.autoclaim;
 
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 
 import java.util.ArrayList;
 
-public class DBAutoClaim extends DBSingleBeanGenerator<AutoClaimBean> {
+public class DBAutoClaim extends DBSingleCache<AutoClaimBean> {
 
     private static final DBAutoClaim ourInstance = new DBAutoClaim();
 

@@ -1,18 +1,16 @@
 package mysql.modules.autochannel;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
+public class DBAutoChannel extends DBMapCache<Long, AutoChannelBean> {
 
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
 
@@ -24,7 +22,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
     }
 
     @Override
-    protected AutoChannelBean loadBean(Long serverId) throws Exception {
+    protected AutoChannelBean load(Long serverId) throws Exception {
         AutoChannelBean autoChannelBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;");
@@ -63,7 +61,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
     }
 
     @Override
-    protected void saveBean(AutoChannelBean autoChannelBean) {
+    protected void save(AutoChannelBean autoChannelBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, locked) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, autoChannelBean.getGuildId());
 
@@ -77,7 +75,7 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         });
     }
 
-    private ArrayList<Long> getChildChannels(long serverId) throws SQLException {
+    private ArrayList<Long> getChildChannels(long serverId) {
         return new DBDataLoad<Long>("AutoChannelChildChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -97,9 +95,9 @@ public class DBAutoChannel extends DBBeanGenerator<Long, AutoChannelBean> {
         });
     }
 
-    public ArrayList<Long> getAllChildChannelServerIds() throws SQLException {
+    public ArrayList<Long> retrieveAllChildChannelServerIds() {
         return new DBKeySetLoad<Long>("AutoChannelChildChannels", "serverId")
-                .get(resultSet -> resultSet.getLong(1));
+                        .get(resultSet -> resultSet.getLong(1));
     }
 
 }

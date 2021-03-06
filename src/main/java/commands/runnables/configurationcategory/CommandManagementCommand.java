@@ -19,8 +19,6 @@ import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -47,7 +45,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        commandManagementBean = DBCommandManagement.getInstance().getBean(event.getServer().get().getId());
+        commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getServer().get().getId());
         return true;
     }
 

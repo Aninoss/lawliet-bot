@@ -2,7 +2,6 @@ package events.discordevents.guildmessagereceived;
 
 import core.ShardManager;
 import core.TextManager;
-import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
@@ -16,7 +15,7 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
         if (event.getMessageContent().replace("@!", "@").trim().equalsIgnoreCase(ShardManager.getInstance().getSelf().getMentionTag())) {
-            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
 
             String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_ping_help", serverBean.getPrefix());
             if (event.getChannel().canYouWrite())

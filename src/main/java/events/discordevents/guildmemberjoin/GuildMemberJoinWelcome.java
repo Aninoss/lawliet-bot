@@ -28,9 +28,9 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
         Server server = event.getServer();
-        Locale locale = DBServer.getInstance().getBean(server.getId()).getLocale();
+        Locale locale = DBServer.getInstance().retrieve(server.getId()).getLocale();
 
-        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(server.getId());
+        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(server.getId());
         if (welcomeMessageBean.isDmActive()) {
             sendDmMessage(event, welcomeMessageBean, locale);
         }

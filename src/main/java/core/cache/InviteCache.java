@@ -8,7 +8,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Invite;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import java.time.Duration;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class InviteCache {
@@ -29,12 +31,19 @@ public class InviteCache {
                     }
             );
 
-    public Optional<Invite> getInviteByCode(String code) {
-        try {
-            return cache.get(code);
-        } catch (ExecutionException e) {
-            return Optional.empty();
-        }
+    public CompletableFuture<Invite> getInviteByCode(String code) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Optional<Invite> inviteOpt = cache.get(code);
+                if (inviteOpt.isPresent()) {
+                    return inviteOpt.get();
+                } else {
+                    throw new NoSuchElementException("No such invite");
+                }
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 }

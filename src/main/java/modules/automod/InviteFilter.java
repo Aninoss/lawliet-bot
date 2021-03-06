@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -26,7 +27,7 @@ public class InviteFilter extends AutoModAbstract {
 
     public InviteFilter(Message message) throws ExecutionException {
         super(message);
-        spBlockBean = DBSPBlock.getInstance().getBean(message.getGuild().getIdLong());
+        spBlockBean = DBSPBlock.getInstance().retrieve(message.getGuild().getIdLong());
     }
 
     @Override
@@ -76,8 +77,15 @@ public class InviteFilter extends AutoModAbstract {
             if (inviteLinks.size() > 0) {
                 return inviteLinks.stream()
                         .map(inviteCode -> InviteCache.getInstance().getInviteByCode(inviteCode))
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
+                        .map(future -> {
+                            try {
+                                return future.get();
+                            } catch (InterruptedException | ExecutionException e) {
+                                //Ignore
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
                         .anyMatch(invite -> invite.getGuild() != null &&
                                 invite.getGuild().getIdLong() != message.getGuild().getIdLong() &&
                                 invite.getGuild().getIdLong() != AssetIds.SUPPORT_SERVER_ID

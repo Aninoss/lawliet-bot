@@ -13,7 +13,7 @@ public class VoiceChannelDeleteAutoChannel extends VoiceChannelDeleteAbstract {
     public boolean onServerChannelDelete(ServerChannelDeleteEvent event) throws Throwable {
         if (event.getChannel().getType() == ChannelType.SERVER_VOICE_CHANNEL) {
             DBAutoChannel.getInstance()
-                    .getBean(event.getServer().getId())
+                    .retrieve(event.getServer().getId())
                     .getChildChannelIds()
                     .removeIf(childChannelId -> childChannelId == null || childChannelId == event.getChannel().getId());
         }

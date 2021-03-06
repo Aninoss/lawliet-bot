@@ -2,7 +2,7 @@ package mysql.modules.welcomemessage;
 
 import constants.Category;
 import core.TextManager;
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBMain;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
@@ -11,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Locale;
 
-public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> {
+public class DBWelcomeMessage extends DBMapCache<Long, WelcomeMessageBean> {
 
     private static final DBWelcomeMessage ourInstance = new DBWelcomeMessage();
 
@@ -23,7 +23,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
     }
 
     @Override
-    protected WelcomeMessageBean loadBean(Long serverId) throws Exception {
+    protected WelcomeMessageBean load(Long serverId) throws Exception {
         WelcomeMessageBean welcomeMessageBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;");
@@ -45,7 +45,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
                     resultSet.getString(9)
             );
         } else {
-            ServerBean serverBean = DBServer.getInstance().getBean(serverId);
+            ServerBean serverBean = DBServer.getInstance().retrieve(serverId);
             Locale locale = serverBean.getLocale();
 
             welcomeMessageBean = new WelcomeMessageBean(
@@ -69,7 +69,7 @@ public class DBWelcomeMessage extends DBBeanGenerator<Long, WelcomeMessageBean> 
     }
 
     @Override
-    protected void saveBean(WelcomeMessageBean welcomeMessageBean) {
+    protected void save(WelcomeMessageBean welcomeMessageBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, welcomeMessageBean.getGuildId());
 

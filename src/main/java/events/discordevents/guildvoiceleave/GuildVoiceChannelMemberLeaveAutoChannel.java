@@ -16,11 +16,11 @@ public class GuildVoiceChannelMemberLeaveAutoChannel extends GuildVoiceLeaveAbst
 
     @Override
     public boolean onGuildVoiceLeave(GuildVoiceLeaveEvent event) throws Throwable {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(event.getServer().getId());
+        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().getId());
 
         for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getId() == childChannelId) {
-                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().getId());
+                ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().getId());
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel(), PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.CONNECT)) {
                     if (event.getChannel().getConnectedUserIds().size() == 0) {
                         event.getChannel().delete(); //No error log

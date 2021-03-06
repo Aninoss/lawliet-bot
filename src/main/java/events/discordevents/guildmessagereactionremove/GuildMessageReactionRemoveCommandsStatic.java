@@ -35,7 +35,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
         ) {
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
-                ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+                ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
                 String title = embed.getTitle().get();
                 for (Class<? extends OnStaticReactionRemoveListener> clazz : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>)clazz, serverBean.getLocale(), serverBean.getPrefix());

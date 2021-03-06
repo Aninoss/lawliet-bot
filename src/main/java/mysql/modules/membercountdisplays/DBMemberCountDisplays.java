@@ -1,13 +1,13 @@
 package mysql.modules.membercountdisplays;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 
-public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean> {
+public class DBMemberCountDisplays extends DBMapCache<Long, MemberCountBean> {
 
     private static final DBMemberCountDisplays ourInstance = new DBMemberCountDisplays();
 
@@ -19,7 +19,7 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
     }
 
     @Override
-    protected MemberCountBean loadBean(Long serverId) throws Exception {
+    protected MemberCountBean load(Long serverId) throws Exception {
         MemberCountBean memberCountBean = new MemberCountBean(
                 serverId,
                 getMemberCountBeanSlot(serverId)
@@ -33,7 +33,7 @@ public class DBMemberCountDisplays extends DBBeanGenerator<Long, MemberCountBean
     }
 
     @Override
-    protected void saveBean(MemberCountBean memberCountBean) {
+    protected void save(MemberCountBean memberCountBean) {
     }
 
     private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) throws SQLException {

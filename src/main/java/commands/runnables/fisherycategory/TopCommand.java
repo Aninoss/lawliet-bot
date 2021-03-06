@@ -36,9 +36,9 @@ public class TopCommand extends ListAbstract {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
-            rankingSlots = new ArrayList<>(DBFishery.getInstance().getBean(event.getServer().get().getId()).getUsers().values());
+            rankingSlots = new ArrayList<>(DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUsers().values());
             rankingSlots.removeIf(user -> !user.isOnServer() || user.getUser().map(User::isBot).orElse(true));
             rankingSlots.sort((s1, s2) -> {
                 if (s1.getFishIncome() < s2.getFishIncome()) return 1;

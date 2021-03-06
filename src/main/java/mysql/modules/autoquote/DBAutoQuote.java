@@ -1,12 +1,12 @@
 package mysql.modules.autoquote;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBMain;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
+public class DBAutoQuote extends DBMapCache<Long, AutoQuoteBean> {
 
     private static final DBAutoQuote ourInstance = new DBAutoQuote();
 
@@ -18,7 +18,7 @@ public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
     }
 
     @Override
-    protected AutoQuoteBean loadBean(Long serverId) throws Exception {
+    protected AutoQuoteBean load(Long serverId) throws Exception {
         AutoQuoteBean autoQuoteBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM AutoQuote WHERE serverId = ?;");
@@ -45,7 +45,7 @@ public class DBAutoQuote extends DBBeanGenerator<Long, AutoQuoteBean> {
     }
 
     @Override
-    protected void saveBean(AutoQuoteBean serverBean) {
+    protected void save(AutoQuoteBean serverBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO AutoQuote (serverId, active) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverBean.getGuildId());
             preparedStatement.setBoolean(2, serverBean.isActive());

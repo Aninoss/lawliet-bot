@@ -1,9 +1,10 @@
 package websockets.syncserver.events;
 
+import core.ExceptionLogger;
 import core.ShardManager;
 import core.EmbedFactory;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.util.logging.ExceptionLogger;
+import core.utils.JDAUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
@@ -31,11 +32,7 @@ public class OnNotifyOwner implements SyncServerFunction {
 
         ShardManager.getInstance().fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
-                .thenAccept(userOpt -> {
-                    userOpt.ifPresent(user -> user.sendMessage(eb)
-                            .exceptionally(ExceptionLogger.get())
-                    );
-                });
+                .thenAccept(user -> JDAUtil.sendPrivateMessage(user, eb.build()).queue());
 
         return null;
     }

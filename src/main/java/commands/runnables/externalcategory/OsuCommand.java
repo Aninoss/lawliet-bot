@@ -55,7 +55,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
     @Override
     protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
         boolean userExists = false;
-        CustomObservableMap<Long, OsuBeanBean> osuMap = DBOsuAccounts.getInstance().getBean();
+        CustomObservableMap<Long, OsuBeanBean> osuMap = DBOsuAccounts.getInstance().retrieve();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", user.getDisplayName(server)));
         setGameMode(followedString);
 
@@ -120,7 +120,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (DiscordUtil.emojiIsString(event.getEmoji(), EMOJI_CONNECT) && !connecting) {
             connecting = true;
-            DBOsuAccounts.getInstance().getBean().remove(event.getUserId());
+            DBOsuAccounts.getInstance().retrieve().remove(event.getUserId());
 
             Optional<String> osuUsernameOpt = event.getUser().get().getActivity().flatMap(OsuAccountCheck::getOsuUsernameFromActivity);
             if (osuUsernameOpt.isPresent()) {
@@ -166,7 +166,7 @@ public class OsuCommand extends UserAccountAbstract implements OnReactionAddList
     private void update(User user, OsuAccount osuAccount, String osuName) {
         EmbedBuilder eb;
         if (osuAccount != null) {
-            DBOsuAccounts.getInstance().getBean().put(user.getId(), new OsuBeanBean(user.getId(), osuAccount.getOsuId()));
+            DBOsuAccounts.getInstance().retrieve().put(user.getId(), new OsuBeanBean(user.getId(), osuAccount.getOsuId()));
             eb = generateAccountEmbed(user, osuAccount);
             EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
         } else {

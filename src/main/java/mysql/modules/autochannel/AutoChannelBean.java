@@ -2,14 +2,13 @@ package mysql.modules.autochannel;
 
 import core.CustomObservableList;
 import core.MainLogger;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class AutoChannelBean extends BeanWithServer {
+public class AutoChannelBean extends BeanWithGuild {
 
     private boolean active, locked;
     private String nameMask;
@@ -32,8 +31,8 @@ public class AutoChannelBean extends BeanWithServer {
         return Optional.ofNullable(parentChannelId);
     }
 
-    public Optional<ServerVoiceChannel> getParentChannel() {
-        return getGuild().flatMap(server -> server.getVoiceChannelById(parentChannelId != null ? parentChannelId : 0L));
+    public Optional<VoiceChannel> getParentChannel() {
+        return getGuild().map(guild -> guild.getVoiceChannelById(parentChannelId != null ? parentChannelId : 0L));
     }
 
     public boolean isActive() {

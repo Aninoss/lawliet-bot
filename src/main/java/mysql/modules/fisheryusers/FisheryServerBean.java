@@ -2,7 +2,7 @@ package mysql.modules.fisheryusers;
 
 import core.CustomObservableList;
 import core.CustomObservableMap;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.permission.Role;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
-public class FisheryServerBean extends BeanWithServer {
+public class FisheryServerBean extends BeanWithGuild {
 
     private final CustomObservableMap<Long, FisheryUserBean> users;
     private final CustomObservableList<Long> ignoredChannelIds, roleIds;

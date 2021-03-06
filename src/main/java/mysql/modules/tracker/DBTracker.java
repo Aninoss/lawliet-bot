@@ -5,14 +5,14 @@ import core.CustomThread;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 
-public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
+public class DBTracker extends DBSingleCache<TrackerBean> {
 
     private static final DBTracker ourInstance = new DBTracker();
 
@@ -29,7 +29,7 @@ public class DBTracker extends DBSingleBeanGenerator<TrackerBean> {
         if (started) return;
         started = true;
 
-        new CustomThread(() -> AlertScheduler.getInstance().start(getBean()), "tracker_init").start();
+        new CustomThread(() -> AlertScheduler.getInstance().start(retrieve()), "tracker_init").start();
     }
 
     @Override

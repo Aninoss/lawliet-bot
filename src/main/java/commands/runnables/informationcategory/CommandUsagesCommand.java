@@ -36,7 +36,7 @@ public class CommandUsagesCommand extends ListAbstract {
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         for(Class<? extends Command> clazz: CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            commandUsages.add(new Pair<>(DBCommandUsages.getInstance().getBean(command.getTrigger()), command.getEmoji()));
+            commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getEmoji()));
         }
 
         commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));

@@ -26,7 +26,7 @@ public class OnTopGG implements SyncServerFunction {
     @Override
     public JSONObject apply(JSONObject jsonObject) {
         long userId = jsonObject.getLong("user");
-        if (DBBannedUsers.getInstance().getBean().getUserIds().contains(userId))
+        if (DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId))
             return null;
 
         String type = jsonObject.getString("type");
@@ -45,19 +45,19 @@ public class OnTopGG implements SyncServerFunction {
     }
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
-        UpvotesBean upvotesBean = DBUpvotes.getInstance().getBean();
+        UpvotesBean upvotesBean = DBUpvotes.getInstance().retrieve();
         if (upvotesBean.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
             ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                 MainLogger.get().info("UPVOTE | {}", user.getName());
 
                 ShardManager.getInstance().getLocalMutualGuilds(user).stream()
-                        .filter(server -> DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE)
-                        .forEach(server -> {
+                        .filter(guild -> DBServer.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE)
+                        .forEach(guild -> {
                             int value = isWeekend ? 2 : 1;
-                            FisheryUserBean userBean = DBFishery.getInstance().getBean(server.getId()).getUserBean(userId);
+                            FisheryUserBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getUserBean(userId);
 
                             if (PatreonCache.getInstance().getUserTier(userId) >= 2 &&
-                                    DBAutoClaim.getInstance().getBean().isActive(userId)
+                                    DBAutoClaim.getInstance().retrieve().isActive(userId)
                             ) {
                                 userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
                             } else {

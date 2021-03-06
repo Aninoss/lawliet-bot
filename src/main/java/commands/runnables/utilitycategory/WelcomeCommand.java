@@ -48,7 +48,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        welcomeMessageBean = DBWelcomeMessage.getInstance().getBean(event.getServer().get().getId());
+        welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getServer().get().getId());
         author = event.getMessage().getUserAuthor().get();
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);

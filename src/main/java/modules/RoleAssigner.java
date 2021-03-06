@@ -3,15 +3,19 @@ package modules;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.CustomThread;
+import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import org.checkerframework.checker.units.qual.A;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RoleAssigner {
 
@@ -24,46 +28,46 @@ public class RoleAssigner {
     private RoleAssigner() {
     }
 
-    private final Cache<Long, Thread> busyServers = CacheBuilder.newBuilder()
+    private final Cache<Long, AtomicBoolean> busyServers = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
             .build();
 
     public Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, Role role, boolean add) {
         synchronized (guild) {
-            if (busyServers.asMap().containsKey(guild.getIdLong())) return Optional.empty();
+            if (busyServers.asMap().containsKey(guild.getIdLong()))
+                return Optional.empty();
 
-            CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
-
-            Thread t = new CustomThread(() -> {
+            AtomicBoolean active = new AtomicBoolean(true);
+            busyServers.put(guild.getIdLong(), active);
+            return Optional.of(CompletableFuture.supplyAsync(() -> {
                 try {
                     Thread.sleep(1000);
                     for (Member member : new ArrayList<>(guild.getMembers())) {
-                        if (member.getRoles().contains(role) != add && guild.getMembers().contains(member)) {
+                        if (active.get() &&
+                                member.getRoles().contains(role) != add &&
+                                guild.getMembers().contains(member)
+                        ) {
                             if (BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) && role.getGuild().getSelfMember().canInteract(role)) {
                                 if (add) role.getGuild().addRoleToMember(member, role).complete();
                                 else role.getGuild().removeRoleFromMember(member, role).complete();
                             }
                         }
                     }
-                    completableFuture.complete(true);
-                } catch (InterruptedException interruptedException) {
-                    //Ignore
+                    return true;
+                } catch (Throwable e) {
+                    MainLogger.get().error("Error", e);
                 } finally {
                     busyServers.invalidate(guild.getIdLong());
                 }
-                completableFuture.complete(false);
-            }, "role_assignment", 1);
-            busyServers.put(guild.getIdLong(), t);
-            t.start();
-
-            return Optional.of(completableFuture);
+                return false;
+            }));
         }
     }
 
     public void cancel(long serverId) {
-        Thread t = busyServers.getIfPresent(serverId);
-        if (t != null) {
-            t.interrupt();
+        AtomicBoolean atomicBoolean = busyServers.getIfPresent(serverId);
+        if (atomicBoolean != null) {
+            atomicBoolean.set(false);
         }
     }
 

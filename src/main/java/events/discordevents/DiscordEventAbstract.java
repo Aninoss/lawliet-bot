@@ -3,7 +3,6 @@ package events.discordevents;
 import core.ShardManager;
 import core.MainLogger;
 import mysql.modules.bannedusers.DBBannedUsers;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public abstract class DiscordEventAbstract {
     }
 
     private static boolean userIsBanned(long userId) {
-        return DBBannedUsers.getInstance().getBean().getUserIds().contains(userId);
+        return DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId);
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener) {

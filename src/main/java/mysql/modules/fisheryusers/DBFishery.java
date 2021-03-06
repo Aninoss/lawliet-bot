@@ -5,10 +5,7 @@ import com.google.common.cache.RemovalCause;
 import constants.FisheryStatus;
 import core.Bot;
 import core.MainLogger;
-import mysql.DBBatch;
-import mysql.DBBeanGenerator;
-import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.*;
 import mysql.interfaces.IntervalSave;
 import mysql.modules.server.DBServer;
 
@@ -21,7 +18,7 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implements IntervalSave {
+public class DBFishery extends DBIntervalMapCache<Long, FisheryServerBean> implements IntervalSave {
 
     private static final DBFishery ourInstance = new DBFishery();
 
@@ -40,13 +37,13 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
                     FisheryServerBean serverBean = (FisheryServerBean) e.getValue();
                     if (e.getCause() == RemovalCause.EXPIRED && isChanged(serverBean)) {
                         removeUpdate(serverBean);
-                        saveBean(serverBean);
+                        save(serverBean);
                     }
                 });
     }
 
     @Override
-    protected FisheryServerBean loadBean(Long serverId) throws Exception {
+    protected FisheryServerBean load(Long serverId) throws Exception {
         HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap = getFisheryHourlyIncomeMap(serverId);
         HashMap<Long, HashMap<Integer, FisheryUserPowerUpBean>> fisheryPowerUpMap = getFisheryPowerUpMap(serverId);
 
@@ -68,7 +65,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     }
 
     @Override
-    protected synchronized void saveBean(FisheryServerBean fisheryServerBean) {
+    protected synchronized void save(FisheryServerBean fisheryServerBean) {
         try {
             if (fisheryServerBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getGuildBean().isSaved()) {
                 DBBatch userBatch = new DBBatch("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -302,7 +299,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUsers WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
 
-        DBServer.getInstance().getBean(serverId).setFisheryStatus(FisheryStatus.STOPPED);
+        DBServer.getInstance().retrieve(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         getCache().invalidate(serverId);
         removeUpdateIf(fisheryServerBean -> fisheryServerBean.getGuildId() == serverId);
     }

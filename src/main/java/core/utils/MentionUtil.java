@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -209,25 +210,27 @@ public class MentionUtil {
         return false;
     }
 
-    public static MentionList<Message> getMessagesFromLinks(Message message, String link) {
-        ArrayList<Message> list = new ArrayList<>();
-        Guild guild = message.getGuild();
-        String guildId = guild.getId();
-        Matcher m = Message.JUMP_URL_PATTERN.matcher(link);
-        while (m.find()) {
-            String groupString = m.group("guild");
-            if (groupString != null && groupString.equals(guildId)) {
-                Optional.ofNullable(guild.getTextChannelById(m.group("channel"))).ifPresent(channel -> {
-                    try {
-                        if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_HISTORY))
-                            list.add(channel.retrieveMessageById(m.group("message")).complete());
-                    } catch (Throwable e) {
-                        //Ignore
-                    }
-                });
+    public static CompletableFuture<MentionList<Message>> getMessageWithLinks(Message message, String link) {
+        return CompletableFuture.supplyAsync(() -> {
+            ArrayList<Message> list = new ArrayList<>();
+            Guild guild = message.getGuild();
+            String guildId = guild.getId();
+            Matcher m = Message.JUMP_URL_PATTERN.matcher(link);
+            while (m.find()) {
+                String groupString = m.group("guild");
+                if (groupString != null && groupString.equals(guildId)) {
+                    Optional.ofNullable(guild.getTextChannelById(m.group("channel"))).ifPresent(channel -> {
+                        try {
+                            if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_HISTORY))
+                                list.add(channel.retrieveMessageById(m.group("message")).complete());
+                        } catch (Throwable e) {
+                            //Ignore
+                        }
+                    });
+                }
             }
-        }
-        return new MentionList<>(link, list);
+            return new MentionList<>(link, list);
+        });
     }
 
     public static MentionList<String> getEmojis(Message message, String content) {

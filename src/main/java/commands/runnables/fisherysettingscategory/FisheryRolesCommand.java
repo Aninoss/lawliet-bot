@@ -20,8 +20,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
@@ -49,8 +48,8 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-        fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
+        serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        fisheryServerBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
         roles = fisheryServerBean.getRoles();
 
         checkRolesWithLog(roles, null);

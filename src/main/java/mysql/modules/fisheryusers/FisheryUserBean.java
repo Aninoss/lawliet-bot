@@ -13,7 +13,7 @@ import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-public class FisheryUserBean extends BeanWithServer {
+public class FisheryUserBean extends BeanWithGuild {
 
     private final long userId;
     private FisheryServerBean fisheryServerBean = null;

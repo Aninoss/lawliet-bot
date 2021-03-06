@@ -31,7 +31,7 @@ public abstract class AutoModAbstract {
     public boolean check() {
         if (!message.getAuthor().isBot() && checkCondition(message)) {
             try {
-                ServerBean serverBean = DBServer.getInstance().getBean(message.getGuild().getIdLong());
+                ServerBean serverBean = DBServer.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
                 if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().queue();
@@ -55,18 +55,14 @@ public abstract class AutoModAbstract {
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
         designEmbed(message, serverBean.getLocale(), eb);
 
-        try {
-            Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
-            Mod.postLog(command, eb, guild, member).thenRun(() -> {
-                try {
-                    Mod.insertWarning(serverBean.getLocale(), guild, member, guild.getSelfMember(), commandTitle, withAutoActions(message, serverBean.getLocale()));
-                } catch (ExecutionException e) {
-                    MainLogger.get().error("Error when creating command instance");
-                }
-            });
-        } catch (ExecutionException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            MainLogger.get().error("Error when creating command instance");
-        }
+        Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
+        Mod.postLog(command, eb, guild, member).thenRun(() -> {
+            try {
+                Mod.insertWarning(serverBean.getLocale(), guild, member, guild.getSelfMember(), commandTitle, withAutoActions(message, serverBean.getLocale()));
+            } catch (ExecutionException e) {
+                MainLogger.get().error("Error when creating command instance");
+            }
+        });
     }
 
     protected abstract boolean withAutoActions(Message message, Locale locale);

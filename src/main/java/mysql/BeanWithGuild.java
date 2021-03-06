@@ -7,16 +7,16 @@ import net.dv8tion.jda.api.entities.Guild;
 import java.util.Observable;
 import java.util.Optional;
 
-public abstract class BeanWithServer extends Observable {
+public abstract class BeanWithGuild extends Observable {
 
     private final long guildId;
 
-    public BeanWithServer(long guildId) {
+    public BeanWithGuild(long guildId) {
         this.guildId = guildId;
     }
 
     public ServerBean getGuildBean() {
-        return DBServer.getInstance().getBean(guildId);
+        return DBServer.getInstance().retrieve(guildId);
     }
 
     public long getGuildId() {

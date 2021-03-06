@@ -2,12 +2,12 @@ package mysql.modules.commandmanagement;
 
 import commands.Command;
 import core.CustomObservableList;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 
-public class CommandManagementBean extends BeanWithServer {
+public class CommandManagementBean extends BeanWithGuild {
 
     private final CustomObservableList<String> switchedOffElements;
 

@@ -1,13 +1,14 @@
 package mysql.modules.tracker;
 
 import core.MainLogger;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-public class TrackerBeanSlot extends BeanWithServer {
+public class TrackerBeanSlot extends BeanWithGuild {
 
     private final long channelId;
     private Long messageId;
@@ -39,15 +40,10 @@ public class TrackerBeanSlot extends BeanWithServer {
         return Optional.ofNullable(messageId);
     }
 
-    public Optional<Message> getMessage() {
-        return getChannel().flatMap(channel -> {
-            try {
-                return Optional.ofNullable(channel.retrieveMessageById(messageId != null ? messageId : 0L).complete());
-            } catch (Throwable e) {
-                //Ignore
-            }
-            return Optional.empty();
-        });
+    public CompletableFuture<Message> getMessage() {
+        return CompletableFuture.supplyAsync(() ->
+                getChannel().get().retrieveMessageById(messageId != null ? messageId : 0L).complete()
+        );
     }
 
     public String getCommandTrigger() { return commandTrigger; }
@@ -84,12 +80,7 @@ public class TrackerBeanSlot extends BeanWithServer {
 
     public void delete() {
         stop();
-
-        try {
-            DBTracker.getInstance().getBean().getSlots().remove(this);
-        } catch (RuntimeException e) {
-            MainLogger.get().error("Could not remove tracker", e);
-        }
+        DBTracker.getInstance().retrieve().getSlots().remove(this);
     }
 
     public void stop() {

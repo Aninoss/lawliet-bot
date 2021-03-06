@@ -2,11 +2,11 @@ package mysql.modules.bannedusers;
 
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 
 import java.util.ArrayList;
 
-public class DBBannedUsers extends DBSingleBeanGenerator<BannedUsersBean> {
+public class DBBannedUsers extends DBSingleCache<BannedUsersBean> {
 
     private static final DBBannedUsers ourInstance = new DBBannedUsers();
 

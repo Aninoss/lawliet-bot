@@ -1,7 +1,7 @@
 package websockets.syncserver.events;
 
 import core.ShardManager;
-import org.javacord.api.entity.emoji.CustomEmoji;
+import core.utils.JDAUtil;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
@@ -15,7 +15,7 @@ public class OnCustomEmoji implements SyncServerFunction {
         JSONObject responseJson = new JSONObject();
 
         ShardManager.getInstance().getLocalEmoteById(emojiId)
-                .map(CustomEmoji::getMentionTag)
+                .map(JDAUtil::emoteToTag)
                 .ifPresent(tag ->  responseJson.put("tag", tag));
 
         return responseJson;

@@ -1,19 +1,19 @@
 package mysql.modules.warning;
 
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.javacord.api.entity.user.User;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class ServerWarningsSlot extends BeanWithServer {
+public class GuildWarningsSlot extends BeanWithGuild {
 
     private final long userId;
     private final Instant time;
     private final long requesterUserId;
     private final String reason;
 
-    public ServerWarningsSlot(long serverId, long userId, Instant time, long requesterUserId, String reason) {
+    public GuildWarningsSlot(long serverId, long userId, Instant time, long requesterUserId, String reason) {
         super(serverId);
         this.userId = userId;
         this.time = time;

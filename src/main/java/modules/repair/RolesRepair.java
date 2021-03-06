@@ -47,7 +47,7 @@ public class RolesRepair {
     }
 
     private void processFisheryRoles(Guild guild, int minutes) {
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(guild.getIdLong());
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = fisheryServerBean.getGuildBean().getLocale();
         if (fisheryServerBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getRoleIds().size() > 0) {
             guild.getMembers().stream()
@@ -61,7 +61,7 @@ public class RolesRepair {
     }
 
     private void processAutoRoles(Guild guild, int minutes) {
-        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().getBean(guild.getIdLong());
+        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().retrieve(guild.getIdLong());
         Locale locale = autoRolesBean.getGuildBean().getLocale();
         if (autoRolesBean.getRoleIds().size() > 0) {
             List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);

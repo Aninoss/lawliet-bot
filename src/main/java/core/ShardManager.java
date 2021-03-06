@@ -83,10 +83,12 @@ public class ShardManager {
         shardDisconnectConsumers.add(consumer);
     }
 
-    public synchronized void addJDA(JDA jda) {
+    public void addJDA(JDA jda) {
         if (ownerId == 0) {
-            ownerId = jda.retrieveApplicationInfo().complete().getOwner().getIdLong();
-            fetchUserById(AssetIds.CACHE_USER_ID);
+            jda.retrieveApplicationInfo().queue(applicationInfo -> {
+                ownerId = applicationInfo.getOwner().getIdLong();
+                fetchUserById(AssetIds.CACHE_USER_ID);
+            });
         }
         jdaMap.put(jda.getShardInfo().getShardId(), new JDAExtended(jda));
     }
@@ -250,40 +252,27 @@ public class ShardManager {
         return Optional.empty();
     }
 
-    public CompletableFuture<Optional<User>> fetchUserById(long userId) {
+    public CompletableFuture<User> fetchUserById(long userId) {
         if (userId <= 0) {
-            return CompletableFuture.completedFuture(Optional.empty());
+            return CompletableFuture.failedFuture(new NoSuchElementException("No such user id"));
         }
 
         if (userCache.asMap().containsKey(userId)) {
-            return CompletableFuture.completedFuture(Optional.ofNullable(userCache.getIfPresent(userId)));
+            return CompletableFuture.completedFuture(userCache.getIfPresent(userId));
         }
 
-        CompletableFuture<Optional<User>> future = new CompletableFuture<>();
+        CompletableFuture<User> future = new CompletableFuture<>();
         Optional<JDA> jdaOpt = getAnyJDA();
         if (jdaOpt.isPresent()) {
             JDA jda = jdaOpt.get();
             jda.retrieveUserById(userId).queue(user -> {
                 userCache.put(userId, user);
-                future.complete(Optional.of(user));
-            }, e -> future.complete(Optional.empty()));
+                future.complete(user);
+            }, future::completeExceptionally);
         } else {
-            future.complete(Optional.empty());
+            future.completeExceptionally(new NoSuchElementException("No jda connected"));
         }
 
-        return future;
-    }
-
-    private CompletableFuture<User> fetchUserExistenceGuaranteed(long userId) {
-        CompletableFuture<User> future = new CompletableFuture<>();
-        fetchUserById(userId)
-                .thenAccept(userOpt -> {
-                    if (userOpt.isPresent()) {
-                        future.complete(userOpt.get());
-                    } else {
-                        future.completeExceptionally(new NoSuchElementException("User not found"));
-                    }
-                });
         return future;
     }
 
@@ -292,11 +281,11 @@ public class ShardManager {
     }
 
     public CompletableFuture<User> fetchOwner() {
-        return fetchUserExistenceGuaranteed(getOwnerId());
+        return fetchUserById(getOwnerId());
     }
 
     public CompletableFuture<User> fetchCacheUser() {
-        return fetchUserExistenceGuaranteed(AssetIds.CACHE_USER_ID);
+        return fetchUserById(AssetIds.CACHE_USER_ID);
     }
 
     public long getSelfId() {

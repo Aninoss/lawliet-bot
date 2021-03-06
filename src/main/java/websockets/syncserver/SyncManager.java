@@ -1,13 +1,12 @@
 package websockets.syncserver;
 
 import core.Bot;
+import core.ExceptionLogger;
 import core.ShardManager;
 import core.MainLogger;
 import core.schedule.MainScheduler;
 import org.java_websocket.client.WebSocketJsonClient;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.reflections.Reflections;
-
 import java.net.URISyntaxException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;

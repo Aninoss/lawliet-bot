@@ -2,14 +2,14 @@ package mysql.modules.suggestions;
 
 import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerTextChannel;
 
 import java.util.HashMap;
 import java.util.Optional;
 
-public class SuggestionsBean extends BeanWithServer {
+public class SuggestionsBean extends BeanWithGuild {
 
     private final CustomObservableMap<Long, SuggestionMessage> messages;
     private boolean active;

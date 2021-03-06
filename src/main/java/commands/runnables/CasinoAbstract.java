@@ -65,13 +65,13 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             return true;
         }
 
-        FisheryStatus status = DBServer.getInstance().getBean(event.getServer().get().getId()).getFisheryStatus();
+        FisheryStatus status = DBServer.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
             coinsInput = 0;
             return true;
         }
 
-        FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         long coins = userBean.getCoins();
         long value = Math.min(MentionUtil.getAmountExt(followedString, coins), coins);
         if (value == -1) {
@@ -94,7 +94,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
     protected void onGameEnd() {
         won = false;
         active = false;
-        DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).addHiddenCoins(-coinsInput);
+        DBFishery.getInstance().retrieve(server.getId()).getUserBean(player.getId()).addHiddenCoins(-coinsInput);
         removeNavigation();
         removeMessageForwarder();
         removeReactionListener(((OnReactionAddListener)this).getReactionMessage());
@@ -103,9 +103,9 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
     protected void onLose() {
         onGameEnd();
         if (coinsInput > 0 && useCalculatedMultiplicator) {
-            DBGameStatistics.getInstance().getBean(compareKey).addValue(false, 1);
+            DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
         }
-        EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).changeValues(0, -coinsInput);
+        EmbedBuilder eb = DBFishery.getInstance().retrieve(server.getId()).getUserBean(player.getId()).changeValues(0, -coinsInput);
         if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
     }
 
@@ -117,7 +117,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
 
         double multiplicator = 1;
         if (coinsInput != 0 && useCalculatedMultiplicator) {
-            GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().getBean(compareKey);
+            GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().retrieve(compareKey);
             gameStatisticsBean.addValue(true, winMultiplicator);
 
             double won = gameStatisticsBean.getValue(true);
@@ -125,7 +125,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             if (won > 0 && lost > 0) multiplicator = lost / won;
         }
 
-        EmbedBuilder eb = DBFishery.getInstance().getBean(server.getId()).getUserBean(player.getId()).changeValues(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+        EmbedBuilder eb = DBFishery.getInstance().retrieve(server.getId()).getUserBean(player.getId()).changeValues(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
         if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
     }
 

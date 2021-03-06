@@ -41,7 +41,7 @@ public class QuoteCommand extends Command {
         User user = event.getMessage().getUserAuthor().get();
 
         //Message Link
-        ArrayList<Message> directMessage = MentionUtil.getMessagesFromLinks(event.getMessage(), followedString).getList();
+        ArrayList<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), followedString).getList();
         if (directMessage.size() > 0) {
             for(Message message : directMessage) {
                 if (message.getChannel().canSee(user) && message.getChannel().canReadMessageHistory(user)) {

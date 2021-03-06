@@ -47,7 +47,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
                 setLocale(new Locale(languageLocales[language]));
             }
 
-            DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
+            DBServer.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
             event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
             return true;
         } else {
@@ -65,7 +65,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
             String str = languageEmojis[i];
             if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 setLocale(new Locale(languageLocales[i]));
-                DBServer.getInstance().getBean(event.getServer().get().getId()).setLocale(getLocale());
+                DBServer.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;

@@ -43,7 +43,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        versionBean = DBVersion.getInstance().getBean();
+        versionBean = DBVersion.getInstance().retrieve();
 
         //Ohne Argumente
         if (followedString.length() == 0) {
@@ -110,7 +110,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
-            VersionBeanSlot newestSlot = DBVersion.getInstance().getBean().getCurrentVersion();
+            VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
 
             slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot))
                     .exceptionally(ExceptionLogger.get());

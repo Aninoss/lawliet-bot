@@ -11,7 +11,7 @@ import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningsBean;
-import mysql.modules.warning.ServerWarningsSlot;
+import mysql.modules.warning.GuildWarningsSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -29,8 +29,8 @@ public class Mod {
     private static final String EMOJI_AUTOMOD = "👷";
 
     public static void insertWarning(Locale locale, Guild guild, Member member, Member requestor, String reason, boolean withAutoActions) throws ExecutionException {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(guild.getIdLong(), member.getIdLong()));
-        serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
+        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), member.getIdLong()));
+        serverWarningsBean.getWarnings().add(new GuildWarningsSlot(
                         guild.getIdLong(),
                         member.getIdLong(),
                         Instant.now(),
@@ -40,7 +40,7 @@ public class Mod {
         );
 
         if (withAutoActions) {
-            ModerationBean moderationBean = DBModeration.getInstance().getBean(guild.getIdLong());
+            ModerationBean moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
 
             int autoKickDays = moderationBean.getAutoKickDays();
             int autoBanDays = moderationBean.getAutoBanDays();
@@ -68,12 +68,12 @@ public class Mod {
         }
     }
 
-    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Guild guild, Member member) throws ExecutionException {
+    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Guild guild, Member member) {
         return postLog(command, eb, guild, Collections.singletonList(member));
     }
 
-    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Guild guild, List<Member> members) throws ExecutionException {
-        return postLog(command, eb, DBModeration.getInstance().getBean(guild.getIdLong()), members);
+    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, Guild guild, List<Member> members) {
+        return postLog(command, eb, DBModeration.getInstance().retrieve(guild.getIdLong()), members);
     }
 
     public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, Member member) {
@@ -82,21 +82,22 @@ public class Mod {
 
     public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, List<Member> members) {
         eb.setFooter("");
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
             members.forEach(member -> {
                 if (!member.getUser().isBot()) {
-                    JDAUtil.sendPrivateMessage(member, eb.build()).complete();
+                    try {
+                        JDAUtil.sendPrivateMessage(member, eb.build()).complete();
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Exception", e);
+                    }
                 }
             });
-            future.complete(null);
+            return null;
         });
 
         moderationBean.getAnnouncementChannel().ifPresent(channel -> {
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
-                channel.sendMessage(eb.build())
-                        .complete();
+                channel.sendMessage(eb.build()).queue();
             }
         });
 

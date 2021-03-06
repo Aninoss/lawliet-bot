@@ -5,8 +5,10 @@ import constants.AssetIds;
 import constants.Locales;
 import core.ListGen;
 import core.TextManager;
-import core.utils.BotPermissionUtil;
+import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public class SyncLocaleUtil {
@@ -30,9 +32,12 @@ public class SyncLocaleUtil {
 
         for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
-            String permissionsList = new ListGen<Integer>().getList(
-                    BotPermissionUtil.permissionsToNumberList(command.getUserPermissions()), "", ListGen.SLOT_TYPE_NONE,
-                    i -> TextManager.getString(locale, TextManager.PERMISSIONS, String.valueOf(i))
+            List<Permission> permissionList = Arrays.asList(command.getCommandProperties().userGuildPermissions());
+            permissionList.addAll(Arrays.asList(command.getCommandProperties().userChannelPermissions()));
+
+            String permissionsList = new ListGen<Permission>().getList(
+                    permissionList, "", ListGen.SLOT_TYPE_NONE,
+                    permission -> TextManager.getString(locale, TextManager.PERMISSIONS, permission.getName())
             );
             jsonObject.put(locale.getDisplayName(), permissionsList);
         }

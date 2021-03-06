@@ -46,11 +46,11 @@ public class AutoQuoteCommand extends Command implements OnReactionAddListener {
             }
 
             boolean active = option == 1;
-            DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).setActive(active);
+            DBAutoQuote.getInstance().retrieve(event.getServer().get().getId()).setActive(active);
             event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
             return true;
         } else {
-            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive());
+            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().retrieve(event.getServer().get().getId()).isActive());
             message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText))).get();
             for(int i = 0; i < 2; i++) {
                 message.addReaction(StringUtil.getEmojiForBoolean(i == 1));
@@ -65,7 +65,7 @@ public class AutoQuoteCommand extends Command implements OnReactionAddListener {
             String str = StringUtil.getEmojiForBoolean(i == 1);
             if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 boolean active = i == 1;
-                DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).setActive(active);
+                DBAutoQuote.getInstance().retrieve(event.getServer().get().getId()).setActive(active);
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
                 removeReactionListener(getReactionMessage());
                 return;

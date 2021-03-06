@@ -1,6 +1,6 @@
 package mysql.modules.moderation;
 
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBMain;
 
 import java.sql.PreparedStatement;
@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Optional;
 
-public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
+public class DBModeration extends DBMapCache<Long, ModerationBean> {
 
     private static final DBModeration ourInstance = new DBModeration();
 
@@ -20,7 +20,7 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
     }
 
     @Override
-    protected ModerationBean loadBean(Long serverId) throws Exception {
+    protected ModerationBean load(Long serverId) throws Exception {
         ModerationBean moderationBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, autoKick, autoBan, autoKickDays, autoBanDays FROM Moderation WHERE serverId = ?;");
@@ -57,7 +57,7 @@ public class DBModeration extends DBBeanGenerator<Long, ModerationBean> {
     }
 
     @Override
-    protected void saveBean(ModerationBean moderationBean) {
+    protected void save(ModerationBean moderationBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, autoKick, autoBan, autoKickDays, autoBanDays) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, moderationBean.getGuildId());
 

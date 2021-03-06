@@ -67,8 +67,8 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(event.getServer().get().getId());
+        serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
         ignoredChannels = fisheryServerBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
         channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;
@@ -204,7 +204,7 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
             message.getCurrentCachedInstance().ifPresent(m -> m.edit(eb).exceptionally(ExceptionLogger.get()));
 
-            FisheryUserBean userBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(event.getUserId());
+            FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getUserId());
             MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
                 Random r = new Random();
                 String[] winLose = new String[]{ "win", "lose" };

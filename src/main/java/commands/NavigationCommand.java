@@ -7,6 +7,7 @@ import constants.Emojis;
 import constants.LetterEmojis;
 import constants.LogStatus;
 import constants.Response;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
 import core.utils.*;
@@ -16,14 +17,14 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class NavigationCommand extends Command implements OnTriggerListener, OnMessageInputListener, OnReactionListener {
@@ -45,11 +46,14 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
     protected void registerNavigationListener(GuildMessageReceivedEvent event, int reactions) throws Throwable {
         this.reactions = reactions;
-        processDraw(event.getChannel());
-        addNavigationEmojis(event.getChannel(), navigationMessageId);
-
-        registerMessageInputListener(event.getChannel(), event.getMember());
-        registerReactionListener(navigationMessageId, event.getMember());
+        processDraw(event.getChannel())
+                .exceptionally(ExceptionLogger.get())
+                .thenAccept(messageId -> {
+                    this.navigationMessageId = messageId;
+                    addNavigationEmojis(event.getChannel(), navigationMessageId);
+                    registerMessageInputListener(event.getChannel(), event.getMember());
+                    registerReactionListener(navigationMessageId, event.getMember());
+                });
     }
 
     @Override
@@ -85,7 +89,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     }
 
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
-        for(Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == state) {
                 try {
@@ -96,7 +100,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
             }
         }
 
-        for(Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == -1) {
                 try {
@@ -111,7 +115,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     }
 
     public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) throws Throwable {
-        for(Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             ControllerReaction c = method.getAnnotation(ControllerReaction.class);
             if (c != null && c.state() == state) {
                 try {
@@ -122,7 +126,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
             }
         }
 
-        for(Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             ControllerReaction c = method.getAnnotation(ControllerReaction.class);
             if (c != null && c.state() == -1) {
                 try {
@@ -137,7 +141,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     }
 
     public EmbedBuilder draw(JDA jda, int state) throws Throwable {
-        for(Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
                 try {
@@ -148,7 +152,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
             }
         }
 
-        for(Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == -1) {
                 try {
@@ -168,7 +172,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         ) {
             return -1;
         } else {
-            for(int i = 0; i < reactions; i++) {
+            for (int i = 0; i < reactions; i++) {
                 if (event.getReactionEmote().getAsReactionCode().equals(LetterEmojis.LETTERS[i])) {
                     return i;
                 }
@@ -199,7 +203,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         }
     }
 
-    private void processDraw(TextChannel channel) throws Throwable {
+    private CompletableFuture<Long> processDraw(TextChannel channel) throws Throwable {
         Locale locale = getLocale();
         EmbedBuilder eb = draw(channel.getJDA(), state);
 
@@ -232,10 +236,15 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         //TODO: Add support for dm navigation
         if (navigationMessageId < 0) {
             if (BotPermissionUtil.canWriteEmbed(channel)) {
-                navigationMessageId = channel.sendMessage(eb.build()).complete().getIdLong();
+                return channel.sendMessage(eb.build())
+                        .submit()
+                        .exceptionally(ExceptionLogger.get())
+                        .thenApply(ISnowflake::getIdLong);
             }
+            return CompletableFuture.failedFuture(new PermissionException("Missing permissions"));
         } else {
             channel.editMessageById(navigationMessageId, eb.build()).queue();
+            return CompletableFuture.completedFuture(navigationMessageId);
         }
     }
 
@@ -301,7 +310,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
 
-        for(Role role: roles) {
+        for (Role role : roles) {
             if (!role.getGuild().getSelfMember().canInteract(role)) {
                 unmanagableRoles.add(role);
             }
@@ -309,7 +318,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
         if (unmanagableRoles.size() == 0) {
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
-            for(Role role: roles) {
+            for (Role role : roles) {
                 if (!member.canInteract(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES)) {
                     forbiddenRoles.add(role);
                 }
@@ -332,9 +341,13 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         this.state = state;
     }
 
-    public int getState() { return state; }
+    public int getState() {
+        return state;
+    }
 
-    public String[] getOptions() { return options; }
+    public String[] getOptions() {
+        return options;
+    }
 
     public void setOptions(String[] options) {
         this.options = options;
@@ -370,17 +383,23 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
     @Retention(RetentionPolicy.RUNTIME)
     protected @interface ControllerMessage {
+
         int state() default -1;
+
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     protected @interface ControllerReaction {
+
         int state() default -1;
+
     }
 
     @Retention(RetentionPolicy.RUNTIME)
     protected @interface Draw {
+
         int state() default -1;
+
     }
 
 }

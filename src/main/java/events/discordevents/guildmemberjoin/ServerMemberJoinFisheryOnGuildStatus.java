@@ -15,7 +15,7 @@ public class ServerMemberJoinFisheryOnGuildStatus extends GuildMemberJoinAbstrac
     public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
         Server server = event.getServer();
 
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
+        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(server.getId());
         if (fisheryServerBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;
 

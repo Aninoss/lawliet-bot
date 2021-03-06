@@ -2,9 +2,6 @@ package mysql;
 
 import core.MainLogger;
 import mysql.interfaces.SQLFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;

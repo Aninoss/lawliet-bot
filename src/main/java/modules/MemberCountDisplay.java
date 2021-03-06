@@ -27,7 +27,7 @@ public class MemberCountDisplay {
     }
 
     public void manage(Locale locale, Guild guild) {
-        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(guild.getIdLong()).getMemberCountBeanSlots().values());
+        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().retrieve(guild.getIdLong()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {

@@ -56,7 +56,7 @@ public class HelpCommand extends Command implements OnNavigationListenerOld {
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         searchTerm = followedString;
         authorEvent = event;
-        commandManagementBean = DBCommandManagement.getInstance().getBean(event.getServer().get().getId());
+        commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getServer().get().getId());
         return true;
     }
 

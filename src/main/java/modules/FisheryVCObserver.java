@@ -43,7 +43,7 @@ public class FisheryVCObserver {
                 ShardManager.getInstance().getLocalGuilds().stream()
                         .filter(guild -> {
                             try {
-                                return DBServer.getInstance().getBean(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                                return DBServer.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
                             } catch (Throwable e) {
                                 MainLogger.get().error("Could not get server bean", e);
                             }
@@ -62,7 +62,7 @@ public class FisheryVCObserver {
     }
 
     private void manageVCFish(Guild guild, AtomicInteger actions) {
-        FisheryServerBean serverBean = DBFishery.getInstance().getBean(guild.getIdLong());
+        FisheryServerBean serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
 
         for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
             try {
@@ -95,7 +95,7 @@ public class FisheryVCObserver {
                     !voice.isDeafened() &&
                     !voice.isSelfMuted() &&
                     !voice.isSelfDeafened() &&
-                    !DBBannedUsers.getInstance().getBean().getUserIds().contains(member.getIdLong())
+                    !DBBannedUsers.getInstance().retrieve().getUserIds().contains(member.getIdLong())
             ) {
                 validMembers.add(member);
             }

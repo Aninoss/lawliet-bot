@@ -6,7 +6,7 @@ import constants.FisheryStatus;
 import constants.Locales;
 import core.ShardManager;
 import core.ResourceHandler;
-import mysql.DBBeanGenerator;
+import mysql.DBMapCache;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
 import java.io.File;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 
-public class DBServer extends DBBeanGenerator<Long, ServerBean> {
+public class DBServer extends DBMapCache<Long, ServerBean> {
 
     private static final DBServer ourInstance = new DBServer();
 
@@ -35,7 +35,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
             .build();
 
     @Override
-    protected ServerBean loadBean(Long serverId) throws Exception {
+    protected ServerBean load(Long serverId) throws Exception {
         int shard = ShardManager.getInstance().getResponsibleShard(serverId);
         if (shard < ShardManager.getInstance().getShardIntervalMin() || shard > ShardManager.getInstance().getShardIntervalMax())
             throw new Exception("Invalid server");
@@ -125,7 +125,7 @@ public class DBServer extends DBBeanGenerator<Long, ServerBean> {
     }
 
     @Override
-    protected void saveBean(ServerBean serverBean) {
+    protected void save(ServerBean serverBean) {
         DBMain.getInstance().asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
             preparedStatement.setLong(11, serverBean.getServerId());
 

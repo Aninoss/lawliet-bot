@@ -48,7 +48,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
         FisheryStatus status = serverBean.getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
@@ -69,7 +69,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
         server = event.getServer().get();
         userId = list.get(0).getId();
-        fisheryUserBean = DBFishery.getInstance().getBean(event.getServer().get().getId()).getUserBean(userId);
+        fisheryUserBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(userId);
 
         followedString = userMentions.getResultMessageString();
         if (followedString.length() > 0) {

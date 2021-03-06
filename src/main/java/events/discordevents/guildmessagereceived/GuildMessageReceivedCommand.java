@@ -11,7 +11,6 @@ import core.MainLogger;
 import core.utils.ExceptionUtil;
 import core.ShardManager;
 import core.utils.MentionUtil;
-import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
@@ -20,8 +19,6 @@ import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -32,7 +29,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
         String prefix = serverBean.getPrefix();
         String content = event.getMessage().getContent();
 
@@ -98,10 +95,10 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     private void checkAutoQuote(MessageCreateEvent event) throws ExecutionException {
         if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
-            ServerBean serverBean = DBServer.getInstance().getBean(event.getServer().get().getId());
+            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
             Locale locale = serverBean.getLocale();
-            ArrayList<Message> messages = MentionUtil.getMessagesFromLinks(event.getMessage(), event.getMessage().getContent()).getList();
-            if (messages.size() > 0 && DBAutoQuote.getInstance().getBean(event.getServer().get().getId()).isActive()) {
+            ArrayList<Message> messages = MentionUtil.getMessageWithLinks(event.getMessage(), event.getMessage().getContent()).getList();
+            if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getServer().get().getId()).isActive()) {
                 try {
                     for (int i = 0; i < Math.min(3, messages.size()); i++) {
                         Message message = messages.get(i);

@@ -43,7 +43,7 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        WhiteListedChannelsBean whiteListedChannelsBean = DBWhiteListedChannels.getInstance().getBean(event.getServer().get().getId());
+        WhiteListedChannelsBean whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getServer().get().getId());
         whiteListedChannels = whiteListedChannelsBean.getChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;

@@ -4,11 +4,11 @@ import core.CustomObservableMap;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleBeanGenerator;
+import mysql.DBSingleCache;
 
 import java.util.HashMap;
 
-public class DBReminders extends DBSingleBeanGenerator<CustomObservableMap<Integer, RemindersBean>> {
+public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, RemindersBean>> {
 
     private static final DBReminders ourInstance = new DBReminders();
 

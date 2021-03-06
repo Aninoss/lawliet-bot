@@ -6,7 +6,6 @@ import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
-import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -30,7 +29,7 @@ public class PrefixCommand extends Command {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 5) {
-                DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
+                DBServer.getInstance().retrieve(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
                     String nickname = server.getDisplayName(ShardManager.getInstance().getSelf()).trim();

@@ -34,7 +34,7 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
         User user = event.getMessageAuthor().asUser().get();
-        AutoClaimBean autoClaimBean = DBAutoClaim.getInstance().getBean();
+        AutoClaimBean autoClaimBean = DBAutoClaim.getInstance().retrieve();
 
         if (followedString.length() > 0) {
             int option = -1;
@@ -68,7 +68,7 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
             String str = StringUtil.getEmojiForBoolean(i == 1);
             if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 boolean active = i == 1;
-                DBAutoClaim.getInstance().getBean().setActive(event.getUserId(), active);
+                DBAutoClaim.getInstance().retrieve().setActive(event.getUserId(), active);
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active, event.getUser().get().getMentionTag()))).get();
                 removeReactionListener(getReactionMessage());
                 return;

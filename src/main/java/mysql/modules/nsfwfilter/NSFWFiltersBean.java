@@ -1,12 +1,12 @@
 package mysql.modules.nsfwfilter;
 
 import core.CustomObservableList;
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 
-public class NSFWFiltersBean extends BeanWithServer {
+public class NSFWFiltersBean extends BeanWithGuild {
 
     private final CustomObservableList<String> keywords;
 

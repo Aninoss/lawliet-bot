@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 public class MessageCache {
 
@@ -21,13 +22,15 @@ public class MessageCache {
             .expireAfterAccess(Duration.ofHours(1))
             .build();
 
-    public synchronized Message get(TextChannel channel, long messageId) {
+    public synchronized CompletableFuture<Message> get(TextChannel channel, long messageId) {
         if (cache.asMap().containsKey(messageId)) {
-            return cache.getIfPresent(messageId);
+            return CompletableFuture.completedFuture(cache.getIfPresent(messageId));
         } else {
-            Message message = channel.retrieveMessageById(messageId).complete();
-            cache.put(messageId, message);
-            return message;
+            return channel.retrieveMessageById(messageId).submit()
+                    .thenApply(message -> {
+                        cache.put(messageId, message);
+                        return message;
+                    });
         }
     }
 

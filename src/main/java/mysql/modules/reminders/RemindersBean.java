@@ -1,10 +1,10 @@
 package mysql.modules.reminders;
 
-import mysql.BeanWithServer;
+import mysql.BeanWithGuild;
 
 import java.time.Instant;
 
-public class RemindersBean extends BeanWithServer {
+public class RemindersBean extends BeanWithGuild {
 
     private final int id;
     private final long channelId;
