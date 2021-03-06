@@ -55,7 +55,7 @@ public class GiveawayScheduler {
     private void onGiveawayDue(GiveawayBean giveawayBean) {
         if (giveawayBean.isActive()) {
             ShardManager.getInstance().getLocalGuildById(giveawayBean.getGuildId())
-                    .map(guild -> guild.getTextChannelById(giveawayBean.getChannelId()))
+                    .map(guild -> guild.getTextChannelById(giveawayBean.getTextChannelId()))
                     .ifPresent(channel -> {
                         try {
                             processGiveawayUsers(channel, DBServer.getInstance().retrieve(channel.getGuild().getIdLong()), giveawayBean);
@@ -67,18 +67,17 @@ public class GiveawayScheduler {
     }
 
     private void processGiveawayUsers(TextChannel channel, GuildBean guildBean, GiveawayBean giveawayBean) {
-        giveawayBean.retrieveMessage().ifPresent(messageRestAction -> {
-            messageRestAction.queue(message -> {
-                for (MessageReaction reaction : message.getReactions()) {
-                    if (reaction.getReactionEmote().getAsReactionCode().equals(giveawayBean.getEmoji())) {
-                        reaction.retrieveUsers().queue(users ->
-                                processGiveaway(channel, guildBean, giveawayBean, message, new ArrayList<>(users))
-                        );
-                        break;
+        giveawayBean.retrieveMessage()
+                .thenAccept(message -> {
+                    for (MessageReaction reaction : message.getReactions()) {
+                        if (reaction.getReactionEmote().getAsReactionCode().equals(giveawayBean.getEmoji())) {
+                            reaction.retrieveUsers().queue(users ->
+                                    processGiveaway(channel, guildBean, giveawayBean, message, new ArrayList<>(users))
+                            );
+                            break;
+                        }
                     }
-                }
-            });
-        });
+                });
     }
 
     private void processGiveaway(TextChannel channel, GuildBean guildBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {

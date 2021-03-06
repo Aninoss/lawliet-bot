@@ -30,11 +30,20 @@ public class DiscordConnector {
         return ourInstance;
     }
 
+    private boolean started = false;
+
+    //TODO: Add SessionController for global rate limits
+    private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .setChunkingFilter(ChunkingFilter.ALL)
+            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
+            .disableCache(CacheFlag.ROLE_TAGS)
+            .setActivity(Activity.watching(getActivityText()))
+            .addEventListeners(new DiscordEventAdapter());
+
     private DiscordConnector() {
         ShardManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
     }
-
-    private boolean started = false;
 
     public void connect(int shardMin, int shardMax, int totalShards) {
         if (started) return;
@@ -45,12 +54,11 @@ public class DiscordConnector {
         FisheryVCObserver.getInstance().start();
 
         MainLogger.get().info("Bot is logging in...");
-        JDABuilder apiBuilder = createBuilder();
-        RestAction.setDefaultTimeout(10, TimeUnit.SECONDS);
+        RestAction.setDefaultTimeout(5, TimeUnit.SECONDS);
 
         for(int i = shardMin; i <= shardMax; i++) {
             try {
-                apiBuilder.useSharding(i, totalShards)
+                jdaBuilder.useSharding(i, totalShards)
                         .build();
             } catch (LoginException e) {
                 MainLogger.get().error("EXIT - Login exception", e);
@@ -63,23 +71,12 @@ public class DiscordConnector {
         MainLogger.get().info("Shard {} is getting reconnected...", shardId);
 
         try {
-            createBuilder().useSharding(shardId, ShardManager.getInstance().getTotalShards())
+            jdaBuilder.useSharding(shardId, ShardManager.getInstance().getTotalShards())
                     .build();
         } catch (LoginException e) {
             MainLogger.get().error("EXIT - Login exception", e);
             System.exit(1);
         }
-    }
-
-    private JDABuilder createBuilder() {
-        //TODO: Add SessionController for global rate limits
-        return JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .setChunkingFilter(ChunkingFilter.ALL)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
-                .disableCache(CacheFlag.ROLE_TAGS)
-                .setActivity(Activity.watching(getActivityText()))
-                .addEventListeners(new DiscordEventAdapter());
     }
 
     public void onJDAJoin(JDA jda) {
