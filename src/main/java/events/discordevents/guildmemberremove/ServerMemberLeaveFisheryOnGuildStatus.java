@@ -16,7 +16,7 @@ public class ServerMemberLeaveFisheryOnGuildStatus extends GuildMemberRemoveAbst
         Server server = event.getServer();
 
         FisheryServerBean fisheryServerBean = DBFishery.getInstance().getBean(server.getId());
-        if (fisheryServerBean.getServerBean().getFisheryStatus() == FisheryStatus.STOPPED)
+        if (fisheryServerBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;
 
         fisheryServerBean.getUserBean(event.getUser().getId()).setOnServer(false);

@@ -52,7 +52,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         requestor = event.getMessage().getUserAuthor().get();
         MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
         users = userMentions.getList();
-        followedString = StringUtil.trimString(userMentions.getResultMessageString());
+        followedString = userMentions.getResultMessageString().trim();
 
         if (users.size() == 0) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,

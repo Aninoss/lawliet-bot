@@ -227,7 +227,7 @@ public class ShardManager {
 
         int shard = getResponsibleShard(guildId);
         return getJDA(shard)
-                .flatMap(jda -> Optional.ofNullable(jda.getGuildById(guildId)));
+                .map(jda -> jda.getGuildById(guildId));
     }
 
     public List<Guild> getLocalMutualGuilds(User user) {

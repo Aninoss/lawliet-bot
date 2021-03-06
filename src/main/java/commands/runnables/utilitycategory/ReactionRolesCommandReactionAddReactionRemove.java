@@ -11,10 +11,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.PermissionDeprecated;
 import constants.Response;
-import core.EmbedFactory;
-import core.ShardManager;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import core.emojiconnection.EmojiConnection;
 import core.utils.DiscordUtil;
 import core.utils.MentionUtil;
@@ -560,8 +557,8 @@ public class ReactionRolesCommandReactionAddReactionRemove extends Command imple
         }
         removeRole = (hiddenNumber & 0x1) <= 0;
         multipleRoles = (hiddenNumber & 0x2) <= 0;
-        this.title = StringUtil.trimString(title.substring(3));
-        if (embed.getDescription().isPresent()) this.description = StringUtil.trimString(embed.getDescription().get());
+        this.title = title.substring(3).trim();
+        if (embed.getDescription().isPresent()) this.description = embed.getDescription().get().trim();
 
         emojiConnections = new ArrayList<>();
         checkRolesWithLog(MentionUtil.getRoles(editMessage, embed.getFields().get(0).getValue()).getList(), null);

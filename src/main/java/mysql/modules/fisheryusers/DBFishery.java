@@ -70,7 +70,7 @@ public class DBFishery extends DBBeanGenerator<Long, FisheryServerBean> implemen
     @Override
     protected synchronized void saveBean(FisheryServerBean fisheryServerBean) {
         try {
-            if (fisheryServerBean.getServerBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getServerBean().isSaved()) {
+            if (fisheryServerBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getGuildBean().isSaved()) {
                 DBBatch userBatch = new DBBatch("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 DBBatch hourlyBatch = new DBBatch("REPLACE INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (?, ?, ?, ?)");
                 DBBatch powerUpBatch = new DBBatch("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?)");

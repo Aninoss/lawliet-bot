@@ -11,9 +11,6 @@ import core.utils.StringUtil;
 import modules.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -95,8 +92,9 @@ public class RedditDownloader {
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
-        if (httpResponse.getContent().isEmpty())
+        if (httpResponse.getContent().isEmpty()) {
             return null;
+        }
 
         String dataString = httpResponse.getContent().get();
         if (!dataString.startsWith("{"))
@@ -167,7 +165,11 @@ public class RedditDownloader {
     private static RedditPost getPost(Locale locale, JSONObject data) {
         RedditPost post = new RedditPost();
 
-        String description = "", url = "", source = "", thumbnail = "", domain = "";
+        String description;
+        String url;
+        String source;
+        String thumbnail;
+        String domain = "";
         Object flair;
 
         if (data.has("subreddit_name_prefixed")) post.setSubreddit(data.getString("subreddit_name_prefixed"));

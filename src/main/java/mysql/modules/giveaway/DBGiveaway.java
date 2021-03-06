@@ -61,7 +61,7 @@ public class DBGiveaway extends DBSingleBeanGenerator<CustomObservableMap<Long, 
 
     private void addGiveawaySlot(GiveawayBean slot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, slot.getServerId());
+            preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMessageId());
             preparedStatement.setLong(3, slot.getChannelId());
             preparedStatement.setString(4, slot.getEmoji());

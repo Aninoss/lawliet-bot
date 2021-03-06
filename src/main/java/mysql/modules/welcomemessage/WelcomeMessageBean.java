@@ -51,13 +51,13 @@ public class WelcomeMessageBean extends BeanWithServer {
     }
 
     public Optional<ServerTextChannel> getWelcomeChannel() {
-        Optional<ServerTextChannel> channelOpt = getServer().map(server -> server.getTextChannelById(welcomeChannelId).orElseGet(() -> getDefaultChannel(server, true)));
+        Optional<ServerTextChannel> channelOpt = getGuild().map(server -> server.getTextChannelById(welcomeChannelId).orElseGet(() -> getDefaultChannel(server, true)));
         channelOpt.ifPresent(channel -> setWelcomeChannelId(channel.getId()));
         return channelOpt;
     }
 
     public Optional<ServerTextChannel> getGoodbyeChannel() {
-        Optional<ServerTextChannel> channelOpt = getServer().map(server -> server.getTextChannelById(goodbyeChannelId).orElseGet(() -> getDefaultChannel(server, false)));
+        Optional<ServerTextChannel> channelOpt = getGuild().map(server -> server.getTextChannelById(goodbyeChannelId).orElseGet(() -> getDefaultChannel(server, false)));
         channelOpt.ifPresent(channel -> setGoodbyeChannelId(channel.getId()));
         return channelOpt;
     }

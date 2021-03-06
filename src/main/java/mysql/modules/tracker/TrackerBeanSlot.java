@@ -32,7 +32,7 @@ public class TrackerBeanSlot extends BeanWithServer {
     public long getChannelId() { return channelId; }
 
     public Optional<TextChannel> getChannel() {
-        return getServer().flatMap(guild -> Optional.ofNullable(guild.getTextChannelById(channelId)));
+        return getGuild().map(guild -> guild.getTextChannelById(channelId));
     }
 
     public Optional<Long> getMessageId() {

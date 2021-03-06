@@ -61,7 +61,7 @@ public class TextAI {
                 int select = r.nextInt(sum);
 
                 int i = 0;
-                while (select >= 0) {
+                while (true) {
                     Map.Entry<String, ArrayList<Integer>> entry = values.get(i);
                     select -= entry.getValue().size();
                     if (select < 0) {

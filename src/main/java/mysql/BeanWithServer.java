@@ -15,7 +15,7 @@ public abstract class BeanWithServer extends Observable {
         this.guildId = guildId;
     }
 
-    public ServerBean getServerBean() {
+    public ServerBean getGuildBean() {
         return DBServer.getInstance().getBean(guildId);
     }
 
@@ -23,7 +23,7 @@ public abstract class BeanWithServer extends Observable {
         return guildId;
     }
 
-    public Optional<Guild> getServer() {
+    public Optional<Guild> getGuild() {
         return ShardManager.getInstance().getLocalGuildById(guildId);
     }
 

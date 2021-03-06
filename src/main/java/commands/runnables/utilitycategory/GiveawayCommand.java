@@ -498,7 +498,7 @@ public class GiveawayCommand extends Command implements OnNavigationListenerOld 
 
     private List<GiveawayBean> getGiveawaySlotsForServer() {
         return giveawayBeans.values().stream()
-                .filter(giveaway -> giveaway.getServerId() == serverId && giveaway.isActive() && giveaway.getMessage().isPresent())
+                .filter(giveaway -> giveaway.getGuildId() == serverId && giveaway.isActive() && giveaway.getMessage().isPresent())
                 .collect(Collectors.toList());
     }
 

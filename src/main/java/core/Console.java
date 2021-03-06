@@ -101,10 +101,10 @@ public class Console {
         for (int i = 3; i < args.length; i++) {
             message.append(" ").append(args[i]);
         }
-        String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
+        String text = message.toString().trim().replace("\\n", "\n");
 
         ShardManager.getInstance().getLocalGuildById(serverId)
-                .flatMap(server -> Optional.ofNullable(server.getTextChannelById(channelId)))
+                .map(guild -> guild.getTextChannelById(channelId))
                 .ifPresent(channel -> {
                     MainLogger.get().info("#{}: {}", channel.getName(), text);
                     channel.sendMessage(text).queue();
@@ -118,7 +118,7 @@ public class Console {
         }
 
         long userId = Long.parseLong(args[1]);
-        String text = StringUtil.trimString(message.toString()).replace("\\n", "\n");
+        String text = message.toString().trim().replace("\\n", "\n");
         ShardManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
             MainLogger.get().info("@{}: {}", user.getAsTag(), text);
             JDAUtil.sendPrivateMessage(user, text).queue();

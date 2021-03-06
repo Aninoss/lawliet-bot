@@ -65,7 +65,7 @@ public class GiveCommand extends FisheryAbstract {
         long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
 
         boolean limitCapped = false;
-        if (fisheryUser0.getServerBean().hasFisheryCoinsGivenLimit() && value >= cap) {
+        if (fisheryUser0.getGuildBean().hasFisheryCoinsGivenLimit() && value >= cap) {
             if (cap > 0) {
                 value = cap;
                 limitCapped = true;

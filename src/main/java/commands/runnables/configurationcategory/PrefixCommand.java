@@ -33,13 +33,13 @@ public class PrefixCommand extends Command {
                 DBServer.getInstance().getBean(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
-                    String nickname = StringUtil.trimString(server.getDisplayName(ShardManager.getInstance().getSelf()));
+                    String nickname = server.getDisplayName(ShardManager.getInstance().getSelf()).trim();
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
                         server.updateNickname(ShardManager.getInstance().getSelf(), nickname + " [" + followedString + "]");
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(ShardManager.getInstance().getSelf(), StringUtil.trimString(nicknameArray[0]) + " [" + followedString + "]");
+                        server.updateNickname(ShardManager.getInstance().getSelf(), nicknameArray[0].trim() + " [" + followedString + "]");
                     }
                 }
 

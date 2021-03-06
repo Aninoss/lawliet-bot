@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class AnimeReleaseDownloader {
 
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filterString) throws InterruptedException, ExecutionException {
-        final List<String> filter = Arrays.stream(filterString.split(",")).map(StringUtil::trimString).collect(Collectors.toList());
+        final List<String> filter = Arrays.stream(filterString.split(",")).map(String::trim).collect(Collectors.toList());
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 9 * 60).get();

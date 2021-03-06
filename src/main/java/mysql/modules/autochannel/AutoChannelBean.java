@@ -5,8 +5,6 @@ import core.MainLogger;
 import mysql.BeanWithServer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -35,7 +33,7 @@ public class AutoChannelBean extends BeanWithServer {
     }
 
     public Optional<ServerVoiceChannel> getParentChannel() {
-        return getServer().flatMap(server -> server.getVoiceChannelById(parentChannelId != null ? parentChannelId : 0L));
+        return getGuild().flatMap(server -> server.getVoiceChannelById(parentChannelId != null ? parentChannelId : 0L));
     }
 
     public boolean isActive() {

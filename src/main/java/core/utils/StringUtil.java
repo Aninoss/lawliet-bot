@@ -150,19 +150,6 @@ public final class StringUtil {
         return string;
     }
 
-    public static String trimString(String string) {
-        if (string.isEmpty()) return string;
-
-        while (string.length() > 0 && string.charAt(0) == ' ') {
-            string = string.substring(1);
-        }
-
-        while (string.length() > 0 && string.charAt(string.length() - 1) == ' ') {
-            string = string.substring(0, string.length()-1);
-        }
-        return string;
-    }
-
     public static String getBar(double value, int number) {
         String[] blocks = {"░","█"};
         double boxes = value*number;

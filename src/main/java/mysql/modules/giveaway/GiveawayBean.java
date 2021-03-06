@@ -1,9 +1,10 @@
 package mysql.modules.giveaway;
 
 import core.ShardManager;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.server.Server;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public class GiveawayBean extends Observable {
 
-    private final long serverId;
+    private final long guildId;
     private final long messageId;
     private final long channelId;
     private final String emoji;
@@ -24,8 +25,8 @@ public class GiveawayBean extends Observable {
     private final String imageUrl;
     private boolean active;
 
-    public GiveawayBean(long serverId, long channelId, long messageId, String emoji, int winners, Instant start, long durationMinutes, String title, String description, String imageUrl, boolean active) {
-        this.serverId = serverId;
+    public GiveawayBean(long guildId, long channelId, long messageId, String emoji, int winners, Instant start, long durationMinutes, String title, String description, String imageUrl, boolean active) {
+        this.guildId = guildId;
         this.messageId = messageId;
         this.channelId = channelId;
         this.emoji = emoji;
@@ -38,28 +39,28 @@ public class GiveawayBean extends Observable {
         this.active = active || getEnd().isAfter(Instant.now());
     }
 
-    public long getServerId() {
-        return serverId;
+    public long getGuildId() {
+        return guildId;
     }
 
-    public Optional<Server> getServer() {
-        return ShardManager.getInstance().getLocalGuildById(serverId);
+    public Optional<Guild> getGuild() {
+        return ShardManager.getInstance().getLocalGuildById(guildId);
     }
 
     public long getMessageId() {
         return messageId;
     }
 
-    public Optional<ServerTextChannel> getChannel() {
-        return getServer().flatMap(server -> server.getTextChannelById(channelId));
+    public Optional<TextChannel> getChannel() {
+        return getGuild().map(guild -> guild.getTextChannelById(channelId));
     }
 
     public long getChannelId() {
         return channelId;
     }
 
-    public Optional<Message> getMessage() {
-        return ShardManager.getInstance().getMessageById(serverId, channelId, messageId).join();
+    public Optional<RestAction<Message>> retrieveMessage() {
+        return getChannel().map(channel -> channel.retrieveMessageById(messageId));
     }
 
     public String getEmoji() {

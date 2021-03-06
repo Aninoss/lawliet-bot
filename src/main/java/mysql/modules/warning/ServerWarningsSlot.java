@@ -26,13 +26,13 @@ public class ServerWarningsSlot extends BeanWithServer {
 
     public long getUserId() { return userId; }
 
-    public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
+    public Optional<User> getUser() { return getGuild().flatMap(server -> server.getMemberById(userId)); }
 
     public Instant getTime() { return time; }
 
     public long getRequesterUserId() { return requesterUserId; }
 
-    public Optional<User> getRequesterUser() { return getServer().flatMap(server -> server.getMemberById(requesterUserId)); }
+    public Optional<User> getRequesterUser() { return getGuild().flatMap(server -> server.getMemberById(requesterUserId)); }
 
     public Optional<String> getReason() { return Optional.ofNullable(reason == null || reason.isEmpty() ? null : reason); }
 

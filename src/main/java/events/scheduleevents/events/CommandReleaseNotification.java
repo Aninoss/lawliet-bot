@@ -27,7 +27,7 @@ public class CommandReleaseNotification implements ScheduleInterface {
                         if (date.isEqual(LocalDate.now())) {
                             String message = "<@&703879430799622155> `L." + command.getTrigger() + "` is now publicly available!";
                             ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                                    .flatMap(guild -> Optional.ofNullable(guild.getTextChannelById(557960859792441357L)))
+                                    .map(guild -> guild.getTextChannelById(557960859792441357L))
                                     .ifPresent(channel -> channel.sendMessage(message).queue());
                         }
                     });

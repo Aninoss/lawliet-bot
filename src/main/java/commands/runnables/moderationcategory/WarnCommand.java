@@ -76,7 +76,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         }
 
         reason = userMentionList.getResultMessageString().replace("`", "");
-        reason = StringUtil.trimString(reason);
+        reason = reason.trim();
         if (reason.length() > CHAR_LIMIT) {
             message.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
             return false;

@@ -106,7 +106,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             return false;
         }
 
-        String messageText = StringUtil.trimString(text.toString());
+        String messageText = text.toString().trim();
         if (messageText.isEmpty()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("notext"))).get();
             return false;

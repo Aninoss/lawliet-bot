@@ -6,15 +6,14 @@ import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryServerBean;
 import mysql.modules.server.DBServer;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,17 +41,17 @@ public class FisheryVCObserver {
             while (intervalBlock.block()) {
                 AtomicInteger actions = new AtomicInteger(0);
                 ShardManager.getInstance().getLocalGuilds().stream()
-                        .filter(server -> {
+                        .filter(guild -> {
                             try {
-                                return DBServer.getInstance().getBean(server.getId()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                                return DBServer.getInstance().getBean(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
                             } catch (Throwable e) {
                                 MainLogger.get().error("Could not get server bean", e);
                             }
                             return false;
                         })
-                        .forEach(server -> {
+                        .forEach(guild -> {
                             try {
-                                manageVCFish(server, actions);
+                                manageVCFish(guild, actions);
                             } catch (Throwable e) {
                                 MainLogger.get().error("Could not manage vc fish observer", e);
                             }
@@ -62,18 +61,18 @@ public class FisheryVCObserver {
         }, "vc_observer", 1).start();
     }
 
-    private void manageVCFish(Server server, AtomicInteger actions) throws ExecutionException {
-        FisheryServerBean serverBean = DBFishery.getInstance().getBean(server.getId());
+    private void manageVCFish(Guild guild, AtomicInteger actions) {
+        FisheryServerBean serverBean = DBFishery.getInstance().getBean(guild.getIdLong());
 
-        for (ServerVoiceChannel voiceChannel : server.getVoiceChannels()) {
+        for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
             try {
-                ArrayList<User> validUsers = getValidVCMembers(server, voiceChannel);
-                if (validUsers.size() > (Bot.isProductionMode() ? 1 : 0) &&
-                        (server.getAfkChannel().isEmpty() || voiceChannel.getId() != server.getAfkChannel().get().getId())
+                List<Member> validMembers = getValidVCMembers(voiceChannel);
+                if (validMembers.size() > (Bot.isProductionMode() ? 1 : 0) &&
+                        (guild.getAfkChannel() != null || voiceChannel.getIdLong() != guild.getAfkChannel().getIdLong())
                 ) {
-                    validUsers.forEach(user -> {
+                    validMembers.forEach(member -> {
                         try {
-                            serverBean.getUserBean(user.getId()).registerVC(VC_CHECK_INTERVAL_MIN);
+                            serverBean.getUserBean(member.getIdLong()).registerVC(VC_CHECK_INTERVAL_MIN);
                             actions.incrementAndGet();
                         } catch (ExecutionException e) {
                             MainLogger.get().error("Exception when registering vc", e);
@@ -86,11 +85,12 @@ public class FisheryVCObserver {
         }
     }
 
-    public static ArrayList<Member> getValidVCMembers(VoiceChannel voiceChannel) {
+    public static List<Member> getValidVCMembers(VoiceChannel voiceChannel) {
         ArrayList<Member> validMembers = new ArrayList<>();
         for (Member member : voiceChannel.getMembers()) {
             GuildVoiceState voice = member.getVoiceState();
-            if (!member.getUser().isBot() &&
+            if (voice != null &&
+                    !member.getUser().isBot() &&
                     !voice.isMuted() &&
                     !voice.isDeafened() &&
                     !voice.isSelfMuted() &&
@@ -101,7 +101,7 @@ public class FisheryVCObserver {
             }
         }
 
-        return validMembers;
+        return Collections.unmodifiableList(validMembers);
     }
 
 }

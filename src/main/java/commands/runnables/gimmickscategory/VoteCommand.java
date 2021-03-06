@@ -41,11 +41,11 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        followedString = StringUtil.trimString(followedString.replace("\n", ""));
+        followedString = followedString.replace("\n", "").trim();
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String[] args = followedString.split("\\|");
         if (args.length >= 3 && args.length <= 13) {
-            String topic = StringUtil.trimString(args[0]);
+            String topic = args[0].trim();
 
             if (topic.length() == 0) {
                 event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_topic")));
@@ -79,7 +79,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
         for(int i=0; i < voteInfo.getSize(); i++) {
             answerText.append(LetterEmojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
-            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int)(voteInfo.getPercantage(i)*100)).append("% 】").append("\n");
+            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(),12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int)(voteInfo.getPercentage(i)*100)).append("% 】").append("\n");
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))

@@ -1,26 +1,30 @@
 package modules;
 
 import constants.AssetIds;
+import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.util.logging.ExceptionLogger;
+import core.utils.JDAUtil;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 
 public class LinkFilter {
 
     public static boolean check(Message message) {
-        Server server = message.getServer().get();
-        ServerTextChannel channel = message.getServerTextChannel().get();
+        Guild guild = message.getGuild();
 
-        if ((server.getId() == AssetIds.ANICORD_SERVER_ID || server.getId() == AssetIds.SUPPORT_SERVER_ID) &&
-                !channel.canEmbedLinks(message.getUserAuthor().get()) &&
-                InternetUtil.stringHasURL(message.getContent(), false)
+        if ((guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID) &&
+                !BotPermissionUtil.can(message.getMember(), Permission.MESSAGE_EMBED_LINKS) &&
+                InternetUtil.stringHasURL(message.getContentRaw(), false)
         ) {
-            message.delete().exceptionally(ExceptionLogger.get());
-            if (server.getId() == AssetIds.ANICORD_SERVER_ID) {
-                message.getUserAuthor().get().sendMessage("⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>").exceptionally(ExceptionLogger.get());
-                message.getServer().get().getTextChannelById(462420339364724751L).get().sendMessage("LINK BLOCK FOR " + message.getUserAuthor().get().getDiscriminatedName() + " IN " + message.getServerTextChannel().get().getMentionTag() + ": " + message.getContent()).exceptionally(ExceptionLogger.get());
+            message.delete().queue();
+            if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {
+                JDAUtil.sendPrivateMessage(message.getMember(),
+                        "⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>"
+                ).queue();
+                message.getGuild().getTextChannelById(462420339364724751L)
+                        .sendMessage("LINK BLOCK FOR " + message.getAuthor().getAsTag() + " IN " + message.getTextChannel().getAsMention() + ": " + message.getContentRaw())
+                        .queue();
             }
             return false;
         }

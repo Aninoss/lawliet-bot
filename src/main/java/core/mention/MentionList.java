@@ -18,6 +18,6 @@ public class MentionList<E> {
     }
 
     public String getResultMessageString() {
-        return StringUtil.trimString(resultMessageString);
+        return resultMessageString.trim();
     }
 }

@@ -11,8 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import mysql.modules.fisheryusers.DBFishery;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -76,7 +75,7 @@ public abstract class DBBeanGenerator<T, U extends Observable> extends DBCached 
         ArrayList<U> tempList = new ArrayList<>(changed);
         changed = new ArrayList<>();
         tempList.stream()
-                .filter(value -> !(value instanceof BeanWithServer) || ((BeanWithServer)value).getServerBean().isSaved())
+                .filter(value -> !(value instanceof BeanWithServer) || ((BeanWithServer)value).getGuildBean().isSaved())
                 .forEach(value -> {
                     try {
                         saveBean(value);

@@ -85,7 +85,7 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
 
     private void addSuggestionMessage(SuggestionMessage suggestionMessage) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, content, author) VALUES (?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, suggestionMessage.getServerId());
+            preparedStatement.setLong(1, suggestionMessage.getGuildId());
             preparedStatement.setLong(2, suggestionMessage.getMessageId());
             preparedStatement.setString(3, suggestionMessage.getContent());
             preparedStatement.setString(4, suggestionMessage.getAuthor());
@@ -94,7 +94,7 @@ public class DBSuggestions extends DBBeanGenerator<Long, SuggestionsBean> {
 
     private void removeSuggestionMessage(SuggestionMessage suggestionMessage) {
         DBMain.getInstance().asyncUpdate("DELETE FROM SuggestionMessages WHERE serverId = ? AND messageId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, suggestionMessage.getServerId());
+            preparedStatement.setLong(1, suggestionMessage.getGuildId());
             preparedStatement.setLong(2, suggestionMessage.getMessageId());
         });
     }

@@ -1,17 +1,15 @@
 package modules;
 
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
-import constants.PermissionDeprecated;
-import core.ShardManager;
 import core.PermissionCheckRuntime;
 import core.QuickUpdater;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.requests.RestAction;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -28,36 +26,33 @@ public class MemberCountDisplay {
     private MemberCountDisplay() {
     }
 
-    public void manage(Locale locale, Server server) {
-        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(server.getId()).getMemberCountBeanSlots().values());
+    public void manage(Locale locale, Guild guild) {
+        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().getBean(guild.getIdLong()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
-                QuickUpdater.getInstance().update(
-                        "member_count_displays",
-                        voiceChannel.getId(),
-                        () -> {
-                            Server s = ShardManager.getInstance().getLocalGuildById(server.getId()).get();
-                            ServerVoiceChannel vc = s.getVoiceChannelById(voiceChannel.getId()).get();
-
-                            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, vc, PermissionDeprecated.MANAGE_CHANNEL | PermissionDeprecated.CONNECT)) {
-                                String newVCName = generateNewVCName(s, display.getMask());
-                                if (!newVCName.equals(vc.getName())) {
-                                    return vc.createUpdater()
-                                            .setName(newVCName)
-                                            .update();
-                                }
-                            }
-                            return null;
-                        }
-                );
+                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
+                    String newVCName = generateNewVCName(guild, display.getMask());
+                    rename(voiceChannel, newVCName);
+                }
             });
         }
     }
 
-    public static String generateNewVCName(Server server, String name) {
-        long members = server.getMemberCount();
-        long botMembers = server.getMembers().stream().filter(User::isBot).count();
-        int boosts = server.getBoostCount();
+    private void rename(VoiceChannel voiceChannel, String newVCName) {
+        RestAction<Void> restAction = voiceChannel.getManager()
+                .setName(newVCName);
+
+        QuickUpdater.getInstance().update(
+                "member_count_displays",
+                voiceChannel.getId(),
+                restAction
+        ).queue();
+    }
+
+    public static String generateNewVCName(Guild guild, String name) {
+        long members = guild.getMemberCount();
+        long botMembers = guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
+        int boosts = guild.getBoostCount();
 
         return replaceVariables(
                 name,

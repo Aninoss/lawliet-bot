@@ -10,7 +10,7 @@ import core.internet.HttpRequest;
 import core.internet.HttpResponse;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import modules.YouTubePlayer;
+import modules.YouTubeMeta;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
@@ -52,7 +52,7 @@ public class YouTubeMP3Command extends Command {
         if (followedString.contains("&"))
             followedString = followedString.split("&")[0];
 
-        Optional<AudioTrackInfo> metaOpt = YouTubePlayer.getInstance().meta(followedString);
+        Optional<AudioTrackInfo> metaOpt = YouTubeMeta.getInstance().getFromVideoURL(followedString);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), followedString))).get();
             return false;

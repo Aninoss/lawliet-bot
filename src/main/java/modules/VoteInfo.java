@@ -1,7 +1,5 @@
 package modules;
 
-import core.utils.StringUtil;
-
 import java.util.*;
 
 public class VoteInfo {
@@ -18,7 +16,7 @@ public class VoteInfo {
         this.creatorId = creatorId;
 
         for(int i=0; i < choices.length; i++) {
-            choices[i] = StringUtil.trimString(choices[i]);
+            choices[i] = choices[i].trim();
         }
         this.choices = choices;
     }
@@ -75,7 +73,7 @@ public class VoteInfo {
         return getUserVotes()[i];
     }
 
-    public double getPercantage(int i) {
+    public double getPercentage(int i) {
         return getUserVotes(i) / (double) getTotalVotes();
     }
 

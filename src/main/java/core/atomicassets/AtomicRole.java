@@ -29,7 +29,7 @@ public class AtomicRole implements AtomicAsset<Role> {
     @Override
     public Optional<Role> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
-                .flatMap(guild -> Optional.ofNullable(guild.getRoleById(roleId)));
+                .map(guild -> guild.getRoleById(roleId));
     }
 
     @Override

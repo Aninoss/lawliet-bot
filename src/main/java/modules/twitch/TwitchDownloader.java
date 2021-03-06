@@ -9,7 +9,6 @@ import core.utils.InternetUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +29,7 @@ public class TwitchDownloader {
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public Optional<TwitchUser> load(@NonNull String channelName) throws InterruptedException, UnsupportedEncodingException, ExecutionException {
+                        public Optional<TwitchUser> load(@NonNull String channelName) throws InterruptedException, ExecutionException {
                             return getTwitchUser(channelName);
                         }
                     });

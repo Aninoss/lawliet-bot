@@ -6,8 +6,6 @@ import com.google.common.cache.LoadingCache;
 import core.MainLogger;
 import core.Security;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
@@ -43,7 +41,7 @@ public class ExchangeRate {
                         if (Math.abs(d - 0.5) < Math.abs(result - 0.5)) result = d;
                     }
 
-                    return (int) Math.round(100 * (0.5 + result * 1.0));
+                    return (int) Math.round(100 * (0.5 + result));
                 }
             });
 

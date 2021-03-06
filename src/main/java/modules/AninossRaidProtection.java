@@ -1,12 +1,11 @@
 package modules;
 
 import constants.AssetIds;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 public class AninossRaidProtection {
 
@@ -19,21 +18,20 @@ public class AninossRaidProtection {
     private AninossRaidProtection() {
     }
 
-    private User lastUser = null;
+    private Member lastMember = null;
     private Instant lastInstant = null;
 
-    public synchronized boolean check(User user, Role role) {
-        if (role.getServer().getId() != AssetIds.ANICORD_SERVER_ID)
+    public synchronized boolean check(Member member, Role role) {
+        if (role.getGuild().getIdLong() != AssetIds.ANICORD_SERVER_ID)
             return true;
 
-        boolean ok = lastUser == null || lastInstant == null || lastInstant.plus(1, ChronoUnit.MINUTES).isBefore(Instant.now());
+        boolean ok = lastMember == null || lastInstant == null || lastInstant.plus(1, ChronoUnit.MINUTES).isBefore(Instant.now());
         if (!ok) {
-            role.getServer().getMemberById(lastUser.getId()).ifPresent(u -> {
-                role.removeUser(u).exceptionally(ExceptionLogger.get());
-            });
+            Optional.ofNullable(role.getGuild().getMemberById(lastMember.getId()))
+                    .ifPresent(m -> role.getGuild().removeRoleFromMember(m, role).queue());
         }
 
-        lastUser = user;
+        lastMember = member;
         lastInstant = Instant.now();
         return ok;
     }

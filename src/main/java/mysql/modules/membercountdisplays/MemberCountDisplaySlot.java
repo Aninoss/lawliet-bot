@@ -1,7 +1,7 @@
 package mysql.modules.membercountdisplays;
 
 import core.ShardManager;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import java.util.Optional;
 
 public class MemberCountDisplaySlot {
@@ -19,8 +19,8 @@ public class MemberCountDisplaySlot {
         return voiceChannelId;
     }
 
-    public Optional<ServerVoiceChannel> getVoiceChannel() {
-        return ShardManager.getInstance().getLocalGuildById(serverId).flatMap(server -> server.getVoiceChannelById(voiceChannelId));
+    public Optional<VoiceChannel> getVoiceChannel() {
+        return ShardManager.getInstance().getLocalGuildById(serverId).map(guild -> guild.getVoiceChannelById(voiceChannelId));
     }
 
     public String getMask() {

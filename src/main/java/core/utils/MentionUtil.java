@@ -122,7 +122,7 @@ public class MentionUtil {
                 break;
         }
 
-        content = StringUtil.trimString(content);
+        content = content.trim();
         return new MentionList<>(content, mentionList);
     }
 
@@ -163,25 +163,25 @@ public class MentionUtil {
             }
             if (string.contains("\n")) {
                 for (String part : string.split("\n")) {
-                    part = StringUtil.trimString(part);
+                    part = part.trim();
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("@")) {
                 for (String part : string.split("@")) {
-                    part = StringUtil.trimString(part);
+                    part = part.trim();
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains(",")) {
                 for (String part : string.split(",")) {
-                    part = StringUtil.trimString(part);
+                    part = part.trim();
                     if (part.length() > 0) list.add(part);
                 }
             }
             if (string.contains("|")) {
                 for (String part : string.split("\\|")) {
-                    part = StringUtil.trimString(part);
+                    part = part.trim();
                     if (part.length() > 0) list.add(part);
                 }
             }

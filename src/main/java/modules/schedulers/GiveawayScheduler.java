@@ -4,22 +4,20 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
 import constants.Emojis;
-import constants.PermissionDeprecated;
 import core.*;
 import core.schedule.MainScheduler;
-import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.ServerBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.Reaction;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import org.apache.http.ExceptionLogger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,11 +54,11 @@ public class GiveawayScheduler {
 
     private void onGiveawayDue(GiveawayBean giveawayBean) {
         if (giveawayBean.isActive()) {
-            ShardManager.getInstance().getLocalGuildById(giveawayBean.getServerId())
-                    .flatMap(server -> server.getTextChannelById(giveawayBean.getChannelId()))
+            ShardManager.getInstance().getLocalGuildById(giveawayBean.getGuildId())
+                    .map(guild -> guild.getTextChannelById(giveawayBean.getChannelId()))
                     .ifPresent(channel -> {
                         try {
-                            processGiveawayUsers(channel, DBServer.getInstance().getBean(channel.getServer().getId()), giveawayBean);
+                            processGiveawayUsers(channel, DBServer.getInstance().getBean(channel.getGuild().getIdLong()), giveawayBean);
                         } catch (Throwable e) {
                             MainLogger.get().error("Error in giveaway", e);
                         }
@@ -68,42 +66,51 @@ public class GiveawayScheduler {
         }
     }
 
-    private void processGiveawayUsers(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) {
-        ShardManager.getInstance().getMessageById(channel, giveawayBean.getMessageId())
-                .thenAccept(messageOpt -> messageOpt.ifPresent(message -> {
-                    for (Reaction reaction : message.getReactions()) {
-                        if (DiscordUtil.emojiIsString(reaction.getEmoji(), giveawayBean.getEmoji())) {
-                            reaction.getUsers().thenAccept(users -> processGiveaway(channel, serverBean, giveawayBean, message, new ArrayList<>(users)));
-                            break;
-                        }
+    private void processGiveawayUsers(TextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) {
+        giveawayBean.retrieveMessage().ifPresent(messageRestAction -> {
+            messageRestAction.queue(message -> {
+                for (MessageReaction reaction : message.getReactions()) {
+                    if (reaction.getReactionEmote().getAsReactionCode().equals(giveawayBean.getEmoji())) {
+                        reaction.retrieveUsers().queue(users ->
+                                processGiveaway(channel, serverBean, giveawayBean, message, new ArrayList<>(users))
+                        );
+                        break;
                     }
-                }));
+                }
+            });
+        });
     }
 
-    private void processGiveaway(ServerTextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {
-        users.removeIf(user -> user.isBot() || channel.getServer().getMemberById(user.getId()).isEmpty());
+    private void processGiveaway(TextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {
+        users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
         Collections.shuffle(users);
         List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
 
         StringBuilder mentions = new StringBuilder();
         for (User user : winners) {
-            mentions.append(user.getMentionTag()).append(" ");
+            mentions.append(user.getAsMention()).append(" ");
         }
 
-        CommandProperties commandProps = Command.getClassProperties(GiveawayCommand.class);
+        CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
                 .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
         giveawayBean.getImageUrl().ifPresent(eb::setImage);
-        if (winners.size() > 0)
-            eb.addField(Emojis.EMPTY_EMOJI, new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getDiscriminatedName()) + "**"));
-        else
+        if (winners.size() > 0) {
+            eb.addField(
+                    Emojis.EMPTY_EMOJI,
+                    new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
+                    false
+            );
+        } else {
             eb.setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results_empty"));
+        }
 
         giveawayBean.stop();
-        message.edit(mentions.toString(), eb).exceptionally(ExceptionLogger.get());
-        if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, PermissionDeprecated.READ_MESSAGE_HISTORY | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS))
-            channel.sendMessage(mentions.toString()).thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
+        message.editMessage(new EmbedWithContent(mentions.toString(), eb.build()).build()).queue();
+        if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
+            channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
+        }
     }
 
 }

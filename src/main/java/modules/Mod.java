@@ -5,6 +5,7 @@ import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
 import core.*;
+import core.utils.JDAUtil;
 import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
@@ -12,10 +13,9 @@ import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningsBean;
 import mysql.modules.warning.ServerWarningsSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import org.apache.http.ExceptionLogger;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -29,18 +29,18 @@ public class Mod {
     private static final String EMOJI_AUTOMOD = "👷";
 
     public static void insertWarning(Locale locale, Guild guild, Member member, Member requestor, String reason, boolean withAutoActions) throws ExecutionException {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(server.getId(), user.getId()));
+        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().getBean(new Pair<>(guild.getIdLong(), member.getIdLong()));
         serverWarningsBean.getWarnings().add(new ServerWarningsSlot(
-                        server.getId(),
-                        user.getId(),
+                        guild.getIdLong(),
+                        member.getIdLong(),
                         Instant.now(),
-                        requestor.getId(),
+                        requestor.getIdLong(),
                         reason == null || reason.isEmpty() ? null : reason
                 )
         );
 
         if (withAutoActions) {
-            ModerationBean moderationBean = DBModeration.getInstance().getBean(server.getId());
+            ModerationBean moderationBean = DBModeration.getInstance().getBean(guild.getIdLong());
 
             int autoKickDays = moderationBean.getAutoKickDays();
             int autoBanDays = moderationBean.getAutoBanDays();
@@ -48,30 +48,22 @@ public class Mod {
             boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
             boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
 
-            if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, PermissionDeprecated.BAN_MEMBERS) && server.canYouBanUser(user)) {
+            if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) && guild.getSelfMember().canInteract(member)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", user.getDisplayName(server)));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", member.getEffectiveName()));
 
-                try {
-                    postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean, user).thenRun(() -> {
-                        server.banUser(user, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).exceptionally(ExceptionLogger.get());
-                    });
-                } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    MainLogger.get().error("Error when creating command class");
-                }
-            } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, server, PermissionDeprecated.KICK_MEMBERS) && server.canYouKickUser(user)) {
+                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, moderationBean, member).thenRun(() -> {
+                    guild.ban(member, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
+                });
+            } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) && guild.getSelfMember().canInteract(member)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", user.getDisplayName(server)));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", member.getEffectiveName()));
 
-                try {
-                    postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getServerBean().getPrefix()), eb, moderationBean, user).thenRun(() -> {
-                        server.kickUser(user, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).exceptionally(ExceptionLogger.get());
-                    });
-                } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    MainLogger.get().error("Error when creating command class");
-                }
+                postLog(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, moderationBean, member).thenRun(() -> {
+                    guild.kick(member, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
+                });
             }
         }
     }
@@ -84,30 +76,27 @@ public class Mod {
         return postLog(command, eb, DBModeration.getInstance().getBean(guild.getIdLong()), members);
     }
 
-    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, User user) {
-        return postLog(command, eb, moderationBean, Collections.singletonList(user));
+    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, Member member) {
+        return postLog(command, eb, moderationBean, Collections.singletonList(member));
     }
 
-    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, List<User> users) {
+    public static CompletableFuture<Void> postLog(Command command, EmbedBuilder eb, ModerationBean moderationBean, List<Member> members) {
         eb.setFooter("");
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         GlobalThreadPool.getExecutorService().submit(() -> {
-            users.forEach(user -> {
-                if (!user.isBot()) {
-                    user.sendMessage(eb)
-                            .exceptionally(e -> null)
-                            .join();
+            members.forEach(member -> {
+                if (!member.getUser().isBot()) {
+                    JDAUtil.sendPrivateMessage(member, eb.build()).complete();
                 }
             });
             future.complete(null);
         });
 
-        moderationBean.getAnnouncementChannel().ifPresent(serverTextChannel -> {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), serverTextChannel, PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS)) {
-                serverTextChannel.sendMessage(eb)
-                        .exceptionally(e -> null)
-                        .join();
+        moderationBean.getAnnouncementChannel().ifPresent(channel -> {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+                channel.sendMessage(eb.build())
+                        .complete();
             }
         });
 

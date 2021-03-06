@@ -28,7 +28,7 @@ public class ServerWarningsBean extends BeanWithServer {
 
     public long getUserId() { return userId; }
 
-    public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
+    public Optional<User> getUser() { return getGuild().flatMap(server -> server.getMemberById(userId)); }
 
     public CustomObservableList<ServerWarningsSlot> getWarnings() { return warnings; }
 

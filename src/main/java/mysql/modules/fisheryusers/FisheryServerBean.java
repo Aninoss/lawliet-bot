@@ -34,7 +34,7 @@ public class FisheryServerBean extends BeanWithServer {
     public CustomObservableList<Long> getRoleIds() { return roleIds; }
 
     public CustomObservableList<Role> getRoles() {
-        CustomObservableList<Role> roles = roleIds.transform(roleIds -> getServer().get().getRoleById(roleIds), DiscordEntity::getId);
+        CustomObservableList<Role> roles = roleIds.transform(roleIds -> getGuild().get().getRoleById(roleIds), DiscordEntity::getId);
         roles.sort(Comparator.comparingInt(Role::getPosition));
         return roles;
     }

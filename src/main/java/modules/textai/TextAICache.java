@@ -44,20 +44,11 @@ public class TextAICache {
     }
 
     private String generateKey(long serverId, int contextSize) {
-        StringBuilder sb = new StringBuilder()
-                .append(serverId)
-                .append(contextSize);
-
-        return sb.toString();
+        return String.valueOf(serverId) + contextSize;
     }
 
     private String generateKey(long serverId, long userId, int contextSize) {
-        StringBuilder sb = new StringBuilder()
-                .append(serverId)
-                .append(userId)
-                .append(contextSize);
-
-        return sb.toString();
+        return String.valueOf(serverId) + userId + contextSize;
     }
 
 }

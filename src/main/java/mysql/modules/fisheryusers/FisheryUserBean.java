@@ -80,7 +80,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public long getUserId() { return userId; }
 
-    public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
+    public Optional<User> getUser() { return getGuild().flatMap(server -> server.getMemberById(userId)); }
 
     public List<Role> getRoles() {
         ArrayList<Role> userRoles = new ArrayList<>();
@@ -93,7 +93,7 @@ public class FisheryUserBean extends BeanWithServer {
         }
 
         if (level > 0) {
-            if (fisheryServerBean.getServerBean().isFisherySingleRoles()) {
+            if (fisheryServerBean.getGuildBean().isFisherySingleRoles()) {
                 Role role = allRoles.get(level - 1);
                 if (role != null)
                     userRoles.add(role);
@@ -294,15 +294,15 @@ public class FisheryUserBean extends BeanWithServer {
                 Optional<User> userOpt = getUser();
                 if (fish >= 100 &&
                         !reminderSent &&
-                        getServerBean().isFisheryReminders() &&
+                        getGuildBean().isFisheryReminders() &&
                         channel.canYouWrite() &&
                         channel.canYouEmbedLinks() &&
                         userOpt.isPresent()
                 ) {
                     reminderSent = true;
                     User user = userOpt.get();
-                    Locale locale = getServerBean().getLocale();
-                    String prefix = getServerBean().getPrefix();
+                    Locale locale = getGuildBean().getLocale();
+                    String prefix = getGuildBean().getPrefix();
 
                     Message message1 = channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbedDefault()
                             .setAuthor(user)
@@ -321,7 +321,7 @@ public class FisheryUserBean extends BeanWithServer {
 
     public void registerVC(int minutes) throws ExecutionException {
         if (!banned) {
-            Optional<Integer> limitOpt = getServerBean().getFisheryVcHoursCap();
+            Optional<Integer> limitOpt = getGuildBean().getFisheryVcHoursCap();
             if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getGuildId()))
                 minutes = Math.min(minutes, limitOpt.get() * 60 - getVcMinutes());
 
@@ -415,9 +415,9 @@ public class FisheryUserBean extends BeanWithServer {
         long rank = getRank();
 
         /* Generate Account Embed */
-        Optional<Server> serverOpt = getServer();
+        Optional<Server> serverOpt = getGuild();
         Optional<User> userOpt = serverOpt.flatMap(server -> server.getMemberById(userId));
-        Locale locale = getServerBean().getLocale();
+        Locale locale = getGuildBean().getLocale();
 
         return userOpt
                 .map(user -> generateUserChangeEmbed(serverOpt.get(), user, locale, fishAdd, coinsAdd, rank, rankPrevious, fishIncomePrevious, fishPrevious, coinsPrevious, newDailyStreak, dailyStreakPrevious))

@@ -49,9 +49,9 @@ public class AutoChannelRepair {
 
     private void deleteEmptyVoiceChannels(Guild guild) {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().getBean(guild.getIdLong());
-        Locale locale = autoChannelBean.getServerBean().getLocale();
+        Locale locale = autoChannelBean.getGuildBean().getLocale();
         autoChannelBean.getChildChannelIds().transform(guild::getVoiceChannelById, ISnowflake::getIdLong).stream()
-                .filter(vc -> vc.getMembers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getServerBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT))
+                .filter(vc -> vc.getMembers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT))
                 .forEach(vc -> vc.delete().reason(TextManager.getString(locale, Category.UTILITY, "autochannel_title")).queue());
     }
 

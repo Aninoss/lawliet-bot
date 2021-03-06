@@ -127,7 +127,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
             if (currentResponse == null) return null;
             if (!cont) return currentResponse;
 
-            searchTerm = StringUtil.trimString(searchTerm.substring(arg.length()));
+            searchTerm = searchTerm.substring(arg.length()).trim();
         }
     }
 

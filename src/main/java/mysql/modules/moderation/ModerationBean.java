@@ -1,7 +1,7 @@
 package mysql.modules.moderation;
 
 import mysql.BeanWithServer;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Optional;
 
@@ -28,8 +28,8 @@ public class ModerationBean extends BeanWithServer {
         return Optional.ofNullable(announcementChannelId);
     }
 
-    public Optional<ServerTextChannel> getAnnouncementChannel() {
-        return getServer().flatMap(server -> server.getTextChannelById(announcementChannelId != null ? announcementChannelId : 0L));
+    public Optional<TextChannel> getAnnouncementChannel() {
+        return getGuild().map(guild -> guild.getTextChannelById(announcementChannelId != null ? announcementChannelId : 0L));
     }
 
     public boolean isQuestion() {

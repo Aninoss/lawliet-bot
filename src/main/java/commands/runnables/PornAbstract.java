@@ -64,7 +64,7 @@ public abstract class PornAbstract extends Command {
         long amount = 1;
         if (m.find()) {
             String group = m.group();
-            followedString = StringUtil.trimString(followedString.replaceFirst(group, "").replace("  ", " "));
+            followedString = followedString.replaceFirst(group, "").replace("  ", " ").trim();
             amount = Long.parseLong(group);
             int patreonLevel = PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId());
             if (patreonLevel <= 1 && (amount < 1 || amount > 20)) {

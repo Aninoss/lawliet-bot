@@ -83,7 +83,7 @@ public class PornImageDownloader {
         String url = "https://" + domain + "/index.php?page=dapi&s=post&q=index&json=1&tags=" + searchTerm + "&pid=" + page;
         HttpResponse httpResponse = InternetCache.getDataShortLived(url).get();
 
-        if (!httpResponse.getContent().isPresent()) {
+        if (httpResponse.getContent().isEmpty()) {
             return Optional.empty();
         }
 

@@ -1,22 +1,21 @@
 package core.atomicassets;
 
 import core.ShardManager;
-import net.dv8tion.jda.api.entities.TextChannel;
-
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AtomicTextChannel implements AtomicAsset<TextChannel> {
+public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
 
     private final long guildId;
     private final long channelId;
 
-    public AtomicTextChannel(long guildId, long channelId) {
+    public AtomicVoiceChannel(long guildId, long channelId) {
         this.guildId = guildId;
         this.channelId = channelId;
     }
 
-    public AtomicTextChannel(TextChannel channel) {
+    public AtomicVoiceChannel(VoiceChannel channel) {
         channelId = channel.getIdLong();
         guildId = channel.getGuild().getIdLong();
     }
@@ -27,16 +26,16 @@ public class AtomicTextChannel implements AtomicAsset<TextChannel> {
     }
 
     @Override
-    public Optional<TextChannel> get() {
+    public Optional<VoiceChannel> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
-                .map(guild -> guild.getTextChannelById(channelId));
+                .map(guild -> guild.getVoiceChannelById(channelId));
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AtomicTextChannel that = (AtomicTextChannel) o;
+        AtomicVoiceChannel that = (AtomicVoiceChannel) o;
         return channelId == that.channelId;
     }
 

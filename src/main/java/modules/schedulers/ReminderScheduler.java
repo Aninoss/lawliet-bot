@@ -1,16 +1,12 @@
 package modules.schedulers;
 
 import commands.runnables.utilitycategory.ReminderCommand;
-import constants.PermissionDeprecated;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
-import org.javacord.api.util.logging.ExceptionLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.dv8tion.jda.api.Permission;
 import java.util.Optional;
 
 public class ReminderScheduler {
@@ -38,9 +34,7 @@ public class ReminderScheduler {
     }
 
     public void loadReminderBean(RemindersBean remindersBean) {
-        MainScheduler.getInstance().schedule(remindersBean.getTime(), "reminder", () -> {
-            onReminderDue(remindersBean);
-        });
+        MainScheduler.getInstance().schedule(remindersBean.getTime(), "reminder", () -> onReminderDue(remindersBean));
     }
 
     private void onReminderDue(RemindersBean remindersBean) {
@@ -48,16 +42,16 @@ public class ReminderScheduler {
             remindersBean.stop();
 
             long channelId = remindersBean.getChannelId();
-            remindersBean.getServer()
-                    .flatMap(server -> server.getTextChannelById(channelId))
+            remindersBean.getGuild()
+                    .map(guild -> guild.getTextChannelById(channelId))
                     .ifPresent(channel -> {
                         if (PermissionCheckRuntime.getInstance().botHasPermission(
-                                remindersBean.getServerBean().getLocale(),
+                                remindersBean.getGuildBean().getLocale(),
                                 ReminderCommand.class,
                                 channel,
-                                PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES
+                                Permission.MESSAGE_WRITE
                         )) {
-                            channel.sendMessage(remindersBean.getMessage()).exceptionally(ExceptionLogger.get());
+                            channel.sendMessage(remindersBean.getMessage()).queue();
                         }
                     });
 

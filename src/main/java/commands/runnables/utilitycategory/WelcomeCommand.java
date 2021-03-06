@@ -277,7 +277,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
     }
 
     public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
-        Server server = welcomeMessageBean.getServer().get();
+        Server server = welcomeMessageBean.getGuild().get();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
                         StringUtil.escapeMarkdown(server.getName()),

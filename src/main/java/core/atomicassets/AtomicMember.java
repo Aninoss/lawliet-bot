@@ -29,7 +29,7 @@ public class AtomicMember implements AtomicAsset<Member> {
     @Override
     public Optional<Member> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
-                .flatMap(guild -> Optional.ofNullable(guild.getMemberById(memberId)));
+                .map(guild -> guild.getMemberById(memberId));
     }
 
     @Override

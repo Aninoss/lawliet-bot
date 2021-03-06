@@ -71,7 +71,7 @@ public class AlertScheduler {
     }
 
     private void processAlert(TrackerBeanSlot slot) throws Throwable {
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getServerBean().getLocale(), slot.getServerBean().getPrefix());
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildBean().getLocale(), slot.getGuildBean().getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid command for alert: {}", slot.getCommandTrigger());
             slot.stop();
@@ -104,7 +104,7 @@ public class AlertScheduler {
                         break;
                 }
             }
-        } else if (slot.getServer().isPresent()) {
+        } else if (slot.getGuild().isPresent()) {
             slot.delete();
         }
     }

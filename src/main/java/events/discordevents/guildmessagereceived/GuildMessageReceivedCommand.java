@@ -56,7 +56,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         if (prefixFound > -1) {
             if (prefixFound > 0 && manageForwardedMessages(event)) return true;
 
-            String newContent = StringUtil.trimString(content.substring(prefixes[prefixFound].length()));
+            String newContent = content.substring(prefixes[prefixFound].length()).trim();
             if (newContent.contains("  ")) newContent = newContent.replace("  ", " ");
             String commandTrigger = newContent.split(" ")[0].toLowerCase();
             if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
@@ -64,7 +64,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
             String followedString;
             try {
-                followedString = StringUtil.trimString(newContent.substring(commandTrigger.length()));
+                followedString = newContent.substring(commandTrigger.length()).trim();
             } catch (StringIndexOutOfBoundsException e) {
                 followedString = "";
             }

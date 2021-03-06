@@ -38,7 +38,7 @@ public class SuggestionsBean extends BeanWithServer {
     }
 
     public Optional<ServerTextChannel> getChannel() {
-        return getServer().flatMap(server -> server.getTextChannelById(channelId != null ? channelId : 0L));
+        return getGuild().flatMap(server -> server.getTextChannelById(channelId != null ? channelId : 0L));
     }
 
 

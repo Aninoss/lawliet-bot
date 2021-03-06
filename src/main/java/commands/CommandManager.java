@@ -245,7 +245,9 @@ public class CommandManager {
 
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            Message message = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMember().getAsMention())).complete();
+            Message message = event.getMessage()
+                    .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMember().getAsMention()))
+                    .complete();
             autoRemoveMessageAfterCountdown(event, message);
         }
     }
@@ -253,7 +255,7 @@ public class CommandManager {
     private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            Message message = event.getChannel().sendMessage(
+            Message message = event.getMessage().reply(
                     new EmbedWithContent(event.getMessage().getMember().getAsMention(), eb.build()).build()
             ).complete();
             autoRemoveMessageAfterCountdown(event, message);
@@ -344,20 +346,29 @@ public class CommandManager {
         }
     }
 
-    public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) {
         Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(trigger);
         if (clazz == null) return Optional.empty();
         return Optional.of(createCommandByClass(clazz, locale, prefix));
     }
 
-    public static Command createCommandByClassName(String className, Locale locale, String prefix) throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
-        return createCommandByClass((Class<? extends Command>) Class.forName(className), locale, prefix);
+    public static Command createCommandByClassName(String className, Locale locale, String prefix) {
+        try {
+            return createCommandByClass((Class<? extends Command>) Class.forName(className), locale, prefix);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static Command createCommandByClass(Class<? extends Command> clazz, Locale locale, String prefix) {
         for (Constructor<?> s : clazz.getConstructors()) {
-            if (s.getParameterCount() == 2)
-                return (Command) s.newInstance(locale, prefix);
+            if (s.getParameterCount() == 2) {
+                try {
+                    return (Command) s.newInstance(locale, prefix);
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         throw new RuntimeException("Invalid class");
     }
