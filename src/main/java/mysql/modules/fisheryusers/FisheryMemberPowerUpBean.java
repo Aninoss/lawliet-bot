@@ -1,23 +1,21 @@
 package mysql.modules.fisheryusers;
 
 import constants.FisheryCategoryInterface;
-import core.ShardManager;
+import core.assets.MemberAsset;
 import core.utils.NumberUtil;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import java.util.Optional;
 
-public class FisheryUserPowerUpBean {
+public class FisheryMemberPowerUpBean implements MemberAsset {
 
-    private final long serverId, userId;
+    private final long guildId;
+    private final long memberId;
     private final int powerUpId;
     private int level;
     private final long startPrice, effect;
     private boolean changed = false;
 
-    public FisheryUserPowerUpBean(long serverId, long userId, int powerUpId, int level) {
-        this.serverId = serverId;
-        this.userId = userId;
+    public FisheryMemberPowerUpBean(long guildId, long memberId, int powerUpId, int level) {
+        this.guildId = guildId;
+        this.memberId = memberId;
         this.powerUpId = powerUpId;
         this.level = level;
         this.startPrice = FisheryCategoryInterface.START_PRICE[powerUpId];
@@ -27,19 +25,23 @@ public class FisheryUserPowerUpBean {
 
     /* Getters */
 
-    public long getServerId() {
-        return serverId;
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
-    public Optional<Server> getServer() { return ShardManager.getInstance().getLocalGuildById(serverId); }
+    @Override
+    public long getMemberId() {
+        return memberId;
+    }
 
-    public long getUserId() { return userId; }
+    public int getPowerUpId() {
+        return powerUpId;
+    }
 
-    public Optional<User> getUser() { return getServer().flatMap(server -> server.getMemberById(userId)); }
-
-    public int getPowerUpId() { return powerUpId; }
-
-    public int getLevel() { return level; }
+    public int getLevel() {
+        return level;
+    }
 
     public boolean checkChanged() {
         boolean changedTemp = changed;

@@ -1,36 +1,37 @@
 package mysql.modules.warning;
 
 import core.CustomObservableList;
+import core.assets.MemberAsset;
 import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.user.User;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ServerWarningsBean extends BeanWithGuild {
+public class ServerWarningsBean extends BeanWithGuild implements MemberAsset {
 
-    private final long userId;
+    private final long memberId;
     private final CustomObservableList<GuildWarningsSlot> warnings;
 
-    public ServerWarningsBean(long serverId, long userId, @NonNull ArrayList<GuildWarningsSlot> warnings) {
+    public ServerWarningsBean(long serverId, long memberId, @NonNull ArrayList<GuildWarningsSlot> warnings) {
         super(serverId);
-        this.userId = userId;
+        this.memberId = memberId;
         this.warnings = new CustomObservableList<>(warnings);
     }
 
 
     /* Getters */
 
-    public long getUserId() { return userId; }
+    @Override
+    public long getMemberId() {
+        return memberId;
+    }
 
-    public Optional<User> getUser() { return getGuild().flatMap(server -> server.getMemberById(userId)); }
-
-    public CustomObservableList<GuildWarningsSlot> getWarnings() { return warnings; }
+    public CustomObservableList<GuildWarningsSlot> getWarnings() {
+        return warnings;
+    }
 
     public List<GuildWarningsSlot> getLatest(int n) {
         return warnings.stream()

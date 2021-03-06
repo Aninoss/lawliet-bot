@@ -3,10 +3,8 @@ package mysql.modules.spblock;
 import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DBSPBlock extends DBMapCache<Long, SPBlockBean> {
@@ -73,7 +71,7 @@ public class DBSPBlock extends DBMapCache<Long, SPBlockBean> {
         });
     }
 
-    private ArrayList<Long> getIgnoredUsers(long serverId) throws SQLException {
+    private ArrayList<Long> getIgnoredUsers(long serverId) {
         return new DBDataLoad<Long>("SPBlockIgnoredUsers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -93,7 +91,7 @@ public class DBSPBlock extends DBMapCache<Long, SPBlockBean> {
         });
     }
 
-    private ArrayList<Long> getLogReceivers(long serverId) throws SQLException {
+    private ArrayList<Long> getLogReceivers(long serverId) {
         return new DBDataLoad<Long>("SPBlockLogRecievers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -113,7 +111,7 @@ public class DBSPBlock extends DBMapCache<Long, SPBlockBean> {
         });
     }
 
-    private ArrayList<Long> getIgnoredChannels(long serverId) throws SQLException {
+    private ArrayList<Long> getIgnoredChannels(long serverId) {
         return new DBDataLoad<Long>("SPBlockIgnoredChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));

@@ -1,6 +1,8 @@
 package mysql.modules.osuaccounts;
 
-public class OsuBeanBean {
+import core.assets.UserAsset;
+
+public class OsuBeanBean implements UserAsset {
 
     private final long userId;
     private final long osuId;
@@ -10,6 +12,7 @@ public class OsuBeanBean {
         this.osuId = osuId;
     }
 
+    @Override
     public long getUserId() {
         return userId;
     }

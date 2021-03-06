@@ -13,7 +13,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -37,7 +37,7 @@ public class DailyCommand extends FisheryAbstract {
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
             long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());

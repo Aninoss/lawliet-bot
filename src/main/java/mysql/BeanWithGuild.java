@@ -1,13 +1,10 @@
 package mysql;
 
-import core.ShardManager;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
-import net.dv8tion.jda.api.entities.Guild;
-import java.util.Observable;
-import java.util.Optional;
+import core.assets.GuildAsset;
 
-public abstract class BeanWithGuild extends Observable {
+import java.util.Observable;
+
+public abstract class BeanWithGuild extends Observable implements GuildAsset {
 
     private final long guildId;
 
@@ -15,16 +12,9 @@ public abstract class BeanWithGuild extends Observable {
         this.guildId = guildId;
     }
 
-    public ServerBean getGuildBean() {
-        return DBServer.getInstance().retrieve(guildId);
-    }
-
+    @Override
     public long getGuildId() {
         return guildId;
-    }
-
-    public Optional<Guild> getGuild() {
-        return ShardManager.getInstance().getLocalGuildById(guildId);
     }
 
 }

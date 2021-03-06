@@ -3,9 +3,8 @@ package mysql.modules.suggestions;
 import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
 import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.channel.ServerTextChannel;
-
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -37,8 +36,8 @@ public class SuggestionsBean extends BeanWithGuild {
         return Optional.ofNullable(channelId);
     }
 
-    public Optional<ServerTextChannel> getChannel() {
-        return getGuild().flatMap(server -> server.getTextChannelById(channelId != null ? channelId : 0L));
+    public Optional<TextChannel> getChannel() {
+        return getGuild().map(guild -> guild.getTextChannelById(channelId != null ? channelId : 0L));
     }
 
 

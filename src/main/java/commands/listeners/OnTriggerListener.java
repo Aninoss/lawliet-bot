@@ -10,7 +10,7 @@ import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import mysql.modules.commandusages.DBCommandUsages;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import java.time.temporal.ChronoUnit;
@@ -59,10 +59,10 @@ public interface OnTriggerListener {
     }
 
     default void checkTriggerDelete(GuildMessageReceivedEvent event) {
-        ServerBean serverBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
-        if (serverBean.isCommandAuthorMessageRemove() &&
+        GuildBean guildBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
+        if (guildBean.isCommandAuthorMessageRemove() &&
                 ServerPatreonBoostCache.getInstance().get(event.getGuild().getIdLong()) &&
-                PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
+                PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
         ) {
             event.getMessage().delete().queue();
         }

@@ -5,16 +5,20 @@ import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
+import core.EmbedWithContent;
 import core.MainLogger;
 import core.TextManager;
+import core.assets.MemberAsset;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
-import core.schedule.MainScheduler;
+import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
@@ -24,14 +28,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class FisheryUserBean extends BeanWithGuild {
+public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
 
-    private final long userId;
-    private FisheryServerBean fisheryServerBean = null;
+    private final long memberId;
+    private FisheryGuildBean fisheryGuildBean = null;
     private final HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
-    private final HashMap<Integer, FisheryUserPowerUpBean> powerUpMap;
+    private final HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap;
     private long fish;
     private long coins;
     private long dailyStreak;
@@ -53,9 +58,9 @@ public class FisheryUserBean extends BeanWithGuild {
     private String lastContent = null;
     private LocalDate dailyValuesUpdated;
 
-    FisheryUserBean(long serverId, long userId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        super(serverId);
-        this.userId = userId;
+    FisheryMemberBean(long guildId, long memberId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap) {
+        super(guildId);
+        this.memberId = memberId;
         this.fish = fish;
         this.coins = coins;
         this.dailyReceived = dailyReceived;
@@ -68,52 +73,59 @@ public class FisheryUserBean extends BeanWithGuild {
         this.powerUpMap = powerUpMap;
         this.dailyValuesUpdated = dailyValuesUpdated;
 
-        for(int i = 0; i < 6; i++)
-            this.powerUpMap.putIfAbsent(i, new FisheryUserPowerUpBean(serverId, userId, i, 0));
+        for (int i = 0; i < 6; i++)
+            this.powerUpMap.putIfAbsent(i, new FisheryMemberPowerUpBean(guildId, memberId, i, 0));
     }
 
-    public FisheryUserBean(long serverId, long userId, FisheryServerBean fisheryServerBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryUserPowerUpBean> powerUpMap) {
-        this(serverId, userId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, fisheryHourlyIncomeMap, powerUpMap);
-        setFisheryServerBean(fisheryServerBean);
+    public FisheryMemberBean(long serverId, long memberId, FisheryGuildBean fisheryGuildBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap) {
+        this(serverId, memberId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, fisheryHourlyIncomeMap, powerUpMap);
+        setFisheryServerBean(fisheryGuildBean);
     }
 
+    @Override
+    public long getMemberId() {
+        return memberId;
+    }
 
-    public long getUserId() { return userId; }
+    public Optional<List<Role>> getRoles() {
+        return fisheryGuildBean.getRoles().map(allRoles -> {
+            ArrayList<Role> userRoles = new ArrayList<>();
+            int level = getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
 
-    public Optional<User> getUser() { return getGuild().flatMap(server -> server.getMemberById(userId)); }
+            if (level > allRoles.size()) {
+                level = allRoles.size();
+                setLevel(FisheryCategoryInterface.ROLE, level);
+            }
 
-    public List<Role> getRoles() {
-        ArrayList<Role> userRoles = new ArrayList<>();
-        int level = getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
-        List<Role> allRoles = fisheryServerBean.getRoles();
-
-        if (level > allRoles.size()) {
-            level = allRoles.size();
-            setLevel(FisheryCategoryInterface.ROLE, level);
-        }
-
-        if (level > 0) {
-            if (fisheryServerBean.getGuildBean().isFisherySingleRoles()) {
-                Role role = allRoles.get(level - 1);
-                if (role != null)
-                    userRoles.add(role);
-            } else {
-                for (int i = 0; i <= level - 1; i++) {
-                    Role role = allRoles.get(i);
+            if (level > 0) {
+                if (fisheryGuildBean.getGuildBean().isFisherySingleRoles()) {
+                    Role role = allRoles.get(level - 1);
                     if (role != null)
                         userRoles.add(role);
+                } else {
+                    for (int i = 0; i <= level - 1; i++) {
+                        Role role = allRoles.get(i);
+                        if (role != null)
+                            userRoles.add(role);
+                    }
                 }
             }
-        }
 
-        return userRoles;
+            return userRoles;
+        });
     }
 
-    public FisheryServerBean getFisheryServerBean() { return fisheryServerBean; }
+    public FisheryGuildBean getFisheryServerBean() {
+        return fisheryGuildBean;
+    }
 
-    public HashMap<Integer, FisheryUserPowerUpBean> getPowerUpMap() { return powerUpMap; }
+    public HashMap<Integer, FisheryMemberPowerUpBean> getPowerUpMap() {
+        return powerUpMap;
+    }
 
-    public FisheryUserPowerUpBean getPowerUp(int powerUpId) { return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryUserPowerUpBean(getGuildId(), userId, powerUpId, 0)); }
+    public FisheryMemberPowerUpBean getPowerUp(int powerUpId) {
+        return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryMemberPowerUpBean(getGuildId(), memberId, powerUpId, 0));
+    }
 
     public List<FisheryHourlyIncomeBean> getAllFishHourlyIncomeChanged() {
         return fisheryHourlyIncomeMap.values().stream()
@@ -121,13 +133,21 @@ public class FisheryUserBean extends BeanWithGuild {
                 .collect(Collectors.toList());
     }
 
-    public long getFish() { return fish; }
+    public long getFish() {
+        return fish;
+    }
 
-    public long getCoins() { return coins - coinsHidden; }
+    public long getCoins() {
+        return coins - coinsHidden;
+    }
 
-    public long getCoinsRaw() { return coins; }
+    public long getCoinsRaw() {
+        return coins;
+    }
 
-    public long getCoinsHidden() { return coinsHidden; }
+    public long getCoinsHidden() {
+        return coinsHidden;
+    }
 
     public long getCoinsGiven() {
         cleanDailyValues();
@@ -146,7 +166,7 @@ public class FisheryUserBean extends BeanWithGuild {
     public long getTotalProgressIndex() {
         long sum = 0;
         for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
-            sum += FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+            sum += FisheryMemberPowerUpBean.getValue(powerUpMap.get(i).getLevel());
         }
         return sum;
     }
@@ -156,7 +176,7 @@ public class FisheryUserBean extends BeanWithGuild {
         if (coinsGivenMax == null) {
             long sum = 0;
             for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
-                sum += 15000L * FisheryUserPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+                sum += 15000L * FisheryMemberPowerUpBean.getValue(powerUpMap.get(i).getLevel());
                 if (sum >= Settings.FISHERY_MAX)
                     return Settings.FISHERY_MAX;
             }
@@ -169,7 +189,7 @@ public class FisheryUserBean extends BeanWithGuild {
     public int getRank() {
         try {
             int count = 1;
-            for(FisheryUserBean userBean : new ArrayList<>(fisheryServerBean.getUsers().values())) {
+            for (FisheryMemberBean userBean : new ArrayList<>(fisheryGuildBean.getUsers().values())) {
                 if (userBean.isOnServer() && userIsRankedHigherThanMe(userBean)) {
                     count++;
                 }
@@ -181,7 +201,7 @@ public class FisheryUserBean extends BeanWithGuild {
         }
     }
 
-    private boolean userIsRankedHigherThanMe(FisheryUserBean user) {
+    private boolean userIsRankedHigherThanMe(FisheryMemberBean user) {
         return (user.getFishIncome() > getFishIncome()) ||
                 (user.getFishIncome() == getFishIncome() && user.getFish() > getFish()) ||
                 (user.getFishIncome() == getFishIncome() && user.getFish() == getFish() && user.getCoins() > getCoins());
@@ -212,18 +232,28 @@ public class FisheryUserBean extends BeanWithGuild {
 
     private FisheryHourlyIncomeBean getCurrentFisheryHourlyIncome() {
         Instant currentTimeHour = TimeUtil.instantRoundDownToHour(Instant.now());
-        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(getGuildId(), userId, currentTimeHour, 0));
+        return fisheryHourlyIncomeMap.computeIfAbsent(currentTimeHour, k -> new FisheryHourlyIncomeBean(getGuildId(), memberId, currentTimeHour, 0));
     }
 
-    public LocalDate getDailyReceived() { return dailyReceived; }
+    public LocalDate getDailyReceived() {
+        return dailyReceived;
+    }
 
-    public long getDailyStreak() { return dailyStreak; }
+    public long getDailyStreak() {
+        return dailyStreak;
+    }
 
-    public int getUpvoteStack() { return upvoteStack; }
+    public int getUpvoteStack() {
+        return upvoteStack;
+    }
 
-    public boolean isReminderSent() { return reminderSent; }
+    public boolean isReminderSent() {
+        return reminderSent;
+    }
 
-    public boolean isBanned() { return banned; }
+    public boolean isBanned() {
+        return banned;
+    }
 
     public LocalDate getDailyValuesUpdated() {
         return dailyValuesUpdated;
@@ -252,13 +282,13 @@ public class FisheryUserBean extends BeanWithGuild {
         }
     }
 
-    void setFisheryServerBean(FisheryServerBean fisheryServerBean) {
-        if (this.fisheryServerBean == null) {
-            this.fisheryServerBean = fisheryServerBean;
+    void setFisheryServerBean(FisheryGuildBean fisheryGuildBean) {
+        if (this.fisheryGuildBean == null) {
+            this.fisheryGuildBean = fisheryGuildBean;
         }
     }
 
-    public boolean registerMessage(Message message, ServerTextChannel channel) throws ExecutionException, InterruptedException {
+    public boolean registerMessage(Message message) {
         if (banned) {
             return false;
         }
@@ -267,7 +297,7 @@ public class FisheryUserBean extends BeanWithGuild {
         messagesThisHour++;
         if (messagesThisHour >= 3400) {
             banned = true;
-            MainLogger.get().warn("### User temporarely banned with id " + userId);
+            MainLogger.get().warn("### User temporarily banned with id " + memberId);
             return false;
         }
 
@@ -276,8 +306,8 @@ public class FisheryUserBean extends BeanWithGuild {
             messagesThisHour = 0;
         }
 
-        if (!message.getContent().equalsIgnoreCase(lastContent)) {
-            lastContent = message.getContent();
+        if (!message.getContentRaw().equalsIgnoreCase(lastContent)) {
+            lastContent = message.getContentRaw();
             int currentMessagePeriod = (Calendar.getInstance().get(Calendar.SECOND) + Calendar.getInstance().get(Calendar.MINUTE) * 60) / 20;
             if (currentMessagePeriod != lastMessagePeriod) {
                 lastMessagePeriod = currentMessagePeriod;
@@ -291,26 +321,27 @@ public class FisheryUserBean extends BeanWithGuild {
                 checkValuesBound();
                 setChanged();
 
-                Optional<User> userOpt = getUser();
+                Optional<Member> memberOpt = getMember();
                 if (fish >= 100 &&
                         !reminderSent &&
                         getGuildBean().isFisheryReminders() &&
-                        channel.canYouWrite() &&
-                        channel.canYouEmbedLinks() &&
-                        userOpt.isPresent()
+                        BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
+                        memberOpt.isPresent()
                 ) {
                     reminderSent = true;
-                    User user = userOpt.get();
+                    Member member = memberOpt.get();
                     Locale locale = getGuildBean().getLocale();
                     String prefix = getGuildBean().getPrefix();
 
-                    Message message1 = channel.sendMessage(user.getMentionTag(), EmbedFactory.getEmbedDefault()
-                            .setAuthor(user)
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
                             .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
-                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix))).get();
+                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix));
+                    EmbedUtil.setMemberAuthor(eb, member);
 
-                    MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "fishery_message_100fish_despawn", message1::delete);
+                    message.getTextChannel().sendMessage(new EmbedWithContent(member.getAsMention(), eb.build()).build()).queue(m -> {
+                        m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES);
+                    });
                 }
 
                 return true;
@@ -415,28 +446,28 @@ public class FisheryUserBean extends BeanWithGuild {
         long rank = getRank();
 
         /* Generate Account Embed */
-        Optional<Server> serverOpt = getGuild();
-        Optional<User> userOpt = serverOpt.flatMap(server -> server.getMemberById(userId));
         Locale locale = getGuildBean().getLocale();
-
-        return userOpt
-                .map(user -> generateUserChangeEmbed(serverOpt.get(), user, locale, fishAdd, coinsAdd, rank, rankPrevious, fishIncomePrevious, fishPrevious, coinsPrevious, newDailyStreak, dailyStreakPrevious))
-                .orElse(null);
+        return getGuild().map(guild -> guild.getMemberById(memberId))
+                .map(member -> generateUserChangeEmbed(member, locale, fishAdd, coinsAdd, rank, rankPrevious,
+                        fishIncomePrevious, fishPrevious, coinsPrevious, newDailyStreak, dailyStreakPrevious
+                        )
+                ).orElse(null);
     }
 
-    private synchronized EmbedBuilder generateUserChangeEmbed(Server server, User user, Locale locale, long fishAdd, long coinsAdd,
-                                                 long rank, long rankPrevious, long fishIncomePrevious, long fishPrevious, long coinsPrevious, Long newDailyStreak, long dailyStreakPrevious
+    private synchronized EmbedBuilder generateUserChangeEmbed(Member member, Locale locale, long fishAdd, long coinsAdd,
+                                                              long rank, long rankPrevious, long fishIncomePrevious, long fishPrevious,
+                                                              long coinsPrevious, Long newDailyStreak, long dailyStreakPrevious
     ) {
-        boolean patron = PatreonCache.getInstance().getUserTier(userId) >= 1;
+        boolean patron = PatreonCache.getInstance().getUserTier(memberId) >= 1;
 
         String patreonEmoji = "👑";
-        String displayName = user.getDisplayName(server);
+        String displayName = member.getEffectiveName();
         while (displayName.length() > 0 && displayName.startsWith(patreonEmoji))
             displayName = displayName.substring(patreonEmoji.length());
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), "", user.getAvatar())
-                .setThumbnail(user.getAvatar());
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl());
 
         if (patron) eb.setColor(Color.YELLOW);
         if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0))
@@ -459,7 +490,8 @@ public class FisheryUserBean extends BeanWithGuild {
                 codeBlock
         ));
 
-        if (banned) EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
+        if (banned)
+            EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
 
         return eb;
     }
@@ -527,7 +559,7 @@ public class FisheryUserBean extends BeanWithGuild {
 
     public boolean isOnServer() {
         if (onServer == null) {
-            onServer = getUser().isPresent();
+            onServer = getMember().isPresent();
         }
 
         return onServer;
@@ -538,7 +570,7 @@ public class FisheryUserBean extends BeanWithGuild {
     }
 
     public void remove() {
-        getFisheryServerBean().getUsers().remove(userId);
+        getFisheryServerBean().getUsers().remove(memberId);
         DBFishery.getInstance().removeFisheryUserBean(this);
     }
 
@@ -549,7 +581,7 @@ public class FisheryUserBean extends BeanWithGuild {
     }
 
     public void setChanged() {
-        fisheryServerBean.update();
+        fisheryGuildBean.update();
         changed = true;
     }
 

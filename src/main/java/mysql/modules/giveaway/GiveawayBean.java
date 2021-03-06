@@ -1,17 +1,12 @@
 package mysql.modules.giveaway;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.requests.RestAction;
-
+import core.assets.MessageAsset;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Observable;
 import java.util.Optional;
 
-public class GiveawayBean extends Observable {
+public class GiveawayBean extends Observable implements MessageAsset {
 
     private final long guildId;
     private final long messageId;
@@ -39,28 +34,19 @@ public class GiveawayBean extends Observable {
         this.active = active || getEnd().isAfter(Instant.now());
     }
 
+    @Override
     public long getGuildId() {
         return guildId;
     }
 
-    public Optional<Guild> getGuild() {
-        return ShardManager.getInstance().getLocalGuildById(guildId);
-    }
-
-    public long getMessageId() {
-        return messageId;
-    }
-
-    public Optional<TextChannel> getChannel() {
-        return getGuild().map(guild -> guild.getTextChannelById(channelId));
-    }
-
-    public long getChannelId() {
+    @Override
+    public long getTextChannelId() {
         return channelId;
     }
 
-    public Optional<RestAction<Message>> retrieveMessage() {
-        return getChannel().map(channel -> channel.retrieveMessageById(messageId));
+    @Override
+    public long getMessageId() {
+        return messageId;
     }
 
     public String getEmoji() {

@@ -7,9 +7,9 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryServerBean;
+import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Random;
@@ -19,22 +19,22 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
 
         //manage message
         boolean messageRegistered = false;
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
         if (!event.getMessage().getContent().isEmpty()
-                && serverBean.getFisheryStatus() == FisheryStatus.ACTIVE
-                && !fisheryServerBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
+                && guildBean.getFisheryStatus() == FisheryStatus.ACTIVE
+                && !fisheryGuildBean.getIgnoredChannelIds().contains(event.getServerTextChannel().get().getId())
         )
-            messageRegistered = fisheryServerBean.getUserBean(event.getMessageAuthor().getId()).registerMessage(event.getMessage(), event.getServerTextChannel().get());
+            messageRegistered = fisheryGuildBean.getUserBean(event.getMessageAuthor().getId()).registerMessage(event.getMessage(), event.getServerTextChannel().get());
 
         //manage treasure chests
         if (messageRegistered &&
                 new Random().nextInt(400) == 0 &&
-                serverBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
-                serverBean.isFisheryTreasureChests() &&
+                guildBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
+                guildBean.isFisheryTreasureChests() &&
                 event.getChannel().canYouWrite() &&
                 event.getChannel().canYouEmbedLinks() &&
                 event.getChannel().canYouAddNewReactions()

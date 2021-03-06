@@ -11,7 +11,7 @@ import core.utils.ExceptionUtil;
 import core.TextManager;
 import core.utils.MentionUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsBean;
 import mysql.modules.server.DBServer;
@@ -71,7 +71,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionAddLis
             return true;
         }
 
-        FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         long coins = userBean.getCoins();
         long value = Math.min(MentionUtil.getAmountExt(followedString, coins), coins);
         if (value == -1) {

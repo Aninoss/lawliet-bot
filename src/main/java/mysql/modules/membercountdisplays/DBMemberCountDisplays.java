@@ -36,7 +36,7 @@ public class DBMemberCountDisplays extends DBMapCache<Long, MemberCountBean> {
     protected void save(MemberCountBean memberCountBean) {
     }
 
-    private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) throws SQLException {
+    private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) {
         return new DBDataLoad<MemberCountDisplaySlot>("MemberCountDisplays", "vcId, name", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getHashMap(MemberCountDisplaySlot::getVoiceChannelId, resultSet -> new MemberCountDisplaySlot(serverId, resultSet.getLong(1), resultSet.getString(2)));

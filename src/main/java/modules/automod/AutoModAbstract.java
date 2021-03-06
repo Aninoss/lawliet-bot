@@ -7,13 +7,13 @@ import constants.Category;
 import core.*;
 import modules.Mod;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import java.lang.reflect.InvocationTargetException;
+
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -31,12 +31,12 @@ public abstract class AutoModAbstract {
     public boolean check() {
         if (!message.getAuthor().isBot() && checkCondition(message)) {
             try {
-                ServerBean serverBean = DBServer.getInstance().retrieve(message.getGuild().getIdLong());
+                GuildBean guildBean = DBServer.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().queue();
                 }
-                punish(message, serverBean, commandClass);
+                punish(message, guildBean, commandClass);
                 return false;
             } catch (Throwable e) {
                 MainLogger.get().error("Exception in server bean", e);
@@ -46,19 +46,19 @@ public abstract class AutoModAbstract {
         return true;
     }
 
-    private void punish(Message message, ServerBean serverBean, Class<? extends Command> commandClass) {
+    private void punish(Message message, GuildBean guildBean, Class<? extends Command> commandClass) {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
-        String commandTitle = TextManager.getString(serverBean.getLocale(), Category.MODERATION, commandProperties.trigger() + "_title");
+        String commandTitle = TextManager.getString(guildBean.getLocale(), Category.MODERATION, commandProperties.trigger() + "_title");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
-        designEmbed(message, serverBean.getLocale(), eb);
+        designEmbed(message, guildBean.getLocale(), eb);
 
-        Command command = CommandManager.createCommandByClass(commandClass, serverBean.getLocale(), serverBean.getPrefix());
+        Command command = CommandManager.createCommandByClass(commandClass, guildBean.getLocale(), guildBean.getPrefix());
         Mod.postLog(command, eb, guild, member).thenRun(() -> {
             try {
-                Mod.insertWarning(serverBean.getLocale(), guild, member, guild.getSelfMember(), commandTitle, withAutoActions(message, serverBean.getLocale()));
+                Mod.insertWarning(guildBean.getLocale(), guild, member, guild.getSelfMember(), commandTitle, withAutoActions(message, guildBean.getLocale()));
             } catch (ExecutionException e) {
                 MainLogger.get().error("Error when creating command instance");
             }

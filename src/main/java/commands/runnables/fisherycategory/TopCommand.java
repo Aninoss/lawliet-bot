@@ -8,7 +8,7 @@ import constants.FisheryStatus;
 import core.*;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
 import javafx.util.Pair;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -28,7 +28,7 @@ import java.util.Optional;
 )
 public class TopCommand extends ListAbstract {
 
-    private ArrayList<FisheryUserBean> rankingSlots;
+    private ArrayList<FisheryMemberBean> rankingSlots;
 
     public TopCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -39,7 +39,7 @@ public class TopCommand extends ListAbstract {
         FisheryStatus status = DBServer.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             rankingSlots = new ArrayList<>(DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUsers().values());
-            rankingSlots.removeIf(user -> !user.isOnServer() || user.getUser().map(User::isBot).orElse(true));
+            rankingSlots.removeIf(user -> !user.isOnServer() || user.getMember().map(User::isBot).orElse(true));
             rankingSlots.sort((s1, s2) -> {
                 if (s1.getFishIncome() < s2.getFishIncome()) return 1;
                 if (s1.getFishIncome() > s2.getFishIncome()) return -1;
@@ -56,9 +56,9 @@ public class TopCommand extends ListAbstract {
     }
 
     protected Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable {
-        FisheryUserBean userBean = rankingSlots.get(i);
-        Optional<User> userOpt = userBean.getUser();
-        String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(userBean.getUserId()));
+        FisheryMemberBean userBean = rankingSlots.get(i);
+        Optional<User> userOpt = userBean.getMember();
+        String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(userBean.getMemberId()));
         userString = StringUtil.escapeMarkdown(userString);
 
         int rank = userBean.getRank();

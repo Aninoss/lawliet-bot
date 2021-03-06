@@ -36,7 +36,7 @@ public class DBCommandManagement extends DBMapCache<Long, CommandManagementBean>
     protected void save(CommandManagementBean commandManagementBean) {
     }
 
-    private ArrayList<String> getSwitchedOffElements(long serverId) throws SQLException {
+    private ArrayList<String> getSwitchedOffElements(long serverId) {
         return new DBDataLoad<String>("CMOff", "element", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getString(1));

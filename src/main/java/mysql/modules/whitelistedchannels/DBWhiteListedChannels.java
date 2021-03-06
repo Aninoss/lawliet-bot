@@ -36,7 +36,7 @@ public class DBWhiteListedChannels extends DBMapCache<Long, WhiteListedChannelsB
     protected void save(WhiteListedChannelsBean whiteListedChannelsBean) {
     }
 
-    private ArrayList<Long> getChannelIds(long serverId) throws SQLException {
+    private ArrayList<Long> getChannelIds(long serverId) {
         return new DBDataLoad<Long>("WhiteListedChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));

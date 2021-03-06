@@ -8,7 +8,7 @@ import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvotesBean;
@@ -54,7 +54,7 @@ public class OnTopGG implements SyncServerFunction {
                         .filter(guild -> DBServer.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE)
                         .forEach(guild -> {
                             int value = isWeekend ? 2 : 1;
-                            FisheryUserBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getUserBean(userId);
+                            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getUserBean(userId);
 
                             if (PatreonCache.getInstance().getUserTier(userId) >= 2 &&
                                     DBAutoClaim.getInstance().retrieve().isActive(userId)

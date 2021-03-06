@@ -5,7 +5,7 @@ import core.TextManager;
 import mysql.DBMapCache;
 import mysql.DBMain;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,8 +45,8 @@ public class DBWelcomeMessage extends DBMapCache<Long, WelcomeMessageBean> {
                     resultSet.getString(9)
             );
         } else {
-            ServerBean serverBean = DBServer.getInstance().retrieve(serverId);
-            Locale locale = serverBean.getLocale();
+            GuildBean guildBean = DBServer.getInstance().retrieve(serverId);
+            Locale locale = guildBean.getLocale();
 
             welcomeMessageBean = new WelcomeMessageBean(
                     serverId,

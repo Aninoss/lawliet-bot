@@ -1,14 +1,14 @@
 package mysql.modules.tracker;
 
-import core.MainLogger;
+import core.assets.TextChannelAsset;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 import java.time.Instant;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class TrackerBeanSlot extends BeanWithGuild {
+public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
 
     private final long channelId;
     private Long messageId;
@@ -30,10 +30,9 @@ public class TrackerBeanSlot extends BeanWithGuild {
 
     /* Getters */
 
-    public long getChannelId() { return channelId; }
-
-    public Optional<TextChannel> getChannel() {
-        return getGuild().map(guild -> guild.getTextChannelById(channelId));
+    @Override
+    public long getTextChannelId() {
+        return channelId;
     }
 
     public Optional<Long> getMessageId() {
@@ -41,9 +40,8 @@ public class TrackerBeanSlot extends BeanWithGuild {
     }
 
     public CompletableFuture<Message> getMessage() {
-        return CompletableFuture.supplyAsync(() ->
-                getChannel().get().retrieveMessageById(messageId != null ? messageId : 0L).complete()
-        );
+        return getTextChannel().map(channel -> channel.retrieveMessageById(getMessageId().orElse(0L)).submit())
+                .orElseGet(() -> CompletableFuture.failedFuture(new NoSuchElementException("No text channel")));
     }
 
     public String getCommandTrigger() { return commandTrigger; }

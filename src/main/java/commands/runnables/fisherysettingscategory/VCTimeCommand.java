@@ -10,7 +10,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -35,7 +35,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
     private static final String QUIT_EMOJI = "❌";
 
     private Message message;
-    private ServerBean serverBean;
+    private GuildBean guildBean;
 
     public VCTimeCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -43,14 +43,14 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
 
     @Override
     public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-            serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+            guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {
                 message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
                         getString("status",
-                                serverBean.getFisheryVcHoursCap().isPresent(),
-                                serverBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(in)).orElse(getString("unlimited")),
+                                guildBean.getFisheryVcHoursCap().isPresent(),
+                                guildBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(in)).orElse(getString("unlimited")),
                                 CLEAR_EMOJI,
                                 QUIT_EMOJI
                         ))).get();
@@ -81,7 +81,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
             return false;
         }
 
-        serverBean.setFisheryVcHoursCap(value);
+        guildBean.setFisheryVcHoursCap(value);
 
         sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value))));
         return true;
@@ -96,7 +96,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
     private void markUnlimited(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
         removeMessageForwarder();
         removeReactionListener();
-        serverBean.setFisheryVcHoursCap(null);
+        guildBean.setFisheryVcHoursCap(null);
         sendMessage(channel, EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited"))));
     }
 

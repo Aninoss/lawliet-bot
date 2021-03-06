@@ -8,7 +8,7 @@ import core.schedule.ScheduleInterface;
 import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -58,7 +58,7 @@ public class SurveyResults implements ScheduleInterface {
             if (surveySecondVote.getServer().isPresent() &&
                     DBServer.getInstance().retrieve(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE
             ) {
-                secondVotesMap.computeIfAbsent(surveySecondVote.getUserId(), k -> new ArrayList<>()).add(surveySecondVote);
+                secondVotesMap.computeIfAbsent(surveySecondVote.getMemberId(), k -> new ArrayList<>()).add(surveySecondVote);
             }
         }
 
@@ -102,7 +102,7 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryUserBean userBean = DBFishery.getInstance().retrieve(secondVote.getServerId()).getUserBean(user.getIdLong());
+                    FisheryMemberBean userBean = DBFishery.getInstance().retrieve(secondVote.getServerId()).getUserBean(user.getIdLong());
                     long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                     userBean.changeValues(0, price);
                 });

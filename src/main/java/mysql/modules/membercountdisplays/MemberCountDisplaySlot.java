@@ -1,26 +1,26 @@
 package mysql.modules.membercountdisplays;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import java.util.Optional;
+import core.assets.VoiceChannelAsset;
 
-public class MemberCountDisplaySlot {
+public class MemberCountDisplaySlot implements VoiceChannelAsset {
 
-    private final long serverId, voiceChannelId;
+    private final long guildId, voiceChannelId;
     private final String mask;
 
-    public MemberCountDisplaySlot(long serverId, long voiceChannelId, String mask) {
-        this.serverId = serverId;
+    public MemberCountDisplaySlot(long guildId, long voiceChannelId, String mask) {
+        this.guildId = guildId;
         this.voiceChannelId = voiceChannelId;
         this.mask = mask;
     }
 
-    public long getVoiceChannelId() {
-        return voiceChannelId;
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
-    public Optional<VoiceChannel> getVoiceChannel() {
-        return ShardManager.getInstance().getLocalGuildById(serverId).map(guild -> guild.getVoiceChannelById(voiceChannelId));
+    @Override
+    public long getVoiceChannelId() {
+        return voiceChannelId;
     }
 
     public String getMask() {

@@ -16,7 +16,7 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -29,8 +29,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
-        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
-        String prefix = serverBean.getPrefix();
+        GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        String prefix = guildBean.getPrefix();
         String content = event.getMessage().getContent();
 
         if (content.toLowerCase().startsWith("i.") && prefix.equalsIgnoreCase("L."))
@@ -67,7 +67,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             }
 
             if (commandTrigger.length() > 0) {
-                Locale locale = serverBean.getLocale();
+                Locale locale = guildBean.getLocale();
                 Class<? extends Command> clazz;
                 clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
                 if (clazz != null) {
@@ -95,14 +95,14 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     private void checkAutoQuote(MessageCreateEvent event) throws ExecutionException {
         if (event.getChannel().canYouWrite() && event.getChannel().canYouEmbedLinks()) {
-            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
-            Locale locale = serverBean.getLocale();
+            GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+            Locale locale = guildBean.getLocale();
             ArrayList<Message> messages = MentionUtil.getMessageWithLinks(event.getMessage(), event.getMessage().getContent()).getList();
             if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getServer().get().getId()).isActive()) {
                 try {
                     for (int i = 0; i < Math.min(3, messages.size()); i++) {
                         Message message = messages.get(i);
-                        QuoteCommand quoteCommand = new QuoteCommand(locale, serverBean.getPrefix());
+                        QuoteCommand quoteCommand = new QuoteCommand(locale, guildBean.getPrefix());
                         quoteCommand.postEmbed(event.getServerTextChannel().get(), message, true);
                     }
                 } catch (Throwable throwable) {

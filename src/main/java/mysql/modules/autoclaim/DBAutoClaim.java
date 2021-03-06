@@ -32,15 +32,11 @@ public class DBAutoClaim extends DBSingleCache<AutoClaimBean> {
     }
 
     private void addAutoClaim(long userId) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoClaim (userId, active) VALUES (?, 1);", preparedStatement -> {
-            preparedStatement.setLong(1, userId);
-        });
+        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoClaim (userId, active) VALUES (?, 1);", preparedStatement -> preparedStatement.setLong(1, userId));
     }
 
     private void removeAutoClaim(long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM AutoClaim WHERE userId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, userId);
-        });
+        DBMain.getInstance().asyncUpdate("DELETE FROM AutoClaim WHERE userId = ?;", preparedStatement -> preparedStatement.setLong(1, userId));
     }
 
     @Override

@@ -12,7 +12,7 @@ import core.TextManager;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnMessageInputListener {
 
     private Message message;
-    private FisheryUserBean userBean;
+    private FisheryMemberBean userBean;
 
     public SellCommand(Locale locale, String prefix) {
         super(locale, prefix);

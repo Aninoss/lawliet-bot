@@ -63,7 +63,7 @@ public class DBGiveaway extends DBSingleCache<CustomObservableMap<Long, Giveaway
         DBMain.getInstance().asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMessageId());
-            preparedStatement.setLong(3, slot.getChannelId());
+            preparedStatement.setLong(3, slot.getTextChannelId());
             preparedStatement.setString(4, slot.getEmoji());
             preparedStatement.setInt(5, slot.getWinners());
             preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getStart()));

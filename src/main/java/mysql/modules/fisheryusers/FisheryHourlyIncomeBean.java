@@ -1,19 +1,20 @@
 package mysql.modules.fisheryusers;
 
 import constants.Settings;
+import core.assets.MemberAsset;
 
 import java.time.Instant;
 
-public class FisheryHourlyIncomeBean {
+public class FisheryHourlyIncomeBean implements MemberAsset {
 
     private final Instant time;
     private long fishIncome;
     private boolean changed = false;
-    private final long serverId, userId;
+    private final long guildId, memberId;
 
-    public FisheryHourlyIncomeBean(long serverId, long userId, Instant time, long fishIncome) {
-        this.serverId = serverId;
-        this.userId = userId;
+    public FisheryHourlyIncomeBean(long guildId, long memberId, Instant time, long fishIncome) {
+        this.guildId = guildId;
+        this.memberId = memberId;
         this.time = time;
         this.fishIncome = fishIncome;
     }
@@ -21,11 +22,15 @@ public class FisheryHourlyIncomeBean {
 
     /* Getters */
 
-    public long getServerId() {
-        return serverId;
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
-    public long getUserId() { return userId; }
+    @Override
+    public long getMemberId() {
+        return memberId;
+    }
 
     public Instant getTime() { return time; }
 

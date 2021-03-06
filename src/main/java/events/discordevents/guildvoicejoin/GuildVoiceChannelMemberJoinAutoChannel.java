@@ -11,7 +11,7 @@ import modules.AutoChannel;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.entity.channel.ServerVoiceChannelBuilder;
 import org.javacord.api.entity.permission.PermissionState;
@@ -35,9 +35,9 @@ public class GuildVoiceChannelMemberJoinAutoChannel extends GuildVoiceJoinAbstra
 
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getServer().getId());
         if (autoChannelBean.isActive() && event.getChannel().getId() == autoChannelBean.getParentChannelId().orElse(0L)) {
-            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().getId());
-            if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getServer(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS | PermissionDeprecated.CONNECT) &&
-                    (event.getChannel().getCategory().isEmpty() || PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER))
+            GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().getId());
+            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getServer(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS | PermissionDeprecated.CONNECT) &&
+                    (event.getChannel().getCategory().isEmpty() || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getChannel().getCategory().get(), PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER))
             ) {
                 int n = 1;
 

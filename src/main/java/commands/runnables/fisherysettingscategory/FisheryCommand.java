@@ -17,10 +17,10 @@ import core.utils.DiscordUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryServerBean;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryGuildBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.DiscordEntity;
 import org.javacord.api.entity.Mentionable;
@@ -50,7 +50,7 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
 
     private static final int MAX_CHANNELS = 50;
 
-    private ServerBean serverBean;
+    private GuildBean guildBean;
     private boolean stopLock = true;
     private NavigationHelper<ServerTextChannel> channelNavigationHelper;
     private CustomObservableList<ServerTextChannel> ignoredChannels;
@@ -67,9 +67,9 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
-        ignoredChannels = fisheryServerBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
+        guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
+        ignoredChannels = fisheryGuildBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
         channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, ServerTextChannel.class, MAX_CHANNELS);
         return true;
     }
@@ -94,18 +94,18 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
                         return false;
 
                     case 0:
-                        serverBean.toggleFisheryTreasureChests();
-                        setLog(LogStatus.SUCCESS, getString("treasurechestsset", serverBean.isFisheryTreasureChests()));
+                        guildBean.toggleFisheryTreasureChests();
+                        setLog(LogStatus.SUCCESS, getString("treasurechestsset", guildBean.isFisheryTreasureChests()));
                         return true;
 
                     case 1:
-                        serverBean.toggleFisheryReminders();
-                        setLog(LogStatus.SUCCESS, getString("remindersset", serverBean.isFisheryReminders()));
+                        guildBean.toggleFisheryReminders();
+                        setLog(LogStatus.SUCCESS, getString("remindersset", guildBean.isFisheryReminders()));
                         return true;
 
                     case 2:
-                        serverBean.toggleFisheryCoinsGivenLimit();
-                        setLog(LogStatus.SUCCESS, getString("coinsgivenset", serverBean.hasFisheryCoinsGivenLimit()));
+                        guildBean.toggleFisheryCoinsGivenLimit();
+                        setLog(LogStatus.SUCCESS, getString("coinsgivenset", guildBean.hasFisheryCoinsGivenLimit()));
                         return true;
 
                     case 3:
@@ -117,17 +117,17 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
                         return true;
 
                     case 5:
-                        if (serverBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
-                            serverBean.setFisheryStatus(FisheryStatus.ACTIVE);
+                        if (guildBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
+                            guildBean.setFisheryStatus(FisheryStatus.ACTIVE);
                             stopLock = true;
                         } else {
-                            serverBean.setFisheryStatus(FisheryStatus.PAUSED);
+                            guildBean.setFisheryStatus(FisheryStatus.PAUSED);
                         }
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         return true;
 
                     case 6:
-                        if (serverBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
+                        if (guildBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, getString("stoplock"));
@@ -162,13 +162,13 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options_" + serverBean.getFisheryStatus().ordinal()).split("\n"));
+                setOptions(getString("state0_options_" + guildBean.getFisheryStatus().ordinal()).split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[serverBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Emojis.EMPTY_EMOJI, false)
-                        .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryTreasureChests())), getString("state0_mtreasurechests_desc"), true)
-                        .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(serverBean.isFisheryReminders())), getString("state0_mreminders_desc"), true)
-                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(serverBean.hasFisheryCoinsGivenLimit())), getString("state0_mcoinsgivenlimit_desc"), true)
+                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[guildBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Emojis.EMPTY_EMOJI, false)
+                        .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(guildBean.isFisheryTreasureChests())), getString("state0_mtreasurechests_desc"), true)
+                        .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(guildBean.isFisheryReminders())), getString("state0_mreminders_desc"), true)
+                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(guildBean.hasFisheryCoinsGivenLimit())), getString("state0_mcoinsgivenlimit_desc"), true)
                         .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false);
 
             case 1:
@@ -204,7 +204,7 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
             message.getCurrentCachedInstance().ifPresent(m -> m.edit(eb).exceptionally(ExceptionLogger.get()));
 
-            FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getUserId());
+            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getUserId());
             MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
                 Random r = new Random();
                 String[] winLose = new String[]{ "win", "lose" };

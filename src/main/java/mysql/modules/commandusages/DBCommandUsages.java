@@ -1,13 +1,12 @@
 package mysql.modules.commandusages;
 
-import mysql.DBMapCache;
+import mysql.DBIntervalMapCache;
 import mysql.DBMain;
-import mysql.interfaces.IntervalSave;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DBCommandUsages extends DBMapCache<String, CommandUsagesBean> implements IntervalSave {
+public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesBean> {
 
     private static final DBCommandUsages ourInstance = new DBCommandUsages();
 
@@ -16,6 +15,7 @@ public class DBCommandUsages extends DBMapCache<String, CommandUsagesBean> imple
     }
 
     private DBCommandUsages() {
+        super(20);
     }
 
     @Override
@@ -53,11 +53,6 @@ public class DBCommandUsages extends DBMapCache<String, CommandUsagesBean> imple
             preparedStatement.setLong(2, inc);
             preparedStatement.setLong(3, inc);
         });
-    }
-
-    @Override
-    public int getIntervalMinutes() {
-        return 20;
     }
 
 }

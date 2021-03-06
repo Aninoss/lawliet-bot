@@ -71,7 +71,7 @@ public class DBBannedWords extends DBMapCache<Long, BannedWordsBean> {
         });
     }
 
-    private ArrayList<Long> getIgnoredUsers(long serverId) throws SQLException {
+    private ArrayList<Long> getIgnoredUsers(long serverId) {
         return new DBDataLoad<Long>("BannedWordsIgnoredUsers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -91,7 +91,7 @@ public class DBBannedWords extends DBMapCache<Long, BannedWordsBean> {
         });
     }
 
-    private ArrayList<Long> getLogReceivers(long serverId) throws SQLException {
+    private ArrayList<Long> getLogReceivers(long serverId) {
         return new DBDataLoad<Long>("BannedWordsLogRecievers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));
@@ -111,7 +111,7 @@ public class DBBannedWords extends DBMapCache<Long, BannedWordsBean> {
         });
     }
 
-    private ArrayList<String> getWords(long serverId) throws SQLException {
+    private ArrayList<String> getWords(long serverId) {
         return new DBDataLoad<String>("BannedWordsWords", "word", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getString(1));

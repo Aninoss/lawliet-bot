@@ -42,7 +42,7 @@ public class WarnLogCommand extends UserAccountAbstract {
         List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(3);
         Collections.reverse(slots);
         for(GuildWarningsSlot serverWarningsSlot: slots) {
-            Optional<User> requestor = serverWarningsSlot.getRequesterUser();
+            Optional<User> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
             String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", StringUtil.escapeMarkdown(requestor.get().getName()))) : TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user");
             String timeDiffString = TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);

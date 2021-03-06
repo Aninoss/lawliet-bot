@@ -9,9 +9,9 @@ import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -38,7 +38,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
     private long userId;
     private Server server;
-    private FisheryUserBean fisheryUserBean;
+    private FisheryMemberBean fisheryMemberBean;
 
     public FisheryManageCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -48,8 +48,8 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
-        FisheryStatus status = serverBean.getFisheryStatus();
+        GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        FisheryStatus status = guildBean.getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
             return false;
@@ -69,7 +69,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
         server = event.getServer().get();
         userId = list.get(0).getId();
-        fisheryUserBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(userId);
+        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(userId);
 
         followedString = userMentions.getResultMessageString();
         if (followedString.length() > 0) {
@@ -145,7 +145,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
         if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) return null;
 
-        long baseValue = getBaseValueByType(fisheryUserBean, type);
+        long baseValue = getBaseValueByType(fisheryMemberBean, type);
         valueOld.set(baseValue);
         long newValue = MentionUtil.getAmountExt(inputString, baseValue);
         if (newValue == -1)
@@ -161,17 +161,17 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         switch (type) {
             /* Fish */
             case 0:
-                fisheryUserBean.setFish(newValue);
+                fisheryMemberBean.setFish(newValue);
                 break;
 
             /* Coins */
             case 1:
-                fisheryUserBean.setCoinsRaw(newValue + fisheryUserBean.getCoinsHidden());
+                fisheryMemberBean.setCoinsRaw(newValue + fisheryMemberBean.getCoinsHidden());
                 break;
 
             /* Daily Streak */
             case 2:
-                fisheryUserBean.setDailyStreak(newValue);
+                fisheryMemberBean.setDailyStreak(newValue);
                 break;
 
             default:
@@ -196,16 +196,16 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         return newValue;
     }
 
-    private long getBaseValueByType(FisheryUserBean fisheryUserBean, int type) {
+    private long getBaseValueByType(FisheryMemberBean fisheryMemberBean, int type) {
         switch (type) {
             case 0:
-                return fisheryUserBean.getFish();
+                return fisheryMemberBean.getFish();
 
             case 1:
-                return fisheryUserBean.getCoins();
+                return fisheryMemberBean.getCoins();
 
             case 2:
-                return fisheryUserBean.getDailyStreak();
+                return fisheryMemberBean.getDailyStreak();
 
             default:
                 throw new IndexOutOfBoundsException("invalid type");
@@ -234,9 +234,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         if (state == 0) {
             setOptions(
                     getString("state0_options",
-                        StringUtil.numToString(fisheryUserBean.getFish()),
-                        StringUtil.numToString(fisheryUserBean.getCoins()),
-                        StringUtil.numToString(fisheryUserBean.getDailyStreak())
+                        StringUtil.numToString(fisheryMemberBean.getFish()),
+                        StringUtil.numToString(fisheryMemberBean.getCoins()),
+                        StringUtil.numToString(fisheryMemberBean.getDailyStreak())
                     ).split("\n")
             );
 
@@ -246,9 +246,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             return EmbedFactory.getEmbedDefault(this,
                     getString("state1_description",
                             state - 1,
-                            StringUtil.numToString(fisheryUserBean.getFish()),
-                            StringUtil.numToString(fisheryUserBean.getCoins()),
-                            StringUtil.numToString(fisheryUserBean.getDailyStreak())),
+                            StringUtil.numToString(fisheryMemberBean.getFish()),
+                            StringUtil.numToString(fisheryMemberBean.getCoins()),
+                            StringUtil.numToString(fisheryMemberBean.getDailyStreak())),
                     getString("state1_title", state - 1)
             );
         }

@@ -36,7 +36,7 @@ public class DBAutoRoles extends DBMapCache<Long, AutoRolesBean> {
     protected void save(AutoRolesBean autoRolesBean) {
     }
 
-    private ArrayList<Long> getRoleIds(long serverId) throws SQLException {
+    private ArrayList<Long> getRoleIds(long serverId) {
         return new DBDataLoad<Long>("BasicRole", "roleId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getArrayList(resultSet -> resultSet.getLong(1));

@@ -28,13 +28,13 @@ public class Mod {
 
     private static final String EMOJI_AUTOMOD = "👷";
 
-    public static void insertWarning(Locale locale, Guild guild, Member member, Member requestor, String reason, boolean withAutoActions) throws ExecutionException {
+    public static void insertWarning(Locale locale, Guild guild, Member member, Member requester, String reason, boolean withAutoActions) throws ExecutionException {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), member.getIdLong()));
         serverWarningsBean.getWarnings().add(new GuildWarningsSlot(
                         guild.getIdLong(),
                         member.getIdLong(),
                         Instant.now(),
-                        requestor.getIdLong(),
+                        requester.getIdLong(),
                         reason == null || reason.isEmpty() ? null : reason
                 )
         );

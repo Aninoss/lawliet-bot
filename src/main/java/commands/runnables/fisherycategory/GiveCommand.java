@@ -11,7 +11,7 @@ import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -59,8 +59,8 @@ public class GiveCommand extends FisheryAbstract {
             if (!user0.getRoles(role.getServer()).contains(role)) return false;
         }
 
-        FisheryUserBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(user0.getId());
-        FisheryUserBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(user1.getId());
+        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(user0.getId());
+        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(user1.getId());
         long value = Math.min(MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins()), fisheryUser0.getCoins());
         long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
 

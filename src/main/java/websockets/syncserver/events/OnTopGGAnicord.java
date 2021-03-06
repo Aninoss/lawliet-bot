@@ -8,7 +8,7 @@ import core.TextManager;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import websockets.syncserver.SyncServerEvent;
@@ -26,7 +26,7 @@ public class OnTopGGAnicord extends OnTopGG {
         Optional.ofNullable(guild.getMemberById(userId)).ifPresent(user -> {
             TextChannel bumpChannel = guild.getTextChannelById(713849992611102781L);
 
-            FisheryUserBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getUserBean(userId);
+            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getUserBean(userId);
             long add = Fishery.getClaimValue(userBean);
 
             String desc = TextManager.getString(locale, TextManager.GENERAL, "topgg_aninoss", user.getAsMention(), guild.getName(), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));

@@ -4,7 +4,7 @@ import constants.FisheryStatus;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryServerBean;
+import mysql.modules.fisheryusers.FisheryGuildBean;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 
@@ -15,11 +15,11 @@ public class ServerMemberJoinFisheryOnGuildStatus extends GuildMemberJoinAbstrac
     public boolean onGuildMemberJoin(ServerMemberJoinEvent event) throws Throwable {
         Server server = event.getServer();
 
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(server.getId());
-        if (fisheryServerBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(server.getId());
+        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;
 
-        fisheryServerBean.getUserBean(event.getUser().getId()).setOnServer(true);
+        fisheryGuildBean.getUserBean(event.getUser().getId()).setOnServer(true);
 
         return true;
     }

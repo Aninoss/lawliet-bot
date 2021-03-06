@@ -134,17 +134,17 @@ public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
         });
     }
 
-    private HashMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes(int surveyId) throws SQLException {
+    private HashMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes(int surveyId) {
         return new DBDataLoad<SurveySecondVote>("SurveyMajorityVotes", "serverId, userId, majorityVote", "surveyId = ?",
                 preparedStatement -> preparedStatement.setInt(1, surveyId)
-        ).getHashMap(secondVote -> new Pair<>(secondVote.getServerId(), secondVote.getUserId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
+        ).getHashMap(secondVote -> new Pair<>(secondVote.getServerId(), secondVote.getMemberId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
     }
 
     private void addSecondVote(int surveyId, SurveySecondVote surveySecondVote) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyMajorityVotes (surveyId, serverId, userId, majorityVote) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
             preparedStatement.setLong(2, surveySecondVote.getServerId());
-            preparedStatement.setLong(3, surveySecondVote.getUserId());
+            preparedStatement.setLong(3, surveySecondVote.getMemberId());
             preparedStatement.setByte(4, surveySecondVote.getVote());
         });
     }
@@ -153,11 +153,11 @@ public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
         DBMain.getInstance().asyncUpdate("DELETE FROM SurveyVotes WHERE surveyId = ? AND serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
             preparedStatement.setLong(2, surveySecondVote.getServerId());
-            preparedStatement.setLong(3, surveySecondVote.getUserId());
+            preparedStatement.setLong(3, surveySecondVote.getMemberId());
         });
     }
 
-    private ArrayList<Long> getNotificationUserIds() throws SQLException {
+    private ArrayList<Long> getNotificationUserIds() {
         return new DBDataLoad<Long>("SurveyNotifications", "userId", "1",
                 preparedStatement -> {
                 }

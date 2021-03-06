@@ -11,8 +11,8 @@ import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
-import mysql.modules.fisheryusers.FisheryUserPowerUpBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberPowerUpBean;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -45,9 +45,9 @@ public class GearCommand extends FisheryUserAccountAbstract {
 
     @Override
     protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
-        FisheryUserBean fisheryUserBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(user.getId());
+        FisheryMemberBean fisheryMemberBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(user.getId());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(getString("desc", StringUtil.numToString(fisheryUserBean.getFish()), StringUtil.numToString(fisheryUserBean.getCoins())));
+                .setDescription(getString("desc", StringUtil.numToString(fisheryMemberBean.getFish()), StringUtil.numToString(fisheryMemberBean.getCoins())));
         EmbedUtil.setFooter(eb, this);
 
         boolean patron = PatreonCache.getInstance().getUserTier(user.getId()) >= 1;
@@ -62,7 +62,7 @@ public class GearCommand extends FisheryUserAccountAbstract {
 
         //Gear
         StringBuilder gearString = new StringBuilder();
-        for (FisheryUserPowerUpBean slot : fisheryUserBean.getPowerUpMap().values()) {
+        for (FisheryMemberPowerUpBean slot : fisheryMemberBean.getPowerUpMap().values()) {
             gearString.append(getString(
                     "gear_slot",
                     FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()],
@@ -72,16 +72,16 @@ public class GearCommand extends FisheryUserAccountAbstract {
         }
         eb.addField(getString("gear_title"), gearString.toString(), false);
 
-        int roleLvl = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
+        int roleLvl = fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
         eb.addField(getString("stats_title"), getString(
                 "stats_content",
-                StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
-                StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
-                StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
-                StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
+                StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
+                StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
+                StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
+                StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
                 buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? buyableRoles.get(roleLvl - 1).getMentionTag() : "**-**",
-                StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect()),
-                fisheryUserBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryUserBean.getCoinsGivenMax()) : "∞"
+                StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect()),
+                fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGivenMax()) : "∞"
         ), false);
 
         return eb;

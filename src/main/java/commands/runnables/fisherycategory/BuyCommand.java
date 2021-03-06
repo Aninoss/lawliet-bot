@@ -11,11 +11,11 @@ import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryServerBean;
-import mysql.modules.fisheryusers.FisheryUserBean;
-import mysql.modules.fisheryusers.FisheryUserPowerUpBean;
+import mysql.modules.fisheryusers.FisheryGuildBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberPowerUpBean;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
@@ -41,11 +41,11 @@ import java.util.concurrent.ExecutionException;
 )
 public class BuyCommand extends FisheryAbstract implements OnNavigationListenerOld {
 
-    private FisheryUserBean fisheryUserBean;
-    private FisheryServerBean fisheryServerBean;
+    private FisheryMemberBean fisheryMemberBean;
+    private FisheryGuildBean fisheryGuildBean;
     private int numberReactions = 0;
     private Server server;
-    private ServerBean serverBean;
+    private GuildBean guildBean;
 
     public BuyCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -53,12 +53,12 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
         server = event.getServer().get();
-        fisheryUserBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(event.getMessageAuthor().getId());
-        fisheryServerBean = fisheryUserBean.getFisheryServerBean();
+        fisheryMemberBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(event.getMessageAuthor().getId());
+        fisheryGuildBean = fisheryMemberBean.getFisheryServerBean();
 
-        checkRolesWithLog(fisheryServerBean.getRoles(), null);
+        checkRolesWithLog(fisheryGuildBean.getRoles(), null);
 
         if (followedString.length() > 0) {
             String letters = StringUtil.filterLettersFromString(followedString).toLowerCase().replace(" ", "");
@@ -159,10 +159,10 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
 
     private boolean buy(int i, User user, boolean transferableSlots) throws ExecutionException, InterruptedException {
         synchronized(user)  {
-            List<Role> roles = fisheryServerBean.getRoles();
+            List<Role> roles = fisheryGuildBean.getRoles();
 
-            boolean canUseTreasureChests = serverBean.isFisheryTreasureChests();
-            boolean canUseRoles = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryServerBean.getRoleIds().size() && BotPermissionUtil.canYouManageRole(roles.get(fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
+            boolean canUseTreasureChests = guildBean.isFisheryTreasureChests();
+            boolean canUseRoles = fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryGuildBean.getRoleIds().size() && BotPermissionUtil.canYouManageRole(roles.get(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
 
             if (transferableSlots) {
                 if (i >= FisheryCategoryInterface.PER_TREASURE && !canUseTreasureChests) i++;
@@ -173,14 +173,14 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
             }
             if (i > 5 || i < 0) return false;
 
-            FisheryUserPowerUpBean slot = fisheryUserBean.getPowerUp(i);
+            FisheryMemberPowerUpBean slot = fisheryMemberBean.getPowerUp(i);
 
             long price = slot.getPrice();
             if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
                 price = calculateRolePrice(slot);
             }
 
-            if (fisheryUserBean.getCoins() >= price) {
+            if (fisheryMemberBean.getCoins() >= price) {
                 upgrade(slot, price, roles, user);
                 setLog(LogStatus.SUCCESS, getString("levelup", getString("product_" + slot.getPowerUpId() + "_0")));
                 return true;
@@ -191,9 +191,9 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
         }
     }
 
-    private void upgrade(FisheryUserPowerUpBean slot, long price, List<Role> roles, User user) throws ExecutionException, InterruptedException {
-        fisheryUserBean.changeValues(0, -price);
-        fisheryUserBean.levelUp(slot.getPowerUpId());
+    private void upgrade(FisheryMemberPowerUpBean slot, long price, List<Role> roles, User user) throws ExecutionException, InterruptedException {
+        fisheryMemberBean.changeValues(0, -price);
+        fisheryMemberBean.levelUp(slot.getPowerUpId());
 
         if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
             Role role = roles.get(slot.getLevel() - 1);
@@ -201,7 +201,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
                 role.addUser(user).get();
                 if (slot.getLevel() > 1) {
                     Server server = roles.get(0).getServer();
-                    if (serverBean.isFisherySingleRoles()) {
+                    if (guildBean.isFisherySingleRoles()) {
                         for (int j = slot.getLevel() - 2; j >= 0; j--) {
                             if (user.getRoles(server).contains(roles.get(j)))
                                 roles.get(j).removeUser(user).exceptionally(ExceptionLogger.get());
@@ -214,7 +214,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
                     }
                 }
 
-                Optional<ServerTextChannel> announcementChannelOpt = serverBean.getFisheryAnnouncementChannel();
+                Optional<ServerTextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
                 if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), PermissionDeprecated.SEND_MESSAGES)) {
                     String announcementText = getString("newrole", user.getMentionTag(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
                     announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).exceptionally(ExceptionLogger.get());
@@ -225,7 +225,7 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
 
     @Override
     public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
-        List<Role> roles = fisheryServerBean.getRoles();
+        List<Role> roles = fisheryGuildBean.getRoles();
 
         switch (state) {
             case 0:
@@ -237,13 +237,13 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
                 numberReactions = 0;
 
                 int i = 0;
-                for(FisheryUserPowerUpBean slot : fisheryUserBean.getPowerUpMap().values()) {
+                for(FisheryMemberPowerUpBean slot : fisheryMemberBean.getPowerUpMap().values()) {
                     description = new StringBuilder();
                     if (
                             (slot .getPowerUpId() != FisheryCategoryInterface.ROLE ||
-                            (slot.getLevel() < fisheryServerBean.getRoleIds().size() &&
+                            (slot.getLevel() < fisheryGuildBean.getRoleIds().size() &&
                                     BotPermissionUtil.canYouManageRole(roles.get(slot.getLevel())))) &&
-                            (slot.getPowerUpId() != FisheryCategoryInterface.PER_TREASURE || serverBean.isFisheryTreasureChests())
+                            (slot.getPowerUpId() != FisheryCategoryInterface.PER_TREASURE || guildBean.isFisheryTreasureChests())
                     ) {
                         String productDescription = "???";
                         long price = slot.getPrice();
@@ -261,18 +261,18 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
                     }
                 }
 
-                int roleLvl = fisheryUserBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
+                int roleLvl = fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
 
                 String status = getString("status",
-                        StringUtil.numToString(fisheryUserBean.getFish()),
-                        StringUtil.numToString(fisheryUserBean.getCoins()),
-                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
-                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
-                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
-                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
+                        StringUtil.numToString(fisheryMemberBean.getFish()),
+                        StringUtil.numToString(fisheryMemberBean.getCoins()),
+                        StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect()),
+                        StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect()),
+                        StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_VC).getEffect()),
+                        StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect()),
                         roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getMentionTag() : "**-**",
-                        StringUtil.numToString(fisheryUserBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect()),
-                        fisheryUserBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryUserBean.getCoinsGivenMax()) : "∞"
+                        StringUtil.numToString(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect()),
+                        fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGivenMax()) : "∞"
                 );
 
                 eb.addField(Emojis.EMPTY_EMOJI, StringUtil.shortenStringLine(status, 1024));
@@ -286,8 +286,8 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
         }
     }
 
-    private long calculateRolePrice(FisheryUserPowerUpBean slot) throws ExecutionException {
-        return Fishery.getFisheryRolePrice(server, fisheryServerBean.getRoleIds(), slot.getLevel());
+    private long calculateRolePrice(FisheryMemberPowerUpBean slot) throws ExecutionException {
+        return Fishery.getFisheryRolePrice(server, fisheryGuildBean.getRoleIds(), slot.getLevel());
     }
 
     @Override

@@ -1,6 +1,8 @@
 package modules.suggestions;
 
-public class SuggestionMessage {
+import core.assets.GuildAsset;
+
+public class SuggestionMessage implements GuildAsset {
 
     private final long guildId;
     private final long messageId;
@@ -14,6 +16,7 @@ public class SuggestionMessage {
         this.author = author;
     }
 
+    @Override
     public long getGuildId() {
         return guildId;
     }

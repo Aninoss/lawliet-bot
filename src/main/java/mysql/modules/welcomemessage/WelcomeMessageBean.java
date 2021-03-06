@@ -1,8 +1,10 @@
 package mysql.modules.welcomemessage;
 
+import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.server.Server;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +16,10 @@ public class WelcomeMessageBean extends BeanWithGuild {
     private long welcomeChannelId, goodbyeChannelId;
     private boolean welcomeActive, goodbyeActive, dmActive;
 
-    public WelcomeMessageBean(long serverId, boolean welcomeActive, String welcomeTitle, String welcomeText, long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId, boolean dmActive, String dmText) {
+    public WelcomeMessageBean(long serverId, boolean welcomeActive, String welcomeTitle, String welcomeText,
+                              long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId,
+                              boolean dmActive, String dmText
+    ) {
         super(serverId);
         this.welcomeTitle = welcomeTitle;
         this.welcomeText = welcomeText;
@@ -50,23 +55,26 @@ public class WelcomeMessageBean extends BeanWithGuild {
         return goodbyeChannelId;
     }
 
-    public Optional<ServerTextChannel> getWelcomeChannel() {
-        Optional<ServerTextChannel> channelOpt = getGuild().map(server -> server.getTextChannelById(welcomeChannelId).orElseGet(() -> getDefaultChannel(server, true)));
-        channelOpt.ifPresent(channel -> setWelcomeChannelId(channel.getId()));
+    public Optional<TextChannel> getWelcomeChannel() {
+        Optional<TextChannel> channelOpt = getGuild()
+                .map(guild -> Optional.ofNullable(guild.getTextChannelById(welcomeChannelId)).orElseGet(() -> getDefaultChannel(guild, true)));
+        channelOpt.ifPresent(channel -> setWelcomeChannelId(channel.getIdLong()));
         return channelOpt;
     }
 
-    public Optional<ServerTextChannel> getGoodbyeChannel() {
-        Optional<ServerTextChannel> channelOpt = getGuild().map(server -> server.getTextChannelById(goodbyeChannelId).orElseGet(() -> getDefaultChannel(server, false)));
-        channelOpt.ifPresent(channel -> setGoodbyeChannelId(channel.getId()));
+    public Optional<TextChannel> getGoodbyeChannel() {
+        Optional<TextChannel> channelOpt = getGuild()
+                .map(guild -> Optional.ofNullable(guild.getTextChannelById(goodbyeChannelId)).orElseGet(() -> getDefaultChannel(guild, false)));
+        channelOpt.ifPresent(channel -> setGoodbyeChannelId(channel.getIdLong()));
         return channelOpt;
     }
 
-    private ServerTextChannel getDefaultChannel(Server server, boolean attachFiles) {
-        List<ServerTextChannel> writeableChannels = server.getTextChannels().stream()
-                .filter(channel -> channel.canYouWrite() && channel.canYouEmbedLinks() && (!attachFiles || channel.canYouAttachFiles()))
+    private TextChannel getDefaultChannel(Guild guild, boolean attachFiles) {
+        List<TextChannel> writeableChannels = guild.getTextChannels().stream()
+                .filter(channel -> BotPermissionUtil.canWriteEmbed(channel) &&
+                        (!attachFiles || BotPermissionUtil.can(channel, Permission.MESSAGE_ATTACH_FILES)))
                 .collect(Collectors.toList());
-        return server.getSystemChannel().orElse(writeableChannels.size() > 0 ? writeableChannels.get(0) : null);
+        return Optional.ofNullable(guild.getSystemChannel()).orElse(writeableChannels.size() > 0 ? writeableChannels.get(0) : null);
     }
 
     public boolean isWelcomeActive() {

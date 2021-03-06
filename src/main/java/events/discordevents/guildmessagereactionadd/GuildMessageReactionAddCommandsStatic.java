@@ -8,7 +8,7 @@ import constants.Emojis;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionAddAbstract;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -33,12 +33,12 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                 message.getAuthor().isYourself() &&
                 message.getEmbeds().size() > 0
         ) {
-            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+            GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
                 String title = embed.getTitle().get();
                 for (Class<? extends OnStaticReactionAddListener> clazz : CommandContainer.getInstance().getStaticReactionAddCommands()) {
-                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, serverBean.getLocale(), serverBean.getPrefix());
+                    Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, guildBean.getLocale(), guildBean.getPrefix());
                     if (title.toLowerCase().startsWith(((OnStaticReactionAddListener)command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
                         ((OnStaticReactionAddListener)command).onStaticReactionAdd(message, event);
                         return false;

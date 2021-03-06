@@ -3,21 +3,21 @@ package mysql.modules.fisheryusers;
 import core.CustomObservableList;
 import core.CustomObservableMap;
 import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Role;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.permission.Role;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Optional;
 
-public class FisheryServerBean extends BeanWithGuild {
+public class FisheryGuildBean extends BeanWithGuild {
 
-    private final CustomObservableMap<Long, FisheryUserBean> users;
+    private final CustomObservableMap<Long, FisheryMemberBean> users;
     private final CustomObservableList<Long> ignoredChannelIds, roleIds;
 
-    public FisheryServerBean(long serverId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryUserBean> users) {
+    public FisheryGuildBean(long serverId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryMemberBean> users) {
         super(serverId);
         this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
         this.roleIds = new CustomObservableList<>(roleIds);
@@ -33,16 +33,18 @@ public class FisheryServerBean extends BeanWithGuild {
 
     public CustomObservableList<Long> getRoleIds() { return roleIds; }
 
-    public CustomObservableList<Role> getRoles() {
-        CustomObservableList<Role> roles = roleIds.transform(roleIds -> getGuild().get().getRoleById(roleIds), DiscordEntity::getId);
-        roles.sort(Comparator.comparingInt(Role::getPosition));
-        return roles;
+    public Optional<CustomObservableList<Role>> getRoles() {
+        return getGuild().map(guild -> {
+            CustomObservableList<Role> roles = roleIds.transform(guild::getRoleById, ISnowflake::getIdLong);
+            roles.sort(Comparator.comparingInt(Role::getPosition));
+            return roles;
+        });
     }
 
-    public synchronized CustomObservableMap<Long, FisheryUserBean> getUsers() { return users; }
+    public synchronized CustomObservableMap<Long, FisheryMemberBean> getUsers() { return users; }
 
-    public synchronized FisheryUserBean getUserBean(long userId) {
-        return users.computeIfAbsent(userId, k -> new FisheryUserBean(
+    public synchronized FisheryMemberBean getUserBean(long userId) {
+        return users.computeIfAbsent(userId, k -> new FisheryMemberBean(
                 getGuildId(),
                 userId,
                 this,

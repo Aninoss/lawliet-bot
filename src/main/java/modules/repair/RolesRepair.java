@@ -9,7 +9,7 @@ import core.TextManager;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryServerBean;
+import mysql.modules.fisheryusers.FisheryGuildBean;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -47,15 +47,15 @@ public class RolesRepair {
     }
 
     private void processFisheryRoles(Guild guild, int minutes) {
-        FisheryServerBean fisheryServerBean = DBFishery.getInstance().retrieve(guild.getIdLong());
-        Locale locale = fisheryServerBean.getGuildBean().getLocale();
-        if (fisheryServerBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryServerBean.getRoleIds().size() > 0) {
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+        Locale locale = fisheryGuildBean.getGuildBean().getLocale();
+        if (fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryGuildBean.getRoleIds().size() > 0) {
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
                     .forEach(member -> checkRoles(locale,
                             TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisheryroles_title"),
                             member,
-                            fisheryServerBean.getUserBean(member.getIdLong()).getRoles()
+                            fisheryGuildBean.getUserBean(member.getIdLong()).getRoles()
                     ));
         }
     }

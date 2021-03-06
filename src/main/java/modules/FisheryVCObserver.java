@@ -4,7 +4,7 @@ import constants.FisheryStatus;
 import core.*;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryServerBean;
+import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.server.DBServer;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -62,7 +62,7 @@ public class FisheryVCObserver {
     }
 
     private void manageVCFish(Guild guild, AtomicInteger actions) {
-        FisheryServerBean serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+        FisheryGuildBean serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
 
         for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
             try {

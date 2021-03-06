@@ -6,8 +6,6 @@ import core.FileManager;
 import core.ResourceHandler;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.io.File;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -94,7 +92,7 @@ public class SurveyBean extends Observable {
 
     public List<SurveySecondVote> getSurveySecondVotesForUserId(long userId) {
         return getSecondVotes().values().stream()
-                .filter(surveySecondVote -> surveySecondVote.getUserId() == userId)
+                .filter(surveySecondVote -> surveySecondVote.getMemberId() == userId)
                 .collect(Collectors.toList());
     }
 

@@ -8,7 +8,7 @@ import constants.Emojis;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionRemoveAbstract;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.Embed;
 import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
@@ -35,10 +35,10 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
         ) {
             Embed embed = message.getEmbeds().get(0);
             if (embed.getTitle().isPresent() && !embed.getAuthor().isPresent()) {
-                ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+                GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
                 String title = embed.getTitle().get();
                 for (Class<? extends OnStaticReactionRemoveListener> clazz : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
-                    Command command = CommandManager.createCommandByClass((Class<? extends Command>)clazz, serverBean.getLocale(), serverBean.getPrefix());
+                    Command command = CommandManager.createCommandByClass((Class<? extends Command>)clazz, guildBean.getLocale(), guildBean.getPrefix());
                     if (title.toLowerCase().startsWith(((OnStaticReactionRemoveListener)command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
                         ((OnStaticReactionRemoveListener)command).onStaticReactionRemove(message, event);
 

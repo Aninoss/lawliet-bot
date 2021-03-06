@@ -2,8 +2,6 @@ package mysql.modules.botstats;
 
 import core.MainLogger;
 import mysql.DBMain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import websockets.TopGG;
 
 import java.util.concurrent.ExecutionException;

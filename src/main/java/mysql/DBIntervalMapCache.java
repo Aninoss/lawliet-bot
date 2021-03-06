@@ -68,8 +68,6 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBMapC
         return changed.contains(value);
     }
 
-    protected abstract int getIntervalMinutes();
-
     @Override
     public void clear() {
     }

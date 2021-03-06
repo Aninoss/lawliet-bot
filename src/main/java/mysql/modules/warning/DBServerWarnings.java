@@ -5,7 +5,6 @@ import mysql.DBMapCache;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -40,7 +39,7 @@ public class DBServerWarnings extends DBMapCache<Pair<Long, Long>, ServerWarning
     protected void save(ServerWarningsBean serverWarningsBean) {
     }
 
-    private ArrayList<GuildWarningsSlot> getWarnings(long serverId, long userId) throws SQLException {
+    private ArrayList<GuildWarningsSlot> getWarnings(long serverId, long userId) {
         return new DBDataLoad<GuildWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
                 preparedStatement -> {
                     preparedStatement.setLong(1, serverId);
@@ -58,7 +57,7 @@ public class DBServerWarnings extends DBMapCache<Pair<Long, Long>, ServerWarning
     private void addWarning(GuildWarningsSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Warnings (serverId, userId, time, requestorUserId, reason) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
-            preparedStatement.setLong(2, serverWarningsSlot.getUserId());
+            preparedStatement.setLong(2, serverWarningsSlot.getMemberId());
             preparedStatement.setString(3, DBMain.instantToDateTimeString(serverWarningsSlot.getTime()));
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());
 
@@ -71,7 +70,7 @@ public class DBServerWarnings extends DBMapCache<Pair<Long, Long>, ServerWarning
     private void removeWarning(GuildWarningsSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Warnings WHERE serverId = ? AND userId = ? AND time = ? AND requestorUserId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
-            preparedStatement.setLong(2, serverWarningsSlot.getUserId());
+            preparedStatement.setLong(2, serverWarningsSlot.getMemberId());
             preparedStatement.setString(3, DBMain.instantToDateTimeString(serverWarningsSlot.getTime()));
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());
         });

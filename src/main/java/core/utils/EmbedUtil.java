@@ -13,6 +13,10 @@ import java.util.Locale;
 
 public class EmbedUtil {
 
+    public static EmbedBuilder setMemberAuthor(EmbedBuilder eb, Member member) {
+        return eb.setAuthor(member.getEffectiveName(), null, member.getUser().getEffectiveAvatarUrl());
+    }
+
     public static EmbedBuilder addNoResultsLog(EmbedBuilder eb, Locale locale, String searchString) {
         return addLog(eb, LogStatus.FAILURE, TextManager.getNoResultsString(locale, searchString));
     }

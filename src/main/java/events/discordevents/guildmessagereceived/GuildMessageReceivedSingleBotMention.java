@@ -6,7 +6,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 @DiscordEvent(priority = EventPriority.MEDIUM)
@@ -15,9 +15,9 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
     @Override
     public boolean onMessageCreate(MessageCreateEvent event) throws Throwable {
         if (event.getMessageContent().replace("@!", "@").trim().equalsIgnoreCase(ShardManager.getInstance().getSelf().getMentionTag())) {
-            ServerBean serverBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+            GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
 
-            String text = TextManager.getString(serverBean.getLocale(), TextManager.GENERAL, "bot_ping_help", serverBean.getPrefix());
+            String text = TextManager.getString(guildBean.getLocale(), TextManager.GENERAL, "bot_ping_help", guildBean.getPrefix());
             if (event.getChannel().canYouWrite())
                 event.getChannel().sendMessage(text).get();
 

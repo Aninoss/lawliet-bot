@@ -58,11 +58,6 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     public interface ListRemoveListener<T> { void onListRemove(List<? extends T> list); }
     public interface ListUpdateListener<T> { void onListUpdate(T t); }
 
-    public <U> CustomObservableList<U> transformJDA(Function<Long, ? extends ISnowflake> function) {
-        Function<U, Long> backFunction = u -> ((ISnowflake) u).getIdLong();
-        return transform((Function<T, U>) function, (Function<U, T>) backFunction);
-    }
-
     public <U> CustomObservableList<U> transform(Function<T, U> function, Function<U, T> backFunction) {
         ArrayList<U> listTemp = new ArrayList<>();
 

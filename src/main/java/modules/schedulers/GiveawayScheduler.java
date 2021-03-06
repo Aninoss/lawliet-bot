@@ -10,7 +10,7 @@ import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -66,13 +66,13 @@ public class GiveawayScheduler {
         }
     }
 
-    private void processGiveawayUsers(TextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean) {
+    private void processGiveawayUsers(TextChannel channel, GuildBean guildBean, GiveawayBean giveawayBean) {
         giveawayBean.retrieveMessage().ifPresent(messageRestAction -> {
             messageRestAction.queue(message -> {
                 for (MessageReaction reaction : message.getReactions()) {
                     if (reaction.getReactionEmote().getAsReactionCode().equals(giveawayBean.getEmoji())) {
                         reaction.retrieveUsers().queue(users ->
-                                processGiveaway(channel, serverBean, giveawayBean, message, new ArrayList<>(users))
+                                processGiveaway(channel, guildBean, giveawayBean, message, new ArrayList<>(users))
                         );
                         break;
                     }
@@ -81,7 +81,7 @@ public class GiveawayScheduler {
         });
     }
 
-    private void processGiveaway(TextChannel channel, ServerBean serverBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {
+    private void processGiveaway(TextChannel channel, GuildBean guildBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {
         users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
         Collections.shuffle(users);
         List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
@@ -94,7 +94,7 @@ public class GiveawayScheduler {
         CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
-                .setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+                .setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
         giveawayBean.getImageUrl().ifPresent(eb::setImage);
         if (winners.size() > 0) {
             eb.addField(
@@ -103,12 +103,12 @@ public class GiveawayScheduler {
                     false
             );
         } else {
-            eb.setDescription(TextManager.getString(serverBean.getLocale(), "utility", "giveaway_results_empty"));
+            eb.setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results_empty"));
         }
 
         giveawayBean.stop();
         message.editMessage(new EmbedWithContent(mentions.toString(), eb.build()).build()).queue();
-        if (PermissionCheckRuntime.getInstance().botHasPermission(serverBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
+        if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
             channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
         }
     }

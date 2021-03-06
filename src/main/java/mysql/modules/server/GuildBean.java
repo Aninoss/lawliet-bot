@@ -1,16 +1,14 @@
 package mysql.modules.server;
 
 import constants.FisheryStatus;
-import core.ShardManager;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.server.Server;
+import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import java.util.Locale;
-import java.util.Observable;
 import java.util.Optional;
 
-public class ServerBean extends Observable {
+public class GuildBean extends BeanWithGuild {
 
-    private final long serverId;
+    private final long guildId;
     private long fisheryRoleMin, fisheryRoleMax;
     private String prefix;
     private Locale locale;
@@ -23,10 +21,11 @@ public class ServerBean extends Observable {
     private Long fisheryAnnouncementChannelId;
     private Integer fisheryVcHoursCap;
 
-    public ServerBean(long serverId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
-                      Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
-                      int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit) {
-        this.serverId = serverId;
+    public GuildBean(long guildId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
+                     Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
+                     int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit) {
+        super(guildId);
+        this.guildId = guildId;
         this.fisheryRoleMin = fisheryRoleMin;
         this.fisheryRoleMax = fisheryRoleMax;
         this.prefix = prefix;
@@ -44,14 +43,6 @@ public class ServerBean extends Observable {
 
 
     /* Getters */
-
-    public long getServerId() {
-        return serverId;
-    }
-
-    public Optional<Server> getServer() {
-        return ShardManager.getInstance().getLocalGuildById(serverId);
-    }
 
     public long getFisheryRoleMin() {
         return fisheryRoleMin;
@@ -89,8 +80,8 @@ public class ServerBean extends Observable {
         return Optional.ofNullable(fisheryAnnouncementChannelId);
     }
 
-    public Optional<ServerTextChannel> getFisheryAnnouncementChannel() {
-        return getServer().flatMap(server -> server.getTextChannelById(fisheryAnnouncementChannelId != null ? fisheryAnnouncementChannelId : 0L));
+    public Optional<TextChannel> getFisheryAnnouncementChannel() {
+        return getGuild().map(guild -> guild.getTextChannelById(fisheryAnnouncementChannelId != null ? fisheryAnnouncementChannelId : 0L));
     }
 
     public Optional<Integer> getFisheryVcHoursCap() {
@@ -98,7 +89,7 @@ public class ServerBean extends Observable {
     }
 
     public boolean isSaved() {
-        return DBServer.getInstance().containsServerId(serverId);
+        return DBServer.getInstance().containsServerId(guildId);
     }
 
     public boolean isCommandAuthorMessageRemove() {

@@ -1,8 +1,10 @@
 package mysql.modules.survey;
 
+import core.assets.UserAsset;
+
 import java.util.Locale;
 
-public class SurveyFirstVote {
+public class SurveyFirstVote implements UserAsset {
 
     private final long userId;
     private final byte vote;
@@ -14,6 +16,7 @@ public class SurveyFirstVote {
         this.locale = locale;
     }
 
+    @Override
     public long getUserId() {
         return userId;
     }

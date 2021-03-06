@@ -1,10 +1,10 @@
 package mysql.modules.reminders;
 
+import core.assets.TextChannelAsset;
 import mysql.BeanWithGuild;
-
 import java.time.Instant;
 
-public class RemindersBean extends BeanWithGuild {
+public class RemindersBean extends BeanWithGuild implements TextChannelAsset {
 
     private final int id;
     private final long channelId;
@@ -30,7 +30,8 @@ public class RemindersBean extends BeanWithGuild {
         return id;
     }
 
-    public long getChannelId() {
+    @Override
+    public long getTextChannelId() {
         return channelId;
     }
 

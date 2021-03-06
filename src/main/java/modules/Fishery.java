@@ -6,9 +6,9 @@ import constants.Emojis;
 import constants.FisheryCategoryInterface;
 import core.EmbedFactory;
 import core.TextManager;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
-import mysql.modules.server.ServerBean;
+import mysql.modules.server.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -20,10 +20,10 @@ import java.util.concurrent.ExecutionException;
 public class Fishery {
 
     public static long getFisheryRolePrice(Guild guild, List<Long> roleIds, int n) throws ExecutionException {
-        ServerBean serverBean = DBServer.getInstance().retrieve(guild.getIdLong());
+        GuildBean guildBean = DBServer.getInstance().retrieve(guild.getIdLong());
 
-        double priceIdealMin = serverBean.getFisheryRoleMin();
-        double priceIdealMax = serverBean.getFisheryRoleMax();
+        double priceIdealMin = guildBean.getFisheryRoleMin();
+        double priceIdealMax = guildBean.getFisheryRoleMax();
 
         if (roleIds.size() == 1) return (long) priceIdealMin;
 
@@ -35,13 +35,13 @@ public class Fishery {
         return Math.round(price * (priceIdealMax / priceMax));
     }
 
-    public static long getClaimValue(FisheryUserBean userBean) {
+    public static long getClaimValue(FisheryMemberBean userBean) {
         return Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect() * 0.25);
     }
 
     public static void spawnTreasureChest(long serverId, TextChannel channel) throws ExecutionException, InterruptedException {
-        ServerBean serverBean = DBServer.getInstance().retrieve(serverId);
-        Locale locale = serverBean.getLocale();
+        GuildBean guildBean = DBServer.getInstance().retrieve(serverId);
+        Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.keyEmoji))

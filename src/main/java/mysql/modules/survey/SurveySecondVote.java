@@ -1,31 +1,27 @@
 package mysql.modules.survey;
 
-import core.ShardManager;
-import org.javacord.api.entity.server.Server;
+import core.assets.MemberAsset;
 
-import java.util.Optional;
+public class SurveySecondVote implements MemberAsset {
 
-public class SurveySecondVote {
-
-    private final long serverId, userId;
+    private final long guildId;
+    private final long memberId;
     private final byte vote;
 
-    public SurveySecondVote(long serverId, long userId, byte vote) {
-        this.serverId = serverId;
-        this.userId = userId;
+    public SurveySecondVote(long guildId, long memberId, byte vote) {
+        this.guildId = guildId;
+        this.memberId = memberId;
         this.vote = vote;
     }
 
-    public long getServerId() {
-        return serverId;
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
-    public Optional<Server> getServer() {
-        return ShardManager.getInstance().getLocalGuildById(getServerId());
-    }
-
-    public long getUserId() {
-        return userId;
+    @Override
+    public long getMemberId() {
+        return memberId;
     }
 
     public byte getVote() {

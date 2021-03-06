@@ -13,7 +13,7 @@ import core.utils.TimeUtil;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryUserBean;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.upvotes.DBUpvotes;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -39,7 +39,7 @@ public class ClaimCommand extends FisheryAbstract {
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMessage().getUserAuthor().get().getId()).plus(12, ChronoUnit.HOURS);
-        FisheryUserBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 
