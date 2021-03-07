@@ -1,8 +1,7 @@
 package commands.runnables.casinocategory;
 
-import commands.listeners.CommandProperties;
-
 import java.util.Locale;
+import commands.listeners.CommandProperties;
 
 @CommandProperties(
         trigger = "animequiz",

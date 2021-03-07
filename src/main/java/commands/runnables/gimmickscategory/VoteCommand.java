@@ -1,5 +1,8 @@
 package commands.runnables.gimmickscategory;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
@@ -8,16 +11,13 @@ import constants.Emojis;
 import constants.LetterEmojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.QuickUpdater;
 import core.cache.VoteCache;
-import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "vote",

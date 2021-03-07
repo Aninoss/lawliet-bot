@@ -1,14 +1,12 @@
 package commands.runnables;
 
-
-import constants.Category;
-import core.*;
-import modules.porn.PornImage;
-import core.utils.NSFWUtil;
-
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
+import constants.Category;
+import core.TextManager;
+import core.utils.NSFWUtil;
+import modules.porn.PornImage;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 

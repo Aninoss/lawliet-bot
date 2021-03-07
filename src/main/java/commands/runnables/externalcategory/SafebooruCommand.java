@@ -1,9 +1,8 @@
 package commands.runnables.externalcategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.PornSearchAbstract;
-
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "safeb",

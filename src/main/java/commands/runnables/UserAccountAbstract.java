@@ -1,12 +1,12 @@
 package commands.runnables;
 
+import java.util.Locale;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import java.util.Locale;
 
 public abstract class UserAccountAbstract extends Command {
 

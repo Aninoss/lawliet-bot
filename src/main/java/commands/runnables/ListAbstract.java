@@ -1,14 +1,13 @@
 package commands.runnables;
 
+import java.util.Locale;
 import commands.Command;
-import commands.listeners.OnReactionAddListener;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public abstract class ListAbstract extends Command implements OnReactionAddListener {
 

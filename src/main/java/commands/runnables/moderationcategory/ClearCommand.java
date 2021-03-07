@@ -1,5 +1,11 @@
 package commands.runnables.moderationcategory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
@@ -9,17 +15,7 @@ import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
-
-
-
-
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "clear",

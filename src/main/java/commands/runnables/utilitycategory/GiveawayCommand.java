@@ -1,27 +1,28 @@
 package commands.runnables.utilitycategory;
 
-import commands.Command;
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
-import constants.Emojis;
-import constants.LogStatus;
-import constants.Response;
-import core.*;
-import core.utils.*;
-import modules.schedulers.GiveawayScheduler;
-import mysql.modules.giveaway.DBGiveaway;
-import mysql.modules.giveaway.GiveawayBean;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Response;
+import core.*;
+import core.utils.FileUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
+import modules.schedulers.GiveawayScheduler;
+import mysql.modules.giveaway.DBGiveaway;
+import mysql.modules.giveaway.GiveawayBean;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "giveaway",

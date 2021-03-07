@@ -1,7 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+
 import commands.runnables.FisheryAbstract;
 import constants.*;
 import core.EmbedFactory;

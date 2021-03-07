@@ -1,9 +1,17 @@
 package commands.runnables.externalcategory;
 
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.ResourceHandler;
 import core.TextManager;
 import core.internet.HttpRequest;
@@ -12,14 +20,6 @@ import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.YouTubeMeta;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "ytmp3",

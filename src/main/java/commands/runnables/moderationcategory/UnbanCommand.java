@@ -1,18 +1,11 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
-import core.MainLogger;
-import core.mention.MentionList;
-import core.utils.MentionUtil;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.server.Ban;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import commands.listeners.CommandProperties;
+import core.MainLogger;
+import core.utils.MentionUtil;
 
 @CommandProperties(
         trigger = "unban",

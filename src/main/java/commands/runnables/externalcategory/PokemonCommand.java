@@ -1,5 +1,7 @@
 package commands.runnables.externalcategory;
 
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
@@ -7,8 +9,7 @@ import core.TextManager;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.StringUtil;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
     trigger = "pokemon",

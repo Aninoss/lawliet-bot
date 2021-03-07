@@ -1,9 +1,8 @@
 package commands.runnables.aitoyscategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.DeepAIAbstract;
-
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "color",

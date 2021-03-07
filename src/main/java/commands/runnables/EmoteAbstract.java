@@ -1,12 +1,11 @@
 package commands.runnables;
 
-
+import java.util.Locale;
 import commands.Command;
 import core.EmbedFactory;
 import core.RandomPicker;
 import core.utils.StringUtil;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public abstract class EmoteAbstract extends Command {
 

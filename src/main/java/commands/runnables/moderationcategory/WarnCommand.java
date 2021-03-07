@@ -1,29 +1,19 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.mention.Mention;
-import core.mention.MentionList;
-import core.utils.MentionUtil;
 import core.TextManager;
+import core.mention.Mention;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
-
-
-
-
-
-
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
     trigger = "warn",

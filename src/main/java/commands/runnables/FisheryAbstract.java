@@ -1,12 +1,11 @@
 package commands.runnables;
 
+import java.util.Locale;
 import commands.Command;
-import constants.*;
+import constants.FisheryStatus;
 import core.EmbedFactory;
 import core.TextManager;
 import mysql.modules.server.DBServer;
-
-import java.util.Locale;
 
 public abstract class FisheryAbstract extends Command {
 

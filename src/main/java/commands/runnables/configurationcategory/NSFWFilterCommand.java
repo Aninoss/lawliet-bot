@@ -1,8 +1,10 @@
 package commands.runnables.configurationcategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.LogStatus;
 import constants.Response;
 import core.CustomObservableList;
@@ -10,15 +12,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.utils.StringUtil;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.io.IOException;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "nsfwfilter",

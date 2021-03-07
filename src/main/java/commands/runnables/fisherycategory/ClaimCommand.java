@@ -1,5 +1,8 @@
 package commands.runnables.fisherycategory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.ExternalLinks;
@@ -14,10 +17,7 @@ import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.upvotes.DBUpvotes;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "claim",

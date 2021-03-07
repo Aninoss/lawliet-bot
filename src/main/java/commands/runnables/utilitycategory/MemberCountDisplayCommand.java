@@ -1,38 +1,29 @@
 package commands.runnables.utilitycategory;
 
-import commands.Command;
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
-import constants.LogStatus;
-import constants.Response;
-import core.EmbedFactory;
-import core.ListGen;
-import core.ShardManager;
-import core.TextManager;
-import core.utils.MentionUtil;
-import core.utils.BotPermissionUtil;
-import core.utils.StringUtil;
-import modules.MemberCountDisplay;
-import mysql.modules.membercountdisplays.DBMemberCountDisplays;
-import mysql.modules.membercountdisplays.MemberCountBean;
-import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.Nameable;
-import org.javacord.api.entity.channel.ServerVoiceChannel;
-import org.javacord.api.entity.channel.ServerVoiceChannelUpdater;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.*;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import constants.LogStatus;
+import constants.Response;
+import core.EmbedFactory;
+import core.ListGen;
+import core.ShardManager;
+import core.TextManager;
+import core.utils.BotPermissionUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
+import modules.MemberCountDisplay;
+import mysql.modules.membercountdisplays.DBMemberCountDisplays;
+import mysql.modules.membercountdisplays.MemberCountBean;
+import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
         trigger = "mcdisplays",

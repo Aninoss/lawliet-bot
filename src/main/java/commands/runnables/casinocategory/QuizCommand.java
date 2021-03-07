@@ -1,7 +1,11 @@
 package commands.runnables.casinocategory;
 
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.*;
 import core.EmbedFactory;
@@ -12,18 +16,9 @@ import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-
-
-
-
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "quiz",

@@ -1,7 +1,7 @@
 package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+
 import commands.Command;
 import constants.*;
 import core.*;

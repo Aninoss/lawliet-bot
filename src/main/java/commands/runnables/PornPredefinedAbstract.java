@@ -1,12 +1,11 @@
 package commands.runnables;
 
-import constants.Category;
-import core.TextManager;
-import modules.porn.PornImage;
-
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
+import constants.Category;
+import core.TextManager;
+import modules.porn.PornImage;
 
 public abstract class PornPredefinedAbstract extends PornAbstract {
 

@@ -1,13 +1,11 @@
 package commands.runnables;
 
+import java.util.Locale;
 import core.EmbedFactory;
 import core.TextManager;
-import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
-
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public abstract class FisheryUserAccountAbstract extends FisheryAbstract {
 

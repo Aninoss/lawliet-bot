@@ -1,33 +1,22 @@
 package commands.runnables.moderationcategory;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
 import constants.Response;
-import core.CustomObservableList;
 import core.EmbedFactory;
-import core.ListGen;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
-
-
-
-
-
-
-
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "wordfilter",

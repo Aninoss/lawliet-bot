@@ -1,15 +1,19 @@
 package commands.runnables.utilitycategory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnTrackerRequestListener;
 import constants.*;
-import core.ShardManager;
 import core.EmbedFactory;
 import core.MainLogger;
+import core.ShardManager;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
@@ -18,12 +22,7 @@ import core.utils.StringUtil;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
-
-import java.lang.reflect.InvocationTargetException;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "alerts",

@@ -1,8 +1,7 @@
 package commands.runnables.utilitycategory;
 
-import commands.listeners.CommandProperties;
-
 import java.util.Locale;
+import commands.listeners.CommandProperties;
 
 @CommandProperties(
         trigger = "revokerole",

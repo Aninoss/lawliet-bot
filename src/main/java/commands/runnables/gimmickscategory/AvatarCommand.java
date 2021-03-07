@@ -1,12 +1,10 @@
 package commands.runnables.gimmickscategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.UserAccountAbstract;
 import core.EmbedFactory;
-
-
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "avatar",

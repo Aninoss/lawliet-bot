@@ -1,23 +1,17 @@
 package commands.runnables.casinocategory;
 
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
-
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "tower",

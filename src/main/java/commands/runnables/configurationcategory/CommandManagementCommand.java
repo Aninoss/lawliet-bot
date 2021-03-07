@@ -1,7 +1,7 @@
 package commands.runnables.configurationcategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;

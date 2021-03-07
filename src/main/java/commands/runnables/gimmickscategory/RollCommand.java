@@ -1,15 +1,14 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
-
+import java.util.Locale;
+import java.util.Random;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-
-import java.util.Locale;
-import java.util.Random;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "roll",

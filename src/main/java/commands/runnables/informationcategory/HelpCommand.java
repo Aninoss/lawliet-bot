@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;

@@ -1,6 +1,6 @@
 package commands.runnables;
 
-
+import java.util.Locale;
 import commands.Command;
 import constants.Category;
 import core.EmbedFactory;
@@ -10,10 +10,7 @@ import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
-
-
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public abstract class RedditAbstract extends Command {
 

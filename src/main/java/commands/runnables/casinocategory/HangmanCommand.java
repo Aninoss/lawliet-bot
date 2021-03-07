@@ -1,8 +1,9 @@
 package commands.runnables.casinocategory;
 
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
@@ -13,13 +14,7 @@ import core.ResourceHandler;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-
-
-
-
-
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "hangman",

@@ -1,5 +1,9 @@
 package commands.runnables;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
@@ -8,12 +12,6 @@ import core.internet.HttpRequest;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public abstract class DeepAIAbstract extends Command {
 

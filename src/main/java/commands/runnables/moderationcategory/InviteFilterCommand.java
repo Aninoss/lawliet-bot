@@ -1,27 +1,19 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+import java.util.Locale;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.LogStatus;
 import constants.Response;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
-
-
-
-
-
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "invitefilter",

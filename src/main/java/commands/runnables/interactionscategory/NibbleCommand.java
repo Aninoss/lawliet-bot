@@ -1,20 +1,14 @@
 package commands.runnables.interactionscategory;
 
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.ShardManager;
 import core.RandomPicker;
+import core.ShardManager;
 import core.TextManager;
-import core.mention.MentionList;
 import core.utils.MentionUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.List;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
     trigger = "nibble",

@@ -1,24 +1,23 @@
 package commands.runnables.splatoon2category;
 
-import commands.listeners.*;
-import commands.Command;
-import constants.Emojis;
-import constants.TrackerResult;
-import core.*;
-import core.internet.InternetCache;
-import core.utils.EmbedUtil;
-import core.utils.TimeUtil;
-import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
+import constants.Emojis;
+import constants.TrackerResult;
+import core.EmbedFactory;
+import core.internet.InternetCache;
+import core.utils.EmbedUtil;
+import core.utils.TimeUtil;
+import mysql.modules.tracker.TrackerBeanSlot;
+import net.dv8tion.jda.api.EmbedBuilder;
+import org.json.JSONObject;
 
 @CommandProperties(
     trigger = "maps",

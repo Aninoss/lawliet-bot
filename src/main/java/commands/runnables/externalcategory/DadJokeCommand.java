@@ -1,15 +1,17 @@
 package commands.runnables.externalcategory;
 
-import commands.listeners.CommandProperties;
-
+import java.util.List;
+import java.util.Locale;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Language;
-import core.*;
+import core.EmbedFactory;
+import core.FileManager;
+import core.RandomPicker;
+import core.ResourceHandler;
 import core.internet.HttpRequest;
 import core.utils.StringUtil;
 import org.json.JSONObject;
-import java.util.List;
-import java.util.Locale;
 
 @CommandProperties(
     trigger = "dadjoke",

@@ -1,10 +1,9 @@
 package commands.runnables.nsfwcategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.PornSearchAbstract;
-
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "r34",

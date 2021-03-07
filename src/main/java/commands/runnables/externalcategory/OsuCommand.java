@@ -1,14 +1,12 @@
 package commands.runnables.externalcategory;
 
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
 import commands.runnables.UserAccountAbstract;
 import constants.LogStatus;
-import core.CustomObservableMap;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.TextManager;
-import core.utils.DiscordUtil;
+import core.*;
 import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
@@ -18,10 +16,7 @@ import modules.osu.OsuAccountDownloader;
 import modules.osu.OsuAccountSync;
 import mysql.modules.osuaccounts.DBOsuAccounts;
 import mysql.modules.osuaccounts.OsuBeanBean;
-
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "osu",

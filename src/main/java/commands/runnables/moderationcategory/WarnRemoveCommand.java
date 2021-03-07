@@ -1,29 +1,21 @@
 package commands.runnables.moderationcategory;
 
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
 import core.CustomObservableList;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
-import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.GuildWarningsSlot;
-
-
-
-
-
-
-
-
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "warnremove",

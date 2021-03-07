@@ -1,5 +1,10 @@
 package commands.runnables.splatoon2category;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
@@ -10,17 +15,9 @@ import core.internet.InternetCache;
 import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "salmon",

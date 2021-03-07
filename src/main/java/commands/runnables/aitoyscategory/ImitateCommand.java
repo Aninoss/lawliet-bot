@@ -1,19 +1,18 @@
 package commands.runnables.aitoyscategory;
 
-import commands.Command;
-import commands.listeners.CommandProperties;
-import core.EmbedFactory;
-import core.TextManager;
-import core.mention.MentionList;
-import core.utils.*;
-import modules.textai.TextAI;
-import modules.textai.TextAICache;
-
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import core.EmbedFactory;
+import core.TextManager;
+import core.utils.*;
+import modules.textai.TextAI;
+import modules.textai.TextAICache;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "imitate",

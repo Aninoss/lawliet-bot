@@ -1,8 +1,9 @@
 package commands.runnables.moderationcategory;
 
+import java.io.IOException;
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
@@ -11,17 +12,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
-
-
-
-
-
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "mod",

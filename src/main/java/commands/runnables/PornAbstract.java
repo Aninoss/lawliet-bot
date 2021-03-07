@@ -1,25 +1,5 @@
 package commands.runnables;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import commands.Command;
-import constants.Category;
-import constants.ExternalLinks;
-import constants.LogStatus;
-import constants.TrackerResult;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.TextManager;
-import core.cache.PatternCache;
-import core.cache.PatreonCache;
-import core.utils.EmbedUtil;
-import core.utils.NSFWUtil;
-import core.utils.StringUtil;
-import modules.porn.PornImage;
-import modules.porn.PornImageDownloader;
-import mysql.modules.nsfwfilter.DBNSFWFilters;
-import mysql.modules.tracker.TrackerBeanSlot;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -32,6 +12,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import commands.Command;
+import constants.Category;
+import constants.ExternalLinks;
+import constants.LogStatus;
+import constants.TrackerResult;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.MainLogger;
+import core.TextManager;
+import core.cache.PatreonCache;
+import core.cache.PatternCache;
+import core.utils.EmbedUtil;
+import core.utils.NSFWUtil;
+import core.utils.StringUtil;
+import modules.porn.PornImage;
+import modules.porn.PornImageDownloader;
+import mysql.modules.nsfwfilter.DBNSFWFilters;
+import mysql.modules.tracker.TrackerBeanSlot;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public abstract class PornAbstract extends Command {
 

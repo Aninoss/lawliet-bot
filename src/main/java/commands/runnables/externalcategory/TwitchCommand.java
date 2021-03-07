@@ -1,10 +1,15 @@
 package commands.runnables.externalcategory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.Optional;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -12,11 +17,7 @@ import modules.twitch.TwitchDownloader;
 import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerBeanSlot;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-import java.util.Optional;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "twitch",

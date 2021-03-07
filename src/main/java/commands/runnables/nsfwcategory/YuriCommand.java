@@ -1,10 +1,9 @@
 package commands.runnables.nsfwcategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.GelbooruAbstract;
-
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "yuri",

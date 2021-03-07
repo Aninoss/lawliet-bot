@@ -1,15 +1,10 @@
 package commands.runnables.moderationcategory;
 
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
-
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
     trigger = "ban",

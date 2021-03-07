@@ -1,5 +1,8 @@
 package commands.runnables.externalcategory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
@@ -10,13 +13,7 @@ import modules.PostBundle;
 import modules.animenews.AnimeNewsDownloader;
 import modules.animenews.AnimeNewsPost;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
     trigger = "animenews",

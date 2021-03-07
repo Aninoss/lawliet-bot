@@ -1,15 +1,12 @@
 package commands.runnables.configurationcategory;
 
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
 import mysql.modules.server.DBServer;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.Locale;
 
 @CommandProperties(
     trigger = "prefix",

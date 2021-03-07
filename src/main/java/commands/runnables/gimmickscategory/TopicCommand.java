@@ -1,20 +1,20 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
-import commands.Command;
-import constants.TrackerResult;
-import core.*;
-import core.utils.EmbedUtil;
-import core.utils.StringUtil;
-import mysql.modules.tracker.TrackerBeanSlot;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
+import constants.TrackerResult;
+import core.*;
+import core.utils.EmbedUtil;
+import core.utils.StringUtil;
+import mysql.modules.tracker.TrackerBeanSlot;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "topic",

@@ -1,26 +1,18 @@
 package commands.runnables.utilitycategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
-import commands.Command;
-import commands.NavigationHelper;
-import constants.Response;
-import core.*;
-import core.utils.MentionUtil;
-import mysql.modules.autoroles.AutoRolesBean;
-import mysql.modules.autoroles.DBAutoRoles;
-
-
-
-
-
-
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
+import commands.NavigationHelper;
+import commands.listeners.CommandProperties;
+import constants.Response;
+import core.EmbedFactory;
+import core.utils.MentionUtil;
+import mysql.modules.autoroles.AutoRolesBean;
+import mysql.modules.autoroles.DBAutoRoles;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "autoroles",

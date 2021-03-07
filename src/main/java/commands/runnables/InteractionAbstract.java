@@ -1,14 +1,14 @@
 package commands.runnables;
 
-
+import java.util.Locale;
 import commands.Command;
 import core.EmbedFactory;
-import core.mention.Mention;
-import core.utils.MentionUtil;
 import core.RandomPicker;
 import core.TextManager;
+import core.mention.Mention;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public abstract class InteractionAbstract extends Command {
 

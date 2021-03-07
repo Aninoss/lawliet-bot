@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
+
 import commands.listeners.OnStaticReactionAddListener;
 import constants.*;
 import core.CustomObservableList;
