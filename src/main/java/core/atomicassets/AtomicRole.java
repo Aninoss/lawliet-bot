@@ -1,9 +1,11 @@
 package core.atomicassets;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.Role;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.Role;
 
 public class AtomicRole implements MentionableAtomicAsset<Role> {
 
@@ -42,6 +44,12 @@ public class AtomicRole implements MentionableAtomicAsset<Role> {
     @Override
     public int hashCode() {
         return Objects.hash(roleId);
+    }
+
+    public static List<AtomicRole> from(List<Role> roles) {
+        return roles.stream()
+                .map(AtomicRole::new)
+                .collect(Collectors.toList());
     }
 
 }

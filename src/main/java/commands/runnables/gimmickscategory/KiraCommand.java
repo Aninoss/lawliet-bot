@@ -1,7 +1,7 @@
 package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 
 import java.util.Locale;
@@ -12,7 +12,7 @@ import java.util.Random;
     emoji = "\u270D\uFE0F️️",
     executableWithoutArgs = true
 )
-public class KiraCommand extends UserAccountAbstract {
+public class KiraCommand extends MemberAccountAbstract {
 
     public KiraCommand(Locale locale, String prefix) {
         super(locale, prefix);

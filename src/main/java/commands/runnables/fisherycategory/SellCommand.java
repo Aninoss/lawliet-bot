@@ -3,7 +3,7 @@ package commands.runnables.fisherycategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionAddListener;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import constants.Response;
 import core.EmbedFactory;
 import core.utils.MentionUtil;
@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
         executableWithoutArgs = true,
         aliases = { "s" }
 )
-public class SellCommand extends FisheryAbstract implements OnReactionAddListener, OnMessageInputListener {
+public class SellCommand extends FisheryInterface implements OnReactionAddListener, OnMessageInputListener {
 
     private Message message;
     private FisheryMemberBean userBean;

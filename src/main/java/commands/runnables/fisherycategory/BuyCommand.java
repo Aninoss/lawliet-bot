@@ -1,10 +1,14 @@
 package commands.runnables.fisherycategory;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import constants.*;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
@@ -16,11 +20,7 @@ import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.fisheryusers.FisheryMemberPowerUpBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "buy",
@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutionException;
         executableWithoutArgs = true,
         aliases = { "shop", "upgrade", "invest", "levelup", "b" }
 )
-public class BuyCommand extends FisheryAbstract implements OnNavigationListenerOld {
+public class BuyCommand extends FisheryInterface implements OnNavigationListenerOld {
 
     private FisheryMemberBean fisheryMemberBean;
     private FisheryGuildBean fisheryGuildBean;

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         executableWithoutArgs = true,
         aliases = {"warns"}
 )
-public class WarnLogCommand extends UserAccountAbstract {
+public class WarnLogCommand extends MemberAccountAbstract {
 
     public WarnLogCommand(Locale locale, String prefix) {
         super(locale, prefix);

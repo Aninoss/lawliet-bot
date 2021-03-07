@@ -3,7 +3,7 @@ package commands.runnables.fisherycategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTrackerRequestListener;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import constants.*;
 import core.ShardManager;
 import core.EmbedFactory;
@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executableWithoutArgs = true
 )
-public class SurveyCommand extends FisheryAbstract implements OnStaticReactionAddListener, OnTrackerRequestListener {
+public class SurveyCommand extends FisheryInterface implements OnStaticReactionAddListener, OnTrackerRequestListener {
 
     private static final String BELL_EMOJI = "🔔";
 

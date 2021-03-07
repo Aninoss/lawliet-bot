@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         onlyPublicVersion = true,
         aliases = { "c" }
 )
-public class ClaimCommand extends FisheryAbstract {
+public class ClaimCommand extends FisheryInterface {
 
     public ClaimCommand(Locale locale, String prefix) {
         super(locale, prefix);

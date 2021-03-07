@@ -1,7 +1,7 @@
 package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -18,7 +18,7 @@ import java.util.Locale;
         patreonRequired = true,
         aliases = { "tresure", "treasurechest" }
 )
-public class TreasureCommand extends FisheryAbstract {
+public class TreasureCommand extends FisheryInterface {
 
     public TreasureCommand(Locale locale, String prefix) {
         super(locale, prefix);

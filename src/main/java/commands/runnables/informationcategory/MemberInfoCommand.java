@@ -1,7 +1,7 @@
 package commands.runnables.informationcategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -18,9 +18,9 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = {"userinfos", "userstat", "userstats", "accountinfo", "whois"}
 )
-public class UserInfoCommand extends UserAccountAbstract {
+public class MemberInfoCommand extends MemberAccountAbstract {
 
-    public UserInfoCommand(Locale locale, String prefix) {
+    public MemberInfoCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 

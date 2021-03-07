@@ -1,9 +1,11 @@
 package core.atomicassets;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.TextChannel;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
 
@@ -42,6 +44,12 @@ public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
     @Override
     public int hashCode() {
         return Objects.hash(channelId);
+    }
+
+    public static List<AtomicTextChannel> from(List<TextChannel> channels) {
+        return channels.stream()
+                .map(AtomicTextChannel::new)
+                .collect(Collectors.toList());
     }
 
 }

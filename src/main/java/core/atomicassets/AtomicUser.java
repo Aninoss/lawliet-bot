@@ -1,9 +1,11 @@
 package core.atomicassets;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.User;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.User;
 
 public class AtomicUser implements MentionableAtomicAsset<User> {
 
@@ -38,6 +40,12 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     @Override
     public int hashCode() {
         return Objects.hash(userId);
+    }
+
+    public static List<AtomicUser> from(List<User> users) {
+        return users.stream()
+                .map(AtomicUser::new)
+                .collect(Collectors.toList());
     }
 
 }

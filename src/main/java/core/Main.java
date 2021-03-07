@@ -1,13 +1,13 @@
 package core;
 
+import java.io.File;
+import java.time.Instant;
 import core.utils.BotUtil;
 import mysql.DBMain;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
 import websockets.syncserver.SyncManager;
-import java.io.File;
-import java.time.Instant;
 
 public class Main {
 
@@ -39,16 +39,18 @@ public class Main {
 
     private static void createTempDir() {
         File tempDir = new File("temp");
-        if (!tempDir.exists() && !tempDir.mkdir())
+        if (!tempDir.exists() && !tempDir.mkdir()) {
             throw new RuntimeException("Could not create temp dir");
+        }
     }
 
     private static void initializeUpdate() {
         VersionBean versionBean = DBVersion.getInstance().retrieve();
 
         String currentVersionDB = versionBean.getCurrentVersion().getVersion();
-        if (!BotUtil.getCurrentVersion().equals(currentVersionDB))
+        if (!BotUtil.getCurrentVersion().equals(currentVersionDB)) {
             versionBean.getSlots().add(new VersionBeanSlot(BotUtil.getCurrentVersion(), Instant.now()));
+        }
     }
 
 }

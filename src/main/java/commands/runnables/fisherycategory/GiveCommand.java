@@ -1,7 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.mention.MentionList;
@@ -28,7 +28,7 @@ import java.util.Locale;
         executableWithoutArgs = false,
         aliases = {"gift", "pay" }
 )
-public class GiveCommand extends FisheryAbstract {
+public class GiveCommand extends FisheryInterface {
 
     public GiveCommand(Locale locale, String prefix) {
         super(locale, prefix);

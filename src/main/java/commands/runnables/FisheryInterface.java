@@ -8,7 +8,7 @@ import core.TextManager;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public interface FisheryAbstract extends OnTriggerListener {
+public interface FisheryInterface extends OnTriggerListener {
 
     boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable;
 

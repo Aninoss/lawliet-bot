@@ -2,7 +2,7 @@ package commands.runnables.gimmickscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         executableWithoutArgs = true,
         aliases = { "profilepic" }
 )
-public class AvatarCommand extends UserAccountAbstract {
+public class AvatarCommand extends MemberAccountAbstract {
 
     public AvatarCommand(Locale locale, String prefix) {
         super(locale, prefix);

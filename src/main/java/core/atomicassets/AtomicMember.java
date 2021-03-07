@@ -1,9 +1,11 @@
 package core.atomicassets;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.Member;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.Member;
 
 public class AtomicMember implements MentionableAtomicAsset<Member> {
 
@@ -42,6 +44,12 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     @Override
     public int hashCode() {
         return Objects.hash(memberId);
+    }
+
+    public static List<AtomicMember> from(List<Member> members) {
+        return members.stream()
+                .map(AtomicMember::new)
+                .collect(Collectors.toList());
     }
 
 }

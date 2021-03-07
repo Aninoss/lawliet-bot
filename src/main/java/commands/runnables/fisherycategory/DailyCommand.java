@@ -1,7 +1,11 @@
 package commands.runnables.fisherycategory;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryAbstract;
+import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.FisheryCategoryInterface;
 import constants.LogStatus;
@@ -13,11 +17,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "daily",
@@ -26,7 +26,7 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = { "d" }
 )
-public class DailyCommand extends FisheryAbstract {
+public class DailyCommand extends FisheryInterface {
 
     public DailyCommand(Locale locale, String prefix) {
         super(locale, prefix);

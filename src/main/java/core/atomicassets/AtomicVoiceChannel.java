@@ -1,9 +1,11 @@
 package core.atomicassets;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
 
@@ -42,6 +44,12 @@ public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
     @Override
     public int hashCode() {
         return Objects.hash(channelId);
+    }
+
+    public static List<AtomicVoiceChannel> from(List<VoiceChannel> channels) {
+        return channels.stream()
+                .map(AtomicVoiceChannel::new)
+                .collect(Collectors.toList());
     }
 
 }

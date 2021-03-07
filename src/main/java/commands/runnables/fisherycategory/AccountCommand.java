@@ -1,7 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryUserAccountAbstract;
+import commands.runnables.FisheryMemberAccountInterface;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
 import java.util.Locale;
@@ -13,7 +13,7 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = { "profile", "profil", "account", "balance", "bal", "a" }
 )
-public class AccountCommand extends FisheryUserAccountAbstract {
+public class AccountCommand extends FisheryMemberAccountInterface {
 
     public AccountCommand(Locale locale, String prefix) {
         super(locale, prefix);

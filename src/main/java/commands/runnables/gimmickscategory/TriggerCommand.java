@@ -1,7 +1,7 @@
 package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import modules.graphics.TriggerGraphics;
 
@@ -15,7 +15,7 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = {"triggered"}
 )
-public class TriggerCommand extends UserAccountAbstract {
+public class TriggerCommand extends MemberAccountAbstract {
 
     public TriggerCommand(Locale locale, String prefix) {
         super(locale, prefix);

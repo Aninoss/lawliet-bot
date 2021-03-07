@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import constants.LogStatus;
 import core.*;
 import core.utils.EmbedUtil;
@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         releaseDate = { 2020, 11, 28 },
         aliases = { "osu!" }
 )
-public class OsuCommand extends UserAccountAbstract implements OnReactionAddListener {
+public class OsuCommand extends MemberAccountAbstract implements OnReactionAddListener {
 
     private final static String EMOJI_CONNECT = "🔍";
     private final static String EMOJI_CANCEL = "❌";

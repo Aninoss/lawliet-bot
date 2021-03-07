@@ -1,7 +1,7 @@
 package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.UserAccountAbstract;
+import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -17,7 +17,7 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = {"lgbt", "pride"}
 )
-public class RainbowCommand extends UserAccountAbstract {
+public class RainbowCommand extends MemberAccountAbstract {
 
     private long opacity;
 

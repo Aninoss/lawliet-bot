@@ -1,7 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryUserAccountAbstract;
+import commands.runnables.FisheryMemberAccountInterface;
 import constants.Category;
 import constants.FisheryCategoryInterface;
 import core.EmbedFactory;
@@ -29,7 +29,7 @@ import java.util.Locale;
         executableWithoutArgs = true,
         aliases = { "equip", "equipment", "inventory", "level", "g" }
 )
-public class GearCommand extends FisheryUserAccountAbstract {
+public class GearCommand extends FisheryMemberAccountInterface {
 
     private List<Role> buyableRoles;
 

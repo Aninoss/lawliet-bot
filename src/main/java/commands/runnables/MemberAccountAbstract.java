@@ -13,11 +13,11 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public abstract class UserAccountAbstract extends Command {
+public abstract class MemberAccountAbstract extends Command {
 
     private boolean found = false;
 
-    public UserAccountAbstract(Locale locale, String prefix) {
+    public MemberAccountAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
