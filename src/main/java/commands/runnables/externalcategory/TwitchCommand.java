@@ -12,11 +12,6 @@ import modules.twitch.TwitchDownloader;
 import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

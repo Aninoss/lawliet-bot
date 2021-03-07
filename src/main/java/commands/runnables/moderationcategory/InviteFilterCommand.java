@@ -4,18 +4,17 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.Mentionable;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
+
+
+
+
+
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;

@@ -1,5 +1,6 @@
 package events.discordevents.guildvoicejoin;
 
+import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.Category;
 import core.PermissionCheckRuntime;
@@ -57,13 +58,13 @@ public class GuildVoiceChannelMemberJoinAutoChannel extends GuildVoiceJoinAbstra
             autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
             if (!voiceChannel.getMembers().contains(member)) {
                 voiceChannel.delete()
-                        .reason(TextManager.getString(autoChannelBean.getGuildBean().getLocale(), Category.UTILITY, "autochannel_title"))
+                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
                         .queue();
                 autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
             }
         }, e -> {
             voiceChannel.delete()
-                    .reason(TextManager.getString(autoChannelBean.getGuildBean().getLocale(), Category.UTILITY, "autochannel_title"))
+                    .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
                     .queue();
         });
     }

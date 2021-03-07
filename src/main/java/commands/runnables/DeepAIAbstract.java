@@ -6,9 +6,7 @@ import core.TextManager;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.utils.MentionUtil;
-import org.javacord.api.entity.message.MessageAttachment;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
 
 import java.net.URL;

@@ -6,7 +6,6 @@ import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.FileManager;
@@ -14,10 +13,10 @@ import core.ResourceHandler;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
+
+
+
+
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;

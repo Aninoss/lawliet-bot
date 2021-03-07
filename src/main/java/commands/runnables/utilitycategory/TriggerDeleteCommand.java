@@ -3,14 +3,10 @@ package commands.runnables.utilitycategory;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import commands.Command;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import mysql.modules.server.DBServer;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.Locale;
 

@@ -2,7 +2,6 @@ package core.atomicassets;
 
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
-
 import java.util.Objects;
 import java.util.Optional;
 

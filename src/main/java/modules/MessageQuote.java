@@ -1,5 +1,7 @@
 package modules;
 
+import commands.Command;
+import commands.runnables.gimmickscategory.QuoteCommand;
 import constants.Category;
 import core.EmbedFactory;
 import core.TextManager;
@@ -27,7 +29,7 @@ public class MessageQuote {
 
         if (searchedMessage.getEmbeds().size() == 0) {
             eb = EmbedFactory.getEmbedDefault()
-                    .setFooter(TextManager.getString(locale, Category.GIMMICKS, "quote_title") + footerAdd);
+                    .setFooter(Command.getCommandLanguage(QuoteCommand.class, locale).getTitle() + footerAdd);
             if (searchedMessage.getContentRaw().length() > 0) eb.setDescription("\"" + searchedMessage.getContentRaw() + "\"");
             if (searchedMessage.getAttachments().size() > 0) eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
         } else {
@@ -40,9 +42,9 @@ public class MessageQuote {
                 eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
 
             if (embed.getFooter() != null)
-                eb.setFooter(embed.getFooter().getText() + " - " + TextManager.getString(locale, Category.GIMMICKS, "quote_title") + footerAdd);
+                eb.setFooter(embed.getFooter().getText() + " - " + Command.getCommandLanguage(QuoteCommand.class, locale).getTitle() + footerAdd);
             else
-                eb.setFooter(TextManager.getString(locale, Category.GIMMICKS, "quote_title") + footerAdd);
+                eb.setFooter(Command.getCommandLanguage(QuoteCommand.class, locale).getTitle() + footerAdd);
         }
 
         eb.setTimestamp(searchedMessage.getTimeCreated())

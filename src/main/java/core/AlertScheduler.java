@@ -79,7 +79,7 @@ public class AlertScheduler {
         }
 
         OnTrackerRequestListener command = commandOpt.map(c -> (OnTrackerRequestListener) c).get();
-        Optional<TextChannel> channelOpt = slot.getChannel();
+        Optional<TextChannel> channelOpt = slot.getTextChannel();
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 switch (command.onTrackerRequest(slot)) {

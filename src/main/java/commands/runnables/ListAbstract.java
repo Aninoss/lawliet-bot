@@ -7,10 +7,6 @@ import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.Locale;
 

@@ -5,7 +5,6 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -16,13 +15,13 @@ import core.utils.StringUtil;
 import modules.automod.WordFilter;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
+
+
+
+
+
+
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

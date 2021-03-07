@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionAddListener;
 import commands.Command;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;

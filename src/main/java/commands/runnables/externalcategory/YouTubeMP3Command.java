@@ -11,9 +11,6 @@ import core.internet.HttpResponse;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.YouTubeMeta;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 import org.json.JSONObject;
 
 import java.io.File;

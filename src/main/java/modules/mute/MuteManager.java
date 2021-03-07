@@ -1,5 +1,7 @@
 package modules.mute;
 
+import commands.Command;
+import commands.runnables.moderationcategory.ChannelMuteCommand;
 import constants.Category;
 import core.TextManager;
 import mysql.modules.server.DBServer;
@@ -68,7 +70,7 @@ public class MuteManager {
         }
 
         if (updated)
-            manager.reason(TextManager.getString(locale, Category.MODERATION, "chmute_title")).queue();
+            manager.reason(Command.getCommandLanguage(ChannelMuteCommand.class, locale).getTitle()).queue();
 
         return updated;
     }

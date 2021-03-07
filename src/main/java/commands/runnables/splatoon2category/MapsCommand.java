@@ -3,7 +3,6 @@ package commands.runnables.splatoon2category;
 import commands.listeners.*;
 import commands.Command;
 import constants.Emojis;
-import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.*;
 import core.internet.InternetCache;

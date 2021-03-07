@@ -16,15 +16,9 @@ import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.Reaction;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
+
+
+
 
 import java.io.IOException;
 import java.sql.SQLException;

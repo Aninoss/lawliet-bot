@@ -3,7 +3,6 @@ package commands.runnables.fisherycategory;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.mention.MentionList;
 import core.utils.EmbedUtil;
@@ -12,12 +11,12 @@ import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
+
+
+
+
+
+
 
 import java.util.ArrayList;
 import java.util.Locale;

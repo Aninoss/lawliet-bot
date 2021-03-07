@@ -1,7 +1,6 @@
 package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 
 import java.util.Locale;
 

@@ -2,11 +2,8 @@ package commands.runnables.fisherycategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryUserAccountAbstract;
-import constants.PermissionDeprecated;
 import mysql.modules.fisheryusers.DBFishery;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.EmbedBuilder;
 import java.util.Locale;
 
 @CommandProperties(

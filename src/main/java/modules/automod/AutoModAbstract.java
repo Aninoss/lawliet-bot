@@ -50,7 +50,7 @@ public abstract class AutoModAbstract {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
-        String commandTitle = TextManager.getString(guildBean.getLocale(), Category.MODERATION, commandProperties.trigger() + "_title");
+        String commandTitle = Command.getCommandLanguage(commandClass, guildBean.getLocale()).getTitle();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
         designEmbed(message, guildBean.getLocale(), eb);

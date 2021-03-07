@@ -2,20 +2,12 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
 import commands.Command;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.TextManager;
 import core.utils.StringUtil;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.Embed;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.message.embed.EmbedField;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;

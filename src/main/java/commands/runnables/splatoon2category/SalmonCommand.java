@@ -4,7 +4,6 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import constants.Emojis;
-import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.internet.InternetCache;

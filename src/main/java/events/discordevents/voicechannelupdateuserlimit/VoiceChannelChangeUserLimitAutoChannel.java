@@ -1,5 +1,6 @@
 package events.discordevents.voicechannelupdateuserlimit;
 
+import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import constants.Category;
 import core.PermissionCheckRuntime;
@@ -32,7 +33,9 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
                         Locale locale = guildBean.getLocale();
 
                         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
-                            event.getChannel().getManager().setUserLimit(parentUserLimit).reason(TextManager.getString(locale, Category.UTILITY, "autochannel_title")).queue();
+                            event.getChannel().getManager().setUserLimit(parentUserLimit)
+                                    .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
+                                    .queue();
                         }
                     }
                 });

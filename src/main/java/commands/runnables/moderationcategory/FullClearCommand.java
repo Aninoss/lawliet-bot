@@ -3,7 +3,6 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import constants.PermissionDeprecated;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;

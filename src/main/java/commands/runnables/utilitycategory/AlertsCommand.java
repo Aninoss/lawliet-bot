@@ -18,12 +18,6 @@ import core.utils.StringUtil;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerBean;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;

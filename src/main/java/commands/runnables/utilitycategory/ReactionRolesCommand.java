@@ -4,40 +4,20 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnNavigationListenerOld;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.emojiconnection.EmojiConnection;
-import core.utils.DiscordUtil;
 import core.utils.MentionUtil;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.Mentionable;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.Reaction;
-import org.javacord.api.entity.message.embed.Embed;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
-import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
+import net.dv8tion.jda.api.EmbedBuilder;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +30,7 @@ import java.util.concurrent.ExecutionException;
         executableWithoutArgs = true,
         aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
 )
-public class ReactionRolesCommandReactionAddReactionRemove extends Command implements OnNavigationListenerOld, OnStaticReactionAddListener, OnStaticReactionRemoveListener {
+public class ReactionRolesCommand extends Command implements OnNavigationListenerOld, OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
     private static final int MAX_LINKS = 20;
     private final static int
@@ -77,7 +57,7 @@ public class ReactionRolesCommandReactionAddReactionRemove extends Command imple
             .expireAfterWrite(Duration.ofMinutes(1))
             .build();
 
-    public ReactionRolesCommandReactionAddReactionRemove(Locale locale, String prefix) {
+    public ReactionRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 

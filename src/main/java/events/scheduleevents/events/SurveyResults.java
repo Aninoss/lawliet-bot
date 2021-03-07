@@ -13,6 +13,7 @@ import mysql.modules.server.DBServer;
 import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -33,14 +34,15 @@ public class SurveyResults implements ScheduleInterface {
             }
         }
     }
-    
+
     public static void processCurrentResults() {
         GlobalThreadPool.getExecutorService().submit(() -> {
             DBSurvey.getInstance().clear();
             SurveyBean lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
             try {
                 Thread.sleep(5000);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
             DBSurvey.getInstance().next();
 
             MainLogger.get().info("Calculating survey results...");
@@ -55,8 +57,8 @@ public class SurveyResults implements ScheduleInterface {
         /* Group each second vote into a specific group for each user */
         HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
         for (SurveySecondVote surveySecondVote : lastSurvey.getSecondVotes().values()) {
-            if (surveySecondVote.getServer().isPresent() &&
-                    DBServer.getInstance().retrieve(surveySecondVote.getServerId()).getFisheryStatus() == FisheryStatus.ACTIVE
+            if (surveySecondVote.getGuild().isPresent() &&
+                    DBServer.getInstance().retrieve(surveySecondVote.getGuildId()).getFisheryStatus() == FisheryStatus.ACTIVE
             ) {
                 secondVotesMap.computeIfAbsent(surveySecondVote.getMemberId(), k -> new ArrayList<>()).add(surveySecondVote);
             }
@@ -73,7 +75,6 @@ public class SurveyResults implements ScheduleInterface {
                         if (notificationUsers.contains(userId)) {
                             notificationUsers.remove(userId);
                             sendSurveyResult(lastSurvey, user, won, percent);
-                            Thread.sleep(100);
                         }
                     } catch (Throwable e) {
                         MainLogger.get().error("Exception while managing user {}", userId, e);
@@ -85,14 +86,14 @@ public class SurveyResults implements ScheduleInterface {
         }
 
         notificationUsers.forEach(userId -> {
-            ShardManager.getInstance().fetchUserById(userId).join().ifPresent(user -> {
-                try {
-                    sendSurveyResult(lastSurvey, user, won, percent);
-                    Thread.sleep(100);
-                } catch (Throwable e) {
-                    MainLogger.get().error("Exception while managing user {}", userId, e);
-                }
-            });
+            ShardManager.getInstance().fetchUserById(userId)
+                    .thenAccept(user -> {
+                        try {
+                            sendSurveyResult(lastSurvey, user, won, percent);
+                        } catch (Throwable e) {
+                            MainLogger.get().error("Exception while managing user {}", userId, e);
+                        }
+                    });
         });
 
         MainLogger.get().info("Survey results finished");
@@ -102,7 +103,7 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryMemberBean userBean = DBFishery.getInstance().retrieve(secondVote.getServerId()).getUserBean(user.getIdLong());
+                    FisheryMemberBean userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getUserBean(user.getIdLong());
                     long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
                     userBean.changeValues(0, price);
                 });

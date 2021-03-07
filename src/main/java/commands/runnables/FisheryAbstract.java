@@ -5,7 +5,6 @@ import constants.*;
 import core.EmbedFactory;
 import core.TextManager;
 import mysql.modules.server.DBServer;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Locale;
 

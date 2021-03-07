@@ -3,7 +3,6 @@ package commands.runnables.utilitycategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-import constants.PermissionDeprecated;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.MainLogger;
@@ -16,10 +15,6 @@ import core.utils.TimeUtil;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
 

@@ -1,7 +1,6 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 import core.MainLogger;
 import core.mention.MentionList;
 import core.utils.MentionUtil;

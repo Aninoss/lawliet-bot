@@ -2,11 +2,10 @@ package core.atomicassets;
 
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Member;
-
 import java.util.Objects;
 import java.util.Optional;
 
-public class AtomicMember implements AtomicAsset<Member> {
+public class AtomicMember implements MentionableAtomicAsset<Member> {
 
     private final long guildId;
     private final long memberId;

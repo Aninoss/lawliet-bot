@@ -7,8 +7,6 @@ import core.TextManager;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -16,7 +14,7 @@ import java.util.concurrent.ExecutionException;
     trigger = "pokemon",
     withLoadingBar = true,
     emoji = "\uD83C\uDDF5",
-    exlusiveUsers = { 397209883793162240L, 381156056660967426L },
+    exclusiveUsers = { 397209883793162240L, 381156056660967426L },
     executableWithoutArgs = false
 )
 public class PokemonCommand extends Command {

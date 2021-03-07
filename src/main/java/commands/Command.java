@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTriggerListener;
-import constants.Emojis;
 import core.Bot;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
@@ -149,8 +148,8 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public boolean canRunOnGuild(long guildId, long userId) {
-        long[] allowedServerIds = commandProperties.exlusiveServers();
-        long[] allowedUserIds = commandProperties.exlusiveUsers();
+        long[] allowedServerIds = commandProperties.exclusiveGuilds();
+        long[] allowedUserIds = commandProperties.exclusiveUsers();
 
         return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == guildId)) &&
                 ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId)) &&
@@ -223,6 +222,17 @@ public abstract class Command implements OnTriggerListener {
 
     public static CommandProperties getCommandProperties(Class<? extends Command> clazz) {
         return clazz.getAnnotation(CommandProperties.class);
+    }
+
+    public static CommandLanguage getCommandLanguage(Class<? extends Command> clazz, Locale locale) {
+        String trigger = getCommandProperties(clazz).trigger();
+        String category = getCategory(clazz);
+
+        String title = TextManager.getString(locale, category, trigger + "_title");
+        String descLong = TextManager.getString(locale, category, trigger + "_helptext");
+        String usage = TextManager.getString(locale, category, trigger + "_usage");
+        String examples = TextManager.getString(locale, category, trigger + "_examples");
+        return new CommandLanguage(title, descLong, usage, examples);
     }
 
 }

@@ -2,11 +2,10 @@ package core.atomicassets;
 
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Role;
-
 import java.util.Objects;
 import java.util.Optional;
 
-public class AtomicRole implements AtomicAsset<Role> {
+public class AtomicRole implements MentionableAtomicAsset<Role> {
 
     private final long guildId;
     private final long roleId;

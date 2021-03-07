@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionAddListener;
 import commands.runnables.FisheryAbstract;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.utils.MentionUtil;
@@ -13,11 +12,11 @@ import core.utils.StringUtil;
 import modules.ExchangeRate;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
+
+
+
+
+
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

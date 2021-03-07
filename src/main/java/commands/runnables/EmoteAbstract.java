@@ -5,8 +5,6 @@ import commands.Command;
 import core.EmbedFactory;
 import core.RandomPicker;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.Locale;
 

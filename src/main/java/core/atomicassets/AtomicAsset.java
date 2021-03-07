@@ -6,6 +6,7 @@ import java.util.Optional;
 public interface AtomicAsset <T extends ISnowflake> {
 
     long getId();
+
     Optional<T> get();
 
 }

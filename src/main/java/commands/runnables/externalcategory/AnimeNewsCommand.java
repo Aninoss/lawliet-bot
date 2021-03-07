@@ -10,8 +10,6 @@ import modules.PostBundle;
 import modules.animenews.AnimeNewsDownloader;
 import modules.animenews.AnimeNewsPost;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

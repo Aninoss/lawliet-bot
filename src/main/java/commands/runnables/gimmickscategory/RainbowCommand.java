@@ -2,17 +2,10 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.UserAccountAbstract;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.graphics.RainbowGraphics;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.Locale;
 

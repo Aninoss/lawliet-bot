@@ -1,5 +1,8 @@
 package modules.repair;
 
+import commands.Command;
+import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
+import commands.runnables.utilitycategory.AutoChannelCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.Category;
 import constants.FisheryStatus;
@@ -17,6 +20,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -53,9 +57,9 @@ public class RolesRepair {
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
                     .forEach(member -> checkRoles(locale,
-                            TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisheryroles_title"),
+                            Command.getCommandLanguage(FisheryRolesCommand.class, locale).getTitle(),
                             member,
-                            fisheryGuildBean.getUserBean(member.getIdLong()).getRoles()
+                            fisheryGuildBean.getUserBean(member.getIdLong()).getRoles().orElse(Collections.emptyList())
                     ));
         }
     }
@@ -68,7 +72,7 @@ public class RolesRepair {
             guild.getMembers().stream()
                     .filter(member -> userJoinedRecently(member, minutes))
                     .forEach(member -> checkRoles(locale,
-                            TextManager.getString(locale, Category.UTILITY, "autoroles_title"),
+                            Command.getCommandLanguage(AutoRolesCommand.class, locale).getTitle(),
                             member,
                             roles
                     ));

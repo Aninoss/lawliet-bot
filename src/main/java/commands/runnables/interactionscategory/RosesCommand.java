@@ -8,10 +8,10 @@ import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
+
+
+
+
 
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +19,7 @@ import java.util.Locale;
 @CommandProperties(
     trigger = "roses",
     emoji = "🌹",
-    exlusiveUsers = { 397209883793162240L, 381156056660967426L },
+    exclusiveUsers = { 397209883793162240L, 381156056660967426L },
     executableWithoutArgs = false
 )
 public class RosesCommand extends Command {

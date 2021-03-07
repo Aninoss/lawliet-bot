@@ -2,7 +2,6 @@ package commands.runnables.configurationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;

@@ -7,7 +7,6 @@ import commands.CommandContainer;
 import commands.CommandManager;
 import constants.Category;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.MainLogger;

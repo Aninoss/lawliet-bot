@@ -1,12 +1,11 @@
 package core.atomicassets;
 
 import core.ShardManager;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AtomicUser implements AtomicAsset<User> {
+public class AtomicUser implements MentionableAtomicAsset<User> {
 
     private final long userId;
 

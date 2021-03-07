@@ -6,18 +6,14 @@ import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,7 +5,6 @@ import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;

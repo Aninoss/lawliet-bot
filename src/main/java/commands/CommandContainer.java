@@ -76,7 +76,7 @@ public class CommandContainer {
         //UTILITY
         commandList.add(WhiteListCommand.class);
         commandList.add(AlertsCommand.class);
-        commandList.add(ReactionRolesCommandReactionAddReactionRemove.class);
+        commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
         commandList.add(AutoChannelCommand.class);

@@ -5,8 +5,8 @@ import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
 import core.*;
 import javafx.util.Pair;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.event.message.MessageCreateEvent;
+
+
 
 import java.util.ArrayList;
 import java.util.Locale;

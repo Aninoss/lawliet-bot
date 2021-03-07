@@ -2,7 +2,6 @@ package commands.runnables.moderationcategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
@@ -10,11 +9,11 @@ import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.MessageSet;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
+
+
+
+
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;

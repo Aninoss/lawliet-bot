@@ -5,7 +5,6 @@ import commands.runnables.FisheryAbstract;
 import constants.ExternalLinks;
 import constants.FisheryCategoryInterface;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
@@ -14,8 +13,6 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;

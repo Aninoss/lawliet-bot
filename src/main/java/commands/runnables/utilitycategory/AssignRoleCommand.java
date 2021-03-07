@@ -3,7 +3,6 @@ package commands.runnables.utilitycategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.MainLogger;
@@ -12,10 +11,6 @@ import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.BotPermissionUtil;
 import modules.RoleAssigner;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.util.ArrayList;
 import java.util.Locale;

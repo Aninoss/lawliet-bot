@@ -18,12 +18,6 @@ import modules.osu.OsuAccountDownloader;
 import modules.osu.OsuAccountSync;
 import mysql.modules.osuaccounts.DBOsuAccounts;
 import mysql.modules.osuaccounts.OsuBeanBean;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.Locale;
 import java.util.Optional;

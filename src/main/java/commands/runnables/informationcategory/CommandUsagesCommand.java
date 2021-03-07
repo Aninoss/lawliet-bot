@@ -5,7 +5,6 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.runnables.ListAbstract;
-import constants.PermissionDeprecated;
 import core.utils.StringUtil;
 import mysql.modules.commandusages.CommandUsagesBean;
 import mysql.modules.commandusages.DBCommandUsages;

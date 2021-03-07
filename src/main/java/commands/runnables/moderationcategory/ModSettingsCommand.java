@@ -4,7 +4,6 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListenerOld;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -12,11 +11,11 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.Mentionable;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
+
+
+
+
+
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 

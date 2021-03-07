@@ -3,7 +3,6 @@ package commands.runnables.moderationcategory;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
-import constants.PermissionDeprecated;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.TextManager;
@@ -14,13 +13,13 @@ import javafx.util.Pair;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.GuildWarningsSlot;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
+
+
+
+
+
+
+
 
 import java.util.ArrayList;
 import java.util.Locale;

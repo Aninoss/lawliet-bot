@@ -2,12 +2,8 @@ package commands.runnables.gimmickscategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.UserAccountAbstract;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import modules.graphics.TriggerGraphics;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 
 import java.util.Locale;
 

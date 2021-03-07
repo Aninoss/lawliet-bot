@@ -3,24 +3,17 @@ package commands.runnables;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
-import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.ArrayList;
+import net.dv8tion.jda.api.EmbedBuilder;
 import java.util.Locale;
 
 public abstract class UserAccountAbstract extends Command {
 
+    private boolean found = false;
     public UserAccountAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
-    private boolean found = false;
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {

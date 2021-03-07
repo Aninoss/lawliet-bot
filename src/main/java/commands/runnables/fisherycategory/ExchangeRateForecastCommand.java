@@ -6,8 +6,6 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Locale;

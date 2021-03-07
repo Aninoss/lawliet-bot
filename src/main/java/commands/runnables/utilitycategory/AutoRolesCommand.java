@@ -4,18 +4,17 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import commands.NavigationHelper;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.*;
 import core.utils.MentionUtil;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.event.message.MessageCreateEvent;
+
+
+
+
+
+
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 
 import java.io.IOException;

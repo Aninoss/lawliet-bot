@@ -10,8 +10,8 @@ import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
+
+
 
 import java.util.Locale;
 

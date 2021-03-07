@@ -8,7 +8,7 @@ import java.util.Locale;
         trigger = "webgate",
         emoji = "⛩️",
         executableWithoutArgs = true,
-        exlusiveServers = { 580048842020487180L }
+        exclusiveGuilds = { 580048842020487180L }
 )
 public class WebgateCommand extends EmoteAbstract {
 

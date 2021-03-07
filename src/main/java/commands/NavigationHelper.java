@@ -4,16 +4,11 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicAsset;
-import core.atomicassets.AtomicMember;
-import core.atomicassets.AtomicRole;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
@@ -115,7 +110,7 @@ public class NavigationHelper<T> {
     public EmbedBuilder drawDataRemove(String title, String desc) throws IOException {
         Function<T, String> nameFunction;
         if (type == Type.Unknown) nameFunction = Object::toString;
-        else nameFunction = obj -> ((AtomicAsset<?>)obj).get().map(IMentionable::getAsMention).orElse("-");
+        else nameFunction = obj -> ((MentionableAtomicAsset<?>)obj).get().map(IMentionable::getAsMention).orElse("-");
 
         String[] strings = new String[srcList.size()];
         for(int i = 0; i < strings.length; i++) {

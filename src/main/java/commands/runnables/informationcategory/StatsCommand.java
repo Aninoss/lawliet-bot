@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 
 import commands.Command;
 import constants.ExternalLinks;
-import constants.PermissionDeprecated;
 import core.*;
 import core.utils.BotUtil;
 import core.utils.StringUtil;

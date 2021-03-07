@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
 import constants.ExternalLinks;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
@@ -15,8 +14,6 @@ import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.upvotes.DBUpvotes;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

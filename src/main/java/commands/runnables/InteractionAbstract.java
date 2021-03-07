@@ -8,9 +8,6 @@ import core.utils.MentionUtil;
 import core.RandomPicker;
 import core.TextManager;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
 import java.util.Locale;
 
 public abstract class InteractionAbstract extends Command {

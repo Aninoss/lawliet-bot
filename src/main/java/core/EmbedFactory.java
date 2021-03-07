@@ -19,7 +19,7 @@ public class EmbedFactory {
     public static EmbedBuilder getEmbedDefault(Command command, String description) {
         EmbedBuilder eb = getEmbedDefault()
                 .setColor(DEFAULT_EMBED_COLOR)
-                .setTitle(command.getCommandProperties().emoji() + " " + TextManager.getString(command.getLocale(), command.getCategory(), command.getTrigger()+"_title"));
+                .setTitle(command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle());
 
         if (description != null && description.length() > 0)
             eb.setDescription(description);

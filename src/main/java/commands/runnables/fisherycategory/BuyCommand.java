@@ -16,16 +16,6 @@ import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.fisheryusers.FisheryMemberPowerUpBean;
 import mysql.modules.server.DBServer;
 import mysql.modules.server.GuildBean;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.List;
 import java.util.Locale;

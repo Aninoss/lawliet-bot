@@ -2,16 +2,10 @@ package commands.runnables.gimmickscategory;
 
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.RandomPicker;
 import core.utils.MentionUtil;
 import modules.graphics.ShipGraphics;
-import org.javacord.api.entity.DiscordEntity;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.InputStream;
 import java.util.ArrayList;

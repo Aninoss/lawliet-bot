@@ -3,9 +3,6 @@ package commands.runnables.gimmickscategory;
 import commands.listeners.CommandProperties;
 import commands.runnables.UserAccountAbstract;
 import core.EmbedFactory;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
 
 import java.util.Locale;
 import java.util.Random;

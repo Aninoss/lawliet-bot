@@ -1,7 +1,6 @@
 package commands.runnables.casinocategory;
 
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 
 import java.util.Locale;
 

@@ -4,7 +4,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnNavigationListenerOld;
 import commands.Command;
 import constants.LogStatus;
-import constants.PermissionDeprecated;
 import constants.Response;
 import core.CustomObservableList;
 import core.EmbedFactory;

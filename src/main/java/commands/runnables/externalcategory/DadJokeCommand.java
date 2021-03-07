@@ -7,7 +7,6 @@ import constants.Language;
 import core.*;
 import core.internet.HttpRequest;
 import core.utils.StringUtil;
-import org.javacord.api.event.message.MessageCreateEvent;
 import org.json.JSONObject;
 import java.util.List;
 import java.util.Locale;

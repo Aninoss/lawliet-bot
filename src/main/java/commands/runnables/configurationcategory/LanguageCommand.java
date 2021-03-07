@@ -3,7 +3,6 @@ package commands.runnables.configurationcategory;
 import commands.listeners.*;
 import commands.Command;
 import constants.Locales;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
 import mysql.modules.server.DBServer;

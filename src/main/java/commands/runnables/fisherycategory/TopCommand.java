@@ -3,7 +3,6 @@ package commands.runnables.fisherycategory;
 import commands.listeners.*;
 import commands.runnables.ListAbstract;
 import constants.Emojis;
-import constants.PermissionDeprecated;
 import constants.FisheryStatus;
 import core.*;
 import core.utils.StringUtil;
@@ -11,9 +10,6 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.server.DBServer;
 import javafx.util.Pair;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.ArrayList;
 import java.util.Locale;

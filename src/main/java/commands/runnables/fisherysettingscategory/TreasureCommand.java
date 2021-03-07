@@ -2,12 +2,11 @@ package commands.runnables.fisherysettingscategory;
 
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryAbstract;
-import constants.PermissionDeprecated;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.Fishery;
-import org.javacord.api.event.message.MessageCreateEvent;
+
 
 import java.util.Locale;
 

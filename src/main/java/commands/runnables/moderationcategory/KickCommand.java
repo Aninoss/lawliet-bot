@@ -1,7 +1,6 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
-import constants.PermissionDeprecated;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import org.javacord.api.entity.user.User;
