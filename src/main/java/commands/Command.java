@@ -10,6 +10,7 @@ import commands.listeners.OnReactionListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTriggerListener;
 import commands.runnables.NavigationCommand;
+import constants.LogStatus;
 import core.Bot;
 import core.TextManager;
 import core.atomicassets.AtomicGuild;
@@ -17,9 +18,14 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.json.JSONObject;
@@ -38,6 +44,8 @@ public abstract class Command implements OnTriggerListener {
     private AtomicTextChannel atomicTextChannel;
     private AtomicMember atomicMember;
     private long drawMessageId = 0;
+    private LogStatus logStatus = null;
+    private String log = "";
     private GuildMessageReceivedEvent event = null;
 
     public Command(Locale locale, String prefix) {
@@ -78,19 +86,21 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    public synchronized CompletableFuture<Long> drawMessage(MessageEmbed eb, String... emojis) {
+    public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb, String... emojis) {
+        EmbedUtil.addLog(eb, logStatus, log);
+
         CompletableFuture<Long> future = new CompletableFuture<>();
         getTextChannel().ifPresentOrElse(channel -> {
             if (BotPermissionUtil.canWriteEmbed(channel)) {
                 if (drawMessageId == 0) {
-                    channel.sendMessage(eb)
+                    channel.sendMessage(eb.build())
                             .queue(message -> {
                                 drawMessageId = message.getIdLong();
                                 Arrays.stream(emojis).forEach(emoji -> message.addReaction(emoji).queue());
                                 future.complete(drawMessageId);
                             }, future::completeExceptionally);
                 } else {
-                    channel.editMessageById(drawMessageId, eb)
+                    channel.editMessageById(drawMessageId, eb.build())
                             .queue(v -> future.complete(drawMessageId), future::completeExceptionally);
                 }
             } else {
@@ -106,6 +116,16 @@ public abstract class Command implements OnTriggerListener {
 
     public Optional<Long> getDrawMessageId() {
         return drawMessageId == 0 ? Optional.empty() : Optional.of(drawMessageId);
+    }
+
+    public void setLog(LogStatus logStatus, String string) {
+        this.log = string;
+        this.logStatus = logStatus;
+    }
+
+    public void resetLog() {
+        this.log = "";
+        this.logStatus = null;
     }
 
     public String getString(String key, String... args) {

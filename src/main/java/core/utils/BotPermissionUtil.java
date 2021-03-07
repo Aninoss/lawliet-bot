@@ -1,14 +1,14 @@
 package core.utils;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import core.EmbedFactory;
 import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class BotPermissionUtil {
 
@@ -120,6 +120,11 @@ public class BotPermissionUtil {
     public static boolean canWrite(TextChannel channel, Permission... permissions) {
         return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE) &&
                 can(channel, permissions);
+    }
+
+    public static boolean canWrite(Member member, TextChannel channel, Permission... permissions) {
+        return member.hasPermission(channel, Permission.MESSAGE_WRITE) &&
+                can(member, channel, permissions);
     }
 
     public static boolean canWriteEmbed(TextChannel channel, Permission... permissions) {

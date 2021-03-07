@@ -1,6 +1,7 @@
 package commands.runnables.aitoyscategory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -9,10 +10,13 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.TextManager;
+import core.mention.MentionList;
 import core.utils.*;
 import modules.textai.TextAI;
 import modules.textai.TextAICache;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "imitate",
@@ -29,48 +33,49 @@ public class ImitateCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
-        ArrayList<User> users = userMentions.getList();
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        MentionList<Member> memberMentions = MentionUtil.getMembers(event.getMessage(), args);
+        ArrayList<Member> members = memberMentions.getList();
 
         ArrayList<Message> tempMessageCache = new ArrayList<>();
-        User user = null;
+        Member member = null;
 
-        if (!followedString.equalsIgnoreCase("all") &&
-                !followedString.equalsIgnoreCase("everyone")
-        )
-            user = users.isEmpty() ? event.getMessageAuthor().asUser().get() : users.get(0);
+        if (!args.equalsIgnoreCase("all") &&
+                !args.equalsIgnoreCase("everyone")
+        ) {
+            member = members.isEmpty() ? event.getMember() : members.get(0);
+        }
 
-        String search = user != null ? user.getMentionTag() : "**" + StringUtil.escapeMarkdown(event.getServer().get().getName()) + "**";
+        String search = member != null ? member.getUser().getAsTag() : "**" + StringUtil.escapeMarkdown(event.getGuild().getName()) + "**";
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, JDAUtil.getLoadingReaction(event.getServerTextChannel().get())));
-        Message message = event.getChannel().sendMessage(eb).get();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, JDAUtil.getLoadingReaction(event.getChannel())));
+        drawMessage(eb).get();
 
-        eb = getEmbed(event.getServer().get(), user, 2, tempMessageCache);
-        if (users.isEmpty()) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+        eb = getEmbed(event.getGuild(), member, 2, tempMessageCache);
+        if (members.isEmpty())
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
 
-        message.edit(eb).get();
-
+        drawMessage(eb);
         return true;
     }
 
-    private EmbedBuilder getEmbed(Server server, User user, int n, ArrayList<Message> tempMessageCache) throws ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(Guild guild, Member member, int n, ArrayList<Message> tempMessageCache) {
         TextAI textAI = new TextAI(n);
         TextAI.WordMap wordMap;
-        if (user != null) wordMap = TextAICache.getInstance().get(server.getId(), user.getId(), n);
-        else wordMap = TextAICache.getInstance().get(server.getId(), n);
+        if (member != null) wordMap = TextAICache.getInstance().get(guild.getIdLong(), member.getIdLong(), n);
+        else wordMap = TextAICache.getInstance().get(guild.getIdLong(), n);
 
         if (wordMap.isEmpty()) {
             if (tempMessageCache.isEmpty())
-                fetchMessages(server, user, tempMessageCache);
+                fetchMessages(guild, member, tempMessageCache);
 
             if (tempMessageCache.isEmpty()) return getErrorEmbed();
             tempMessageCache.forEach(message -> processMessage(textAI, wordMap, message));
         }
 
-        Optional<String> response = textAI.generateTextWithWordMap(wordMap,900);
-        if (!response.isPresent() && n > 1) {
-            return getEmbed(server, user, n - 1, tempMessageCache);
+        Optional<String> response = textAI.generateTextWithWordMap(wordMap, 900);
+        if (response.isEmpty() && n > 1) {
+            return getEmbed(guild, member, n - 1, tempMessageCache);
         }
 
         if (response.isPresent()) {
@@ -78,8 +83,8 @@ public class ImitateCommand extends Command {
                     .setDescription(response.get());
             EmbedUtil.setFooter(eb, this);
 
-            if (user != null) eb.setAuthor(user);
-            else eb.setAuthor(server.getName(), "", server.getIcon().map(icon -> icon.getUrl().toString()).orElse(""));
+            if (member != null) EmbedUtil.setMemberAuthor(eb, member);
+            else eb.setAuthor(guild.getName(), null, guild.getIconUrl());
 
             return eb;
         } else {
@@ -88,47 +93,44 @@ public class ImitateCommand extends Command {
     }
 
     private EmbedBuilder getErrorEmbed() {
-        return EmbedFactory.getEmbedError(this,
+        return EmbedFactory.getEmbedError(
+                this,
                 getString("nomessage"),
                 TextManager.getString(getLocale(), TextManager.GENERAL, "no_results")
         );
     }
 
-    private void fetchMessages(Server server, User user, ArrayList<Message> tempMessageCache) throws ExecutionException, InterruptedException {
+    private void fetchMessages(Guild guild, Member member, ArrayList<Message> tempMessageCache) {
         final int REQUESTS = 80;
 
-        ArrayList<ServerTextChannel> channels = server.getTextChannels().stream()
-                .filter(channel -> !channel.isNsfw() &&
-                        channel.canYouSee() &&
-                        channel.canYouReadMessageHistory() &&
-                        (user == null || channel.canWrite(user)) &&
+        ArrayList<TextChannel> channels = guild.getTextChannels().stream()
+                .filter(channel -> !channel.isNSFW() &&
+                        BotPermissionUtil.canRead(channel) &&
+                        (member == null || BotPermissionUtil.canWrite(member, channel)) &&
                         BotPermissionUtil.channelIsPublic(channel)
                 ).limit(REQUESTS)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         int requestsPerPage = (int) Math.ceil(REQUESTS / (double) channels.size());
 
-        for (ServerTextChannel channel : channels) {
-            Message startMessage = null;
+        for (TextChannel channel : channels) {
+            MessageHistory messageHistory = channel.getHistory();
             for (int i = 0; i < requestsPerPage; i++) {
-                MessageSet messageSet;
-                if (startMessage == null) messageSet = channel.getMessages(100).get();
-                else messageSet = startMessage.getMessagesBefore(100).get();
-
-                for (Message message : messageSet.descendingSet()) {
-                    if (user == null || message.getAuthor().getId() == user.getId()) {
+                List<Message> messages = messageHistory.retrievePast(100).complete();
+                for (Message message : messages) {
+                    if (member == null || message.getAuthor().getIdLong() == member.getIdLong()) {
                         tempMessageCache.add(message);
-                        startMessage = message;
                     }
                 }
 
-                if (messageSet.size() < 100) break;
+                if (messages.size() < 100)
+                    break;
             }
         }
     }
 
     private void processMessage(TextAI textAI, TextAI.WordMap wordMap, Message message) {
-        String content = message.getContent();
+        String content = message.getContentRaw();
         if (content.isEmpty()) return;
         if (!content.contains(" ")) content += " ";
 

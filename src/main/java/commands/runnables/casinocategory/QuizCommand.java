@@ -1,7 +1,7 @@
 package commands.runnables.casinocategory;
 
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -15,111 +15,136 @@ import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 @CommandProperties(
         trigger = "quiz",
         emoji = "❔",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         withLoadingBar = true,
         deleteOnTimeOut = true,
         executableWithoutArgs = true
 )
-public class QuizCommand extends CasinoAbstract implements OnReactionAddListener {
+public class QuizCommand extends CasinoAbstract {
 
-    private String log;
-    private LogStatus logStatus;
     private int difficulty;
     private String question;
     private String[] answers;
     private int correctAnswer;
     private int answerSelected;
-    String url;
+    private final String url;
 
     public QuizCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-        url = "https://opentdb.com/api.php?amount=1";
+        this(locale, prefix, true, "https://opentdb.com/api.php?amount=1");
     }
+
+    public QuizCommand(Locale locale, String prefix, boolean allowBet, String url) {
+        super(locale, prefix, allowBet, true);
+        this.url = url;
+    }
+
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (onGameStart(event, followedString)) {
-            try {
-                if (!allowBet) {
-                    logStatus = LogStatus.WARNING;
-                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "nobet");
-                }
+    public boolean onGameStart(GuildMessageReceivedEvent event) throws ExecutionException, InterruptedException {
+        if (!isAllowBet()) {
+            setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "nobet"));
+        }
 
-                String dataString, diffString;
-                JSONObject data;
-                try {
-                    dataString = HttpRequest.getData(url).get().getContent().get();
-                    data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
-                    diffString = data.getString("difficulty");
-                } catch (Throwable e) {
-                    DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
-                    throw e;
-                }
+        String dataString, diffString;
+        JSONObject data;
+        dataString = HttpRequest.getData(url).get().getContent().get();
+        data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
+        diffString = data.getString("difficulty");
 
-                switch (diffString) {
-                    case "easy":
-                        difficulty = 0;
-                        break;
+        switch (diffString) {
+            case "easy":
+                difficulty = 0;
+                break;
 
-                    case "medium":
-                        difficulty = 1;
-                        break;
+            case "medium":
+                difficulty = 1;
+                break;
 
-                    case "hard":
-                        difficulty = 2;
-                        break;
-                }
+            case "hard":
+                difficulty = 2;
+                break;
+        }
 
-                question = StringUtil.decryptString(data.getString("question"));
+        question = StringUtil.decryptString(data.getString("question"));
 
-                ArrayList<String> orderedAnswers = new ArrayList<>();
-                orderedAnswers.add(StringUtil.decryptString(data.getString("correct_answer")));
+        ArrayList<String> orderedAnswers = new ArrayList<>();
+        orderedAnswers.add(StringUtil.decryptString(data.getString("correct_answer")));
 
-                JSONArray answersJSON = data.getJSONArray("incorrect_answers");
-                for (int i = 0; i < answersJSON.length(); i++) {
-                    orderedAnswers.add(StringUtil.decryptString(answersJSON.getString(i)));
-                }
+        JSONArray answersJSON = data.getJSONArray("incorrect_answers");
+        for (int i = 0; i < answersJSON.length(); i++) {
+            orderedAnswers.add(StringUtil.decryptString(answersJSON.getString(i)));
+        }
 
-                answers = new String[orderedAnswers.size()];
-                Random r = new Random();
-                correctAnswer = -1;
-                for (int i = 0; i < answers.length; i++) {
-                    int select = r.nextInt(orderedAnswers.size());
-                    answers[i] = orderedAnswers.get(select);
-                    if (select == 0 && correctAnswer == -1) correctAnswer = i;
-                    orderedAnswers.remove(select);
-                }
+        answers = new String[orderedAnswers.size()];
+        Random r = new Random();
+        correctAnswer = -1;
+        for (int i = 0; i < answers.length; i++) {
+            int select = r.nextInt(orderedAnswers.size());
+            answers[i] = orderedAnswers.get(select);
+            if (select == 0 && correctAnswer == -1) correctAnswer = i;
+            orderedAnswers.remove(select);
+        }
 
-                compareKey = "quiz_" + answers.length + "_" + difficulty;
-                winMultiplicator = answers.length * (difficulty + 1) / 8.0;
+        setCompareKey("quiz_" + answers.length + "_" + difficulty);
+        setEmojis(Arrays.copyOf(LetterEmojis.LETTERS, answers.length));
+        return true;
+    }
 
-                message = event.getChannel().sendMessage(getEmbed()).get();
-                int COUNTER = 10;
-                MainScheduler.getInstance().schedule(COUNTER, ChronoUnit.SECONDS, "quiz_timeup", this::onTimeUp);
-
-                for (int i = 0; i < answers.length; i++) {
-                    message.addReaction(LetterEmojis.LETTERS[i]).get();
-                }
-
+    @Override
+    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) throws ExecutionException {
+        for (int i = 0; i < answers.length; i++) {
+            if (event.getReactionEmote().getAsReactionCode().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+                onAnswerSelected(i);
                 return true;
-            } catch (Throwable e) {
-                handleError(e, event.getServerTextChannel().get());
-                return false;
             }
         }
         return false;
     }
 
+    @Override
+    public EmbedBuilder drawCasino() {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                .addField(getString("question"), question,false)
+                .addField(getString("answers"), getAnswersString(),false);
+
+        if (getCoinsInput() != 0)
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+
+        String label = "tutorial";
+        if (getStatus() == Status.ACTIVE) label = "tutorial_start";
+
+        eb.addField(Emojis.EMPTY_EMOJI, getString(label, getMember().get().getEffectiveName(), StringUtil.numToString(getCoinsInput()), Emojis.COUNTDOWN_10), false);
+        return eb;
+    }
+
+    private String getAnswersString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < answers.length; i++) {
+            if (getStatus() != Status.ACTIVE && correctAnswer == i) {
+                sb.append("✅");
+            } else if (getStatus() != Status.ACTIVE && answerSelected == i) {
+                sb.append("❌");
+            } else {
+                sb.append(LetterEmojis.LETTERS[i]);
+            }
+            sb.append(" | ").append(answers[i]).append("\n");
+        }
+
+        return sb.toString();
+    }
+
     private void onTimeUp() {
         try {
-            if (active) {
+            if (getStatus() == Status.ACTIVE) {
                 onAnswerSelected(-1);
             }
         } catch (ExecutionException e) {
@@ -129,22 +154,18 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
 
     private void onAnswerSelected(int selected) throws ExecutionException {
         if (selected == correctAnswer) {
-            win();
-            logStatus = LogStatus.WIN;
-            log = getString("correct");
+            win(answers.length * (difficulty + 1) / 8.0);
+            setLog(LogStatus.WIN, getString("correct"));
         } else {
             lose();
-            logStatus = LogStatus.LOSE;
-            if (selected == -1) log = getString("timeup");
-            else log = getString("wrong");
+            setLog(LogStatus.LOSE, selected == -1 ? getString("timeup") : getString("wrong"));
         }
 
         answerSelected = selected;
-        message.edit(getEmbed());
-
         MainScheduler.getInstance().schedule(Settings.TIME_OUT_TIME, "quiz_remove", this::removeReactionListenerWithMessage);
     }
 
+    /*
     private EmbedBuilder getEmbed() {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(getString("question"), question,false)
@@ -201,6 +222,6 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     @Override
-    public void onReactionTimeOut(Message message) {}
+    public void onReactionTimeOut(Message message) {}*/
 
 }

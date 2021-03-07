@@ -37,8 +37,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
     private final int DEFAULT_STATE = 0;
 
-    private LogStatus logStatus = null;
-    private String log = "";
     private String[] options;
     private int reactions;
     private int state = DEFAULT_STATE;
@@ -63,7 +61,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         CommandContainer.getInstance().refreshListener(OnReactionListener.class, this);
-        resetNavigation();
+        resetLog();
 
         Response response = controllerMessage(event, input, state);
         if (response != null)
@@ -202,13 +200,13 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
                 page++;
                 if (page > pageMax) page = 0;
             }
-            resetNavigation();
+            resetLog();
             startCalculation.set(false);
             return index;
         } else {
             if (options != null && options.length > reactions && index >= 0)
                 index += (reactions - 2) * page;
-            resetNavigation();
+            resetLog();
             startCalculation.set(true);
             return index;
         }
@@ -242,10 +240,8 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
             }
         }
 
-        EmbedUtil.addLog(eb, logStatus, log);
-
         //TODO: Add support for dm navigation
-        return drawMessage(eb.build());
+        return drawMessage(eb);
     }
 
     private void addNavigationEmojis(TextChannel channel, long messageId) {
@@ -262,11 +258,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
                 }
             }
         }
-    }
-
-    private void resetNavigation() {
-        log = "";
-        logStatus = null;
     }
 
     public void removeNavigationWithMessage() {
@@ -355,11 +346,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
             if (reactions > 2)
                 this.pageMax = Math.max(0, options.length - 1) / (reactions - 2);
         }
-    }
-
-    public void setLog(LogStatus logStatus, String string) {
-        this.log = string;
-        this.logStatus = logStatus;
     }
 
     public int getPage() {

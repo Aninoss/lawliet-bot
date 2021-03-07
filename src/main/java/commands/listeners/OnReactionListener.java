@@ -62,7 +62,7 @@ public interface OnReactionListener {
         try {
             EmbedBuilder eb = draw();
             if (eb != null) {
-                return command.drawMessage(eb.build());
+                return command.drawMessage(eb);
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {
@@ -114,7 +114,7 @@ public interface OnReactionListener {
             if (onReaction(event)) {
                 EmbedBuilder eb = draw();
                 if (eb != null) {
-                    ((Command) this).drawMessage(eb.build());
+                    ((Command) this).drawMessage(eb);
                 }
             }
         } catch (Throwable e) {
