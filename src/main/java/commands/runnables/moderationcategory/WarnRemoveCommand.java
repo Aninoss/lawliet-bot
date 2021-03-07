@@ -38,7 +38,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
         MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);

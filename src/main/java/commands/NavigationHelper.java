@@ -1,5 +1,6 @@
 package commands;
 
+import commands.runnables.NavigationCommand;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;

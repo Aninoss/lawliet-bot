@@ -39,7 +39,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (onGameStart(event, followedString)) {
             try {
                 winMultiplicator = 1;
@@ -131,7 +131,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                     block = true;
                     MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
                         finished = true;
-                        onLose();
+                        lose();
                         logStatus = LogStatus.LOSE;
                         log = getString("toomany", 0);
                         message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
@@ -155,7 +155,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
 
     private boolean onCPUTurnStep() {
         if (message.getCurrentCachedInstance().isEmpty()) {
-            onLose();
+            lose();
             return false;
         }
 
@@ -177,13 +177,13 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                             if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
 
                         if (blackjack[0] && !blackjack[1]) {
-                            onWin();
+                            win();
                             logStatus = LogStatus.WIN;
                             log = getString("blackjack", 0);
                             message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                             return;
                         } else if (blackjack[1] && !blackjack[0]) {
-                            onLose();
+                            lose();
                             logStatus = LogStatus.LOSE;
                             log = getString("blackjack", 1);
                             message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
@@ -193,17 +193,17 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                         int[] points = { 21 - getCardSize(0), 21 - getCardSize(1) };
 
                         if (points[0] == points[1]) {
-                            onGameEnd();
+                            endGame();
                             logStatus = LogStatus.FAILURE;
                             log = getString("draw");
                             message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] < points[1]) {
-                            onWin();
+                            win();
                             logStatus = LogStatus.WIN;
                             log = getString("21", 0);
                             message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] > points[1]) {
-                            onLose();
+                            lose();
                             logStatus = LogStatus.LOSE;
                             log = getString("21", 1);
                             message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
@@ -213,7 +213,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
                 return false;
             } else {
                 MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
-                    onWin();
+                    win();
                     logStatus = LogStatus.WIN;
                     log = getString("toomany", 1);
                     message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
@@ -235,7 +235,7 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         if (active) {
             logStatus = LogStatus.LOSE;
             log = getString("abort");
-            onLose();
+            lose();
         }
     }
 

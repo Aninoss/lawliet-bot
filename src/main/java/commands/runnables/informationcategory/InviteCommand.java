@@ -23,7 +23,7 @@ public class InviteCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("template", ExternalLinks.BOT_INVITE_URL))).get();
         return true;
     }

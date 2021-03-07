@@ -6,6 +6,7 @@ import core.EmbedFactory;
 import core.RandomPicker;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class EmoteAbstract extends Command {
 
@@ -19,17 +20,18 @@ public abstract class EmoteAbstract extends Command {
     protected abstract String[] getGifs();
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
 
         String quote = "";
-        if (followedString.length() > 0)
-            quote = "\n\n> " + followedString.replace("\n", "\n> ");
+        if (args.length() > 0)
+            quote = "\n\n> " + args.replace("\n", "\n> ");
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
-                .setImage(gifUrl);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
+                getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
+        ).setImage(gifUrl);
 
-        event.getMessage().getChannel().sendMessage(eb).get();
+        event.getMessage().getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 

@@ -1,8 +1,8 @@
 package core.assets;
 
 import core.ShardManager;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.Guild;
 import java.util.Optional;
 
@@ -15,7 +15,7 @@ public interface GuildAsset {
     }
 
     default GuildBean getGuildBean() {
-        return DBServer.getInstance().retrieve(getGuildId());
+        return DBGuild.getInstance().retrieve(getGuildId());
     }
 
 }

@@ -23,7 +23,7 @@ public class RollCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Random n = new Random();
         double drawn, border;
         boolean userMentioned = true;

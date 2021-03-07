@@ -2,9 +2,7 @@ package modules.mute;
 
 import commands.Command;
 import commands.runnables.moderationcategory.ChannelMuteCommand;
-import constants.Category;
-import core.TextManager;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
@@ -30,7 +28,7 @@ public class MuteManager {
 
     private boolean updatePermissions(MuteData muteData, boolean mute) {
         TextChannel channel = muteData.getTextChannel().get();
-        Locale locale = DBServer.getInstance().retrieve(channel.getGuild().getIdLong()).getLocale();
+        Locale locale = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong()).getLocale();
         ChannelManager manager = channel.getManager();
         ArrayList<Member> members = muteData.getMembers();
         List<PermissionOverride> userPermissions = channel.getMemberPermissionOverrides();

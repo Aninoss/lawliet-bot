@@ -33,7 +33,7 @@ public class ChannelInfoCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         boolean noMention = false;
         Server server = event.getServer().get();
         ArrayList<ServerTextChannel> list = MentionUtil.getTextChannels(event.getMessage(), followedString).getList();

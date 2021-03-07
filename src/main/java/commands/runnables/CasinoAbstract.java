@@ -1,161 +1,175 @@
 package commands.runnables;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandManager;
+import commands.listeners.OnReactionListener;
 import constants.Category;
 import constants.Emojis;
 import constants.FisheryStatus;
 import core.EmbedFactory;
-import core.ExceptionLogger;
 import core.TextManager;
-import core.utils.ExceptionUtil;
 import core.utils.MentionUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsBean;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
-public abstract class CasinoAbstract extends Command implements OnReactionAddListener {
+public abstract class CasinoAbstract extends Command implements OnReactionListener {
 
-    protected long coinsInput;
-    protected User player;
-    protected Server server;
-    protected ServerTextChannel channel;
-    protected double winMultiplicator;
-    protected boolean active, won, useCalculatedMultiplicator, allowBet, onlyNumbersAsArg = true;
-    protected final double BONUS_MULTIPLICATOR = 1;
-    protected String compareKey;
-    protected Message message;
+    public enum Status { ACTIVE, WON, LOST, DRAW }
 
-    private MessageCreateEvent createEvent;
+    private final double BONUS_MULTIPLICATOR = 1;
     private final String RETRY_EMOJI = "\uD83D\uDD01";
 
-    public CasinoAbstract(Locale locale, String prefix) {
+    private final String[] emojis;
+    private long coinsInput;
+    private double winMultiplicator = 1;
+    private Status status = Status.ACTIVE;
+    private final boolean useCalculatedMultiplicator;
+    private final boolean allowBet;
+
+    public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator, String[] emojis) {
         super(locale, prefix);
-        allowBet = true;
+        this.allowBet = allowBet;
+        this.useCalculatedMultiplicator = useCalculatedMultiplicator;
+        this.emojis = emojis;
     }
 
-    protected boolean onGameStart(MessageCreateEvent event, String followedString) throws IOException, ExecutionException, InterruptedException {
-        createEvent = event;
-        server = event.getServer().get();
-        player = event.getMessage().getUserAuthor().get();
-        channel = event.getServerTextChannel().get();
-        active = true;
-        useCalculatedMultiplicator = true;
-        compareKey = getTrigger();
+    public abstract void onGameStart(GuildMessageReceivedEvent event);
 
-        if (!allowBet) {
-            coinsInput = 0;
-            return true;
+    @Override
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+        try {
+            onGameStart(event);
+
+            if (!allowBet) {
+                coinsInput = 0;
+                registerReactionListener(emojis);
+                return true;
+            }
+
+            FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
+            if (status != FisheryStatus.ACTIVE) {
+                coinsInput = 0;
+                registerReactionListener(emojis);
+                return true;
+            }
+
+            FisheryMemberBean memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
+            long coins = memberBean.getCoins();
+            long value = Math.min(MentionUtil.getAmountExt(args, coins), coins);
+            if (value == -1) {
+                coinsInput = (long) Math.ceil(coins * 0.1);
+                memberBean.addHiddenCoins(coinsInput);
+                registerReactionListener(emojis);
+                return true;
+            }
+
+            if (value >= 0) {
+                coinsInput = value;
+                memberBean.addHiddenCoins(coinsInput);
+                registerReactionListener(emojis);
+                return true;
+            } else {
+                event.getChannel()
+                        .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")).build())
+                        .queue();
+                return false;
+            }
+        } catch (Throwable e) {
+            endGame();
+            throw e;
         }
+    }
 
-        FisheryStatus status = DBServer.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
-        if (status != FisheryStatus.ACTIVE) {
-            coinsInput = 0;
-            return true;
-        }
+    public long getCoinsInput() {
+        return coinsInput;
+    }
 
-        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
-        long coins = userBean.getCoins();
-        long value = Math.min(MentionUtil.getAmountExt(followedString, coins), coins);
-        if (value == -1) {
-            coinsInput = (long) Math.ceil(coins * 0.1);
-            userBean.addHiddenCoins(coinsInput);
-            return true;
-        }
+    protected void endGame() {
+        getGuild().ifPresent(guild -> {
+            status = Status.DRAW;
+            DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get()).addHiddenCoins(-coinsInput);
+            removeReactionListener()
+                    .thenRun(() -> registerReactionListener(RETRY_EMOJI));
+        });
+    }
 
-        if (value >= 0) {
-            coinsInput = value;
-            userBean.addHiddenCoins(coinsInput);
-            return true;
+    protected void lose() {
+        getGuild().ifPresent(guild -> {
+            endGame();
+            status = Status.LOST;
+            if (coinsInput > 0 && useCalculatedMultiplicator) {
+                DBGameStatistics.getInstance().retrieve(getTrigger()).addValue(false, 1);
+            }
+            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
+                    .changeValuesEmbed(0, -coinsInput);
+            if (coinsInput > 0) {
+                getTextChannel().ifPresent(channel -> channel.sendMessage(eb.build()).queue());
+            }
+        });
+    }
+
+    protected void win(double winMultiplicator) {
+        this.winMultiplicator = winMultiplicator;
+        win();
+    }
+
+    protected void win() {
+        getGuild().ifPresent(guild -> {
+            endGame();
+            status = Status.WON;
+
+            long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
+
+            double multiplicator = 1;
+            if (coinsInput != 0 && useCalculatedMultiplicator) {
+                GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().retrieve(getTrigger());
+                gameStatisticsBean.addValue(true, winMultiplicator);
+
+                double won = gameStatisticsBean.getValue(true);
+                double lost = gameStatisticsBean.getValue(false);
+                if (won > 0 && lost > 0) multiplicator = lost / won;
+            }
+
+            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
+                    .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+            if (coinsInput > 0) {
+                getTextChannel().ifPresent(channel -> channel.sendMessage(eb.build()).queue());
+            }
+        });
+    }
+
+    public abstract boolean onReactionCasino(GenericGuildMessageReactionEvent event);
+
+    @Override
+    public boolean onReaction(GenericGuildMessageReactionEvent event) {
+        if (status == Status.ACTIVE) {
+            return onReactionCasino(event);
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0"))).get();
-        }
-
-        return false;
-    }
-
-    protected void onGameEnd() {
-        won = false;
-        active = false;
-        DBFishery.getInstance().retrieve(server.getId()).getUserBean(player.getId()).addHiddenCoins(-coinsInput);
-        removeNavigation();
-        removeMessageForwarder();
-        removeReactionListener(((OnReactionAddListener)this).getReactionMessage());
-    }
-
-    protected void onLose() {
-        onGameEnd();
-        if (coinsInput > 0 && useCalculatedMultiplicator) {
-            DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
-        }
-        EmbedBuilder eb = DBFishery.getInstance().retrieve(server.getId()).getUserBean(player.getId()).changeValues(0, -coinsInput);
-        if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
-    }
-
-    protected void onWin() {
-        onGameEnd();
-        won = true;
-
-        long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
-
-        double multiplicator = 1;
-        if (coinsInput != 0 && useCalculatedMultiplicator) {
-            GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().retrieve(compareKey);
-            gameStatisticsBean.addValue(true, winMultiplicator);
-
-            double won = gameStatisticsBean.getValue(true);
-            double lost = gameStatisticsBean.getValue(false);
-            if (won > 0 && lost > 0) multiplicator = lost / won;
-        }
-
-        EmbedBuilder eb = DBFishery.getInstance().retrieve(server.getId()).getUserBean(player.getId()).changeValues(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
-        if (coinsInput > 0) channel.sendMessage(eb).exceptionally(ExceptionLogger.get());
-    }
-
-    protected void handleError(Throwable e, ServerTextChannel channel) {
-        onGameEnd();
-        ExceptionUtil.handleCommandException(e, this, channel);
-    }
-
-    protected EmbedBuilder addRetryOption(EmbedBuilder eb) {
-        addReactionListener(getReactionMessage());
-        message.addReaction(RETRY_EMOJI);
-        eb.addField(Emojis.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI));
-        return eb;
-    }
-
-    protected void onReactionAddRetry(SingleReactionEvent event) throws InstantiationException, IllegalAccessException, InterruptedException, ExecutionException, IOException, SQLException, InvocationTargetException {
-        if (!active && event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(RETRY_EMOJI)) {
-            removeReactionListener(getReactionMessage());
+            removeReactionListenerWithMessage();
 
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
-            command.setReactionUserID(event.getUserId());
-            command.blockLoading();
-
-            CommandManager.manage(createEvent, command, String.valueOf(coinsInput), Instant.now());
+            getGuildMessageReceivedEvent().ifPresent(e -> CommandManager.manage(e, command, String.valueOf(coinsInput), Instant.now()));
+            return false;
         }
     }
 
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        onReactionAddRetry(event);
-    }
+    public abstract EmbedBuilder drawCasino();
 
     @Override
-    public Message getReactionMessage() {
-        return message;
+    public EmbedBuilder draw() {
+        EmbedBuilder eb = drawCasino();
+        if (status != Status.ACTIVE && eb != null) {
+            eb.addField(Emojis.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI), false);
+        }
+        return eb;
     }
-
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable {}
 
 }

@@ -58,8 +58,8 @@ public class GiveCommand extends FisheryAbstract {
             if (!user0.getRoles(role.getServer()).contains(role)) return false;
         }
 
-        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(user0.getId());
-        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(user1.getId());
+        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(user0.getId());
+        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(user1.getId());
         long value = Math.min(MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins()), fisheryUser0.getCoins());
         long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
 

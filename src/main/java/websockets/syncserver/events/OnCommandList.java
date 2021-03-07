@@ -1,20 +1,18 @@
 package websockets.syncserver.events;
 
+import java.util.HashMap;
+import java.util.Locale;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
 import constants.Category;
-import core.MainLogger;
 import core.TextManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import websockets.syncserver.SyncLocaleUtil;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Locale;
 
 @SyncServerEvent(event = "COMMAND_LIST")
 public class OnCommandList implements SyncServerFunction {

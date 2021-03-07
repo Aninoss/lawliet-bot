@@ -25,7 +25,7 @@ public class ExchangeRateForecastCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         try {
             event.getMessage().getUserAuthor().get().sendMessage(getEmbed()).get();
         } catch (InterruptedException | ExecutionException e) {

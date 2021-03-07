@@ -1,32 +1,44 @@
 package commands.listeners;
 
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
-import org.json.JSONObject;
-
-import java.util.Arrays;
-import java.util.function.Function;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 
 public interface OnReactionListener {
 
-    void onReaction(GenericGuildMessageReactionEvent event) throws Throwable;
+    boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable;
 
-    default void registerReactionListener(long messageId, Member member, String... emojis) {
-        ((Command) this).getAttachments().put("reaction_message_id", messageId);
-        registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
-                event.getMessageIdLong() == messageId &&
-                (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> emoji.equals(event.getReactionEmote().getAsReactionCode())))
-        );
+    EmbedBuilder draw() throws Throwable;
+
+    default CompletableFuture<Long> registerReactionListener(String... emojis) {
+        Command command = (Command) this;
+        return command.getMember().map(member -> {
+            return registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
+                    event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
+                    (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> emoji.equals(event.getReactionEmote().getAsReactionCode())))
+            ).thenApply(messageId -> {
+                command.getTextChannel().ifPresent(channel -> {
+                    Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, emoji).queue());
+                });
+                return messageId;
+            });
+        }).orElse(null);
     }
 
-    default void registerReactionListener(long authorId, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerReactionListener(long authorId, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
+        Command command = (Command) this;
+
         Runnable onTimeOut = () -> {
             try {
                 onReactionTimeOut();
@@ -44,34 +56,50 @@ public interface OnReactionListener {
         };
 
         CommandListenerMeta<GenericGuildMessageReactionEvent> commandListenerMeta =
-                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, (Command) this);
+                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
         CommandContainer.getInstance().registerListener(OnReactionListener.class, commandListenerMeta);
+
+        try {
+            EmbedBuilder eb = draw();
+            if (eb != null) {
+                return command.drawMessage(eb.build());
+            }
+        } catch (Throwable e) {
+            command.getTextChannel().ifPresent(channel -> {
+                ExceptionUtil.handleCommandException(e, command, channel);
+            });
+        }
+
+        return CompletableFuture.failedFuture(new NoSuchElementException("No message sent"));
     }
 
     default void removeReactionListenerWithMessage() {
-        JSONObject attachments = ((Command) this).getAttachments();
-        if (attachments.has("reaction_message_id")) {
-            long messageId = attachments.getLong("reaction_message_id");
-            ((Command) this).getTextChannel().ifPresent(channel -> {
+        Command command = (Command) this;
+        command.getDrawMessageId().ifPresent(messageId -> {
+            command.getTextChannel().ifPresent(channel -> {
                 if (BotPermissionUtil.canRead(channel)) {
                     channel.deleteMessageById(messageId).queue();
                 }
             });
-        }
+        });
         deregisterReactionListener();
     }
 
-    default void removeReactionListener() {
-        JSONObject attachments = ((Command) this).getAttachments();
-        if (attachments.has("reaction_message_id")) {
-            long messageId = attachments.getLong("reaction_message_id");
-            ((Command) this).getTextChannel().ifPresent(channel -> {
+    default CompletableFuture<Void> removeReactionListener() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        Command command = (Command) this;
+        command.getDrawMessageId().ifPresentOrElse(messageId -> {
+            command.getTextChannel().ifPresentOrElse(channel -> {
                 if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_MANAGE)) {
-                    channel.clearReactionsById(messageId).queue();
+                    channel.clearReactionsById(messageId)
+                            .queue(v -> future.complete(null), future::completeExceptionally);
+                } else {
+                    future.completeExceptionally(new PermissionException("Missing permissions"));
                 }
-            });
-        }
+            }, () -> future.completeExceptionally(new NoSuchElementException("No such text channel")));
+        }, () -> future.completeExceptionally(new NoSuchElementException("No such draw message id")));
         deregisterReactionListener();
+        return future;
     }
 
     default void deregisterReactionListener() {
@@ -83,7 +111,12 @@ public interface OnReactionListener {
         CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
 
         try {
-            onReaction(event);
+            if (onReaction(event)) {
+                EmbedBuilder eb = draw();
+                if (eb != null) {
+                    ((Command) this).drawMessage(eb.build());
+                }
+            }
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, event.getChannel());
         }

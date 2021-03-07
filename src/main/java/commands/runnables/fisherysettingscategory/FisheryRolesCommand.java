@@ -10,8 +10,8 @@ import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.Mentionable;
 import org.javacord.api.entity.channel.ServerTextChannel;
@@ -48,7 +48,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        guildBean = DBGuild.getInstance().retrieve(event.getServer().get().getId());
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getServer().get().getId());
         roles = fisheryGuildBean.getRoles();
 

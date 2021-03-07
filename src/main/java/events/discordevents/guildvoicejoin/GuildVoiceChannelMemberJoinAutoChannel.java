@@ -2,16 +2,14 @@ package events.discordevents.guildvoicejoin;
 
 import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.Category;
 import core.PermissionCheckRuntime;
-import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildVoiceJoinAbstract;
 import modules.AutoChannel;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -28,7 +26,7 @@ public class GuildVoiceChannelMemberJoinAutoChannel extends GuildVoiceJoinAbstra
         Guild guild = event.getGuild();
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         if (autoChannelBean.isActive() && event.getChannelJoined().getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
-            GuildBean guildBean = DBServer.getInstance().retrieve(guild.getIdLong());
+            GuildBean guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
             if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getGuild(), Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT) &&
                     (event.getChannelJoined().getParent() != null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, event.getChannelJoined().getParent(), Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT))
             ) {

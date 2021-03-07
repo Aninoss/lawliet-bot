@@ -1,4 +1,4 @@
-package mysql.modules.server;
+package mysql.modules.guild;
 
 import constants.FisheryStatus;
 import mysql.BeanWithGuild;
@@ -89,7 +89,7 @@ public class GuildBean extends BeanWithGuild {
     }
 
     public boolean isSaved() {
-        return DBServer.getInstance().containsServerId(guildId);
+        return DBGuild.getInstance().containsServerId(guildId);
     }
 
     public boolean isCommandAuthorMessageRemove() {

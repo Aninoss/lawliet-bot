@@ -35,7 +35,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (!setUserListAndReason(event, followedString))
             return false;
 

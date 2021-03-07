@@ -1,5 +1,17 @@
-package commands;
+package commands.runnables;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import commands.Command;
+import commands.CommandContainer;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
 import commands.listeners.OnTriggerListener;
@@ -8,24 +20,18 @@ import constants.LetterEmojis;
 import constants.LogStatus;
 import constants.Response;
 import core.ExceptionLogger;
+import core.MainLogger;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
-import core.utils.*;
+import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
+import core.utils.ExceptionUtil;
+import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
-import net.dv8tion.jda.api.exceptions.PermissionException;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class NavigationCommand extends Command implements OnTriggerListener, OnMessageInputListener, OnReactionListener {
 
@@ -38,7 +44,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     private int state = DEFAULT_STATE;
     private int page = 0;
     private int pageMax = 0;
-    private long navigationMessageId = -1;
 
     public NavigationCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -49,10 +54,9 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         processDraw(event.getChannel())
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(messageId -> {
-                    this.navigationMessageId = messageId;
-                    addNavigationEmojis(event.getChannel(), navigationMessageId);
-                    registerMessageInputListener(event.getChannel(), event.getMember());
-                    registerReactionListener(navigationMessageId, event.getMember());
+                    addNavigationEmojis(event.getChannel(), messageId);
+                    registerMessageInputListener();
+                    registerReactionListener();
                 });
     }
 
@@ -62,13 +66,14 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         resetNavigation();
 
         Response response = controllerMessage(event, input, state);
-        processDraw(event.getChannel());
+        if (response != null)
+            processDraw(event.getChannel());
 
-        return response;
+        return null;
     }
 
     @Override
-    public void onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(GenericGuildMessageReactionEvent event) {
         CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, this);
 
         int index = getIndex(event);
@@ -86,6 +91,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         } catch (Throwable throwable) {
             ExceptionUtil.handleCommandException(throwable, this, event.getChannel());
         }
+        return false;
     }
 
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
@@ -140,14 +146,19 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         return false;
     }
 
-    public EmbedBuilder draw(JDA jda, int state) throws Throwable {
+    @Override
+    public EmbedBuilder draw() {
+        return null;
+    }
+
+    public EmbedBuilder draw(int state) {
         for (Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
                 try {
-                    return ((EmbedBuilder) method.invoke(this, jda));
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
+                    return ((EmbedBuilder) method.invoke(this));
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    MainLogger.get().error("Navigation draw exception", e);
                 }
             }
         }
@@ -156,14 +167,14 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == -1) {
                 try {
-                    return ((EmbedBuilder) method.invoke(this, jda));
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
+                    return ((EmbedBuilder) method.invoke(this));
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    MainLogger.get().error("Navigation draw exception", e);
                 }
             }
         }
 
-        throw new Exception("State not found");
+        return null;
     }
 
     private int getIndex(GenericGuildMessageReactionEvent event) {
@@ -203,9 +214,9 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         }
     }
 
-    private CompletableFuture<Long> processDraw(TextChannel channel) throws Throwable {
+    private CompletableFuture<Long> processDraw(TextChannel channel) {
         Locale locale = getLocale();
-        EmbedBuilder eb = draw(channel.getJDA(), state);
+        EmbedBuilder eb = draw(state);
 
         if (options != null && options.length > 0) {
             String[] newOptions;
@@ -234,18 +245,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         EmbedUtil.addLog(eb, logStatus, log);
 
         //TODO: Add support for dm navigation
-        if (navigationMessageId < 0) {
-            if (BotPermissionUtil.canWriteEmbed(channel)) {
-                return channel.sendMessage(eb.build())
-                        .submit()
-                        .exceptionally(ExceptionLogger.get())
-                        .thenApply(ISnowflake::getIdLong);
-            }
-            return CompletableFuture.failedFuture(new PermissionException("Missing permissions"));
-        } else {
-            channel.editMessageById(navigationMessageId, eb.build()).queue();
-            return CompletableFuture.completedFuture(navigationMessageId);
-        }
+        return drawMessage(eb.build());
     }
 
     private void addNavigationEmojis(TextChannel channel, long messageId) {

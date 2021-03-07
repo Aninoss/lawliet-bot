@@ -25,7 +25,7 @@ public class FAQCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         slots = new ArrayList<>();
         for(int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
             String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("%PREFIX", getPrefix());
@@ -33,7 +33,7 @@ public class FAQCommand extends ListAbstract {
             slots.add(new Pair<>(question, answer));
         }
 
-        init(event.getServerTextChannel().get(), followedString);
+        initList(event.getServerTextChannel().get(), followedString);
         return true;
     }
 

@@ -29,7 +29,7 @@ public class QuoteCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         User user = event.getMessage().getUserAuthor().get();
 
         //Message Link

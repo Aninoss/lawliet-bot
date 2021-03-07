@@ -39,7 +39,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (onGameStart(event, followedString)) {
             try {
                 Random r = new Random();
@@ -98,7 +98,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
     private void onAbort() throws ExecutionException {
         logStatus = LogStatus.LOSE;
-        onLose();
+        lose();
         log = getString("abort");
     }
 
@@ -191,7 +191,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         } else {
             logStatus = LogStatus.LOSE;
             log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
-            onLose();
+            lose();
         }
 
         message.edit(getEmbed(true));
@@ -213,7 +213,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
             logStatus = LogStatus.WIN;
             log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
             winMultiplicator = (double) health / (double) MAX_HEALTH;
-            onWin();
+            win();
         }
 
         message.edit(getEmbed(false));

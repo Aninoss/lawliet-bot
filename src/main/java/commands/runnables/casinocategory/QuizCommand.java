@@ -44,7 +44,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
         url = "https://opentdb.com/api.php?amount=1";
     }
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (onGameStart(event, followedString)) {
             try {
                 if (!allowBet) {
@@ -59,7 +59,7 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
                     data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
                     diffString = data.getString("difficulty");
                 } catch (Throwable e) {
-                    DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
+                    DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(event.getMessageAuthor().getId()).changeValues(0, coinsInput);
                     throw e;
                 }
 
@@ -129,11 +129,11 @@ public class QuizCommand extends CasinoAbstract implements OnReactionAddListener
 
     private void onAnswerSelected(int selected) throws ExecutionException {
         if (selected == correctAnswer) {
-            onWin();
+            win();
             logStatus = LogStatus.WIN;
             log = getString("correct");
         } else {
-            onLose();
+            lose();
             logStatus = LogStatus.LOSE;
             if (selected == -1) log = getString("timeup");
             else log = getString("wrong");

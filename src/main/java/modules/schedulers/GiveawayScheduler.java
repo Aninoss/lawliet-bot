@@ -9,8 +9,8 @@ import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -58,7 +58,7 @@ public class GiveawayScheduler {
                     .map(guild -> guild.getTextChannelById(giveawayBean.getTextChannelId()))
                     .ifPresent(channel -> {
                         try {
-                            processGiveawayUsers(channel, DBServer.getInstance().retrieve(channel.getGuild().getIdLong()), giveawayBean);
+                            processGiveawayUsers(channel, DBGuild.getInstance().retrieve(channel.getGuild().getIdLong()), giveawayBean);
                         } catch (Throwable e) {
                             MainLogger.get().error("Error in giveaway", e);
                         }

@@ -5,7 +5,7 @@ import core.*;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -43,7 +43,7 @@ public class FisheryVCObserver {
                 ShardManager.getInstance().getLocalGuilds().stream()
                         .filter(guild -> {
                             try {
-                                return DBServer.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                                return DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
                             } catch (Throwable e) {
                                 MainLogger.get().error("Could not get server bean", e);
                             }
@@ -72,7 +72,7 @@ public class FisheryVCObserver {
                 ) {
                     validMembers.forEach(member -> {
                         try {
-                            serverBean.getUserBean(member.getIdLong()).registerVC(VC_CHECK_INTERVAL_MIN);
+                            serverBean.getMemberBean(member.getIdLong()).registerVC(VC_CHECK_INTERVAL_MIN);
                             actions.incrementAndGet();
                         } catch (ExecutionException e) {
                             MainLogger.get().error("Exception when registering vc", e);

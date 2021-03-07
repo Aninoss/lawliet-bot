@@ -1,25 +1,28 @@
 package commands;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTriggerListener;
+import commands.runnables.NavigationCommand;
 import core.Bot;
 import core.TextManager;
+import core.atomicassets.AtomicGuild;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.json.JSONObject;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Command implements OnTriggerListener {
 
@@ -31,8 +34,11 @@ public abstract class Command implements OnTriggerListener {
     private final JSONObject attachments = new JSONObject();
     private boolean loadingReactionSet = false;
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
+    private AtomicGuild atomicGuild;
     private AtomicTextChannel atomicTextChannel;
     private AtomicMember atomicMember;
+    private long drawMessageId = 0;
+    private GuildMessageReceivedEvent event = null;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -70,6 +76,36 @@ public abstract class Command implements OnTriggerListener {
                 }
             });
         }
+    }
+
+    public synchronized CompletableFuture<Long> drawMessage(MessageEmbed eb, String... emojis) {
+        CompletableFuture<Long> future = new CompletableFuture<>();
+        getTextChannel().ifPresentOrElse(channel -> {
+            if (BotPermissionUtil.canWriteEmbed(channel)) {
+                if (drawMessageId == 0) {
+                    channel.sendMessage(eb)
+                            .queue(message -> {
+                                drawMessageId = message.getIdLong();
+                                Arrays.stream(emojis).forEach(emoji -> message.addReaction(emoji).queue());
+                                future.complete(drawMessageId);
+                            }, future::completeExceptionally);
+                } else {
+                    channel.editMessageById(drawMessageId, eb)
+                            .queue(v -> future.complete(drawMessageId), future::completeExceptionally);
+                }
+            } else {
+                future.completeExceptionally(new PermissionException("Missing permissions"));
+            }
+        }, () -> future.completeExceptionally(new NoSuchElementException("No such text channel")));
+        return future;
+    }
+
+    public void resetDrawMessage() {
+        drawMessageId = 0;
+    }
+
+    public Optional<Long> getDrawMessageId() {
+        return drawMessageId == 0 ? Optional.empty() : Optional.of(drawMessageId);
     }
 
     public String getString(String key, String... args) {
@@ -197,9 +233,19 @@ public abstract class Command implements OnTriggerListener {
         return attachments;
     }
 
-    public void setTextChannelAndMember(TextChannel textChannel, Member member) {
+    public void setAtomicAssets(TextChannel textChannel, Member member) {
+        atomicGuild = new AtomicGuild(textChannel.getGuild());
         atomicTextChannel = new AtomicTextChannel(textChannel);
         atomicMember = new AtomicMember(member);
+    }
+
+    public Optional<GuildMessageReceivedEvent> getGuildMessageReceivedEvent() {
+        return Optional.ofNullable(event);
+    }
+
+    public Optional<Guild> getGuild() {
+        return Optional.ofNullable(atomicGuild)
+                .flatMap(AtomicGuild::get);
     }
 
     public Optional<TextChannel> getTextChannel() {
@@ -210,6 +256,21 @@ public abstract class Command implements OnTriggerListener {
     public Optional<Member> getMember() {
         return Optional.ofNullable(atomicMember)
                 .flatMap(AtomicMember::get);
+    }
+
+    public Optional<Long> getGuildId() {
+        return Optional.ofNullable(atomicGuild)
+                .map(AtomicGuild::getId);
+    }
+
+    public Optional<Long> getTextChannelId() {
+        return Optional.ofNullable(atomicTextChannel)
+                .map(AtomicTextChannel::getId);
+    }
+
+    public Optional<Long> getMemberId() {
+        return Optional.ofNullable(atomicMember)
+                .map(AtomicMember::getId);
     }
 
     public CommandProperties getCommandProperties() {

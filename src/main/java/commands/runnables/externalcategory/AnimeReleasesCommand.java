@@ -30,7 +30,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         PostBundle<AnimeReleasePost> posts = AnimeReleaseDownloader.getPosts(getLocale(), null, followedString);
 
         if (posts.getPosts().size() > 0) {

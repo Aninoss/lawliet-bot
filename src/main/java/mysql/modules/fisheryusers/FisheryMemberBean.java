@@ -1,5 +1,14 @@
 package mysql.modules.fisheryusers;
 
+import java.awt.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import constants.CodeBlockColor;
 import constants.FisheryCategoryInterface;
 import constants.LogStatus;
@@ -19,15 +28,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import java.awt.*;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
 
@@ -213,15 +213,18 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
 
                 Instant effectiveInstant = currentHourInstance.minus(7, ChronoUnit.DAYS);
                 for (FisheryHourlyIncomeBean fisheryHourlyIncomeBean : fisheryHourlyIncomeMap.values()) {
-                    if (!fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant))
+                    if (!fisheryHourlyIncomeBean.getTime().isBefore(effectiveInstant)) {
                         n += fisheryHourlyIncomeBean.getFishIncome();
+                    }
                 }
 
                 fishIncome = n;
                 fishIncomeUpdateTime = currentHourInstance;
                 checkValuesBound();
+                break;
             } catch (Throwable e) {
-                if (i == 2) MainLogger.get().error("Exception", e);
+                if (i == 2)
+                    MainLogger.get().error("Exception", e);
             }
         }
 
@@ -370,7 +373,7 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
     }
 
     public EmbedBuilder getAccountEmbed() {
-        return changeValues(0, 0);
+        return changeValuesEmbed(0, 0);
     }
 
     public void setFish(long fish) {
@@ -423,11 +426,22 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         }
     }
 
-    public EmbedBuilder changeValues(long fishAdd, long coinsAdd) {
-        return changeValues(fishAdd, coinsAdd, null);
+    public void changeValues(long fishAdd, long coinsAdd) {
+        changeValues(fishAdd, coinsAdd, null);
     }
 
-    public synchronized EmbedBuilder changeValues(long fishAdd, long coinsAdd, Long newDailyStreak) {
+    public synchronized void changeValues(long fishAdd, long coinsAdd, Long newDailyStreak) {
+        addFish(fishAdd);
+        addCoinsRaw(coinsAdd);
+        if (newDailyStreak != null)
+            setDailyStreak(newDailyStreak);
+    }
+
+    public EmbedBuilder changeValuesEmbed(long fishAdd, long coinsAdd) {
+        return changeValuesEmbed(fishAdd, coinsAdd, null);
+    }
+
+    public synchronized EmbedBuilder changeValuesEmbed(long fishAdd, long coinsAdd, Long newDailyStreak) {
         /* Collect Current Data */
         long fishIncomePrevious = getFishIncome();
         long fishPrevious = getFish();

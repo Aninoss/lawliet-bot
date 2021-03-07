@@ -1,27 +1,31 @@
 package commands.runnables;
 
-import java.util.Locale;
 import commands.Command;
+import commands.listeners.OnTriggerListener;
 import constants.FisheryStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public abstract class FisheryAbstract extends Command {
+public interface FisheryAbstract extends OnTriggerListener {
 
-    public FisheryAbstract(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected abstract boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable;
+    boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable;
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
+    default boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+        Command command = (Command) this;
+        FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
-            return onMessageReceivedSuccessful(event, followedString);
+            return onFisheryAccess(event, args);
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"))).get();
+            event.getChannel()
+                    .sendMessage(
+                            EmbedFactory.getEmbedError(command,
+                                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", command.getPrefix()),
+                                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_title")
+                            ).build()
+                    ).queue();
             return false;
         }
     }

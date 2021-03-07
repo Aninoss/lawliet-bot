@@ -25,7 +25,7 @@ public class PokemonCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Pokemon pokemon = fetchPokemon(followedString.toLowerCase());
         if (pokemon == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)

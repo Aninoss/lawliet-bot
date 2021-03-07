@@ -44,7 +44,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         long minutes = 0;
         StringBuilder text = new StringBuilder();
         MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), followedString);

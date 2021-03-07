@@ -39,7 +39,7 @@ public class RosesCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Server server = event.getServer().get();
         User user0 = event.getMessage().getUserAuthor().get();
 

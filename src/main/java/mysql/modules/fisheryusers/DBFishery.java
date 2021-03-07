@@ -6,7 +6,7 @@ import constants.FisheryStatus;
 import core.Bot;
 import core.MainLogger;
 import mysql.*;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -298,7 +298,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUsers WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
 
-        DBServer.getInstance().retrieve(serverId).setFisheryStatus(FisheryStatus.STOPPED);
+        DBGuild.getInstance().retrieve(serverId).setFisheryStatus(FisheryStatus.STOPPED);
         getCache().invalidate(serverId);
         removeUpdateIf(fisheryServerBean -> fisheryServerBean.getGuildId() == serverId);
     }

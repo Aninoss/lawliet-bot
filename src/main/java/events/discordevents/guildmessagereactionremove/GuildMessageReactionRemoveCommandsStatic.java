@@ -10,8 +10,8 @@ import core.ShardManager;
 import core.cache.MessageCache;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionRemoveAbstract;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 
@@ -25,7 +25,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                     if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() &&
                             message.getEmbeds().size() > 0
                     ) {
-                        GuildBean guildBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
+                        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
                         MessageEmbed embed = message.getEmbeds().get(0);
                         if (embed.getTitle() != null && embed.getAuthor() == null) {
                             String title = embed.getTitle();

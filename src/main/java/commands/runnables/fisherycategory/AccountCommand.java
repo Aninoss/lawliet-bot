@@ -21,7 +21,7 @@ public class AccountCommand extends FisheryUserAccountAbstract {
 
     @Override
     protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
-        return DBFishery.getInstance().retrieve(server.getId()).getUserBean(user.getId()).getAccountEmbed();
+        return DBFishery.getInstance().retrieve(server.getId()).getMemberBean(user.getId()).getAccountEmbed();
     }
 
 }

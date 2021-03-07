@@ -31,7 +31,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         followedString = followedString.trim();
         if (followedString.startsWith("r/")) followedString = followedString.substring(2);
 

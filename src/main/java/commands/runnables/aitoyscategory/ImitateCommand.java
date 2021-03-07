@@ -29,7 +29,7 @@ public class ImitateCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
         ArrayList<User> users = userMentions.getList();
 

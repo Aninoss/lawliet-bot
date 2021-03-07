@@ -1,5 +1,12 @@
 package commands;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 import commands.cooldownchecker.CoolDownManager;
 import commands.cooldownchecker.CoolDownUserData;
 import commands.listeners.OnMessageInputListener;
@@ -7,8 +14,14 @@ import commands.listeners.OnReactionListener;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
-import constants.*;
-import core.*;
+import constants.Emojis;
+import constants.ExternalLinks;
+import constants.LogStatus;
+import constants.Settings;
+import core.Bot;
+import core.EmbedFactory;
+import core.ShardManager;
+import core.TextManager;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
@@ -20,22 +33,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class CommandManager {
 
     private final static int SEC_UNTIL_REMOVAL = 20;
 
-    public static void manage(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) throws IOException, ExecutionException, InterruptedException, SQLException {
+    public static void manage(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
                 checkCoolDown(event, command) &&
@@ -61,7 +64,7 @@ public class CommandManager {
                 if (command instanceof PingCommand)
                     command.getAttachments().put("starting_time", startTime);
 
-                command.onTrigger(event, args);
+                command.processTrigger(event, args);
                 if (Bot.isPublicVersion())
                     maybeSendInvite(event, command.getLocale());
             } catch (Throwable e) {
@@ -111,7 +114,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) throws InterruptedException {
+    private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3)
             return true;
         CoolDownUserData cooldownUserData = CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong());
@@ -132,8 +135,6 @@ public class CommandManager {
             } else if (BotPermissionUtil.canWrite(event.getChannel())) {
                 sendErrorNoEmbed(event, command.getLocale(), desc);
             }
-
-            Thread.sleep(5000);
         }
 
         return false;

@@ -2,6 +2,7 @@ package commands.runnables;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
@@ -11,6 +12,8 @@ import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 public abstract class DeepAIAbstract extends Command {
@@ -20,44 +23,43 @@ public abstract class DeepAIAbstract extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        URL url = null;
-        List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        String url = null;
+        List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
 
         if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-            MessageAttachment messageAttachment = attachmentList.get(0);
+            Message.Attachment messageAttachment = attachmentList.get(0);
             url = messageAttachment.getProxyUrl();
         } else {
-            ArrayList<URL> imageList = MentionUtil.getImages(followedString).getList();
+            ArrayList<URL> imageList = MentionUtil.getImages(args).getList();
             if (imageList.size() > 0) {
-                url = imageList.get(0);
+                url = imageList.get(0).toString();
             }
         }
 
         if (url != null) {
             String result = processImage(url);
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result))
+                    .setImage(result);
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result));
-            eb.setImage(result);
-
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(eb.build()).queue();
             return true;
         }
 
         EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-        event.getChannel().sendMessage(notFound).get();
+        event.getChannel().sendMessage(notFound.build()).queue();
         return false;
     }
 
 
-    private String processImage(URL url) throws ExecutionException, InterruptedException {
+    private String processImage(String url) throws ExecutionException, InterruptedException {
         for (DeepAIExample deepAiExample : getDeepAiExamples()) {
-            if (url.toString().equals(deepAiExample.imageUrl)) {
+            if (url.equals(deepAiExample.imageUrl)) {
                 return deepAiExample.resultUrl;
             }
         }
 
-        String query = "image=" + url.toString();
+        String query = "image=" + url;
 
         HttpProperty[] properties = new HttpProperty[]{
                 new HttpProperty("Api-Key", System.getenv("DEEPAI_TOKEN")),

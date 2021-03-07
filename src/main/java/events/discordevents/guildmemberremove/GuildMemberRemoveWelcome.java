@@ -6,7 +6,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import modules.Welcome;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
 import net.dv8tion.jda.api.Permission;
@@ -21,7 +21,7 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
     @Override
     public boolean onGuildMemberRemove(GuildMemberRemoveEvent event) {
         Guild guild = event.getGuild();
-        Locale locale = DBServer.getInstance().retrieve(guild.getIdLong()).getLocale();
+        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
         WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageBean.isGoodbyeActive()) {

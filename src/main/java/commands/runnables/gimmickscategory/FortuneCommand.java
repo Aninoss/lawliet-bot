@@ -23,7 +23,7 @@ public class FortuneCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
         if (followedString.length() > 0) {
             event.getChannel().sendMessage(getEmbed(message, followedString)).get();

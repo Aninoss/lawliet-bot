@@ -29,7 +29,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         send(event.getServerTextChannel().get());
         return true;
     }

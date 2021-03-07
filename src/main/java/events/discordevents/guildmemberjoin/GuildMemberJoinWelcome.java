@@ -9,7 +9,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -25,7 +25,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
         Guild guild = event.getGuild();
-        Locale locale = DBServer.getInstance().retrieve(guild.getIdLong()).getLocale();
+        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
         WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageBean.isDmActive()) {

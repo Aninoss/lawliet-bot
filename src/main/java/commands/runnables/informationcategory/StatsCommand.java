@@ -32,7 +32,7 @@ public class StatsCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         String dephordName = ShardManager.getInstance().fetchUserById(303085910784737281L).get().map(User::getDiscriminatedName).orElse("???");
         String neverCookFirstName = ShardManager.getInstance().fetchUserById(298153126223937538L).get().map(User::getDiscriminatedName).orElse("???");
         String owner = ShardManager.getInstance().fetchOwner().get().getDiscriminatedName();

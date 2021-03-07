@@ -43,7 +43,7 @@ public class FisheryGuildBean extends BeanWithGuild {
 
     public synchronized CustomObservableMap<Long, FisheryMemberBean> getUsers() { return users; }
 
-    public synchronized FisheryMemberBean getUserBean(long userId) {
+    public synchronized FisheryMemberBean getMemberBean(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryMemberBean(
                 getGuildId(),
                 userId,

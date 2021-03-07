@@ -4,8 +4,8 @@ import constants.Category;
 import core.TextManager;
 import mysql.DBMapCache;
 import mysql.DBMain;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,7 +45,7 @@ public class DBWelcomeMessage extends DBMapCache<Long, WelcomeMessageBean> {
                     resultSet.getString(9)
             );
         } else {
-            GuildBean guildBean = DBServer.getInstance().retrieve(serverId);
+            GuildBean guildBean = DBGuild.getInstance().retrieve(serverId);
             Locale locale = guildBean.getLocale();
 
             welcomeMessageBean = new WelcomeMessageBean(

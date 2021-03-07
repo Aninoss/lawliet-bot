@@ -26,7 +26,7 @@ public class ServerInfoCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Server server = event.getServer().get();
 
         String[] args = {

@@ -8,8 +8,8 @@ import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -41,8 +41,8 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-            guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+            guildBean = DBGuild.getInstance().retrieve(event.getServer().get().getId());
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {

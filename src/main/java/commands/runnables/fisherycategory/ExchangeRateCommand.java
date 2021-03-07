@@ -31,7 +31,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         EmbedBuilder eb = getEmbed();
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb).get();

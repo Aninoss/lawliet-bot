@@ -10,8 +10,8 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -48,7 +48,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        GuildBean guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getServer().get().getId());
         FisheryStatus status = guildBean.getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
@@ -69,7 +69,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
 
         server = event.getServer().get();
         userId = list.get(0).getId();
-        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(userId);
+        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(userId);
 
         followedString = userMentions.getResultMessageString();
         if (followedString.length() > 0) {

@@ -6,7 +6,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.AninossRaidProtection;
 import mysql.modules.autoroles.DBAutoRoles;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -19,7 +19,7 @@ public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {
 
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
-        Locale locale = DBServer.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
+        Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
 
         for (Role role : DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong()).getRoleIds()
                 .transform(event.getGuild()::getRoleById, ISnowflake::getIdLong)

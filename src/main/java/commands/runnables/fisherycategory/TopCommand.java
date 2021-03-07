@@ -1,19 +1,20 @@
 package commands.runnables.fisherycategory;
 
-import commands.listeners.*;
-import commands.runnables.ListAbstract;
-import constants.Emojis;
-import constants.FisheryStatus;
-import core.*;
-import core.utils.StringUtil;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
-import mysql.modules.server.DBServer;
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
+import commands.listeners.CommandProperties;
+import commands.runnables.ListAbstract;
+import constants.Emojis;
+import constants.FisheryStatus;
+import core.EmbedFactory;
+import core.TextManager;
+import core.utils.StringUtil;
+import javafx.util.Pair;
+import mysql.modules.fisheryusers.DBFishery;
+import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.guild.DBGuild;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "top",
@@ -31,8 +32,8 @@ public class TopCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryStatus status = DBServer.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+        FisheryStatus status = DBGuild.getInstance().retrieve(event.getServer().get().getId()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             rankingSlots = new ArrayList<>(DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUsers().values());
             rankingSlots.removeIf(user -> !user.isOnServer() || user.getMember().map(User::isBot).orElse(true));
@@ -43,7 +44,7 @@ public class TopCommand extends ListAbstract {
                 if (s1.getFish() > s2.getFish()) return -1;
                 return Long.compare(s2.getCoins(), s1.getCoins());
             });
-            init(event.getServerTextChannel().get(), followedString);
+            initList(event.getServerTextChannel().get(), followedString);
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));

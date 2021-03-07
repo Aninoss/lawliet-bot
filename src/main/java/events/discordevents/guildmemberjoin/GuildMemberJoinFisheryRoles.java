@@ -20,7 +20,7 @@ public class GuildMemberJoinFisheryRoles extends GuildMemberJoinAbstract {
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
             return true;
 
-        fisheryGuildBean.getUserBean(event.getUser().getIdLong())
+        fisheryGuildBean.getMemberBean(event.getUser().getIdLong())
                 .getRoles()
                 .ifPresent(roles -> {
                     roles.forEach(role -> {

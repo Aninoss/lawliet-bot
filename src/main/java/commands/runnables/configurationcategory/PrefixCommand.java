@@ -6,7 +6,7 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 
 @CommandProperties(
     trigger = "prefix",
@@ -21,11 +21,11 @@ public class PrefixCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Server server = event.getServer().get();
         if (followedString.length() > 0) {
             if (followedString.length() <= 5) {
-                DBServer.getInstance().retrieve(event.getServer().get().getId()).setPrefix(followedString);
+                DBGuild.getInstance().retrieve(event.getServer().get().getId()).setPrefix(followedString);
 
                 if (server.canYouChangeOwnNickname()) {
                     String nickname = server.getDisplayName(ShardManager.getInstance().getSelf()).trim();

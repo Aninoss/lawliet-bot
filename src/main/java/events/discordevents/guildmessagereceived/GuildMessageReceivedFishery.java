@@ -9,8 +9,8 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import java.util.Random;
@@ -20,7 +20,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
-        GuildBean guildBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
+        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
 
         //manage message
         boolean messageRegistered = false;
@@ -29,7 +29,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 && guildBean.getFisheryStatus() == FisheryStatus.ACTIVE
                 && !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
         )
-            messageRegistered = fisheryGuildBean.getUserBean(event.getMessage().getIdLong())
+            messageRegistered = fisheryGuildBean.getMemberBean(event.getMessage().getIdLong())
                     .registerMessage(event.getMessage());
 
         //manage treasure chests

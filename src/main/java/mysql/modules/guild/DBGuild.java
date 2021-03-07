@@ -1,4 +1,4 @@
-package mysql.modules.server;
+package mysql.modules.guild;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -19,15 +19,15 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 
-public class DBServer extends DBMapCache<Long, GuildBean> {
+public class DBGuild extends DBMapCache<Long, GuildBean> {
 
-    private static final DBServer ourInstance = new DBServer();
+    private static final DBGuild ourInstance = new DBGuild();
 
-    public static DBServer getInstance() {
+    public static DBGuild getInstance() {
         return ourInstance;
     }
 
-    private DBServer() {
+    private DBGuild() {
     }
 
     private final Cache<Long, Boolean> removedServerIds = CacheBuilder.newBuilder()

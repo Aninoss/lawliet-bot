@@ -1,28 +1,34 @@
 package commands.listeners;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import constants.Response;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 public interface OnMessageInputListener {
 
     Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable;
 
-    default void registerMessageInputListener(TextChannel channel, Member member) {
-        registerMessageInputListener(member.getIdLong(), event -> event.getAuthor().getIdLong() == member.getIdLong() &&
-                event.getChannel().getIdLong() == channel.getIdLong());
+    EmbedBuilder draw() throws Throwable;
+
+    default void registerMessageInputListener() {
+        Command command = (Command) this;
+        command.getMember().ifPresent(member -> {
+            registerMessageInputListener(member.getIdLong(), event -> event.getMember().getIdLong() == member.getIdLong() &&
+                    event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L)
+            );
+        });
     }
 
     default void registerMessageInputListener(long authorId, Function<GuildMessageReceivedEvent, Boolean> validityChecker) {
+        Command command = (Command) this;
+
         Runnable onTimeOut = () -> {
             try {
                 onMessageInputTimeOut();
@@ -40,8 +46,19 @@ public interface OnMessageInputListener {
         };
 
         CommandListenerMeta<GuildMessageReceivedEvent> commandListenerMeta =
-                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, (Command) this);
+                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
         CommandContainer.getInstance().registerListener(OnMessageInputListener.class, commandListenerMeta);
+
+        try {
+            EmbedBuilder eb = draw();
+            if (eb != null) {
+                command.drawMessage(eb.build());
+            }
+        } catch (Throwable e) {
+            command.getTextChannel().ifPresent(channel -> {
+                ExceptionUtil.handleCommandException(e, command, channel);
+            });
+        }
     }
 
     default void deregisterMessageInputListener() {
@@ -55,7 +72,14 @@ public interface OnMessageInputListener {
 
         command.addLoadingReaction(event.getMessage(), isProcessing);
         try {
-            return onMessageInput(event, event.getMessage().getContentRaw());
+            Response response = onMessageInput(event, event.getMessage().getContentRaw());
+            if (response != null) {
+                EmbedBuilder eb = draw();
+                if (eb != null) {
+                    ((Command) this).drawMessage(eb.build());
+                }
+            }
+            return response;
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, event.getChannel());
             return Response.ERROR;

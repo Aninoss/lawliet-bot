@@ -1,10 +1,9 @@
 package events.discordevents.eventtypeabstracts;
 
-import events.discordevents.DiscordEventAbstract;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import java.time.Instant;
 import java.util.ArrayList;
+import events.discordevents.DiscordEventAbstract;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract {
 
@@ -22,12 +21,11 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
 
 
     public static void onGuildMessageReceivedStatic(GuildMessageReceivedEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        Member member = event.getMember();
-        if (member == null)
+        if (event.isWebhookMessage())
             return;
 
         Instant startTime = Instant.now();
-        execute(listenerList, member.getUser(), event.getGuild().getIdLong(),
+        execute(listenerList, event.getMember().getUser(), event.getGuild().getIdLong(),
                 listener -> {
                     ((GuildMessageReceivedAbstract) listener).setStartTime(startTime);
                     return ((GuildMessageReceivedAbstract) listener).onGuildMessageReceived(event);

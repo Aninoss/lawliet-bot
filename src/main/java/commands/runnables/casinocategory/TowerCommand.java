@@ -12,6 +12,7 @@ import core.ExceptionLogger;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "tower",
@@ -36,7 +37,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (onGameStart(event, followedString)) {
             try {
                 useCalculatedMultiplicator = false;
@@ -130,7 +131,7 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
             towerMultiplier += MULTIPLIER_STEP;
             message.edit(getEmbed(true, false, true)).get();
         } else {
-            onLose();
+            lose();
             towerLevel = 0;
             logStatus = LogStatus.LOSE;
             log = getString("lost");
@@ -141,9 +142,9 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
     private void onSell() throws ExecutionException {
         if (towerMultiplier > 1) {
             winMultiplicator = towerMultiplier - 1;
-            onWin();
+            win();
         } else {
-            onGameEnd();
+            endGame();
         }
         logStatus = LogStatus.WIN;
         log = getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale()));

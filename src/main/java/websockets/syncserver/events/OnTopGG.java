@@ -1,24 +1,23 @@
 package websockets.syncserver.events;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ExecutionException;
 import constants.FisheryStatus;
-import core.ShardManager;
 import core.MainLogger;
+import core.ShardManager;
 import core.cache.PatreonCache;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvotesBean;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.ExecutionException;
 
 @SyncServerEvent(event = "TOPGG")
 public class OnTopGG implements SyncServerFunction {
@@ -51,10 +50,10 @@ public class OnTopGG implements SyncServerFunction {
                 MainLogger.get().info("UPVOTE | {}", user.getName());
 
                 ShardManager.getInstance().getLocalMutualGuilds(user).stream()
-                        .filter(guild -> DBServer.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE)
+                        .filter(guild -> DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE)
                         .forEach(guild -> {
                             int value = isWeekend ? 2 : 1;
-                            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getUserBean(userId);
+                            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
 
                             if (PatreonCache.getInstance().getUserTier(userId) >= 2 &&
                                     DBAutoClaim.getInstance().retrieve().isActive(userId)

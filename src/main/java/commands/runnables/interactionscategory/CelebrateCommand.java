@@ -34,7 +34,7 @@ public class CelebrateCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         User user0 = event.getMessage().getUserAuthor().get();
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getMessage(), followedString, null);
 

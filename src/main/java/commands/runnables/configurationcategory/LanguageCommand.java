@@ -5,7 +5,7 @@ import commands.Command;
 import constants.Locales;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
@@ -31,7 +31,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (followedString.length() > 0) {
             int language = -1;
             for(int i=0; i<languageArgs.length; i++) {
@@ -46,7 +46,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
                 setLocale(new Locale(languageLocales[language]));
             }
 
-            DBServer.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
+            DBGuild.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
             event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
             return true;
         } else {
@@ -64,7 +64,7 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
             String str = languageEmojis[i];
             if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
                 setLocale(new Locale(languageLocales[i]));
-                DBServer.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
+                DBGuild.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
                 getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
                 removeReactionListener(getReactionMessage());
                 return;

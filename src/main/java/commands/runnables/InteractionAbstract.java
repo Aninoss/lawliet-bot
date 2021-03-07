@@ -9,6 +9,8 @@ import core.mention.Mention;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class InteractionAbstract extends Command {
 
@@ -22,36 +24,37 @@ public abstract class InteractionAbstract extends Command {
     protected abstract String[] getGifs();
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
-        Mention mention = MentionUtil.getMentionedString(getLocale(), message, followedString, event.getMessage().getAuthor().asUser().get());
+        Mention mention = MentionUtil.getMentionedString(getLocale(), message, args, event.getMember());
         boolean mentionPresent = !mention.getMentionText().isEmpty();
 
         if (!mentionPresent && mention.containedBlockedUser()) {
             message.getChannel().sendMessage(
                     EmbedFactory.getEmbedDefault(this,
                             TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
-                            .setImage("https://media.discordapp.net/attachments/736277561373491265/736277600053493770/hug.gif")).get();
+                            .setImage("https://media.discordapp.net/attachments/736277561373491265/736277600053493770/hug.gif").build())
+                    .queue();
             return false;
         }
 
         String quote = "";
         if (mentionPresent)
-            followedString = mention.getFilteredOriginalText().get();
-        if (followedString.length() > 0)
-            quote = "\n\n> " + followedString.replace("\n", "\n> ");
+            args = mention.getFilteredOriginalText().get();
+        if (args.length() > 0)
+            quote = "\n\n> " +args.replace("\n", "\n> ");
 
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
         EmbedBuilder eb;
         if (mentionPresent) {
-            eb = EmbedFactory.getEmbedDefault(this,getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this,getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
                     .setImage(gifUrl);
         } else {
-            eb = EmbedFactory.getEmbedDefault(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
                     .setImage(gifUrl);
         }
 
-        message.getChannel().sendMessage(eb).get();
+        message.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 

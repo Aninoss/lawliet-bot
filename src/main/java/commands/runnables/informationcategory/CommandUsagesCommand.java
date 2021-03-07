@@ -32,7 +32,7 @@ public class CommandUsagesCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         for(Class<? extends Command> clazz: CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getEmoji()));
@@ -40,7 +40,7 @@ public class CommandUsagesCommand extends ListAbstract {
 
         commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));
 
-        init(event.getServerTextChannel().get(), followedString);
+        initList(event.getServerTextChannel().get(), followedString);
         return true;
     }
 

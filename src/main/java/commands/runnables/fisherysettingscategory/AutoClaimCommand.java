@@ -32,7 +32,7 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         User user = event.getMessageAuthor().asUser().get();
         AutoClaimBean autoClaimBean = DBAutoClaim.getInstance().retrieve();
 

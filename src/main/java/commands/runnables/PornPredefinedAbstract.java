@@ -16,8 +16,11 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     }
 
     protected abstract String getSearchKey();
+
     protected abstract String getSearchExtra();
+
     protected abstract boolean isAnimatedOnly();
+
     protected abstract String getImageTemplate();
 
     @Override

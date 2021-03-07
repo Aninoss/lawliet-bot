@@ -28,7 +28,7 @@ public class AutoQuoteCommand extends Command implements OnReactionAddListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (followedString.length() > 0) {
             int option = -1;
             for(int i=0; i < activeArgs.length; i++) {

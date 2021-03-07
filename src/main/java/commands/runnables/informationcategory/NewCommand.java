@@ -42,7 +42,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         versionBean = DBVersion.getInstance().retrieve();
 
         //Ohne Argumente

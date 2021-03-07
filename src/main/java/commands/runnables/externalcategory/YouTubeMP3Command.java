@@ -38,7 +38,7 @@ public class YouTubeMP3Command extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         followedString = followedString.replace("<", "").replace(">", "");
 
         if (followedString.isEmpty()) {

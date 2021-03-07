@@ -34,7 +34,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         onlyNumbersAsArg = false;
         if (onGameStart(event, followedString)) {
             try {
@@ -121,11 +121,11 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
                 if (selection[0] == selection[1]) {
                     log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
                     logStatus = LogStatus.WIN;
-                    onWin();
+                    win();
                 } else {
                     log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
                     logStatus = LogStatus.LOSE;
-                    onLose();
+                    lose();
                 }
 
                 message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));

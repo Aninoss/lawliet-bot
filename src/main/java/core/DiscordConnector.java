@@ -1,5 +1,7 @@
 package core;
 
+import java.util.concurrent.TimeUnit;
+import javax.security.auth.login.LoginException;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -19,8 +21,6 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import websockets.syncserver.SyncManager;
-import javax.security.auth.login.LoginException;
-import java.util.concurrent.TimeUnit;
 
 public class DiscordConnector {
 
@@ -37,6 +37,7 @@ public class DiscordConnector {
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
+            .enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS) //TODO: required?
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
             .addEventListeners(new DiscordEventAdapter());

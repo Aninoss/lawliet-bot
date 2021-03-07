@@ -5,7 +5,6 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import commands.CommandManager;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionListener;
 import commands.runnables.informationcategory.HelpCommand;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
@@ -17,8 +16,8 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -31,7 +30,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
-        GuildBean guildBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
+        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         String prefix = guildBean.getPrefix();
         String content = event.getMessage().getContentRaw();
 
@@ -99,7 +98,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     private void checkAutoQuote(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            GuildBean guildBean = DBServer.getInstance().retrieve(event.getGuild().getIdLong());
+            GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             Locale locale = guildBean.getLocale();
             MentionUtil.getMessageWithLinks(event.getMessage(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();

@@ -34,7 +34,7 @@ public class DailyCommand extends FisheryAbstract {
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getUserBean(event.getMessageAuthor().getId());
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(event.getMessageAuthor().getId());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
             long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());

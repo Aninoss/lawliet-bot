@@ -37,7 +37,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Optional<Integer> hoursMin = extractHoursMin(event.getServerTextChannel().get(), followedString);
         if (hoursMin.isPresent()) {
             ClearResults clearResults = fullClear(event.getServerTextChannel().get(), hoursMin.get(), event.getMessage());

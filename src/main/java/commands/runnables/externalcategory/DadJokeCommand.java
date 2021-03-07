@@ -25,7 +25,7 @@ public class DadJokeCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         String joke;
 
         if (StringUtil.getLanguage(getLocale()) == Language.DE) {

@@ -33,7 +33,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         followedString = followedString.replace("\n", "").trim();
         if (followedString.startsWith("|")) followedString = followedString.substring(1);
         String[] args = followedString.split("\\|");

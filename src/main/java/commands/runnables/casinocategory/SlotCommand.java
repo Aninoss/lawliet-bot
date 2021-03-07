@@ -14,9 +14,6 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -47,7 +44,7 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (onGameStart(event, followedString)) {
             try {
                 useCalculatedMultiplicator = false;
@@ -190,13 +187,13 @@ public class SlotCommand extends CasinoAbstract implements OnReactionAddListener
         log = getString("end", winLevel);
         if (winLevel == 0) {
             logStatus = LogStatus.LOSE;
-            onLose();
+            lose();
         }
         else {
             logStatus = LogStatus.WIN;
 
             winMultiplicator = WIN_POSSABILITIES[winLevel-1]/WIN_POSSABILITIES.length*WIN_AMOUNT_ADJUSTMENT[winLevel-1] -1;
-            onWin();
+            win();
         }
     }
 

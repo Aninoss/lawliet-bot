@@ -3,7 +3,7 @@ package events.discordevents.guildupdateboostcount;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUpdateBoostCountAbstract;
 import modules.MemberCountDisplay;
-import mysql.modules.server.DBServer;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import java.util.Locale;
 
@@ -12,7 +12,7 @@ public class GuildUpdateBoostCountMCDisplays extends GuildUpdateBoostCountAbstra
 
     @Override
     public boolean onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) throws Throwable {
-        Locale locale = DBServer.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
+        Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
         MemberCountDisplay.getInstance().manage(locale, event.getGuild());
         return true;
     }

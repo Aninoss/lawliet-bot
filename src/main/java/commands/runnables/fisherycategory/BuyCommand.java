@@ -14,8 +14,8 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.fisheryusers.FisheryMemberPowerUpBean;
-import mysql.modules.server.DBServer;
-import mysql.modules.server.GuildBean;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 
 import java.util.List;
 import java.util.Locale;
@@ -43,9 +43,9 @@ public class BuyCommand extends FisheryAbstract implements OnNavigationListenerO
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        guildBean = DBServer.getInstance().retrieve(event.getServer().get().getId());
+        guildBean = DBGuild.getInstance().retrieve(event.getServer().get().getId());
         server = event.getServer().get();
-        fisheryMemberBean = DBFishery.getInstance().retrieve(server.getId()).getUserBean(event.getMessageAuthor().getId());
+        fisheryMemberBean = DBFishery.getInstance().retrieve(server.getId()).getMemberBean(event.getMessageAuthor().getId());
         fisheryGuildBean = fisheryMemberBean.getFisheryServerBean();
 
         checkRolesWithLog(fisheryGuildBean.getRoles(), null);

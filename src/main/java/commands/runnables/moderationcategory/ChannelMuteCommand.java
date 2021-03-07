@@ -38,7 +38,7 @@ public class ChannelMuteCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
         Server server = message.getServer().get();
 

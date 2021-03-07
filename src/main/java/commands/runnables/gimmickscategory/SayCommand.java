@@ -23,7 +23,7 @@ public class SayCommand extends Command {
     }
 
     @Override
-    public boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(followedString)
