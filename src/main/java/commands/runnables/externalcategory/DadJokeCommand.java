@@ -31,7 +31,7 @@ public class DadJokeCommand extends Command {
         if (StringUtil.getLanguage(getLocale()) == Language.DE) {
             /* taken from https://github.com/derphilipp/Flachwitze */
             List<String> jokeList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/dadjokes_" + getLocale().getDisplayName() + ".txt"));
-            int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), jokeList.size());
+            int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), jokeList.size());
             joke = jokeList.get(n);
         } else {
             joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");

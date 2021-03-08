@@ -70,7 +70,7 @@ public class CelebrateCommand extends Command {
 
     private void send(MessageCreateEvent event, String text) throws ExecutionException, InterruptedException {
         String[] gifs = getGifs();
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text)
                 .setImage(gifUrl);

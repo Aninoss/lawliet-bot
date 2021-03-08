@@ -1,10 +1,8 @@
 package commands.runnables.configurationcategory;
 
-import java.io.IOException;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
 import core.CustomObservableList;
@@ -13,36 +11,40 @@ import core.ListGen;
 import core.utils.StringUtil;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "nsfwfilter",
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⛔",
         executableWithoutArgs = true,
         aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
 )
-public class NSFWFilterCommand extends Command implements OnNavigationListenerOld {
+public class NSFWFilterCommand extends NavigationAbstract {
 
     private static final int MAX_FILTERS = 18;
+    private final static int MAX_LENGTH = 50;
 
     private CustomObservableList<String> keywords;
-    private final static int MAX_LENGTH = 50;
 
     public NSFWFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        keywords = DBNSFWFilters.getInstance().retrieve(event.getServer().get().getId()).getKeywords();
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+        keywords = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
+        registerNavigationListener(18);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws IOException, ExecutionException {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
         if (state == 1) {
-            if (!inputString.isEmpty()) {
-                String[] mentionedKeywords = inputString.split(" ");
+            if (!input.isEmpty()) {
+                String[] mentionedKeywords = input.split(" ");
 
                 int existingKeywords = 0;
                 for(String str: mentionedKeywords) {
@@ -82,7 +84,7 @@ public class NSFWFilterCommand extends Command implements OnNavigationListenerOl
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {
@@ -131,12 +133,12 @@ public class NSFWFilterCommand extends Command implements OnNavigationListenerOl
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                       .addField(getString("state0_mkeywords"), StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), true);
+                        .addField(getString("state0_mkeywords"), StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
@@ -150,14 +152,6 @@ public class NSFWFilterCommand extends Command implements OnNavigationListenerOl
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
         }
         return null;
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 18;
     }
 
 }

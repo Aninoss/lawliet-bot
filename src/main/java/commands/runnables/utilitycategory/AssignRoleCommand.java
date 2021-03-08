@@ -103,7 +103,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
     public void onReactionAdd(SingleReactionEvent event) throws Throwable {
         if (event.getEmoji().equalsEmoji(CANCEL_EMOJI) && future != null) {
             removeReactionListener();
-            RoleAssigner.getInstance().cancel(event.getServer().get().getId());
+            RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
         }
     }
 

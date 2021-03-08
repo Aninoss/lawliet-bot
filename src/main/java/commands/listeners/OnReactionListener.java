@@ -23,8 +23,8 @@ public interface OnReactionListener {
 
     default CompletableFuture<Long> registerReactionListener(String... emojis) {
         Command command = (Command) this;
-        return command.getMember().map(member -> {
-            return registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
+        return command.getMember().map(member ->
+            registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
                     event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
                     (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> emoji.equals(event.getReactionEmote().getAsReactionCode())))
             ).thenApply(messageId -> {
@@ -32,8 +32,8 @@ public interface OnReactionListener {
                     Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, emoji).queue());
                 });
                 return messageId;
-            });
-        }).orElse(null);
+            })
+        ).orElse(null);
     }
 
     default CompletableFuture<Long> registerReactionListener(long authorId, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
@@ -61,9 +61,13 @@ public interface OnReactionListener {
         CommandContainer.getInstance().registerListener(OnReactionListener.class, commandListenerMeta);
 
         try {
-            EmbedBuilder eb = draw();
-            if (eb != null) {
-                return command.drawMessage(eb);
+            if (command.getDrawMessageId().isEmpty()) {
+                EmbedBuilder eb = draw();
+                if (eb != null) {
+                    return command.drawMessage(eb);
+                }
+            } else {
+                return CompletableFuture.completedFuture(command.getDrawMessageId().get());
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {

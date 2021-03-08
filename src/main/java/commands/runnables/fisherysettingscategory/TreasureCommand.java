@@ -1,14 +1,13 @@
 package commands.runnables.fisherysettingscategory;
 
+import java.util.Locale;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.Fishery;
-
-
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "treasure",
@@ -18,7 +17,7 @@ import java.util.Locale;
         patreonRequired = true,
         aliases = { "tresure", "treasurechest" }
 )
-public class TreasureCommand extends FisheryInterface {
+public class TreasureCommand extends Command implements FisheryInterface {
 
     public TreasureCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -42,7 +41,7 @@ public class TreasureCommand extends FisheryInterface {
             }
         }
 
-        for(int i = 0; i < amount; i++) Fishery.spawnTreasureChest(event.getServer().get().getId(), event.getServerTextChannel().get());
+        for(int i = 0; i < amount; i++) Fishery.spawnTreasureChest(event.getGuild().getIdLong(), event.getServerTextChannel().get());
         return true;
     }
 

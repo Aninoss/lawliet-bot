@@ -39,7 +39,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         if (!setUserListAndReason(event, followedString))
             return false;
 
-        moderationBean = DBModeration.getInstance().retrieve(event.getServer().get().getId());
+        moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
 
         if (userList.size() > 1 || moderationBean.isQuestion()) {
             Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);

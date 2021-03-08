@@ -44,7 +44,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getServer().get().getId());
+        memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
         memberCountBean.getMemberCountBeanSlots().trim(vcId -> event.getServer().get().getVoiceChannelById(vcId));
         return true;
     }
@@ -167,7 +167,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
                         return true;
                     }
 
-                    memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplaySlot(event.getServer().get().getId(), currentVC.getId(), currentName));
+                    memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), currentVC.getId(), currentName));
                     MemberCountDisplay.getInstance().manage(getLocale(), event.getServer().get());
 
                     setLog(LogStatus.SUCCESS, getString("displayadd"));

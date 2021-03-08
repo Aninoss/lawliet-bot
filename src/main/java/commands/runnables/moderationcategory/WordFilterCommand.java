@@ -41,7 +41,7 @@ public class WordFilterCommand extends Command implements OnNavigationListenerOl
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        bannedWordsBean = DBBannedWords.getInstance().retrieve(event.getServer().get().getId());
+        bannedWordsBean = DBBannedWords.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredUsers = bannedWordsBean.getIgnoredUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
         logReceivers = bannedWordsBean.getLogReceiverUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
         wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);

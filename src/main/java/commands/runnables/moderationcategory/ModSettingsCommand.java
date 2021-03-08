@@ -33,7 +33,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        moderationBean = DBModeration.getInstance().retrieve(event.getServer().get().getId());
+        moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         return true;
     }
 

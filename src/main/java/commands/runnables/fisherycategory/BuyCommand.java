@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.*;
@@ -29,7 +30,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         executableWithoutArgs = true,
         aliases = { "shop", "upgrade", "invest", "levelup", "b" }
 )
-public class BuyCommand extends FisheryInterface implements OnNavigationListenerOld {
+public class BuyCommand extends Command implements FisheryInterface implements OnNavigationListenerOld {
 
     private FisheryMemberBean fisheryMemberBean;
     private FisheryGuildBean fisheryGuildBean;
@@ -43,7 +44,7 @@ public class BuyCommand extends FisheryInterface implements OnNavigationListener
 
     @Override
     protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        guildBean = DBGuild.getInstance().retrieve(event.getServer().get().getId());
+        guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         server = event.getServer().get();
         fisheryMemberBean = DBFishery.getInstance().retrieve(server.getId()).getMemberBean(event.getMessageAuthor().getId());
         fisheryGuildBean = fisheryMemberBean.getFisheryServerBean();

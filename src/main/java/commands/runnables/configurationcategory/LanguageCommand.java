@@ -1,30 +1,30 @@
 package commands.runnables.configurationcategory;
 
-import commands.listeners.*;
+import java.util.Locale;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionListener;
 import constants.Locales;
 import core.EmbedFactory;
-import core.utils.DiscordUtil;
 import mysql.modules.guild.DBGuild;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "language",
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83C\uDF10",
         executableWithoutArgs = true,
         aliases = { "sprache", "lang" }
 )
-public class LanguageCommand extends Command implements OnReactionAddListener {
+public class LanguageCommand extends Command implements OnReactionListener {
 
-    private Message message;
+    private final String[] LANGUAGE_EMOJIS = new String[]{"\uD83C\uDDE9\uD83C\uDDEA", "\uD83C\uDDF7\uD83C\uDDFA", "\uD83C\uDDEC\uD83C\uDDE7"};
+    private final String[] LANGUAGE_ARGS = new String[]{ "de", "ru", "en" };
 
-    private final String[] languageEmojis = new String[]{"\uD83C\uDDE9\uD83C\uDDEA", "\uD83C\uDDF7\uD83C\uDDFA", "\uD83C\uDDEC\uD83C\uDDE7"};
-    private final String[] languageLocales = Locales.LIST;
-    private final String[] languageArgs = new String[]{"de", "ru", "en"};
+    private boolean set = false;
 
     public LanguageCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -32,51 +32,45 @@ public class LanguageCommand extends Command implements OnReactionAddListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (followedString.length() > 0) {
+        if (args.length() > 0) {
             int language = -1;
-            for(int i=0; i<languageArgs.length; i++) {
-                String str = languageArgs[i];
-                if (followedString.equalsIgnoreCase(str)) language = i;
+            for(int i = 0; i< LANGUAGE_ARGS.length; i++) {
+                String str = LANGUAGE_ARGS[i];
+                if (args.equalsIgnoreCase(str)) language = i;
             }
 
             if (language == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", followedString)));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", args)).build()).queue();
                 return false;
             } else {
-                setLocale(new Locale(languageLocales[language]));
+                setLocale(new Locale(Locales.LIST[language]));
+                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
+                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set")).build()).queue();
+                return true;
             }
-
-            DBGuild.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
-            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
-            return true;
         } else {
-            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction"))).get();
-            for(String str: languageEmojis) {
-                message.addReaction(str);
-            }
+            registerReactionListener(LANGUAGE_EMOJIS);
             return true;
         }
     }
 
     @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        for(int i=0; i<languageEmojis.length; i++) {
-            String str = languageEmojis[i];
-            if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
-                setLocale(new Locale(languageLocales[i]));
-                DBGuild.getInstance().retrieve(event.getServer().get().getId()).setLocale(getLocale());
-                getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set"))).get();
-                removeReactionListener(getReactionMessage());
-                return;
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        for(int i = 0; i < LANGUAGE_EMOJIS.length; i++) {
+            if (event.getReactionEmote().getAsReactionCode().equals(LANGUAGE_EMOJIS[i])) {
+                removeReactionListener();
+                setLocale(new Locale(Locales.LIST[i]));
+                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
+                set = true;
+                return true;
             }
         }
+        return false;
     }
 
     @Override
-    public Message getReactionMessage() {
-        return message;
+    public EmbedBuilder draw() throws Throwable {
+        return EmbedFactory.getEmbedDefault(this, set ? getString("set") : getString("reaction"));
     }
 
-    @Override
-    public void onReactionTimeOut(Message message) {}
 }

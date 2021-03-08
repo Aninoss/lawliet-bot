@@ -46,14 +46,15 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         super(locale, prefix);
     }
 
-    protected void registerNavigationListener(GuildMessageReceivedEvent event, int reactions) throws Throwable {
+    protected void registerNavigationListener(int reactions) {
         this.reactions = reactions;
-        processDraw(event.getChannel())
+        TextChannel channel = getTextChannel().get();
+        processDraw(channel)
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(messageId -> {
-                    addNavigationEmojis(event.getChannel(), messageId);
-                    registerMessageInputListener();
+                    addNavigationEmojis(channel, messageId);
                     registerReactionListener();
+                    registerMessageInputListener(false);
                 });
     }
 
@@ -143,7 +144,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return null;
     }
 
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
@@ -208,7 +209,12 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     private CompletableFuture<Long> processDraw(TextChannel channel) {
         Locale locale = getLocale();
-        EmbedBuilder eb = draw(state);
+        EmbedBuilder eb;
+        try {
+            eb = draw(state);
+        } catch (Throwable throwable) {
+            return CompletableFuture.failedFuture(throwable);
+        }
 
         if (options != null && options.length > 0) {
             String[] newOptions;

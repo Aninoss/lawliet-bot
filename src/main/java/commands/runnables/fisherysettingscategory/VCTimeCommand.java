@@ -42,7 +42,7 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-            guildBean = DBGuild.getInstance().retrieve(event.getServer().get().getId());
+            guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             if (followedString.length() > 0) {
                 return mainExecution(event, followedString);
             } else {

@@ -37,7 +37,7 @@ public class FortuneCommand extends Command {
 
     private EmbedBuilder getEmbed(Message message, String question) {
         question = StringUtil.shortenString(question, 1024);
-        int n = RandomPicker.getInstance().pick(getTrigger(), message.getServer().get().getId(), 27);
+        int n = RandomPicker.getInstance().pick(getTrigger(), message.getGuild().getIdLong(), 27);
         String answerRaw = getString("answer_" + n);
 
         String answer = answerRaw;

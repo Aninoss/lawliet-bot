@@ -49,8 +49,8 @@ public class ShipCommand extends Command {
         if (list.get(0).getId() == 397209883793162240L && list.get(1).getId() == 710120672499728426L)
             percentage = 100;
 
-        int n = RandomPicker.getInstance().pick(getTrigger(), event.getServer().get().getId(), 7);
-        if (event.getServer().get().getId() == 580048842020487180L) n = 7;
+        int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), 7);
+        if (event.getGuild().getIdLong() == 580048842020487180L) n = 7;
 
         InputStream is = ShipGraphics.createImageShip(list.get(0), list.get(1), n, percentage);
         if (is == null) {

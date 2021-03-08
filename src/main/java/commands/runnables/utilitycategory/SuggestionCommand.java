@@ -38,7 +38,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getServer().get().getId());
+        SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ADD_REACTIONS)) {
@@ -48,7 +48,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     String content = StringUtil.shortenString(followedString, 1024);
 
                     Message message = channel.sendMessage(
-                            event.getServer().get().getId() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "",
+                            event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "",
                             generateEmbed(content, author, generateFooter(0, 0))
                     ).get();
                     message.addReaction(EMOJI_LIKE).get();
@@ -57,7 +57,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     suggestionsBean.getSuggestionMessages().put(
                             message.getId(),
                             new SuggestionMessage(
-                                    event.getServer().get().getId(),
+                                    event.getGuild().getIdLong(),
                                     message.getId(),
                                     content,
                                     author
@@ -105,7 +105,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     private void onReactionStatic(Message message, SingleReactionEvent event) {
         DBSuggestions.getInstance()
-                .retrieve(event.getServer().get().getId())
+                .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
                 .computeIfPresent(message.getId(), (messageId, suggestionMessage) -> {
                     Emoji emoji = event.getEmoji();

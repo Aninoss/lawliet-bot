@@ -69,7 +69,7 @@ public class GiveawayCommand extends Command implements OnNavigationListenerOld 
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        serverId = event.getServer().get().getId();
+        serverId = event.getGuild().getIdLong();
         giveawayBeans = DBGiveaway.getInstance().retrieve();
         title = getString("title");
         return true;

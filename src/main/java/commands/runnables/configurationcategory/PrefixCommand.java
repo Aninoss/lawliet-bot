@@ -4,13 +4,16 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.ShardManager;
 import core.TextManager;
+import core.utils.BotPermissionUtil;
 import mysql.modules.guild.DBGuild;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
     trigger = "prefix",
-    userPermissions = PermissionDeprecated.MANAGE_SERVER,
+    userGuildPermissions = Permission.MANAGE_SERVER,
     emoji = "\uD83D\uDCDB",
     executableWithoutArgs = false
 )
@@ -22,32 +25,36 @@ public class PrefixCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        Server server = event.getServer().get();
-        if (followedString.length() > 0) {
-            if (followedString.length() <= 5) {
-                DBGuild.getInstance().retrieve(event.getServer().get().getId()).setPrefix(followedString);
+        Guild guild = event.getGuild();
+        if (args.length() > 0) {
+            if (args.length() <= 5) {
+                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setPrefix(args);
 
-                if (server.canYouChangeOwnNickname()) {
-                    String nickname = server.getDisplayName(ShardManager.getInstance().getSelf()).trim();
+                if (BotPermissionUtil.can(guild, Permission.NICKNAME_CHANGE)) {
+                    String nickname = event.getMember().getEffectiveName().trim();
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
-                        server.updateNickname(ShardManager.getInstance().getSelf(), nickname + " [" + followedString + "]");
+                        guild.modifyNickname(event.getMember(), nickname + " [" + args + "]")
+                                .reason(getCommandLanguage().getTitle())
+                                .queue();
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        server.updateNickname(ShardManager.getInstance().getSelf(), nicknameArray[0].trim() + " [" + followedString + "]");
+                        guild.modifyNickname(event.getMember(), nicknameArray[0].trim() + " [" + args + "]")
+                                .reason(getCommandLanguage().getTitle())
+                                .queue();
                     }
                 }
 
-                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("changed", followedString))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("changed", args)).build()).queue();
                 return true;
             } else {
                 event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                        TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5"))).get();
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5")).build()).queue();
                 return false;
             }
         } else {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    getString("no_arg"))).get();
+                    getString("no_arg")).build()).queue();
             return false;
         }
     }

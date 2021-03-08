@@ -36,7 +36,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getServer().get().getId());
+        autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
         roles = autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getGuild().get().getRoleById(roleId), DiscordEntity::getId);
         roleNavigationHelper = new NavigationHelper<>(this, roles, Role.class, MAX_ROLES);
         checkRolesWithLog(roles, event.getMessage().getUserAuthor().get());

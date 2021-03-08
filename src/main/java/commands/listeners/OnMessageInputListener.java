@@ -18,15 +18,19 @@ public interface OnMessageInputListener {
     EmbedBuilder draw() throws Throwable;
 
     default void registerMessageInputListener() {
+        registerMessageInputListener(true);
+    }
+
+    default void registerMessageInputListener(boolean draw) {
         Command command = (Command) this;
         command.getMember().ifPresent(member -> {
             registerMessageInputListener(member.getIdLong(), event -> event.getMember().getIdLong() == member.getIdLong() &&
-                    event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L)
+                    event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L), draw
             );
         });
     }
 
-    default void registerMessageInputListener(long authorId, Function<GuildMessageReceivedEvent, Boolean> validityChecker) {
+    default void registerMessageInputListener(long authorId, Function<GuildMessageReceivedEvent, Boolean> validityChecker, boolean draw) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {
@@ -51,9 +55,11 @@ public interface OnMessageInputListener {
         CommandContainer.getInstance().registerListener(OnMessageInputListener.class, commandListenerMeta);
 
         try {
-            EmbedBuilder eb = draw();
-            if (eb != null) {
-                command.drawMessage(eb);
+            if (draw && command.getDrawMessageId().isEmpty()) {
+                EmbedBuilder eb = draw();
+                if (eb != null) {
+                    command.drawMessage(eb);
+                }
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {

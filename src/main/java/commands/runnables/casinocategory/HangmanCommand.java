@@ -48,6 +48,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
 
+        registerMessageInputListener();
         return new String[]{ "❌" };
     }
 

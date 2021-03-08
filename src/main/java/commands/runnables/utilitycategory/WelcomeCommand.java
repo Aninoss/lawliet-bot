@@ -37,7 +37,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
 
     @Override
     protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getServer().get().getId());
+        welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
         author = event.getMessage().getUserAuthor().get();
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
@@ -91,7 +91,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
             case 4:
                 List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-                    String downloadFileName = String.format("data/welcome_backgrounds/%d.png", event.getServer().get().getId());
+                    String downloadFileName = String.format("data/welcome_backgrounds/%d.png", event.getGuild().getIdLong());
                     if (FileUtil.downloadMessageAttachment(attachmentList.get(0), downloadFileName).isPresent()) {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);

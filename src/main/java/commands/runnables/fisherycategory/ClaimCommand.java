@@ -3,6 +3,7 @@ package commands.runnables.fisherycategory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
@@ -27,7 +28,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         onlyPublicVersion = true,
         aliases = { "c" }
 )
-public class ClaimCommand extends FisheryInterface {
+public class ClaimCommand extends Command implements FisheryInterface {
 
     public ClaimCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -36,7 +37,7 @@ public class ClaimCommand extends FisheryInterface {
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
         Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMessage().getUserAuthor().get().getId()).plus(12, ChronoUnit.HOURS);
-        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(event.getMessageAuthor().getId());
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMessageAuthor().getId());
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 

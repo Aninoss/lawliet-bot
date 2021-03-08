@@ -1,28 +1,21 @@
 package commands.runnables.fisherycategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionAddListener;
-import commands.runnables.FisheryInterface;
-import constants.Response;
-import core.EmbedFactory;
-import core.utils.MentionUtil;
-import core.TextManager;
-import core.utils.StringUtil;
-import modules.ExchangeRate;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
-
-
-
-
-
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.runnables.FisheryInterface;
+import constants.Response;
+import core.EmbedFactory;
+import core.TextManager;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
+import modules.ExchangeRate;
+import mysql.modules.fisheryusers.DBFishery;
+import mysql.modules.fisheryusers.FisheryMemberBean;
 
 @CommandProperties(
         trigger = "sell",
@@ -31,7 +24,7 @@ import java.util.concurrent.ExecutionException;
         executableWithoutArgs = true,
         aliases = { "s" }
 )
-public class SellCommand extends FisheryInterface implements OnReactionAddListener, OnMessageInputListener {
+public class SellCommand extends Command implements FisheryInterface implements OnReactionAddListener, OnMessageInputListener {
 
     private Message message;
     private FisheryMemberBean userBean;
@@ -42,7 +35,7 @@ public class SellCommand extends FisheryInterface implements OnReactionAddListen
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(event.getMessageAuthor().getId());
+        userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMessageAuthor().getId());
         if (followedString.length() > 0) {
             return mainExecution(event, followedString);
         } else {

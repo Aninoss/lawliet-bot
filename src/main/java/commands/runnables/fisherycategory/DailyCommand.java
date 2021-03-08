@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
@@ -26,7 +27,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
         executableWithoutArgs = true,
         aliases = { "d" }
 )
-public class DailyCommand extends FisheryInterface {
+public class DailyCommand extends Command implements FisheryInterface {
 
     public DailyCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -34,7 +35,7 @@ public class DailyCommand extends FisheryInterface {
 
     @Override
     public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(event.getMessageAuthor().getId());
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMessageAuthor().getId());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
             long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());

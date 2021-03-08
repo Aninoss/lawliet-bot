@@ -1,39 +1,35 @@
 package commands.runnables.configurationcategory;
 
-import commands.listeners.CommandProperties;
-
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandManager;
-import constants.Category;
-import constants.LogStatus;
-import constants.Response;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.TextManager;
-import mysql.modules.commandmanagement.CommandManagementBean;
-import mysql.modules.commandmanagement.DBCommandManagement;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import commands.Command;
+import commands.CommandContainer;
+import commands.CommandManager;
+import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
+import constants.Category;
+import constants.LogStatus;
+import constants.Response;
+import core.EmbedFactory;
+import core.TextManager;
+import mysql.modules.commandmanagement.CommandManagementBean;
+import mysql.modules.commandmanagement.DBCommandManagement;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "commandmanagement",
-        userPermissions = PermissionDeprecated.ADMINISTRATOR,
+        userGuildPermissions = Permission.ADMINISTRATOR,
         emoji = "🚦",
         executableWithoutArgs = true,
-        aliases = {"cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman"}
+        aliases = { "cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman" }
 )
-public class CommandManagementCommand extends Command implements OnNavigationListenerOld {
+public class CommandManagementCommand extends NavigationAbstract {
 
     private CommandManagementBean commandManagementBean;
     private String category;
@@ -43,16 +39,19 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getServer().get().getId());
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+        commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
+        registerNavigationListener(12);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) { return null; }
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+        return null;
+    }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 if (i == -1) {
@@ -93,14 +92,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
 
             case 2:
                 List<Command> commandList = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
-                        .map(clazz -> {
-                            try {
-                                return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                                MainLogger.get().error("Could not create command", e);
-                                return null;
-                            }
-                        })
+                        .map(clazz -> CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()))
                         .collect(Collectors.toList());
 
                 if (i == -1) {
@@ -133,18 +125,13 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
 
     private void turnOnAllCategoryCommands() {
         commandManagementBean.getSwitchedOffElements().removeIf(element -> {
-            try {
-                Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(element);
-                if (clazz == null) return false;
-                return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                MainLogger.get().error("Error when creating command", e);
-                return false;
-            }
+            Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(element);
+            if (clazz == null) return false;
+            return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
         });
     }
 
-    private int getCategoryStatus(String category) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+    private int getCategoryStatus(String category) {
         boolean hasOn = false, hasOff = false;
 
         if (!commandManagementBean.getSwitchedOffElements().contains(category)) {
@@ -159,18 +146,13 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 String[] options = Arrays.stream(Category.LIST)
                         .map(id -> {
                             String name = TextManager.getString(getLocale(), TextManager.COMMANDS, id);
-                            try {
-                                return getString("category", getCategoryStatus(id), name);
-                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                                MainLogger.get().error("Error while creating command", e);
-                                return null;
-                            }
+                            return getString("category", getCategoryStatus(id), name);
                         })
                         .filter(Objects::nonNull)
                         .toArray(String[]::new);
@@ -184,14 +166,7 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
 
             case 2:
                 options = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
-                        .map(clazz -> {
-                            try {
-                                return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                                MainLogger.get().error("Could not create command", e);
-                                return null;
-                            }
-                        })
+                        .map(clazz -> CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()))
                         .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
                         .toArray(String[]::new);
                 setOptions(options);
@@ -200,14 +175,6 @@ public class CommandManagementCommand extends Command implements OnNavigationLis
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 12;
     }
 
 }

@@ -1,25 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnStaticReactionAddListener;
-import commands.listeners.OnTrackerRequestListener;
-import commands.runnables.FisheryInterface;
-import constants.*;
-import core.ShardManager;
-import core.EmbedFactory;
-import core.PermissionCheckRuntime;
-import core.TextManager;
-import core.utils.DiscordUtil;
-import core.utils.EmbedUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
-import javafx.util.Pair;
-import mysql.modules.survey.*;
-import mysql.modules.tracker.TrackerBeanSlot;
-
-
-
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -28,6 +8,25 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.runnables.FisheryInterface;
+import constants.Emojis;
+import constants.LetterEmojis;
+import constants.LogStatus;
+import constants.TrackerResult;
+import core.EmbedFactory;
+import core.PermissionCheckRuntime;
+import core.ShardManager;
+import core.TextManager;
+import core.utils.DiscordUtil;
+import core.utils.EmbedUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
+import javafx.util.Pair;
+import mysql.modules.survey.*;
+import mysql.modules.tracker.TrackerBeanSlot;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
     trigger = "survey",
@@ -35,7 +34,7 @@ import java.util.concurrent.ExecutionException;
     emoji = "✅",
     executableWithoutArgs = true
 )
-public class SurveyCommand extends FisheryInterface implements OnStaticReactionAddListener, OnTrackerRequestListener {
+public class SurveyCommand extends Command implements FisheryInterface implements OnStaticReactionAddListener, OnTrackerRequestListener {
 
     private static final String BELL_EMOJI = "🔔";
 
@@ -129,8 +128,8 @@ public class SurveyCommand extends FisheryInterface implements OnStaticReactionA
             case 2:
                 if (surveyBean.getFirstVotes().containsKey(event.getUserId())) {
                     surveyBean.getSecondVotes().put(
-                            new Pair<>(event.getServer().get().getId(), event.getUserId()),
-                            new SurveySecondVote(event.getServer().get().getId(), event.getUserId(), i)
+                            new Pair<>(event.getGuild().getIdLong(), event.getUserId()),
+                            new SurveySecondVote(event.getGuild().getIdLong(), event.getUserId(), i)
                     );
                     return true;
                 } else {

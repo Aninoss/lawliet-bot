@@ -64,7 +64,7 @@ public class NibbleCommand extends Command {
 
         boolean chooseEarGif = text.toLowerCase().contains("ohr") || text.toLowerCase().contains("ear");
         String[] gifs = chooseEarGif ? getGifsEar() : getGifs();
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger() + chooseEarGif, event.getServer().get().getId(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger() + chooseEarGif, event.getGuild().getIdLong(), gifs.length)];
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", user0.getDisplayName(server), user1.getDisplayName(server), text))
                 .setImage(gifUrl);

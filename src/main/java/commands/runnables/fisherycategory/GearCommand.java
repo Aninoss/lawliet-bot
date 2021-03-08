@@ -39,7 +39,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
 
     @Override
     protected void init(MessageCreateEvent event, String followedString) throws Throwable {
-        buyableRoles = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getRoles();
+        buyableRoles = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getRoles();
     }
 
     @Override

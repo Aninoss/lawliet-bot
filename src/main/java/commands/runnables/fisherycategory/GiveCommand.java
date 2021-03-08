@@ -1,25 +1,20 @@
 package commands.runnables.fisherycategory;
 
+import java.util.ArrayList;
+import java.util.Locale;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.TextManager;
 import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
-import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-
-
-
-
-
-
-
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "give",
@@ -28,7 +23,7 @@ import java.util.Locale;
         executableWithoutArgs = false,
         aliases = {"gift", "pay" }
 )
-public class GiveCommand extends FisheryInterface {
+public class GiveCommand extends Command implements FisheryInterface {
 
     public GiveCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -58,8 +53,8 @@ public class GiveCommand extends FisheryInterface {
             if (!user0.getRoles(role.getServer()).contains(role)) return false;
         }
 
-        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(user0.getId());
-        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getServer().get().getId()).getMemberBean(user1.getId());
+        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user0.getId());
+        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user1.getId());
         long value = Math.min(MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins()), fisheryUser0.getCoins());
         long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
 
