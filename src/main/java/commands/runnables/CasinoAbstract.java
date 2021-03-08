@@ -6,10 +6,11 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnReactionListener;
 import constants.Category;
-import constants.Emojis;
 import constants.FisheryStatus;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
@@ -186,9 +187,25 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     public EmbedBuilder draw() {
         EmbedBuilder eb = drawCasino();
         if (status != Status.ACTIVE && eb != null) {
-            eb.addField(Emojis.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI), false);
+            if (getLog() != null && getLog().length() > 0) {
+                EmbedUtil.addLog(eb, getLogStatus(), getLog());
+            }
+
+            setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI));
         }
         return eb;
+    }
+
+    @Override
+    public void onReactionTimeOut() throws Throwable {
+        if (status == Status.ACTIVE) {
+            lose();
+            setLog(LogStatus.TIME, TextManager.getString(getLocale(), Category.CASINO, "casino_abort", RETRY_EMOJI));
+            EmbedBuilder eb = draw();
+            if (eb != null) {
+                drawMessage(eb);
+            }
+        }
     }
 
 }

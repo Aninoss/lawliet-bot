@@ -107,6 +107,8 @@ public abstract class Command implements OnTriggerListener {
                 future.completeExceptionally(new PermissionException("Missing permissions"));
             }
         }, () -> future.completeExceptionally(new NoSuchElementException("No such text channel")));
+
+        resetLog();
         return future;
     }
 
@@ -116,6 +118,14 @@ public abstract class Command implements OnTriggerListener {
 
     public Optional<Long> getDrawMessageId() {
         return drawMessageId == 0 ? Optional.empty() : Optional.of(drawMessageId);
+    }
+
+    public LogStatus getLogStatus() {
+        return logStatus;
+    }
+
+    public String getLog() {
+        return log;
     }
 
     public void setLog(LogStatus logStatus, String string) {
@@ -261,6 +271,10 @@ public abstract class Command implements OnTriggerListener {
 
     public Optional<GuildMessageReceivedEvent> getGuildMessageReceivedEvent() {
         return Optional.ofNullable(event);
+    }
+
+    public void setGuildMessageReceivedEvent(GuildMessageReceivedEvent event) {
+        this.event = event;
     }
 
     public Optional<Guild> getGuild() {

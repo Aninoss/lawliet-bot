@@ -61,7 +61,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         CommandContainer.getInstance().refreshListener(OnReactionListener.class, this);
-        resetLog();
 
         Response response = controllerMessage(event, input, state);
         if (response != null)
@@ -195,18 +194,18 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
         if (index >= reactions - 2 && options != null && options.length > reactions) {
             if (index == reactions - 2) {
                 page--;
-                if (page < 0) page = pageMax;
+                if (page < 0)
+                    page = pageMax;
             } else if (index == reactions - 1) {
                 page++;
-                if (page > pageMax) page = 0;
+                if (page > pageMax)
+                    page = 0;
             }
-            resetLog();
             startCalculation.set(false);
             return index;
         } else {
             if (options != null && options.length > reactions && index >= 0)
                 index += (reactions - 2) * page;
-            resetLog();
             startCalculation.set(true);
             return index;
         }

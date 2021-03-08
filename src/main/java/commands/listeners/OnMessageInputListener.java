@@ -52,7 +52,7 @@ public interface OnMessageInputListener {
         try {
             EmbedBuilder eb = draw();
             if (eb != null) {
-                command.drawMessage(eb.build());
+                command.drawMessage(eb);
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {
@@ -76,7 +76,7 @@ public interface OnMessageInputListener {
             if (response != null) {
                 EmbedBuilder eb = draw();
                 if (eb != null) {
-                    ((Command) this).drawMessage(eb.build());
+                    ((Command) this).drawMessage(eb);
                 }
             }
             return response;

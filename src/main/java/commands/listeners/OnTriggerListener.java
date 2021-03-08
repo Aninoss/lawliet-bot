@@ -24,6 +24,7 @@ public interface OnTriggerListener {
         Command command = (Command) this;
         AtomicBoolean isProcessing = new AtomicBoolean(true);
         command.setAtomicAssets(event.getChannel(), event.getMember());
+        command.setGuildMessageReceivedEvent(event);
 
         if (Bot.isPublicVersion()) {
             DBCommandUsages.getInstance().retrieve(command.getTrigger()).increase();

@@ -1,7 +1,10 @@
 package commands.runnables.casinocategory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Random;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.Emojis;
@@ -11,96 +14,192 @@ import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Random;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "blackjack",
         emoji = "\uD83C\uDCCF",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         aliases = { "bj" }
 )
-public class BlackjackCommand extends CasinoAbstract implements OnReactionAddListener {
+public class BlackjackCommand extends CasinoAbstract {
 
-    private String log;
-    private LogStatus logStatus;
-    private final String[] EMOJIS = { "\uD83D\uDCE5", "✋" };
-    private ArrayList<GameCard>[] gameCards;
+    private enum PlayerType { PLAYER, DEALER }
+
+    private static final String[] ACTION_EMOJIS = { "📥", "✋" };
     private final int TIME_BETWEEN_EVENTS = 2500;
     private final int TIME_BEFORE_END = 1500;
-    private boolean block;
-    private boolean finished;
+
+    private final HashMap<Integer, ArrayList<GameCard>> gameCards = new HashMap<>();
+    private PlayerType cardRecentDrawn = null;
+    private boolean turnForPlayer = true;
 
     public BlackjackCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true, true, ACTION_EMOJIS);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (onGameStart(event, followedString)) {
-            try {
-                winMultiplicator = 1;
-                block = false;
-                finished = false;
-                gameCards = new ArrayList[2];
+    public boolean onGameStart(GuildMessageReceivedEvent event) {
+        for (PlayerType value : PlayerType.values()) {
+            ArrayList<GameCard> cards = getCardsForPlayer(value);
+            for (int i = 0; i < 2; i++) {
+                cards.add(new GameCard());
+            }
+        }
 
-                gameCards[0] = new ArrayList<>();
-                for (int i = 0; i < 2; i++) gameCards[0].add(new GameCard());
+        return true;
+    }
 
-                gameCards[1] = new ArrayList<>();
-                for (int i = 0; i < 1; i++) gameCards[1].add(new GameCard());
+    @Override
+    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
+        if (turnForPlayer) {
+            if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[0])) {
+                getCardsForPlayer(PlayerType.PLAYER).add(new GameCard());
+                setLog(LogStatus.SUCCESS, getString("getcard", 0));
 
-                message = event.getChannel().sendMessage(getEmbed(-1)).get();
-                for (String str : EMOJIS) message.addReaction(str).get();
-
+                if (getCardsValue(PlayerType.PLAYER) > 21) {
+                    turnForPlayer = false;
+                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
+                        lose();
+                        setLog(LogStatus.LOSE, getString("toomany", 0));
+                        drawMessage(draw());
+                    });
+                }
                 return true;
-            } catch (Throwable e) {
-                handleError(e, event.getServerTextChannel().get());
-                return false;
+            } else if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[1])) {
+                turnForPlayer = false;
+                removeReactionListener();
+
+                setLog(LogStatus.SUCCESS, getString("stopcard", 0));
+                drawMessage(draw());
+                onCPUTurn();
+                return true;
             }
         }
         return false;
     }
 
-    private EmbedBuilder getEmbed(int playerNewCard) {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("cards", false, String.valueOf(getCardSize(0)), server.getDisplayName(player)), getCards(0, playerNewCard == 0), true)
-                .addField(getString("cards", true, String.valueOf(getCardSize(1))), getCards(1, playerNewCard == 1), true);
+    private void onCPUTurn() {
+        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", this::onCPUTurnStep);
+    }
 
-        if (coinsInput != 0)
+    private boolean onCPUTurnStep() {
+        getCardsForPlayer(PlayerType.DEALER).add(new GameCard());
+        setLog(LogStatus.SUCCESS, getString("getcard", 1));
+        drawMessage(draw());
+
+        int cardsValue = getCardsValue(PlayerType.DEALER);
+        if (cardsValue >= 17) {
+            if (cardsValue <= 21) {
+                MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
+                    setLog(LogStatus.SUCCESS, getString("stopcard", 1));
+                    drawMessage(draw());
+
+                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
+                        HashMap<PlayerType, Boolean> hasBlackJackMap = new HashMap<>();
+                        for (PlayerType playerType : PlayerType.values()) {
+                            hasBlackJackMap.put(playerType,
+                                    getCardsValue(playerType) == 21 && getCardsForPlayer(playerType).size() == 2
+                            );
+                        }
+
+                        if (hasBlackJackMap.get(PlayerType.PLAYER) && !hasBlackJackMap.get(PlayerType.DEALER)) {
+                            win();
+                            setLog(LogStatus.WIN, getString("blackjack", 0));
+                            drawMessage(draw());
+                            return;
+                        } else if (hasBlackJackMap.get(PlayerType.DEALER) && !hasBlackJackMap.get(PlayerType.PLAYER)) {
+                            lose();
+                            setLog(LogStatus.LOSE, getString("blackjack", 1));
+                            drawMessage(draw());
+                            return;
+                        }
+
+                        int[] points = {
+                                21 - getCardsValue(PlayerType.PLAYER),
+                                21 - getCardsValue(PlayerType.DEALER)
+                        };
+
+                        if (points[0] == points[1]) {
+                            endGame();
+                            setLog(LogStatus.FAILURE, getString("draw"));
+                            drawMessage(draw());
+                        } else if (points[0] < points[1]) {
+                            win();
+                            setLog(LogStatus.WIN, getString("21", 0));
+                            drawMessage(draw());
+                        } else if (points[0] > points[1]) {
+                            lose();
+                            setLog(LogStatus.LOSE, getString("21", 1));
+                            drawMessage(draw());
+                        }
+                    });
+                });
+                return false;
+            } else {
+                MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
+                    win();
+                    setLog(LogStatus.WIN, getString("toomany", 1));
+                    drawMessage(draw());
+                });
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public EmbedBuilder drawCasino() {
+        String playerName = getMember().map(Member::getEffectiveName).orElse("-");
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                .addField(getString("cards", false, String.valueOf(getCardsValue(PlayerType.PLAYER)), playerName),
+                        getCardsString(PlayerType.PLAYER, cardRecentDrawn == PlayerType.PLAYER),
+                        true
+                )
+                .addField(getString("cards", true, String.valueOf(getCardsValue(PlayerType.DEALER))),
+                        getCardsString(PlayerType.DEALER, cardRecentDrawn == PlayerType.DEALER),
+                        true
+                );
+        cardRecentDrawn = null;
+
+        if (getCoinsInput() != 0)
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
-        String key = "tutorial";
-        if (finished) key = "data";
+        String key = turnForPlayer ? "tutorial" : "data";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(key, server.getDisplayName(player), StringUtil.numToString(coinsInput)), false);
-        eb = EmbedUtil.addLog(eb, logStatus, log);
-        if (!active) eb = addRetryOption(eb);
-
+        eb.addField(Emojis.EMPTY_EMOJI, getString(key, playerName, StringUtil.numToString(getCoinsInput())), false);
         return eb;
     }
 
-    private String getCards(int i, boolean newCard) {
+    private ArrayList<GameCard> getCardsForPlayer(PlayerType player) {
+        return gameCards.computeIfAbsent(player.ordinal(), k -> new ArrayList<>());
+    }
+
+    private String getCardsString(PlayerType player, boolean newCardDrawn) {
         StringBuilder sb = new StringBuilder();
-        for (int j = 0; j < gameCards[i].size(); j++) {
-            GameCard gameCard = gameCards[i].get(j);
-            if (j == gameCards[i].size() - 1 && newCard)
+        for (int i = 0; i < getCardsForPlayer(player).size(); i++) {
+            GameCard gameCard = getCardsForPlayer(player).get(i);
+            if (i == getCardsForPlayer(player).size() - 1 && newCardDrawn) {
                 sb.append(Emojis.CARD_FADEIN[gameCard.getId()]);
-            else
+            } else {
                 sb.append(Emojis.CARD[gameCard.getId()]);
+            }
         }
         sb.append(Emojis.EMPTY_EMOJI);
-
         return sb.toString();
     }
 
-    private int getCardSize(int i) {
+    private int getCardsValue(PlayerType playerType) {
         int n = 0;
         int aces = 0;
-        for (GameCard gameCard : gameCards[i]) {
+        for (GameCard gameCard : getCardsForPlayer(playerType)) {
             n += gameCard.getValue();
             if (gameCard.isAce()) aces++;
         }
@@ -113,151 +212,25 @@ public class BlackjackCommand extends CasinoAbstract implements OnReactionAddLis
         return n;
     }
 
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (!active) {
-            onReactionAddRetry(event);
-            return;
-        }
 
-        if (!block && event.getEmoji().isUnicodeEmoji()) {
-            if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[0])) {
-                gameCards[0].add(new GameCard());
-                logStatus = LogStatus.SUCCESS;
-                log = getString("getcard", 0);
-                message.edit(getEmbed(0));
+    private static class GameCard {
 
-                if (getCardSize(0) > 21) {
-                    block = true;
-                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
-                        finished = true;
-                        lose();
-                        logStatus = LogStatus.LOSE;
-                        log = getString("toomany", 0);
-                        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-                    });
-                }
-            } else if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[1])) {
-                finished = true;
-                removeReactionListener(getReactionMessage());
-
-                logStatus = LogStatus.SUCCESS;
-                log = getString("stopcard", 0);
-                message.edit(getEmbed(-1));
-                onCPUTurn();
-            }
-        }
-    }
-
-    private void onCPUTurn() {
-        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", this::onCPUTurnStep);
-    }
-
-    private boolean onCPUTurnStep() {
-        if (message.getCurrentCachedInstance().isEmpty()) {
-            lose();
-            return false;
-        }
-
-        gameCards[1].add(new GameCard());
-        logStatus = LogStatus.SUCCESS;
-        log = getString("getcard", 1);
-        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(1)).exceptionally(ExceptionLogger.get()));
-
-        if (getCardSize(1) >= 17) {
-            if (getCardSize(1) <= 21) {
-                MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
-                    logStatus = LogStatus.SUCCESS;
-                    log = getString("stopcard", 1);
-                    message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get()));
-
-                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
-                        boolean[] blackjack = new boolean[2];
-                        for (int i = 0; i < 2; i++)
-                            if (getCardSize(i) == 21 && gameCards[i].size() == 2) blackjack[i] = true;
-
-                        if (blackjack[0] && !blackjack[1]) {
-                            win();
-                            logStatus = LogStatus.WIN;
-                            log = getString("blackjack", 0);
-                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
-                            return;
-                        } else if (blackjack[1] && !blackjack[0]) {
-                            lose();
-                            logStatus = LogStatus.LOSE;
-                            log = getString("blackjack", 1);
-                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
-                            return;
-                        }
-
-                        int[] points = { 21 - getCardSize(0), 21 - getCardSize(1) };
-
-                        if (points[0] == points[1]) {
-                            endGame();
-                            logStatus = LogStatus.FAILURE;
-                            log = getString("draw");
-                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
-                        } else if (points[0] < points[1]) {
-                            win();
-                            logStatus = LogStatus.WIN;
-                            log = getString("21", 0);
-                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
-                        } else if (points[0] > points[1]) {
-                            lose();
-                            logStatus = LogStatus.LOSE;
-                            log = getString("21", 1);
-                            message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
-                        }
-                    });
-                });
-                return false;
-            } else {
-                MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
-                    win();
-                    logStatus = LogStatus.WIN;
-                    log = getString("toomany", 1);
-                    message.edit(getEmbed(-1)).exceptionally(ExceptionLogger.get());
-                });
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable {
-        if (active) {
-            logStatus = LogStatus.LOSE;
-            log = getString("abort");
-            lose();
-        }
-    }
-
-    public static class GameCard {
-
-        private int id;
-        private int value;
-        private boolean ace;
+        private final int id;
+        private final int value;
+        private final boolean ace;
 
         public GameCard() {
-            ace = false;
-            value = 0;
-
             Random r = new Random();
             id = r.nextInt(13);
 
             if (id <= 8) {
+                ace = false;
                 value = id + 2;
             } else if (id == 12) {
                 ace = true;
                 value = 11;
             } else {
+                ace = false;
                 value = 10;
             }
         }

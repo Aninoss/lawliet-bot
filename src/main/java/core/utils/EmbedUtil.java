@@ -1,5 +1,7 @@
 package core.utils;
 
+import java.time.Instant;
+import java.util.Locale;
 import commands.Command;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Emojis;
@@ -8,8 +10,6 @@ import core.TextManager;
 import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import java.time.Instant;
-import java.util.Locale;
 
 public class EmbedUtil {
 
@@ -52,7 +52,7 @@ public class EmbedUtil {
                         break;
 
                     case WIN:
-                        add = "\uD83C\uDF89 ";
+                        add = "🎉 ";
                         break;
 
                     case LOSE:
