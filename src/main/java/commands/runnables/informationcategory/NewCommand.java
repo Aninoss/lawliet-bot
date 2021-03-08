@@ -46,14 +46,14 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         versionBean = DBVersion.getInstance().retrieve();
 
         //Ohne Argumente
-        if (followedString.length() == 0) {
+        if (args.length() == 0) {
             List<VersionBeanSlot> versions = versionBean.getCurrentVersions(3);
             event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, true)).get();
             return true;
         } else {
             //Anzahl
-            if (StringUtil.stringIsLong(followedString)) {
-                int i = Integer.parseInt(followedString);
+            if (StringUtil.stringIsLong(args)) {
+                int i = Integer.parseInt(args);
                 if (i >= 1) {
                     if (i <= 10) {
                         List<VersionBeanSlot> versions = versionBean.getCurrentVersions(i);
@@ -70,7 +70,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                     return false;
                 }
             } else {
-                List<String> askVersions = Arrays.stream(followedString.split(" ")).filter(str -> !str.isEmpty()).collect(Collectors.toList());
+                List<String> askVersions = Arrays.stream(args.split(" ")).filter(str -> !str.isEmpty()).collect(Collectors.toList());
                 List<VersionBeanSlot> versions = versionBean.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
@@ -78,7 +78,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                     return true;
                 } else {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                            TextManager.getNoResultsString(getLocale(), followedString))).get();
+                            TextManager.getNoResultsString(getLocale(), args))).get();
                     return false;
                 }
             }

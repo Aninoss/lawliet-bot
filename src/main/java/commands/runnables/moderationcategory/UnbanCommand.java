@@ -21,9 +21,9 @@ public class UnbanCommand extends WarnCommand  {
     }
 
     @Override
-    protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {
+    protected MentionList<User> getMentionList(Message message, String args) throws ExecutionException, InterruptedException {
         List<User> users = message.getServer().get().getBans().get().stream().map(Ban::getUser).collect(Collectors.toList());
-        return MentionUtil.getMembers(message, followedString, users);
+        return MentionUtil.getMembers(message, args, users);
     }
 
     @Override

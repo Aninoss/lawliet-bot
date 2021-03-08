@@ -33,7 +33,7 @@ public class QuoteCommand extends Command {
         User user = event.getMessage().getUserAuthor().get();
 
         //Message Link
-        ArrayList<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), followedString).getList();
+        ArrayList<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), args).getList();
         if (directMessage.size() > 0) {
             for(Message message : directMessage) {
                 if (message.getChannel().canSee(user) && message.getChannel().canReadMessageHistory(user)) {
@@ -43,8 +43,8 @@ public class QuoteCommand extends Command {
             }
         }
 
-        if (followedString.length() > 0) {
-            MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), followedString);
+        if (args.length() > 0) {
+            MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
             String newString = channelMention.getResultMessageString();
             ServerTextChannel channel = channelMention.getList().isEmpty() ? event.getServerTextChannel().get() : channelMention.getList().get(0);
 

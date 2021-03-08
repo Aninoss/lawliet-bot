@@ -269,13 +269,13 @@ public class MentionUtil {
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser);
     }
 
-    public static Mention getMentionedString(Locale locale, Message message, String followedString, Member blockedMember) {
+    public static Mention getMentionedString(Locale locale, Message message, String args, Member blockedMember) {
         boolean multi = false;
         AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
-        MentionList<Member> memberMention = MentionUtil.getMembers(message, followedString);
+        MentionList<Member> memberMention = MentionUtil.getMembers(message, args);
         memberMention.getList().forEach(member -> {
             if (blockedMember != null && member.getIdLong() == blockedMember.getIdLong()) {
                 containedBlockedUser.set(true);
@@ -283,28 +283,28 @@ public class MentionUtil {
                 mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName()));
             }
         });
-        followedString = memberMention.getResultMessageString();
+        args = memberMention.getResultMessageString();
 
         /* add role names */
-        MentionList<Role> roleMention = MentionUtil.getRoles(message, followedString);
+        MentionList<Role> roleMention = MentionUtil.getRoles(message, args);
         roleMention.getList().forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
-        followedString = roleMention.getResultMessageString();
+        args = roleMention.getResultMessageString();
 
         /* add everyone mention */
-        if (message.mentionsEveryone() || followedString.contains("everyone") || followedString.contains("all") || followedString.contains("@here")) {
+        if (message.mentionsEveryone() || args.contains("everyone") || args.contains("all") || args.contains("@here")) {
             if (mentions.isEmpty())
                 mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_start"));
             else
                 mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_end"));
 
             multi = true;
-            followedString = followedString.replace("@everyone", "")
+            args = args.replace("@everyone", "")
                     .replace("everyone", "")
                     .replace("all", "")
                     .replace("@here", "");
         }
 
-        return getMentionStringOfMentions(mentions, locale, followedString, multi, containedBlockedUser.get());
+        return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get());
     }
 
     public static Mention getMentionedStringOfMembers(Locale locale, List<Member> memberList) {

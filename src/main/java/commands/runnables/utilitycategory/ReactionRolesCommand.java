@@ -62,7 +62,7 @@ public class ReactionRolesCommand extends Command implements OnNavigationListene
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         return true;
     }
 

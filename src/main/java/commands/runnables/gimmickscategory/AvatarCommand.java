@@ -19,7 +19,7 @@ public class AvatarCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
         String avatarUrl = user.getAvatar().getUrl().toString() + "?size=2048";
         return EmbedFactory.getEmbedDefault(this, getString("template",user.getDisplayName(server), avatarUrl)).setImage(avatarUrl);
     }

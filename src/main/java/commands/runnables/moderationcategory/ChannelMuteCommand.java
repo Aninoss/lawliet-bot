@@ -43,7 +43,7 @@ public class ChannelMuteCommand extends Command {
         Server server = message.getServer().get();
 
         ServerTextChannel channel = message.getServerTextChannel().get();
-        List<ServerTextChannel> channelList = MentionUtil.getTextChannels(message, followedString).getList();
+        List<ServerTextChannel> channelList = MentionUtil.getTextChannels(message, args).getList();
         if (channelList.size() > 0)
             channel = channelList.get(0);
 
@@ -53,7 +53,7 @@ public class ChannelMuteCommand extends Command {
             return false;
         }
 
-        List<User> userList = MentionUtil.getMembers(message, followedString).getList();
+        List<User> userList = MentionUtil.getMembers(message, args).getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();

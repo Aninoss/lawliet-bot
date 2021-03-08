@@ -29,7 +29,7 @@ public class ShipCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
-        ArrayList<User> list = MentionUtil.getMembers(message,followedString).getList();
+        ArrayList<User> list = MentionUtil.getMembers(message,args).getList();
         if (list.size() == 1 && list.get(0).getId() != event.getMessage().getUserAuthor().get().getId()) {
             list.add(event.getMessage().getUserAuthor().get());
         }

@@ -1,17 +1,15 @@
 package modules;
 
+import java.time.Duration;
+import java.util.Calendar;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.MainLogger;
 import core.Security;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-import java.util.Calendar;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 public class ExchangeRate {
 
@@ -45,7 +43,7 @@ public class ExchangeRate {
                 }
             });
 
-    public int get(int offset) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public int get(int offset) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, offset);
         String dateString = calendar.get(Calendar.YEAR) + ";" + calendar.get(Calendar.DAY_OF_YEAR);

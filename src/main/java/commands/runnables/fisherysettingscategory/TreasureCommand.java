@@ -24,11 +24,11 @@ public class TreasureCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceivedSuccessful(MessageCreateEvent event, String args) throws Throwable {
         int amount = 1;
-        if (followedString.length() > 0) {
-            if (StringUtil.stringIsInt(followedString)) {
-                amount = Integer.parseInt(followedString);
+        if (args.length() > 0) {
+            if (StringUtil.stringIsInt(args)) {
+                amount = Integer.parseInt(args);
                 if (amount < 1 || amount > 30) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))).get();

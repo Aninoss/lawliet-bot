@@ -36,35 +36,35 @@ public class CelebrateCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         User user0 = event.getMessage().getUserAuthor().get();
-        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getMessage(), followedString, null);
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getMessage(), args, null);
 
         if (mention.getMentionText().isEmpty())
-            mentionBlank(event, followedString, user0);
+            mentionBlank(event, args, user0);
         else
             mentionUsed(event, mention.getFilteredOriginalText().orElse(""), user0, mention.getMentionText());
 
         return true;
     }
 
-    private void mentionUsed(MessageCreateEvent event, String followedString, User author, String mention) throws ExecutionException, InterruptedException {
+    private void mentionUsed(MessageCreateEvent event, String args, User author, String mention) throws ExecutionException, InterruptedException {
         String text;
-        if (followedString.equalsIgnoreCase("with") || followedString.equals("mit")) {
+        if (args.equalsIgnoreCase("with") || args.equals("mit")) {
             text = getString("template_mention_with", author.getDisplayName(event.getServer().get()), mention);
         } else {
-            if (followedString.isEmpty())
+            if (args.isEmpty())
                 text = getString("template_mention_notext", author.getDisplayName(event.getServer().get()), mention);
             else
-                text = getString("template_mention_text", author.getDisplayName(event.getServer().get()), followedString, mention);
+                text = getString("template_mention_text", author.getDisplayName(event.getServer().get()), args, mention);
         }
         send(event, text);
     }
 
-    private void mentionBlank(MessageCreateEvent event, String followedString, User author) throws ExecutionException, InterruptedException {
+    private void mentionBlank(MessageCreateEvent event, String args, User author) throws ExecutionException, InterruptedException {
         String text;
-        if (followedString.isEmpty())
+        if (args.isEmpty())
             text = getString("template_nomention_notext", author.getDisplayName(event.getServer().get()));
         else
-            text = getString("template_nomention_text", author.getDisplayName(event.getServer().get()), followedString);
+            text = getString("template_nomention_text", author.getDisplayName(event.getServer().get()), args);
         send(event, text);
     }
 

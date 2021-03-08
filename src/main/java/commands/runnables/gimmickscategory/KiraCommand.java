@@ -19,7 +19,7 @@ public class KiraCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
         Random r = new Random(user.hashCode());
         int percent = r.nextInt(101);
         return EmbedFactory.getEmbedDefault(this, getString("template",user.getDisplayName(server), String.valueOf(percent)))

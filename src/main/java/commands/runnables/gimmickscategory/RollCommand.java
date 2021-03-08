@@ -28,12 +28,12 @@ public class RollCommand extends Command {
         double drawn, border;
         boolean userMentioned = true;
 
-        if (followedString.length() == 0 || !StringUtil.stringIsDouble(followedString)){
+        if (args.length() == 0 || !StringUtil.stringIsDouble(args)){
             border = 6;
             userMentioned = false;
         }
         else {
-            border = Double.parseDouble(followedString);
+            border = Double.parseDouble(args);
             if (border < 2) {
                 event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "2"))).get();
                 return false;

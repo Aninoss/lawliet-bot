@@ -26,7 +26,7 @@ public class SayCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         List<MessageAttachment> attachments = event.getMessage().getAttachments();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(followedString)
+                .setDescription(args)
                 .setFooter(getString("author", event.getMessage().getUserAuthor().get().getDiscriminatedName()));
 
         if (attachments.size() > 0) {

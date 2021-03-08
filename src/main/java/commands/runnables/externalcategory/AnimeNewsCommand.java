@@ -3,6 +3,7 @@ package commands.runnables.externalcategory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
@@ -14,6 +15,8 @@ import modules.animenews.AnimeNewsDownloader;
 import modules.animenews.AnimeNewsPost;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
     trigger = "animenews",
@@ -28,21 +31,20 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
         EmbedBuilder eb;
-        if (post != null) eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), getEmbed(post), getPrefix(), getTrigger());
+        if (post != null) eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(post), getPrefix(), getTrigger());
         else eb = EmbedFactory.getApiDownEmbed(getLocale(), getPrefix() + getTrigger());
-        event.getChannel().sendMessage(eb).get();
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
     private EmbedBuilder getEmbed(AnimeNewsPost post) {
         return EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setAuthor(post.getAuthor())
-                .setTitle(post.getTitle())
+                .setTitle(post.getTitle(), post.getLink())
                 .setImage(post.getImage())
-                .setUrl(post.getLink())
                 .setTimestamp(post.getInstant());
     }
 
@@ -54,9 +56,9 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         if (postBundle == null)
             return TrackerResult.CONTINUE;
 
-        ServerTextChannel channel = slot.getChannel().get();
+        TextChannel channel = slot.getTextChannel().get();
         for(AnimeNewsPost post: postBundle.getPosts()) {
-            channel.sendMessage(getEmbed(post)).get();
+            channel.sendMessage(getEmbed(post).build()).complete();
         }
 
         slot.setArgs(postBundle.getNewestPost());

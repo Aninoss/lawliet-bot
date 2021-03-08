@@ -66,7 +66,7 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredChannels = fisheryGuildBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);

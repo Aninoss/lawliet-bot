@@ -32,7 +32,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         return true;
     }

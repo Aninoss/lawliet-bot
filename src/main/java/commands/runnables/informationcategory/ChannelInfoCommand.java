@@ -36,7 +36,7 @@ public class ChannelInfoCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         boolean noMention = false;
         Server server = event.getServer().get();
-        ArrayList<ServerTextChannel> list = MentionUtil.getTextChannels(event.getMessage(), followedString).getList();
+        ArrayList<ServerTextChannel> list = MentionUtil.getTextChannels(event.getMessage(), args).getList();
         if (list.size() > 5) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_channels"))).get();
@@ -63,8 +63,8 @@ public class ChannelInfoCommand extends Command {
 
             if (noMention) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
-                if (followedString.length() > 0)
-                    EmbedUtil.addNoResultsLog(eb, getLocale(), followedString);
+                if (args.length() > 0)
+                    EmbedUtil.addNoResultsLog(eb, getLocale(), args);
             }
 
             event.getServerTextChannel().get().sendMessage(eb).get();

@@ -33,7 +33,7 @@ public class FAQCommand extends ListAbstract {
             slots.add(new Pair<>(question, answer));
         }
 
-        initList(event.getServerTextChannel().get(), followedString);
+        initList(event.getServerTextChannel().get(), args);
         return true;
     }
 

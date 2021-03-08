@@ -10,6 +10,7 @@ import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
     trigger = "pokemon",
@@ -25,17 +26,17 @@ public class PokemonCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        Pokemon pokemon = fetchPokemon(followedString.toLowerCase());
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        Pokemon pokemon = fetchPokemon(args.toLowerCase());
         if (pokemon == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), followedString));
-            event.getChannel().sendMessage(eb).get();
+                    .setDescription(TextManager.getNoResultsString(getLocale(), args));
+            event.getChannel().sendMessage(eb.build()).queue();
             return false;
         }
 
-        event.getChannel().sendMessage(getEmbed(pokemon)).get();
+        event.getChannel().sendMessage(getEmbed(pokemon).build()).queue();
         return true;
     }
 
@@ -60,9 +61,8 @@ public class PokemonCommand extends Command {
 
     private EmbedBuilder getEmbed(Pokemon pokemon) {
         return EmbedFactory.getEmbedDefault()
-                .setTitle(pokemon.title)
+                .setTitle(pokemon.title, pokemon.url)
                 .setDescription(pokemon.description)
-                .setUrl(pokemon.url)
                 .setThumbnail(pokemon.thumbnail);
     }
 

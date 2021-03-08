@@ -15,10 +15,14 @@ import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "give",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
         aliases = {"gift", "pay" }
@@ -30,32 +34,25 @@ public class GiveCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        Server server = event.getServer().get();
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
         Message message = event.getMessage();
-        MentionList<User> userMarked = MentionUtil.getMembers(message, followedString);
-        ArrayList<User> list = userMarked.getList();
-        list.removeIf(user -> user.isBot() || user.equals(event.getMessage().getUserAuthor().get()));
+        MentionList<Member> memberMentioned = MentionUtil.getMembers(message, args);
+        ArrayList<Member> list = memberMentioned.getList();
+        list.removeIf(member -> member.getUser().isBot() || member.getIdLong() == event.getMember().getIdLong());
 
         if (list.size() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_mentions"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_mentions")).build()).queue();
             return false;
         }
 
-        followedString = userMarked.getResultMessageString();
+        args = memberMentioned.getResultMessageString();
 
-        User user0 = event.getMessage().getUserAuthor().get();
-        User user1 = list.get(0);
+        Member user0 = event.getMember();
+        Member user1 = list.get(0);
 
-        /* For DisCom - Die Discord Community */
-        if (server.getId() == 418223406698332173L) {
-            Role role = server.getRoleById(761962407990919168L).get();
-            if (!user0.getRoles(role.getServer()).contains(role)) return false;
-        }
-
-        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user0.getId());
-        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user1.getId());
-        long value = Math.min(MentionUtil.getAmountExt(followedString, fisheryUser0.getCoins()), fisheryUser0.getCoins());
+        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user0.getIdLong());
+        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user1.getIdLong());
+        long value = Math.min(MentionUtil.getAmountExt(args, fisheryUser0.getCoins()), fisheryUser0.getCoins());
         long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
 
         boolean limitCapped = false;
@@ -64,7 +61,8 @@ public class GiveCommand extends Command implements FisheryInterface {
                 value = cap;
                 limitCapped = true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getDisplayName(server))))).get();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))).build())
+                        .queue();
                 return false;
             }
         }
@@ -80,8 +78,8 @@ public class GiveCommand extends Command implements FisheryInterface {
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("successful",
                         StringUtil.numToString(value),
-                        user1.getMentionTag(),
-                        user0.getMentionTag(),
+                        user1.getAsMention(),
+                        user0.getAsMention(),
                         StringUtil.numToString(coins0Pre),
                         StringUtil.numToString(coins0Pre - value),
                         StringUtil.numToString(coins1Pre),
@@ -89,18 +87,22 @@ public class GiveCommand extends Command implements FisheryInterface {
                 ));
 
                 if (limitCapped)
-                    EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getDisplayName(server))));
+                    EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
 
-                event.getChannel().sendMessage(eb).get();
+                event.getChannel().sendMessage(eb.build()).queue();
                 return true;
             } else {
-                if (fisheryUser0.getCoins() <= 0)
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("nocoins"))).get();
-                else
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
+                if (fisheryUser0.getCoins() <= 0) {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("nocoins")).build())
+                            .queue();
+                } else {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")).build())
+                            .queue();
+                }
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
+                    .queue();
         }
 
         return false;

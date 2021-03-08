@@ -36,7 +36,7 @@ public class WarnCommand extends Command implements OnReactionAddListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (!setUserListAndReason(event, followedString))
+        if (!setUserListAndReason(event, args))
             return false;
 
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
@@ -54,9 +54,9 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         return true;
     }
 
-    private boolean setUserListAndReason(MessageCreateEvent event, String followedString) throws ExecutionException, InterruptedException {
+    private boolean setUserListAndReason(MessageCreateEvent event, String args) throws ExecutionException, InterruptedException {
         Message message = event.getMessage();
-        MentionList<User> userMentionList = getMentionList(message, followedString);
+        MentionList<User> userMentionList = getMentionList(message, args);
         userList = userMentionList.getList();
         if (userList.size() == 0) {
             message.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
@@ -74,8 +74,8 @@ public class WarnCommand extends Command implements OnReactionAddListener {
         return true;
     }
 
-    protected MentionList<User> getMentionList(Message message, String followedString) throws ExecutionException, InterruptedException {
-        return MentionUtil.getMembers(message, followedString);
+    protected MentionList<User> getMentionList(Message message, String args) throws ExecutionException, InterruptedException {
+        return MentionUtil.getMembers(message, args);
     }
 
     private boolean execute(ServerTextChannel channel, User executer) throws Throwable {

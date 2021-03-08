@@ -44,7 +44,7 @@ public class TopCommand extends ListAbstract {
                 if (s1.getFish() > s2.getFish()) return -1;
                 return Long.compare(s2.getCoins(), s1.getCoins());
             });
-            initList(event.getServerTextChannel().get(), followedString);
+            initList(event.getServerTextChannel().get(), args);
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));

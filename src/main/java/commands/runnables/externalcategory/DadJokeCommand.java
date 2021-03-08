@@ -1,7 +1,9 @@
 package commands.runnables.externalcategory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Language;
@@ -11,6 +13,7 @@ import core.RandomPicker;
 import core.ResourceHandler;
 import core.internet.HttpRequest;
 import core.utils.StringUtil;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -25,7 +28,7 @@ public class DadJokeCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
         String joke;
 
         if (StringUtil.getLanguage(getLocale()) == Language.DE) {
@@ -37,7 +40,7 @@ public class DadJokeCommand extends Command {
             joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, joke)).get();
+        event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, joke).build()).queue();
         return true;
     }
 }

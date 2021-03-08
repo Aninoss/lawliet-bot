@@ -25,7 +25,7 @@ public class MemberInfoCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
         String[] type = getString("type").split("\n");
         int typeN = 0;
         if (!user.isBot()) {

@@ -37,7 +37,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
@@ -45,7 +45,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                 if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES).isEmpty()) {
                     ServerTextChannel channel = channelOpt.get();
                     String author = event.getMessage().getUserAuthor().get().getDiscriminatedName();
-                    String content = StringUtil.shortenString(followedString, 1024);
+                    String content = StringUtil.shortenString(args, 1024);
 
                     Message message = channel.sendMessage(
                             event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "",

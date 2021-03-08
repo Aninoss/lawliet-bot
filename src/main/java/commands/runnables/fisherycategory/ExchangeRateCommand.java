@@ -1,26 +1,26 @@
 package commands.runnables.fisherycategory;
 
-import commands.listeners.*;
+import java.time.Instant;
+import java.util.Locale;
 import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnTrackerRequestListener;
 import constants.TrackerResult;
-import core.*;
+import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ExchangeRate;
 import mysql.modules.tracker.TrackerBeanSlot;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Instant;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "exch",
         emoji = "\uD83D\uDD01",
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         aliases = {"exchangerate", "er", "exchr", "exchange"}
 )
@@ -33,16 +33,16 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         EmbedBuilder eb = getEmbed();
-        EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
-        event.getChannel().sendMessage(eb).get();
+        EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+    private EmbedBuilder getEmbed() {
         return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
 
-    private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private String getChangeEmoji() {
         int rateNow = ExchangeRate.getInstance().get(0);
         int rateBefore = ExchangeRate.getInstance().get(-1);
 
@@ -55,9 +55,8 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        slot.getMessage().ifPresent(Message::delete);
-        Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
-        slot.setMessageId(message.getId());
+        Message message = slot.getTextChannel().get().sendMessage(getEmbed().build()).complete();
+        slot.setMessageId(message.getIdLong());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 
         return TrackerResult.CONTINUE_AND_SAVE;

@@ -31,7 +31,7 @@ public class WarnLogCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
         ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(server.getId(), user.getId()));
 
         StringBuilder latestWarnings = new StringBuilder();

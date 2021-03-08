@@ -1,12 +1,10 @@
 package commands.runnables.fisherycategory;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnMessageInputListener;
+import commands.listeners.OnReactionListener;
 import commands.runnables.FisheryInterface;
 import constants.Response;
 import core.EmbedFactory;
@@ -16,90 +14,76 @@ import core.utils.StringUtil;
 import modules.ExchangeRate;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "sell",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = true,
         aliases = { "s" }
 )
-public class SellCommand extends Command implements FisheryInterface implements OnReactionAddListener, OnMessageInputListener {
+public class SellCommand extends Command implements FisheryInterface, OnReactionListener, OnMessageInputListener {
 
-    private Message message;
     private FisheryMemberBean userBean;
+    private EmbedBuilder eb;
 
     public SellCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMessageAuthor().getId());
-        if (followedString.length() > 0) {
-            return mainExecution(event, followedString);
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+        userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+                .getMemberBean(event.getMember().getIdLong());
+        if (args.length() > 0) {
+            boolean success = process(event, args);
+            drawMessage(eb);
+            return success;
         } else {
-            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
+            this.eb = EmbedFactory.getEmbedDefault(this,
                     getString("status",
                             StringUtil.numToString(userBean.getFish()),
                             StringUtil.numToString(userBean.getCoins()),
                             StringUtil.numToString(ExchangeRate.getInstance().get(0)),
                             getChangeEmoji()
-                    ))).get();
-            message.addReaction("❌");
+                    ));
+            registerReactionListener("❌");
+            registerMessageInputListener(false);
             return true;
         }
     }
 
-    private boolean mainExecution(MessageCreateEvent event, String argString) throws Throwable {
-        removeReactionListener(message);
-        removeMessageForwarder();
-        long value = Math.min(MentionUtil.getAmountExt(argString, userBean.getFish()), userBean.getFish());
-
-        if (argString.equalsIgnoreCase("no")) {
-            markNoInterest(event.getServerTextChannel().get());
-            return true;
-        }
-
-        if (value >= 1) {
-            long coins = ExchangeRate.getInstance().get(0) * value;
-            EmbedBuilder eb = userBean.changeValues(-value, coins);
-
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("done")));
-            event.getChannel().sendMessage(eb).get();
-            return true;
-        } else if (value == 0) {
-            if (userBean.getFish() <= 0)
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("nofish"))).get();
-            else
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"))).get();
-        } else if (value == -1) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
-        }
-
-        return false;
-    }
-
-    private void sendMessage(ServerTextChannel channel, EmbedBuilder embedBuilder) throws ExecutionException, InterruptedException {
-        if (message != null) message.edit(embedBuilder);
-        else channel.sendMessage(embedBuilder).get();
-        message = null;
+    @Override
+    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+        removeReactionListener();
+        deregisterMessageInputListener();
+        return process(event, input) ? Response.TRUE : Response.FALSE;
     }
 
     @Override
-    public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        return mainExecution(event, event.getMessage().getContent()) ? Response.TRUE : Response.FALSE;
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        removeReactionListener();
+        deregisterMessageInputListener();
+        markNoInterest();
+        return true;
     }
 
     @Override
-    public Message getForwardedMessage() {
-        return message;
+    public EmbedBuilder draw() throws Throwable {
+        return this.eb;
     }
 
     @Override
-    public void onForwardedTimeOut() {}
+    public void onMessageInputOverridden() throws Throwable {
+        removeReactionListener();
+        deregisterMessageInputListener();
+    }
 
-    private String getChangeEmoji() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+    private String getChangeEmoji() {
         int rateNow = ExchangeRate.getInstance().get(0);
         int rateBefore = ExchangeRate.getInstance().get(-1);
 
@@ -110,33 +94,34 @@ public class SellCommand extends Command implements FisheryInterface implements 
         }
     }
 
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals("❌")) {
-            markNoInterest(event.getServerTextChannel().get());
+    private boolean process(GuildMessageReceivedEvent event, String args) {
+        long value = Math.min(MentionUtil.getAmountExt(args, userBean.getFish()), userBean.getFish());
+
+        if (args.equalsIgnoreCase("no")) {
+            markNoInterest();
+            return true;
         }
+
+        if (value >= 1) {
+            long coins = ExchangeRate.getInstance().get(0) * value;
+            this.eb = EmbedFactory.getEmbedDefault(this, getString("done"));
+            event.getChannel().sendMessage(userBean.changeValuesEmbed(-value, coins).build()).queue();
+            return true;
+        } else if (value == 0) {
+            if (userBean.getFish() <= 0) {
+                this.eb = EmbedFactory.getEmbedError(this, getString("nofish"));
+            } else {
+                this.eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
+            }
+        } else if (value == -1) {
+            this.eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+        }
+
+        return false;
     }
 
-    @Override
-    public void onNewActivityOverwrite() {
-        removeNavigation();
-        removeReactionListener();
+    private void markNoInterest() {
+        eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
     }
-
-    private void markNoInterest(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException, InvalidKeySpecException, NoSuchAlgorithmException {
-        removeMessageForwarder();
-        removeReactionListener();
-
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
-        sendMessage(channel, eb);
-    }
-
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) {}
 
 }

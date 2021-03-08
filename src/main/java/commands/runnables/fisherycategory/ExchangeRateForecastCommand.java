@@ -1,19 +1,21 @@
 package commands.runnables.fisherycategory;
 
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "exchf",
         emoji = "🔮",
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "exchforecast", "exchangerateforecast", "erforecast", "exchrforecast", "exchangeforecast" }
@@ -26,19 +28,26 @@ public class ExchangeRateForecastCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        try {
-            event.getMessage().getUserAuthor().get().sendMessage(getEmbed()).get();
-        } catch (InterruptedException | ExecutionException e) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("failed"), TextManager.getString(getLocale(), TextManager.GENERAL, "error"))).get();
-            return false;
-        }
+        JDAUtil.sendPrivateMessage(event.getMember(), getEmbed().build())
+                .queue(message -> {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("success")).build())
+                            .queue();
+                }, e -> {
+                    event.getChannel()
+                            .sendMessage(EmbedFactory.getEmbedError(
+                                    this,
+                                    getString("failed"),
+                                    TextManager.getString(getLocale(), TextManager.GENERAL, "error")
+                            ).build())
+                            .queue();
+                });
 
-        event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("success"))).get();
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws InvalidKeySpecException, NoSuchAlgorithmException {
-        return EmbedFactory.getEmbedDefault(this, getString("template",
+    private EmbedBuilder getEmbed() {
+        return EmbedFactory.getEmbedDefault(this, getString(
+                "template",
                 StringUtil.numToString(ExchangeRate.getInstance().get(-1)),
                 getChangeEmoji(-1),
                 StringUtil.numToString(ExchangeRate.getInstance().get(0)),
@@ -50,7 +59,7 @@ public class ExchangeRateForecastCommand extends Command {
         ));
     }
 
-    private String getChangeEmoji(int offset) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private String getChangeEmoji(int offset) {
         int rateNow = ExchangeRate.getInstance().get(offset);
         int rateBefore = ExchangeRate.getInstance().get(offset - 1);
 

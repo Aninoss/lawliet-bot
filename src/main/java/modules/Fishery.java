@@ -1,5 +1,7 @@
 package modules;
 
+import java.util.List;
+import java.util.Locale;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Category;
 import constants.Emojis;
@@ -13,13 +15,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-
 public class Fishery {
 
-    public static long getFisheryRolePrice(Guild guild, List<Long> roleIds, int n) throws ExecutionException {
+    public static long getFisheryRolePrice(Guild guild, List<Long> roleIds, int n) {
         GuildBean guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
 
         double priceIdealMin = guildBean.getFisheryRoleMin();

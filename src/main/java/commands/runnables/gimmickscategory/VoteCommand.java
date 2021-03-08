@@ -34,9 +34,9 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        followedString = followedString.replace("\n", "").trim();
-        if (followedString.startsWith("|")) followedString = followedString.substring(1);
-        String[] args = followedString.split("\\|");
+        args = args.replace("\n", "").trim();
+        if (args.startsWith("|")) args = args.substring(1);
+        String[] args = args.split("\\|");
         if (args.length >= 3 && args.length <= 13) {
             String topic = args[0].trim();
 

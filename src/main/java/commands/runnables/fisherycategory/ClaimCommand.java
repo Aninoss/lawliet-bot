@@ -19,10 +19,12 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "claim",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDF80",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
@@ -35,16 +37,16 @@ public class ClaimCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMessage().getUserAuthor().get().getId()).plus(12, ChronoUnit.HOURS);
-        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMessageAuthor().getId());
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+        Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMember().getIdLong()).plus(12, ChronoUnit.HOURS);
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
-            if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) >= 2 &&
-                    DBAutoClaim.getInstance().retrieve().isActive(event.getMessageAuthor().getId())
+            if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 2 &&
+                    DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())
             ) {
                 eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));
             } else {
@@ -53,7 +55,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
             }
 
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(eb.build()).queue();
             return false;
         } else {
             long fishes = Fishery.getClaimValue(userBean);
@@ -61,8 +63,8 @@ public class ClaimCommand extends Command implements FisheryInterface {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
-            event.getChannel().sendMessage(eb);
-            event.getChannel().sendMessage(userBean.changeValues(fishes * upvotesUnclaimed, 0)).get();
+            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessage(userBean.changeValuesEmbed(fishes * upvotesUnclaimed, 0).build()).queue();
             return true;
         }
     }

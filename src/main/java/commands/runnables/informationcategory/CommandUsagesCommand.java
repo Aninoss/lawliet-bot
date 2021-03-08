@@ -40,7 +40,7 @@ public class CommandUsagesCommand extends ListAbstract {
 
         commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));
 
-        initList(event.getServerTextChannel().get(), followedString);
+        initList(event.getServerTextChannel().get(), args);
         return true;
     }
 

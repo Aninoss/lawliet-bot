@@ -53,8 +53,8 @@ public class HelpCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
-        searchTerm = followedString;
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+        searchTerm = args;
         authorEvent = event;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         return true;

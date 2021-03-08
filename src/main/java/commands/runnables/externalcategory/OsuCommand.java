@@ -4,9 +4,14 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionListener;
 import commands.runnables.MemberAccountAbstract;
 import constants.LogStatus;
-import core.*;
+import core.CustomObservableMap;
+import core.EmbedFactory;
+import core.MainLogger;
+import core.TextManager;
+import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
@@ -17,6 +22,10 @@ import modules.osu.OsuAccountSync;
 import mysql.modules.osuaccounts.DBOsuAccounts;
 import mysql.modules.osuaccounts.OsuBeanBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "osu",
@@ -26,64 +35,66 @@ import net.dv8tion.jda.api.EmbedBuilder;
         releaseDate = { 2020, 11, 28 },
         aliases = { "osu!" }
 )
-public class OsuCommand extends MemberAccountAbstract implements OnReactionAddListener {
+public class OsuCommand extends MemberAccountAbstract implements OnReactionListener {
+
+    private enum Status {DEFAULT, CONNECTING, ABORTED}
 
     private final static String EMOJI_CONNECT = "🔍";
     private final static String EMOJI_CANCEL = "❌";
     private final static String GUEST = "Guest";
 
-    private Message message;
     private String gameMode = "osu";
     private int gameModeSlot = 0;
-    private boolean connecting = false;
+    private Status status = Status.DEFAULT;
+    private OsuAccount osuAccount = null;
+    private String osuName;
 
     public OsuCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Member member, boolean userIsAuthor, String args) throws ExecutionException, InterruptedException {
         boolean userExists = false;
         CustomObservableMap<Long, OsuBeanBean> osuMap = DBOsuAccounts.getInstance().retrieve();
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", user.getDisplayName(server)));
-        setGameMode(followedString);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", member.getEffectiveName()));
+        setGameMode(args);
 
-        if (osuMap.containsKey(user.getId())) {
-            Optional<OsuAccount> osuAccountOpt = OsuAccountDownloader.download(String.valueOf(osuMap.get(user.getId()).getOsuId()), gameMode);
+        if (osuMap.containsKey(member.getIdLong())) {
+            Optional<OsuAccount> osuAccountOpt = OsuAccountDownloader.download(String.valueOf(osuMap.get(member.getIdLong()).getOsuId()), gameMode);
             if (osuAccountOpt.isPresent()) {
                 userExists = true;
-                eb = generateAccountEmbed(user, osuAccountOpt.get());
+                eb = generateAccountEmbed(member, osuAccountOpt.get());
             }
         }
 
-        if (userIsAuthor && OsuAccountSync.getInstance().getUserInCache(user.getId()).isEmpty()) {
+        if (userIsAuthor && OsuAccountSync.getInstance().getUserInCache(member.getIdLong()).isEmpty()) {
             EmbedUtil.addLog(eb, getString("react", userExists, EMOJI_CONNECT));
         }
 
         return eb;
     }
 
-    private void setGameMode(String followedString) {
-        if (followedString.toLowerCase().contains("osu")) {
+    private void setGameMode(String args) {
+        if (args.toLowerCase().contains("osu")) {
             setFound();
-        } else if (followedString.toLowerCase().contains("taiko")) {
+        } else if (args.toLowerCase().contains("taiko")) {
             gameMode = "taiko";
             gameModeSlot = 1;
             setFound();
-        } else if (followedString.toLowerCase().contains("catch") || followedString.toLowerCase().contains("ctb")) {
+        } else if (args.toLowerCase().contains("catch") || args.toLowerCase().contains("ctb")) {
             gameMode = "fruits";
             gameModeSlot = 2;
             setFound();
-        } else if (followedString.toLowerCase().contains("mania")) {
+        } else if (args.toLowerCase().contains("mania")) {
             gameMode = "mania";
             gameModeSlot = 3;
             setFound();
         }
     }
 
-    private EmbedBuilder generateAccountEmbed(User user, OsuAccount acc) {
-        return EmbedFactory.getEmbedDefault(this)
-                .setAuthor(user)
+    private EmbedBuilder generateAccountEmbed(Member member, OsuAccount acc) {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(getString("embedtitle", gameModeSlot, StringUtil.escapeMarkdown(acc.getUsername()), acc.getCountryEmoji()))
                 .setDescription(getString(
                         "main",
@@ -95,83 +106,102 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionAddLi
                         String.valueOf(acc.getLevelProgress())
                 ))
                 .setThumbnail(acc.getAvatarUrl());
+        return EmbedUtil.setMemberAuthor(eb, member);
     }
 
     @Override
-    protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable {
+    protected void after(Message message, Member member, boolean userIsAuthor) {
         if (userIsAuthor) {
-            this.message = message;
-            message.addReaction(EMOJI_CONNECT).get();
+            setDrawMessageId(message.getIdLong());
+            registerReactionListener();
+            message.getTextChannel().addReactionById(message.getIdLong(), EMOJI_CONNECT).queue();
         }
     }
 
     @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (DiscordUtil.emojiIsString(event.getEmoji(), EMOJI_CONNECT) && !connecting) {
-            connecting = true;
-            DBOsuAccounts.getInstance().retrieve().remove(event.getUserId());
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        if (event.getReactionEmote().getAsReactionCode().equals(EMOJI_CONNECT) &&
+                status == Status.DEFAULT
+        ) {
+            this.status = Status.CONNECTING;
+            DBOsuAccounts.getInstance().retrieve().remove(event.getUserIdLong());
 
-            Optional<String> osuUsernameOpt = event.getUser().get().getActivity().flatMap(OsuAccountCheck::getOsuUsernameFromActivity);
+            Optional<String> osuUsernameOpt = event.getMember().getActivities().stream()
+                    .map(OsuAccountCheck::getOsuUsernameFromActivity)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .findFirst();
+
             if (osuUsernameOpt.isPresent()) {
                 String osuUsername = osuUsernameOpt.get();
                 if (!osuUsername.equals(GUEST)) {
                     removeReactionListener();
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
-                    update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
-                    return;
+                    this.osuName = osuUsername;
+                    this.osuAccount = osuAccountOptional.orElse(null);
+                    this.status = Status.DEFAULT;
+                    return true;
                 }
             }
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", JDAUtil.getLoadingReaction(event.getServerTextChannel().get())));
-            EmbedUtil.addLog(eb, null, getString("synch_abort", EMOJI_CANCEL));
-
-            message.edit(eb).get();
-            if (event.getChannel().canYouRemoveReactionsOfOthers()) {
-                message.removeAllReactions()
-                        .thenRun(() -> message.addReaction(EMOJI_CANCEL).exceptionally(ExceptionLogger.get()));
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                event.getChannel().clearReactionsById(getDrawMessageId().get())
+                        .queue(v -> event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue());
             } else {
-                message.addReaction(EMOJI_CANCEL).exceptionally(ExceptionLogger.get());
+                event.getChannel().removeReactionById(getDrawMessageId().get(), EMOJI_CONNECT).queue();
+                event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue();
             }
 
-            OsuAccountSync.getInstance().add(event.getUserId(), osuUsername -> {
+            OsuAccountSync.getInstance().add(event.getUserIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
                     try {
                         removeReactionListener();
-                        OsuAccountSync.getInstance().remove(event.getUserId());
+                        OsuAccountSync.getInstance().remove(event.getUserIdLong());
                         Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
-                        update(event.getUser().get(), osuAccountOptional.orElse(null), osuUsername);
+                        this.osuName = osuUsername;
+                        this.osuAccount = osuAccountOptional.orElse(null);
+                        this.status = Status.DEFAULT;
+                        drawMessage(draw());
                     } catch (ExecutionException | InterruptedException e) {
                         MainLogger.get().error("osu download error", e);
                     }
                 }
             });
-        } else if (DiscordUtil.emojiIsString(event.getEmoji(), EMOJI_CANCEL) && connecting) {
+        } else if (event.getReactionEmote().getAsReactionCode().equals(EMOJI_CANCEL) &&
+                status == Status.CONNECTING
+        ) {
             removeReactionListener();
-            OsuAccountSync.getInstance().remove(event.getUserId());
-            message.edit(EmbedFactory.getAbortEmbed(this)).get();
+            OsuAccountSync.getInstance().remove(event.getUserIdLong());
+            this.osuAccount = null;
+            this.status = Status.ABORTED;
+            return true;
         }
-    }
-
-    private void update(User user, OsuAccount osuAccount, String osuName) {
-        EmbedBuilder eb;
-        if (osuAccount != null) {
-            DBOsuAccounts.getInstance().retrieve().put(user.getId(), new OsuBeanBean(user.getId(), osuAccount.getOsuId()));
-            eb = generateAccountEmbed(user, osuAccount);
-            EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
-        } else {
-            eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), osuName));
-        }
-        message.edit(eb).exceptionally(ExceptionLogger.get());
+        return false;
     }
 
     @Override
-    public Message getReactionMessage() {
-        return message;
-    }
+    public EmbedBuilder draw() {
+        switch (status) {
+            case CONNECTING:
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", JDAUtil.getLoadingReaction(getTextChannel().get())));
+                setLog(null, getString("synch_abort", EMOJI_CANCEL));
+                return eb;
 
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable { }
+            case ABORTED:
+                return EmbedFactory.getAbortEmbed(this);
+
+            default:
+                if (osuAccount != null) {
+                    DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuBeanBean(getMemberId().get(), osuAccount.getOsuId()));
+                    eb = generateAccountEmbed(getMember().get(), osuAccount);
+                    EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
+                } else {
+                    eb = EmbedFactory.getEmbedError(this)
+                            .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                            .setDescription(TextManager.getNoResultsString(getLocale(), osuName));
+                }
+                return eb;
+        }
+    }
 
 }

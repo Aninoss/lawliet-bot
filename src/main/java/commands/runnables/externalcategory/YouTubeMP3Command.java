@@ -11,7 +11,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.ExceptionLogger;
 import core.ResourceHandler;
 import core.TextManager;
 import core.internet.HttpRequest;
@@ -19,6 +18,8 @@ import core.internet.HttpResponse;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.YouTubeMeta;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -38,51 +39,63 @@ public class YouTubeMP3Command extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        followedString = followedString.replace("<", "").replace(">", "");
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        args = args.replace("<", "").replace(">", "");
 
-        if (followedString.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
+        if (args.isEmpty()) {
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
+                    .queue();
             return false;
         }
 
-        if (followedString.contains("&"))
-            followedString = followedString.split("&")[0];
+        if (args.contains("&"))
+            args = args.split("&")[0];
 
-        Optional<AudioTrackInfo> metaOpt = YouTubeMeta.getInstance().getFromVideoURL(followedString);
+        Optional<AudioTrackInfo> metaOpt = YouTubeMeta.getInstance().getFromVideoURL(args);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), followedString))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()).queue();
             return false;
         }
 
         AudioTrackInfo meta = metaOpt.get();
         if (meta.length >= MINUTES_CAP * 60_000) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP)))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP))).build()).queue();
             return false;
         }
 
-        Message message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", StringUtil.escapeMarkdownInField(meta.title), JDAUtil.getLoadingReaction(event.getServerTextChannel().get())))).get();
+        Message message = event.getChannel().sendMessage(
+                EmbedFactory.getEmbedDefault(
+                        this,
+                        getString(
+                                "loading",
+                                StringUtil.escapeMarkdownInField(meta.title),
+                                JDAUtil.getLoadingReaction(event.getChannel())
+                        )
+                ).build()
+        ).complete();
 
         if (sendApiRequest("https://www.youtube.com/watch?v=" + meta.identifier)) {
             Pattern filePattern = Pattern.compile(String.format(".*\\[%s\\]\\.[A-Za-z0-9]*$", Pattern.quote(meta.identifier)));
             for (int i = 0; i < 500; i++) {
                 Thread.sleep(100);
-                List<File> validFiles = getValidFiles(ResourceHandler.getFileResource("data/youtube-dl"), meta.identifier, filePattern);
+                List<File> validFiles = getValidFiles(ResourceHandler.getFileResource("data/youtube-dl"), filePattern);
 
                 if (validFiles.size() == 1 && validFiles.get(0).getAbsolutePath().endsWith(".mp3")) {
-                    return handleFile(event, message, meta, validFiles.get(0));
+                    handleFile(event, message, meta, validFiles.get(0));
+                    return true;
                 }
             }
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
+        event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                this,
                 getString("error"),
                 TextManager.getString(getLocale(), TextManager.GENERAL, "error")
-        )).get();
+        ).build()).queue();
         return false;
     }
 
-    private List<File> getValidFiles(File root, String videoId, Pattern filePattern) {
+    private List<File> getValidFiles(File root, Pattern filePattern) {
         return Arrays.stream(Objects.requireNonNull(root.listFiles()))
                 .filter(file -> filePattern.matcher(file.getAbsolutePath()).matches())
                 .collect(Collectors.toUnmodifiableList());
@@ -97,22 +110,20 @@ public class YouTubeMP3Command extends Command {
                 .orElse(false);
     }
 
-    private boolean handleFile(MessageCreateEvent event, Message message, AudioTrackInfo meta, File mp3File) throws InterruptedException {
-        try {
-            event.getMessage().getUserAuthor().get()
-                    .sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)), mp3File).get();
-        } catch (ExecutionException e) {
-            mp3File.delete();
-            message.edit(EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"),
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "error")
-            )).exceptionally(ExceptionLogger.get());
-            return false;
-        }
-
-        mp3File.delete();
-        message.edit(EmbedFactory.getEmbedDefault(this, getString("success"))).exceptionally(ExceptionLogger.get());
-        return true;
+    private void handleFile(GuildMessageReceivedEvent event, Message message, AudioTrackInfo meta, File mp3File) {
+        JDAUtil.sendPrivateMessage(event.getMember(), getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)))
+                .addFile(mp3File)
+                .queue(m -> {
+                    mp3File.delete();
+                    message.editMessage(EmbedFactory.getEmbedDefault(this, getString("success")).build()).queue();
+                }, e -> {
+                    mp3File.delete();
+                    message.editMessage(EmbedFactory.getEmbedError(
+                            this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"),
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "error")
+                    ).build()).queue();
+                });
     }
 
 }

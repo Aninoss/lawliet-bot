@@ -62,7 +62,7 @@ public abstract class MemberAccountAbstract extends Command {
         found = true;
     }
 
-    protected abstract EmbedBuilder generateUserEmbed(Member member, boolean userIsAuthor, String followedString) throws Throwable;
+    protected abstract EmbedBuilder generateUserEmbed(Member member, boolean userIsAuthor, String args) throws Throwable;
 
     protected void before(GuildMessageReceivedEvent event, String args) throws Throwable {
     }

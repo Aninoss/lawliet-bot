@@ -41,7 +41,7 @@ public class NibbleCommand extends Command {
         Server server = event.getServer().get();
         User user0 = event.getMessage().getUserAuthor().get();
 
-        MentionList<User> userMention = MentionUtil.getMembers(event.getMessage(), followedString);
+        MentionList<User> userMention = MentionUtil.getMembers(event.getMessage(), args);
         List<User> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));

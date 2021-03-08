@@ -36,15 +36,15 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
         User user = event.getMessageAuthor().asUser().get();
         AutoClaimBean autoClaimBean = DBAutoClaim.getInstance().retrieve();
 
-        if (followedString.length() > 0) {
+        if (args.length() > 0) {
             int option = -1;
             for(int i = 0; i < activeArgs.length; i++) {
                 String str = activeArgs[i];
-                if (followedString.equalsIgnoreCase(str)) option = i;
+                if (args.equalsIgnoreCase(str)) option = i;
             }
 
             if (option == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", followedString)));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", args)));
                 return false;
             }
 

@@ -1,15 +1,13 @@
 package core.utils;
 
+import java.io.InputStream;
+import java.util.Optional;
+import javax.annotation.CheckReturnValue;
 import constants.Emojis;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.RestAction;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class JDAUtil {
 
@@ -32,25 +30,25 @@ public class JDAUtil {
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(Member member, String content) {
+    public static MessageAction sendPrivateMessage(Member member, String content) {
         return sendPrivateMessage(member.getUser(), content);
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(User user, String content) {
-        return user.openPrivateChannel().flatMap(
+    public static MessageAction sendPrivateMessage(User user, String content) {
+        return (MessageAction) user.openPrivateChannel().flatMap(
                 channel -> channel.sendMessage(content)
         );
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(Member member, MessageEmbed eb) {
+    public static MessageAction sendPrivateMessage(Member member, MessageEmbed eb) {
         return sendPrivateMessage(member.getUser(), eb);
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(User user, MessageEmbed eb) {
-        return user.openPrivateChannel().flatMap(
+    public static MessageAction sendPrivateMessage(User user, MessageEmbed eb) {
+        return (MessageAction) user.openPrivateChannel().flatMap(
                 channel -> channel.sendMessage(eb)
         );
     }

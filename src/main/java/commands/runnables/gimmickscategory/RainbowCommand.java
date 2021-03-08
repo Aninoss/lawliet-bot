@@ -26,15 +26,15 @@ public class RainbowCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void init(MessageCreateEvent event, String followedString) throws Throwable {
-        opacity = StringUtil.filterLongFromString(followedString);
+    protected void init(MessageCreateEvent event, String args) throws Throwable {
+        opacity = StringUtil.filterLongFromString(args);
         if (opacity == -1) opacity = 50;
         if (opacity < 0) opacity = 0;
         if (opacity > 100) opacity = 100;
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
         return EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
                 .setImage(RainbowGraphics.createImageRainbow(user, opacity));
     }

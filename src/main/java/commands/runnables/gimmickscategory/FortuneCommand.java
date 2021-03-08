@@ -25,8 +25,8 @@ public class FortuneCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
-        if (followedString.length() > 0) {
-            event.getChannel().sendMessage(getEmbed(message, followedString)).get();
+        if (args.length() > 0) {
+            event.getChannel().sendMessage(getEmbed(message, args)).get();
             return true;
         } else {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,

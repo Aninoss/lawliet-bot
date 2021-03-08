@@ -47,7 +47,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         roles = fisheryGuildBean.getRoles();

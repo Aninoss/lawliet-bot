@@ -41,9 +41,9 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         channel = event.getServerTextChannel().get();
         requestor = event.getMessage().getUserAuthor().get();
-        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), args);
         users = userMentions.getList();
-        followedString = userMentions.getResultMessageString().trim();
+        args = userMentions.getResultMessageString().trim();
 
         if (users.size() == 0) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
@@ -51,15 +51,15 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
             return false;
         }
 
-        boolean removeAll = followedString.equalsIgnoreCase("all");
+        boolean removeAll = args.equalsIgnoreCase("all");
 
-        if (!removeAll && !StringUtil.stringIsInt(followedString)) {
+        if (!removeAll && !StringUtil.stringIsInt(args)) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"))).get();
             return false;
         }
 
-        n = removeAll ? 99999 : Integer.parseInt(followedString);
+        n = removeAll ? 99999 : Integer.parseInt(args);
         if (n < 1 || n > 99999) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "99999"))).get();

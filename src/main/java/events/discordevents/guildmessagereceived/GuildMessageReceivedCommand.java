@@ -61,11 +61,11 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
                 commandTrigger = newContent.split("<")[0].toLowerCase();
 
-            String followedString;
+            String args;
             try {
-                followedString = newContent.substring(commandTrigger.length()).trim();
+                args = newContent.substring(commandTrigger.length()).trim();
             } catch (StringIndexOutOfBoundsException e) {
-                followedString = "";
+                args = "";
             }
 
             if (commandTrigger.length() > 0) {
@@ -74,14 +74,14 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                 clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                    if (!command.getCommandProperties().executableWithoutArgs() && followedString.isEmpty()) {
-                        followedString = command.getTrigger();
+                    if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
+                        args = command.getTrigger();
                         command = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
                         command.getAttachments().put("noargs", true);
                     }
 
                     try {
-                        CommandManager.manage(event, command, followedString, getStartTime());
+                        CommandManager.manage(event, command, args, getStartTime());
                     } catch (Throwable e) {
                         ExceptionUtil.handleCommandException(e, command, event.getChannel());
                     }

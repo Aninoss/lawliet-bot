@@ -19,10 +19,12 @@ import core.utils.TimeUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "daily",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDDD3",
         executableWithoutArgs = true,
         aliases = { "d" }
@@ -34,8 +36,8 @@ public class DailyCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
-        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMessageAuthor().getId());
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+        FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
             long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());
@@ -49,7 +51,7 @@ public class DailyCommand extends Command implements FisheryInterface {
                 bonusCombo = (int) Math.round(fishes * 0.25);
             }
 
-            if (PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId()) > 1) {
+            if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) > 1) {
                 bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
             }
 
@@ -63,8 +65,8 @@ public class DailyCommand extends Command implements FisheryInterface {
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", ExternalLinks.PATREON_PAGE, ExternalLinks.UPVOTE_URL), false);
             if (breakStreak) EmbedUtil.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
-            event.getChannel().sendMessage(eb).get();
-            event.getChannel().sendMessage(userBean.changeValues(fishes + bonusCombo + bonusDonation, 0, dailyStreakNow)).get();
+            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessage(userBean.changeValuesEmbed(fishes + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
 
             return true;
         } else {
@@ -75,7 +77,7 @@ public class DailyCommand extends Command implements FisheryInterface {
 
             EmbedUtil.addRemainingTime(eb, nextDaily);
             EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
-            event.getChannel().sendMessage(eb).get();
+            event.getChannel().sendMessage(eb.build()).queue();
             return false;
         }
     }

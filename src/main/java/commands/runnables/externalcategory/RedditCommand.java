@@ -3,6 +3,7 @@ package commands.runnables.externalcategory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
@@ -17,6 +18,8 @@ import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
     trigger = "reddit",
@@ -31,38 +34,38 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        followedString = followedString.trim();
-        if (followedString.startsWith("r/")) followedString = followedString.substring(2);
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        args = args.trim();
+        if (args.startsWith("r/")) args = args.substring(2);
 
-        if (followedString.length() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"))).get();
+        if (args.length() == 0) {
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
             return false;
         } else {
             RedditPost post;
-            post = RedditDownloader.getPost(getLocale(), followedString);
+            post = RedditDownloader.getPost(getLocale(), args);
 
             if (post != null) {
-                if (post.isNsfw() && !event.getServerTextChannel().get().isNsfw()) {
-                    event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale())).get();
+                if (post.isNsfw() && !event.getChannel().isNSFW()) {
+                    event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale()).build()).queue();
                     return false;
                 }
 
                 EmbedBuilder eb = getEmbed(post);
-                EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
-                event.getChannel().sendMessage(eb).get();
+                EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+                event.getChannel().sendMessage(eb.build()).queue();
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getNoResultsString(getLocale(), followedString));
-                event.getChannel().sendMessage(eb).get();
+                        .setDescription(TextManager.getNoResultsString(getLocale(), args));
+                event.getChannel().sendMessage(eb.build()).queue();
                 return false;
             }
         }
     }
 
-    private EmbedBuilder getEmbed(RedditPost post) throws Throwable {
+    private EmbedBuilder getEmbed(RedditPost post) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setTitle(post.getTitle())
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), "")
@@ -71,7 +74,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
         if (InternetUtil.stringHasURL(post.getThumbnail(), true))
             eb.setThumbnail(post.getThumbnail());
         if (InternetUtil.stringHasURL(post.getUrl(), true))
-            eb.setUrl(post.getUrl());
+            eb.setTitle(post.getTitle(), post.getUrl());
         if (InternetUtil.stringHasURL(post.getImage(), true))
             eb.setImage(post.getImage());
 
@@ -95,19 +98,19 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
         if (slot.getCommandKey().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.getChannel().get().sendMessage(eb).get();
+            slot.getTextChannel().get().sendMessage(eb.build()).complete();
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
             PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey(), slot.getArgs().orElse(null));
-            ServerTextChannel channel = slot.getChannel().get();
+            TextChannel channel = slot.getTextChannel().get();
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
                 for(int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
-                    if (!post.isNsfw() || channel.isNsfw()) {
-                        channel.sendMessage(getEmbed(post)).get();
+                    if (!post.isNsfw() || channel.isNSFW()) {
+                        channel.sendMessage(getEmbed(post).build()).complete();
                         containsOnlyNsfw = false;
                         if (slot.getArgs().isEmpty())
                             break;
@@ -117,7 +120,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessage(eb).get();
+                    channel.sendMessage(eb.build()).complete();
                     return TrackerResult.STOP_AND_DELETE;
                 }
 
@@ -129,7 +132,7 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessage(eb).get();
+                    channel.sendMessage(eb.build()).complete();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {
                     return TrackerResult.CONTINUE;

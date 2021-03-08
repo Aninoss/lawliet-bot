@@ -1,14 +1,16 @@
 package commands.runnables.fisherycategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
-import java.util.Locale;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 
 @CommandProperties(
         trigger = "acc",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDE4B",
         executableWithoutArgs = true,
         aliases = { "profile", "profil", "account", "balance", "bal", "a" }
@@ -20,8 +22,9 @@ public class AccountCommand extends FisheryMemberAccountInterface {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
-        return DBFishery.getInstance().retrieve(server.getId()).getMemberBean(user.getId()).getAccountEmbed();
+    protected EmbedBuilder generateUserEmbed(Member member, boolean userIsAuthor, String args) throws Throwable {
+        return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberBean(member.getIdLong())
+                .getAccountEmbed();
     }
 
 }

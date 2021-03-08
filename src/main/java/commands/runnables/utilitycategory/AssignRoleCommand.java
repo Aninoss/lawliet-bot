@@ -42,7 +42,7 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        ArrayList<Role> roles = MentionUtil.getRoles(event.getMessage(), followedString).getList();
+        ArrayList<Role> roles = MentionUtil.getRoles(event.getMessage(), args).getList();
 
         /* check for no role mention */
         if (roles.isEmpty()) {

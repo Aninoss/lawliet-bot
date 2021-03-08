@@ -116,6 +116,10 @@ public abstract class Command implements OnTriggerListener {
         drawMessageId = 0;
     }
 
+    public void setDrawMessageId(long drawMessageId) {
+        this.drawMessageId = drawMessageId;
+    }
+
     public Optional<Long> getDrawMessageId() {
         return drawMessageId == 0 ? Optional.empty() : Optional.of(drawMessageId);
     }

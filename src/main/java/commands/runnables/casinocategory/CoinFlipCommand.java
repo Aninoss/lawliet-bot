@@ -75,8 +75,8 @@ public class CoinFlipCommand extends CasinoAbstract {
         return eb;
     }
 
-    private int getCoinValue(String followedString) {
-        for (String word : followedString.toLowerCase().split(" ")) {
+    private int getCoinValue(String args) {
+        for (String word : args.toLowerCase().split(" ")) {
             if (word.equals("h")) return 0;
             if (word.equals("t")) return 1;
             if (word.startsWith("head")) return 0;

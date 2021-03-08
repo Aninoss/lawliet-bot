@@ -43,7 +43,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
         memberCountBean.getMemberCountBeanSlots().trim(vcId -> event.getServer().get().getVoiceChannelById(vcId));
         return true;

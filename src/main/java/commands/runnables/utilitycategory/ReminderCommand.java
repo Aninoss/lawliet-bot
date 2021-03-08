@@ -47,8 +47,8 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         long minutes = 0;
         StringBuilder text = new StringBuilder();
-        MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), followedString);
-        followedString = channelMention.getResultMessageString();
+        MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
+        args = channelMention.getResultMessageString();
 
         ArrayList<ServerTextChannel> channels = channelMention.getList();
         if (channels.size() > 1) {
@@ -81,7 +81,7 @@ public class ReminderCommand extends Command implements OnReactionAddListener {
             return false;
         }
 
-        for(String part : followedString.split(" ")) {
+        for(String part : args.split(" ")) {
             if (part.length() > 0) {
                 long value = MentionUtil.getTimeMinutesExt(part);
                 if (value > 0) {

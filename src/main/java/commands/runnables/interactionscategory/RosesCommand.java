@@ -43,7 +43,7 @@ public class RosesCommand extends Command {
         Server server = event.getServer().get();
         User user0 = event.getMessage().getUserAuthor().get();
 
-        MentionList<User> userMention = MentionUtil.getMembers(event.getMessage(), followedString);
+        MentionList<User> userMention = MentionUtil.getMembers(event.getMessage(), args);
         List<User> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));
@@ -61,7 +61,7 @@ public class RosesCommand extends Command {
             return false;
         }
 
-        int index = pickRosesIndex(followedString);
+        int index = pickRosesIndex(args);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", index, user0.getDisplayName(server), user1.getDisplayName(server)))
                 .setImage(getGifForIndex(index, user0.getId() == SEELE_USER_ID));
         event.getChannel().sendMessage(eb).get();
@@ -69,10 +69,10 @@ public class RosesCommand extends Command {
         return true;
     }
 
-    private int pickRosesIndex(String followedString) {
+    private int pickRosesIndex(String args) {
         for (int i = 0; i < ROSE_DATA_ARRAY.length; i++) {
             RoseData roseData = ROSE_DATA_ARRAY[i];
-            if (followedString.toLowerCase().contains(roseData.colorGerman) || followedString.toLowerCase().contains(roseData.colorEnglish)) {
+            if (args.toLowerCase().contains(roseData.colorGerman) || args.toLowerCase().contains(roseData.colorEnglish)) {
                 return i;
             }
         }

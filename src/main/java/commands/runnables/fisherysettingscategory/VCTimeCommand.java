@@ -43,8 +43,8 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
             guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-            if (followedString.length() > 0) {
-                return mainExecution(event, followedString);
+            if (args.length() > 0) {
+                return mainExecution(event, args);
             } else {
                 message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
                         getString("status",

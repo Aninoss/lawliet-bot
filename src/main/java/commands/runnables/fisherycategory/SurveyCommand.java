@@ -43,7 +43,7 @@ public class SurveyCommand extends Command implements FisheryInterface implement
     }
 
     @Override
-    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String followedString) throws Throwable {
+    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String args) throws Throwable {
         sendMessages(event.getServerTextChannel().get(), event.getMessageAuthor().asUser().get(), false, event.getMessage().getUserAuthor().get());
         return true;
     }

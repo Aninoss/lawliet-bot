@@ -22,7 +22,7 @@ public class TriggerCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String followedString) throws Throwable {
+    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
         return EmbedFactory.getEmbedDefault(this,getString("template", user.getDisplayName(server)))
                 .setImage(TriggerGraphics.createImageTriggered(user), "gif");
     }

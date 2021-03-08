@@ -47,7 +47,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
     private enum ValueProcedure { ABSOLUTE, ADD, SUB }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String followedString) throws Throwable {
+    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
         GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         FisheryStatus status = guildBean.getFisheryStatus();
         if (status != FisheryStatus.ACTIVE) {
@@ -55,7 +55,7 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             return false;
         }
 
-        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), followedString);
+        MentionList<User> userMentions = MentionUtil.getMembers(event.getMessage(), args);
         List<User> list = userMentions
                 .getList()
                 .stream()
@@ -71,9 +71,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
         userId = list.get(0).getId();
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(userId);
 
-        followedString = userMentions.getResultMessageString();
-        if (followedString.length() > 0) {
-            String typeString = followedString.split(" ")[0];
+        args = userMentions.getResultMessageString();
+        if (args.length() > 0) {
+            String typeString = args.split(" ")[0];
 
             int type = -1;
             switch (typeString.toLowerCase()) {
@@ -96,9 +96,9 @@ public class FisheryManageCommand extends Command implements OnNavigationListene
             }
 
             if (type == -1) {
-                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), followedString));
+                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else {
-                String amountString = followedString.substring(typeString.length()).trim();
+                String amountString = args.substring(typeString.length()).trim();
                 Long value;
                 AtomicLong valueOld = new AtomicLong();
                 if ((value = updateValues(type, amountString, valueOld)) != null) {
