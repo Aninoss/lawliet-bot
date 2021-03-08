@@ -1,10 +1,5 @@
 package core.utils;
 
-import com.google.common.net.UrlEscapers;
-import core.ExceptionLogger;
-import core.ShardManager;
-import core.MainLogger;
-import net.dv8tion.jda.api.entities.Message;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +7,10 @@ import java.net.URLConnection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import com.google.common.net.UrlEscapers;
+import constants.AssetIds;
+import core.ExceptionLogger;
+import core.MainLogger;
 
 public final class InternetUtil {
 
@@ -19,7 +18,7 @@ public final class InternetUtil {
     }
 
     public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename) throws ExecutionException, InterruptedException {
-        return JDAUtil.sendPrivateFile(ShardManager.getInstance().fetchCacheUser().get(), inputStream, filename)
+        return JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, inputStream, filename)
                 .submit()
                 .exceptionally(ExceptionLogger.get())
                 .thenApply(m -> {

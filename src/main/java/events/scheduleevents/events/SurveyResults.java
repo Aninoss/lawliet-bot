@@ -1,5 +1,11 @@
 package events.scheduleevents.events;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
 import constants.Category;
 import constants.FisheryCategoryInterface;
 import constants.FisheryStatus;
@@ -13,13 +19,6 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
 
 @ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
 public class SurveyResults implements ScheduleInterface {
@@ -74,7 +73,7 @@ public class SurveyResults implements ScheduleInterface {
                         processSurveyUser(secondVotesMap.get(userId), user, won);
                         if (notificationUsers.contains(userId)) {
                             notificationUsers.remove(userId);
-                            sendSurveyResult(lastSurvey, user, won, percent);
+                            sendSurveyResult(lastSurvey, user.getIdLong(), won, percent);
                         }
                     } catch (Throwable e) {
                         MainLogger.get().error("Exception while managing user {}", userId, e);
@@ -86,14 +85,11 @@ public class SurveyResults implements ScheduleInterface {
         }
 
         notificationUsers.forEach(userId -> {
-            ShardManager.getInstance().fetchUserById(userId)
-                    .thenAccept(user -> {
-                        try {
-                            sendSurveyResult(lastSurvey, user, won, percent);
-                        } catch (Throwable e) {
-                            MainLogger.get().error("Exception while managing user {}", userId, e);
-                        }
-                    });
+            try {
+                sendSurveyResult(lastSurvey, userId, won, percent);
+            } catch (Throwable e) {
+                MainLogger.get().error("Exception while managing user {}", userId, e);
+            }
         });
 
         MainLogger.get().info("Survey results finished");
@@ -109,8 +105,8 @@ public class SurveyResults implements ScheduleInterface {
                 });
     }
 
-    private static void sendSurveyResult(SurveyBean lastSurvey, User user, byte won, int percent) throws IOException {
-        SurveyFirstVote surveyFirstVote = lastSurvey.getFirstVotes().get(user.getIdLong());
+    private static void sendSurveyResult(SurveyBean lastSurvey, long userId, byte won, int percent) throws IOException {
+        SurveyFirstVote surveyFirstVote = lastSurvey.getFirstVotes().get(userId);
         if (surveyFirstVote != null) {
             Locale locale = surveyFirstVote.getLocale();
             SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(locale);
@@ -125,7 +121,7 @@ public class SurveyResults implements ScheduleInterface {
                             String.valueOf(percent)
                     ));
 
-            JDAUtil.sendPrivateMessage(user, eb.build()).queue();
+            JDAUtil.sendPrivateMessage(userId, eb.build()).queue();
         }
     }
 

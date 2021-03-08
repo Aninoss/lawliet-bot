@@ -192,6 +192,7 @@ public class GiveawayCommand extends Command implements OnNavigationListenerOld 
             imageMessage = null;
         }
 
+        //TODO: don't fetch
         imageMessage = ShardManager.getInstance().fetchCacheUser().get()
                 .sendMessage(file).get();
         return imageMessage.getAttachments().get(0).getUrl().toString();

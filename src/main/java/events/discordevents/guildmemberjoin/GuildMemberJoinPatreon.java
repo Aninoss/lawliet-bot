@@ -17,11 +17,13 @@ public class GuildMemberJoinPatreon extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
-            for(long roleId : Settings.PATREON_ROLE_IDS) {
+            for (long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getMember().getRoles().stream().anyMatch(role -> role.getIdLong() == roleId)) {
                     MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getAsTag(), event.getUser().getId());
-                    JDAUtil.sendPrivateMessage(ShardManager.getInstance().fetchOwner().get(), "NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getAsTag()))
-                            .queue();
+                    JDAUtil.sendPrivateMessage(
+                            ShardManager.getInstance().getOwnerId(),
+                            "NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())
+                    ).queue();
                     PatreonCache.getInstance().requestUpdate();
                     break;
                 }

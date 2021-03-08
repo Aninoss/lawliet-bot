@@ -1,12 +1,12 @@
 package core.utils;
 
-import commands.Command;
-import core.*;
-import net.dv8tion.jda.api.entities.TextChannel;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
+import commands.Command;
+import core.*;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class ExceptionUtil {
 
@@ -59,7 +59,7 @@ public class ExceptionUtil {
             MainLogger.get().error("Exception for command \"{}\"} and code {}", command.getTrigger(), code, throwable);
             if (Bot.isProductionMode()) {
                 JDAUtil.sendPrivateMessage(
-                        ShardManager.getInstance().fetchOwner().join(),
+                        ShardManager.getInstance().getOwnerId(),
                         EmbedFactory.getEmbedError()
                                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
                                 .setDescription(transmitStackTrace)

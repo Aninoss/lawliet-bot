@@ -1,7 +1,5 @@
 package websockets.syncserver.events;
 
-import core.ExceptionLogger;
-import core.ShardManager;
 import core.EmbedFactory;
 import core.utils.JDAUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,10 +28,7 @@ public class OnNotifyOwner implements SyncServerFunction {
         if (jsonObject.has("footer"))
             eb.setFooter(jsonObject.getString("footer"));
 
-        ShardManager.getInstance().fetchUserById(userId)
-                .exceptionally(ExceptionLogger.get())
-                .thenAccept(user -> JDAUtil.sendPrivateMessage(user, eb.build()).queue());
-
+        JDAUtil.sendPrivateMessage(userId, eb.build()).queue();
         return null;
     }
 

@@ -14,8 +14,10 @@ public class GuildLeaveNotifyBotOwner extends GuildLeaveAbstract {
     @Override
     public boolean onGuildLeave(GuildLeaveEvent event) throws Throwable {
         if (event.getGuild().getMemberCount() >= 5000) {
-            JDAUtil.sendPrivateMessage(ShardManager.getInstance().fetchOwner().get(), "**---** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")")
-                    .queue();
+            JDAUtil.sendPrivateMessage(
+                    ShardManager.getInstance().getOwnerId(),
+                    "**---** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")"
+            ).queue();
         }
 
         MainLogger.get().info("--- {} ({})", event.getGuild().getName(), event.getGuild().getMemberCount());

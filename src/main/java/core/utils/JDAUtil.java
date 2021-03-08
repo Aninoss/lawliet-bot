@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Optional;
 import javax.annotation.CheckReturnValue;
 import constants.Emojis;
+import core.ShardManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -31,31 +32,41 @@ public class JDAUtil {
 
     @CheckReturnValue
     public static MessageAction sendPrivateMessage(Member member, String content) {
-        return sendPrivateMessage(member.getUser(), content);
+        return sendPrivateMessage(member.getIdLong(), content);
     }
 
     @CheckReturnValue
     public static MessageAction sendPrivateMessage(User user, String content) {
-        return (MessageAction) user.openPrivateChannel().flatMap(
+        return sendPrivateMessage(user.getIdLong(), content);
+    }
+
+    @CheckReturnValue
+    public static MessageAction sendPrivateMessage(long userId, String content) {
+        return (MessageAction) ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessage(content)
         );
     }
 
     @CheckReturnValue
     public static MessageAction sendPrivateMessage(Member member, MessageEmbed eb) {
-        return sendPrivateMessage(member.getUser(), eb);
+        return sendPrivateMessage(member.getIdLong(), eb);
     }
 
     @CheckReturnValue
     public static MessageAction sendPrivateMessage(User user, MessageEmbed eb) {
-        return (MessageAction) user.openPrivateChannel().flatMap(
+        return sendPrivateMessage(user.getIdLong(), eb);
+    }
+
+    @CheckReturnValue
+    public static MessageAction sendPrivateMessage(long userId, MessageEmbed eb) {
+        return (MessageAction) ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessage(eb)
         );
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateFile(User user, InputStream inputStream, String filename) {
-        return user.openPrivateChannel().flatMap(
+    public static RestAction<Message> sendPrivateFile(long userId, InputStream inputStream, String filename) {
+        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendFile(inputStream, filename)
         );
     }
