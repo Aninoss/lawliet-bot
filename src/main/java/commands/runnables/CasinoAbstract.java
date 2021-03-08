@@ -99,10 +99,6 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         this.compareKey = compareKey;
     }
 
-    public long getCoinsInput() {
-        return coinsInput;
-    }
-
     public Status getStatus() {
         return status;
     }
@@ -185,11 +181,11 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         }
     }
 
-    public abstract EmbedBuilder drawCasino(String playerName);
+    public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
 
     @Override
     public EmbedBuilder draw() {
-        EmbedBuilder eb = drawCasino(getMember().map(Member::getEffectiveName).orElse("-"));
+        EmbedBuilder eb = drawCasino(getMember().map(Member::getEffectiveName).orElse("-"), coinsInput);
         if (status != Status.ACTIVE && eb != null) {
             if (getLog() != null && getLog().length() > 0) {
                 EmbedUtil.addLog(eb, getLogStatus(), getLog());

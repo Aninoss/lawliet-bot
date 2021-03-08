@@ -41,6 +41,7 @@ public interface OnReactionListener {
 
         Runnable onTimeOut = () -> {
             try {
+                CommandContainer.getInstance().deregisterListener(OnMessageInputListener.class, command);
                 onReactionTimeOut();
             } catch (Throwable throwable) {
                 MainLogger.get().error("Exception on time out", throwable);
@@ -108,10 +109,11 @@ public interface OnReactionListener {
 
     default void processReaction(GenericGuildMessageReactionEvent event) {
         Command command = (Command) this;
-        CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
 
         try {
             if (onReaction(event)) {
+                CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
+                CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, command);
                 EmbedBuilder eb = draw();
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);

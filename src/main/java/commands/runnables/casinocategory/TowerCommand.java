@@ -2,69 +2,80 @@ package commands.runnables.casinocategory;
 
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "tower",
         emoji = "🏗️️",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         aliases = { "crash" }
 )
-public class TowerCommand extends CasinoAbstract implements OnReactionAddListener {
+public class TowerCommand extends CasinoAbstract {
 
-    private final String[] EMOJIS = {"🛠️", "💰"};
+    private final String[] ACTION_EMOJIS = { "🛠️", "💰" };
     private final double MULTIPLIER_STEP = 0.5;
 
+    private boolean showMoreText = false;
+    private boolean crashed = false;
+    private boolean falling = false;
     private int towerLevel = 0;
     private double towerMultiplier = 1.0;
-    private String log;
-    private LogStatus logStatus;
     private final Random r = new Random();
 
     public TowerCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true, false);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (onGameStart(event, followedString)) {
-            try {
-                useCalculatedMultiplicator = false;
+    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
+        showMoreText = true;
 
-                message = event.getChannel().sendMessage(getEmbed(true, false, false)).get();
-                for (String str : EMOJIS) message.addReaction(str).get();
+        return ACTION_EMOJIS;
+    }
 
+    @Override
+    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
+        for(int i = 0; i < 2; i++) {
+            if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[i])) {
+                if (i == 0) {
+                    if (towerMultiplier < 10.0) {
+                        onRaise();
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("cap"));
+                        showMoreText = true;
+                    }
+                } else {
+                    onSell();
+                }
                 return true;
-            } catch (Throwable e) {
-                handleError(e, event.getServerTextChannel().get());
-                return false;
             }
         }
         return false;
     }
 
-    private EmbedBuilder getEmbed(boolean showMoreText, boolean crashed, boolean falling) {
+    @Override
+    public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         final int LEVEL_LIMIT = 12;
 
         final String GRASS_EMOJI = Emojis.TOWER_GRAS;
         final String EMPTY_EMOJI = Emojis.SPACEHOLDER;
 
         String[] towerEmojis;
-        if (crashed)
+        if (crashed) {
             towerEmojis = Emojis.TOWER_BASE_BROKEN;
-        else
+        } else {
             towerEmojis = Emojis.TOWER_BASE;
+        }
 
         String[] towerEmojisAnimated = Emojis.TOWER_BASE_FALLING;
 
@@ -83,83 +94,41 @@ public class TowerCommand extends CasinoAbstract implements OnReactionAddListene
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, towerText.toString());
         eb.addField(Emojis.EMPTY_EMOJI, getString("template_start", showMoreText,
-                player.getDisplayName(server),
+                playerName,
                 StringUtil.numToString(coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale()),
-                EMOJIS[0],
+                ACTION_EMOJIS[0],
                 StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()),
-                EMOJIS[1]
-        ));
+                ACTION_EMOJIS[1]
+        ), false);
 
-        eb = EmbedUtil.addLog(eb, logStatus, log);
-        if (!active)
-            eb = addRetryOption(eb);
-
+        showMoreText = false;
+        crashed = false;
+        falling = false;
         return eb;
     }
 
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (!active) {
-            onReactionAddRetry(event);
-            return;
-        }
-
-        if (event.getEmoji().isUnicodeEmoji()) {
-            for(int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[i])) {
-                    if (i == 0) {
-                        if (towerMultiplier < 10.0) {
-                            onRaise();
-                        } else {
-                            logStatus = LogStatus.FAILURE;
-                            log = getString("cap");
-                            message.edit(getEmbed(true, false, false)).exceptionally(ExceptionLogger.get());
-                        }
-                    } else {
-                        onSell();
-                    }
-                    return;
-                }
-            }
-        }
-    }
-
-    private void onRaise() throws ExecutionException, InterruptedException {
+    private void onRaise() {
         if (r.nextDouble() <= (towerMultiplier / (towerMultiplier + MULTIPLIER_STEP))) {
             towerLevel++;
             towerMultiplier += MULTIPLIER_STEP;
-            message.edit(getEmbed(true, false, true)).get();
+            showMoreText = true;
+            falling = true;
         } else {
             lose();
+            setLog(LogStatus.LOSE, getString("lost"));
             towerLevel = 0;
-            logStatus = LogStatus.LOSE;
-            log = getString("lost");
-            message.edit(getEmbed(false, true, false)).exceptionally(ExceptionLogger.get());
+            crashed = true;
         }
     }
 
-    private void onSell() throws ExecutionException {
+    private void onSell() {
         if (towerMultiplier > 1) {
-            winMultiplicator = towerMultiplier - 1;
-            win();
+            win(towerMultiplier - 1);
         } else {
             endGame();
         }
-        logStatus = LogStatus.WIN;
-        log = getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale()));
-        message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed(false, false, false)).exceptionally(ExceptionLogger.get()));
+        setLog(LogStatus.WIN, getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale())));
     }
 
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable {
-        if (active) {
-            onSell();
-        }
-    }
 }

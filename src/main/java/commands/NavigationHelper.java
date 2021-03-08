@@ -1,30 +1,33 @@
 package commands;
 
-import commands.runnables.NavigationCommand;
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.*;
+import core.atomicassets.AtomicMember;
+import core.atomicassets.AtomicRole;
+import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.MentionableAtomicAsset;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
 
 public class NavigationHelper<T> {
 
     private enum Type { Unknown, Role, TextChannel, Member }
 
-    private final NavigationCommand command;
+    private final NavigationAbstract command;
     private final List<T> srcList;
     private final int max;
     private Type type = Type.Unknown;
     private String typeString = "";
 
-    public NavigationHelper(NavigationCommand command, List<T> srcList, Class<T> typeClass, int max) {
+    public NavigationHelper(NavigationAbstract command, List<T> srcList, Class<T> typeClass, int max) {
         this.command = command;
         this.srcList = srcList;
         this.max = max;

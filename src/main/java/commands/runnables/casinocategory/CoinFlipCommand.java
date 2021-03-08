@@ -60,16 +60,16 @@ public class CoinFlipCommand extends CasinoAbstract {
     }
 
     @Override
-    public EmbedBuilder drawCasino(String playerName) {
+    public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         eb.addField(getString("yourbet"), getChoiceString(getTextChannel().get(), 0), true);
         eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1), true);
-        eb.addField(Emojis.EMPTY_EMOJI, getString("template", playerName, StringUtil.numToString(getCoinsInput())), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString("template", playerName, StringUtil.numToString(coinsInput)), false);
 
         if (selection[0] == -1)
             eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]), false);
 
-        if (getCoinsInput() != 0)
+        if (coinsInput != 0)
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         return eb;

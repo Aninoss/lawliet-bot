@@ -31,6 +31,7 @@ public interface OnMessageInputListener {
 
         Runnable onTimeOut = () -> {
             try {
+                CommandContainer.getInstance().deregisterListener(OnReactionListener.class, command);
                 onMessageInputTimeOut();
             } catch (Throwable throwable) {
                 MainLogger.get().error("Exception on time out", throwable);
@@ -68,12 +69,13 @@ public interface OnMessageInputListener {
     default Response processMessageInput(GuildMessageReceivedEvent event) {
         Command command = (Command) this;
         AtomicBoolean isProcessing = new AtomicBoolean(true);
-        CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, command);
 
         command.addLoadingReaction(event.getMessage(), isProcessing);
         try {
             Response response = onMessageInput(event, event.getMessage().getContentRaw());
             if (response != null) {
+                CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
+                CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, command);
                 EmbedBuilder eb = draw();
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);

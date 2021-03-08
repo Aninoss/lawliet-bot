@@ -2,10 +2,8 @@ package commands.runnables.casinocategory;
 
 import java.io.IOException;
 import java.util.*;
-import commands.CommandContainer;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
@@ -60,7 +58,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
     }
 
     @Override
-    public EmbedBuilder drawCasino(String playerName) {
+    public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         String key = "template_ongoing";
         if (first) {
             key = "template_start";
@@ -73,13 +71,13 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key,
                 playerName,
-                StringUtil.numToString(getCoinsInput()),
+                StringUtil.numToString(coinsInput),
                 getProgress(),
                 StringUtil.generateHeartBar(health, MAX_HEALTH, wrongAnswer),
                 answer,
                 getUsedString()));
 
-        if (getCoinsInput() != 0)
+        if (coinsInput != 0)
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         wrongAnswer = false;
@@ -110,7 +108,6 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) {
-        CommandContainer.getInstance().refreshListener(OnReactionListener.class, this);
         input = input.toUpperCase();
 
         if (input.length() != 1) {

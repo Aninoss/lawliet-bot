@@ -153,7 +153,7 @@ public class BlackjackCommand extends CasinoAbstract {
     }
 
     @Override
-    public EmbedBuilder drawCasino(String playerName) {
+    public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(getString("cards", false, String.valueOf(getCardsValue(PlayerType.PLAYER)), playerName),
                         getCardsString(PlayerType.PLAYER, cardRecentDrawn == PlayerType.PLAYER),
@@ -165,12 +165,12 @@ public class BlackjackCommand extends CasinoAbstract {
                 );
         cardRecentDrawn = null;
 
-        if (getCoinsInput() != 0)
+        if (coinsInput != 0)
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String key = turnForPlayer ? "tutorial" : "data";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(key, playerName, StringUtil.numToString(getCoinsInput())), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(key, playerName, StringUtil.numToString(coinsInput)), false);
         return eb;
     }
 

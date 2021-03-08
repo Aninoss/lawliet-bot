@@ -9,7 +9,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTriggerListener;
-import commands.runnables.NavigationCommand;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.Bot;
 import core.TextManager;
@@ -180,7 +180,7 @@ public abstract class Command implements OnTriggerListener {
         }
 
         //TODO: Does that work?
-        if ((this instanceof OnReactionListener || this instanceof NavigationCommand || this instanceof OnStaticReactionAddListener) &&
+        if ((this instanceof OnReactionListener || this instanceof NavigationAbstract || this instanceof OnStaticReactionAddListener) &&
                 Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)
         ) {
             permissions = Arrays.copyOf(permissions, permissions.length + 1);
@@ -202,7 +202,7 @@ public abstract class Command implements OnTriggerListener {
         }
 
         //TODO: Does that work?
-        if ((this instanceof OnReactionListener || this instanceof NavigationCommand || this instanceof OnStaticReactionAddListener) &&
+        if ((this instanceof OnReactionListener || this instanceof NavigationAbstract || this instanceof OnStaticReactionAddListener) &&
                 Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)
         ) {
             permissions = Arrays.copyOf(permissions, permissions.length + 2);

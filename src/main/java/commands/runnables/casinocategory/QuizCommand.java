@@ -106,19 +106,19 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     @Override
-    public EmbedBuilder drawCasino(String playerName) {
+    public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
 
-        if (getCoinsInput() != 0)
+        if (coinsInput != 0)
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String label = "tutorial";
         if (getStatus() == Status.ACTIVE)
             label = "tutorial_start";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(label, playerName, StringUtil.numToString(getCoinsInput()), Emojis.COUNTDOWN_10), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(label, playerName, StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
         return eb;
     }
 
@@ -160,64 +160,5 @@ public class QuizCommand extends CasinoAbstract {
         answerSelected = selected;
         MainScheduler.getInstance().schedule(Settings.TIME_OUT_TIME, "quiz_remove", this::removeReactionListenerWithMessage);
     }
-
-    /*
-    private EmbedBuilder getEmbed() {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("question"), question,false)
-                .addField(getString("answers"), getAnswersString(),false);
-
-        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
-
-        String label = "tutorial";
-        if (active) label = "tutorial_start";
-
-        eb.addField(Emojis.EMPTY_EMOJI, getString(label, server.getDisplayName(player), StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
-
-        eb = EmbedUtil.addLog(eb, logStatus, log);
-        if (!active) eb = addRetryOption(eb);
-
-        return eb;
-    }
-
-    private String getAnswersString() {
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i<answers.length; i++) {
-            if (!active && correctAnswer == i) {
-                sb.append("✅");
-            } else if (!active && answerSelected == i) {
-                sb.append("❌");
-            } else
-                sb.append(LetterEmojis.LETTERS[i]);
-            sb.append(" | ").append(answers[i]).append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (!active) {
-            onReactionAddRetry(event);
-            return;
-        }
-
-        if (event.getEmoji().isUnicodeEmoji()) {
-            for(int i=0; i<answers.length; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
-                    onAnswerSelected(i);
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) {}*/
 
 }

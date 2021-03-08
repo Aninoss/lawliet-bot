@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
-import commands.CommandContainer;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
 import commands.listeners.OnTriggerListener;
@@ -33,7 +32,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
-public abstract class NavigationCommand extends Command implements OnTriggerListener, OnMessageInputListener, OnReactionListener {
+public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnReactionListener {
 
     private final int DEFAULT_STATE = 0;
 
@@ -43,7 +42,7 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
     private int page = 0;
     private int pageMax = 0;
 
-    public NavigationCommand(Locale locale, String prefix) {
+    public NavigationAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
@@ -60,8 +59,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        CommandContainer.getInstance().refreshListener(OnReactionListener.class, this);
-
         Response response = controllerMessage(event, input, state);
         if (response != null)
             processDraw(event.getChannel());
@@ -71,8 +68,6 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, this);
-
         int index = getIndex(event);
         boolean changed = true;
         try {
@@ -356,13 +351,11 @@ public abstract class NavigationCommand extends Command implements OnTriggerList
 
     @Override
     public void onMessageInputTimeOut() throws Throwable {
-        CommandContainer.getInstance().deregisterListener(OnReactionListener.class, this);
         onNavigationTimeOut();
     }
 
     @Override
     public void onReactionTimeOut() throws Throwable {
-        CommandContainer.getInstance().deregisterListener(OnMessageInputListener.class, this);
         onNavigationTimeOut();
     }
 
