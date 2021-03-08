@@ -4,61 +4,58 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import commands.listeners.CommandProperties;
+import commands.runnables.FisheryInterface;
 import commands.runnables.ListAbstract;
 import constants.Emojis;
-import constants.FisheryStatus;
-import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
-import mysql.modules.guild.DBGuild;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "top",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDFC6",
         executableWithoutArgs = true,
         aliases = { "rankings", "ranking", "rank", "ranks", "leaderboard", "t" }
 )
-public class TopCommand extends ListAbstract {
+public class TopCommand extends ListAbstract implements FisheryInterface {
 
     private ArrayList<FisheryMemberBean> rankingSlots;
 
     public TopCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, 10);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
-        if (status == FisheryStatus.ACTIVE) {
-            rankingSlots = new ArrayList<>(DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getUsers().values());
-            rankingSlots.removeIf(user -> !user.isOnServer() || user.getMember().map(User::isBot).orElse(true));
-            rankingSlots.sort((s1, s2) -> {
-                if (s1.getFishIncome() < s2.getFishIncome()) return 1;
-                if (s1.getFishIncome() > s2.getFishIncome()) return -1;
-                if (s1.getFish() < s2.getFish()) return 1;
-                if (s1.getFish() > s2.getFish()) return -1;
-                return Long.compare(s2.getCoins(), s1.getCoins());
-            });
-            initList(event.getServerTextChannel().get(), args);
-            return true;
-        } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title")));
-            return false;
-        }
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+        rankingSlots = new ArrayList<>(DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getUsers().values());
+        rankingSlots.removeIf(user -> !user.isOnServer() || user.getMember().map(m -> m.getUser().isBot()).orElse(true));
+        rankingSlots.sort((s1, s2) -> {
+            if (s1.getFishIncome() < s2.getFishIncome()) return 1;
+            if (s1.getFishIncome() > s2.getFishIncome()) return -1;
+            if (s1.getFish() < s2.getFish()) return 1;
+            if (s1.getFish() > s2.getFish()) return -1;
+            return Long.compare(s2.getCoins(), s1.getCoins());
+        });
+        registerList(rankingSlots.size(), args);
+        return true;
     }
 
-    protected Pair<String, String> getEntry(ServerTextChannel channel, int i) throws Throwable {
-        FisheryMemberBean userBean = rankingSlots.get(i);
-        Optional<User> userOpt = userBean.getMember();
-        String userString = userOpt.isPresent() ? userOpt.get().getDisplayName(channel.getServer()) : TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(userBean.getMemberId()));
+    @Override
+    protected Pair<String, String> getEntry(int i) {
+        FisheryMemberBean memberBean = rankingSlots.get(i);
+        Optional<Member> memberOpt = memberBean.getMember();
+        String userString = memberOpt
+                .map(Member::getEffectiveName)
+                .orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(memberBean.getMemberId())));
         userString = StringUtil.escapeMarkdown(userString);
 
-        int rank = userBean.getRank();
+        int rank = memberBean.getRank();
         String rankString = String.valueOf(rank);
         switch (rank) {
             case 1:
@@ -83,14 +80,10 @@ public class TopCommand extends ListAbstract {
                         userString),
                 getString("template_descritpion",
                         Emojis.SPACEHOLDER,
-                        StringUtil.numToString(userBean.getFishIncome()),
-                        StringUtil.numToString(userBean.getCoins()),
-                        StringUtil.numToString(userBean.getFish()))
+                        StringUtil.numToString(memberBean.getFishIncome()),
+                        StringUtil.numToString(memberBean.getCoins()),
+                        StringUtil.numToString(memberBean.getFish()))
         );
     }
-
-    protected int getSize() { return rankingSlots.size(); }
-
-    protected int getEntriesPerPage() { return 10; }
 
 }

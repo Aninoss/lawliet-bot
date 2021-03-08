@@ -15,21 +15,23 @@ public abstract class ListAbstract extends Command implements OnReactionListener
 
     private int page = 0;
     private final int entriesPerPage;
-    private final int size;
+    private int size;
     private final String[] SCROLL_EMOJIS = {"⏪", "⏩"};
 
-    public ListAbstract(Locale locale, String prefix, int entriesPerPage, int size) {
+    public ListAbstract(Locale locale, String prefix, int entriesPerPage) {
         super(locale, prefix);
         this.entriesPerPage = entriesPerPage;
-        this.size = size;
     }
 
     protected abstract Pair<String, String> getEntry(int i) throws Throwable;
 
-    protected void initList(String args) {
+    protected void registerList(int size, String args) {
+        this.size = size;
         if (StringUtil.stringIsInt(args)) {
             int pageStart = Integer.parseInt(args);
-            if (pageStart >= 1) page = Math.min(getPageSize(), pageStart) - 1;
+            if (pageStart >= 1) {
+                page = Math.min(getPageSize(), pageStart) - 1;
+            }
         }
         registerReactionListener(SCROLL_EMOJIS);
     }

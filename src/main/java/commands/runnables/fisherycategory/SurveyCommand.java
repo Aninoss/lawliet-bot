@@ -1,15 +1,15 @@
 package commands.runnables.fisherycategory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LetterEmojis;
@@ -19,22 +19,26 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.TextManager;
-import core.utils.DiscordUtil;
 import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 @CommandProperties(
-    trigger = "survey",
-    botPermissions = PermissionDeprecated.MANAGE_MESSAGES,
-    emoji = "✅",
-    executableWithoutArgs = true
+        trigger = "survey",
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        emoji = "✅",
+        executableWithoutArgs = true
 )
-public class SurveyCommand extends Command implements FisheryInterface implements OnStaticReactionAddListener, OnTrackerRequestListener {
+public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnTrackerRequestListener {
 
     private static final String BELL_EMOJI = "🔔";
 
@@ -43,108 +47,110 @@ public class SurveyCommand extends Command implements FisheryInterface implement
     }
 
     @Override
-    public boolean onMessageReceivedSuccessful(MessageCreateEvent event, String args) throws Throwable {
-        sendMessages(event.getServerTextChannel().get(), event.getMessageAuthor().asUser().get(), false, event.getMessage().getUserAuthor().get());
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException {
+        sendMessages(event.getChannel(), event.getMember(), false);
         return true;
     }
 
     @Override
-    public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getServerTextChannel().get(), PermissionDeprecated.MANAGE_MESSAGES)) return;
-        event.removeReaction().get();
+    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws IOException {
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getChannel(), Permission.MESSAGE_MANAGE))
+            return;
 
-        removeUserReactions(message);
-        if (event.getEmoji().isUnicodeEmoji()) {
-            String emoji = event.getEmoji().asUnicodeEmoji().get();
-            for (byte i = 0; i < 2; i++) {
-                int type = 0;
-                if (emoji.equals(LetterEmojis.LETTERS[i])) type = 1;
-                if (emoji.equals(LetterEmojis.RED_LETTERS[i])) type = 2;
-                if (emoji.equals(BELL_EMOJI)) type = 3;
+        event.getReaction().removeReaction(event.getUser()).queue();
 
-                if (type > 0) {
-                    SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
+        removeUserReactions(message, event.getReactionEmote().getAsReactionCode());
+        String emoji = event.getReactionEmote().getAsReactionCode();
+        for (byte i = 0; i < 2; i++) {
+            int type = 0;
+            if (emoji.equals(LetterEmojis.LETTERS[i])) type = 1;
+            if (emoji.equals(LetterEmojis.RED_LETTERS[i])) type = 2;
+            if (emoji.equals(BELL_EMOJI)) type = 3;
 
-                    if (message.getCreationTimestamp().isAfter(surveyBean.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
-                        if (!registerVote(event, surveyBean, type, i)) return;
-                        EmbedBuilder eb = getVoteStatusEmbed(event, surveyBean);
-                        event.getUser().get().sendMessage(eb);
-                    }
-                    break;
+            if (type > 0) {
+                SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
+
+                if (message.getTimeCreated().toInstant().isAfter(surveyBean.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
+                    if (!registerVote(event, surveyBean, type, i)) return;
+                    EmbedBuilder eb = getVoteStatusEmbed(event, surveyBean);
+                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
                 }
+                break;
             }
         }
     }
 
-    private EmbedBuilder getVoteStatusEmbed(ReactionAddEvent event, SurveyBean surveyBean) throws IOException {
+    private EmbedBuilder getVoteStatusEmbed(GuildMessageReactionAddEvent event, SurveyBean surveyBean) throws IOException {
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
         String[] voteStrings = new String[2];
 
-        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUserId()).getVote()];
+        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUserIdLong()).getVote()];
 
-        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUserId());
+        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUserIdLong());
 
-        if (surveySecondVotes.size() == 0) voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+        if (surveySecondVotes.size() == 0)
+            voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         else voteStrings[1] = "";
 
         for (SurveySecondVote surveySecondVote : surveySecondVotes) {
-            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getServerId()).orElse(String.valueOf(surveySecondVote.getServerId()))) + ")\n";
+            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)
-                .addField(surveyQuestion.getQuestion(), voteStrings[0])
-                .addField(getString("majority"), voteStrings[1])
-                .addField(Emojis.EMPTY_EMOJI, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserId()))));
+                .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
+                .addField(getString("majority"), voteStrings[1], false)
+                .addField(Emojis.EMPTY_EMOJI, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserIdLong()))), false);
     }
 
-    private void removeUserReactions(Message message) throws ExecutionException, InterruptedException {
-        for(Reaction reaction: message.getReactions()) {
-            Emoji emoji = reaction.getEmoji();
+    private void removeUserReactions(Message message, String addedEmoji) {
+        for (MessageReaction reaction : message.getReactions()) {
+            String emoji = reaction.getReactionEmote().getAsReactionCode();
             boolean correctEmoji = false;
             for (int i = 0; i < 2; i++) {
-                if (reaction.getEmoji().isUnicodeEmoji() &&
-                        (DiscordUtil.emojiIsString(emoji, LetterEmojis.LETTERS[i]) || DiscordUtil.emojiIsString(emoji, LetterEmojis.RED_LETTERS[i]) || DiscordUtil.emojiIsString(emoji, BELL_EMOJI))
+                if (emoji.equals(LetterEmojis.LETTERS[i]) ||
+                        emoji.equals(LetterEmojis.RED_LETTERS[i]) ||
+                        emoji.equals(BELL_EMOJI)
                 ) {
                     correctEmoji = true;
                     break;
                 }
             }
 
-            if (!correctEmoji) reaction.remove().get();
-            else if (reaction.getCount() > 1) {
-                for(User user: reaction.getUsers().get()) {
-                    if (!user.isYourself()) reaction.removeUser(user).get();
+            if (correctEmoji && reaction.getCount() > (addedEmoji.equals(emoji) ? 2 : 1)) {
+                for (User user : reaction.retrieveUsers()) {
+                    if (user.getIdLong() != ShardManager.getInstance().getSelfId())
+                        reaction.removeReaction(user).queue();
                 }
             }
         }
     }
 
-    private boolean registerVote(ReactionAddEvent event, SurveyBean surveyBean, int type, byte i) {
+    private boolean registerVote(GuildMessageReactionAddEvent event, SurveyBean surveyBean, int type, byte i) {
         switch (type) {
             case 1:
-                surveyBean.getFirstVotes().put(event.getUserId(), new SurveyFirstVote(event.getUserId(), i, getLocale()));
+                surveyBean.getFirstVotes().put(event.getUserIdLong(), new SurveyFirstVote(event.getUserIdLong(), i, getLocale()));
                 return true;
 
             case 2:
-                if (surveyBean.getFirstVotes().containsKey(event.getUserId())) {
+                if (surveyBean.getFirstVotes().containsKey(event.getUserIdLong())) {
                     surveyBean.getSecondVotes().put(
-                            new Pair<>(event.getGuild().getIdLong(), event.getUserId()),
-                            new SurveySecondVote(event.getGuild().getIdLong(), event.getUserId(), i)
+                            new Pair<>(event.getGuild().getIdLong(), event.getUserIdLong()),
+                            new SurveySecondVote(event.getGuild().getIdLong(), event.getUserIdLong(), i)
                     );
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    event.getUser().get().sendMessage(eb);
+                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
                     return false;
                 }
 
             case 3:
-                if (surveyBean.getFirstVotes().containsKey(event.getUserId())) {
-                    surveyBean.toggleNotificationUserId(event.getUserId());
+                if (surveyBean.getFirstVotes().containsKey(event.getUserIdLong())) {
+                    surveyBean.toggleNotificationUserId(event.getUserIdLong());
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    event.getUser().get().sendMessage(eb);
+                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
                     return false;
                 }
 
@@ -153,50 +159,52 @@ public class SurveyCommand extends Command implements FisheryInterface implement
         }
     }
 
-    private Message sendMessages(ServerTextChannel channel, User userRequested, boolean tracker, User user) throws InterruptedException, IOException, SQLException, ExecutionException {
+    private Message sendMessages(TextChannel channel, Member member, boolean tracker) throws IOException {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyBean lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
         //Results Message
-        channel.sendMessage(getResultsEmbed(lastSurvey, channel.getServer(), user));
+        channel.sendMessage(getResultsEmbed(lastSurvey, member).build()).complete();
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
-        if (!tracker) EmbedUtil.addTrackerNoteLog(getLocale(), channel.getServer(), userRequested, eb, getPrefix(), getTrigger());
-        Message message = channel.sendMessage(eb).get();
+        if (!tracker)
+            EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
+        Message message = channel.sendMessage(eb.build()).complete();
 
-        for(int i = 0; i < 2; i++) {
-            for(int j = 0; j < 2; j++) {
-                if (i == 0) message.addReaction(LetterEmojis.LETTERS[j]);
-                else message.addReaction(LetterEmojis.RED_LETTERS[j]);
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (i == 0) message.addReaction(LetterEmojis.LETTERS[j]).complete();
+                else message.addReaction(LetterEmojis.RED_LETTERS[j]).complete();
             }
         }
-        message.addReaction(BELL_EMOJI);
-
+        message.addReaction(BELL_EMOJI).complete();
 
         return message;
     }
 
-    private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey, Server server, User user) throws IOException {
+    private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey, Member member) throws IOException {
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("results_title"));
         eb.addField(getString("results_question"), surveyQuestion.getQuestion(), false);
 
         StringBuilder answerString = new StringBuilder();
-        for(int i = 0; i < 2; i++) answerString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+        for (int i = 0; i < 2; i++)
+            answerString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         eb.addField(getString("results_answers"), answerString.toString(), false);
 
         long firstVotesTotal = lastSurvey.getFirstVoteNumber();
         long[] firstVotes = new long[2];
-        for(byte i = 0; i < 2; i++) firstVotes[i] = lastSurvey.getFirstVoteNumbers(i);
+        for (byte i = 0; i < 2; i++) firstVotes[i] = lastSurvey.getFirstVoteNumbers(i);
         double[] firstVotesRelative = new double[2];
-        for(byte i = 0; i < 2; i++) firstVotesRelative[i] = firstVotes[i] / (double)firstVotesTotal;
+        for (byte i = 0; i < 2; i++) firstVotesRelative[i] = firstVotes[i] / (double) firstVotesTotal;
 
         StringBuilder resultString = new StringBuilder();
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             resultString.append(
-                    getString("results_template",
+                    getString(
+                            "results_template",
                             LetterEmojis.LETTERS[i],
                             StringUtil.getBar(firstVotesRelative[i], 12),
                             StringUtil.numToString(firstVotes[i]),
@@ -209,8 +217,8 @@ public class SurveyCommand extends Command implements FisheryInterface implement
         eb.setTimestamp(TimeUtil.localDateToInstant(lastSurvey.getStartDate()));
 
         boolean individual = false;
-        if (server != null && user != null && lastSurvey.getWon() != 2) {
-            SurveySecondVote secondVote = lastSurvey.getSecondVotes().get(new Pair<>(server.getId(), user.getId()));
+        if (member != null && lastSurvey.getWon() != 2) {
+            SurveySecondVote secondVote = lastSurvey.getSecondVotes().get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong()));
             if (secondVote != null) {
                 individual = true;
                 boolean won = lastSurvey.getWon() == 2 || lastSurvey.getWon() == secondVote.getVote();
@@ -232,7 +240,7 @@ public class SurveyCommand extends Command implements FisheryInterface implement
 
         StringBuilder personalString = new StringBuilder();
         StringBuilder majorityString = new StringBuilder();
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             personalString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
             majorityString.append(LetterEmojis.RED_LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         }
@@ -240,7 +248,8 @@ public class SurveyCommand extends Command implements FisheryInterface implement
         eb.addField(getString("majority"), majorityString.toString(), false);
 
         Instant after = TimeUtil.localDateToInstant(surveyBean.getNextDate());
-        if (!tracker) EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
+        if (!tracker)
+            EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
         EmbedUtil.addRemainingTime(eb, after);
 
         return eb;
@@ -248,22 +257,22 @@ public class SurveyCommand extends Command implements FisheryInterface implement
 
     @Override
     public String titleStartIndicator() {
-        return getEmoji();
+        return getCommandProperties().emoji();
     }
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
-        if(slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get()))
+        if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get()))
             return TrackerResult.CONTINUE;
 
-        ServerTextChannel channel = slot.getChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, PermissionDeprecated.ADD_REACTIONS))
+        TextChannel channel = slot.getTextChannel().get();
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_ADD_REACTION))
             return TrackerResult.CONTINUE;
 
-        slot.getMessage().ifPresent(Message::delete);
+        channel.deleteMessageById(slot.getMessageId().get()).complete();
 
-        slot.setMessageId(sendMessages(channel, null, true, null).getId());
+        slot.setMessageId(sendMessages(channel, null, true).getIdLong());
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
@@ -273,7 +282,7 @@ public class SurveyCommand extends Command implements FisheryInterface implement
     private Instant getNextSurveyInstant(Instant start) {
         do {
             start = TimeUtil.setInstantToNextDay(start);
-        } while(!TimeUtil.instantHasWeekday(start, Calendar.MONDAY) && !TimeUtil.instantHasWeekday(start, Calendar.THURSDAY));
+        } while (!TimeUtil.instantHasWeekday(start, Calendar.MONDAY) && !TimeUtil.instantHasWeekday(start, Calendar.THURSDAY));
         return start;
     }
 
