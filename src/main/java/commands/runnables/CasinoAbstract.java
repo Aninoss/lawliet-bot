@@ -18,17 +18,17 @@ import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsBean;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 public abstract class CasinoAbstract extends Command implements OnReactionListener {
 
-    public enum Status { ACTIVE, WON, LOST, DRAW }
+    public enum Status { ACTIVE, WON, LOST, DRAW, ABORT }
 
     private final double BONUS_MULTIPLICATOR = 1;
     private final String RETRY_EMOJI = "\uD83D\uDD01";
 
-    private String[] emojis;
     private String compareKey;
     private long coinsInput;
     private double winMultiplicator = 1;
@@ -36,20 +36,23 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     private final boolean useCalculatedMultiplicator;
     private final boolean allowBet;
 
-    public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator, String... emojis) {
+    public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator) {
         super(locale, prefix);
         this.compareKey = getTrigger();
         this.allowBet = allowBet;
         this.useCalculatedMultiplicator = useCalculatedMultiplicator;
-        this.emojis = emojis;
     }
 
-    public abstract boolean onGameStart(GuildMessageReceivedEvent event) throws Throwable;
+    public abstract String[] onGameStart(GuildMessageReceivedEvent event, String args) throws Throwable;
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         try {
-            if (!onGameStart(event))
+            if (!allowBet) {
+                setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "nobet"));
+            }
+            String[] emojis = onGameStart(event, args);
+            if (emojis == null)
                 return false;
 
             if (!allowBet) {
@@ -100,21 +103,14 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         return coinsInput;
     }
 
-    public boolean isAllowBet() {
-        return allowBet;
-    }
-
     public Status getStatus() {
         return status;
-    }
-
-    public void setEmojis(String[] emojis) {
-        this.emojis = emojis;
     }
 
     protected void endGame() {
         getGuild().ifPresent(guild -> {
             status = Status.DRAW;
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
             DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get()).addHiddenCoins(-coinsInput);
             removeReactionListener()
                     .thenRun(() -> registerReactionListener(RETRY_EMOJI));
@@ -125,6 +121,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         getGuild().ifPresent(guild -> {
             endGame();
             status = Status.LOST;
+            setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_lose"));
             if (coinsInput > 0 && useCalculatedMultiplicator) {
                 DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
             }
@@ -136,6 +133,12 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         });
     }
 
+    protected void abort() {
+        lose();
+        status = Status.ABORT;
+        setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_abort"));
+    }
+
     protected void win(double winMultiplicator) {
         this.winMultiplicator = winMultiplicator;
         win();
@@ -145,6 +148,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         getGuild().ifPresent(guild -> {
             endGame();
             status = Status.WON;
+            setLog(LogStatus.WIN, TextManager.getString(getLocale(), Category.CASINO, "casino_win"));
 
             long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
 
@@ -181,11 +185,11 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         }
     }
 
-    public abstract EmbedBuilder drawCasino();
+    public abstract EmbedBuilder drawCasino(String playerName);
 
     @Override
     public EmbedBuilder draw() {
-        EmbedBuilder eb = drawCasino();
+        EmbedBuilder eb = drawCasino(getMember().map(Member::getEffectiveName).orElse("-"));
         if (status != Status.ACTIVE && eb != null) {
             if (getLog() != null && getLog().length() > 0) {
                 EmbedUtil.addLog(eb, getLogStatus(), getLog());
@@ -199,8 +203,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     @Override
     public void onReactionTimeOut() throws Throwable {
         if (status == Status.ACTIVE) {
-            lose();
-            setLog(LogStatus.TIME, TextManager.getString(getLocale(), Category.CASINO, "casino_abort", RETRY_EMOJI));
+            abort();
             EmbedBuilder eb = draw();
             if (eb != null) {
                 drawMessage(eb);

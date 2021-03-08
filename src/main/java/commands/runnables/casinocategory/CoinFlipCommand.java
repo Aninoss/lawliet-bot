@@ -6,15 +6,16 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.Emojis;
-import constants.LogStatus;
 import core.EmbedFactory;
-import core.ExceptionLogger;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "coinflip",
@@ -22,39 +23,56 @@ import net.dv8tion.jda.api.EmbedBuilder;
         executableWithoutArgs = true,
         aliases = { "coin", "coins", "cf", "cointoss", "flip" }
 )
-public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddListener {
+public class CoinFlipCommand extends CasinoAbstract {
 
-    private String log;
-    private final String[] EMOJIS = {"\uD83C\uDDED", "\uD83C\uDDF9"};
-    private final int[] selection = {-1, -1};
-    private LogStatus logStatus;
+    private final String[] EMOJIS = { "🇭", "🇹" };
+    private final int[] selection = { -1, -1 };
 
     public CoinFlipCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true, false);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        onlyNumbersAsArg = false;
-        if (onGameStart(event, followedString)) {
-            try {
-                useCalculatedMultiplicator = false;
-                winMultiplicator = 1;
+    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
+        //TODO: Without "onlyNumberAsArgs"?
+        int coinSideSelection = getCoinValue(args);
+        if (coinSideSelection >= 0) selection[0] = coinSideSelection;
 
-                int coinSideSelection = getCoinValue(followedString);
-                if (coinSideSelection >= 0) selection[0] = coinSideSelection;
+        if (selection[0] != -1) {
+            manageEnd();
+            return new String[]{};
+        }
 
-                message = event.getChannel().sendMessage(getEmbed(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get())).get();
-                if (selection[0] == -1) for (String str : EMOJIS) message.addReaction(str).get();
-                else manageEnd();
+        return EMOJIS;
+    }
 
+    @Override
+    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
+        for(int i = 0; i < 2; i++) {
+            if (event.getReactionEmote().getAsReactionCode().equals(EMOJIS[i])) {
+                selection[0] = i;
+                drawMessage(draw());
+                manageEnd();
                 return true;
-            } catch (Throwable e) {
-                handleError(e, event.getServerTextChannel().get());
-                return false;
             }
         }
         return false;
+    }
+
+    @Override
+    public EmbedBuilder drawCasino(String playerName) {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
+        eb.addField(getString("yourbet"), getChoiceString(getTextChannel().get(), 0), true);
+        eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1), true);
+        eb.addField(Emojis.EMPTY_EMOJI, getString("template", playerName, StringUtil.numToString(getCoinsInput())), false);
+
+        if (selection[0] == -1)
+            eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]), false);
+
+        if (getCoinsInput() != 0)
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+
+        return eb;
     }
 
     private int getCoinValue(String followedString) {
@@ -68,7 +86,7 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         return -1;
     }
 
-    private String getChoiceString(ServerTextChannel channel, int pos) {
+    private String getChoiceString(TextChannel channel, int pos) {
         if (pos == 1 && selection[0] == -1)
             return Emojis.EMPTY_EMOJI;
 
@@ -85,84 +103,24 @@ public class CoinFlipCommand extends CasinoAbstract implements OnReactionAddList
         }
     }
 
-    private EmbedBuilder getEmbed() {
-        return getEmbed(message.getServerTextChannel().get(), player);
-    }
-
-    private EmbedBuilder getEmbed(ServerTextChannel channel, User user) {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-        eb.addField(getString("yourbet"), getChoiceString(channel, 0), true);
-        eb.addField(getString("yourthrow"), getChoiceString(channel, 1), true);
-        eb.addField(Emojis.EMPTY_EMOJI, getString("template", user.getDisplayName(server), StringUtil.numToString(coinsInput)));
-
-        if (selection[0] == -1)
-            eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]));
-
-        if (coinsInput != 0)
-            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
-
-        if (!active) {
-            eb = EmbedUtil.addLog(eb, logStatus, log);
-            eb = addRetryOption(eb);
-        }
-
-        return eb;
-    }
-
     private void manageEnd() {
         if (selection[0] == -1) return;
-        removeReactionListener(getReactionMessage());
+        removeReactionListener();
 
         MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextInt(2);
-            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
+            drawMessage(draw());
 
             MainScheduler.getInstance().schedule(1000, "coinflip_results", () -> {
                 if (selection[0] == selection[1]) {
-                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
-                    logStatus = LogStatus.WIN;
                     win();
                 } else {
-                    log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
-                    logStatus = LogStatus.LOSE;
                     lose();
                 }
 
-                message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
+                drawMessage(draw());
             });
         });
     }
 
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (!active) {
-            onReactionAddRetry(event);
-            return;
-        }
-
-        if (event.getEmoji().isUnicodeEmoji()) {
-            for(int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equalsIgnoreCase(EMOJIS[i])) {
-                    selection[0] = i;
-                    message.edit(getEmbed()).exceptionally(ExceptionLogger.get());
-                    manageEnd();
-                    return;
-                }
-            }
-        }
-    }
-
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable {
-        if (active) {
-            selection[0] = 0;
-            message.getCurrentCachedInstance().ifPresent(m -> m.edit(getEmbed()).exceptionally(ExceptionLogger.get()));
-            manageEnd();
-        }
-    }
 }

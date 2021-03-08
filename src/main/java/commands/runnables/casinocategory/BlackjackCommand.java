@@ -16,7 +16,6 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
@@ -31,7 +30,7 @@ public class BlackjackCommand extends CasinoAbstract {
 
     private enum PlayerType { PLAYER, DEALER }
 
-    private static final String[] ACTION_EMOJIS = { "📥", "✋" };
+    private final String[] ACTION_EMOJIS = { "📥", "✋" };
     private final int TIME_BETWEEN_EVENTS = 2500;
     private final int TIME_BEFORE_END = 1500;
 
@@ -40,11 +39,11 @@ public class BlackjackCommand extends CasinoAbstract {
     private boolean turnForPlayer = true;
 
     public BlackjackCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true, ACTION_EMOJIS);
+        super(locale, prefix, true, true);
     }
 
     @Override
-    public boolean onGameStart(GuildMessageReceivedEvent event) {
+    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
         for (PlayerType value : PlayerType.values()) {
             ArrayList<GameCard> cards = getCardsForPlayer(value);
             for (int i = 0; i < 2; i++) {
@@ -52,7 +51,7 @@ public class BlackjackCommand extends CasinoAbstract {
             }
         }
 
-        return true;
+        return ACTION_EMOJIS;
     }
 
     @Override
@@ -127,7 +126,6 @@ public class BlackjackCommand extends CasinoAbstract {
 
                         if (points[0] == points[1]) {
                             endGame();
-                            setLog(LogStatus.FAILURE, getString("draw"));
                             drawMessage(draw());
                         } else if (points[0] < points[1]) {
                             win();
@@ -155,9 +153,7 @@ public class BlackjackCommand extends CasinoAbstract {
     }
 
     @Override
-    public EmbedBuilder drawCasino() {
-        String playerName = getMember().map(Member::getEffectiveName).orElse("-");
-
+    public EmbedBuilder drawCasino(String playerName) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(getString("cards", false, String.valueOf(getCardsValue(PlayerType.PLAYER)), playerName),
                         getCardsString(PlayerType.PLAYER, cardRecentDrawn == PlayerType.PLAYER),

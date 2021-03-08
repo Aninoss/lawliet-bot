@@ -1,9 +1,11 @@
 package commands.runnables.casinocategory;
 
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
+import commands.CommandContainer;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
+import commands.listeners.OnReactionListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
@@ -15,74 +17,72 @@ import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "hangman",
         emoji = "\uD83D\uDD21",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
-        aliases = {"hm"}
+        aliases = { "hm" }
 )
-public class HangmanCommand extends CasinoAbstract implements OnMessageInputListener, OnReactionAddListener {
+public class HangmanCommand extends CasinoAbstract implements OnMessageInputListener {
 
-    private String answer, log;
-    private int health;
     private final int MAX_HEALTH = 6;
+
+    private String answer;
+    private int health = MAX_HEALTH;
     private boolean[] progress;
-    private LogStatus logStatus;
-    private ArrayList<String> used;
-    private boolean first;
+    private final ArrayList<String> used = new ArrayList<>();
+    private boolean first = true;
+    private boolean wrongAnswer = false;
 
     public HangmanCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-        winMultiplicator = 1;
+        super(locale, prefix, true, true);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (onGameStart(event, followedString)) {
-            try {
-                Random r = new Random();
-                List<String> wordList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
-                answer = wordList.get(r.nextInt(wordList.size()));
-                first = true;
-                health = MAX_HEALTH;
-                progress = new boolean[answer.length()];
-                used = new ArrayList<>();
-                message = event.getChannel().sendMessage(getEmbed(false)).get();
-                message.addReaction("❌").get();
+    public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws IOException {
+        Random r = new Random();
+        List<String> wordList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
+        answer = wordList.get(r.nextInt(wordList.size()));
+        progress = new boolean[answer.length()];
 
-                return true;
-            } catch (Throwable e) {
-                handleError(e, event.getServerTextChannel().get());
-                return false;
-            }
-        }
-        return false;
+        return new String[]{ "❌" };
     }
 
-    private EmbedBuilder getEmbed(boolean wrong) {
+    @Override
+    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
+        abort();
+        return true;
+    }
+
+    @Override
+    public EmbedBuilder drawCasino(String playerName) {
         String key = "template_ongoing";
         if (first) {
             key = "template_start";
             first = false;
         }
-        if (!active && !won) key = "template_end";
-        if (!active && won) key = "template";
+        if (getStatus() != Status.ACTIVE && getStatus() != Status.WON)
+            key = "template_end";
+        else if (getStatus() == Status.WON)
+            key = "template";
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key,
-                player.getDisplayName(server),
-                StringUtil.numToString(coinsInput),
+                playerName,
+                StringUtil.numToString(getCoinsInput()),
                 getProgress(),
-                StringUtil.generateHeartBar(health, MAX_HEALTH, wrong),
+                StringUtil.generateHeartBar(health, MAX_HEALTH, wrongAnswer),
                 answer,
                 getUsedString()));
 
-        if (coinsInput != 0) EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        if (getCoinsInput() != 0)
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
-        eb = EmbedUtil.addLog(eb, logStatus, log);
-        if (!active) eb = addRetryOption(eb);
-
+        wrongAnswer = false;
         return eb;
     }
 
@@ -94,12 +94,6 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         }
 
         return sb.toString();
-    }
-
-    private void onAbort() throws ExecutionException {
-        logStatus = LogStatus.LOSE;
-        lose();
-        log = getString("abort");
     }
 
     private String getUsedString() {
@@ -115,14 +109,15 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
     }
 
     @Override
-    public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        String input = event.getMessage().getContent().toUpperCase();
+    public Response onMessageInput(GuildMessageReceivedEvent event, String input) {
+        CommandContainer.getInstance().refreshListener(OnReactionListener.class, this);
+        input = input.toUpperCase();
 
         if (input.length() != 1) {
             if (!stringCouldMatch(input)) //if input can't be right return
                 return null;
 
-            event.getMessage().delete();
+            event.getMessage().delete().queue();
             used.add(input);
             if (answer.equals(input)) { //if input is right win game
                 Arrays.fill(progress, true);
@@ -136,7 +131,8 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
         char inputChar = input.charAt(0);
 
-        if (!Character.isLetter(inputChar)) return null;
+        if (!Character.isLetter(inputChar))
+            return null;
 
         if (!used.contains(String.valueOf(inputChar))) {
             used.add(String.valueOf(inputChar));
@@ -148,18 +144,46 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
                 }
             }
 
-            if (!successful) onWrong(String.valueOf(inputChar));
-            else onRight(String.valueOf(inputChar));
-            event.getMessage().delete();
+            if (!successful) {
+                onWrong(String.valueOf(inputChar));
+            } else {
+                onRight(String.valueOf(inputChar));
+            }
+            event.getMessage().delete().queue();
             return successful ? Response.TRUE : Response.FALSE;
         } else {
-            logStatus = LogStatus.FAILURE;
-            log = getString("used", input);
-            message.edit(getEmbed(false));
+            setLog(LogStatus.FAILURE, getString("used", input));
         }
 
-        event.getMessage().delete();
+        event.getMessage().delete().queue();
         return Response.FALSE;
+    }
+
+    private void onWrong(String input) {
+        health--;
+
+        if (health > 0) {
+            setLog(LogStatus.FAILURE, getString("wrong", input));
+        } else {
+            lose();
+        }
+    }
+
+    private void onRight(String input) {
+        boolean finished = true;
+        for (boolean set : progress) {
+            if (!set) {
+                finished = false;
+                break;
+            }
+        }
+
+        if (!finished) {
+            setLog(LogStatus.SUCCESS, getString("right", input));
+        } else {
+            setLog(LogStatus.WIN, TextManager.getString(getLocale(), TextManager.GENERAL, "won"));
+            win((double) health / (double) MAX_HEALTH);
+        }
     }
 
     private boolean stringCouldMatch(String input) { //input should be uppercase
@@ -182,73 +206,4 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         return true;
     }
 
-    private void onWrong(String input) throws ExecutionException {
-        health --;
-
-        if (health > 0) {
-            logStatus = LogStatus.FAILURE;
-            log = getString("wrong", input);
-        } else {
-            logStatus = LogStatus.LOSE;
-            log = TextManager.getString(getLocale(), TextManager.GENERAL, "lost");
-            lose();
-        }
-
-        message.edit(getEmbed(true));
-    }
-
-    private void onRight(String input) throws ExecutionException {
-        boolean finished = true;
-        for (boolean set : progress) {
-            if (!set) {
-                finished = false;
-                break;
-            }
-        }
-
-        if (!finished) {
-            logStatus = LogStatus.SUCCESS;
-            log = getString("right", input);
-        } else {
-            logStatus = LogStatus.WIN;
-            log = TextManager.getString(getLocale(), TextManager.GENERAL, "won");
-            winMultiplicator = (double) health / (double) MAX_HEALTH;
-            win();
-        }
-
-        message.edit(getEmbed(false));
-    }
-
-    @Override
-    public Message getForwardedMessage() {
-        return message;
-    }
-
-    @Override
-    public void onForwardedTimeOut() throws Throwable {}
-
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (!active) {
-            onReactionAddRetry(event);
-            return;
-        }
-
-        if (event.getEmoji().isUnicodeEmoji() && event.getEmoji().asUnicodeEmoji().get().equals("❌")) {
-            onAbort();
-            message.edit(getEmbed(false));
-        }
-    }
-
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable {
-        if (active) {
-            onAbort();
-        }
-    }
 }

@@ -49,11 +49,7 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onGameStart(GuildMessageReceivedEvent event) throws ExecutionException, InterruptedException {
-        if (!isAllowBet()) {
-            setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "nobet"));
-        }
-
+    public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         String dataString, diffString;
         JSONObject data;
         dataString = HttpRequest.getData(url).get().getContent().get();
@@ -95,8 +91,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
-        setEmojis(Arrays.copyOf(LetterEmojis.LETTERS, answers.length));
-        return true;
+        return Arrays.copyOf(LetterEmojis.LETTERS, answers.length);
     }
 
     @Override
@@ -111,7 +106,7 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     @Override
-    public EmbedBuilder drawCasino() {
+    public EmbedBuilder drawCasino(String playerName) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(getString("question"), question,false)
                 .addField(getString("answers"), getAnswersString(),false);
@@ -120,9 +115,10 @@ public class QuizCommand extends CasinoAbstract {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
 
         String label = "tutorial";
-        if (getStatus() == Status.ACTIVE) label = "tutorial_start";
+        if (getStatus() == Status.ACTIVE)
+            label = "tutorial_start";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(label, getMember().get().getEffectiveName(), StringUtil.numToString(getCoinsInput()), Emojis.COUNTDOWN_10), false);
+        eb.addField(Emojis.EMPTY_EMOJI, getString(label, playerName, StringUtil.numToString(getCoinsInput()), Emojis.COUNTDOWN_10), false);
         return eb;
     }
 
