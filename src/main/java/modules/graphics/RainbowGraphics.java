@@ -1,17 +1,19 @@
 package modules.graphics;
 
-import core.ResourceHandler;
-import net.dv8tion.jda.api.entities.User;
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
+import javax.imageio.ImageIO;
+import core.ResourceHandler;
+import net.dv8tion.jda.api.entities.User;
 
 public class RainbowGraphics {
 
-    public static InputStream createImageRainbow(User user, long opacity) throws ExecutionException, InterruptedException, IOException {
+    public static InputStream createImageRainbow(User user, long opacity) throws IOException {
         BufferedImage image = ImageIO.read(new URL(user.getEffectiveAvatarUrl()));
         double scale = 1.5;
         image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));

@@ -84,7 +84,9 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                         );
 
                         if (image != null) {
-                            channel.sendMessage(content).addFile(image, "welcome.png").queue();
+                            channel.sendMessage(content)
+                                    .addFile(image, "welcome.png")
+                                    .queue();
                         } else {
                             channel.sendMessage(content).queue();
                         }

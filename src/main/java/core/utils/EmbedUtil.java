@@ -82,7 +82,6 @@ public class EmbedUtil {
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command) {
         command.getMember().ifPresent(member -> eb.setFooter(member.getUser().getAsTag()));
-
         return eb;
     }
 

@@ -5,6 +5,8 @@ import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "avatar",
@@ -19,9 +21,10 @@ public class AvatarCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
-        String avatarUrl = user.getAvatar().getUrl().toString() + "?size=2048";
-        return EmbedFactory.getEmbedDefault(this, getString("template",user.getDisplayName(server), avatarUrl)).setImage(avatarUrl);
+    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+        String avatarUrl = member.getUser().getEffectiveAvatarUrl() + "?size=2048";
+        return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName(), avatarUrl))
+                .setImage(avatarUrl);
     }
 
 }

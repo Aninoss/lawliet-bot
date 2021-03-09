@@ -7,6 +7,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "acc",
@@ -22,7 +23,7 @@ public class AccountCommand extends FisheryMemberAccountInterface {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Member member, boolean userIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberBean(member.getIdLong())
                 .getAccountEmbed();
     }

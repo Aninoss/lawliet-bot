@@ -1,54 +1,59 @@
 package commands.runnables.gimmickscategory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.graphics.RainbowGraphics;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "rainbow",
-        botPermissions = PermissionDeprecated.ATTACH_FILES,
+        botPermissions = Permission.MESSAGE_ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83C\uDF08",
         executableWithoutArgs = true,
-        aliases = {"lgbt", "pride"}
+        aliases = { "lgbt", "pride" }
 )
 public class RainbowCommand extends MemberAccountAbstract {
 
-    private long opacity;
+    private InputStream inputStream;
 
     public RainbowCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected void init(MessageCreateEvent event, String args) throws Throwable {
-        opacity = StringUtil.filterLongFromString(args);
+    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws IOException {
+        long opacity = StringUtil.filterLongFromString(args);
         if (opacity == -1) opacity = 50;
         if (opacity < 0) opacity = 0;
         if (opacity > 100) opacity = 100;
+
+        inputStream = RainbowGraphics.createImageRainbow(member.getUser(), opacity);
+        return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
+                .setImage("attachment://avatar.png");
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
-        return EmbedFactory.getEmbedDefault(this,getString("template",user.getDisplayName(server)))
-                .setImage(RainbowGraphics.createImageRainbow(user, opacity));
-    }
-
-    @Override
-    protected void afterMessageSend(Message message, User user, boolean userIsAuthor) throws Throwable {
-        if (message != null) {
-            message.getEmbeds().get(0).getImage().ifPresent(image -> {
-                String urlString = image.getUrl().toString();
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault().setDescription(getString("template2", urlString));
-                EmbedUtil.setFooter(eb, this);
-                message.getServerTextChannel().get().sendMessage(eb).exceptionally(ExceptionLogger.get());
-            });
-        }
+    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+        channel.sendMessage(eb)
+                .addFile(inputStream, "avatar.png")
+                .queue(message -> {
+                    EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
+                            .setDescription(getString("template2", message.getEmbeds().get(0).getImage().getProxyUrl()));
+                    EmbedUtil.setFooter(eb2, this);
+                    message.getTextChannel().sendMessage(eb2.build()).queue();
+                });
     }
 
 }

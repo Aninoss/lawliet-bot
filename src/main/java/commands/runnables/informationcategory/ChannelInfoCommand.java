@@ -1,30 +1,27 @@
 package commands.runnables.informationcategory;
 
-import commands.listeners.CommandProperties;
-
-import commands.Command;
-import core.EmbedFactory;
-import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
-import core.TextManager;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import core.EmbedFactory;
+import core.TextManager;
+import core.utils.EmbedUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "channelinfo",
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true,
-        aliases = {"channelinfos", "channelstat", "channelstats"}
+        aliases = { "channelinfos", "channelstat", "channelstats" }
 )
 public class ChannelInfoCommand extends Command {
 
@@ -35,40 +32,38 @@ public class ChannelInfoCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         boolean noMention = false;
-        Server server = event.getServer().get();
-        ArrayList<ServerTextChannel> list = MentionUtil.getTextChannels(event.getMessage(), args).getList();
-        if (list.size() > 5) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(),TextManager.GENERAL,"too_many_channels"))).get();
-            return false;
-        } else if (list.size() == 0) {
-            list.add(event.getServerTextChannel().get());
+        Guild guild = event.getGuild();
+        ArrayList<TextChannel> list = MentionUtil.getTextChannels(event.getMessage(), args).getList();
+        if (list.size() == 0) {
+            list.add(event.getChannel());
             noMention = true;
         }
 
-        for(ServerTextChannel channel: list) {
-            List<User> members = channel.getServer().getMembers().stream().filter(channel::canSee).collect(Collectors.toList());
+        TextChannel channel = list.get(0);
+        List<Member> members = channel.getMembers();
 
-            String[] args = {
-                    StringUtil.escapeMarkdown(channel.getName()),
-                    channel.getIdAsString(),
-                    TimeUtil.getInstantString(getLocale(), channel.getCreationTimestamp(), true),
-                    StringUtil.numToString(members.size()),
-                    StringUtil.numToString(members.stream().filter(member -> !member.isBot()).count()),
-                    StringUtil.numToString(members.stream().filter(User::isBot).count())
-            };
+        String[] argsArray = {
+                StringUtil.escapeMarkdown(channel.getName()),
+                channel.getId(),
+                TimeUtil.getInstantString(getLocale(), channel.getTimeCreated().toInstant(), true),
+                StringUtil.numToString(members.size()),
+                StringUtil.numToString(members.stream().filter(member -> !member.getUser().isBot()).count()),
+                StringUtil.numToString(members.stream().filter(member -> member.getUser().isBot()).count())
+        };
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", args));
-            if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
-
-            if (noMention) {
-                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
-                if (args.length() > 0)
-                    EmbedUtil.addNoResultsLog(eb, getLocale(), args);
-            }
-
-            event.getServerTextChannel().get().sendMessage(eb).get();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", argsArray));
+        if (guild.getIconUrl() != null) {
+            eb.setThumbnail(guild.getIconUrl());
         }
+
+        if (noMention) {
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
+            if (args.length() > 0) {
+                EmbedUtil.addNoResultsLog(eb, getLocale(), args);
+            }
+        }
+
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 

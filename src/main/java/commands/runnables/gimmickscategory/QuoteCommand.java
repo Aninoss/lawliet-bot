@@ -1,26 +1,31 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
-import commands.Command;
-import core.EmbedFactory;
-import core.ShardManager;
-import core.mention.MentionList;
-import core.utils.MentionUtil;
-import core.TextManager;
-import core.utils.StringUtil;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import core.EmbedFactory;
+import core.TextManager;
+import core.cache.MessageCache;
+import core.mention.MentionList;
+import core.utils.BotPermissionUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
+import modules.MessageQuote;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "quote",
-        botPermissions = PermissionDeprecated.READ_MESSAGE_HISTORY,
-        userPermissions = PermissionDeprecated.READ_MESSAGE_HISTORY,
+        botPermissions = Permission.MESSAGE_HISTORY,
+        userChannelPermissions = Permission.MESSAGE_HISTORY,
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = false,
-        aliases = {"qoute"}
+        aliases = { "qoute" }
 )
 public class QuoteCommand extends Command {
 
@@ -29,47 +34,45 @@ public class QuoteCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        User user = event.getMessage().getUserAuthor().get();
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        ArrayList<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), args).get().getList();
 
-        //Message Link
-        ArrayList<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), args).getList();
+        // message link
         if (directMessage.size() > 0) {
-            for(Message message : directMessage) {
-                if (message.getChannel().canSee(user) && message.getChannel().canReadMessageHistory(user)) {
-                    postEmbed(event.getMessage().getServerTextChannel().get(), message);
+            for (Message message : directMessage) {
+                if (BotPermissionUtil.canRead(message.getTextChannel())) {
+                    MessageQuote.postQuote(getLocale(), event.getChannel(), message, false);
                     return true;
                 }
             }
         }
 
         if (args.length() > 0) {
-            MentionList<ServerTextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
+            MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
             String newString = channelMention.getResultMessageString();
-            ServerTextChannel channel = channelMention.getList().isEmpty() ? event.getServerTextChannel().get() : channelMention.getList().get(0);
+            TextChannel channel = channelMention.getList().isEmpty() ? event.getChannel() : channelMention.getList().get(0);
 
-            //ID with channel
+            // id with channel
             if (StringUtil.stringIsLong(newString)) {
-                Message message = ShardManager.getInstance().getMessageById(channel, Long.parseLong(newString)).join().orElse(null);
-                if (message != null) {
-                    postEmbed(event.getMessage().getServerTextChannel().get(), message);
+                try {
+                    Message message = MessageCache.getInstance().get(channel, Long.parseLong(newString)).get();
+                    MessageQuote.postQuote(getLocale(), channel, message, false);
                     return true;
+                } catch (ExecutionException | InterruptedException e) {
+                    //Ignore
                 }
             }
 
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
-                    .setDescription(getString("noresult_channel", newString, channel.getMentionTag()));
-            event.getChannel().sendMessage(eb).get();
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                    .setDescription(getString("noresult_channel", newString, channel.getAsMention()));
+            event.getChannel().sendMessage(eb.build()).queue();
             return false;
         } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getUserAuthor().get().getMentionTag()));
-            event.getChannel().sendMessage(eb).get();
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getMember().getAsMention()));
+            event.getChannel().sendMessage(eb.build()).queue();
             return false;
         }
     }
 
-    public void postEmbed(ServerTextChannel channel, Message searchedMessage) throws IOException, ExecutionException, InterruptedException {
-        postEmbed(channel, searchedMessage, false);
-    }
 }

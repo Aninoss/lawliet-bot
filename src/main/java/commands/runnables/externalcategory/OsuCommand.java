@@ -2,7 +2,6 @@ package commands.runnables.externalcategory;
 
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import commands.runnables.MemberAccountAbstract;
@@ -23,7 +22,9 @@ import mysql.modules.osuaccounts.OsuBeanBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
@@ -36,12 +37,13 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class OsuCommand extends MemberAccountAbstract implements OnReactionListener {
 
-    private enum Status {DEFAULT, CONNECTING, ABORTED}
+    private enum Status { DEFAULT, CONNECTING, ABORTED }
 
     private final static String EMOJI_CONNECT = "🔍";
     private final static String EMOJI_CANCEL = "❌";
     private final static String GUEST = "Guest";
 
+    private boolean memberIsAuthor;
     private String gameMode = "osu";
     private int gameModeSlot = 0;
     private Status status = Status.DEFAULT;
@@ -53,7 +55,9 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Member member, boolean userIsAuthor, String args) throws ExecutionException, InterruptedException {
+    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+        this.memberIsAuthor = memberIsAuthor;
+
         boolean userExists = false;
         CustomObservableMap<Long, OsuBeanBean> osuMap = DBOsuAccounts.getInstance().retrieve();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", member.getEffectiveName()));
@@ -67,7 +71,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
             }
         }
 
-        if (userIsAuthor && OsuAccountSync.getInstance().getUserInCache(member.getIdLong()).isEmpty()) {
+        if (memberIsAuthor && OsuAccountSync.getInstance().getUserInCache(member.getIdLong()).isEmpty()) {
             EmbedUtil.addLog(eb, getString("react", userExists, EMOJI_CONNECT));
         }
 
@@ -92,29 +96,15 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
         }
     }
 
-    private EmbedBuilder generateAccountEmbed(Member member, OsuAccount acc) {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .setTitle(getString("embedtitle", gameModeSlot, StringUtil.escapeMarkdown(acc.getUsername()), acc.getCountryEmoji()))
-                .setDescription(getString(
-                        "main",
-                        StringUtil.numToString(acc.getPp()),
-                        acc.getGlobalRank().map(StringUtil::numToString).orElse("?"),
-                        acc.getCountryRank().map(StringUtil::numToString).orElse("?"),
-                        String.valueOf(acc.getAccuracy()),
-                        String.valueOf(acc.getLevel()),
-                        String.valueOf(acc.getLevelProgress())
-                ))
-                .setThumbnail(acc.getAvatarUrl());
-        return EmbedUtil.setMemberAuthor(eb, member);
-    }
-
     @Override
-    protected void after(Message message, Member member, boolean userIsAuthor) {
-        if (userIsAuthor) {
-            setDrawMessageId(message.getIdLong());
-            registerReactionListener();
-            message.getTextChannel().addReactionById(message.getIdLong(), EMOJI_CONNECT).queue();
-        }
+    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+        channel.sendMessage(eb).queue(message -> {
+            if (memberIsAuthor) {
+                setDrawMessageId(message.getIdLong());
+                registerReactionListener();
+                message.getTextChannel().addReactionById(message.getIdLong(), EMOJI_CONNECT).queue();
+            }
+        });
     }
 
     @Override
@@ -201,6 +191,22 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                 }
                 return eb;
         }
+    }
+
+    private EmbedBuilder generateAccountEmbed(Member member, OsuAccount acc) {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                .setTitle(getString("embedtitle", gameModeSlot, StringUtil.escapeMarkdown(acc.getUsername()), acc.getCountryEmoji()))
+                .setDescription(getString(
+                        "main",
+                        StringUtil.numToString(acc.getPp()),
+                        acc.getGlobalRank().map(StringUtil::numToString).orElse("?"),
+                        acc.getCountryRank().map(StringUtil::numToString).orElse("?"),
+                        String.valueOf(acc.getAccuracy()),
+                        String.valueOf(acc.getLevel()),
+                        String.valueOf(acc.getLevelProgress())
+                ))
+                .setThumbnail(acc.getAvatarUrl());
+        return EmbedUtil.setMemberAuthor(eb, member);
     }
 
 }

@@ -9,6 +9,7 @@ import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "roll",
@@ -35,11 +36,15 @@ public class RollCommand extends Command {
         else {
             border = Double.parseDouble(args);
             if (border < 2) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "2"))).get();
+                event.getChannel().sendMessage(
+                        EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "2")).build()
+                ).queue();
                 return false;
             }
             if (border > 999999999999999999.0) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "999999999999999999"))).get();
+                event.getChannel().sendMessage(
+                        EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "999999999999999999")).build()
+                ).queue();
                 return false;
             }
         }
@@ -47,9 +52,9 @@ public class RollCommand extends Command {
         drawn = Math.floor(n.nextDouble()*border)+1;
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
-                getString("result", StringUtil.escapeMarkdown(event.getMessage().getAuthor().getDisplayName()), String.valueOf((long) drawn),String.valueOf((long) border)));
+                getString("result", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), String.valueOf((long) drawn),String.valueOf((long) border)));
         if (!userMentioned) EmbedUtil.setFooter(eb, this, getString("noarg"));
-        event.getChannel().sendMessage(eb).get();
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 }

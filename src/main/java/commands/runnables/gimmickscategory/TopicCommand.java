@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import javax.annotation.CheckReturnValue;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
@@ -15,6 +15,9 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 @CommandProperties(
         trigger = "topic",
@@ -29,17 +32,18 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        send(event.getServerTextChannel().get());
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException {
+        send(event.getChannel()).queue();
         return true;
     }
 
-    private void send(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
+    @CheckReturnValue
+    private MessageAction send(TextChannel channel) throws IOException {
         List<String> topicList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/topics_" + getLocale().getDisplayName() + ".txt"));
-        int n = RandomPicker.getInstance().pick(getTrigger(), channel.getServer().getId(), topicList.size());
+        int n = RandomPicker.getInstance().pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size());
         String topic = topicList.get(n);
 
-        channel.sendMessage(EmbedFactory.getEmbedDefault(this, topic)).get();
+        return channel.sendMessage(EmbedFactory.getEmbedDefault(this, topic).build());
     }
 
     @Override
@@ -54,11 +58,11 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
                     TextManager.getString(getLocale(), TextManager.GENERAL, "number", StringUtil.numToString(MIN_MINUTES), StringUtil.numToString(MAX_MINUTES)));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
-            slot.getChannel().get().sendMessage(eb).get();
+            slot.getTextChannel().get().sendMessage(eb.build()).complete();
             return TrackerResult.STOP_AND_DELETE;
         }
 
-        send(slot.getChannel().get());
+        send(slot.getTextChannel().get()).complete();
         slot.setNextRequest(Instant.now().plus(minutes, ChronoUnit.MINUTES));
 
         return TrackerResult.CONTINUE_AND_SAVE;

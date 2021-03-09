@@ -1,20 +1,22 @@
 package commands.runnables.gimmickscategory;
 
-import commands.listeners.CommandProperties;
+import java.util.Locale;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.RandomPicker;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "fortune",
         emoji = "❓",
         executableWithoutArgs = false,
-        aliases = {"question", "8ball"}
+        aliases = { "question", "8ball" }
 )
 public class FortuneCommand extends Command {
 
@@ -26,11 +28,13 @@ public class FortuneCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
         if (args.length() > 0) {
-            event.getChannel().sendMessage(getEmbed(message, args)).get();
+            event.getChannel().sendMessage(getEmbed(message, args).build()).queue();
             return true;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    getString("no_arg"))).get();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                    this,
+                    getString("no_arg")
+            ).build()).queue();
             return false;
         }
     }
@@ -48,12 +52,17 @@ public class FortuneCommand extends Command {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("question", StringUtil.escapeMarkdown(message.getAuthor().getDisplayName())), question)
-                .addField(getString("answer"), answer);
+                .addField(getString("question", StringUtil.escapeMarkdown(message.getMember().getEffectiveName())), question, false)
+                .addField(getString("answer"), answer, false);
 
-        if (answerRaw.equals("%GifNo")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665289359786014/godno.jpg");
-        if (answerRaw.equals("%GifYes")) eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665290601037904/yes.gif");
+        if (answerRaw.equals("%GifNo")) {
+            eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665289359786014/godno.jpg");
+        }
+        if (answerRaw.equals("%GifYes")) {
+            eb.setImage("https://cdn.discordapp.com/attachments/711665117770547223/711665290601037904/yes.gif");
+        }
 
         return eb;
     }
+
 }

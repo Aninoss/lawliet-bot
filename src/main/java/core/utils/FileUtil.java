@@ -1,13 +1,12 @@
 package core.utils;
 
-import core.ResourceHandler;
-import net.dv8tion.jda.api.entities.Message;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import javax.imageio.ImageIO;
+import core.ResourceHandler;
+import net.dv8tion.jda.api.entities.Message;
 
 public class FileUtil {
 
