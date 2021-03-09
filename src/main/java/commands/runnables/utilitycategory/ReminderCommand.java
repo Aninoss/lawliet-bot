@@ -1,27 +1,27 @@
 package commands.runnables.utilitycategory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionAddListener;
 import core.CustomObservableMap;
 import core.EmbedFactory;
-import core.MainLogger;
 import core.TextManager;
 import core.mention.MentionList;
-import core.utils.MentionUtil;
 import core.utils.BotPermissionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.javacord.api.event.message.reaction.SingleReactionEvent;
 import org.javacord.api.util.logging.ExceptionLogger;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "reminder",

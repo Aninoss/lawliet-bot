@@ -1,29 +1,28 @@
 package events.discordevents.guildmessagereceived;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import commands.CommandManager;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
-import core.MainLogger;
+import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
-import core.ShardManager;
 import core.utils.MentionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
+import lombok.extern.log4j.Log4j2;
 import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {

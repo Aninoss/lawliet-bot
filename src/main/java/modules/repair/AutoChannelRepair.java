@@ -1,24 +1,19 @@
 package modules.repair;
 
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
-import constants.Category;
-import core.ShardManager;
-import core.MainLogger;
 import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.ShardManager;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
-
-import java.sql.SQLException;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class AutoChannelRepair {
 

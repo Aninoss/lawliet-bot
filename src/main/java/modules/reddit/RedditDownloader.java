@@ -1,5 +1,13 @@
 package modules.reddit;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import constants.Category;
 import constants.Locales;
 import core.MainLogger;
@@ -11,14 +19,6 @@ import core.utils.StringUtil;
 import modules.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public class RedditDownloader {
 
@@ -53,22 +53,10 @@ public class RedditDownloader {
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
 
         HttpResponse httpResponse = InternetCache.getDataShortLived(downloadUrl).get();
-        if (httpResponse.getContent().isEmpty()) {
+        JSONObject tempData = httpResponseToJson(httpResponse);
+        if (tempData == null)
             return null;
-        }
 
-        String dataString = httpResponse.getContent().get();
-        if (!dataString.startsWith("{")) {
-            return null;
-        }
-
-        JSONObject root = new JSONObject(dataString);
-        if (root.has("error") && root.getInt("error") == 429) {
-            nextRequestBlockUntil = Instant.now().plus(TIMEOUT_MIN, ChronoUnit.MINUTES);
-            return null;
-        }
-
-        JSONObject tempData = root.getJSONObject("data");
         if (!tempData.isNull("after")) postReference = tempData.getString("after");
         else postReference = "";
 
@@ -92,13 +80,28 @@ public class RedditDownloader {
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
+        JSONObject tempData = httpResponseToJson(httpResponse);
+        if (tempData == null)
+            return null;
+
+        JSONArray postData = filterPostData(tempData.getJSONArray("children"));
+        if (postData.length() <= 0) return null;
+
+        ArrayList<String> postedIdList = new ArrayList<>();
+        if (arg != null) postedIdList.addAll(Arrays.asList(arg.split("\\|")));
+
+        return trackerProcess(locale, postData, postedIdList);
+    }
+
+    private static JSONObject httpResponseToJson(HttpResponse httpResponse) {
         if (httpResponse.getContent().isEmpty()) {
             return null;
         }
 
         String dataString = httpResponse.getContent().get();
-        if (!dataString.startsWith("{"))
+        if (!dataString.startsWith("{")) {
             return null;
+        }
 
         JSONObject root = new JSONObject(dataString);
         if (root.has("error") && root.getInt("error") == 429) {
@@ -106,13 +109,7 @@ public class RedditDownloader {
             return null;
         }
 
-        JSONArray postData = filterPostData(root.getJSONObject("data").getJSONArray("children"));
-        if (postData.length() <= 0) return null;
-
-        ArrayList<String> postedIdList = new ArrayList<>();
-        if (arg != null) postedIdList.addAll(Arrays.asList(arg.split("\\|")));
-
-        return trackerProcess(locale, postData, postedIdList);
+        return root.getJSONObject("data");
     }
 
     private static PostBundle<RedditPost> trackerProcess(Locale locale, JSONArray postData, ArrayList<String> postedIdList) {

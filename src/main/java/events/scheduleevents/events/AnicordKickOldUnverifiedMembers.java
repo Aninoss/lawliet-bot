@@ -1,15 +1,15 @@
 package events.scheduleevents.events;
 
-import constants.AssetIds;
-import core.Bot;
-import core.ShardManager;
-import core.MainLogger;
-import core.schedule.ScheduleInterface;
-import events.scheduleevents.ScheduleEventHourly;
-import net.dv8tion.jda.api.entities.Role;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
+import constants.AssetIds;
+import core.Bot;
+import core.MainLogger;
+import core.ShardManager;
+import core.schedule.ScheduleInterface;
+import events.scheduleevents.ScheduleEventHourly;
+import net.dv8tion.jda.api.entities.Role;
 
 @ScheduleEventHourly
 public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {

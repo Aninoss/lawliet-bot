@@ -38,7 +38,8 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
     private boolean wrongAnswer = false;
 
     public HangmanCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true);
+        //TODO: turn off bets
+        super(locale, prefix, false, true);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package core;
 
-import core.utils.BotUtil;
 import java.time.Instant;
+import core.utils.BotUtil;
 
 public class Bot {
 

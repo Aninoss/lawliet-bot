@@ -1,21 +1,25 @@
 package core;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import constants.Emojis;
 import constants.Locales;
 import core.utils.StringUtil;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import lombok.extern.log4j.Log4j2;
 
 public class TextManager {
 
     public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", VERSIONS = "versions", FAQ = "faq";
+
+    private static final HashMap<String, ResourceBundle> bundles = new HashMap<>();
 
     public static String getString(Locale locale, String category, String key, String... args) {
         return getString(locale, category, key, -1, args);
     }
 
     public static String getString(Locale locale, String category, String key, int option, String... args) {
-        ResourceBundle texts = ResourceBundle.getBundle(category, locale, new UTF8Control());
+        ResourceBundle texts = bundles.computeIfAbsent(category, k -> ResourceBundle.getBundle(category, locale, new UTF8Control()));
 
         if (!texts.containsKey(key)) {
             MainLogger.get().error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());

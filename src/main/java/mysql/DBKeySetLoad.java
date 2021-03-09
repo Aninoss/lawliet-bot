@@ -1,11 +1,11 @@
 package mysql;
 
-import core.MainLogger;
-import mysql.interfaces.SQLFunction;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import core.MainLogger;
+import mysql.interfaces.SQLFunction;
 
 public class DBKeySetLoad<T> {
 

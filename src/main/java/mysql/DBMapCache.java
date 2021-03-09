@@ -1,13 +1,13 @@
 package mysql;
 
-import core.MainLogger;
+import java.time.Duration;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public abstract class DBMapCache<T, U extends Observable> extends DBCache implements Observer {
 

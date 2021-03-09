@@ -1,8 +1,5 @@
 package mysql;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
-import core.MainLogger;
-import mysql.interfaces.SQLConsumer;
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -14,6 +11,9 @@ import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.mysql.cj.jdbc.MysqlDataSource;
+import core.MainLogger;
+import mysql.interfaces.SQLConsumer;
 
 public class DBMain implements DriverAction {
 

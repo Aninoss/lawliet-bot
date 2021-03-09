@@ -1,14 +1,14 @@
 package mysql;
 
-import core.MainLogger;
-import mysql.interfaces.SQLConsumer;
-import mysql.interfaces.SQLFunction;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import lombok.extern.log4j.Log4j2;
+import mysql.interfaces.SQLConsumer;
+import mysql.interfaces.SQLFunction;
 
 public class DBDataLoad<T> {
 

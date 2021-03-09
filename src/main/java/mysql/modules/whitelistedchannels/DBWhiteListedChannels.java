@@ -1,11 +1,9 @@
 package mysql.modules.whitelistedchannels;
 
-import mysql.DBMapCache;
+import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
+import mysql.DBMapCache;
 
 public class DBWhiteListedChannels extends DBMapCache<Long, WhiteListedChannelsBean> {
 

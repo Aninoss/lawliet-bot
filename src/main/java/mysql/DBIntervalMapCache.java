@@ -1,14 +1,14 @@
 package mysql;
 
-import core.Bot;
-import core.CustomThread;
-import core.IntervalBlock;
-import core.MainLogger;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Predicate;
+import core.Bot;
+import core.CustomThread;
+import core.IntervalBlock;
+import lombok.extern.log4j.Log4j2;
 
 public abstract class DBIntervalMapCache<T, U extends Observable> extends DBMapCache<T, U> implements Observer {
 

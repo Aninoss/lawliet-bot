@@ -1,7 +1,7 @@
 package events.discordevents.guildleave;
 
-import core.ShardManager;
 import core.MainLogger;
+import core.ShardManager;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;

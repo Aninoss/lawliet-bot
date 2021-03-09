@@ -1,8 +1,8 @@
 package websockets;
 
+import java.util.concurrent.ExecutionException;
 import constants.AssetIds;
 import org.discordbots.api.client.DiscordBotListAPI;
-import java.util.concurrent.ExecutionException;
 
 public class TopGG {
 

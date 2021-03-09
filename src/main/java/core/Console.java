@@ -1,11 +1,18 @@
 package core;
 
+import java.lang.management.ManagementFactory;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.*;
 import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Locales;
 import core.cache.PatreonCache;
-import core.utils.*;
+import core.utils.ExceptionUtil;
+import core.utils.InternetUtil;
+import core.utils.JDAUtil;
+import core.utils.TimeUtil;
 import events.scheduleevents.events.SurveyResults;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
@@ -15,11 +22,6 @@ import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import websockets.syncserver.SyncManager;
-
-import java.lang.management.ManagementFactory;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.*;
 
 public class Console {
 

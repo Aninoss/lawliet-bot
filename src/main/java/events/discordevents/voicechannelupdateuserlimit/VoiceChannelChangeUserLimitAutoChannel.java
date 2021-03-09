@@ -1,5 +1,7 @@
 package events.discordevents.voicechannelupdateuserlimit;
 
+import java.util.ArrayList;
+import java.util.Locale;
 import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
@@ -11,14 +13,12 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdateUserLimitEvent;
-import java.util.ArrayList;
-import java.util.Locale;
 
 @DiscordEvent
 public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUserLimitAbstract {
 
     @Override
-    public boolean onVoiceChannelUpdateUserLimit(VoiceChannelUpdateUserLimitEvent event) throws Throwable {
+    public boolean onVoiceChannelUpdateUserLimit(VoiceChannelUpdateUserLimitEvent event) {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getIdLong() == childChannelId) {

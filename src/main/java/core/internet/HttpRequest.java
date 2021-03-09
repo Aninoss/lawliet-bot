@@ -1,8 +1,5 @@
 package core.internet;
 
-import core.GlobalThreadPool;
-import core.MainLogger;
-import core.utils.BotUtil;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,6 +8,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import core.GlobalThreadPool;
+import core.utils.BotUtil;
+import lombok.extern.log4j.Log4j2;
 
 public class HttpRequest {
 
@@ -44,7 +44,8 @@ public class HttpRequest {
 
     private static void download(CompletableFuture<HttpResponse> future, String urlString, String method, int pauseTimeMilis, String body, HttpProperty... headers) {
         try {
-            if (MainLogger.get().isDebugEnabled()) MainLogger.get().debug("Downloading from url {}", urlString);
+            if (MainLogger.get().isDebugEnabled())
+                MainLogger.get().debug("Downloading from url {}", urlString);
 
             BufferedReader br;
             String line;

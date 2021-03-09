@@ -1,11 +1,10 @@
 package events.discordevents;
 
-import core.ShardManager;
+import java.util.ArrayList;
 import core.MainLogger;
+import core.ShardManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.entities.User;
-
-import java.util.ArrayList;
 
 public abstract class DiscordEventAbstract {
 

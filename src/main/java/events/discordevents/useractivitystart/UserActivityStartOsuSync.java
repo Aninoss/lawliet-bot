@@ -6,7 +6,7 @@ import modules.osu.OsuAccountCheck;
 import modules.osu.OsuAccountSync;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 
-@DiscordEvent()
+@DiscordEvent
 public class UserActivityStartOsuSync extends UserActivityStartAbstract {
 
     @Override

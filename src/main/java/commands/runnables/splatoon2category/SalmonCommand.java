@@ -16,6 +16,7 @@ import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -52,7 +53,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
         };
 
         JSONArray salmonData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get()).getJSONArray("details");
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get());;
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get());
 
         Instant[] startTime = new Instant[datesShown];
         Instant[] endTime = new Instant[datesShown];

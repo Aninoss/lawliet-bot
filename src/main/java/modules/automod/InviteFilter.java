@@ -1,5 +1,9 @@
 package modules.automod;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
 import constants.AssetIds;
@@ -15,11 +19,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class InviteFilter extends AutoModAbstract {
 

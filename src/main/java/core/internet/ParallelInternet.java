@@ -1,10 +1,10 @@
 package core.internet;
 
-import core.MainLogger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import core.MainLogger;
 
 public class ParallelInternet {
 

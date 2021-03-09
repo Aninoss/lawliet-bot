@@ -1,13 +1,13 @@
 package events.discordevents.guildupdateboostcount;
 
+import java.util.Locale;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUpdateBoostCountAbstract;
 import modules.MemberCountDisplay;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
-import java.util.Locale;
 
-@DiscordEvent()
+@DiscordEvent
 public class GuildUpdateBoostCountMCDisplays extends GuildUpdateBoostCountAbstract {
 
     @Override

@@ -1,12 +1,5 @@
 package modules.animenews;
 
-import constants.Language;
-import core.MainLogger;
-import core.internet.HttpResponse;
-import core.internet.InternetCache;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
-import modules.PostBundle;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -14,6 +7,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import constants.Language;
+import core.MainLogger;
+import core.internet.HttpResponse;
+import core.internet.InternetCache;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
+import modules.PostBundle;
 
 public class AnimeNewsDownloader {
 

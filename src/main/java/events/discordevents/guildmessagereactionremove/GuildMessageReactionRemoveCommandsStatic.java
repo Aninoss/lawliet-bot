@@ -1,15 +1,15 @@
 package events.discordevents.guildmessagereactionremove;
 
-import commands.listeners.OnStaticReactionRemoveListener;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
-import core.MainLogger;
 import core.ShardManager;
 import core.cache.MessageCache;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionRemoveAbstract;
+import lombok.extern.log4j.Log4j2;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.MessageEmbed;

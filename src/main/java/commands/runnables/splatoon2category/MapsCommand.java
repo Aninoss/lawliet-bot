@@ -17,6 +17,7 @@ import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -59,7 +60,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
 
         JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get());
         JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).get().getContent().get());;
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).get().getContent().get());
         boolean isSplatfest = false;
         String festMapName;
         String[] festTeams = new String[2];

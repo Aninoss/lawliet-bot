@@ -1,11 +1,17 @@
 package commands;
 
+import java.time.Duration;
+import java.util.*;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
-import commands.listeners.*;
+import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnStaticReactionRemoveListener;
+import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.aitoyscategory.ColorCommand;
-import commands.runnables.aitoyscategory.*;
+import commands.runnables.aitoyscategory.DeepDreamCommand;
+import commands.runnables.aitoyscategory.ImitateCommand;
+import commands.runnables.aitoyscategory.Waifu2xCommand;
 import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.CommandManagementCommand;
 import commands.runnables.configurationcategory.LanguageCommand;
@@ -25,9 +31,7 @@ import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
 import constants.Settings;
-import core.MainLogger;
-import java.time.Duration;
-import java.util.*;
+import lombok.extern.log4j.Log4j2;
 
 public class CommandContainer {
 
@@ -273,7 +277,8 @@ public class CommandContainer {
     }
 
     private void addCommand(String trigger, Command command) {
-        if (commandMap.containsKey(trigger)) MainLogger.get().error("Duplicate key for \"" + command.getTrigger() + "\"");
+        if (commandMap.containsKey(trigger))
+            MainLogger.get().error("Duplicate key for \"" + command.getTrigger() + "\"");
         else commandMap.put(trigger, command.getClass());
     }
 

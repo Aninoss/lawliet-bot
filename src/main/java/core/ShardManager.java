@@ -14,6 +14,7 @@ import core.cache.ExternalGuildNameCache;
 import core.cache.SingleCache;
 import core.schedule.MainScheduler;
 import core.utils.JDAUtil;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;

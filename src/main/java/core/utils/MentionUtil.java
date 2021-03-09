@@ -1,15 +1,5 @@
 package core.utils;
 
-import com.vdurmont.emoji.EmojiParser;
-import core.ShardManager;
-import core.MainLogger;
-import core.TextManager;
-import core.cache.PatternCache;
-import core.mention.Mention;
-import core.mention.MentionList;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,6 +10,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.vdurmont.emoji.EmojiParser;
+import core.ShardManager;
+import core.TextManager;
+import core.cache.PatternCache;
+import core.mention.Mention;
+import core.mention.MentionList;
+import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 
 public class MentionUtil {
 

@@ -9,7 +9,6 @@ import commands.runnables.MemberAccountAbstract;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
-import core.MainLogger;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -61,7 +60,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
         setGameMode(args);
 
         if (osuMap.containsKey(member.getIdLong())) {
-            Optional<OsuAccount> osuAccountOpt = OsuAccountDownloader.download(String.valueOf(osuMap.get(member.getIdLong()).getOsuId()), gameMode);
+            Optional<OsuAccount> osuAccountOpt = OsuAccountDownloader.download(String.valueOf(osuMap.get(member.getIdLong()).getOsuId()), gameMode).get();
             if (osuAccountOpt.isPresent()) {
                 userExists = true;
                 eb = generateAccountEmbed(member, osuAccountOpt.get());
@@ -136,9 +135,10 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                 String osuUsername = osuUsernameOpt.get();
                 if (!osuUsername.equals(GUEST)) {
                     removeReactionListener();
-                    Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
+                    Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
                     this.osuAccount = osuAccountOptional.orElse(null);
+                    DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuBeanBean(getMemberId().get(), this.osuAccount.getOsuId()));
                     this.status = Status.DEFAULT;
                     return true;
                 }
@@ -154,17 +154,17 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
             OsuAccountSync.getInstance().add(event.getUserIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
-                    try {
-                        removeReactionListener();
-                        OsuAccountSync.getInstance().remove(event.getUserIdLong());
-                        Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode);
-                        this.osuName = osuUsername;
-                        this.osuAccount = osuAccountOptional.orElse(null);
-                        this.status = Status.DEFAULT;
-                        drawMessage(draw());
-                    } catch (ExecutionException | InterruptedException e) {
-                        MainLogger.get().error("osu download error", e);
-                    }
+                    removeReactionListener();
+                    OsuAccountSync.getInstance().remove(event.getUserIdLong());
+                    OsuAccountDownloader.download(osuUsername, gameMode)
+                            .thenAccept(osuAccountOptional -> {
+                                this.osuName = osuUsername;
+                                this.osuAccount = osuAccountOptional.orElse(null);
+                                osuAccountOptional
+                                        .ifPresent(o -> DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuBeanBean(getMemberId().get(), o.getOsuId())));
+                                this.status = Status.DEFAULT;
+                                drawMessage(draw());
+                            });
                 }
             });
         } else if (event.getReactionEmote().getAsReactionCode().equals(EMOJI_CANCEL) &&
@@ -192,7 +192,6 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
             default:
                 if (osuAccount != null) {
-                    DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuBeanBean(getMemberId().get(), osuAccount.getOsuId()));
                     eb = generateAccountEmbed(getMember().get(), osuAccount);
                     EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
                 } else {

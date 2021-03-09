@@ -17,6 +17,7 @@ public final class InternetUtil {
     private InternetUtil() {
     }
 
+    //TODO: switching to cdn
     public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename) throws ExecutionException, InterruptedException {
         return JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, inputStream, filename)
                 .submit()

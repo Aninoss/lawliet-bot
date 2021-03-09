@@ -13,6 +13,7 @@ import constants.CodeBlockColor;
 import constants.FisheryCategoryInterface;
 import constants.LogStatus;
 import constants.Settings;
+import core.CustomObservableList;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
@@ -85,32 +86,32 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         return memberId;
     }
 
-    public Optional<List<Role>> getRoles() {
-        return fisheryGuildBean.getRoles().map(allRoles -> {
-            ArrayList<Role> userRoles = new ArrayList<>();
-            int level = getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
+    public List<Role> getRoles() {
+        CustomObservableList<Role> allRoles = fisheryGuildBean.getRoles();
 
-            if (level > allRoles.size()) {
-                level = allRoles.size();
-                setLevel(FisheryCategoryInterface.ROLE, level);
-            }
+        ArrayList<Role> userRoles = new ArrayList<>();
+        int level = getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
 
-            if (level > 0) {
-                if (fisheryGuildBean.getGuildBean().isFisherySingleRoles()) {
-                    Role role = allRoles.get(level - 1);
+        if (level > allRoles.size()) {
+            level = allRoles.size();
+            setLevel(FisheryCategoryInterface.ROLE, level);
+        }
+
+        if (level > 0) {
+            if (fisheryGuildBean.getGuildBean().isFisherySingleRoles()) {
+                Role role = allRoles.get(level - 1);
+                if (role != null)
+                    userRoles.add(role);
+            } else {
+                for (int i = 0; i <= level - 1; i++) {
+                    Role role = allRoles.get(i);
                     if (role != null)
                         userRoles.add(role);
-                } else {
-                    for (int i = 0; i <= level - 1; i++) {
-                        Role role = allRoles.get(i);
-                        if (role != null)
-                            userRoles.add(role);
-                    }
                 }
             }
+        }
 
-            return userRoles;
-        });
+        return userRoles;
     }
 
     public FisheryGuildBean getFisheryServerBean() {

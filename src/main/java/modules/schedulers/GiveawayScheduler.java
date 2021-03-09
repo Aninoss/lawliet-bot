@@ -1,5 +1,8 @@
 package modules.schedulers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
@@ -7,6 +10,7 @@ import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
+import lombok.extern.log4j.Log4j2;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.guild.DBGuild;
@@ -17,10 +21,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class GiveawayScheduler {
 

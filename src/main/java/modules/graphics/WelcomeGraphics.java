@@ -1,13 +1,5 @@
 package modules.graphics;
 
-import core.AttributedStringGenerator;
-import core.MainLogger;
-import core.ResourceHandler;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
@@ -15,6 +7,14 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.text.AttributedCharacterIterator;
+import java.util.concurrent.CompletableFuture;
+import javax.imageio.ImageIO;
+import core.AttributedStringGenerator;
+import core.MainLogger;
+import core.ResourceHandler;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 public class WelcomeGraphics {
 
@@ -29,28 +29,30 @@ public class WelcomeGraphics {
     private static final int SHADOW_SIZE = 10;
     private static final double SHADOW_OPACITY = 0.18;
 
-    public static InputStream createImageWelcome(Member member, String welcome) {
-        try {
-            BufferedImage backgroundImage = getBackgroundImage(member.getGuild());
-            BufferedImage avatarImage = getAvatarImage(member.getUser());
-            BufferedImage drawImage = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
+    public static CompletableFuture<InputStream> createImageWelcome(Member member, String welcome) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                BufferedImage backgroundImage = getBackgroundImage(member.getGuild());
+                BufferedImage avatarImage = getAvatarImage(member.getUser());
+                BufferedImage drawImage = new BufferedImage(BASE_WIDTH, BASE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
-            drawBackground(g2d, backgroundImage);
-            double lumi = drawLumi(g2d, drawImage);
-            float shadowOpacity = (float) (SHADOW_OPACITY * lumi);
+                drawBackground(g2d, backgroundImage);
+                double lumi = drawLumi(g2d, drawImage);
+                float shadowOpacity = (float) (SHADOW_OPACITY * lumi);
 
-            drawAvatar(g2d, avatarImage, shadowOpacity);
-            drawTexts(g2d, welcome, member, shadowOpacity);
+                drawAvatar(g2d, avatarImage, shadowOpacity);
+                drawTexts(g2d, welcome, member, shadowOpacity);
 
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(GraphicsUtil.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
-            g2d.dispose();
-            return new ByteArrayInputStream(os.toByteArray());
-        } catch (IOException e) {
-            MainLogger.get().error("Exception", e);
-        }
-        return null;
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(GraphicsUtil.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
+                g2d.dispose();
+                return new ByteArrayInputStream(os.toByteArray());
+            } catch (IOException e) {
+                MainLogger.get().error("Exception", e);
+            }
+            return null;
+        });
     }
 
     private static void drawTexts(Graphics2D g2d, String welcomeText, Member member, float shadowOpacity) {
@@ -75,11 +77,11 @@ public class WelcomeGraphics {
     }
 
     private static int getTextHeight(FontRenderContext frc, AttributedStringGenerator fontWelcome) {
-        return (int)fontWelcome.getStringBounds("O", frc).getHeight();
+        return (int) fontWelcome.getStringBounds("O", frc).getHeight();
     }
 
     private static int getTextX(double textWidth) {
-        return (int)(BASE_HEIGHT - SPACE + (BASE_WIDTH - BASE_HEIGHT + SPACE) / 2.0 - textWidth / 2.0);
+        return (int) (BASE_HEIGHT - SPACE + (BASE_WIDTH - BASE_HEIGHT + SPACE) / 2.0 - textWidth / 2.0);
     }
 
     private static void drawAvatar(Graphics2D g2d, BufferedImage avatarImage, float shadowOpacity) {
@@ -106,16 +108,14 @@ public class WelcomeGraphics {
     private static double getAverageLuminance(BufferedImage image) {
         double totalLuminance = 0;
         int n = 0;
-        for (int y = 0; y < image.getHeight(); y++)
-        {
-            for (int x = image.getWidth() / 3; x < image.getWidth(); x++)
-            {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = image.getWidth() / 3; x < image.getWidth(); x++) {
                 int color = image.getRGB(x, y);
 
                 // extract each color component
-                int red   = (color >>> 16) & 0xFF;
-                int green = (color >>>  8) & 0xFF;
-                int blue  = (color) & 0xFF;
+                int red = (color >>> 16) & 0xFF;
+                int green = (color >>> 8) & 0xFF;
+                int blue = (color) & 0xFF;
 
                 // calc luminance in range 0.0 to 1.0; using SRGB luminance constants
                 totalLuminance += Math.sqrt((red * 0.2126f + green * 0.7152f + blue * 0.0722f) / 255);

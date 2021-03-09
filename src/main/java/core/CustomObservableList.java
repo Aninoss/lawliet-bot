@@ -1,12 +1,12 @@
 package core;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.function.Function;
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.collections.ListChangeListener;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.ISnowflake;
-
-import java.util.*;
-import java.util.function.Function;
 
 public class CustomObservableList<T> extends ObservableListWrapper<T> implements Observer {
 

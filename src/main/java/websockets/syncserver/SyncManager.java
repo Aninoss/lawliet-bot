@@ -1,17 +1,17 @@
 package websockets.syncserver;
 
-import core.Bot;
-import core.ExceptionLogger;
-import core.ShardManager;
-import core.MainLogger;
-import core.schedule.MainScheduler;
-import org.java_websocket.client.WebSocketJsonClient;
-import org.reflections.Reflections;
 import java.net.URISyntaxException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
+import core.Bot;
+import core.ExceptionLogger;
+import core.MainLogger;
+import core.ShardManager;
+import core.schedule.MainScheduler;
+import org.java_websocket.client.WebSocketJsonClient;
+import org.reflections.Reflections;
 
 public class SyncManager {
 

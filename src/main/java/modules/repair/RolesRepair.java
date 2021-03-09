@@ -1,11 +1,18 @@
 package modules.repair;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
-import core.MainLogger;
 import core.PermissionCheckRuntime;
+import lombok.extern.log4j.Log4j2;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
@@ -15,13 +22,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class RolesRepair {
 

@@ -27,9 +27,11 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setThumbnail(ShardManager.getInstance().getSelf().getEffectiveAvatarUrl())
                 .setDescription(text);
+
         EmbedUtil.setMemberAuthor(eb, channel.getGuild().getSelfMember());
-        if (BotPermissionUtil.canWriteEmbed(channel))
+        if (BotPermissionUtil.canWriteEmbed(channel)) {
             channel.sendMessage(eb.build()).queue();
+        }
     }
 
 }

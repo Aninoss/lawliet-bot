@@ -1,9 +1,14 @@
 package commands.runnables.fisherysettingscategory;
 
-import commands.listeners.CommandProperties;
-
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
-import constants.*;
+import commands.listeners.CommandProperties;
+import constants.LogStatus;
+import constants.Response;
+import constants.Settings;
 import core.*;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -12,19 +17,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.Mentionable;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
         trigger = "fisheryroles",

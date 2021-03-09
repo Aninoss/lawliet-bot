@@ -1,19 +1,15 @@
 package commands.runnables.fisherysettingscategory;
 
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
+import commands.listeners.OnReactionListener;
 import core.EmbedFactory;
-import core.utils.DiscordUtil;
 import core.utils.StringUtil;
 import mysql.modules.autoclaim.AutoClaimBean;
 import mysql.modules.autoclaim.DBAutoClaim;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "autoclaim",
@@ -21,11 +17,9 @@ import java.util.Locale;
         patreonRequired = true,
         executableWithoutArgs = true
 )
-public class AutoClaimCommand extends Command implements OnReactionAddListener {
+public class AutoClaimCommand extends Command implements OnReactionListener {
 
-    private Message message;
-
-    private final String[] activeArgs = new String[]{"off", "on"};
+    private final String[] activeArgs = new String[]{ "off", "on" };
 
     public AutoClaimCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -33,7 +27,7 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        User user = event.getMessageAuthor().asUser().get();
+        Member member = event.getMember();
         AutoClaimBean autoClaimBean = DBAutoClaim.getInstance().retrieve();
 
         if (args.length() > 0) {
@@ -44,17 +38,17 @@ public class AutoClaimCommand extends Command implements OnReactionAddListener {
             }
 
             if (option == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", args)));
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", args)).build()).queue();
                 return false;
             }
 
             boolean active = option == 1;
-            autoClaimBean.setActive(user.getId(), active);
-            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active, user.getMentionTag()))).get();
+            autoClaimBean.setActive(member.getIdLong(), active);
+            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active, member.getAsMention())).build()).queue();
             return true;
         } else {
-            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), autoClaimBean.isActive(user.getId()));
-            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText))).get();
+            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), autoClaimBean.isActive(member.getIdLong()));
+            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText)).build()).get();
             for(int i = 0; i < 2; i++) {
                 message.addReaction(StringUtil.getEmojiForBoolean(i == 1));
             }

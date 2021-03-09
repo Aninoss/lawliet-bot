@@ -1,13 +1,13 @@
 package modules.schedulers;
 
+import java.util.Optional;
 import commands.runnables.utilitycategory.ReminderCommand;
-import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.schedule.MainScheduler;
+import lombok.extern.log4j.Log4j2;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
 import net.dv8tion.jda.api.Permission;
-import java.util.Optional;
 
 public class ReminderScheduler {
 
@@ -41,7 +41,7 @@ public class ReminderScheduler {
         if (remindersBean.isActive()) {
             remindersBean.stop();
 
-            long channelId = remindersBean.getChannelId();
+            long channelId = remindersBean.getTextChannelId();
             remindersBean.getGuild()
                     .map(guild -> guild.getTextChannelById(channelId))
                     .ifPresent(channel -> {

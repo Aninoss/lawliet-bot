@@ -1,9 +1,13 @@
 package modules.automod;
 
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import core.*;
+import core.EmbedFactory;
+import core.PermissionCheckRuntime;
+import lombok.extern.log4j.Log4j2;
 import modules.Mod;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
@@ -12,9 +16,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public abstract class AutoModAbstract {
 

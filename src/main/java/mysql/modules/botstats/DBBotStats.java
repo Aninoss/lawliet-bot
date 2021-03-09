@@ -1,10 +1,9 @@
 package mysql.modules.botstats;
 
+import java.util.concurrent.ExecutionException;
 import core.MainLogger;
 import mysql.DBMain;
 import websockets.TopGG;
-
-import java.util.concurrent.ExecutionException;
 
 public class DBBotStats {
 

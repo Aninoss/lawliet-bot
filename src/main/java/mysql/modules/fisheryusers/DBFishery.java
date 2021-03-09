@@ -1,12 +1,5 @@
 package mysql.modules.fisheryusers;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
-import constants.FisheryStatus;
-import core.Bot;
-import core.MainLogger;
-import mysql.*;
-import mysql.modules.guild.DBGuild;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,6 +8,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
+import constants.FisheryStatus;
+import core.Bot;
+import core.MainLogger;
+import mysql.DBBatch;
+import mysql.DBDataLoad;
+import mysql.DBIntervalMapCache;
+import mysql.DBMain;
+import mysql.modules.guild.DBGuild;
 
 public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
 
@@ -117,8 +120,8 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     private void saveFisheryHourlyIncomeBean(FisheryHourlyIncomeBean fisheryHourlyIncomeBean, DBBatch hourlyBatch) {
         try {
             hourlyBatch.add(preparedStatement -> {
-                preparedStatement.setLong(1, fisheryHourlyIncomeBean.getServerId());
-                preparedStatement.setLong(2, fisheryHourlyIncomeBean.getUserId());
+                preparedStatement.setLong(1, fisheryHourlyIncomeBean.getGuildId());
+                preparedStatement.setLong(2, fisheryHourlyIncomeBean.getMemberId());
                 preparedStatement.setString(3, DBMain.instantToDateTimeString(fisheryHourlyIncomeBean.getTime()));
                 preparedStatement.setLong(4, fisheryHourlyIncomeBean.getFishIncome());
             });
@@ -131,8 +134,8 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     private void saveFisheryUserPowerUpBean(FisheryMemberPowerUpBean fisheryMemberPowerUpBean, DBBatch powerUpBatch) {
         try {
             powerUpBatch.add(preparedStatement -> {
-                preparedStatement.setLong(1, fisheryMemberPowerUpBean.getServerId());
-                preparedStatement.setLong(2, fisheryMemberPowerUpBean.getUserId());
+                preparedStatement.setLong(1, fisheryMemberPowerUpBean.getGuildId());
+                preparedStatement.setLong(2, fisheryMemberPowerUpBean.getMemberId());
                 preparedStatement.setInt(3, fisheryMemberPowerUpBean.getPowerUpId());
                 preparedStatement.setInt(4, fisheryMemberPowerUpBean.getLevel());
             });

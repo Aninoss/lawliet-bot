@@ -1,13 +1,11 @@
 package mysql.modules.bannedwords;
 
-import mysql.DBMapCache;
-import mysql.DBDataLoad;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import mysql.DBDataLoad;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBBannedWords extends DBMapCache<Long, BannedWordsBean> {
 

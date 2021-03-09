@@ -1,5 +1,4 @@
 package core.mention;
-import core.utils.StringUtil;
 
 import java.util.ArrayList;
 

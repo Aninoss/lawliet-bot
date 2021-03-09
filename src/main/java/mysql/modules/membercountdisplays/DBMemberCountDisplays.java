@@ -1,11 +1,9 @@
 package mysql.modules.membercountdisplays;
 
-import mysql.DBMapCache;
+import java.util.HashMap;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-
-import java.sql.SQLException;
-import java.util.HashMap;
+import mysql.DBMapCache;
 
 public class DBMemberCountDisplays extends DBMapCache<Long, MemberCountBean> {
 

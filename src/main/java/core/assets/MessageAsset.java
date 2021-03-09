@@ -1,11 +1,8 @@
 package core.assets;
 
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
-
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import net.dv8tion.jda.api.entities.Message;
 
 public interface MessageAsset extends TextChannelAsset {
 

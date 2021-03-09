@@ -1,5 +1,6 @@
 package events.scheduleevents.events;
 
+import java.util.Calendar;
 import constants.AssetIds;
 import constants.ExternalLinks;
 import core.Bot;
@@ -8,8 +9,6 @@ import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventDaily;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import java.util.Calendar;
-import java.util.Optional;
 
 @ScheduleEventDaily
 public class FeatureRequestsRefillNotification implements ScheduleInterface {

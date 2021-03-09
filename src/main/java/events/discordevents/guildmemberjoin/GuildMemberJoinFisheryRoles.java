@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberjoin;
 
+import java.util.Locale;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;
@@ -8,7 +9,6 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import java.util.Locale;
 
 @DiscordEvent
 public class GuildMemberJoinFisheryRoles extends GuildMemberJoinAbstract {
@@ -22,12 +22,10 @@ public class GuildMemberJoinFisheryRoles extends GuildMemberJoinAbstract {
 
         fisheryGuildBean.getMemberBean(event.getUser().getIdLong())
                 .getRoles()
-                .ifPresent(roles -> {
-                    roles.forEach(role -> {
-                        if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
-                            event.getGuild().addRoleToMember(event.getMember(), role).queue();
-                        }
-                    });
+                .forEach(role -> {
+                    if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
+                        event.getGuild().addRoleToMember(event.getMember(), role).queue();
+                    }
                 });
 
         return true;

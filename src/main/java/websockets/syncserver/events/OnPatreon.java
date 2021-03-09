@@ -1,12 +1,11 @@
 package websockets.syncserver.events;
 
-import core.MainLogger;
+import java.util.HashMap;
 import core.cache.PatreonCache;
+import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
-
-import java.util.HashMap;
 
 @SyncServerEvent(event = "PATREON")
 public class OnPatreon implements SyncServerFunction {

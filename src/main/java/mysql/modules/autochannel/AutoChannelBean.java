@@ -1,12 +1,12 @@
 package mysql.modules.autochannel;
 
+import java.util.ArrayList;
+import java.util.Optional;
 import core.CustomObservableList;
-import core.MainLogger;
+import lombok.extern.log4j.Log4j2;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.util.ArrayList;
-import java.util.Optional;
 
 public class AutoChannelBean extends BeanWithGuild {
 

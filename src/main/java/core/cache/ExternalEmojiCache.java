@@ -1,14 +1,14 @@
 package core.cache;
 
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.MainLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import websockets.syncserver.SendEvent;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class ExternalEmojiCache {
 

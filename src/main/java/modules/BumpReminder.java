@@ -1,12 +1,12 @@
 package modules;
 
+import java.time.Instant;
 import constants.AssetIds;
 import core.ShardManager;
-import core.MainLogger;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
+import lombok.extern.log4j.Log4j2;
 import mysql.modules.bump.DBBump;
-import java.time.Instant;
 
 public class BumpReminder {
 

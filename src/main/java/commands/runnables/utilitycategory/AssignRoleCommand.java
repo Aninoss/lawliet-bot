@@ -1,22 +1,21 @@
 package commands.runnables.utilitycategory;
 
-import commands.Command;
-import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
-import core.EmbedFactory;
-import core.ShardManager;
-import core.MainLogger;
-import core.TextManager;
-import core.utils.JDAUtil;
-import core.utils.MentionUtil;
-import core.utils.BotPermissionUtil;
-import modules.RoleAssigner;
-
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import commands.Command;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionAddListener;
+import core.EmbedFactory;
+import core.ShardManager;
+import core.TextManager;
+import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
+import core.utils.MentionUtil;
+import modules.RoleAssigner;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "assignrole",

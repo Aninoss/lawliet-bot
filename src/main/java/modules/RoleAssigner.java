@@ -1,21 +1,18 @@
 package modules;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import core.CustomThread;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import org.checkerframework.checker.units.qual.A;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RoleAssigner {
 

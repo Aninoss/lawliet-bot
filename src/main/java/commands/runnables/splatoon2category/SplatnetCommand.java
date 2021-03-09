@@ -14,6 +14,7 @@ import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -50,7 +51,7 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
         };
 
         JSONArray netData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get()).getJSONArray("merchandises");
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get());;
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get());
 
         //Sorgt dafür, dass die aktuellen Daten genommen werden.
         if (netData.length() == 6) {
